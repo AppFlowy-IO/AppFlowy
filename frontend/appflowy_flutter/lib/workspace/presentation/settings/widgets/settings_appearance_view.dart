@@ -286,6 +286,8 @@ class ThemeFontFamilySetting extends StatefulWidget {
   });
 
   final String currentFontFamily;
+  static Key textFieldKey = const Key('FontFamilyTextField');
+  static Key popoverKey = const Key('FontFamilyPopover');
 
   @override
   State<ThemeFontFamilySetting> createState() => _ThemeFontFamilySettingState();
@@ -298,6 +300,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   @override
   Widget build(BuildContext context) {
     return ThemeSettingDropDown(
+      popoverKey: ThemeFontFamilySetting.popoverKey,
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
       currentValue: parseFontFamilyName(widget.currentFontFamily),
       onClose: () {
@@ -310,6 +313,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
             padding: const EdgeInsets.only(right: 8),
             sliver: SliverToBoxAdapter(
               child: FlowyTextField(
+                key: ThemeFontFamilySetting.textFieldKey,
                 hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
                 autoFocus: false,
                 debounceDuration: const Duration(milliseconds: 300),
@@ -364,6 +368,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
       key: UniqueKey(),
       height: 32,
       child: FlowyButton(
+        key: Key(buttonFontFamily),
         onHover: (_) => FocusScope.of(context).unfocus(),
         text: FlowyText.medium(
           parseFontFamilyName(style.fontFamily!),
@@ -395,11 +400,13 @@ class ThemeSettingDropDown extends StatefulWidget {
     required this.label,
     required this.currentValue,
     required this.popupBuilder,
+    this.popoverKey,
     this.onClose,
   });
 
   final String label;
   final String currentValue;
+  final Key? popoverKey;
   final Widget Function(BuildContext) popupBuilder;
   final void Function()? onClose;
 
@@ -419,6 +426,7 @@ class _ThemeSettingDropDownState extends State<ThemeSettingDropDown> {
           ),
         ),
         AppFlowyPopover(
+          key: widget.popoverKey,
           direction: PopoverDirection.bottomWithRightAligned,
           popupBuilder: widget.popupBuilder,
           constraints: const BoxConstraints(
