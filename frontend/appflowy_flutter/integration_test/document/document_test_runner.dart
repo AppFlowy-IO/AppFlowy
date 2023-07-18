@@ -7,6 +7,7 @@ import 'document_with_database_test.dart' as document_with_database_test;
 import 'document_with_inline_math_equation_test.dart'
     as document_with_inline_math_equation_test;
 import 'document_with_inline_page_test.dart' as document_with_inline_page_test;
+import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
 
 void startTesting() {
@@ -19,4 +20,5 @@ void startTesting() {
   document_with_inline_page_test.main();
   document_with_inline_math_equation_test.main();
   document_with_cover_image_test.main();
+  document_with_toggle_list_test.main();
 }

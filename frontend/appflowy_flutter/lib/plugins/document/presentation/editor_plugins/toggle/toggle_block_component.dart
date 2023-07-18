@@ -1,7 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ToggleListBlockKeys {
   const ToggleListBlockKeys._();
@@ -11,24 +10,35 @@ class ToggleListBlockKeys {
   /// The content of a code block.
   ///
   /// The value is a String.
-  static const String delta = 'delta';
+  static const String delta = blockComponentDelta;
+
+  static const String backgroundColor = blockComponentBackgroundColor;
+
+  static const String textDirection = blockComponentTextDirection;
 
   /// The value is a bool.
   static const String collapsed = 'collapsed';
 }
 
 Node toggleListBlockNode({
+  String? text,
   Delta? delta,
   bool collapsed = false,
+  String? textDirection,
+  Attributes? attributes,
+  Iterable<Node>? children,
 }) {
-  final attributes = {
-    ToggleListBlockKeys.delta: (delta ?? Delta()).toJson(),
-    ToggleListBlockKeys.collapsed: collapsed,
-  };
   return Node(
     type: ToggleListBlockKeys.type,
-    attributes: attributes,
-    children: [paragraphNode()],
+    attributes: {
+      ToggleListBlockKeys.collapsed: collapsed,
+      ToggleListBlockKeys.delta:
+          (delta ?? (Delta()..insert(text ?? ''))).toJson(),
+      if (attributes != null) ...attributes,
+      if (textDirection != null)
+        ToggleListBlockKeys.textDirection: textDirection,
+    },
+    children: children ?? [paragraphNode()],
   );
 }
 
@@ -86,7 +96,9 @@ class _ToggleListBlockComponentWidgetState
         SelectableMixin,
         DefaultSelectableMixin,
         BlockComponentConfigurable,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        NestedBlockComponentStatefulWidgetMixin,
+        BlockComponentTextDirectionMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -105,63 +117,65 @@ class _ToggleListBlockComponentWidgetState
   @override
   Node get node => widget.node;
 
-  bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
+  @override
+  EdgeInsets get indentPadding => configuration.indentPadding(
+        node,
+        calculateTextDirection(
+          defaultTextDirection: Directionality.maybeOf(context),
+        ),
+      );
 
-  late final editorState = context.read<EditorState>();
+  bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
 
   @override
   Widget build(BuildContext context) {
     return collapsed
-        ? buildToggleListBlockComponent(context)
-        : buildToggleListBlockComponentWithChildren(context);
+        ? buildComponent(context)
+        : buildComponentWithChildren(context);
   }
 
-  Widget buildToggleListBlockComponentWithChildren(BuildContext context) {
-    return Container(
-      color: backgroundColor,
-      child: NestedListWidget(
-        children: editorState.renderer.buildList(
-          context,
-          widget.node.children,
-        ),
-        child: buildToggleListBlockComponent(context),
-      ),
+  @override
+  Widget buildComponent(BuildContext context) {
+    final textDirection = calculateTextDirection(
+      defaultTextDirection: Directionality.maybeOf(context),
     );
-  }
 
-  // build the richtext child
-  Widget buildToggleListBlockComponent(BuildContext context) {
-    Widget child = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // the emoji picker button for the note
-        FlowyIconButton(
-          width: 24.0,
-          icon: Icon(
-            collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
-          ),
-          onPressed: onCollapsed,
-        ),
-        const SizedBox(
-          width: 4.0,
-        ),
-        Expanded(
-          child: AppFlowyRichText(
-            key: forwardKey,
-            node: widget.node,
-            editorState: editorState,
-            placeholderText: placeholderText,
-            lineHeight: 1.5,
-            textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-              textStyle,
+    Widget child = Container(
+      color: backgroundColor,
+      width: double.infinity,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // the emoji picker button for the note
+          FlowyIconButton(
+            width: 24.0,
+            icon: Icon(
+              collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
             ),
-            placeholderTextSpanDecorator: (textSpan) =>
-                textSpan.updateTextStyle(
-              placeholderTextStyle,
+            onPressed: onCollapsed,
+          ),
+          const SizedBox(
+            width: 4.0,
+          ),
+          Expanded(
+            child: AppFlowyRichText(
+              key: forwardKey,
+              node: widget.node,
+              editorState: editorState,
+              placeholderText: placeholderText,
+              lineHeight: 1.5,
+              textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+                textStyle,
+              ),
+              placeholderTextSpanDecorator: (textSpan) =>
+                  textSpan.updateTextStyle(
+                placeholderTextStyle,
+              ),
+              textDirection: textDirection,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     child = Padding(
