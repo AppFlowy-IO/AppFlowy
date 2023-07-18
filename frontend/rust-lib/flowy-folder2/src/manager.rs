@@ -426,28 +426,42 @@ impl FolderManager {
 
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
   /// When the view is moved to trash, all the child views will be moved to trash as well.
+  /// All the favorite views in trash will be handled as well
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
-      let view = folder.views.get_view(view_id);
-      if let Some(view) = view.clone() {
-        if view.is_favorite {
-          folder.delete_favorites(vec![view_id.to_string()]);
+      if let Some(view) = folder.views.get_view(view_id) {
+        let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
+        all_descendant_views.extend(folder.views.get_views_belong_to(view_id));
+
+        let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
+          .iter()
+          .filter(|view| view.is_favorite)
+          .map(|view| view_pb_without_child_views(view.clone()))
+          .collect();
+
+        if !favorite_descendant_views.is_empty() {
+          folder.delete_favorites(
+            favorite_descendant_views
+              .iter()
+              .map(|v| v.id.clone())
+              .collect(),
+          );
           send_notification("favorite", FolderNotification::DidUnFavoriteView)
-            .payload(view_pb_without_child_views(view))
+            .payload(RepeatedViewPB {
+              items: favorite_descendant_views,
+            })
             .send();
         }
-      }
-      folder.add_trash(vec![view_id.to_string()]);
-      // notify the parent view that the view is moved to trash
-      send_notification(view_id, FolderNotification::DidMoveViewToTrash)
-        .payload(DeletedViewPB {
-          view_id: view_id.to_string(),
-          index: None,
-        })
-        .send();
+        folder.add_trash(vec![view_id.to_string()]);
+        // notify the parent view that the view is moved to trash
+        send_notification(view_id, FolderNotification::DidMoveViewToTrash)
+          .payload(DeletedViewPB {
+            view_id: view_id.to_string(),
+            index: None,
+          })
+          .send();
 
-      if let Some(view) = view {
         notify_child_views_changed(
           view_pb_without_child_views(view),
           ChildViewChangeReason::DidDeleteView,
@@ -457,7 +471,6 @@ impl FolderManager {
 
     Ok(())
   }
-
   /// Move the view with given id from one position to another position.
   /// The view will be moved to the new position in the same parent view.
   /// The passed in index is the index of the view that displayed in the UI.
@@ -600,12 +613,16 @@ impl FolderManager {
         if !view.is_favorite {
           folder.delete_favorites(vec![view_id.to_string()]);
           send_notification("favorite", FolderNotification::DidUnFavoriteView)
-            .payload(view_pb_without_child_views(view))
+            .payload(RepeatedViewPB {
+              items: vec![view_pb_without_child_views(view)],
+            })
             .send();
         } else {
           folder.add_favorites(vec![view_id.to_string()]);
           send_notification("favorite", FolderNotification::DidFavoriteView)
-            .payload(view_pb_without_child_views(view))
+            .payload(RepeatedViewPB {
+              items: vec![view_pb_without_child_views(view)],
+            })
             .send();
         }
       }
@@ -627,12 +644,26 @@ impl FolderManager {
   pub(crate) async fn restore_all_trash(&self) {
     self.with_folder((), |folder| {
       folder.get_all_trash().iter().for_each(|trash_info| {
-        let view = folder.views.get_view(&trash_info.id);
-        if let Some(view) = view {
-          if view.is_favorite {
-            folder.add_favorites(vec![trash_info.id.to_string()]);
+        if let Some(view) = folder.views.get_view(&trash_info.id) {
+          let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
+          all_descendant_views.extend(folder.views.get_views_belong_to(&trash_info.id));
+          let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
+            .iter()
+            .filter(|descendant| descendant.is_favorite)
+            .map(|view| view_pb_without_child_views(view.clone()))
+            .collect();
+
+          if !favorite_descendant_views.is_empty() {
+            folder.add_favorites(
+              favorite_descendant_views
+                .iter()
+                .map(|v| v.id.clone())
+                .collect(),
+            );
             send_notification("favorite", FolderNotification::DidFavoriteView)
-              .payload(view_pb_without_child_views(view))
+              .payload(RepeatedViewPB {
+                items: favorite_descendant_views,
+              })
               .send();
           }
         }
@@ -649,12 +680,25 @@ impl FolderManager {
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
     self.with_folder((), |folder| {
       folder.delete_trash(vec![trash_id.to_string()]);
-      let view = folder.views.get_view(trash_id);
-      if let Some(view) = view.clone() {
-        if view.is_favorite {
-          folder.add_favorites(vec![trash_id.to_string()]);
+      if let Some(view) = folder.views.get_view(&trash_id) {
+        let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
+        all_descendant_views.extend(folder.views.get_views_belong_to(&trash_id));
+        let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
+          .iter()
+          .filter(|descendant| descendant.is_favorite)
+          .map(|view| view_pb_without_child_views(view.clone()))
+          .collect();
+        if !favorite_descendant_views.is_empty() {
+          folder.add_favorites(
+            favorite_descendant_views
+              .iter()
+              .map(|v| v.id.clone())
+              .collect(),
+          );
           send_notification("favorite", FolderNotification::DidFavoriteView)
-            .payload(view_pb_without_child_views(view))
+            .payload(RepeatedViewPB {
+              items: favorite_descendant_views,
+            })
             .send();
         }
       }

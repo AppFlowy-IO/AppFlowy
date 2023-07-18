@@ -8,8 +8,22 @@ class FavoriteService {
     return FolderEventReadFavorites().send();
   }
 
-  Future<Either<Unit, FlowyError>> toggleFavorite(String viewId) {
-    final id = RepeatedViewIdPB.create()..items.add(viewId);
-    return FolderEventToggleFavorite(id).send();
+  Future<Either<Unit, FlowyError>> toggleFavorite(
+    String viewId,
+    bool favoriteStatus,
+  ) async {
+    final payload = UpdateViewPayloadPB.create()..viewId = viewId;
+    payload.isFavorite = favoriteStatus;
+
+    final response = await FolderEventUpdateView(payload).send();
+    return response.fold(
+      (view) {
+        final id = RepeatedViewIdPB.create()..items.add(viewId);
+        return FolderEventToggleFavorite(id).send();
+      },
+      (error) {
+        return Right(error);
+      },
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/favorite.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,31 +38,35 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
             );
           },
           didFavorite: (e) {
-            emit(state.copyWith(objects: [...state.objects, e.favorite]));
+            emit(
+              state.copyWith(objects: [...state.objects, ...e.favorite.items]),
+            );
           },
           didUnfavorite: (e) {
+            final list = List<ViewPB>.from(state.objects);
+            for (final item in e.favorite.items) {
+              list.removeWhere((element) => element.id == item.id);
+            }
             emit(
-              state.copyWith(
-                objects: List<ViewPB>.from(state.objects)
-                  ..removeWhere((view) => view.id == e.favorite.id),
-              ),
+              state.copyWith(objects: list),
             );
           },
           toggle: (e) async {
-            // final result = await _service.toggleFavorite(e.viewId);
-            // emit(
-            //   result.fold(
-            //     (l) => state.copyWith(successOrFailure: right(unit)),
-            //     (error) => state.copyWith(successOrFailure: left(error)),
-            //   ),
-            // );
+            final result =
+                await _service.toggleFavorite(e.view.id, !e.view.isFavorite);
+            emit(
+              result.fold(
+                (l) => state.copyWith(successOrFailure: right(unit)),
+                (error) => state.copyWith(successOrFailure: left(error)),
+              ),
+            );
           },
         );
       },
     );
   }
   void _listenFavoritesUpdated(
-    Either<FlowyError, ViewPB> favoriteOrFailed,
+    Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
     bool didFavorite,
   ) {
     favoriteOrFailed.fold(
@@ -78,9 +81,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
-  const factory FavoriteEvent.didFavorite(ViewPB favorite) = DidFavorite;
-  const factory FavoriteEvent.didUnfavorite(ViewPB favorite) = DidUnfavorite;
-  const factory FavoriteEvent.toggle(String viewId) = ToggleFavorite;
+  const factory FavoriteEvent.didFavorite(RepeatedViewPB favorite) =
+      DidFavorite;
+  const factory FavoriteEvent.didUnfavorite(RepeatedViewPB favorite) =
+      DidUnfavorite;
+  const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
 }
 
 @freezed
