@@ -191,9 +191,6 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
 
   @override
   String? onCopy() => _cellBloc.state.content;
-
-  @override
-  void onInsert(String value) => _cellBloc.add(URLCellEvent.updateURL(value));
 }
 
 class _EditURLAccessory extends StatefulWidget {

@@ -37,6 +37,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final inlinePageReferenceService = InlinePageReferenceService();
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
+    toggleToggleListCommand,
     ...codeBlockCommands,
     ...standardCommandShortcutEvents,
   ];
@@ -68,7 +69,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ...codeBlockCharacterEvents,
 
         // toggle list
-        // formatGreaterToToggleList,
+        formatGreaterToToggleList,
+        insertChildNodeInsideToggleList,
 
         // customize the slash menu command
         customSlashCommand(
@@ -107,6 +109,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
+    indentableBlockTypes.add(ToggleListBlockKeys.type);
+    convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
@@ -286,6 +290,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         TodoListBlockKeys.type,
         CalloutBlockKeys.type,
         OutlineBlockKeys.type,
+        ToggleListBlockKeys.type,
       ];
 
       final supportAlignBuilderType = [
@@ -313,7 +318,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type
             ? EdgeInsets.only(top: top + 8.0)
-            : EdgeInsets.only(top: top);
+            : EdgeInsets.only(top: top + 2.0);
         return Padding(
           padding: padding,
           child: BlockActionList(
@@ -353,6 +358,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       outlineItem,
       mathEquationItem,
       codeBlockItem,
+      toggleListBlockItem,
       emojiMenuItem,
       autoGeneratorMenuItem,
     ];

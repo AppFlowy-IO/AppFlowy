@@ -88,9 +88,4 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
   String? onCopy() {
     return _cellBloc.state.cellContent;
   }
-
-  @override
-  void onInsert(String value) {
-    _cellBloc.add(NumberCellEvent.updateCell(value));
-  }
 }
