@@ -15,9 +15,9 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::postgres_db::PostgresObject;
+use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
-use crate::supabase::SupabaseServerService;
+use crate::supabase::{PgConnectMode, SupabaseServerService};
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
@@ -100,6 +100,7 @@ where
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
+    let pg_mode = self.server.get_pg_mode();
     let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     tokio::spawn(async move {
@@ -107,7 +108,7 @@ where
         async move {
           if let Some(server) = weak_server?.upgrade() {
             let client = server.get_pg_client().await.recv().await?;
-            update_user_profile(&client, params).await
+            update_user_profile(&client, &pg_mode, params).await
           } else {
             Ok(())
           }
@@ -159,6 +160,7 @@ where
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
     let weak_server = self.server.try_get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -170,7 +172,7 @@ where
             )),
             Some(server) => {
               let client = server.get_pg_client().await.recv().await?;
-              check_user(&client, credential.uid, uuid).await
+              check_user(&client, &pg_mode, credential.uid, uuid).await
             },
           }
         }
@@ -220,28 +222,14 @@ async fn get_user_profile(
 ) -> Result<UserProfileResponse, FlowyError> {
   let rows = match params {
     GetUserProfileParams::Uid(uid) => {
-      let stmt = client
-        .prepare_cached(&format!(
-          "SELECT * FROM {} WHERE uid = $1",
-          USER_PROFILE_TABLE
-        ))
-        .await
-        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
-
+      let stmt = format!("SELECT * FROM {} WHERE uid = $1", USER_PROFILE_TABLE);
       client
         .query(&stmt, &[&uid])
         .await
         .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?
     },
     GetUserProfileParams::Uuid(uuid) => {
-      let stmt = client
-        .prepare_cached(&format!(
-          "SELECT * FROM {} WHERE uuid = $1",
-          USER_PROFILE_TABLE
-        ))
-        .await
-        .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
-
+      let stmt = format!("SELECT * FROM {} WHERE uuid = $1", USER_PROFILE_TABLE);
       client
         .query(&stmt, &[&uuid])
         .await
@@ -262,6 +250,7 @@ async fn get_user_profile(
 
 async fn update_user_profile(
   client: &PostgresObject,
+  pg_mode: &PgConnectMode,
   params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {
   if params.is_empty() {
@@ -276,7 +265,7 @@ async fn update_user_profile(
     .where_clause("uid", params.id)
     .build();
 
-  let stmt = client.prepare_cached(&sql).await.map_err(|e| {
+  let stmt = prepare_cached(pg_mode, sql, client).await.map_err(|e| {
     FlowyError::new(
       ErrorCode::PgDatabaseError,
       format!("Prepare update user profile sql error: {}", e),
@@ -284,7 +273,7 @@ async fn update_user_profile(
   })?;
 
   let affect_rows = client
-    .execute_raw(&stmt, pg_params)
+    .execute_raw(stmt.as_ref(), pg_params)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   tracing::trace!("Update user profile affect rows: {}", affect_rows);
@@ -293,6 +282,7 @@ async fn update_user_profile(
 
 async fn check_user(
   client: &PostgresObject,
+  pg_mode: &PgConnectMode,
   uid: Option<i64>,
   uuid: Option<Uuid>,
 ) -> Result<(), FlowyError> {
@@ -303,7 +293,7 @@ async fn check_user(
     ));
   }
 
-  let (sql, params) = match uid {
+  let (stmt, params) = match uid {
     None => SelectSqlBuilder::new(USER_TABLE)
       .where_clause("uuid", uuid.unwrap())
       .build(),
@@ -312,13 +302,12 @@ async fn check_user(
       .build(),
   };
 
-  let stmt = client
-    .prepare_cached(&sql)
+  let stmt = prepare_cached(pg_mode, stmt, &client)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   let rows = Box::pin(
     client
-      .query_raw(&stmt, params)
+      .query_raw(stmt.as_ref(), params)
       .await
       .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
   );

@@ -25,6 +25,7 @@ where
 {
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let weak_server = self.server.get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
@@ -32,7 +33,7 @@ where
         async move {
           match weak_server {
             None => Ok(vec![]),
-            Some(weak_server) => FetchObjectUpdateAction::new(&document_id, weak_server)
+            Some(weak_server) => FetchObjectUpdateAction::new(&document_id, pg_mode, weak_server)
               .run_with_fix_interval(5, 5)
               .await
               .map_err(internal_error),
@@ -49,6 +50,7 @@ where
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
     let weak_server = self.server.get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
@@ -56,9 +58,11 @@ where
         async move {
           match weak_server {
             None => Ok(None),
-            Some(weak_server) => get_latest_snapshot_from_server(&document_id, weak_server)
-              .await
-              .map_err(internal_error),
+            Some(weak_server) => {
+              get_latest_snapshot_from_server(&document_id, pg_mode, weak_server)
+                .await
+                .map_err(internal_error)
+            },
           }
         }
         .await,
@@ -83,6 +87,7 @@ where
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
     let weak_server = self.server.get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     let document_id = document_id.to_string();
     tokio::spawn(async move {
@@ -91,7 +96,7 @@ where
           match weak_server {
             None => Ok(Ok(None)),
             Some(weak_server) => {
-              let action = FetchObjectUpdateAction::new(&document_id, weak_server);
+              let action = FetchObjectUpdateAction::new(&document_id, pg_mode, weak_server);
               action.run().await.map(|updates| {
                 let document =
                   Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;

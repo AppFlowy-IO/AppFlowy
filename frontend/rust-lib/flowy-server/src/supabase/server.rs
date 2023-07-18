@@ -27,18 +27,53 @@ use crate::supabase::queue::{
 };
 use crate::AppFlowyServer;
 
+/// https://www.pgbouncer.org/features.html
+/// Both session and transaction modes are supported.
+///
+/// Session mode:
+/// When a new client connects, a connection is assigned to the client until it disconnects. Afterward,
+/// the connection is returned back to the pool. All PostgreSQL features can be used with this option.
+/// For the moment, the default pool size of pgbouncer in supabse is 15 in session mode. Which means
+/// that we can have 15 concurrent connections to the database.
+///
+/// Transaction mode:
+/// This is the suggested option for serverless functions. With this, the connection is only assigned
+/// to the client for the duration of a transaction. Once done, the connection is returned to the pool.
+/// Two consecutive transactions from the same client could be done over two, different connections.
+/// Some session-based PostgreSQL features such as prepared statements are not available with this option.
+/// A more comprehensive list of incompatible features can be found here.
+///
+/// Most of the case, Session mode is faster than Transaction mode(no statement cache(https://github.com/supabase/supavisor/issues/69) and queue transaction).
+/// But Transaction mode is more suitable for serverless functions. It can reduce the number of concurrent
+/// connections to the database.
+#[derive(Clone, Debug, Default)]
+pub enum PgConnectMode {
+  #[default]
+  Session,
+  Transaction,
+}
+
+impl PgConnectMode {
+  pub fn support_prepare_cached(&self) -> bool {
+    matches!(self, PgConnectMode::Session)
+  }
+}
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
 /// It contains the configuration of the supabase server and the postgres server.
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
+  mode: PgConnectMode,
   postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
+    let mode = PgConnectMode::default();
+    tracing::info!("postgre db connect mode: {:?}", mode);
     let postgres = if config.enable_sync {
       Some(Arc::new(PostgresServer::new(
+        mode.clone(),
         config.postgres_config.clone(),
       )))
     } else {
@@ -46,6 +81,7 @@ impl SupabaseServer {
     };
     Self {
       config,
+      mode,
       postgres: Arc::new(RwLock::new(postgres)),
     }
   }
@@ -56,6 +92,7 @@ impl SupabaseServer {
         return;
       }
       *self.postgres.write() = Some(Arc::new(PostgresServer::new(
+        self.mode.clone(),
         self.config.postgres_config.clone(),
       )));
     } else {
@@ -97,6 +134,7 @@ impl AppFlowyServer for SupabaseServer {
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
     Some(Arc::new(PgCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.postgres.clone()),
+      self.mode.clone(),
     )))
   }
 }
@@ -106,6 +144,8 @@ impl AppFlowyServer for SupabaseServer {
 /// For example, when user stop syncing, the services will be unavailable or when the user is logged
 /// out.
 pub trait SupabaseServerService: Send + Sync + 'static {
+  fn get_pg_mode(&self) -> PgConnectMode;
+
   fn get_pg_server(&self) -> Option<Weak<PostgresServer>>;
 
   fn try_get_pg_server(&self) -> FlowyResult<Weak<PostgresServer>>;
@@ -114,6 +154,15 @@ pub trait SupabaseServerService: Send + Sync + 'static {
 #[derive(Clone)]
 pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<PostgresServer>>>>);
 impl SupabaseServerService for SupabaseServerServiceImpl {
+  fn get_pg_mode(&self) -> PgConnectMode {
+    self
+      .0
+      .read()
+      .as_ref()
+      .map(|server| server.mode.clone())
+      .unwrap_or_default()
+  }
+
   /// Get the postgres server, if the postgres server is not available, return None.
   fn get_pg_server(&self) -> Option<Weak<PostgresServer>> {
     self.0.read().as_ref().map(Arc::downgrade)
@@ -131,6 +180,7 @@ impl SupabaseServerService for SupabaseServerServiceImpl {
 }
 
 pub struct PostgresServer {
+  mode: PgConnectMode,
   request_handler: Arc<PostgresRequestHandler>,
 }
 
@@ -143,7 +193,7 @@ impl Deref for PostgresServer {
 }
 
 impl PostgresServer {
-  pub fn new(config: PostgresConfiguration) -> Self {
+  pub fn new(mode: PgConnectMode, config: PostgresConfiguration) -> Self {
     let (runner_notifier_tx, runner_notifier) = watch::channel(false);
     let request_handler = Arc::new(PostgresRequestHandler::new(runner_notifier_tx, config));
 
@@ -153,7 +203,10 @@ impl PostgresServer {
     let handler = Arc::downgrade(&request_handler) as Weak<dyn RequestHandler<PostgresEvent>>;
     spawn(RequestRunner::run(runner_notifier, handler));
 
-    Self { request_handler }
+    Self {
+      mode,
+      request_handler,
+    }
   }
 }
 

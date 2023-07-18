@@ -702,16 +702,18 @@ impl TestNotificationSender {
     Self::default()
   }
 
-  pub fn subscribe<T>(&self, id: &str) -> tokio::sync::mpsc::Receiver<T>
+  pub fn subscribe<T>(&self, id: &str, ty: impl Into<i32> + Send) -> tokio::sync::mpsc::Receiver<T>
   where
     T: TryFrom<Bytes, Error = ProtobufError> + Send + 'static,
   {
     let id = id.to_string();
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
+    let ty = ty.into();
     tokio::spawn(async move {
+      // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
-        if value.id == id {
+        if value.id == id && value.ty == ty {
           if let Some(payload) = value.payload {
             if let Ok(object) = T::try_from(Bytes::from(payload)) {
               let _ = tx.send(object).await;

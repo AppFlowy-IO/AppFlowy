@@ -3,6 +3,7 @@ use std::time::Duration;
 use flowy_database2::entities::{
   DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };
+use flowy_database2::notification::DatabaseNotification::DidUpdateDatabaseSnapshotState;
 
 use crate::database::supabase_test::helper::{
   assert_database_collab_content, FlowySupabaseDatabaseTest,
@@ -15,7 +16,7 @@ async fn cloud_test_supabase_initial_database_snapshot_test() {
     let (view, database) = test.create_database().await;
     let mut rx = test
       .notification_sender
-      .subscribe::<DatabaseSnapshotStatePB>(&database.id);
+      .subscribe::<DatabaseSnapshotStatePB>(&database.id, DidUpdateDatabaseSnapshotState);
 
     receive_with_timeout(&mut rx, Duration::from_secs(30))
       .await

@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS af_user_profile (
    workspace_id UUID DEFAULT uuid_generate_v4(),
    FOREIGN KEY (uid) REFERENCES af_user(uid) ON DELETE CASCADE
 );
--- user_profile trigger
+-- This create_af_user_profile_trigger trigger is fired after an insert operation on the af_user table. It automatically creates a
+-- corresponding user profile in the af_user_profile table with the same uid, uuid, and email
 CREATE OR REPLACE FUNCTION create_af_user_profile_trigger_func() RETURNS TRIGGER AS $$BEGIN
 INSERT INTO af_user_profile (uid, uuid, email)
 VALUES (NEW.uid, NEW.uuid, NEW.email);
@@ -107,7 +108,9 @@ CREATE TABLE IF NOT EXISTS af_workspace (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_name TEXT DEFAULT 'My Workspace'
 );
--- workspace trigger that insert a row in af_workspace table when a new row is inserted in af_user_profile table.
+-- This trigger is fired before an insert operation on the af_user_profile table. It automatically creates a workspace
+-- in the af_workspace table with the uid of the new user profile as the owner_uid and the workspace_id from the new
+-- user profile.
 CREATE OR REPLACE FUNCTION create_af_workspace_trigger_func() RETURNS TRIGGER AS $$BEGIN
 INSERT INTO af_workspace (owner_uid, workspace_id)
 VALUES (NEW.uid, NEW.workspace_id);
@@ -123,7 +126,10 @@ CREATE TABLE IF NOT EXISTS af_workspace_member (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
 );
--- Insert a new row in af_workspace_member when a new row is inserted in af_user_profile table.
+-- This trigger is fired after an insert operation on the af_user_profile table. It automatically creates a workspace
+-- member in the af_workspace_member table. If the user is the owner of the workspace, they are given the role 'Owner'.
+-- Otherwise, they are given the role 'Member'. If a member with the same uid and workspace_id already exists, their
+-- role is updated.
 CREATE OR REPLACE FUNCTION manage_af_workspace_member_role_trigger_func() RETURNS TRIGGER AS $$ BEGIN -- For new user profile, set as owner if user is the owner of the workspace, else set as member
 INSERT INTO af_workspace_member (uid, role_id, workspace_id)
 VALUES (
@@ -170,9 +176,10 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (oid, key)
 );
--- Insert a new row in af_collab table if it does not exist. This trigger could potentially cause a performance issue if
--- the af_collab_update table is updated very frequently, especially if the af_collab table is large and if the oid column
--- isn't indexed
+-- This trigger is fired before an insert operation on the af_collab_update table. It checks if a corresponding collab
+-- exists in the af_collab table. If not, it creates one with the oid, uid, and current timestamp. It might cause a
+-- performance issue if the af_collab_update table is updated very frequently, especially if the af_collab table is large
+-- and if the oid column isn't indexed
 CREATE OR REPLACE FUNCTION insert_into_af_collab_if_not_exists() RETURNS TRIGGER AS $$ BEGIN IF NOT EXISTS (
       SELECT 1
       FROM af_collab
@@ -192,7 +199,8 @@ CREATE TABLE af_collab_member (
    role_id INTEGER REFERENCES af_roles(id),
    PRIMARY KEY(uid, oid)
 );
--- insert a collab member into af_collab_member table if a new row is inserted in af_collab table.
+-- This trigger is fired after an insert operation on the af_collab table. It automatically adds the collab's owner
+-- to the af_collab_member table with the role 'Owner'.
 CREATE OR REPLACE FUNCTION insert_into_af_collab_member() RETURNS TRIGGER AS $$ BEGIN
 INSERT INTO af_collab_member (oid, uid, role_id)
 VALUES (
@@ -215,7 +223,9 @@ CREATE TABLE IF NOT EXISTS af_collab_statistics (
    oid TEXT PRIMARY KEY,
    edit_count BIGINT NOT NULL DEFAULT 0
 );
--- collab statistics trigger. It will increment the edit_count of the collab when a new row is inserted in the af_collab table.
+-- This trigger is fired after an insert operation on the af_collab_update table. It increments the edit_count of the
+-- corresponding collab in the af_collab_statistics table. If the collab doesn't exist in the af_collab_statistics table,
+-- it creates one with edit_count set to 1.
 CREATE OR REPLACE FUNCTION increment_af_collab_edit_count() RETURNS TRIGGER AS $$BEGIN IF EXISTS(
       SELECT 1
       FROM af_collab_statistics
@@ -244,7 +254,8 @@ CREATE TABLE IF NOT EXISTS af_collab_snapshot (
    edit_count BIGINT NOT NULL DEFAULT 0,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
--- auto insert edit_count in the snapshot table.
+-- This trigger is fired after an insert operation on the af_collab_snapshot table. It automatically sets the edit_count
+-- of the new snapshot to the current edit_count of the collab in the af_collab_statistics table.
 CREATE OR REPLACE FUNCTION af_collab_snapshot_update_edit_count() RETURNS TRIGGER AS $$BEGIN NEW.edit_count := (
       SELECT COALESCE(edit_count, 0)
       FROM af_collab_statistics
@@ -256,32 +267,6 @@ $$LANGUAGE plpgsql;
 CREATE TRIGGER af_collab_snapshot_update_edit_count_trigger
 AFTER
 INSERT ON af_collab_snapshot FOR EACH ROW EXECUTE FUNCTION af_collab_snapshot_update_edit_count();
--- collab snapshot trigger. It will delete the oldest snapshot if the number of snapshots is greater than 20.
--- It can use the PG_CRON extension to run this trigger periodically.
-CREATE OR REPLACE FUNCTION check_and_delete_snapshots() RETURNS TRIGGER AS $$DECLARE row_count INT;
-BEGIN
-SELECT COUNT(*) INTO row_count
-FROM af_collab_snapshot
-WHERE oid = NEW.oid;
-IF row_count > 20 THEN
-DELETE FROM af_collab_snapshot
-WHERE sid IN (
-      SELECT sid
-      FROM af_collab_snapshot
-      WHERE created_at < NOW() - INTERVAL '10 days'
-         AND oid = NEW.oid
-      ORDER BY created_at ASC
-      LIMIT row_count - 20
-   );
-END IF;
-RETURN NEW;
-END;
-$$LANGUAGE plpgsql;
-CREATE TRIGGER check_and_delete_snapshots_trigger
-AFTER
-INSERT
-   OR
-UPDATE ON af_collab_snapshot FOR EACH ROW EXECUTE FUNCTION check_and_delete_snapshots();
 -- collab state view. It will be used to get the current state of the collab.
 CREATE VIEW af_collab_state AS
 SELECT a.oid,

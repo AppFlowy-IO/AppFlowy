@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::time::Duration;
 
 use flowy_document2::entities::{DocumentSnapshotStatePB, DocumentSyncStatePB};
+use flowy_document2::notification::DocumentNotification::DidUpdateDocumentSnapshotState;
 use flowy_test::document::document_event::DocumentEventTest;
 
 use crate::document::supabase_test::helper::{
@@ -16,7 +17,7 @@ async fn cloud_test_supabase_initial_document_snapshot_test() {
 
     let mut rx = test
       .notification_sender
-      .subscribe::<DocumentSnapshotStatePB>(&view.id);
+      .subscribe::<DocumentSnapshotStatePB>(&view.id, DidUpdateDocumentSnapshotState);
 
     receive_with_timeout(&mut rx, Duration::from_secs(30))
       .await

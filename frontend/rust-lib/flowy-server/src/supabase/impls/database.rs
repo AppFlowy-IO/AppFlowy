@@ -27,6 +27,7 @@ where
 {
   fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
     let weak_server = self.server.get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     let database_id = object_id.to_string();
     tokio::spawn(async move {
@@ -35,7 +36,7 @@ where
           match weak_server {
             None => Ok(CollabObjectUpdate::default()),
             Some(weak_server) => {
-              FetchObjectUpdateAction::new(&database_id, weak_server)
+              FetchObjectUpdateAction::new(&database_id, pg_mode, weak_server)
                 .run()
                 .await
             },
@@ -52,6 +53,7 @@ where
     object_ids: Vec<String>,
   ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
     let weak_server = self.server.get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -59,7 +61,7 @@ where
           match weak_server {
             None => Ok(CollabObjectUpdateByOid::default()),
             Some(weak_server) => {
-              BatchFetchObjectUpdateAction::new(object_ids, weak_server)
+              BatchFetchObjectUpdateAction::new(object_ids, pg_mode, weak_server)
                 .run()
                 .await
             },
@@ -75,15 +77,16 @@ where
     &self,
     object_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
+    let pg_mode = self.server.get_pg_mode();
     let weak_server = self.server.get_pg_server();
     let (tx, rx) = channel();
-    let database_id = object_id.to_string();
+    let object_id = object_id.to_string();
     tokio::spawn(async move {
       tx.send(
         async move {
           match weak_server {
             None => Ok(None),
-            Some(weak_server) => get_latest_snapshot_from_server(&database_id, weak_server)
+            Some(weak_server) => get_latest_snapshot_from_server(&object_id, pg_mode, weak_server)
               .await
               .map_err(internal_error),
           }

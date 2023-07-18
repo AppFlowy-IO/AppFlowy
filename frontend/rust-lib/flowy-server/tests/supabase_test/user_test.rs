@@ -5,7 +5,7 @@ use parking_lot::RwLock;
 use uuid::Uuid;
 
 use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
-use flowy_server::supabase::{PostgresServer, SupabaseServerServiceImpl};
+use flowy_server::supabase::{PgConnectMode, PostgresServer, SupabaseServerServiceImpl};
 use flowy_server_config::supabase_config::PostgresConfiguration;
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
@@ -28,6 +28,7 @@ async fn user_sign_up_test() {
 
 fn user_auth_service_impl() -> SupabaseUserAuthServiceImpl<SupabaseServerServiceImpl> {
   let server = Arc::new(PostgresServer::new(
+    PgConnectMode::Transaction,
     PostgresConfiguration::from_env().unwrap(),
   ));
   let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server))));

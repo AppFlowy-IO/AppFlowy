@@ -23,14 +23,15 @@ use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use crate::supabase::postgres_db::PostgresObject;
+use crate::supabase::postgres_db::{prepare_cached, prepare_cached_in_transaction, PostgresObject};
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
-use crate::supabase::{PostgresServer, SupabaseServerService};
+use crate::supabase::{PgConnectMode, PostgresServer, SupabaseServerService};
 
 pub struct PgCollabStorageImpl<T> {
   server: T,
+  mode: PgConnectMode,
 }
 const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
 const AF_COLLAB_KEY_COLUMN: &str = "key";
@@ -45,8 +46,8 @@ impl<T> PgCollabStorageImpl<T>
 where
   T: SupabaseServerService,
 {
-  pub fn new(server: T) -> Self {
-    Self { server }
+  pub fn new(server: T, mode: PgConnectMode) -> Self {
+    Self { server, mode }
   }
 
   pub async fn get_client(&self) -> Option<PostgresObject> {
@@ -77,7 +78,7 @@ where
 
   async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
     let pg_server = self.server.try_get_pg_server()?;
-    let action = FetchObjectUpdateAction::new(object_id, pg_server);
+    let action = FetchObjectUpdateAction::new(object_id, self.mode.clone(), pg_server);
     let updates = action.run().await?;
     Ok(updates)
   }
@@ -86,9 +87,10 @@ where
     &self,
     object_id: &str,
   ) -> Result<Option<RemoteCollabSnapshot>, Error> {
+    let pg_mode = self.server.get_pg_mode();
     match self.server.get_pg_server() {
       None => Ok(None),
-      Some(weak_server) => get_latest_snapshot_from_server(object_id, weak_server).await,
+      Some(weak_server) => get_latest_snapshot_from_server(object_id, pg_mode, weak_server).await,
     }
   }
 
@@ -99,15 +101,16 @@ where
     }
 
     let client = client.unwrap();
-    let (sql, params) = SelectSqlBuilder::new("af_collab_state")
+    let (stmt, params) = SelectSqlBuilder::new("af_collab_state")
       .column("*")
       .where_clause("oid", object_id.to_string())
       .order_by("snapshot_created_at", false)
       .limit(1)
       .build();
-    let stmt = client.prepare_cached(&sql).await?;
+
+    let stmt = prepare_cached(&self.mode, stmt, &client).await?;
     if let Some(row) = client
-      .query_raw(&stmt, params)
+      .query_raw(stmt.as_ref(), params)
       .await?
       .try_collect::<Vec<_>>()
       .await?
@@ -116,7 +119,6 @@ where
       let created_at = row.try_get::<&str, DateTime<Utc>>("snapshot_created_at")?;
       let current_edit_count = row.try_get::<_, i64>("current_edit_count")?;
       let last_snapshot_edit_count = row.try_get::<_, i64>("snapshot_edit_count")?;
-
       let state = RemoteCollabState {
         current_edit_count,
         last_snapshot_edit_count,
@@ -141,10 +143,9 @@ where
       .value(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
       .returning(AF_COLLAB_SNAPSHOT_ID_COLUMN)
       .build();
-    let stmt = client.prepare_cached(&sql).await?;
-
+    let stmt = prepare_cached(&self.mode, sql, &client).await?;
     let all_rows = client
-      .query_raw(&stmt, params)
+      .query_raw(stmt.as_ref(), params)
       .await?
       .try_collect::<Vec<_>>()
       .await?;
@@ -172,9 +173,8 @@ where
         .value("md5", md5)
         .value("value_size", value_size)
         .build();
-
-      let stmt = client.prepare_cached(&sql).await?;
-      client.execute_raw(&stmt, params).await?;
+      let stmt = prepare_cached(&self.mode, sql, &client).await?;
+      client.execute_raw(stmt.as_ref(), params).await?;
     }
     Ok(())
   }
@@ -204,8 +204,8 @@ where
       .lock()
       .build();
 
-    let get_all_update_stmt = txn.prepare_cached(&sql).await?;
-    let row_stream = txn.query_raw(&get_all_update_stmt, params).await?;
+    let get_all_update_stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+    let row_stream = txn.query_raw(get_all_update_stmt.as_ref(), params).await?;
     let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
     let insert_builder = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
@@ -239,8 +239,8 @@ where
             .collect::<Vec<_>>(),
         ))
         .build();
-      let delete_stmt = txn.prepare_cached(&sql).await?;
-      txn.execute_raw(&delete_stmt, params).await?;
+      let delete_stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+      txn.execute_raw(delete_stmt.as_ref(), params).await?;
 
       // 4. Insert the merged update. The new_update contains the merged update and the
       // init_update.
@@ -266,8 +266,8 @@ where
     };
 
     // 4.Insert the merged update
-    let stmt = txn.prepare_cached(&sql).await?;
-    txn.execute_raw(&stmt, params).await?;
+    let stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+    txn.execute_raw(stmt.as_ref(), params).await?;
 
     // 4.commit the transaction
     txn.commit().await?;
@@ -283,6 +283,7 @@ where
 
 pub async fn get_updates_from_server(
   object_id: &str,
+  pg_mode: &PgConnectMode,
   server: Weak<PostgresServer>,
 ) -> Result<Vec<Vec<u8>>, Error> {
   match server.upgrade() {
@@ -294,8 +295,8 @@ pub async fn get_updates_from_server(
         .order_by(AF_COLLAB_KEY_COLUMN, true)
         .where_clause("oid", object_id.to_string())
         .build();
-      let stmt = client.prepare_cached(&sql).await?;
-      let row_stream = client.query_raw(&stmt, params).await?;
+      let stmt = prepare_cached(pg_mode, sql, &client).await?;
+      let row_stream = client.query_raw(stmt.as_ref(), params).await?;
       Ok(
         row_stream
           .try_collect::<Vec<_>>()
@@ -310,6 +311,7 @@ pub async fn get_updates_from_server(
 
 pub async fn get_latest_snapshot_from_server(
   object_id: &str,
+  pg_mode: PgConnectMode,
   server: Weak<PostgresServer>,
 ) -> Result<Option<RemoteCollabSnapshot>, Error> {
   match server.upgrade() {
@@ -325,15 +327,16 @@ pub async fn get_latest_snapshot_from_server(
         .where_clause(AF_COLLAB_SNAPSHOT_OID_COLUMN, object_id.to_string())
         .build();
 
-      let stmt = client.prepare_cached(&sql).await?;
+      let stmt = prepare_cached(&pg_mode, sql, &client).await?;
       let all_rows = client
-        .query_raw(&stmt, params)
+        .query_raw(stmt.as_ref(), params)
         .await?
         .try_collect::<Vec<_>>()
         .await?;
 
       let row = all_rows.first().ok_or(anyhow::anyhow!(
-        "Get latest snapshot failed. No row returned"
+        "Get {} latest snapshot failed. No row returned",
+        object_id
       ))?;
       let snapshot_id = row.try_get::<_, i64>(AF_COLLAB_SNAPSHOT_ID_COLUMN)?;
       let update = row.try_get::<_, Vec<u8>>(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)?;
@@ -387,13 +390,15 @@ struct MergeResult {
 
 pub struct FetchObjectUpdateAction {
   object_id: String,
+  mode: PgConnectMode,
   pg_server: Weak<PostgresServer>,
 }
 
 impl FetchObjectUpdateAction {
-  pub fn new(object_id: &str, pg_server: Weak<PostgresServer>) -> Self {
+  pub fn new(object_id: &str, mode: PgConnectMode, pg_server: Weak<PostgresServer>) -> Self {
     Self {
       pg_server,
+      mode,
       object_id: object_id.to_string(),
     }
   }
@@ -421,6 +426,7 @@ impl Action for FetchObjectUpdateAction {
   fn run(&mut self) -> Self::Future {
     let weak_pb_server = self.pg_server.clone();
     let object_id = self.object_id.clone();
+    let mode = self.mode.clone();
     Box::pin(async move {
       match weak_pb_server.upgrade() {
         None => Ok(vec![]),
@@ -431,8 +437,8 @@ impl Action for FetchObjectUpdateAction {
             .order_by(AF_COLLAB_KEY_COLUMN, true)
             .where_clause("oid", object_id)
             .build();
-          let stmt = client.prepare_cached(&sql).await?;
-          let row_stream = client.query_raw(&stmt, params).await?;
+          let stmt = prepare_cached(&mode, sql, &client).await?;
+          let row_stream = client.query_raw(stmt.as_ref(), params).await?;
           Ok(
             row_stream
               .try_collect::<Vec<_>>()
@@ -448,13 +454,19 @@ impl Action for FetchObjectUpdateAction {
 }
 
 pub struct BatchFetchObjectUpdateAction {
+  mode: PgConnectMode,
   object_ids: Vec<String>,
   pg_server: Weak<PostgresServer>,
 }
 
 impl BatchFetchObjectUpdateAction {
-  pub fn new(object_ids: Vec<String>, pg_server: Weak<PostgresServer>) -> Self {
+  pub fn new(
+    object_ids: Vec<String>,
+    mode: PgConnectMode,
+    pg_server: Weak<PostgresServer>,
+  ) -> Self {
     Self {
+      mode,
       pg_server,
       object_ids,
     }
@@ -474,6 +486,7 @@ impl Action for BatchFetchObjectUpdateAction {
   fn run(&mut self) -> Self::Future {
     let weak_pb_server = self.pg_server.clone();
     let object_ids = self.object_ids.clone();
+    let mode = self.mode.clone();
     Box::pin(async move {
       match weak_pb_server.upgrade() {
         None => Ok(CollabObjectUpdateByOid::default()),
@@ -488,10 +501,10 @@ impl Action for BatchFetchObjectUpdateAction {
             .group_by("oid")
             .where_clause_in("oid", object_ids)
             .build();
-          let stmt = client.prepare_cached(&sql).await?;
+          let stmt = prepare_cached(&mode, sql, &client).await?;
 
           // Poll the rows
-          let rows = Box::pin(client.query_raw(&stmt, params).await?);
+          let rows = Box::pin(client.query_raw(stmt.as_ref(), params).await?);
           pin_mut!(rows);
           while let Some(Ok(row)) = rows.next().await {
             let oid = row.try_get::<_, String>("oid")?;
