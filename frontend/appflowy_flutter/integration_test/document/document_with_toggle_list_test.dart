@@ -40,13 +40,6 @@ void main() {
       // insert a toggle list
       const text = 'This is a toggle list sample';
       await tester.ime.insertText('> $text');
-      await tester.editor.updateSelection(
-        Selection.single(
-          path: [0],
-          startOffset: 0,
-          endOffset: text.length,
-        ),
-      );
 
       final editorState = tester.editor.getCurrentEditorState();
       final toggleList = editorState.document.nodeAtPath([0])!;
@@ -63,10 +56,8 @@ void main() {
         text,
       );
 
-      // Press the arrow down key to move the cursor to the next line
-      await tester.simulateKeyEvent(
-        LogicalKeyboardKey.arrowDown,
-      );
+      // Simulate pressing enter key to move the cursor to the next line
+      await tester.ime.insertCharacter('\n');
       const text2 = 'This is a child node';
       await tester.ime.insertText(text2);
       expect(find.text(text2, findRichText: true), findsOneWidget);
