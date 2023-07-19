@@ -1,4 +1,4 @@
-import 'package:flowy_infra/size.dart';
+  import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/cupertino.dart';
