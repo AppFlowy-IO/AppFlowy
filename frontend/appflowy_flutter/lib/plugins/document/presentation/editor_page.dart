@@ -117,11 +117,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       context,
       character: ':',
     ),
-    // uncomment this to enable the inline page reference list
-    // inlinePageReferenceService.customPageLinkMenu(
-    //   character: '+',
-    //   style: styleCustomizer.selectionMenuStyleBuilder(),
-    // ),
   ];
 
   late final showSlashMenu = customSlashCommand(
