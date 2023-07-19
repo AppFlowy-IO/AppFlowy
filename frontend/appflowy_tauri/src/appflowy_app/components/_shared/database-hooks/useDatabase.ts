@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
 import { databaseActions, DatabaseFieldMap, IDatabaseColumn } from '$app/stores/reducers/database/slice';
 import { useAppDispatch } from '$app/stores/store';
@@ -20,6 +20,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
   useEffect(() => {
     if (!viewId.length) return;
     const c = new DatabaseController(viewId);
+    
     setController(c);
 
     return () => void c.dispose();
@@ -29,8 +30,10 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     async (fieldInfos: readonly FieldInfo[]) => {
       const fields: DatabaseFieldMap = {};
       const columns: IDatabaseColumn[] = [];
+      
       for (const fieldInfo of fieldInfos) {
         const fieldPB = fieldInfo.field;
+        
         columns.push({
           fieldId: fieldPB.id,
           sort: 'none',
@@ -38,8 +41,10 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
         });
 
         const field = await loadField(viewId, fieldInfo, dispatch);
+        
         fields[field.fieldId] = field;
       }
+
       dispatch(databaseActions.updateFields({ fields }));
       dispatch(databaseActions.updateColumns({ columns }));
     },
@@ -64,6 +69,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
       });
 
       const openResult = await controller.open();
+
       if (openResult.ok) {
         setRows(
           openResult.val.map((pb) => {
@@ -74,6 +80,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
 
       if (type === ViewLayoutPB.Board) {
         const fieldId = await controller.getGroupByFieldId();
+
         setGroupByFieldId(fieldId.unwrap());
         setGroups(controller.groups.value);
       }
@@ -88,6 +95,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     if (!groups) return;
     if (!controller?.groups) return;
     const group = groups[index];
+
     await group.createRow();
 
     setGroups([...controller.groups.value]);
@@ -97,6 +105,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     if (!controller) return;
     const { source, destination } = result;
     const group = groups.find((g) => g.groupId === source.droppableId);
+
     if (!group) return;
 
     if (source.droppableId === destination?.droppableId) {

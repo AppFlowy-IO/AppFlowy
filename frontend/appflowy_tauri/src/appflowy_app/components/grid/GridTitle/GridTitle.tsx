@@ -18,7 +18,7 @@ export const GridTitle = ({
   return (
     <div className={'relative flex items-center '}>
       <div className='flex '>
-        <div>{pagesStore.name}</div>
+        <div>{pagesStore?.name}</div>
         <button className={'ml-2 h-5 w-5 '} onClick={() => setShowOptions(!showOptions)}>
           <SettingsSvg></SettingsSvg>
         </button>

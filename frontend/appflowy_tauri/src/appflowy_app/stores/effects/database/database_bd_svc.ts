@@ -79,6 +79,11 @@ export class DatabaseBackendService {
     return DatabaseEventDeleteRow(payload);
   };
 
+  moveRow = async (fromRowId: string, toRowId: string) => {
+    const payload = MoveRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: fromRowId, to_row_id: toRowId });
+    return DatabaseEventMoveRow(payload);
+  };
+
   /// Move the row from one group to another group
   /// [toRowId] is used to locate the moving row location.
   moveGroupRow = (fromRowId: string, toGroupId: string, toRowId?: string) => {

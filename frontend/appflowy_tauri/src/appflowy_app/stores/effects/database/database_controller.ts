@@ -106,6 +106,10 @@ export class DatabaseController {
     return this.backendService.deleteRow(rowId);
   };
 
+  moveRow = (fromRowId: string, toRowId: string) => {
+    return this.backendService.moveRow(fromRowId, toRowId);
+  };
+
   moveGroupRow = (rowId: string, groupId: string) => {
     return this.backendService.moveGroupRow(rowId, groupId);
   };

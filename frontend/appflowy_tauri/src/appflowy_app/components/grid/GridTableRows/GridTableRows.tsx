@@ -1,8 +1,7 @@
 import { DatabaseController } from '@/appflowy_app/stores/effects/database/database_controller';
 import { RowInfo } from '@/appflowy_app/stores/effects/database/row/row_cache';
 import { GridTableRow } from './GridTableRow';
-import { DragDropContext, Droppable, DroppableProvided } from 'react-beautiful-dnd';
-import { useGridTableRows } from './GridTableRows.hooks';
+import { DragDropContext, Droppable, DroppableProvided, OnDragEndResponder } from 'react-beautiful-dnd';
 
 export const GridTableRows = ({
   viewId,
@@ -15,7 +14,11 @@ export const GridTableRows = ({
   allRows: readonly RowInfo[];
   onOpenRow: (rowId: RowInfo) => void;
 }) => {
-  const { onRowsDragEnd } = useGridTableRows(controller, allRows);
+  const onRowsDragEnd: OnDragEndResponder = async (result) => {
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
+    await controller.moveRow(result.draggableId, allRows[result.destination.index].row.id);
+  };
 
   return (
     <DragDropContext onDragEnd={onRowsDragEnd}>
@@ -26,7 +29,7 @@ export const GridTableRows = ({
             ref={droppableProvided.innerRef}
             {...droppableProvided.droppableProps}
           >
-            {[...allRows].map((row, i) => {
+            {allRows.map((row, i) => {
               return (
                 <GridTableRow
                   onOpenRow={onOpenRow}

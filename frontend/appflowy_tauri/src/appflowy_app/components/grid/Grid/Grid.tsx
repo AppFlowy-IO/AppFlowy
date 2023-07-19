@@ -1,7 +1,6 @@
 import { useDatabase } from '$app/components/_shared/database-hooks/useDatabase';
 import { GridTableCount } from '../GridTableCount/GridTableCount';
 import { GridTableHeader } from '../GridTableHeader/GridTableHeader';
-import { GridAddRow } from '../GridTableRows/GridAddRow';
 import { GridTableRows } from '../GridTableRows/GridTableRows';
 import { GridTitle } from '../GridTitle/GridTitle';
 import { GridToolbar } from '../GridToolbar/GridToolbar';
@@ -54,8 +53,6 @@ export const Grid = ({ viewId }: { viewId: string }) => {
                   <GridTableRows onOpenRow={onOpenRow} allRows={rows} viewId={viewId} controller={controller} />
                 </div>
               </div>
-
-              <GridAddRow controller={controller} />
             </div>
 
             <GridTableCount rows={rows} />
