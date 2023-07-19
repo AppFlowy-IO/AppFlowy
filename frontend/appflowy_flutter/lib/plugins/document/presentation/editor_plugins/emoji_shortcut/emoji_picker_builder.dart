@@ -68,15 +68,11 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     super.dispose();
   }
 
-  bool isEmojiSearching() {
-    final bool result =
-        searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
-
-    return result;
-  }
+  bool get isEmojiSearching =>
+      searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    final CategoryEmoji catEmoji = isEmojiSearching()
+    final CategoryEmoji catEmoji = isEmojiSearching
         ? searchEmojiList
         : widget.state.categoryEmoji[_tabController!.index];
 
@@ -90,7 +86,8 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
       LogicalKeyboardKey.arrowLeft,
       LogicalKeyboardKey.arrowRight,
       LogicalKeyboardKey.arrowUp,
-      LogicalKeyboardKey.arrowDown
+      LogicalKeyboardKey.arrowDown,
+      LogicalKeyboardKey.tab
     ];
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
@@ -130,8 +127,7 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
       _deleteLastCharacters();
       return KeyEventResult.handled;
     } else if (event.character != null &&
-        !arrowKeys.contains(event.logicalKey) &&
-        event.logicalKey != LogicalKeyboardKey.tab) {
+        !arrowKeys.contains(event.logicalKey)) {
       _emojiController.text += event.character!;
       _searchEmoji();
       _insertText(event.character!);
@@ -249,7 +245,7 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
                         );
                       },
                       itemBuilder: (context, index) {
-                        final CategoryEmoji catEmoji = isEmojiSearching()
+                        final CategoryEmoji catEmoji = isEmojiSearching
                             ? searchEmojiList
                             : widget.state.categoryEmoji[index];
 
