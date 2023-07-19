@@ -155,25 +155,56 @@ class ImportPanel extends StatelessWidget {
       child: GridView.count(
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
-        children: ImportType.values
-            .where((element) => element.enableOnRelease)
-            .map(
-              (e) => Card(
-                child: FlowyButton(
-                  leftIcon: e.icon(context),
-                  leftIconSize: const Size.square(20),
-                  text: FlowyText.medium(
-                    e.toString(),
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () async {
-                    await _importFile(parentViewId, e);
-                    if (context.mounted) {
-                      FlowyOverlay.pop(context);
-                    }
-                  },
+        children: importCards,
+      ),
+    );
+  }
+
+  Widget _uploadFileToImportFromOverlay(
+    BuildContext context,
+    ImportFromNotionType importFromNotionType,
+  ) {
+    return FlowyDialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      title: FlowyText.semibold(
+        'Import Notion ${importFromNotionType.toString()}',
+        fontSize: 20,
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
+      constraints: BoxConstraints.loose(const Size(300, 200)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 20.0,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('1. Go to the page you want to export'),
+            const Text('2. Click on the three dots on the top right corner'),
+            const Text('3. Click on export'),
+            const Text('4. Click on Markdown & CSV'),
+            const Text('5. Click on export'),
+            const Text('6. Select the file you just downloaded'),
+            const SizedBox(height: 20),
+            Center(
+              child: FlowyButton(
+                text: const FlowyText.medium(
+                  'Upload zip file',
+                  fontSize: 15,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
+                onTap: () async {
+                  await _importPageFromNotion(
+                    parentViewId,
+                    importFromNotionType,
+                  );
+                  if (context.mounted) {
+                    FlowyOverlay.pop(context);
+                  }
+                },
               ),
             ),
           ],
