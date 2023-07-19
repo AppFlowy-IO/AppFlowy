@@ -19,7 +19,7 @@ class WindowsDeepLink extends LaunchTask {
       return;
     }
 
-    const deepLink = 'io.appflowy.appflowy-flutter://login-callback';
+    const deepLink = 'io.appflowy.appflowy-flutter';
     unregisterProtocolHandler(deepLink);
     registerProtocolHandler(deepLink);
   }
