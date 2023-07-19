@@ -7,11 +7,6 @@
 #include <memory>
 #include <string>
 
-// Dispatches link if any.
-// This method enables our app to be with a single instance too.
-// This is mandatory if you want to catch further links in same app.
-bool SendAppLinkToInstance(const std::wstring &title);
-
 // A class abstraction for a high DPI-aware Win32 Window. Intended to be
 // inherited from by classes that wish to specialize with custom
 // rendering and input handling
@@ -35,6 +30,12 @@ public:
 
   Win32Window();
   virtual ~Win32Window();
+
+  // Dispatches link if any.
+  // This method enables our app to be with a single instance too.
+  // This is mandatory if you want to catch further links in same app.
+  bool SendAppLinkToInstance(const std::wstring &title);
+
 
   // Creates and shows a win32 window with |title| and position and size using
   // |origin| and |size|. New windows are created on the default monitor. Window
