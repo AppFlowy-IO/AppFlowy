@@ -168,7 +168,7 @@ script = [
 script = ["""
   cd appflowy_flutter/
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
 
@@ -184,6 +184,10 @@ script_runner = "@duckscript"
 script_runner = "@shell"
 script = [
   """
+  cd appflowy_flutter
+  flutter clean
+  flutter pub get
+  cd ../
   sh scripts/code_generation/generate.sh
   """
 ]
@@ -192,10 +196,13 @@ script = [
 script_runner = "@duckscript"
 script = [
   """
+  cd ./appflowy_flutter/
+  exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter pub get
+  cd ../
   exec scripts/code_generation/generate.cmd
   """,
 ]
-
 
 [tasks.dry_code_generation]
 script_runner = "@shell"

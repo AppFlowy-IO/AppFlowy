@@ -1197,6 +1197,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapDatabaseRawDataButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_database.tr());
   }
+
+  Future<void> tapAddSelectOptionButton() async {
+    await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
+  }
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {

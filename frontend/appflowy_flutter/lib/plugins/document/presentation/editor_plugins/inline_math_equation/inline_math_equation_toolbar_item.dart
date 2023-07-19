@@ -9,7 +9,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
   id: 'editor.inline_math_equation',
   group: 2,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState) {
+  builder: (context, editorState, highlightColor) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
     final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {
@@ -17,13 +17,14 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
         (attributes) => attributes[InlineMathEquationKeys.formula] != null,
       );
     });
-    return IconItemWidget(
+    return SVGIconItemWidget(
       iconBuilder: (_) => svgWidget(
         'editor/math',
         size: const Size.square(16),
-        color: Colors.white,
+        color: isHighlight ? highlightColor : Colors.white,
       ),
       isHighlight: isHighlight,
+      highlightColor: highlightColor,
       tooltip: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       onPressed: () async {
         final selection = editorState.selection;
@@ -31,12 +32,33 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
           return;
         }
         final node = editorState.getNodeAtPath(selection.start.path);
-        if (node == null) {
+        final delta = node?.delta;
+        if (node == null || delta == null) {
           return;
         }
-        final text = editorState.getTextInSelection(selection).join();
-        final transaction = editorState.transaction
-          ..replaceText(
+
+        final transaction = editorState.transaction;
+        if (isHighlight) {
+          final formula = delta
+              .slice(selection.startIndex, selection.endIndex)
+              .whereType<TextInsert>()
+              .firstOrNull
+              ?.attributes?[InlineMathEquationKeys.formula];
+          assert(formula != null);
+          if (formula == null) {
+            return;
+          }
+          // clear the format
+          transaction.replaceText(
+            node,
+            selection.startIndex,
+            selection.length,
+            formula,
+            attributes: {},
+          );
+        } else {
+          final text = editorState.getTextInSelection(selection).join();
+          transaction.replaceText(
             node,
             selection.startIndex,
             selection.length,
@@ -45,6 +67,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
               InlineMathEquationKeys.formula: text,
             },
           );
+        }
         await editorState.apply(transaction);
       },
     );

@@ -47,11 +47,11 @@ impl DatabaseUser2 for DatabaseUserImpl {
       .token()
   }
 
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
     self
       .0
       .upgrade()
       .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
-      .get_collab_db()
+      .get_collab_db(uid)
   }
 }

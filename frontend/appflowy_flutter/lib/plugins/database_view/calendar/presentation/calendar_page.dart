@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/row/row_cache.dart';
-import '../../application/row/row_data_controller.dart';
+import '../../application/row/row_controller.dart';
 import '../../widgets/row/cell_builder.dart';
 import '../../widgets/row/row_detail.dart';
 import 'calendar_day.dart';

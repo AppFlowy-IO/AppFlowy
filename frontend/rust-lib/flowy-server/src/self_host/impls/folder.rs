@@ -1,5 +1,5 @@
 use flowy_error::FlowyError;
-use flowy_folder2::deps::{FolderCloudService, FolderSnapshot, Workspace};
+use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use flowy_folder2::gen_workspace_id;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -19,6 +19,10 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     })
   }
 
+  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+    FutureResult::new(async move { Ok(None) })
+  }
+
   fn get_folder_latest_snapshot(
     &self,
     _workspace_id: &str,
@@ -26,7 +30,15 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(None) })
   }
 
-  fn get_folder_updates(&self, _workspace_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(
+    &self,
+    _workspace_id: &str,
+    _uid: i64,
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
+  }
+
+  fn service_name(&self) -> String {
+    "SelfHosted".to_string()
   }
 }

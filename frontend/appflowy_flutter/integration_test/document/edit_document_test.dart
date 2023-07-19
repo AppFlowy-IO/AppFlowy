@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '../util/ime.dart';
 import '../util/util.dart';
 
 void main() {
@@ -99,7 +98,6 @@ void main() {
   });
 }
 
-// TODO(Lucas.Xu): there're no shorctcuts for underline, format code yet.
 const _sample = r'''
 # Heading 1
 ## Heading 2

@@ -10,6 +10,10 @@ cd "$(dirname "$0")"
 # Navigate to the project root
 cd ../../../appflowy_flutter
 
+# copy the resources/translations folder to
+#   the appflowy_flutter/assets/translation directory
+cp -rf ../resources/translations/ assets/translations/
+
 flutter packages pub get
 
 echo "Specifying source directory for AppFlowy Localizations."

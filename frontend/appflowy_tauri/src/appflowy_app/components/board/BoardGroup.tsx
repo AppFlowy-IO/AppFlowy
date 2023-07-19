@@ -52,10 +52,10 @@ export const BoardGroup = ({
           <span className={'text-shade-4'}>({group.rows.length})</span>
         </div>
         <div className={'flex items-center gap-2'}>
-          <button className={'h-5 w-5 rounded hover:bg-fill-hover'}>
+          <button className={'h-5 w-5 rounded hover:bg-fill-list-hover'}>
             <Details2Svg></Details2Svg>
           </button>
-          <button className={'h-5 w-5 rounded hover:bg-fill-hover'}>
+          <button className={'h-5 w-5 rounded hover:bg-fill-list-hover'}>
             <AddSvg></AddSvg>
           </button>
         </div>
@@ -86,7 +86,7 @@ export const BoardGroup = ({
       <div className={'p-2'}>
         <button
           onClick={onNewRowClick}
-          className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-hover'}
+          className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
         >
           <span className={'h-5 w-5'}>
             <AddSvg></AddSvg>

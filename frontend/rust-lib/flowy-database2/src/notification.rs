@@ -7,6 +7,9 @@ const DATABASE_OBSERVABLE_SOURCE: &str = "Database";
 pub enum DatabaseNotification {
   #[default]
   Unknown = 0,
+  /// Fetch row data from the remote server. It will be triggered if the backend support remote
+  /// storage.
+  DidFetchRow = 19,
   /// Trigger after inserting/deleting/updating a row
   DidUpdateViewRows = 20,
   /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
@@ -58,6 +61,7 @@ impl std::convert::From<DatabaseNotification> for i32 {
 impl std::convert::From<i32> for DatabaseNotification {
   fn from(notification: i32) -> Self {
     match notification {
+      19 => DatabaseNotification::DidFetchRow,
       20 => DatabaseNotification::DidUpdateViewRows,
       21 => DatabaseNotification::DidUpdateViewRowsVisibility,
       22 => DatabaseNotification::DidUpdateFields,

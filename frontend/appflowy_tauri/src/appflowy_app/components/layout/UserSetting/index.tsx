@@ -3,13 +3,14 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide, { SlideProps } from '@mui/material/Slide';
-import UserSettingMenu, { MenuItem } from '$app/components/layout/UserSetting/Menu';
-import UserSettingPanel from '$app/components/layout/UserSetting/SettingPanel';
+import UserSettingMenu, { MenuItem } from './Menu';
+import UserSettingPanel from './SettingPanel';
 import { Theme, UserSetting } from '$app/interfaces';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { currentUserActions } from '$app_reducers/current-user/slice';
 import { useUserSettingControllerContext } from '$app/components/_shared/app-hooks/useUserSettingControllerContext';
 import { ThemeModePB } from '@/services/backend';
+import { useTranslation } from 'react-i18next';
 
 const SlideTransition = React.forwardRef((props: SlideProps, ref) => {
   return <Slide {...props} direction='up' ref={ref} />;
@@ -19,7 +20,7 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
   const userSettingState = useAppSelector((state) => state.currentUser.userSetting);
   const dispatch = useAppDispatch();
   const userSettingController = useUserSettingControllerContext();
-
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<MenuItem>(MenuItem.Appearance);
   const handleChange = useCallback(
     (setting: Partial<UserSetting>) => {
@@ -27,9 +28,15 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
 
       dispatch(currentUserActions.setUserSetting(newSetting));
       if (userSettingController) {
+        const language = newSetting.language || 'en';
+
         userSettingController.setAppearanceSetting({
           theme: newSetting.theme || Theme.Default,
-          mode: newSetting.themeMode || ThemeModePB.Light,
+          theme_mode: newSetting.themeMode || ThemeModePB.Light,
+          locale: {
+            language_code: language.split('-')[0],
+            country_code: language.split('-')[1],
+          },
         });
       }
     },
@@ -44,7 +51,7 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
       keepMounted
       onClose={onClose}
     >
-      <DialogTitle>{'Settings'}</DialogTitle>
+      <DialogTitle>{t('settings.title')}</DialogTitle>
       <DialogContent className={'flex w-[540px]'}>
         <UserSettingMenu
           onSelect={(selected) => {

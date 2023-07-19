@@ -13,7 +13,10 @@ class WindowSizeManager {
   static const width = 'width';
   static const height = 'height';
 
-  Future<void> saveSize(Size size) async {
+  static const String dx = 'dx';
+  static const String dy = 'dy';
+
+  Future<void> setSize(Size size) async {
     final windowSize = {
       height: max(size.height, minWindowHeight),
       width: max(size.width, minWindowWidth),
@@ -32,5 +35,26 @@ class WindowSizeManager {
       windowSize.getOrElse(() => defaultWindowSize),
     );
     return Size(size[width]!, size[height]!);
+  }
+
+  Future<void> setPosition(Offset offset) async {
+    await getIt<KeyValueStorage>().set(
+      KVKeys.windowPosition,
+      jsonEncode({
+        dx: offset.dx,
+        dy: offset.dy,
+      }),
+    );
+  }
+
+  Future<Offset?> getPosition() async {
+    final position = await getIt<KeyValueStorage>().get(KVKeys.windowPosition);
+    return position.fold(
+      (l) => null,
+      (r) {
+        final offset = json.decode(r);
+        return Offset(offset[dx], offset[dy]);
+      },
+    );
   }
 }

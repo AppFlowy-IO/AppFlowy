@@ -206,13 +206,13 @@ export const EditRow = ({
           className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-bg-body `}
         >
           <div onClick={() => onCloseClick()} className={'absolute right-1 top-1'}>
-            <button className={'block h-8 w-8 rounded-lg text-text-title hover:bg-fill-hover'}>
+            <button className={'block h-8 w-8 rounded-lg text-text-title hover:bg-fill-list-hover'}>
               <CloseSvg></CloseSvg>
             </button>
           </div>
 
           <div className={'flex h-full'}>
-            <div className={'flex h-full flex-1 flex-col border-r border-line-border pb-4 pt-6'}>
+            <div className={'flex h-full flex-1 flex-col border-r border-line-divider pb-4 pt-6'}>
               <div className={'pb-4 pl-12'}>
                 <button className={'flex items-center gap-2 p-4'}>
                   <i className={'h-5 w-5'}>
@@ -254,10 +254,10 @@ export const EditRow = ({
                 </Droppable>
               </DragDropContext>
 
-              <div className={'border-t border-line-border px-8 pt-2'}>
+              <div className={'border-t border-line-divider px-8 pt-2'}>
                 <button
                   onClick={() => onNewColumnClick()}
-                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-fill-hover'}
+                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-fill-list-hover'}
                 >
                   <i className={'h-5 w-5'}>
                     <AddSvg></AddSvg>

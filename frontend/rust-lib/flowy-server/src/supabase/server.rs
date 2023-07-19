@@ -4,13 +4,16 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use appflowy_integrate::RemoteCollabStorage;
+use parking_lot::RwLock;
 use tokio::spawn;
 use tokio::sync::{watch, Mutex};
 use tokio::time::interval;
 
 use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::FolderCloudService;
+use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
 use flowy_user::event_map::UserAuthService;
 use lib_infra::async_trait::async_trait;
 
@@ -18,11 +21,10 @@ use crate::supabase::impls::{
   PgCollabStorageImpl, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
   SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
 };
-use crate::supabase::pg_db::{PgClientReceiver, PostgresDB, PostgresEvent};
+use crate::supabase::postgres_db::{PgClientReceiver, PostgresDB, PostgresEvent};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
 };
-use crate::supabase::{PostgresConfiguration, SupabaseConfiguration};
 use crate::AppFlowyServer;
 
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
@@ -30,70 +32,148 @@ use crate::AppFlowyServer;
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  postgres: Arc<PostgresServer>,
+  postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
-    let postgres = PostgresServer::new(config.postgres_config.clone());
+    let postgres = if config.enable_sync {
+      Some(Arc::new(PostgresServer::new(
+        config.postgres_config.clone(),
+      )))
+    } else {
+      None
+    };
     Self {
       config,
-      postgres: Arc::new(postgres),
+      postgres: Arc::new(RwLock::new(postgres)),
+    }
+  }
+
+  pub fn set_enable_sync(&self, enable: bool) {
+    if enable {
+      if self.postgres.read().is_some() {
+        return;
+      }
+      *self.postgres.write() = Some(Arc::new(PostgresServer::new(
+        self.config.postgres_config.clone(),
+      )));
+    } else {
+      *self.postgres.write() = None;
     }
   }
 }
 
 impl AppFlowyServer for SupabaseServer {
+  fn enable_sync(&self, enable: bool) {
+    tracing::info!("supabase sync: {}", enable);
+    self.set_enable_sync(enable);
+  }
+
   fn user_service(&self) -> Arc<dyn UserAuthService> {
-    Arc::new(SupabaseUserAuthServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseUserAuthServiceImpl::new(SupabaseServerServiceImpl(
+      self.postgres.clone(),
+    )))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(SupabaseFolderCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseFolderCloudServiceImpl::new(
+      SupabaseServerServiceImpl(self.postgres.clone()),
+    ))
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(SupabaseDatabaseCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseDatabaseCloudServiceImpl::new(
+      SupabaseServerServiceImpl(self.postgres.clone()),
+    ))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    Arc::new(SupabaseDocumentCloudServiceImpl::new(self.postgres.clone()))
+    Arc::new(SupabaseDocumentCloudServiceImpl::new(
+      SupabaseServerServiceImpl(self.postgres.clone()),
+    ))
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
-    Some(Arc::new(PgCollabStorageImpl::new(self.postgres.clone())))
+    Some(Arc::new(PgCollabStorageImpl::new(
+      SupabaseServerServiceImpl(self.postgres.clone()),
+    )))
+  }
+}
+
+/// [SupabaseServerService] is used to provide supabase services. The caller can using this trait
+/// to get the services and it might need to handle the situation when the services is unavailable.
+/// For example, when user stop syncing, the services will be unavailable or when the user is logged
+/// out.
+pub trait SupabaseServerService: Send + Sync + 'static {
+  fn get_pg_server(&self) -> Option<Weak<PostgresServer>>;
+
+  fn try_get_pg_server(&self) -> FlowyResult<Weak<PostgresServer>>;
+}
+
+#[derive(Clone)]
+pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<PostgresServer>>>>);
+impl SupabaseServerService for SupabaseServerServiceImpl {
+  /// Get the postgres server, if the postgres server is not available, return None.
+  fn get_pg_server(&self) -> Option<Weak<PostgresServer>> {
+    self.0.read().as_ref().map(Arc::downgrade)
+  }
+
+  /// Try to get the postgres server, if the postgres server is not available, return an error.
+  fn try_get_pg_server(&self) -> FlowyResult<Weak<PostgresServer>> {
+    self.0.read().as_ref().map(Arc::downgrade).ok_or_else(|| {
+      FlowyError::new(
+        ErrorCode::SupabaseSyncRequired,
+        "Supabase sync is disabled, please enable it first",
+      )
+    })
   }
 }
 
 pub struct PostgresServer {
-  inner: Arc<PostgresServerInner>,
+  request_handler: Arc<PostgresRequestHandler>,
 }
 
 impl Deref for PostgresServer {
-  type Target = Arc<PostgresServerInner>;
+  type Target = Arc<PostgresRequestHandler>;
 
   fn deref(&self) -> &Self::Target {
-    &self.inner
+    &self.request_handler
   }
 }
 
-pub struct PostgresServerInner {
+impl PostgresServer {
+  pub fn new(config: PostgresConfiguration) -> Self {
+    let (runner_notifier_tx, runner_notifier) = watch::channel(false);
+    let request_handler = Arc::new(PostgresRequestHandler::new(runner_notifier_tx, config));
+
+    // Initialize the connection to the database
+    let conn = PendingRequest::new(PostgresEvent::ConnectDB);
+    request_handler.queue.lock().push(conn);
+    let handler = Arc::downgrade(&request_handler) as Weak<dyn RequestHandler<PostgresEvent>>;
+    spawn(RequestRunner::run(runner_notifier, handler));
+
+    Self { request_handler }
+  }
+}
+
+pub struct PostgresRequestHandler {
   config: PostgresConfiguration,
   db: Arc<Mutex<Option<Arc<PostgresDB>>>>,
   queue: parking_lot::Mutex<RequestQueue<PostgresEvent>>,
-  notifier: Arc<watch::Sender<bool>>,
+  runner_notifier: Arc<watch::Sender<bool>>,
   sequence: AtomicU32,
 }
 
-impl PostgresServerInner {
-  pub fn new(notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
+impl PostgresRequestHandler {
+  pub fn new(runner_notifier: watch::Sender<bool>, config: PostgresConfiguration) -> Self {
     let db = Arc::new(Default::default());
     let queue = parking_lot::Mutex::new(RequestQueue::new());
-    let notifier = Arc::new(notifier);
+    let runner_notifier = Arc::new(runner_notifier);
     Self {
       db,
       queue,
-      notifier,
+      runner_notifier,
       config,
       sequence: Default::default(),
     }
@@ -114,28 +194,13 @@ impl PostgresServerInner {
   }
 }
 
-impl PostgresServer {
-  pub fn new(config: PostgresConfiguration) -> Self {
-    let (notifier, notifier_rx) = watch::channel(false);
-    let inner = Arc::new(PostgresServerInner::new(notifier, config));
-
-    // Initialize the connection to the database
-    let conn = PendingRequest::new(PostgresEvent::ConnectDB);
-    inner.queue.lock().push(conn);
-    let handler = Arc::downgrade(&inner) as Weak<dyn RequestHandler<PostgresEvent>>;
-    spawn(RequestRunner::run(notifier_rx, handler));
-
-    Self { inner }
-  }
-}
-
 #[async_trait]
-impl RequestHandler<PostgresEvent> for PostgresServerInner {
+impl RequestHandler<PostgresEvent> for PostgresRequestHandler {
   async fn prepare_request(&self) -> Option<PendingRequest<PostgresEvent>> {
     match self.queue.try_lock() {
       None => {
         // If acquire the lock failed, try after 300ms
-        let weak_notifier = Arc::downgrade(&self.notifier);
+        let weak_notifier = Arc::downgrade(&self.runner_notifier);
         spawn(async move {
           interval(Duration::from_millis(300)).tick().await;
           if let Some(notifier) = weak_notifier.upgrade() {
@@ -193,6 +258,6 @@ impl RequestHandler<PostgresEvent> for PostgresServerInner {
   }
 
   fn notify(&self) {
-    let _ = self.notifier.send(false);
+    let _ = self.runner_notifier.send(false);
   }
 }

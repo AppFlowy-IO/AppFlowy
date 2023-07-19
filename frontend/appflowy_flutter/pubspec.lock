@@ -52,12 +52,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: c5b5e64
-      resolved-ref: c5b5e641fe11ae634f02db112e71f40a119e9c44
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
-    version: "1.1.0"
+      name: appflowy_editor
+      sha256: b30f645eac57639ff003e6920d04432b9c80a4e2f6e177326e81c221608d7044
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -1002,7 +1001,7 @@ packages:
     source: hosted
     version: "3.1.0"
   plugin_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: plugin_platform_interface
       sha256: "6a2128648c854906c53fa8e33986fc0247a1116122f9534dd20e3ab9e16a32bc"
@@ -1567,7 +1566,7 @@ packages:
     source: hosted
     version: "3.0.5"
   url_launcher_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: url_launcher_platform_interface
       sha256: "6c9ca697a5ae218ce56cece69d46128169a58aa8653c1b01d26fcd4aad8c4370"

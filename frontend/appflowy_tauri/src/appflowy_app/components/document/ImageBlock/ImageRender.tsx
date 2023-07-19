@@ -29,7 +29,7 @@ function ImageRender({
           } top-0 flex h-[100%] w-[15px] cursor-col-resize items-center justify-center`}
         >
           <div
-            className={`h-[48px] max-h-[50%] w-2 rounded-[20px] border border-solid border-line-border bg-line-border ${
+            className={`h-[48px] max-h-[50%] w-2 rounded-[20px] border border-solid border-line-divider bg-line-border ${
               toolbarOpen ? 'opacity-1' : 'opacity-0'
             } transition-opacity duration-300 `}
           />

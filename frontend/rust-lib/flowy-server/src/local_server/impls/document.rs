@@ -1,4 +1,4 @@
-use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot};
+use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
@@ -13,6 +13,13 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+    FutureResult::new(async move { Ok(None) })
+  }
+
+  fn get_document_data(
+    &self,
+    _document_id: &str,
+  ) -> FutureResult<Option<DocumentData>, FlowyError> {
     FutureResult::new(async move { Ok(None) })
   }
 }

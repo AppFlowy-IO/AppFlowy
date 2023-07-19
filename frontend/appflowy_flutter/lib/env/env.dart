@@ -68,14 +68,21 @@ abstract class Env {
     defaultValue: '5432',
   )
   static final String supabaseDbPort = _Env.supabaseDbPort;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'ENABLE_SUPABASE_SYNC',
+    defaultValue: true,
+  )
+  static final bool enableSupabaseSync = _Env.enableSupabaseSync;
 }
 
-bool get isSupabaseEnable =>
-    Env.supabaseUrl.isNotEmpty &&
-    Env.supabaseAnonKey.isNotEmpty &&
-    Env.supabaseKey.isNotEmpty &&
-    Env.supabaseJwtSecret.isNotEmpty &&
-    Env.supabaseDb.isNotEmpty &&
-    Env.supabaseDbUser.isNotEmpty &&
-    Env.supabaseDbPassword.isNotEmpty &&
-    Env.supabaseDbPort.isNotEmpty;
+bool get isSupabaseEnable => false;
+    // Env.supabaseUrl.isNotEmpty &&
+    // Env.supabaseAnonKey.isNotEmpty &&
+    // Env.supabaseKey.isNotEmpty &&
+    // Env.supabaseJwtSecret.isNotEmpty &&
+    // Env.supabaseDb.isNotEmpty &&
+    // Env.supabaseDbUser.isNotEmpty &&
+    // Env.supabaseDbPassword.isNotEmpty &&
+    // Env.supabaseDbPort.isNotEmpty;

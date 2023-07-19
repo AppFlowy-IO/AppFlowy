@@ -19,7 +19,7 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_user::entities::{AuthTypePB, SignOutPB, ThirdPartyAuthPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
 
@@ -67,23 +67,35 @@ impl FlowyCoreTest {
     Self::default()
   }
 
-  pub async fn new_with_user() -> Self {
+  pub async fn new_with_guest_user() -> Self {
     let test = Self::default();
-    test.sign_up().await;
+    test.sign_up_as_guest().await;
     test
   }
 
-  pub async fn sign_up(&self) -> SignUpContext {
-    let auth_type = self.auth_type.read().clone();
+  pub async fn sign_up_as_guest(&self) -> SignUpContext {
+    async_sign_up(self.inner.dispatcher(), AuthTypePB::Local).await
+  }
 
-    async_sign_up(self.inner.dispatcher(), auth_type).await
+  pub async fn supabase_party_sign_up(&self, uuid: &str) -> UserProfilePB {
+    let mut map = HashMap::new();
+    map.insert("uuid".to_string(), uuid.to_string());
+    let payload = ThirdPartyAuthPB {
+      map,
+      auth_type: AuthTypePB::Supabase,
+    };
+
+    EventBuilder::new(self.clone())
+      .event(ThirdPartyAuth)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserProfilePB>()
   }
 
   pub async fn sign_out(&self) {
-    let auth_type = self.auth_type.read().clone();
     EventBuilder::new(self.clone())
       .event(SignOut)
-      .payload(SignOutPB { auth_type })
       .async_send()
       .await;
   }
@@ -93,7 +105,7 @@ impl FlowyCoreTest {
   }
 
   pub async fn init_user(&self) -> UserProfilePB {
-    self.sign_up().await.user_profile
+    self.sign_up_as_guest().await.user_profile
   }
 
   pub async fn sign_up_with_uuid(&self, uuid: &str) -> UserProfilePB {

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { MenuItem } from './Menu';
-import AppearanceSetting from '$app/components/layout/UserSetting/AppearanceSetting';
-import LanguageSetting from '$app/components/layout/UserSetting/LanguageSetting';
+import AppearanceSetting from './AppearanceSetting';
+import LanguageSetting from './LanguageSetting';
 
 import { UserSetting } from '$app/interfaces';
 
@@ -14,7 +14,7 @@ function UserSettingPanel({
   userSettingState?: UserSetting;
   onChange: (setting: Partial<UserSetting>) => void;
 }) {
-  const { theme, themeMode } = userSettingState;
+  const { theme, themeMode, language } = userSettingState;
 
   const options = useMemo(() => {
     return [
@@ -24,14 +24,14 @@ function UserSettingPanel({
       },
       {
         value: MenuItem.Language,
-        icon: <LanguageSetting />,
+        content: <LanguageSetting onChange={onChange} language={language} />,
       },
     ];
-  }, [onChange, theme, themeMode]);
+  }, [language, onChange, theme, themeMode]);
 
   const option = options.find((option) => option.value === selected);
 
-  return <div className={'flex-1 pl-2'}>{option?.content}</div>;
+  return <div className={'flex-1 pl-4'}>{option?.content}</div>;
 }
 
 export default UserSettingPanel;

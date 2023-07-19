@@ -1,7 +1,6 @@
-import IconButton from '@mui/material/IconButton';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { TemporaryType, TextAction } from '$app/interfaces/document';
-import MenuTooltip from '$app/components/document/TextActionMenu/menu/MenuTooltip';
+import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import { getFormatActiveThunk, toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
@@ -18,18 +17,19 @@ import {
   StrikethroughSOutlined,
 } from '@mui/icons-material';
 import LinkIcon from '@mui/icons-material/AddLink';
+import { useTranslation } from 'react-i18next';
 
 export const iconSize = { width: 18, height: 18 };
 
 const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) => {
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
-
+  const { t } = useTranslation();
   const focusId = useAppSelector((state) => state[RANGE_NAME][docId]?.focus?.id || '');
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);
-  const color = useMemo(() => (isActive ? 'text-content-hover' : 'text-text-title'), [isActive]);
+  const color = useMemo(() => (isActive ? 'text-content-on-fill-hover' : ''), [isActive]);
 
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;
@@ -82,15 +82,15 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
 
   const formatTooltips: Record<string, string> = useMemo(
     () => ({
-      [TextAction.Bold]: 'Bold',
-      [TextAction.Italic]: 'Italic',
-      [TextAction.Underline]: 'Underline',
-      [TextAction.Strikethrough]: 'Strike through',
-      [TextAction.Code]: 'Mark as Code',
-      [TextAction.Link]: 'Add Link',
-      [TextAction.Equation]: 'Create equation',
+      [TextAction.Bold]: t('toolbar.bold'),
+      [TextAction.Italic]: t('toolbar.italic'),
+      [TextAction.Underline]: t('toolbar.underline'),
+      [TextAction.Strikethrough]: t('toolbar.strike'),
+      [TextAction.Code]: t('toolbar.inlineCode'),
+      [TextAction.Link]: t('toolbar.addLink'),
+      [TextAction.Equation]: t('document.plugins.mathEquation.addMathEquation'),
     }),
-    []
+    [t]
   );
 
   const formatClick = useCallback(
@@ -132,7 +132,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
                 marginRight: '0.25rem',
               }}
             />
-            <div className={'underline'}>Link</div>
+            <div className={'underline'}>{t('toolbar.link')}</div>
           </div>
         );
       case TextAction.Equation:
@@ -140,14 +140,14 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
       default:
         return null;
     }
-  }, [icon]);
+  }, [icon, t]);
 
   return (
-    <MenuTooltip title={formatTooltips[format]}>
+    <ToolbarTooltip title={formatTooltips[format]}>
       <div className={`${color} cursor-pointer px-1 hover:text-fill-default`} onClick={() => formatClick(format)}>
         {formatIcon}
       </div>
-    </MenuTooltip>
+    </ToolbarTooltip>
   );
 };
 

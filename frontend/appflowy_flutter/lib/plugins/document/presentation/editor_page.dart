@@ -37,6 +37,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final inlinePageReferenceService = InlinePageReferenceService();
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
+    toggleToggleListCommand,
     ...codeBlockCommands,
     ...standardCommandShortcutEvents,
   ];
@@ -68,7 +69,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ...codeBlockCharacterEvents,
 
         // toggle list
-        // formatGreaterToToggleList,
+        formatGreaterToToggleList,
+        insertChildNodeInsideToggleList,
 
         // customize the slash menu command
         customSlashCommand(
@@ -107,6 +109,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
+    indentableBlockTypes.add(ToggleListBlockKeys.type);
+    convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
@@ -126,7 +130,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
-    final editor = AppFlowyEditor.custom(
+    final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
       shrinkWrap: widget.shrinkWrap,
@@ -286,6 +290,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         TodoListBlockKeys.type,
         CalloutBlockKeys.type,
         OutlineBlockKeys.type,
+        ToggleListBlockKeys.type,
       ];
 
       final supportAlignBuilderType = [
@@ -310,9 +315,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       builder.showActions = (_) => true;
       builder.actionBuilder = (context, state) {
+        final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type
-            ? const EdgeInsets.only(top: 8.0)
-            : const EdgeInsets.all(0);
+            ? EdgeInsets.only(top: top + 8.0)
+            : EdgeInsets.only(top: top + 2.0);
         return Padding(
           padding: padding,
           child: BlockActionList(
@@ -320,9 +326,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             blockComponentState: state,
             editorState: widget.editorState,
             actions: actions,
-            showSlashMenu: () => showSlashMenu(
-              widget.editorState,
-            ),
+            showSlashMenu: () => showSlashMenu(widget.editorState),
           ),
         );
       };
@@ -354,6 +358,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       outlineItem,
       mathEquationItem,
       codeBlockItem,
+      toggleListBlockItem,
       emojiMenuItem,
       autoGeneratorMenuItem,
     ];

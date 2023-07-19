@@ -40,7 +40,7 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: baseTextStyle(fontFamily).copyWith(
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
         italic: baseTextStyle(fontFamily).copyWith(
@@ -165,10 +165,14 @@ class EditorStyleCustomizer {
     );
   }
 
-  TextStyle baseTextStyle(String fontFamily) {
+  TextStyle baseTextStyle(
+    String fontFamily, {
+    FontWeight? fontWeight,
+  }) {
     try {
       return GoogleFonts.getFont(
         fontFamily,
+        fontWeight: fontWeight,
       );
     } on Exception {
       return GoogleFonts.getFont('Poppins');
@@ -176,6 +180,7 @@ class EditorStyleCustomizer {
   }
 
   InlineSpan customizeAttributeDecorator(
+    BuildContext context,
     Node node,
     int index,
     TextInsert text,
@@ -215,6 +220,12 @@ class EditorStyleCustomizer {
       );
     }
 
-    return textSpan;
+    return defaultTextSpanDecoratorForAttribute(
+      context,
+      node,
+      index,
+      text,
+      textSpan,
+    );
   }
 }

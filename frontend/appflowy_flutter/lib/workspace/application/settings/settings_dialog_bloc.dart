@@ -13,6 +13,7 @@ enum SettingsPage {
   language,
   files,
   user,
+  supabaseSetting,
 }
 
 class SettingsDialogBloc

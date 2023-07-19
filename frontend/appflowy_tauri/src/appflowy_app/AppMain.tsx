@@ -14,6 +14,7 @@ import { ConfirmAccountPage } from '$app/views/ConfirmAccountPage';
 import { ThemeProvider } from '@mui/material';
 import { useUserSetting } from '$app/AppMain.hooks';
 import { UserSettingControllerContext } from '$app/components/_shared/app-hooks/useUserSettingControllerContext';
+import TrashPage from '$app/views/TrashPage';
 
 function AppMain() {
   const { muiTheme, userSettingController } = useUserSetting();
@@ -29,6 +30,7 @@ function AppMain() {
             <Route path={'/page/document/:id'} element={<DocumentPage />} />
             <Route path={'/page/board/:id'} element={<BoardPage />} />
             <Route path={'/page/grid/:id'} element={<GridPage />} />
+            <Route path={'/trash'} id={'trash'} element={<TrashPage />} />
           </Route>
           <Route path={'/auth/login'} element={<LoginPage />}></Route>
           <Route path={'/auth/getStarted'} element={<GetStarted />}></Route>

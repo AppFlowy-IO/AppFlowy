@@ -19,10 +19,20 @@ export function useUserSetting() {
   useEffect(() => {
     userSettingController?.getAppearanceSetting().then((res) => {
       if (!res) return;
+      const locale = res.locale;
+      let language = 'en';
+
+      if (locale.language_code && locale.country_code) {
+        language = `${locale.language_code}-${locale.country_code}`;
+      } else if (locale.language_code) {
+        language = locale.language_code;
+      }
+
       dispatch(
         currentUserActions.setUserSetting({
           themeMode: res.theme_mode,
           theme: res.theme as Theme,
+          language: language,
         })
       );
     });

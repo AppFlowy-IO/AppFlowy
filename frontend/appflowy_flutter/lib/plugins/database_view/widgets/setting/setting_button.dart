@@ -28,13 +28,7 @@ class SettingButton extends StatefulWidget {
 }
 
 class _SettingButtonState extends State<SettingButton> {
-  late PopoverController _popoverController;
-
-  @override
-  void initState() {
-    _popoverController = PopoverController();
-    super.initState();
-  }
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -108,9 +102,18 @@ class _DatabaseSettingListPopoverState
             },
           );
         case DatabaseSettingAction.showProperties:
-          return DatabasePropertyList(
-            viewId: widget.databaseController.viewId,
-            fieldController: widget.databaseController.fieldController,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DatabasePropertyList(
+                viewId: widget.databaseController.viewId,
+                fieldController: widget.databaseController.fieldController,
+              ),
+              FlowyText.regular(
+                LocaleKeys.grid_settings_reorderPropertiesTooltip.tr(),
+              ),
+              const VSpace(8),
+            ],
           );
         case DatabaseSettingAction.showCalendarLayout:
           return CalendarLayoutSetting(
@@ -165,7 +168,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
   String title() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return LocaleKeys.grid_settings_Properties.tr();
+        return LocaleKeys.grid_settings_properties.tr();
       case DatabaseSettingAction.showLayout:
         return LocaleKeys.grid_settings_databaseLayout.tr();
       case DatabaseSettingAction.showGroup:

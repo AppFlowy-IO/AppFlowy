@@ -75,3 +75,5 @@ windows/flutter/dart_ffi/
 coverage/
 
 **/failures/*.png
+
+assets/translations/

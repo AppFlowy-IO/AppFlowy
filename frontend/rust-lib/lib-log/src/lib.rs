@@ -4,8 +4,11 @@ use lazy_static::lazy_static;
 use log::LevelFilter;
 use tracing::subscriber::set_global_default;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
+use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+
+use crate::layer::FlowyFormattingLayer;
 
 mod layer;
 lazy_static! {
@@ -39,7 +42,7 @@ impl Builder {
   pub fn build(self) -> std::result::Result<(), String> {
     let env_filter = EnvFilter::new(self.env_filter);
 
-    let (_non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
+    let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let subscriber = tracing_subscriber::fmt()
       .with_ansi(true)
       .with_target(true)
@@ -51,10 +54,10 @@ impl Builder {
       .with_span_list(true)
       .compact()
       .finish()
-      .with(env_filter);
-    // .with(JsonStorageLayer)
-    // .with(FlowyFormattingLayer::new(std::io::stdout))
-    // .with(FlowyFormattingLayer::new(non_blocking));
+      .with(env_filter)
+      .with(JsonStorageLayer)
+      .with(FlowyFormattingLayer::new(std::io::stdout))
+      .with(FlowyFormattingLayer::new(non_blocking));
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
     LogTracer::builder()

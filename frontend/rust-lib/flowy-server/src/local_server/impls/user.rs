@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
@@ -10,12 +12,15 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::local_server::uid::UserIDGenerator;
+use crate::local_server::LocalServerDB;
 
 lazy_static! {
   static ref ID_GEN: Mutex<UserIDGenerator> = Mutex::new(UserIDGenerator::new(1));
 }
 
-pub(crate) struct LocalServerUserAuthServiceImpl();
+pub(crate) struct LocalServerUserAuthServiceImpl {
+  pub db: Arc<dyn LocalServerDB>,
+}
 
 impl UserAuthService for LocalServerUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
@@ -35,10 +40,21 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+    let weak_db = Arc::downgrade(&self.db);
     FutureResult::new(async move {
-      let uid = ID_GEN.lock().next_id();
-      let params = params.unbox_or_error::<SignInParams>()?;
-      let workspace_id = uuid::Uuid::new_v4().to_string();
+      let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
+      let uid = match params.uid {
+        None => ID_GEN.lock().next_id(),
+        Some(uid) => uid,
+      };
+
+      // Get the workspace id from the database if it exists, otherwise generate a new one.
+      let workspace_id = weak_db
+        .upgrade()
+        .and_then(|db| db.get_user_profile(uid).ok())
+        .and_then(|user_profile| user_profile.map(|user_profile| user_profile.workspace_id))
+        .unwrap_or(uuid::Uuid::new_v4().to_string());
+
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
