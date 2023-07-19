@@ -22,15 +22,15 @@ export function parserViewPBToPage(view: ViewPB) {
 }
 
 export interface PageState {
-  map: Record<string, Page>;
-  childPages: Record<string, string[]>;
-  expandedPages: Record<string, boolean>;
+  pageMap: Record<string, Page>;
+  relationMap: Record<string, string[] | undefined>;
+  expandedIdMap: Record<string, boolean>;
 }
 
 export const initialState: PageState = {
-  map: {},
-  childPages: {},
-  expandedPages: {},
+  pageMap: {},
+  relationMap: {},
+  expandedIdMap: {},
 };
 
 export const pagesSlice = createSlice({
@@ -54,29 +54,29 @@ export const pagesSlice = createSlice({
         children.push(page.id);
       });
 
-      state.map = {
-        ...state.map,
+      state.pageMap = {
+        ...state.pageMap,
         ...pageMap,
       };
-      state.childPages[id] = children;
+      state.relationMap[id] = children;
     },
 
     removeChildPages(state, action: PayloadAction<string>) {
       const parentId = action.payload;
 
-      delete state.childPages[parentId];
+      delete state.relationMap[parentId];
     },
 
     expandPage(state, action: PayloadAction<string>) {
       const id = action.payload;
 
-      state.expandedPages[id] = true;
+      state.expandedIdMap[id] = true;
     },
 
     collapsePage(state, action: PayloadAction<string>) {
       const id = action.payload;
 
-      state.expandedPages[id] = false;
+      state.expandedIdMap[id] = false;
     },
   },
 });

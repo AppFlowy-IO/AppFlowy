@@ -1,85 +1,96 @@
 import React from 'react';
 import { useBlockSideToolbar, usePopover } from './BlockSideToolbar.hooks';
-import Portal from '../BlockPortal';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { useAppDispatch } from '$app/stores/store';
 import Popover from '@mui/material/Popover';
 import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
 import AddSharpIcon from '@mui/icons-material/AddSharp';
 import BlockMenu from './BlockMenu';
-import ToolbarButton from './ToolbarButton';
 import { addBlockBelowClickThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 import { useTranslation } from 'react-i18next';
+import { IconButton } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 
-export default function BlockSideToolbar({ container }: { container: HTMLDivElement }) {
+export default function BlockSideToolbar({ id }: { id: string }) {
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
   const { t } = useTranslation();
 
-  const { nodeId, style, ref } = useBlockSideToolbar({ container });
-  const isDragging = useAppSelector(
-    (state) => state[RANGE_NAME][docId]?.isDragging || state[RECT_RANGE_NAME][docId]?.isDragging
-  );
-  const { handleOpen, ...popoverProps } = usePopover();
+  const { handleOpen, open, ...popoverProps } = usePopover();
+  const { opacity, topOffset } = useBlockSideToolbar(id);
 
-  if (!nodeId || isDragging) return null;
+  const show = opacity === 1 || open;
 
   return (
     <>
-      <Portal blockId={nodeId}>
-        <div
-          ref={ref}
-          style={{
-            opacity: 0,
-            ...style,
-          }}
-          className='absolute left-[-50px] inline-flex h-[calc(1.5em_+_3px)] transition-opacity duration-500'
-          onMouseDown={(e) => {
-            // prevent toolbar from taking focus away from editor
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          {/** Add Block below */}
-          <ToolbarButton
-            tooltip={t('tooltip.addBlockBelow')}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              if (!nodeId || !controller) return;
+      <div
+        style={{
+          opacity: show ? 1 : 0,
+          top: topOffset,
+        }}
+        className='absolute left-[-50px] inline-flex h-[calc(1.5em_+_3px)] transition-opacity duration-100'
+      >
+        {/** Add Block below */}
+        <Tooltip disableInteractive={true} title={t('blockActions.addBelowTooltip')} placement={'top-start'}>
+          <IconButton
+            style={{
+              pointerEvents: show ? 'auto' : 'none',
+            }}
+            onClick={(_: React.MouseEvent<HTMLButtonElement>) => {
               dispatch(
                 addBlockBelowClickThunk({
-                  id: nodeId,
+                  id,
                   controller,
                 })
               );
             }}
+            sx={{
+              height: 24,
+              width: 24,
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <AddSharpIcon />
-          </ToolbarButton>
+          </IconButton>
+        </Tooltip>
 
-          {/** Open menu or drag */}
-          <ToolbarButton
-            tooltip={t('tooltip.openMenu')}
+        {/** Open menu or drag */}
+        <Tooltip disableInteractive={true} title={t('blockActions.dragAndOpenTooltip')} placement={'top-start'}>
+          <IconButton
+            style={{
+              pointerEvents: show ? 'auto' : 'none',
+            }}
+            data-draggable-anchor={id}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              if (!nodeId) return;
               dispatch(
                 setRectSelectionThunk({
                   docId,
-                  selection: [nodeId],
+                  selection: [id],
                 })
               );
 
               handleOpen(e);
             }}
+            sx={{
+              height: 24,
+              width: 24,
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <DragIndicatorRoundedIcon />
-          </ToolbarButton>
-        </div>
-      </Portal>
+          </IconButton>
+        </Tooltip>
+      </div>
 
-      <Popover {...popoverProps}>
-        <BlockMenu id={nodeId} onClose={popoverProps.onClose} />
+      <Popover open={open} {...popoverProps}>
+        <BlockMenu id={id} onClose={popoverProps.onClose} />
       </Popover>
     </>
   );

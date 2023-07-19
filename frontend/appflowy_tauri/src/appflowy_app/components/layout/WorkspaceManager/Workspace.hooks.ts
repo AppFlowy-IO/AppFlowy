@@ -20,26 +20,34 @@ export function useLoadWorkspaces() {
     return new WorkspaceManagerController();
   }, []);
 
+  const initializeWorkspaces = useCallback(async () => {
+    const workspaces = await controller.getWorkspaces();
+    const currentWorkspace = await controller.getCurrentWorkspace();
+
+    dispatch(
+      workspaceActions.initWorkspaces({
+        workspaces,
+        currentWorkspace,
+      })
+    );
+  }, [controller, dispatch]);
+
+  const subscribeToWorkspaces = useCallback(async () => {
+    await controller.subscribe({
+      onWorkspacesChanged,
+    });
+  }, [controller, onWorkspacesChanged]);
+
   useEffect(() => {
     void (async () => {
-      const workspaces = await controller.getWorkspaces();
-      const currentWorkspace = await controller.getCurrentWorkspace();
-
-      await controller.subscribe({
-        onWorkspacesChanged,
-      });
-      dispatch(
-        workspaceActions.initWorkspaces({
-          workspaces,
-          currentWorkspace,
-        })
-      );
+      await initializeWorkspaces();
+      await subscribeToWorkspaces();
     })();
 
     return () => {
       controller.dispose();
     };
-  }, [controller, dispatch, onWorkspacesChanged]);
+  }, [controller, initializeWorkspaces, subscribeToWorkspaces]);
 
   return {
     workspaces,
@@ -86,27 +94,35 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     [dispatch, id]
   );
 
+  const initializeWorkspace = useCallback(async () => {
+    const childPages = await controller.getChildPages();
+
+    dispatch(
+      pagesActions.addChildPages({
+        id,
+        childPages,
+      })
+    );
+  }, [controller, dispatch, id]);
+
+  const subscribeToWorkspace = useCallback(async () => {
+    await controller.subscribe({
+      onWorkspaceChanged,
+      onWorkspaceDeleted,
+      onChildPagesChanged,
+    });
+  }, [controller, onChildPagesChanged, onWorkspaceChanged, onWorkspaceDeleted]);
+
   useEffect(() => {
     void (async () => {
-      const childPages = await controller.getChildPages();
-
-      dispatch(
-        pagesActions.addChildPages({
-          id,
-          childPages,
-        })
-      );
-      await controller.subscribe({
-        onWorkspaceChanged,
-        onWorkspaceDeleted,
-        onChildPagesChanged,
-      });
+      await initializeWorkspace();
+      await subscribeToWorkspace();
     })();
 
     return () => {
       controller.dispose();
     };
-  }, [controller, dispatch, id, onChildPagesChanged, onWorkspaceChanged, onWorkspaceDeleted]);
+  }, [controller, initializeWorkspace, subscribeToWorkspace]);
 
   return {
     openWorkspace,

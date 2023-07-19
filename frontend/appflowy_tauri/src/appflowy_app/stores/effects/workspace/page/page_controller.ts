@@ -1,4 +1,4 @@
-import { CreateViewPayloadPB, UpdateViewPayloadPB, ViewLayoutPB } from '@/services/backend';
+import { ViewLayoutPB } from '@/services/backend';
 import { PageBackendService } from '$app/stores/effects/workspace/page/page_bd_svc';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
 import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
@@ -26,6 +26,20 @@ export class PageController {
 
     if (result.ok) {
       return result.val.id;
+    }
+
+    return Promise.reject(result.err);
+  };
+
+  movePage = async (params: { parentId: string; prevId?: string }): Promise<void> => {
+    const result = await this.backendService.movePage({
+      viewId: this.id,
+      parentId: params.parentId,
+      prevId: params.prevId,
+    });
+
+    if (result.ok) {
+      return result.val;
     }
 
     return Promise.reject(result.err);

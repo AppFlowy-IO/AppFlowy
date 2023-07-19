@@ -52,6 +52,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
 
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
+      if (e.button !== 0) return;
       if (isPointInBlock(e.target as HTMLElement)) {
         return;
       }

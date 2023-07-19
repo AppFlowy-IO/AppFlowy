@@ -12,7 +12,8 @@
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
-    "addAboveTooltip": "to add above"
+    "addAboveTooltip": "to add above",
+    "dragAndOpenTooltip": "Drag to reorder, click to open"
   },
   "signUp": {
     "buttonText": "Sign Up",
