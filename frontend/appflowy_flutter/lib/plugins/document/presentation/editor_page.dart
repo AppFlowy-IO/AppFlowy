@@ -9,6 +9,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'editor_plugins/emoji_shortcut/emoji_shortcut_service.dart';
+
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
   const AppFlowyEditorPage({
@@ -45,6 +47,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
 
   final inlinePageReferenceService = InlinePageReferenceService();
+  final emojiMenuService = EmojiShortcutService();
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
@@ -72,6 +75,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       _customAppFlowyBlockComponentBuilders();
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
+        // emoji shortcut service
+        ...emojiShortCut,
+
         // inline page reference list
         ...inlinePageReferenceShortcuts,
 
@@ -98,6 +104,18 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     inlinePageReferenceService.customPageLinkMenu(
       character: '@',
       style: styleCustomizer.selectionMenuStyleBuilder(),
+    ),
+    // uncomment this to enable the inline page reference list
+    // inlinePageReferenceService.customPageLinkMenu(
+    //   character: '+',
+    //   style: styleCustomizer.selectionMenuStyleBuilder(),
+    // ),
+  ];
+
+  late final emojiShortCut = [
+    emojiMenuService.customEmojiMenuLink(
+      context,
+      character: ':',
     ),
     // uncomment this to enable the inline page reference list
     // inlinePageReferenceService.customPageLinkMenu(
