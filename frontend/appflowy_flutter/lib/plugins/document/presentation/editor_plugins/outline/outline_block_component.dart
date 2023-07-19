@@ -165,7 +165,7 @@ class OutlineItemWidget extends StatelessWidget {
     final style = textStyle.href.combine(textStyle.text);
     return FlowyHover(
       style: HoverStyle(
-        hoverColor: Colors.grey.withOpacity(0.2), // TODO: use theme color.
+        hoverColor: Theme.of(context).hoverColor,
       ),
       child: GestureDetector(
         onTap: () => updateBlockSelection(context),

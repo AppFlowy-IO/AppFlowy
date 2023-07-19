@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'ime.dart';
 import 'util.dart';
 
 extension EditorWidgetTester on WidgetTester {
