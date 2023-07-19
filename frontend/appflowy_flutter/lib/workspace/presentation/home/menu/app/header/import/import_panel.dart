@@ -68,6 +68,7 @@ class ImportPanel extends StatelessWidget {
   final String parentViewId;
   final ImportCallback importCallback;
   final PopoverController popoverController = PopoverController();
+  final imageRegex = RegExp(r'^!\[[^\]]*\]\((.*?)\)');
   @override
   Widget build(BuildContext context) {
     final List<Widget> importCards = ImportType.values
@@ -335,17 +336,8 @@ class ImportPanel extends StatelessWidget {
   }
 
   String? extractImagePath(String text) {
-    const startDelimiter = "![";
-    const endDelimiter = "](";
-    final startIndex = text.indexOf(startDelimiter);
-    final endIndex =
-        text.indexOf(endDelimiter, startIndex + startDelimiter.length);
-
-    if (startIndex != -1 && endIndex != -1) {
-      return text.substring(endIndex + endDelimiter.length, text.length - 1);
-    } else {
-      return null;
-    }
+    final match = imageRegex.firstMatch(text);
+    return match?.group(1);
   }
 
   Future<String>? saveFileLocally(
