@@ -20,9 +20,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
-  CreateWorkspaceParams, DeletedViewPB, FavoritesPB, FolderSnapshotPB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedFavoritesPB, RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB,
-  UpdateViewParams, ViewPB, WorkspacePB,
+  CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
@@ -632,7 +631,17 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
-    self.with_folder(vec![], |folder| folder.get_all_favorites())
+    self.with_folder(vec![], |folder| {
+      let trash_ids = folder
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+      let mut views = folder.get_all_favorites();
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
+    })
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
