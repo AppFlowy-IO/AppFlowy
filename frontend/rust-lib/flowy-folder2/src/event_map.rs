@@ -127,7 +127,7 @@ pub enum FolderEvent {
   #[event()]
   DeleteAllTrash = 27,
 
-  #[event(input = "ImportPB")]
+  #[event(input = "ImportPB", output = "ViewPB")]
   ImportData = 30,
 
   #[event()]

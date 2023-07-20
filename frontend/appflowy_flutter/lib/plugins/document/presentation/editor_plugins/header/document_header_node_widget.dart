@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/template_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,6 +11,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import "package:archive/archive.dart";
 
 import 'cover_editor.dart';
 import 'emoji_icon_widget.dart';
@@ -47,11 +50,13 @@ class DocumentHeaderNodeWidget extends StatefulWidget {
   const DocumentHeaderNodeWidget({
     required this.node,
     required this.editorState,
+    required this.view,
     super.key,
   });
 
   final Node node;
   final EditorState editorState;
+  final ViewPB view;
 
   @override
   State<DocumentHeaderNodeWidget> createState() =>
@@ -95,6 +100,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             editorState: widget.editorState,
             hasCover: hasCover,
             hasIcon: hasIcon,
+            view: widget.view,
           ),
         ),
         if (hasCover)
@@ -166,6 +172,8 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
+  final ViewPB view;
+
   final Future<void> Function({(CoverType, String?)? cover, String? icon})
       onCoverChanged;
 
@@ -175,6 +183,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasCover,
     required this.hasIcon,
     required this.onCoverChanged,
+    required this.view,
     super.key,
   });
 
@@ -218,6 +227,40 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       return [];
     }
     final List<Widget> children = [];
+
+    // TODO: Remove these buttons from here and add to left add menu
+
+    children.add(
+      FlowyButton(
+        leftIconSize: const Size.square(18),
+        onTap: () => TemplateService().saveTemplate(widget.editorState),
+        useIntrinsicWidth: true,
+        leftIcon: const FlowySvg(name: 'editor/image'),
+        text: const FlowyText.regular(
+          "Convert to JSON",
+        ),
+      ),
+    );
+
+    children.add(
+      FlowyButton(
+        leftIconSize: const Size.square(18),
+        onTap: () async {
+          final TemplateService templateService = TemplateService();
+
+          final template =  await templateService.pickTemplate();
+          await templateService.unloadTemplate(
+            widget.view.parentViewId,
+            template,
+          );
+        },
+        useIntrinsicWidth: true,
+        leftIcon: const FlowySvg(name: 'editor/image'),
+        text: const FlowyText.regular(
+          "Add Template",
+        ),
+      ),
+    );
 
     if (!widget.hasCover) {
       children.add(
@@ -491,3 +534,18 @@ class _DocumentIconState extends State<DocumentIcon> {
     );
   }
 }
+
+// * Added this
+Future<void> extractRarFile(String filePath) async {
+  final bytes = await File(filePath).readAsBytes();
+  final archive = ZipDecoder().decodeBytes(bytes);
+
+  for (final file in archive) {
+    final filename = file.name;
+    final data = file.content as List<int>;
+
+    final outputFile = File(filename);
+    await outputFile.writeAsBytes(data);
+  }
+}
+

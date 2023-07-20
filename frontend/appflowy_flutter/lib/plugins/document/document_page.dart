@@ -130,6 +130,7 @@ class _DocumentPageState extends State<DocumentPage> {
     return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
+      view: widget.view,
     );
   }
 

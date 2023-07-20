@@ -1,11 +1,12 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/import.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+
 import 'package:dartz/dartz.dart';
 
 class ImportBackendService {
-  static Future<Either<Unit, FlowyError>> importData(
+  static Future<Either<ViewPB, FlowyError>> importData(
     List<int> data,
     String name,
     String parentViewId,
@@ -17,6 +18,7 @@ class ImportBackendService {
       ..viewLayout = importType.toLayout()
       ..name = name
       ..importType = importType;
+
     return await FolderEventImportData(payload).send();
   }
 }
