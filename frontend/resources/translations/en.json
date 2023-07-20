@@ -277,6 +277,17 @@
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Shortcuts",
+      "command": "Command",
+      "keyBinding": "Keybinding",
+      "addNewCommand": "Add New Command",
+      "updateShortcutStep": "Press desired key combination and press ENTER",
+      "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
+      "resetToDefault": "Reset to default keybindings",
+      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
     }
   },
   "grid": {
