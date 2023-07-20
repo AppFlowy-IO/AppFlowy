@@ -12,9 +12,8 @@ import 'package:path/path.dart' as p;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  group('import files', () {
-    testWidgets('import page from notion', (tester) async {
-
+  group('import file from notion', () {
+    testWidgets('import markdown zip from notion', (tester) async {
       const pageName = 'AppFlowy Test';
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -25,7 +24,6 @@ void main() {
       await tester.tapAddButton();
       await tester.tapImportButton();
 
-      
       final paths = <String>[];
       final ByteData data = await rootBundle
           .load('assets/test/workspaces/import_page_from_notion_test.zip');

@@ -14,6 +14,7 @@ import 'document/document_test_runner.dart' as document_test_runner;
 import 'import_files_test.dart' as import_files_test;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
+import 'import_page_from_notion_test.dart' as import_page_from_notion_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -27,6 +28,7 @@ void main() {
   switch_folder_test.main();
   share_markdown_test.main();
   import_files_test.main();
+  import_page_from_notion_test.main();
 
   // Document integration tests
   document_test_runner.startTesting();
