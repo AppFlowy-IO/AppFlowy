@@ -27,7 +27,7 @@ function NestedPageTitle({
   onRename: (newName: string) => Promise<void>;
 }) {
   const page = useAppSelector((state) => {
-    return state.pages.map[pageId];
+    return state.pages.pageMap[pageId];
   });
   const [isHovering, setIsHovering] = useState(false);
   const isSelected = useSelectedPage(pageId);

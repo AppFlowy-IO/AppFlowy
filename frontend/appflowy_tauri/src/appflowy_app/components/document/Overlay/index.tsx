@@ -15,7 +15,6 @@ export default function Overlay({ container }: { container: HTMLDivElement }) {
   useUndoRedo(container);
   return (
     <>
-      <BlockSideToolbar container={container} />
       <TextActionMenu container={container} />
       <BlockSelection container={container} />
       <BlockSlash container={container} />
