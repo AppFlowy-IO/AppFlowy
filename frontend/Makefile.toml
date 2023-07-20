@@ -2,6 +2,7 @@
 
 extend = [
   { path = "scripts/makefile/desktop.toml" },
+  { path = "scripts/makefile/mobile.toml" },
   { path = "scripts/makefile/protobuf.toml" },
   { path = "scripts/makefile/tests.toml" },
   { path = "scripts/makefile/docker.toml" },
@@ -150,6 +151,14 @@ LINUX_ARCH = "arm64"
 APP_ENVIRONMENT = "production"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
+[env.development-ios-arm64-sim]
+BUILD_FLAG = "debug"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Debug"
+RUST_COMPILE_TARGET = "aarch64-apple-ios-sim"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
 [tasks.echo_env]
 script = ['''
     echo "-------- Env Parameters --------"
@@ -164,12 +173,6 @@ script = ['''
     echo ${BUILD_ARCHS}
     ''']
 script_runner = "@shell"
-
-[env.production-ios]
-BUILD_FLAG = "release"
-TARGET_OS = "ios"
-FLUTTER_OUTPUT_DIR = "Release"
-PRODUCT_EXT = "ipa"
 
 [env.development-android]
 BUILD_FLAG = "debug"

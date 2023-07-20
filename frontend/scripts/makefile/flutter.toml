@@ -38,6 +38,16 @@ mac_alias = "appflowy-macos-dev"
 windows_alias = "appflowy-windows-dev"
 linux_alias = "appflowy-linux-dev"
 
+[tasks.appflowy-ios-dev-sim]
+dependencies = ["appflowy-core-dev-ios-sim"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-macos-dev]
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [

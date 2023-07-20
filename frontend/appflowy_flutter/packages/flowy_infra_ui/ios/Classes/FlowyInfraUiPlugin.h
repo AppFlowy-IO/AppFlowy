@@ -1,4 +1,4 @@
 #import <Flutter/Flutter.h>
 
-@interface FlowyInfraUiPlugin : NSObject<FlutterPlugin>
+@interface FlowyInfraUIPlugin : NSObject <FlutterPlugin>
 @end
