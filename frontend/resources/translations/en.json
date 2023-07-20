@@ -12,7 +12,8 @@
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
-    "addAboveTooltip": "to add above"
+    "addAboveTooltip": "to add above",
+    "dragAndOpenTooltip": "Drag to reorder, click to open"
   },
   "signUp": {
     "buttonText": "Sign Up",
@@ -276,6 +277,17 @@
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Shortcuts",
+      "command": "Command",
+      "keyBinding": "Keybinding",
+      "addNewCommand": "Add New Command",
+      "updateShortcutStep": "Press desired key combination and press ENTER",
+      "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
+      "resetToDefault": "Reset to default keybindings",
+      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
     }
   },
   "grid": {
