@@ -17,6 +17,7 @@ import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
 import 'tabs_test.dart' as tabs_test;
+import 'import_page_from_notion_test.dart' as import_page_from_notion_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -30,6 +31,7 @@ void main() {
   switch_folder_test.main();
   share_markdown_test.main();
   import_files_test.main();
+  import_page_from_notion_test.main();
 
   // Document integration tests
   document_test_runner.startTesting();
