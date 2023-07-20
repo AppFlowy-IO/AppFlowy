@@ -38,11 +38,11 @@ void main() {
       );
       // mock get files
 
-      expect(find.widgetWithText(Card, 'Page'), findsNothing);
-      await tester.tapButtonWithName('Import from Notion');
-      expect(find.widgetWithText(Card, 'Page'), findsOneWidget);
-      await tester.tapButtonWithName('Page');
-      expect(find.text('Import Notion Page'), findsOneWidget);
+      expect(find.widgetWithText(Card, 'From Markdown Zip'), findsNothing);
+      await tester.tapButtonWithName('Import from Notion Markdown Zip');
+      expect(find.widgetWithText(Card, 'From Markdown Zip'), findsOneWidget);
+      await tester.tapButtonWithName('From Markdown Zip');
+      expect(find.text('Import Notion From Markdown Zip'), findsOneWidget);
       await mockPickFilePaths(
         paths: paths,
       );
@@ -52,8 +52,29 @@ void main() {
       //the above one openPage command closes the import panel
       await tester.openPage(pageName);
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([4])!.type,
+        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        HeadingBlockKeys.type,
+      );
+      expect(
+        tester.editor.getCurrentEditorState().getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
+      );
+      expect(
+        tester.editor.getCurrentEditorState().getNodeAtPath([3])!.type,
+        ImageBlockKeys.type,
+      );
+      expect(
+        tester.editor.getCurrentEditorState().getNodeAtPath([4])!.type,
+        DividerBlockKeys.type,
+      );
+      expect(
+        tester.editor.getCurrentEditorState().getNodeAtPath([5])!.type,
+        BulletedListBlockKeys.type,
+      );
+      //the below line get the href from the text
+      final hrefFromText = tester.editor.getCurrentEditorState().getNodeAtPath([7])!.attributes.values.elementAt(0)[0]['attributes']['href'];
+      expect(
+        hrefFromText,'https://appflowy.gitbook.io/docs/essential-documentation/readme',
       );
     });
   });
