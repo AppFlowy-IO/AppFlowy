@@ -26,7 +26,6 @@ class ShortcutEmojiPickerView extends EmojiPickerBuilder {
   ShortcutEmojiPickerViewState createState() => ShortcutEmojiPickerViewState();
 }
 
-@visibleForTesting
 class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     with TickerProviderStateMixin {
   PageController? _pageController;
@@ -39,8 +38,12 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
   final Color selectedItemColor = const Color(0xFFE0F8FF);
   final resultsFilterCount = 35;
 
+  bool get isEmojiSearching =>
+      searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
+
   @override
   void initState() {
+    super.initState();
     var initCategory = widget.state.categoryEmoji.indexWhere(
       (element) => element.category == widget.config.initCategory,
     );
@@ -58,7 +61,6 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
-    super.initState();
   }
 
   @override
@@ -68,11 +70,8 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     super.dispose();
   }
 
-  bool get isEmojiSearching =>
-      searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
-
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    final CategoryEmoji catEmoji = isEmojiSearching
+    final catEmoji = isEmojiSearching
         ? searchEmojiList
         : widget.state.categoryEmoji[_tabController!.index];
 
@@ -98,9 +97,8 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
       if (showingItems.isEmpty) {
         return KeyEventResult.handled;
       }
-      for (int i = 0; i < _emojiController.text.length + 1; i++) {
-        _deleteLastCharacters();
-      }
+      _deleteLastCharacters(length: _emojiController.text.length + 1);
+
       widget.state.onEmojiSelected(
         Category.SEARCH,
         showingItems[_selectedIndex],
@@ -130,7 +128,7 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
         !arrowKeys.contains(event.logicalKey)) {
       _emojiController.text += event.character!;
       _searchEmoji();
-      _insertText(event.character!);
+      widget.editorState.insertTextAtCurrentSelection(event.character!);
       return KeyEventResult.handled;
     }
 
@@ -140,14 +138,14 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
       newSelectedIndex += 1;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-      newSelectedIndex -= 7;
+      newSelectedIndex -= widget.config.columns;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-      newSelectedIndex += 7;
+      newSelectedIndex += widget.config.columns;
     } else if (event.logicalKey == LogicalKeyboardKey.tab) {
       newSelectedIndex += 7;
-      final currRow = (newSelectedIndex) % 7;
+      final currRow = (newSelectedIndex) % widget.config.columns;
       if (newSelectedIndex >= showingItems.length) {
-        newSelectedIndex = (currRow + 1) % 7;
+        newSelectedIndex = (currRow + 1) % widget.config.columns;
       }
     }
 
@@ -161,7 +159,7 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
     return KeyEventResult.ignored;
   }
 
-  _searchEmoji() {
+  void _searchEmoji() {
     final String query = _emojiController.text.toLowerCase();
 
     searchEmojiList.emoji.clear();
@@ -196,70 +194,6 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
         length,
       );
     widget.editorState.apply(transaction);
-  }
-
-  void _insertText(String text) {
-    final selection = widget.editorState.selection;
-    if (selection == null || !selection.isSingle) {
-      return;
-    }
-    final node = widget.editorState.getNodeAtPath(selection.end.path);
-    if (node == null) {
-      return;
-    }
-    final transaction = widget.editorState.transaction
-      ..insertText(
-        node,
-        selection.end.offset,
-        text,
-      );
-    widget.editorState.apply(transaction);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _focusNode,
-      onKey: _onKey,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
-          return Visibility(
-            visible: _emojiController.text.isNotEmpty,
-            child: Container(
-              color: widget.config.bgColor,
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                children: [
-                  Flexible(
-                    child: PageView.builder(
-                      itemCount: searchEmojiList.emoji.isNotEmpty
-                          ? 1
-                          : widget.state.categoryEmoji.length,
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      onPageChanged: (index) {
-                        _tabController!.animateTo(
-                          index,
-                          duration: widget.config.tabIndicatorAnimDuration,
-                        );
-                      },
-                      itemBuilder: (context, index) {
-                        final CategoryEmoji catEmoji = isEmojiSearching
-                            ? searchEmojiList
-                            : widget.state.categoryEmoji[index];
-
-                        return _buildPage(emojiSize, catEmoji);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
   }
 
   Widget _buildButtonWidget({
@@ -361,6 +295,52 @@ class ShortcutEmojiPickerViewState extends State<ShortcutEmojiPickerView>
         widget.config.noRecentsText,
         style: widget.config.noRecentsStyle,
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKey: _onKey,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
+          return Visibility(
+            visible: _emojiController.text.isNotEmpty,
+            child: Container(
+              color: widget.config.bgColor,
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                children: [
+                  Flexible(
+                    child: PageView.builder(
+                      itemCount: searchEmojiList.emoji.isNotEmpty
+                          ? 1
+                          : widget.state.categoryEmoji.length,
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      onPageChanged: (index) {
+                        _tabController!.animateTo(
+                          index,
+                          duration: widget.config.tabIndicatorAnimDuration,
+                        );
+                      },
+                      itemBuilder: (context, index) {
+                        final CategoryEmoji catEmoji = isEmojiSearching
+                            ? searchEmojiList
+                            : widget.state.categoryEmoji[index];
+
+                        return _buildPage(emojiSize, catEmoji);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

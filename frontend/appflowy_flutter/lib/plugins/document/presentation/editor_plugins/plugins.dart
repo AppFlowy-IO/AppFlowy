@@ -22,3 +22,4 @@ export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';
+export 'emoji_shortcut/emoji_shortcut_service.dart';

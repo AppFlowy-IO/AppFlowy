@@ -9,8 +9,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'editor_plugins/emoji_shortcut/emoji_shortcut_service.dart';
-
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
   const AppFlowyEditorPage({
