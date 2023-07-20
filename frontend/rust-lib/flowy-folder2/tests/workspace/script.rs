@@ -2,6 +2,7 @@ use collab_folder::core::ViewLayout;
 
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder2::protobuf::FavoritesPB;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 
@@ -25,6 +26,7 @@ pub enum FolderScript {
   UpdateParentView {
     name: Option<String>,
     desc: Option<String>,
+    is_favorite: Option<bool>,
   },
   DeleteParentView,
 
@@ -39,6 +41,7 @@ pub enum FolderScript {
   UpdateView {
     name: Option<String>,
     desc: Option<String>,
+    is_favorite: Option<bool>,
   },
   DeleteView,
   DeleteViews(Vec<String>),
@@ -48,6 +51,8 @@ pub enum FolderScript {
   RestoreViewFromTrash,
   ReadTrash,
   DeleteAllTrash,
+  ToggleFavorite,
+  ReadFavorites,
 }
 
 pub struct FolderTest {
@@ -57,6 +62,7 @@ pub struct FolderTest {
   pub parent_view: ViewPB,
   pub child_view: ViewPB,
   pub trash: Vec<TrashPB>,
+  pub favorites: Vec<ViewPB>,
 }
 
 impl FolderTest {
@@ -80,6 +86,7 @@ impl FolderTest {
       parent_view,
       child_view: view,
       trash: vec![],
+      favorites: vec![],
     }
   }
 
@@ -118,8 +125,12 @@ impl FolderTest {
         let parent_view = read_view(sdk, &parent_view_id).await;
         self.parent_view = parent_view;
       },
-      FolderScript::UpdateParentView { name, desc } => {
-        update_view(sdk, &self.parent_view.id, name, desc).await;
+      FolderScript::UpdateParentView {
+        name,
+        desc,
+        is_favorite,
+      } => {
+        update_view(sdk, &self.parent_view.id, name, desc, is_favorite).await;
       },
       FolderScript::DeleteParentView => {
         delete_view(sdk, vec![self.parent_view.id.clone()]).await;
@@ -135,8 +146,12 @@ impl FolderTest {
         let view = read_view(sdk, &view_id).await;
         self.child_view = view;
       },
-      FolderScript::UpdateView { name, desc } => {
-        update_view(sdk, &self.child_view.id, name, desc).await;
+      FolderScript::UpdateView {
+        name,
+        desc,
+        is_favorite,
+      } => {
+        update_view(sdk, &self.child_view.id, name, desc, is_favorite).await;
       },
       FolderScript::DeleteView => {
         delete_view(sdk, vec![self.child_view.id.clone()]).await;
@@ -157,6 +172,13 @@ impl FolderTest {
       FolderScript::DeleteAllTrash => {
         delete_all_trash(sdk).await;
         self.trash = vec![];
+      },
+      FolderScript::ToggleFavorite => {
+        toggle_favorites(sdk, vec![self.child_view.id.clone()]).await;
+      },
+      FolderScript::ReadFavorites => {
+        let favorites = read_favorites(sdk).await;
+        self.favorites = favorites.to_vec();
       },
     }
   }
@@ -261,11 +283,14 @@ pub async fn update_view(
   view_id: &str,
   name: Option<String>,
   desc: Option<String>,
+  is_favorite: Option<bool>,
 ) {
+  println!("Toggling update view {:?}", is_favorite);
   let request = UpdateViewPayloadPB {
     view_id: view_id.to_string(),
     name,
     desc,
+    is_favorite,
     ..Default::default()
   };
   EventBuilder::new(sdk.clone())
@@ -319,4 +344,21 @@ pub async fn delete_all_trash(sdk: &FlowyCoreTest) {
     .event(DeleteAllTrash)
     .async_send()
     .await;
+}
+
+pub async fn toggle_favorites(sdk: &FlowyCoreTest, view_id: Vec<String>) {
+  let request = RepeatedViewIdPB { items: view_id };
+  EventBuilder::new(sdk.clone())
+    .event(ToggleFavorite)
+    .payload(request)
+    .async_send()
+    .await;
+}
+
+pub async fn read_favorites(sdk: &FlowyCoreTest) -> RepeatedViewPB {
+  EventBuilder::new(sdk.clone())
+    .event(ReadFavorites)
+    .async_send()
+    .await
+    .parse::<RepeatedViewPB>()
 }

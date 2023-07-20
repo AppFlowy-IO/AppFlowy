@@ -98,6 +98,7 @@ async fn update_parent_view_test() {
       UpdateParentView {
         name: Some(new_name.clone()),
         desc: None,
+        is_favorite: None,
       },
       ReloadParentView(parent_view.id),
     ])
@@ -143,6 +144,7 @@ async fn view_update() {
       UpdateView {
         name: Some(new_name.clone()),
         desc: None,
+        is_favorite: None,
       },
       ReadView(view.id),
     ])
@@ -247,4 +249,79 @@ async fn view_delete_all_permanent() {
 
   assert_eq!(test.parent_view.child_views.len(), 0);
   assert_eq!(test.trash.len(), 0);
+}
+
+#[tokio::test]
+async fn toggle_favorites() {
+  let mut test = FolderTest::new().await;
+  let view = test.child_view.clone();
+  test
+    .run_scripts(vec![
+      UpdateView {
+        name: None,
+        desc: None,
+        is_favorite: Some(!view.is_favorite),
+      },
+      ReadView(view.id.clone()),
+      ToggleFavorite,
+      ReadFavorites,
+      ReloadParentView(view.parent_view_id.clone()),
+    ])
+    .await;
+  assert_eq!(test.child_view.is_favorite, true);
+  assert!(test.favorites.len() != 0);
+  assert_eq!(test.favorites[0].id, view.id);
+
+  let view = test.child_view.clone();
+  test
+    .run_scripts(vec![
+      UpdateView {
+        name: None,
+        desc: None,
+        is_favorite: Some(!view.is_favorite),
+      },
+      ReadView(view.id),
+      ToggleFavorite,
+      ReadFavorites,
+      ReloadParentView(view.parent_view_id.clone()),
+    ])
+    .await;
+
+  assert!(!test.child_view.is_favorite);
+  assert!(test.favorites.is_empty());
+}
+
+#[tokio::test]
+async fn delete_and_restore_child_favorites() {
+  let mut test = FolderTest::new().await;
+  let view = test.child_view.clone();
+  test
+    .run_scripts(vec![
+      UpdateView {
+        name: None,
+        desc: None,
+        is_favorite: Some(!view.is_favorite),
+      },
+      ReadView(view.id.clone()),
+      ToggleFavorite,
+      ReadFavorites,
+      ReloadParentView(view.parent_view_id.clone()),
+    ])
+    .await;
+  assert_eq!(test.child_view.is_favorite, true);
+  assert!(test.favorites.len() != 0);
+  assert_eq!(test.favorites[0].id, view.id);
+
+  let view = test.child_view.clone();
+  test
+    .run_scripts(vec![
+      DeleteView,
+      RestoreViewFromTrash,
+      ReadView(view.id.clone()),
+      ReadFavorites,
+    ])
+    .await;
+  assert_eq!(test.child_view.is_favorite, true);
+  assert!(test.favorites.len() != 0);
+  assert_eq!(test.favorites[0].id, view.id);
 }
