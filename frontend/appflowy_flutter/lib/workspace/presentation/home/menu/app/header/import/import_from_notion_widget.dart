@@ -127,6 +127,7 @@ class NotionImportTips extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(type.tooltips),
+            const SizedBox(height: 20),
             Center(
               child: FlowyButton(
                 text: FlowyText.medium(

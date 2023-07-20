@@ -114,12 +114,22 @@ class NotionImporter {
     return result.join('\n');
   }
 
-  Future<String> _saveImage(ArchiveFile image) async {
+  Future<String> _saveImage(
+    ArchiveFile image,
+  ) async {
     final path = await getIt<ApplicationDataStorage>().getPath();
-    final imagePath = p.join(path, 'images');
+    final imagePath = p.join(
+      path,
+      'images',
+    );
     final directory = Directory(imagePath);
-    await directory.create(recursive: true);
-    final copyToPath = p.join(imagePath, '${uuid()}${p.extension(image.name)}');
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    final copyToPath = p.join(
+      imagePath,
+      '${uuid()}${p.extension(image.name)}',
+    );
     await File(copyToPath).writeAsBytes(image.content as Uint8List);
     return copyToPath;
   }
