@@ -83,27 +83,41 @@ enum ImportType {
 }
 
 enum ImportFromNotionType {
-  page;
+  markdownZip;
 
   @override
   String toString() {
     switch (this) {
-      case ImportFromNotionType.page:
-        return 'Page';
+      case ImportFromNotionType.markdownZip:
+        return 'Document Page';
     }
   }
 
   List<String> get allowedExtensions {
     switch (this) {
-      case ImportFromNotionType.page:
+      case ImportFromNotionType.markdownZip:
         return ['zip'];
     }
   }
 
   bool get allowMultiSelect {
     switch (this) {
-      case ImportFromNotionType.page:
+      case ImportFromNotionType.markdownZip:
         return false;
+    }
+  }
+
+  String get tooltips {
+    switch (this) {
+      case ImportFromNotionType.markdownZip:
+        return '''
+        1. Go to the page you want to export
+        2. Click on the three dots on the top right corner
+        3. Click on export
+        4. Click on Markdown & CSV
+        5. Click on export
+        6. Select the file you just downloaded
+        ''';
     }
   }
 }
