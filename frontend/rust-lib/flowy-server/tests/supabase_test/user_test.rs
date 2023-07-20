@@ -4,7 +4,7 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 use uuid::Uuid;
 
-use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
+use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_EMAIL, USER_UUID};
 use flowy_server::supabase::{PgConnectMode, PostgresServer, SupabaseServerServiceImpl};
 use flowy_server_config::supabase_config::PostgresConfiguration;
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};

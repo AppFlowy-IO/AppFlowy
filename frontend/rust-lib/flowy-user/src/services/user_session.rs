@@ -381,14 +381,10 @@ impl UserSession {
     let token = token.to_owned();
     let _ = tokio::spawn(async move {
       let credentials = UserCredentials::new(token, Some(uid), None);
-      match server.update_user(credentials, params).await {
-        Ok(_) => {},
-        Err(e) => {
-          tracing::error!("update user profile failed: {:?}", e);
-        },
-      }
+      server.update_user(credentials, params).await
     })
-    .await;
+    .await
+    .map_err(internal_error)??;
     Ok(())
   }
 
@@ -492,7 +488,7 @@ impl std::convert::From<Session> for String {
   }
 }
 
-pub fn uuid_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
+pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
   let map: HashMap<String, String> = any.unbox_or_error()?;
   let uuid = uuid_from_map(&map)?;
   let email = map.get("email").cloned().unwrap_or_default();

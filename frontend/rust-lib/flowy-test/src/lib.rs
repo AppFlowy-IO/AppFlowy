@@ -19,8 +19,9 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
+use flowy_server::supabase::impls::{USER_EMAIL, USER_UUID};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
-use flowy_user::errors::FlowyError;
+use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
 use crate::event_builder::EventBuilder;
@@ -108,9 +109,17 @@ impl FlowyCoreTest {
     self.sign_up_as_guest().await.user_profile
   }
 
-  pub async fn sign_up_with_uuid(&self, uuid: &str) -> UserProfilePB {
+  pub async fn third_party_sign_up_with_uuid(
+    &self,
+    uuid: &str,
+    email: Option<String>,
+  ) -> FlowyResult<UserProfilePB> {
     let mut map = HashMap::new();
-    map.insert("uuid".to_string(), uuid.to_string());
+    map.insert(USER_UUID.to_string(), uuid.to_string());
+    map.insert(
+      USER_EMAIL.to_string(),
+      email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(6))),
+    );
     let payload = ThirdPartyAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
@@ -121,11 +130,11 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<UserProfilePB>();
+      .try_parse::<UserProfilePB>()?;
 
     let user_path = PathBuf::from(&self.config.storage_path).join(user_profile.id.to_string());
     *self.cleaner.write() = Some(Cleaner::new(user_path));
-    user_profile
+    Ok(user_profile)
   }
 
   // Must sign up/ sign in first

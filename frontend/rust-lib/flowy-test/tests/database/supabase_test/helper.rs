@@ -22,14 +22,20 @@ impl FlowySupabaseDatabaseTest {
   #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
-    inner.sign_up_with_uuid(&uuid).await;
+    inner
+      .third_party_sign_up_with_uuid(&uuid, None)
+      .await
+      .unwrap();
     Some(Self { uuid, inner })
   }
 
   pub async fn new_with_new_user() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
-    let _ = inner.sign_up_with_uuid(&uuid).await;
+    let _ = inner
+      .third_party_sign_up_with_uuid(&uuid, None)
+      .await
+      .unwrap();
     Some(Self { uuid, inner })
   }
 

@@ -215,8 +215,11 @@ pub enum ErrorCode {
   #[error("Postgres database error")]
   PgDatabaseError = 70,
 
+  #[error("Postgres transaction error")]
+  PgTransactionError = 71,
+
   #[error("Enable supabase sync")]
-  SupabaseSyncRequired = 71,
+  SupabaseSyncRequired = 72,
 }
 
 impl ErrorCode {

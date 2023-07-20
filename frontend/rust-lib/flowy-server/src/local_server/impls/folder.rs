@@ -25,6 +25,22 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     })
   }
 
+  fn add_member_to_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+
+  fn remove_member_from_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+
   fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
     FutureResult::new(async move { Ok(None) })
   }

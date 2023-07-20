@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use anyhow::Error;
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
 use futures_util::StreamExt;
@@ -10,11 +11,12 @@ use uuid::Uuid;
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials};
-use flowy_user::services::{uuid_from_box_any, AuthType};
+use flowy_user::services::{third_party_params_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
+use crate::supabase::impls::util::try_upgrade_server;
 use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
 use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::{PgConnectMode, SupabaseServerService};
@@ -22,6 +24,7 @@ use crate::supabase::{PgConnectMode, SupabaseServerService};
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
 pub const USER_UUID: &str = "uuid";
+pub const USER_EMAIL: &str = "email";
 
 pub struct SupabaseUserAuthServiceImpl<T> {
   server: T,
@@ -43,17 +46,16 @@ where
     tokio::spawn(async move {
       tx.send(
         async move {
-          match weak_server?.upgrade() {
-            Some(server) => {
-              let client = server.get_pg_client().await.recv().await?;
-              let params = uuid_from_box_any(params)?;
-              create_user_with_uuid(&client, params.uuid, params.email).await
-            },
-            None => Err(FlowyError::new(
-              ErrorCode::PgDatabaseError,
-              "Server is close",
-            )),
-          }
+          let server = try_upgrade_server(weak_server)?;
+          let mut client = server.get_pg_client().await.recv().await?;
+          let params = third_party_params_from_box_any(params)?;
+          create_user_with_uuid(&mut client, params.uuid, params.email)
+            .await
+            .map_err(|err| {
+              err
+                .downcast::<FlowyError>()
+                .unwrap_or_else(|err| FlowyError::new(ErrorCode::PgDatabaseError, err))
+            })
         }
         .await,
       )
@@ -67,23 +69,15 @@ where
     tokio::spawn(async move {
       tx.send(
         async {
-          match server?.upgrade() {
-            None => Err(FlowyError::new(
-              ErrorCode::PgDatabaseError,
-              "Server is close",
-            )),
-            Some(server) => {
-              let client = server.get_pg_client().await.recv().await?;
-              let uuid = uuid_from_box_any(params)?.uuid;
-              let user_profile =
-                get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
-              Ok(SignInResponse {
-                user_id: user_profile.uid,
-                workspace_id: user_profile.workspace_id,
-                ..Default::default()
-              })
-            },
-          }
+          let server = try_upgrade_server(server)?;
+          let client = server.get_pg_client().await.recv().await?;
+          let uuid = third_party_params_from_box_any(params)?.uuid;
+          let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
+          Ok(SignInResponse {
+            user_id: user_profile.uid,
+            workspace_id: user_profile.workspace_id,
+            ..Default::default()
+          })
         }
         .await,
       )
@@ -165,16 +159,9 @@ where
     tokio::spawn(async move {
       tx.send(
         async move {
-          match weak_server?.upgrade() {
-            None => Err(FlowyError::new(
-              ErrorCode::PgDatabaseError,
-              "Server is close",
-            )),
-            Some(server) => {
-              let client = server.get_pg_client().await.recv().await?;
-              check_user(&client, &pg_mode, credential.uid, uuid).await
-            },
-          }
+          let server = try_upgrade_server(weak_server)?;
+          let client = server.get_pg_client().await.recv().await?;
+          check_user(&client, &pg_mode, credential.uid, uuid).await
         }
         .await,
       )
@@ -184,26 +171,40 @@ where
 }
 
 async fn create_user_with_uuid(
-  client: &PostgresObject,
+  client: &mut PostgresObject,
   uuid: Uuid,
   email: String,
-) -> Result<SignUpResponse, FlowyError> {
+) -> Result<SignUpResponse, anyhow::Error> {
   let mut is_new = true;
-  if let Err(e) = client
-    .execute(
-      &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
-      &[&uuid, &email],
+  let row = client
+    .query_one(
+      &format!(
+        "SELECT EXISTS (SELECT 1 FROM {} WHERE uuid = $1)",
+        USER_TABLE
+      ),
+      &[&uuid],
     )
-    .await
-  {
-    if let Some(code) = e.code() {
-      if code == &SqlState::UNIQUE_VIOLATION {
-        is_new = false;
-      } else {
-        return Err(FlowyError::new(ErrorCode::PgDatabaseError, e));
+    .await?;
+  if row.get::<'_, usize, bool>(0) {
+    is_new = false;
+  } else {
+    if let Err(err) = client
+      .execute(
+        &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
+        &[&uuid, &email],
+      )
+      .await
+    {
+      if let Some(db_error) = err.as_db_error() {
+        if db_error.code() == &SqlState::UNIQUE_VIOLATION {
+          let detail = db_error.detail();
+          tracing::error!("create user failed:{:?}", detail);
+          return Err(FlowyError::email_exist().context(db_error.message()).into());
+        }
       }
+      return Err(err.into());
     }
-  };
+  }
 
   let user_profile = get_user_profile(client, GetUserProfileParams::Uuid(uuid)).await?;
   Ok(SignUpResponse {
@@ -216,8 +217,11 @@ async fn create_user_with_uuid(
   })
 }
 
-async fn get_user_profile(
-  client: &PostgresObject,
+/// Returns the user profile of the given user.
+/// Can't use `get_user_profile` with sign up in the same transaction because
+/// there is a trigger on the user table that creates a user profile.
+async fn get_user_profile<C: GenericClient>(
+  client: &C,
   params: GetUserProfileParams,
 ) -> Result<UserProfileResponse, FlowyError> {
   let rows = match params {
@@ -259,12 +263,32 @@ async fn update_user_profile(
       format!("Update user profile params is empty: {:?}", params),
     ));
   }
+
+  // The email is unique, so we need to check if the email already exists.
+  if let Some(email) = params.email.as_ref() {
+    let row = client
+      .query_one(
+        &format!(
+          "SELECT EXISTS (SELECT 1 FROM {} WHERE email = $1 and uid != $2)",
+          USER_PROFILE_TABLE
+        ),
+        &[&email, &params.id],
+      )
+      .await
+      .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+    if row.get::<'_, usize, bool>(0) {
+      return Err(FlowyError::new(
+        ErrorCode::EmailAlreadyExists,
+        format!("Email {} already exists", email),
+      ));
+    }
+  }
+
   let (sql, pg_params) = UpdateSqlBuilder::new(USER_PROFILE_TABLE)
     .set("name", params.name)
     .set("email", params.email)
     .where_clause("uid", params.id)
     .build();
-
   let stmt = prepare_cached(pg_mode, sql, client).await.map_err(|e| {
     FlowyError::new(
       ErrorCode::PgDatabaseError,

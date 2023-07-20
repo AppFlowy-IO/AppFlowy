@@ -58,9 +58,8 @@ impl DatabaseManager {
     read_txn.is_exist(uid, object_id)
   }
 
-  pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64, workspace_database_id: String) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
-    let workspace_database_id = make_workspace_database_id(uid);
     let collab_builder = UserDatabaseCollabServiceImpl {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
@@ -103,8 +102,12 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn initialize_with_new_user(&self, user_id: i64, _token: &str) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    workspace_database_id: String,
+  ) -> FlowyResult<()> {
+    self.initialize(user_id, workspace_database_id).await?;
     Ok(())
   }
 

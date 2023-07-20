@@ -55,6 +55,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_sign_up(&self, context: SignUpContext, user_profile: &UserProfile)
     -> Fut<FlowyResult<()>>;
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn did_open_workspace(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
 }
 
 /// The user cloud service provider.
@@ -170,6 +171,10 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   }
 
   fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_open_workspace(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 }

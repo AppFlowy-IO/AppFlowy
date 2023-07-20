@@ -10,7 +10,7 @@ use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{
   AuthTypePB, UpdateUserProfilePayloadPB, UserCredentialsPB, UserProfilePB,
 };
-use flowy_user::errors::FlowyError;
+use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
 use flowy_user::services::AuthType;
@@ -76,12 +76,16 @@ impl FlowySupabaseTest {
       .try_parse::<UserProfilePB>()
   }
 
-  pub async fn update_user_profile(&self, payload: UpdateUserProfilePayloadPB) {
+  pub async fn update_user_profile(
+    &self,
+    payload: UpdateUserProfilePayloadPB,
+  ) -> Option<FlowyError> {
     EventBuilder::new(self.inner.clone())
       .event(UpdateUserProfile)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
   }
 }
 

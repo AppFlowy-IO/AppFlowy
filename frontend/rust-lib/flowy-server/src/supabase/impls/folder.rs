@@ -1,19 +1,22 @@
+use std::sync::{Arc, Weak};
+
 use chrono::{DateTime, Utc};
 use collab_folder::core::{CollabOrigin, Folder};
 use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
+use crate::supabase::impls::util::try_upgrade_server;
 use crate::supabase::impls::{
   get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
 use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
-use crate::supabase::{PgConnectMode, SupabaseServerService};
+use crate::supabase::{PgConnectMode, PostgresServer, SupabaseServerService};
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
 pub(crate) const WORKSPACE_ID: &str = "workspace_id";
@@ -35,28 +38,52 @@ where
   T: SupabaseServerService,
 {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
-    let weak_server = self.server.try_get_pg_server();
     let pg_mode = self.server.get_pg_mode();
+    let weak_server = self.server.try_get_pg_server();
     let (tx, rx) = channel();
     let name = name.to_string();
     tokio::spawn(async move {
       tx.send(
         async move {
-          match weak_server?.upgrade() {
-            None => Err(FlowyError::new(
-              ErrorCode::PgDatabaseError,
-              "Server is close",
-            )),
-            Some(server) => {
-              let client = server.get_pg_client().await.recv().await?;
-              create_workspace(&client, &pg_mode, uid, &name).await
-            },
-          }
+          let server = try_upgrade_server(weak_server)?;
+          let client = server.get_pg_client().await.recv().await?;
+          create_workspace(&client, &pg_mode, uid, &name).await
         }
         .await,
       )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn add_member_to_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    let pg_mode = self.server.get_pg_mode();
+    let weak_server = self.server.try_get_pg_server();
+    let email = email.to_string();
+    let workspace_id = workspace_id.to_string();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let server = try_upgrade_server(weak_server)?;
+          let client = server.get_pg_client().await.recv().await?;
+          add_member_to_workspace(&client, &pg_mode, &email, &workspace_id).await
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn remove_member_from_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError> {
+    todo!()
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
@@ -154,6 +181,15 @@ where
   fn service_name(&self) -> String {
     "Supabase".to_string()
   }
+}
+
+async fn add_member_to_workspace(
+  client: &PostgresObject,
+  pg_mode: &PgConnectMode,
+  email: &str,
+  workspace_id: &str,
+) -> FlowyResult<()> {
+  Ok(())
 }
 
 async fn create_workspace(

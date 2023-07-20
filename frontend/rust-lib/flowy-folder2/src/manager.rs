@@ -186,8 +186,14 @@ impl FolderManager {
     Ok(collab)
   }
 
+  /// Initialize the folder with the given workspace id.
+  /// Fetch the folder updates from the cloud service and initialize the folder.
   #[tracing::instrument(level = "debug", skip(self, user_id), err)]
-  pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_workspace_id(
+    &self,
+    user_id: i64,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
     let folder_updates = self
       .cloud_service
       .get_folder_updates(workspace_id, user_id)
@@ -209,7 +215,9 @@ impl FolderManager {
     Ok(())
   }
 
-  pub async fn initialize_when_sign_up(
+  /// Initialize the folder for the new user.
+  /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
+  pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
     _token: &str,
@@ -239,11 +247,6 @@ impl FolderManager {
           FolderInitializeData::Data(folder_data),
         )
         .await?;
-      // send_notification(token, FolderNotification::DidCreateWorkspace)
-      //   .payload(RepeatedWorkspacePB {
-      //     items: vec![workspace_pb],
-      //   })
-      //   .send();
     } else {
       // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
       // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
@@ -310,6 +313,15 @@ impl FolderManager {
     self.with_folder(None, |folder| folder.workspaces.get_workspace(workspace_id))
   }
 
+  async fn get_current_workspace_id(&self) -> FlowyResult<String> {
+    self
+      .mutex_folder
+      .lock()
+      .as_ref()
+      .and_then(|folder| folder.get_current_workspace_id())
+      .ok_or(FlowyError::internal().context("Unexpected empty workspace id"))
+  }
+
   fn with_folder<F, Output>(&self, default_value: Output, f: F) -> Output
   where
     F: FnOnce(&Folder) -> Output,
@@ -327,6 +339,7 @@ impl FolderManager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
+    let workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();

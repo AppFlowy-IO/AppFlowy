@@ -78,7 +78,7 @@ VALUES (
 -- user table
 CREATE TABLE IF NOT EXISTS af_user (
    uuid UUID PRIMARY KEY,
-   email TEXT DEFAULT '',
+   email TEXT NOT NULL DEFAULT '' UNIQUE,
    uid BIGSERIAL UNIQUE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS af_user (
 CREATE TABLE IF NOT EXISTS af_user_profile (
    uid BIGINT PRIMARY KEY,
    uuid UUID,
-   name TEXT,
+   name TEXT UNIQUE,
    email TEXT,
    workspace_id UUID DEFAULT uuid_generate_v4(),
    FOREIGN KEY (uid) REFERENCES af_user(uid) ON DELETE CASCADE
@@ -101,7 +101,7 @@ END $$LANGUAGE plpgsql;
 CREATE TRIGGER create_af_user_profile_trigger
 AFTER
 INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_user_profile_trigger_func();
--- workspace table
+-- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    owner_uid BIGINT,
@@ -161,6 +161,7 @@ INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION manage_af_workspace_memb
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
    owner_uid BIGINT,
+   workspace_id UUID NOT NULL,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_af_collab_oid ON af_collab (oid);
@@ -174,6 +175,7 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    workspace_id UUID NOT NULL,
    PRIMARY KEY (oid, key)
 );
 -- This trigger is fired before an insert operation on the af_collab_update table. It checks if a corresponding collab
@@ -194,8 +196,8 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER insert_into_af_collab_trigger BEFORE
 INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_if_not_exists();
 CREATE TABLE af_collab_member (
-   uid BIGINT REFERENCES af_user(uid),
-   oid TEXT REFERENCES af_collab(oid),
+   uid BIGINT REFERENCES af_user(uid) ON DELETE CASCADE ,
+   oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
    role_id INTEGER REFERENCES af_roles(id),
    PRIMARY KEY(uid, oid)
 );

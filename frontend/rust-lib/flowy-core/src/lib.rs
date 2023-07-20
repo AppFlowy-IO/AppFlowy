@@ -12,7 +12,7 @@ use std::{
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 
-use flowy_database2::DatabaseManager;
+use flowy_database2::{make_workspace_database_id, DatabaseManager};
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitializeData, FolderManager};
@@ -269,12 +269,15 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let workspace_id = workspace_id.to_owned();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
+    let workspace_database_id = make_workspace_database_id(user_id);
 
     to_fut(async move {
       folder_manager
         .initialize(user_id, &workspace_id, FolderInitializeData::Empty)
         .await?;
-      database_manager.initialize(user_id).await?;
+      database_manager
+        .initialize(user_id, workspace_database_id)
+        .await?;
       Ok(())
     })
   }
@@ -287,9 +290,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
     to_fut(async move {
       folder_manager
-        .initialize_when_sign_in(user_id, &workspace_id)
+        .initialize_with_workspace_id(user_id, &workspace_id)
         .await?;
-      database_manager.initialize(user_id).await?;
+      let workspace_database_id = make_workspace_database_id(user_id);
+      database_manager
+        .initialize(user_id, workspace_database_id)
+        .await?;
       Ok(())
     })
   }
@@ -304,7 +310,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     to_fut(async move {
       folder_manager
-        .initialize_when_sign_up(
+        .initialize_with_new_user(
           user_profile.id,
           &user_profile.token,
           context.is_new,
@@ -312,9 +318,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           &user_profile.workspace_id,
         )
         .await?;
-
+      let workspace_database_id = make_workspace_database_id(user_profile.id);
       database_manager
-        .initialize_with_new_user(user_profile.id, &user_profile.token)
+        .initialize_with_new_user(user_profile.id, workspace_database_id)
         .await?;
 
       Ok(())
@@ -325,6 +331,23 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let folder_manager = self.folder_manager.clone();
     to_fut(async move {
       folder_manager.clear(user_id).await;
+      Ok(())
+    })
+  }
+
+  fn did_open_workspace(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
+    let workspace_id = workspace_id.to_owned();
+    let folder_manager = self.folder_manager.clone();
+    let database_manager = self.database_manager.clone();
+    let workspace_database_id = make_workspace_database_id(user_id);
+
+    to_fut(async move {
+      folder_manager
+        .initialize_with_workspace_id(user_id, &workspace_id)
+        .await?;
+      database_manager
+        .initialize(user_id, workspace_database_id)
+        .await?;
       Ok(())
     })
   }

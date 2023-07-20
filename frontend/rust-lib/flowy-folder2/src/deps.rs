@@ -18,6 +18,18 @@ pub trait FolderUser: Send + Sync {
 pub trait FolderCloudService: Send + Sync + 'static {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError>;
 
+  fn add_member_to_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError>;
+
+  fn remove_member_from_workspace(
+    &self,
+    email: &str,
+    workspace_id: &str,
+  ) -> FutureResult<(), FlowyError>;
+
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError>;
 
   fn get_folder_latest_snapshot(
