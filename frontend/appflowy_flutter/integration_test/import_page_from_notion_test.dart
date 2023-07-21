@@ -71,8 +71,12 @@ void main() {
         tester.editor.getCurrentEditorState().getNodeAtPath([5])!.type,
         BulletedListBlockKeys.type,
       );
+      expect(
+        tester.editor.getCurrentEditorState().getNodeAtPath([7])!.type,
+        NumberedListBlockKeys.type,
+      );
       //the below line get the href from the text
-      final hrefFromText = tester.editor.getCurrentEditorState().getNodeAtPath([7])!.attributes.values.elementAt(0)[0]['attributes']['href'];
+      final hrefFromText = tester.editor.getCurrentEditorState().getNodeAtPath([9])!.attributes.values.elementAt(0)[0]['attributes']['href'];
       expect(
         hrefFromText,'https://appflowy.gitbook.io/docs/essential-documentation/readme',
       );
