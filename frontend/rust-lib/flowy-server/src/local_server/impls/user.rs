@@ -7,7 +7,7 @@ use flowy_error::FlowyError;
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
+use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -23,7 +23,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
   pub db: Arc<dyn LocalServerDB>,
 }
 
-impl UserAuthService for LocalServerUserAuthServiceImpl {
+impl UserService for LocalServerUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
@@ -86,6 +86,22 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
   }
 
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn add_user_to_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn remove_user_from_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 }

@@ -182,3 +182,50 @@ pub async fn get_supabase_config_handler(
   let config = get_supabase_config().unwrap_or_default();
   data_result_ok(config.into())
 }
+
+#[tracing::instrument(level = "debug", skip(session), err)]
+pub async fn get_all_user_workspace_handler(
+  session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
+  let session = upgrade_session(session)?;
+  let uid = session.get_session()?.user_id;
+  let user_workspaces = session.get_all_user_workspaces(uid)?;
+  data_result_ok(user_workspaces.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn open_workspace_handler(
+  data: AFPluginData<UserWorkspacePB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session.open_workspace(&params.id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn add_user_to_workspace_handler(
+  data: AFPluginData<AddWorkspaceUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session
+    .add_user_to_workspace(params.email, params.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn remove_user_from_workspace_handler(
+  data: AFPluginData<RemoveWorkspaceUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session
+    .remove_user_to_workspace(params.email, params.workspace_id)
+    .await?;
+  Ok(())
+}

@@ -19,7 +19,7 @@ use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
-use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
+use flowy_user::event_map::{UserCloudServiceProvider, UserService};
 use flowy_user::services::AuthType;
 use lib_infra::future::FutureResult;
 
@@ -45,7 +45,7 @@ pub enum ServerProviderType {
 /// The [AppFlowyServerProvider] provides list of [AppFlowyServer] base on the [AuthType]. Using
 /// the auth type, the [AppFlowyServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserAuthService], etc.
+/// Each server implements the [AppFlowyServer] trait, which provides the [UserService], etc.
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
@@ -142,9 +142,9 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
     }
   }
 
-  /// Returns the [UserAuthService] base on the current [ServerProviderType].
+  /// Returns the [UserService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
     Ok(
       self
         .get_provider(&self.provider_type.read())?

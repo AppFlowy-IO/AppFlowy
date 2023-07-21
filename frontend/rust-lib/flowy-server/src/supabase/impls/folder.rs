@@ -261,7 +261,7 @@ mod tests {
 
   use flowy_folder2::deps::FolderCloudService;
   use flowy_server_config::supabase_config::PostgresConfiguration;
-  use flowy_user::event_map::UserAuthService;
+  use flowy_user::event_map::UserService;
   use lib_infra::box_any::BoxAny;
 
   use crate::supabase::impls::folder::SupabaseFolderCloudServiceImpl;

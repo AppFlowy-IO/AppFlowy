@@ -18,12 +18,13 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
 
 use crate::entities::{
-  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
+  AuthTypePB, RepeatedUserWorkspacePB, SignInResponse, SignUpResponse, UpdateUserProfileParams,
+  UserProfile,
 };
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserCredentials,
-  UserStatusCallback,
+  UserStatusCallback, UserWorkspace,
 };
 use crate::services::database::UserDB;
 use crate::services::session_serde::Session;
@@ -57,7 +58,7 @@ impl UserSessionConfig {
 pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_services: Arc<dyn UserCloudServiceProvider>,
+  pub cloud_services: Arc<dyn UserCloudServiceProvider>,
   user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
@@ -127,7 +128,7 @@ impl UserSession {
   ) -> Result<UserProfile, FlowyError> {
     let resp: SignInResponse = self
       .cloud_services
-      .get_auth_service()?
+      .get_user_service()?
       .sign_in(params)
       .await?;
 
@@ -137,16 +138,14 @@ impl UserSession {
     self.log_user(uid, self.user_dir(uid));
 
     let user_workspace = resp.latest_workspace.clone();
-    self
-      .save_user_workspaces(
-        uid,
-        resp
-          .user_workspaces
-          .iter()
-          .map(UserWorkspaceTable::from)
-          .collect(),
-      )
-      .await?;
+    save_user_workspaces(
+      self.db_pool(uid)?,
+      resp
+        .user_workspaces
+        .iter()
+        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .collect(),
+    )?;
     let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
     if let Err(e) = self
       .user_status_callback
@@ -195,7 +194,7 @@ impl UserSession {
       }
     };
 
-    let auth_service = self.cloud_services.get_auth_service()?;
+    let auth_service = self.cloud_services.get_user_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
     let mut sign_up_context = SignUpContext {
       is_new: response.is_new,
@@ -208,17 +207,14 @@ impl UserSession {
     let uid = new_session.user_id;
     self.set_session(Some(new_session.clone()))?;
     self.log_user(uid, self.user_dir(uid));
-
-    self
-      .save_user_workspaces(
-        uid,
-        response
-          .user_workspaces
-          .iter()
-          .map(UserWorkspaceTable::from)
-          .collect(),
-      )
-      .await?;
+    save_user_workspaces(
+      self.db_pool(uid)?,
+      response
+        .user_workspaces
+        .iter()
+        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .collect(),
+    )?;
     let user_table = self
       .save_user(uid, (response, auth_type.clone()).into())
       .await?;
@@ -269,7 +265,7 @@ impl UserSession {
     self.database.close(session.user_id)?;
     self.set_session(None)?;
 
-    let server = self.cloud_services.get_auth_service()?;
+    let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {
       match server.sign_out(None).await {
         Ok(_) => {},
@@ -315,14 +311,56 @@ impl UserSession {
   pub async fn check_user(&self) -> Result<(), FlowyError> {
     let user_id = self.get_session()?.user_id;
     let credential = UserCredentials::from_uid(user_id);
-    let auth_service = self.cloud_services.get_auth_service()?;
+    let auth_service = self.cloud_services.get_user_service()?;
     auth_service.check_user(credential).await
   }
 
   pub async fn check_user_with_uuid(&self, uuid: &Uuid) -> Result<(), FlowyError> {
     let credential = UserCredentials::from_uuid(uuid.to_string());
-    let auth_service = self.cloud_services.get_auth_service()?;
+    let auth_service = self.cloud_services.get_user_service()?;
     auth_service.check_user(credential).await
+  }
+
+  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    let uid = self.user_id()?;
+    if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
+      if let Err(err) = self
+        .user_status_callback
+        .read()
+        .await
+        .open_workspace(uid, &user_workspace)
+        .await
+      {
+        tracing::error!("Open workspace failed: {:?}", err);
+      }
+    }
+    Ok(())
+  }
+
+  pub async fn add_user_to_workspace(
+    &self,
+    user_email: String,
+    to_workspace_id: String,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .add_user_to_workspace(user_email, to_workspace_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn remove_user_to_workspace(
+    &self,
+    user_email: String,
+    from_workspace_id: String,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .remove_user_from_workspace(user_email, from_workspace_id)
+      .await?;
+    Ok(())
   }
 
   /// Get the user profile from the database
@@ -334,7 +372,7 @@ impl UserSession {
       .first::<UserTable>(&*(self.db_connection(uid)?))?;
 
     if refresh {
-      let weak_auth_service = Arc::downgrade(&self.cloud_services.get_auth_service()?);
+      let weak_auth_service = Arc::downgrade(&self.cloud_services.get_user_service()?);
       let weak_pool = Arc::downgrade(&self.database.get_pool(uid)?);
       tokio::spawn(async move {
         if let (Some(auth_service), Some(pool)) = (weak_auth_service.upgrade(), weak_pool.upgrade())
@@ -395,7 +433,7 @@ impl UserSession {
     token: Option<String>,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let server = self.cloud_services.get_auth_service()?;
+    let server = self.cloud_services.get_user_service()?;
     let token = token.to_owned();
     tokio::spawn(async move {
       let credentials = UserCredentials::new(token, Some(uid), None);
@@ -422,7 +460,45 @@ impl UserSession {
     Ok(user)
   }
 
-  async fn save_user_workspaces(
+  pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
+    let conn = self.db_connection(uid).ok()?;
+    let row = user_workspace_table::dsl::user_workspace_table
+      .filter(user_workspace_table::id.eq(workspace_id))
+      .first::<UserWorkspaceTable>(&*conn)
+      .ok()?;
+    Some(UserWorkspace::from(row))
+  }
+
+  pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
+    let conn = self.db_connection(uid)?;
+    let rows = user_workspace_table::dsl::user_workspace_table
+      .filter(user_workspace_table::uid.eq(uid))
+      .load::<UserWorkspaceTable>(&*conn)?;
+
+    if let Ok(service) = self.cloud_services.get_user_service() {
+      if let Ok(pool) = self.db_pool(uid) {
+        tokio::spawn(async move {
+          if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
+            let _ = save_user_workspaces(
+              pool,
+              new_user_workspaces
+                .iter()
+                .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+                .collect(),
+            );
+
+            let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
+            send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
+              .payload(repeated_workspace_pbs)
+              .send();
+          }
+        });
+      }
+    }
+    Ok(rows.into_iter().map(UserWorkspace::from).collect())
+  }
+
+  pub async fn save_user_workspaces(
     &self,
     uid: i64,
     user_workspaces: Vec<UserWorkspaceTable>,
@@ -514,6 +590,38 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> 
     .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?
     .as_str();
   Uuid::from_str(uuid).map_err(internal_error)
+}
+
+pub fn save_user_workspaces(
+  pool: Arc<ConnectionPool>,
+  user_workspaces: Vec<UserWorkspaceTable>,
+) -> FlowyResult<()> {
+  let conn = pool.get()?;
+  conn.immediate_transaction(|| {
+    for user_workspace in user_workspaces {
+      if let Err(err) = diesel::update(
+        user_workspace_table::dsl::user_workspace_table
+          .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
+      )
+      .set((
+        user_workspace_table::name.eq(&user_workspace.name),
+        user_workspace_table::created_at.eq(&user_workspace.created_at),
+        user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
+      ))
+      .execute(&*conn)
+      .and_then(|rows| {
+        if rows == 0 {
+          let _ = diesel::insert_into(user_workspace_table::table)
+            .values(user_workspace)
+            .execute(&*conn)?;
+        }
+        Ok(())
+      }) {
+        tracing::error!("Error saving user workspace: {:?}", err);
+      }
+    }
+    Ok::<(), FlowyError>(())
+  })
 }
 
 #[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]

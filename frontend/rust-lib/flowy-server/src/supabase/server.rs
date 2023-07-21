@@ -14,7 +14,7 @@ use flowy_document2::deps::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::FolderCloudService;
 use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::UserService;
 use lib_infra::async_trait::async_trait;
 
 use crate::supabase::impls::{
@@ -107,7 +107,7 @@ impl AppFlowyServer for SupabaseServer {
     self.set_enable_sync(enable);
   }
 
-  fn user_service(&self) -> Arc<dyn UserAuthService> {
+  fn user_service(&self) -> Arc<dyn UserService> {
     Arc::new(SupabaseUserAuthServiceImpl::new(SupabaseServerServiceImpl(
       self.postgres.clone(),
     )))

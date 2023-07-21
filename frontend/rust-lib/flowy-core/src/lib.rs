@@ -377,11 +377,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_open_workspace(
-    &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-  ) -> Fut<FlowyResult<()>> {
+  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();

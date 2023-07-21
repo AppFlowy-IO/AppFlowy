@@ -3,14 +3,14 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
-use futures_util::{StreamExt, TryStreamExt};
+use futures_util::StreamExt;
 use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
+use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
 use flowy_user::services::{third_party_params_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -22,8 +22,6 @@ use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::{PgConnectMode, SupabaseServerService};
 
 pub(crate) const USER_TABLE: &str = "af_user";
-pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
-pub(crate) const WORKSPACE_MEMBER_TABLE: &str = "af_workspace_member";
 pub(crate) const USER_PROFILE_VIEW: &str = "af_user_profile_view";
 pub const USER_UUID: &str = "uuid";
 pub const USER_EMAIL: &str = "email";
@@ -38,7 +36,7 @@ impl<T> SupabaseUserAuthServiceImpl<T> {
   }
 }
 
-impl<T> UserAuthService for SupabaseUserAuthServiceImpl<T>
+impl<T> UserService for SupabaseUserAuthServiceImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -200,6 +198,22 @@ where
       )
     });
     FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn add_user_to_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
+    todo!()
+  }
+
+  fn remove_user_from_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
+    todo!()
   }
 }
 

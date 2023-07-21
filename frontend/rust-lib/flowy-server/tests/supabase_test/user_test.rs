@@ -8,7 +8,7 @@ use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
 use flowy_server::supabase::{PgConnectMode, PostgresServer, SupabaseServerServiceImpl};
 use flowy_server_config::supabase_config::PostgresConfiguration;
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::event_map::{UserCredentials, UserService};
 use lib_infra::box_any::BoxAny;
 
 use crate::setup_log;

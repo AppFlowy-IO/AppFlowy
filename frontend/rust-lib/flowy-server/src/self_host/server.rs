@@ -5,7 +5,7 @@ use appflowy_integrate::RemoteCollabStorage;
 use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;
 use flowy_folder2::deps::FolderCloudService;
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::UserService;
 
 use crate::self_host::configuration::SelfHostedConfiguration;
 use crate::self_host::impls::{
@@ -25,7 +25,7 @@ impl SelfHostServer {
 }
 
 impl AppFlowyServer for SelfHostServer {
-  fn user_service(&self) -> Arc<dyn UserAuthService> {
+  fn user_service(&self) -> Arc<dyn UserService> {
     Arc::new(SelfHostedUserAuthServiceImpl::new(self.config.clone()))
   }
 

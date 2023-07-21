@@ -10,7 +10,7 @@ use flowy_document2::deps::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::entities::UserProfile;
-use flowy_user::event_map::UserAuthService;
+use flowy_user::event_map::UserService;
 use flowy_user::services::database::{get_user_profile, open_collab_db, open_user_db};
 
 use crate::local_server::impls::{
@@ -46,7 +46,7 @@ impl LocalServer {
 }
 
 impl AppFlowyServer for LocalServer {
-  fn user_service(&self) -> Arc<dyn UserAuthService> {
+  fn user_service(&self) -> Arc<dyn UserService> {
     let db = LocalServerDBImpl {
       storage_path: self.storage_path.clone(),
     };

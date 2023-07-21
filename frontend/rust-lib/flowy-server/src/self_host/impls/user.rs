@@ -2,7 +2,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
+use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -19,7 +19,7 @@ impl SelfHostedUserAuthServiceImpl {
   }
 }
 
-impl UserAuthService for SelfHostedUserAuthServiceImpl {
+impl UserService for SelfHostedUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
@@ -105,6 +105,24 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
   }
 
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn add_user_to_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn remove_user_from_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
     // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
   }

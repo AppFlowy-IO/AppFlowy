@@ -1,7 +1,4 @@
-use flowy_sqlite::{
-  schema::{user_table, user_table::dsl},
-  DBConnection, Database,
-};
+use flowy_sqlite::schema::user_table;
 
 use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::services::AuthType;

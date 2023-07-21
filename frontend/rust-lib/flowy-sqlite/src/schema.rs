@@ -27,8 +27,9 @@ diesel::table! {
 
 diesel::table! {
     user_workspace_table (id) {
-        id -> Nullable<Text>,
+        id -> Text,
         name -> Text,
+        uid -> BigInt,
         created_at -> BigInt,
         database_storage_id -> Text,
     }

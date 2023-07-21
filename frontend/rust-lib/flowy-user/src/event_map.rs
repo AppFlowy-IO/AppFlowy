@@ -34,6 +34,16 @@ pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
     .event(UserEvent::SetSupabaseConfig, set_supabase_config_handler)
     .event(UserEvent::GetSupabaseConfig, get_supabase_config_handler)
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
+    .event(
+      UserEvent::GetAllUserWorkspaces,
+      get_all_user_workspace_handler,
+    )
+    .event(UserEvent::OpenWorkspace, open_workspace_handler)
+    .event(UserEvent::AddUserToWorkspace, add_user_to_workspace_handler)
+    .event(
+      UserEvent::RemoveUserToWorkspace,
+      remove_user_from_workspace_handler,
+    )
 }
 
 pub struct SignUpContext {
@@ -81,11 +91,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   ) -> Fut<FlowyResult<()>>;
 
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn did_open_workspace(
-    &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-  ) -> Fut<FlowyResult<()>>;
+  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
 }
 
 /// The user cloud service provider.
@@ -93,7 +99,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration);
   fn set_auth_type(&self, auth_type: AuthType);
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError>;
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -108,8 +114,8 @@ where
     (**self).set_auth_type(auth_type)
   }
 
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
-    (**self).get_auth_service()
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+    (**self).get_user_service()
   }
 }
 
@@ -149,7 +155,7 @@ impl UserCredentials {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserAuthService: Send + Sync {
+pub trait UserService: Send + Sync {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
@@ -180,6 +186,18 @@ pub trait UserAuthService: Send + Sync {
   fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
+
+  fn add_user_to_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError>;
+
+  fn remove_user_from_workspace(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError>;
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
@@ -208,11 +226,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     to_fut(async { Ok(()) })
   }
 
-  fn did_open_workspace(
-    &self,
-    _user_id: i64,
-    _user_workspace: &UserWorkspace,
-  ) -> Fut<FlowyResult<()>> {
+  fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 }
@@ -273,9 +287,16 @@ pub enum UserEvent {
   #[event(output = "SupabaseConfigPB")]
   GetSupabaseConfig = 14,
 
+  /// Return the all the workspaces of the user
   #[event()]
-  GetUserWorkspace = 20,
+  GetAllUserWorkspaces = 20,
 
   #[event(input = "UserWorkspacePB")]
   OpenWorkspace = 21,
+
+  #[event(input = "AddWorkspaceUserPB")]
+  AddUserToWorkspace = 22,
+
+  #[event(input = "RemoveWorkspaceUserPB")]
+  RemoveUserToWorkspace = 23,
 }
