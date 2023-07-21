@@ -132,6 +132,8 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
   ) -> Ordering;
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool;
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(

@@ -18,7 +18,7 @@ async fn sort_text_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["", "A", "AE", "AE", "C", "DA"],
+      orders: vec!["A", "AE", "AE", "C", "DA", ""],
     },
   ];
   test.run_scripts(scripts).await;
@@ -35,7 +35,7 @@ async fn sort_change_notification_by_update_text_test() {
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["", "A", "AE", "AE", "C", "DA"],
+      orders: vec!["A", "AE", "AE", "C", "DA", ""],
     },
     // Wait the insert task to finish. The cost of time should be less than 200 milliseconds.
     Wait { millis: 200 },
@@ -45,12 +45,12 @@ async fn sort_change_notification_by_update_text_test() {
   let row_details = test.get_rows().await;
   let scripts = vec![
     UpdateTextCell {
-      row_id: row_details[2].row.id.clone(),
+      row_id: row_details[1].row.id.clone(),
       text: "E".to_string(),
     },
     AssertSortChanged {
-      old_row_orders: vec!["", "A", "E", "AE", "C", "DA"],
-      new_row_orders: vec!["", "A", "AE", "C", "DA", "E"],
+      old_row_orders: vec!["A", "E", "AE", "C", "DA", ""],
+      new_row_orders: vec!["A", "AE", "C", "DA", "E", ""],
     },
   ];
   test.run_scripts(scripts).await;
@@ -263,7 +263,7 @@ async fn sort_multi_select_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: multi_select.id.clone(),
-      orders: vec!["", "", "", "Facebook", "Google,Facebook", "Google,Twitter"],
+      orders: vec!["Facebook", "Google,Facebook", "Google,Twitter", "", "", ""],
     },
   ];
   test.run_scripts(scripts).await;
