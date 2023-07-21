@@ -154,3 +154,18 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
     })
   }
 }
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedUserWorkspacePB {
+  #[pb(index = 1)]
+  pub items: Vec<UserWorkspacePB>,
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct UserWorkspacePB {
+  #[pb(index = 1)]
+  pub id: i64,
+
+  #[pb(index = 2)]
+  pub name: String,
+}

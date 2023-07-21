@@ -58,7 +58,12 @@ impl DatabaseManager {
     read_txn.is_exist(uid, object_id)
   }
 
-  pub async fn initialize(&self, uid: i64, database_storage_id: String) -> FlowyResult<()> {
+  pub async fn initialize(
+    &self,
+    uid: i64,
+    _workspace_id: String,
+    database_storage_id: String,
+  ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
       collab_builder: self.collab_builder.clone(),
@@ -90,7 +95,7 @@ impl DatabaseManager {
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_storage_id,
-      "databases",
+      "database storage",
       collab_db.clone(),
       collab_raw_data,
       &config,
@@ -99,15 +104,21 @@ impl DatabaseManager {
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
     subscribe_block_event(&workspace_database);
     *self.workspace_database.write().await = Some(Arc::new(workspace_database));
+
+    // Remove all existing editors
+    self.editors.write().await.clear();
     Ok(())
   }
 
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
+    workspace_id: String,
     database_storage_id: String,
   ) -> FlowyResult<()> {
-    self.initialize(user_id, database_storage_id).await?;
+    self
+      .initialize(user_id, workspace_id, database_storage_id)
+      .await?;
     Ok(())
   }
 

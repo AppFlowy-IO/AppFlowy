@@ -99,7 +99,7 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
-  fn get_latest_user_workspace(&self, _uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
+  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     // TODO(nathan): implement the RESTful API for this
     todo!()
   }

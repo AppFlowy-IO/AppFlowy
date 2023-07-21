@@ -147,52 +147,61 @@ impl AppFlowyCore {
       get_supabase_config(),
     ));
 
-    let (user_session, folder_manager, server_provider, database_manager, document_manager) =
-      runtime.block_on(async {
-        let user_session = mk_user_session(&config, server_provider.clone());
-        /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-        /// on demand based on the [CollabPluginConfig].
-        let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-          server_provider.clone(),
-          Some(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_session)))),
-        ));
+    let (
+      user_session,
+      folder_manager,
+      server_provider,
+      database_manager,
+      document_manager,
+      collab_builder,
+    ) = runtime.block_on(async {
+      let user_session = mk_user_session(&config, server_provider.clone());
+      /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
+      /// on demand based on the [CollabPluginConfig].
+      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+        server_provider.clone(),
+        Some(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_session)))),
+      ));
 
-        let database_manager = DatabaseDepsResolver::resolve(
-          Arc::downgrade(&user_session),
-          task_dispatcher.clone(),
-          collab_builder.clone(),
-          server_provider.clone(),
-        )
-        .await;
+      let database_manager = DatabaseDepsResolver::resolve(
+        Arc::downgrade(&user_session),
+        task_dispatcher.clone(),
+        collab_builder.clone(),
+        server_provider.clone(),
+      )
+      .await;
 
-        let document_manager = DocumentDepsResolver::resolve(
-          Arc::downgrade(&user_session),
-          &database_manager,
-          collab_builder.clone(),
-          server_provider.clone(),
-        );
+      let document_manager = DocumentDepsResolver::resolve(
+        Arc::downgrade(&user_session),
+        &database_manager,
+        collab_builder.clone(),
+        server_provider.clone(),
+      );
 
-        let folder_manager = FolderDepsResolver::resolve(
-          Arc::downgrade(&user_session),
-          &document_manager,
-          &database_manager,
-          collab_builder,
-          server_provider.clone(),
-        )
-        .await;
+      let folder_manager = FolderDepsResolver::resolve(
+        Arc::downgrade(&user_session),
+        &document_manager,
+        &database_manager,
+        collab_builder.clone(),
+        server_provider.clone(),
+      )
+      .await;
 
-        (
-          user_session,
-          folder_manager,
-          server_provider,
-          database_manager,
-          document_manager,
-        )
-      });
+      (
+        user_session,
+        folder_manager,
+        server_provider,
+        database_manager,
+        document_manager,
+        collab_builder,
+      )
+    });
 
     let user_status_listener = UserStatusCallbackImpl {
+      collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
+      document_manager: document_manager.clone(),
       config: config.clone(),
     };
 
@@ -257,8 +266,10 @@ fn mk_user_session(
 }
 
 struct UserStatusCallbackImpl {
+  collab_builder: Arc<AppFlowyCollabBuilder>,
   folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager>,
+  document_manager: Arc<DocumentManager>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -269,15 +280,25 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
+    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
+    let document_manager = self.document_manager.clone();
 
     to_fut(async move {
+      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize(user_id, &user_workspace.id, FolderInitializeData::Empty)
         .await?;
       database_manager
-        .initialize(user_id, user_workspace.database_storage_id)
+        .initialize(
+          user_id,
+          user_workspace.id.clone(),
+          user_workspace.database_storage_id,
+        )
+        .await?;
+      document_manager
+        .initialize(user_id, user_workspace.id)
         .await?;
       Ok(())
     })
@@ -286,15 +307,25 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
+    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
+    let document_manager = self.document_manager.clone();
 
     to_fut(async move {
+      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize_with_workspace_id(user_id, &user_workspace.id)
         .await?;
       database_manager
-        .initialize(user_id, user_workspace.database_storage_id)
+        .initialize(
+          user_id,
+          user_workspace.id.clone(),
+          user_workspace.database_storage_id,
+        )
+        .await?;
+      document_manager
+        .initialize(user_id, user_workspace.id)
         .await?;
       Ok(())
     })
@@ -307,10 +338,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_workspace: &UserWorkspace,
   ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
+    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
+    let document_manager = self.document_manager.clone();
     to_fut(async move {
+      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize_with_new_user(
           user_profile.id,
@@ -321,9 +355,16 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         )
         .await?;
       database_manager
-        .initialize_with_new_user(user_profile.id, user_workspace.database_storage_id)
+        .initialize_with_new_user(
+          user_profile.id,
+          user_workspace.id.clone(),
+          user_workspace.database_storage_id,
+        )
         .await?;
 
+      document_manager
+        .initialize_with_new_user(user_profile.id, user_workspace.id)
+        .await?;
       Ok(())
     })
   }
@@ -342,15 +383,26 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_workspace: &UserWorkspace,
   ) -> Fut<FlowyResult<()>> {
     let user_workspace = user_workspace.clone();
+    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
+    let document_manager = self.document_manager.clone();
 
     to_fut(async move {
+      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize_with_workspace_id(user_id, &user_workspace.id)
         .await?;
+
       database_manager
-        .initialize(user_id, user_workspace.database_storage_id)
+        .initialize(
+          user_id,
+          user_workspace.id.clone(),
+          user_workspace.database_storage_id,
+        )
+        .await?;
+      document_manager
+        .initialize(user_id, user_workspace.id)
         .await?;
       Ok(())
     })

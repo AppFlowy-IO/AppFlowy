@@ -11,7 +11,7 @@ use crate::document::supabase_test::helper::{
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn cloud_test_supabase_initial_document_snapshot_test() {
+async fn supabase_initial_document_snapshot_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
 
@@ -32,7 +32,7 @@ async fn cloud_test_supabase_initial_document_snapshot_test() {
 }
 
 #[tokio::test]
-async fn cloud_test_supabase_document_edit_sync_test() {
+async fn supabase_document_edit_sync_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
     let document_id = view.id.clone();
@@ -58,7 +58,7 @@ async fn cloud_test_supabase_document_edit_sync_test() {
 }
 
 #[tokio::test]
-async fn cloud_test_supabase_document_edit_sync_test2() {
+async fn supabase_document_edit_sync_test2() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
     let document_id = view.id.clone();

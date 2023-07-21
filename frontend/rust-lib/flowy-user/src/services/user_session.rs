@@ -9,31 +9,28 @@ use serde_repr::*;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode};
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_sqlite::schema::{user_table, user_workspace_table};
 use flowy_sqlite::ConnectionPool;
-use flowy_sqlite::{
-  kv::KV,
-  query_dsl::*,
-  schema::{user_table, user_table::dsl},
-  DBConnection, ExpressionMethods,
-};
+use flowy_sqlite::{kv::KV, query_dsl::*, DBConnection, ExpressionMethods};
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
 
-use crate::entities::{AuthTypePB, SignUpResponse, UpdateUserProfileParams, UserProfile};
+use crate::entities::{
+  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
+};
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserCredentials,
   UserStatusCallback,
 };
+use crate::services::database::UserDB;
 use crate::services::session_serde::Session;
-use crate::services::user_data::UserDataMigration;
-use crate::{
-  errors::FlowyError,
-  notification::*,
-  services::database::{UserDB, UserTable, UserTableChangeset},
-};
+use crate::services::user_data_migration::{UserDataMigration, UserMigrationContext};
+use crate::services::user_sql::{UserTable, UserTableChangeset};
+use crate::services::user_workspace_sql::UserWorkspaceTable;
+use crate::{errors::FlowyError, notification::*};
 
 const HISTORICAL_USER: &str = "af_historical_users";
 const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
@@ -112,21 +109,13 @@ impl UserSession {
 
   pub async fn migrate_old_user_data(
     &self,
-    old_uid: i64,
-    old_workspace_id: &str,
-    new_uid: i64,
-    new_workspace_id: &str,
+    old_user: &UserMigrationContext,
+    new_user: &UserMigrationContext,
   ) -> Result<Option<FolderData>, FlowyError> {
-    let old_collab_db = self.database.get_collab_db(old_uid)?;
-    let new_collab_db = self.database.get_collab_db(new_uid)?;
-    let folder_data = UserDataMigration::migration(
-      old_uid,
-      &old_collab_db,
-      old_workspace_id,
-      new_uid,
-      &new_collab_db,
-      new_workspace_id,
-    )?;
+    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
+    let folder_data =
+      UserDataMigration::migration(old_user, &old_collab_db, new_user, &new_collab_db)?;
     Ok(folder_data)
   }
 
@@ -136,7 +125,7 @@ impl UserSession {
     params: BoxAny,
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
-    let resp = self
+    let resp: SignInResponse = self
       .cloud_services
       .get_auth_service()?
       .sign_in(params)
@@ -147,7 +136,17 @@ impl UserSession {
     self.set_session(Some(session))?;
     self.log_user(uid, self.user_dir(uid));
 
-    let user_workspace = resp.user_workspace.clone();
+    let user_workspace = resp.latest_workspace.clone();
+    self
+      .save_user_workspaces(
+        uid,
+        resp
+          .user_workspaces
+          .iter()
+          .map(UserWorkspaceTable::from)
+          .collect(),
+      )
+      .await?;
     let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
     if let Err(e) = self
       .user_status_callback
@@ -181,9 +180,16 @@ impl UserSession {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    let old_user_profile = {
+    let old_user = {
       if let Ok(old_session) = self.get_session() {
-        self.get_user_profile(old_session.user_id, false).await.ok()
+        self
+          .get_user_profile(old_session.user_id, false)
+          .await
+          .ok()
+          .map(|user_profile| UserMigrationContext {
+            user_profile,
+            session: old_session,
+          })
       } else {
         None
       }
@@ -195,15 +201,24 @@ impl UserSession {
       is_new: response.is_new,
       local_folder: None,
     };
-    let session = Session {
+    let new_session = Session {
       user_id: response.user_id,
-      user_workspace: response.user_workspace.clone(),
+      user_workspace: response.latest_workspace.clone(),
     };
-    let uid = session.user_id;
-    self.set_session(Some(session))?;
+    let uid = new_session.user_id;
+    self.set_session(Some(new_session.clone()))?;
     self.log_user(uid, self.user_dir(uid));
-    let user_workspace = response.user_workspace.clone();
 
+    self
+      .save_user_workspaces(
+        uid,
+        response
+          .user_workspaces
+          .iter()
+          .map(UserWorkspaceTable::from)
+          .collect(),
+      )
+      .await?;
     let user_table = self
       .save_user(uid, (response, auth_type.clone()).into())
       .await?;
@@ -212,28 +227,25 @@ impl UserSession {
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     if sign_up_context.is_new {
-      if let Some(old_user_profile) = old_user_profile {
-        if old_user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
+      if let Some(old_user) = old_user {
+        if old_user.user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
+          let new_user = UserMigrationContext {
+            user_profile: new_user_profile.clone(),
+            session: new_session.clone(),
+          };
+
           tracing::info!(
             "Migrate old user data from {:?} to {:?}",
-            old_user_profile.id,
-            new_user_profile.id
+            old_user.user_profile.id,
+            new_user.user_profile.id
           );
-          match self
-            .migrate_old_user_data(
-              old_user_profile.id,
-              &old_user_profile.workspace_id,
-              new_user_profile.id,
-              &new_user_profile.workspace_id,
-            )
-            .await
-          {
+          match self.migrate_old_user_data(&old_user, &new_user).await {
             Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
 
           // close the old user db
-          let _ = self.database.close(old_user_profile.id);
+          let _ = self.database.close(old_user.session.user_id);
         }
       }
     }
@@ -242,7 +254,11 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(sign_up_context, &new_user_profile, &user_workspace)
+      .did_sign_up(
+        sign_up_context,
+        &new_user_profile,
+        &new_session.user_workspace,
+      )
       .await;
     Ok(new_user_profile)
   }
@@ -313,7 +329,7 @@ impl UserSession {
   /// If the refresh is true, it will try to get the user profile from the server
   pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
     let user_id = uid.to_string();
-    let user = dsl::user_table
+    let user = user_table::dsl::user_table
       .filter(user_table::id.eq(&user_id))
       .first::<UserTable>(&*(self.db_connection(uid)?))?;
 
@@ -329,7 +345,8 @@ impl UserSession {
           {
             let changeset = UserTableChangeset::from_user_profile(user_profile.clone());
             if let Ok(conn) = pool.get() {
-              let filter = dsl::user_table.filter(dsl::id.eq(changeset.id.clone()));
+              let filter =
+                user_table::dsl::user_table.filter(user_table::dsl::id.eq(changeset.id.clone()));
               let _ = diesel::update(filter).set(changeset).execute(&*conn);
 
               // Send notification to the client
@@ -393,7 +410,8 @@ impl UserSession {
     let conn = self.db_connection(uid)?;
     conn.immediate_transaction(|| {
       // delete old user if exists
-      diesel::delete(dsl::user_table.filter(dsl::id.eq(&user.id))).execute(&*conn)?;
+      diesel::delete(user_table::dsl::user_table.filter(user_table::dsl::id.eq(&user.id)))
+        .execute(&*conn)?;
 
       let _ = diesel::insert_into(user_table::table)
         .values(user.clone())
@@ -402,6 +420,39 @@ impl UserSession {
     })?;
 
     Ok(user)
+  }
+
+  async fn save_user_workspaces(
+    &self,
+    uid: i64,
+    user_workspaces: Vec<UserWorkspaceTable>,
+  ) -> FlowyResult<()> {
+    let conn = self.db_connection(uid)?;
+    conn.immediate_transaction(|| {
+      for user_workspace in user_workspaces {
+        if let Err(err) = diesel::update(
+          user_workspace_table::dsl::user_workspace_table
+            .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
+        )
+        .set((
+          user_workspace_table::name.eq(&user_workspace.name),
+          user_workspace_table::created_at.eq(&user_workspace.created_at),
+          user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
+        ))
+        .execute(&*conn)
+        .and_then(|rows| {
+          if rows == 0 {
+            let _ = diesel::insert_into(user_workspace_table::table)
+              .values(user_workspace)
+              .execute(&*conn)?;
+          }
+          Ok(())
+        }) {
+          tracing::error!("Error saving user workspace: {:?}", err);
+        }
+      }
+      Ok::<(), FlowyError>(())
+    })
   }
 
   fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {

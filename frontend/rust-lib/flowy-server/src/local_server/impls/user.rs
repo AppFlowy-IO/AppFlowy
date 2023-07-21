@@ -19,6 +19,7 @@ lazy_static! {
 }
 
 pub(crate) struct LocalServerUserAuthServiceImpl {
+  #[allow(dead_code)]
   pub db: Arc<dyn LocalServerDB>,
 }
 
@@ -28,13 +29,15 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
       let workspace_id = uuid::Uuid::new_v4().to_string();
+      let user_workspace = UserWorkspace::new(&workspace_id, uid);
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
+        latest_workspace: user_workspace.clone(),
+        user_workspaces: vec![user_workspace],
         is_new: true,
         email: Some(params.email),
         token: None,
-        user_workspace: UserWorkspace::new(&workspace_id, uid),
       })
     })
   }
@@ -51,7 +54,8 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
-        user_workspace,
+        latest_workspace: user_workspace.clone(),
+        user_workspaces: vec![user_workspace],
         email: Some(params.email),
         token: None,
       })
@@ -77,8 +81,8 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(None) })
   }
 
-  fn get_latest_user_workspace(&self, _uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
-    FutureResult::new(async { Ok(make_user_workspace()) })
+  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {

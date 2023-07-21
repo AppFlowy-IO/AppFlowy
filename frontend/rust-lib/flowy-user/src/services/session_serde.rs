@@ -3,7 +3,7 @@ use std::fmt;
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use chrono::prelude::*;
-use serde::de::{Deserializer, Error, MapAccess, Visitor};
+use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -49,14 +49,16 @@ impl<'de> Visitor<'de> for SessionVisitor {
       }
     }
     let user_id = user_id.ok_or(serde::de::Error::missing_field("user_id"))?;
-    if user_workspace.is_none() && workspace_id.is_some() {
-      user_workspace = Some(UserWorkspace {
-        id: workspace_id.unwrap(),
-        name: "My Workspace".to_string(),
-        created_at: Utc::now(),
-        // For historical reasons, the database_storage_id is constructed by the user_id.
-        database_storage_id: STANDARD.encode(format!("{}:user:database", user_id)),
-      })
+    if user_workspace.is_none() {
+      if let Some(workspace_id) = workspace_id {
+        user_workspace = Some(UserWorkspace {
+          id: workspace_id,
+          name: "My Workspace".to_string(),
+          created_at: Utc::now(),
+          // For historical reasons, the database_storage_id is constructed by the user_id.
+          database_storage_id: STANDARD.encode(format!("{}:user:database", user_id)),
+        })
+      }
     }
 
     let session = Session {
@@ -81,7 +83,7 @@ impl std::convert::From<SignInResponse> for Session {
   fn from(resp: SignInResponse) -> Self {
     Session {
       user_id: resp.user_id,
-      user_workspace: resp.user_workspace,
+      user_workspace: resp.latest_workspace,
     }
   }
 }

@@ -91,7 +91,8 @@ pub struct SignInParams {
 pub struct SignInResponse {
   pub user_id: i64,
   pub name: String,
-  pub user_workspace: UserWorkspace,
+  pub latest_workspace: UserWorkspace,
+  pub user_workspaces: Vec<UserWorkspace>,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -108,7 +109,8 @@ pub struct SignUpParams {
 pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
-  pub user_workspace: UserWorkspace,
+  pub latest_workspace: UserWorkspace,
+  pub user_workspaces: Vec<UserWorkspace>,
   pub is_new: bool,
   pub email: Option<String>,
   pub token: Option<String>,

@@ -11,7 +11,7 @@ use crate::database::supabase_test::helper::{
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn cloud_test_supabase_initial_database_snapshot_test() {
+async fn supabase_initial_database_snapshot_test() {
   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let mut rx = test
@@ -30,7 +30,7 @@ async fn cloud_test_supabase_initial_database_snapshot_test() {
 }
 
 #[tokio::test]
-async fn cloud_test_supabase_edit_database_test() {
+async fn supabase_edit_database_test() {
   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let existing_fields = test.get_all_database_fields(&view.id).await;

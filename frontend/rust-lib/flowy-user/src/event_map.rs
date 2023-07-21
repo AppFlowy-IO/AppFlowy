@@ -176,8 +176,8 @@ pub trait UserAuthService: Send + Sync {
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
 
-  /// Return the latest user workspace  
-  fn get_latest_user_workspace(&self, uid: i64) -> FutureResult<UserWorkspace, FlowyError>;
+  /// Return the all the workspaces of the user  
+  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 }
@@ -272,4 +272,10 @@ pub enum UserEvent {
 
   #[event(output = "SupabaseConfigPB")]
   GetSupabaseConfig = 14,
+
+  #[event()]
+  GetUserWorkspace = 20,
+
+  #[event(input = "UserWorkspacePB")]
+  OpenWorkspace = 21,
 }

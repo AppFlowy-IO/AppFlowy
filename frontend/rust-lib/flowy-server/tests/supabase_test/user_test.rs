@@ -23,8 +23,9 @@ async fn user_sign_up_test() {
   let mut params = HashMap::new();
   params.insert(USER_UUID.to_string(), Uuid::new_v4().to_string());
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-  assert!(!user.user_workspace.id.is_empty());
-  assert!(!user.user_workspace.database_storage_id.is_empty());
+  assert!(!user.latest_workspace.id.is_empty());
+  assert!(!user.user_workspaces.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
 }
 
 fn user_auth_service_impl() -> SupabaseUserAuthServiceImpl<SupabaseServerServiceImpl> {
@@ -51,8 +52,9 @@ async fn user_sign_up_with_existing_uuid_test() {
     .await
     .unwrap();
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-  assert!(!user.user_workspace.id.is_empty());
-  assert!(!user.user_workspace.database_storage_id.is_empty());
+  assert!(!user.latest_workspace.id.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
+  assert!(!user.user_workspaces.is_empty());
 }
 
 #[tokio::test]

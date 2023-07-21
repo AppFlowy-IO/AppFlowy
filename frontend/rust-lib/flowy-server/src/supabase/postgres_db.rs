@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
 use anyhow::Error;
-use deadpool_postgres::{GenericClient, Transaction};
+use deadpool_postgres::GenericClient;
 use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
 use tokio_postgres::{NoTls, ToStatement};
 
@@ -55,26 +55,13 @@ impl PostgresDB {
   }
 }
 
-pub async fn prepare_cached(
+pub async fn prepare_cached<C: GenericClient>(
   mode: &PgConnectMode,
   stmt: String,
-  client: &PostgresObject,
+  client: &C,
 ) -> Result<Box<dyn ToStatement + Sync + Send>, Error> {
   if mode.support_prepare_cached() {
     let stmt = client.prepare_cached(&stmt).await?;
-    Ok(Box::new(stmt))
-  } else {
-    Ok(Box::new(stmt))
-  }
-}
-
-pub async fn prepare_cached_in_transaction(
-  mode: &PgConnectMode,
-  stmt: String,
-  transaction: &Transaction<'_>,
-) -> Result<Box<dyn ToStatement + Sync + Send>, Error> {
-  if mode.support_prepare_cached() {
-    let stmt = transaction.prepare_cached(&stmt).await?;
     Ok(Box::new(stmt))
   } else {
     Ok(Box::new(stmt))

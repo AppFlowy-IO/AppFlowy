@@ -155,29 +155,7 @@ CREATE TABLE IF NOT EXISTS af_collab(
    workspace_id UUID NOT NULL,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_af_collab_oid ON af_collab (oid);
--- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
--- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
--- row in the af_workspace_member table.
-CREATE OR REPLACE FUNCTION update_af_workspace_member_updated_at_func() RETURNS TRIGGER AS $$ BEGIN IF (
-      NEW.oid = (
-         SELECT workspace_id
-         FROM af_workspace_member
-         WHERE workspace_id = NEW.oid
-      )
-   ) THEN
-UPDATE af_workspace_member
-SET updated_at = CURRENT_TIMESTAMP
-WHERE workspace_id = NEW.oid;
-END IF;
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER update_af_workspace_member_updated_at_trigger
-AFTER
-INSERT
-   OR
-UPDATE ON af_collab_update FOR EACH ROW EXECUTE PROCEDURE update_af_workspace_member_updated_at_func();
+CREATE UNIQUE INDEX idx_af_collab_oid ON af_collab (oid);
 -- collab update table.
 CREATE TABLE IF NOT EXISTS af_collab_update (
    oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
@@ -191,6 +169,27 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    workspace_id UUID NOT NULL,
    PRIMARY KEY (oid, key)
 );
+-- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
+-- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
+-- row in the af_workspace_member table.
+CREATE OR REPLACE FUNCTION update_af_workspace_member_updated_at_func() RETURNS TRIGGER AS $$ BEGIN IF EXISTS (
+      SELECT 1
+      FROM af_workspace_member
+      WHERE workspace_id::TEXT = NEW.oid
+   ) THEN
+UPDATE af_workspace_member
+SET updated_at = CURRENT_TIMESTAMP
+WHERE workspace_id::TEXT = NEW.oid
+   AND uid = NEW.uid;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER update_af_workspace_member_updated_at_trigger
+AFTER
+INSERT
+   OR
+UPDATE ON af_collab_update FOR EACH ROW EXECUTE PROCEDURE update_af_workspace_member_updated_at_func();
 -- This trigger is fired before an insert operation on the af_collab_update table. It checks if a corresponding collab
 -- exists in the af_collab table. If not, it creates one with the oid, uid, and current timestamp. It might cause a
 -- performance issue if the af_collab_update table is updated very frequently, especially if the af_collab table is large
@@ -200,8 +199,13 @@ CREATE OR REPLACE FUNCTION insert_into_af_collab_if_not_exists() RETURNS TRIGGER
       FROM af_collab
       WHERE oid = NEW.oid
    ) THEN
-INSERT INTO af_collab (oid, owner_uid, created_at)
-VALUES (NEW.oid, NEW.uid, CURRENT_TIMESTAMP);
+INSERT INTO af_collab (oid, owner_uid, workspace_id, created_at)
+VALUES (
+      NEW.oid,
+      NEW.uid,
+      NEW.workspace_id,
+      CURRENT_TIMESTAMP
+   );
 END IF;
 RETURN NEW;
 END;

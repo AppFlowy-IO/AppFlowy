@@ -1,13 +1,14 @@
 use std::str::FromStr;
 
+use chrono::{DateTime, Utc};
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
-use futures_util::StreamExt;
+use futures_util::{StreamExt, TryStreamExt};
 use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
 use flowy_user::services::{third_party_params_from_box_any, AuthType};
@@ -21,6 +22,8 @@ use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::{PgConnectMode, SupabaseServerService};
 
 pub(crate) const USER_TABLE: &str = "af_user";
+pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
+pub(crate) const WORKSPACE_MEMBER_TABLE: &str = "af_workspace_member";
 pub(crate) const USER_PROFILE_VIEW: &str = "af_user_profile_view";
 pub const USER_UUID: &str = "uuid";
 pub const USER_EMAIL: &str = "email";
@@ -41,6 +44,7 @@ where
 {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let weak_server = self.server.try_get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -48,7 +52,7 @@ where
           let server = try_upgrade_server(weak_server)?;
           let mut client = server.get_pg_client().await.recv().await?;
           let params = third_party_params_from_box_any(params)?;
-          create_user_with_uuid(&mut client, params.uuid, params.email)
+          create_user_with_uuid(&mut client, &pg_mode, params.uuid, params.email)
             .await
             .map_err(|err| {
               err
@@ -64,6 +68,7 @@ where
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
     let server = self.server.try_get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
@@ -72,11 +77,18 @@ where
           let client = server.get_pg_client().await.recv().await?;
           let uuid = third_party_params_from_box_any(params)?.uuid;
           let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
-          let user_workspace = get_latest_user_workspace(&client, user_profile.uid).await?;
+          let user_workspaces = get_user_workspaces(&client, &pg_mode, user_profile.uid)
+            .await
+            .map_err(internal_error)?;
+          let latest_workspace = user_workspaces
+            .iter()
+            .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+            .cloned();
           Ok(SignInResponse {
             user_id: user_profile.uid,
             name: "".to_string(),
-            user_workspace,
+            latest_workspace: latest_workspace.unwrap(),
+            user_workspaces,
             email: None,
             token: None,
           })
@@ -153,15 +165,18 @@ where
     FutureResult::new(async { rx.await.map_err(internal_error)? })
   }
 
-  fn get_latest_user_workspace(&self, uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
+  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     let server = self.server.try_get_pg_server();
+    let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async {
           let server = try_upgrade_server(server)?;
           let client = server.get_pg_client().await.recv().await?;
-          get_latest_user_workspace(&client, uid).await
+          get_user_workspaces(&client, &pg_mode, uid)
+            .await
+            .map_err(internal_error)
         }
         .await,
       )
@@ -190,6 +205,7 @@ where
 
 async fn create_user_with_uuid(
   client: &mut PostgresObject,
+  pg_mode: &PgConnectMode,
   uuid: Uuid,
   email: String,
 ) -> Result<SignUpResponse, anyhow::Error> {
@@ -222,23 +238,52 @@ async fn create_user_with_uuid(
     return Err(err.into());
   }
 
-  let user_profile = get_user_profile(client, GetUserProfileParams::Uuid(uuid)).await?;
-  let user_workspace = get_latest_user_workspace(client, user_profile.uid).await?;
+  let txn = client.transaction().await?;
+  let user_profile = get_user_profile(&txn, GetUserProfileParams::Uuid(uuid)).await?;
+  let user_workspaces = get_user_workspaces(&txn, pg_mode, user_profile.uid).await?;
+  let latest_workspace = user_workspaces
+    .iter()
+    .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+    .cloned();
+
   Ok(SignUpResponse {
     user_id: user_profile.uid,
     name: user_profile.name,
-    user_workspace,
+    latest_workspace: latest_workspace.unwrap(),
+    user_workspaces,
     is_new,
     email: Some(user_profile.email),
     token: None,
   })
 }
 
-async fn get_latest_user_workspace<C: GenericClient>(
-  _client: &C,
-  _uid: i64,
-) -> FlowyResult<UserWorkspace> {
-  todo!()
+async fn get_user_workspaces<C: GenericClient>(
+  client: &C,
+  pg_mode: &PgConnectMode,
+  uid: i64,
+) -> Result<Vec<UserWorkspace>, anyhow::Error> {
+  let sql = "SELECT af_workspace.* FROM af_workspace INNER JOIN af_workspace_member ON af_workspace.workspace_id = af_workspace_member.workspace_id WHERE af_workspace_member.uid = $1";
+  let stmt = prepare_cached(pg_mode, sql.to_string(), client)
+    .await
+    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+  let all_rows = client.query(stmt.as_ref(), &[&uid]).await?;
+  Ok(
+    all_rows
+      .into_iter()
+      .flat_map(|row| {
+        let workspace_id: Uuid = row.try_get("workspace_id").ok()?;
+        let database_storage_id: Uuid = row.try_get("database_storage_id").ok()?;
+        let created_at: DateTime<Utc> = row.try_get("created_at").ok()?;
+        let workspace_name: String = row.try_get("workspace_name").ok()?;
+        Some(UserWorkspace {
+          id: workspace_id.to_string(),
+          name: workspace_name,
+          created_at,
+          database_storage_id: database_storage_id.to_string(),
+        })
+      })
+      .collect(),
+  )
 }
 
 /// Returns the user profile of the given user.

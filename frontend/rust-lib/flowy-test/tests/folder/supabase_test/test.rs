@@ -7,7 +7,7 @@ use crate::folder::supabase_test::helper::{assert_folder_collab_content, FlowySu
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn cloud_test_supabase_initial_folder_snapshot_test() {
+async fn supabase_initial_folder_snapshot_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
     let workspace_id = test.get_current_workspace().await.workspace.id;
     let mut rx = test
@@ -26,7 +26,7 @@ async fn cloud_test_supabase_initial_folder_snapshot_test() {
 }
 
 #[tokio::test]
-async fn cloud_test_supabase_initial_folder_snapshot_test2() {
+async fn supabase_initial_folder_snapshot_test2() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
     let workspace_id = test.get_current_workspace().await.workspace.id;
 

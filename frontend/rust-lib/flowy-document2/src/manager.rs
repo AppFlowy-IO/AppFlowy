@@ -35,6 +35,15 @@ impl DocumentManager {
     }
   }
 
+  pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
+    self.documents.write().clear();
+    Ok(())
+  }
+
+  pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
+    self.initialize(uid, workspace_id).await?;
+    Ok(())
+  }
   /// Create a new document.
   ///
   /// if the document already exists, return the existing document.

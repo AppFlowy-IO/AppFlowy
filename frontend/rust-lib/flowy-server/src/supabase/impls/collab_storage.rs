@@ -1,6 +1,7 @@
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
+use std::str::FromStr;
 use std::sync::Weak;
 use std::time::Duration;
 
@@ -23,7 +24,7 @@ use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use crate::supabase::postgres_db::{prepare_cached, prepare_cached_in_transaction, PostgresObject};
+use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
 use crate::supabase::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
@@ -163,6 +164,10 @@ where
     update: Vec<u8>,
   ) -> Result<(), Error> {
     if let Some(client) = self.get_client().await {
+      let workspace_id = object
+        .get_workspace_id()
+        .and_then(|workspace_id| uuid::Uuid::from_str(&workspace_id).ok())
+        .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
       let value_size = update.len() as i32;
       let md5 = md5(&update);
       let (sql, params) = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
@@ -171,6 +176,7 @@ where
         .value("value", update)
         .value("uid", object.uid)
         .value("md5", md5)
+        .value("workspace_id", workspace_id)
         .value("value_size", value_size)
         .build();
       let stmt = prepare_cached(&self.mode, sql, &client).await?;
@@ -192,6 +198,10 @@ where
 
     let mut client = client.unwrap();
     let txn = client.transaction().await?;
+    let workspace_id = object
+      .get_workspace_id()
+      .and_then(|workspace_id| uuid::Uuid::from_str(&workspace_id).ok())
+      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
 
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
     // FOR UPDATE by this transaction will not result in a lock wait. other transactions that try
@@ -204,13 +214,14 @@ where
       .lock()
       .build();
 
-    let get_all_update_stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+    let get_all_update_stmt = prepare_cached(&self.mode, sql, &txn).await?;
     let row_stream = txn.query_raw(get_all_update_stmt.as_ref(), params).await?;
     let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
     let insert_builder = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
       .value("oid", object.id.clone())
       .value("uid", object.uid)
+      .value("workspace_id", workspace_id)
       .value("name", object.name.clone());
 
     let (sql, params) = if !pg_rows.is_empty() {
@@ -239,7 +250,7 @@ where
             .collect::<Vec<_>>(),
         ))
         .build();
-      let delete_stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+      let delete_stmt = prepare_cached(&self.mode, sql, &txn).await?;
       txn.execute_raw(delete_stmt.as_ref(), params).await?;
 
       // 4. Insert the merged update. The new_update contains the merged update and the
@@ -266,7 +277,7 @@ where
     };
 
     // 4.Insert the merged update
-    let stmt = prepare_cached_in_transaction(&self.mode, sql, &txn).await?;
+    let stmt = prepare_cached(&self.mode, sql, &txn).await?;
     txn.execute_raw(stmt.as_ref(), params).await?;
 
     // 4.commit the transaction
