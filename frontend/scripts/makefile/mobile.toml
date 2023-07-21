@@ -10,7 +10,7 @@ condition = { env_set = [
   "stable",
 ] }
 
-[tasks.appflowy-core-dev-ios-sim]
+[tasks.appflowy-core-dev-ios]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
@@ -41,11 +41,13 @@ script = [
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
     lib = set lib${LIB_NAME}.${LIB_EXT}
 
-    echo "💻 💻 💻  Copying ${lib} to ${dart_ffi_dir}/${lib}"
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
+    rm -f ${dart_ffi_dir}/${lib}
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
     ${dart_ffi_dir}/${lib}
 
-    echo "💻 💻 💻  Copying binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    rm -f ${dart_ffi_dir}/Classes/binding.h
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
     ${dart_ffi_dir}/Classes/binding.h
   """,

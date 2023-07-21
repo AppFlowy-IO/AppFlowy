@@ -159,6 +159,14 @@ RUST_COMPILE_TARGET = "aarch64-apple-ios-sim"
 BUILD_ARCHS = "arm64"
 CRATE_TYPE = "staticlib"
 
+[env.development-ios-arm64]
+BUILD_FLAG = "debug"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Debug"
+RUST_COMPILE_TARGET = "aarch64-apple-ios"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
 [tasks.echo_env]
 script = ['''
     echo "-------- Env Parameters --------"
