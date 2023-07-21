@@ -143,4 +143,8 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
       (false, false) => default_order(),
     }
   }
+
+  fn exempt_from_cmp(&self, _: &<Self as TypeOption>::CellData) -> bool {
+    false
+  }
 }

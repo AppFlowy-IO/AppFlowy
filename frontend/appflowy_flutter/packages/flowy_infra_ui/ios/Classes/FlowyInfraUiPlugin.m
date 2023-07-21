@@ -1,4 +1,4 @@
-#import "FlowyInfraUiPlugin.h"
+#import "FlowyInfraUIPlugin.h"
 #if __has_include(<flowy_infra_ui/flowy_infra_ui-Swift.h>)
 #import <flowy_infra_ui/flowy_infra_ui-Swift.h>
 #else
@@ -8,8 +8,8 @@
 #import "flowy_infra_ui-Swift.h"
 #endif
 
-@implementation FlowyInfraUiPlugin
+@implementation FlowyInfraUIPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftFlowyInfraUiPlugin registerWithRegistrar:registrar];
+  [SwiftFlowyInfraUIPlugin registerWithRegistrar:registrar];
 }
 @end

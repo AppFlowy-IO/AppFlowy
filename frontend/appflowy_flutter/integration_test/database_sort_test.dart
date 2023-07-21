@@ -10,22 +10,22 @@ void main() {
   group('grid', () {
     testWidgets('add text sort', (tester) async {
       await tester.openV020database();
-      // create a filter
+      // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.RichText, 'Name');
 
       // check the text cell order
       final textCells = <String>[
-        '',
-        '',
-        '',
-        '',
-        '',
         'A',
         'B',
         'C',
         'D',
         'E',
+        '',
+        '',
+        '',
+        '',
+        '',
       ];
       for (final (index, content) in textCells.indexed) {
         await tester.assertCellContent(
@@ -142,7 +142,6 @@ void main() {
 
       // check the number cell order
       for (final (index, content) in <String>[
-        '',
         '-2',
         '-1',
         '0.1',
@@ -152,6 +151,7 @@ void main() {
         '10',
         '11',
         '12',
+        '',
       ].indexed) {
         await tester.assertCellContent(
           rowIndex: index,
@@ -186,77 +186,78 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('add number and text sort', (tester) async {
+    testWidgets('add checkbox and number sort', (tester) async {
       await tester.openV020database();
       // create a filter
       await tester.tapDatabaseSortButton();
-      await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
+      await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
-      // open the sort menu and select number order by descending
+      // open the sort menu and sort checkbox by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('number');
+      await tester.tapSortButtonByName('Done');
       await tester.tapSortByDescending();
-      for (final (index, content) in <String>[
-        '12',
-        '11',
-        '10',
-        '2',
-        '1',
-        '0.2',
-        '0.1',
-        '-1',
-        '-2',
-        '',
+      for (final (index, content) in <bool>[
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
       ].indexed) {
-        await tester.assertCellContent(
+        await tester.assertCheckboxCell(
           rowIndex: index,
-          fieldType: FieldType.Number,
-          content: content,
+          isSelected: content,
         );
       }
 
+      // add another sort, this time by number descending
       await tester.tapSortMenuInSettingBar();
       await tester.tapCreateSortByFieldTypeInSortMenu(
-        FieldType.RichText,
-        'Name',
+        FieldType.Number,
+        'number',
       );
+      await tester.tapSortButtonByName('number');
+      await tester.tapSortByDescending();
+
+      // check checkbox cell order
+      for (final (index, content) in <bool>[
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ].indexed) {
+        await tester.assertCheckboxCell(
+          rowIndex: index,
+          isSelected: content,
+        );
+      }
 
       // check number cell order
       for (final (index, content) in <String>[
+        '1',
+        '0.2',
+        '0.1',
+        '-1',
+        '-2',
         '12',
         '11',
         '10',
         '2',
         '',
-        '-1',
-        '-2',
-        '0.1',
-        '0.2',
-        '1',
       ].indexed) {
         await tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
-          content: content,
-        );
-      }
-
-      // check text cell order
-      for (final (index, content) in <String>[
-        '',
-        '',
-        '',
-        '',
-        '',
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-      ].indexed) {
-        await tester.assertCellContent(
-          rowIndex: index,
-          fieldType: FieldType.RichText,
           content: content,
         );
       }

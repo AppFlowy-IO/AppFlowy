@@ -155,6 +155,10 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
   ) -> Ordering {
     cell_data.0.cmp(&other_cell_data.0)
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.0.trim().is_empty()
+  }
 }
 
 #[derive(Clone)]
