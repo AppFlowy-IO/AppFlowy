@@ -55,6 +55,17 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
+            "name": "AF-iOS-Simulator: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             "name": "AF-desktop: Debug Rust",
             "request": "attach",
             "type": "lldb",
