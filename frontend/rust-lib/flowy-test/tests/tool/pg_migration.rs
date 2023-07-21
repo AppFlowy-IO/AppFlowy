@@ -13,7 +13,6 @@ pub(crate) async fn run_initial_drop(client: &Client) {
 DROP TABLE IF EXISTS af_user CASCADE;
 DROP TABLE IF EXISTS af_workspace CASCADE;
 DROP TABLE IF EXISTS af_user_workspace CASCADE;
-DROP TABLE IF EXISTS af_user_profile CASCADE;
 DROP TABLE IF EXISTS af_collab CASCADE;
 DROP TABLE IF EXISTS af_collab_update CASCADE;
 DROP VIEW IF EXISTS af_collab_state CASCADE;
@@ -24,12 +23,10 @@ DROP TABLE IF EXISTS af_permissions CASCADE;
 DROP TABLE IF EXISTS af_role_permissions CASCADE;
 DROP TABLE IF EXISTS af_collab_member CASCADE;
 DROP TABLE IF EXISTS af_workspace_member CASCADE;
-
-DROP TRIGGER IF EXISTS create_af_user_profile_trigger ON af_user_profile CASCADE;
-DROP FUNCTION IF EXISTS create_af_user_profile_trigger_func;
+DROP VIEW IF EXISTS af_user_profile_view CASCADE;
 
 DROP TRIGGER IF EXISTS create_af_workspace_trigger ON af_workspace CASCADE;
-DROP FUNCTION IF EXISTS create_af_workspace_trigger_func;
+DROP FUNCTION IF EXISTS create_af_workspace_func;
 
 DROP TRIGGER IF EXISTS create_af_user_workspace_trigger ON af_workspace CASCADE;
 DROP FUNCTION IF EXISTS create_af_user_workspace_trigger_func;
@@ -55,8 +52,11 @@ DROP FUNCTION IF EXISTS insert_into_af_collab_member;
 DROP TRIGGER IF EXISTS af_collab_update_edit_count_trigger ON af_collab_update CASCADE;
 DROP FUNCTION IF EXISTS increment_af_collab_edit_count;
 
-DROP TRIGGER IF EXISTS manage_af_workspace_member_role_trigger ON af_user_profile CASCADE;
-DROP FUNCTION IF EXISTS manage_af_workspace_member_role_trigger_func;
+DROP TRIGGER IF EXISTS manage_af_workspace_member_role_trigger ON af_workspace CASCADE;
+DROP FUNCTION IF EXISTS manage_af_workspace_member_role_func;
+
+DROP TRIGGER IF EXISTS update_af_workspace_member_updated_at_trigger ON af_collab_update CASCADE;
+DROP FUNCTION IF EXISTS update_af_workspace_member_updated_at_func;
 "#;
   client.batch_execute(sql).await.unwrap();
   client

@@ -7,7 +7,7 @@ use flowy_error::FlowyError;
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -31,16 +31,15 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
       Ok(SignUpResponse {
         user_id: uid,
         name: params.name,
-        workspace_id,
         is_new: true,
         email: Some(params.email),
         token: None,
+        user_workspace: UserWorkspace::new(&workspace_id, uid),
       })
     })
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    let weak_db = Arc::downgrade(&self.db);
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
       let uid = match params.uid {
@@ -48,17 +47,11 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
         Some(uid) => uid,
       };
 
-      // Get the workspace id from the database if it exists, otherwise generate a new one.
-      let workspace_id = weak_db
-        .upgrade()
-        .and_then(|db| db.get_user_profile(uid).ok())
-        .and_then(|user_profile| user_profile.map(|user_profile| user_profile.workspace_id))
-        .unwrap_or(uuid::Uuid::new_v4().to_string());
-
+      let user_workspace = make_user_workspace();
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,
-        workspace_id,
+        user_workspace,
         email: Some(params.email),
         token: None,
       })
@@ -84,7 +77,20 @@ impl UserAuthService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(None) })
   }
 
+  fn get_latest_user_workspace(&self, _uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async { Ok(make_user_workspace()) })
+  }
+
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
+  }
+}
+
+fn make_user_workspace() -> UserWorkspace {
+  UserWorkspace {
+    id: uuid::Uuid::new_v4().to_string(),
+    name: "My Workspace".to_string(),
+    created_at: Default::default(),
+    database_storage_id: uuid::Uuid::new_v4().to_string(),
   }
 }

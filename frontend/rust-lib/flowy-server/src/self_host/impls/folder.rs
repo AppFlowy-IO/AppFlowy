@@ -21,16 +21,16 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
 
   fn add_member_to_workspace(
     &self,
-    email: &str,
-    workspace_id: &str,
+    _email: &str,
+    _workspace_id: &str,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Ok(()) })
   }
 
   fn remove_member_from_workspace(
     &self,
-    email: &str,
-    workspace_id: &str,
+    _email: &str,
+    _workspace_id: &str,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async move { Ok(()) })
   }

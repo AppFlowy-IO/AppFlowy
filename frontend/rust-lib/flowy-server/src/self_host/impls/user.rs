@@ -2,7 +2,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::entities::{
   SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
 };
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -99,8 +99,13 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
+  fn get_latest_user_workspace(&self, _uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
+    // TODO(nathan): implement the RESTful API for this
+    todo!()
+  }
+
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
-    // TODO(nathan): implement the OpenAPI for this
+    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
   }
 }

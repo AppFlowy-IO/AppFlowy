@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::supabase::impls::WORKSPACE_ID;
+use crate::supabase::impls::LATEST_WORKSPACE_ID;
 use crate::util::deserialize_null_or_default;
 
 pub enum GetUserProfileParams {
@@ -20,17 +20,17 @@ pub(crate) struct UserProfileResponse {
   pub email: String,
 
   #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub workspace_id: String,
+  pub latest_workspace_id: String,
 }
 
 impl From<tokio_postgres::Row> for UserProfileResponse {
   fn from(row: tokio_postgres::Row) -> Self {
-    let workspace_id: Uuid = row.get(WORKSPACE_ID);
+    let latest_workspace_id: Uuid = row.get(LATEST_WORKSPACE_ID);
     Self {
       uid: row.get("uid"),
       name: row.try_get("name").unwrap_or_default(),
       email: row.try_get("email").unwrap_or_default(),
-      workspace_id: workspace_id.to_string(),
+      latest_workspace_id: latest_workspace_id.to_string(),
     }
   }
 }

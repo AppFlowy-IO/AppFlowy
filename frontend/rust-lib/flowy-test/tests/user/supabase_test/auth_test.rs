@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use futures_util::future::err;
 use nanoid::nanoid;
 
 use flowy_server::supabase::impls::{USER_EMAIL, USER_UUID};
@@ -133,7 +132,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
 
     let email = format!("{}@appflowy.io", nanoid!(6));
     // The workspace of the guest will be migrated to the new user with given uuid
-    let user_profile = test
+    let _user_profile = test
       .third_party_sign_up_with_uuid(&uuid, Some(email.clone()))
       .await
       .unwrap();

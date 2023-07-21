@@ -21,14 +21,13 @@ use flowy_sqlite::{
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
 
-use crate::entities::{
-  AuthTypePB, SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
+use crate::entities::{AuthTypePB, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserCredentials,
   UserStatusCallback,
 };
+use crate::services::session_serde::Session;
 use crate::services::user_data::UserDataMigration;
 use crate::{
   errors::FlowyError,
@@ -84,7 +83,7 @@ impl UserSession {
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
       if let Err(e) = user_status_callback
-        .did_init(session.user_id, &session.workspace_id)
+        .did_init(session.user_id, &session.user_workspace)
         .await
       {
         tracing::error!("Failed to call did_sign_in callback: {:?}", e);
@@ -148,12 +147,13 @@ impl UserSession {
     self.set_session(Some(session))?;
     self.log_user(uid, self.user_dir(uid));
 
+    let user_workspace = resp.user_workspace.clone();
     let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
     if let Err(e) = self
       .user_status_callback
       .read()
       .await
-      .did_sign_in(user_profile.id, &user_profile.workspace_id)
+      .did_sign_in(user_profile.id, &user_workspace)
       .await
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
@@ -197,11 +197,12 @@ impl UserSession {
     };
     let session = Session {
       user_id: response.user_id,
-      workspace_id: response.workspace_id.clone(),
+      user_workspace: response.user_workspace.clone(),
     };
     let uid = session.user_id;
     self.set_session(Some(session))?;
     self.log_user(uid, self.user_dir(uid));
+    let user_workspace = response.user_workspace.clone();
 
     let user_table = self
       .save_user(uid, (response, auth_type.clone()).into())
@@ -241,7 +242,7 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_up(sign_up_context, &new_user_profile)
+      .did_sign_up(sign_up_context, &new_user_profile, &user_workspace)
       .await;
     Ok(new_user_profile)
   }
@@ -379,7 +380,7 @@ impl UserSession {
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_auth_service()?;
     let token = token.to_owned();
-    let _ = tokio::spawn(async move {
+    tokio::spawn(async move {
       let credentials = UserCredentials::new(token, Some(uid), None);
       server.update_user(credentials, params).await
     })
@@ -416,8 +417,7 @@ impl UserSession {
   }
 
   fn log_user(&self, uid: i64, storage_path: String) {
-    let mut logger_users =
-      KV::get_object(HISTORICAL_USER).unwrap_or_else(|| HistoricalUsers::default());
+    let mut logger_users = KV::get_object::<HistoricalUsers>(HISTORICAL_USER).unwrap_or_default();
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       sign_in_timestamp: timestamp(),
@@ -427,8 +427,8 @@ impl UserSession {
   }
 
   pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    KV::get_object(HISTORICAL_USER)
-      .unwrap_or_else(|| HistoricalUsers::default())
+    KV::get_object::<HistoricalUsers>(HISTORICAL_USER)
+      .unwrap_or_default()
       .users
   }
 
@@ -448,44 +448,6 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Session {
-  pub user_id: i64,
-  pub workspace_id: String,
-}
-
-impl std::convert::From<SignInResponse> for Session {
-  fn from(resp: SignInResponse) -> Self {
-    Session {
-      user_id: resp.user_id,
-      workspace_id: resp.workspace_id,
-    }
-  }
-}
-
-impl std::convert::From<String> for Session {
-  fn from(s: String) -> Self {
-    match serde_json::from_str(&s) {
-      Ok(s) => s,
-      Err(e) => {
-        tracing::error!("Deserialize string to Session failed: {:?}", e);
-        Session::default()
-      },
-    }
-  }
-}
-impl std::convert::From<Session> for String {
-  fn from(session: Session) -> Self {
-    match serde_json::to_string(&session) {
-      Ok(s) => s,
-      Err(e) => {
-        tracing::error!("Serialize session to string failed: {:?}", e);
-        "".to_string()
-      },
-    }
-  }
 }
 
 pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {

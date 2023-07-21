@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use anyhow::Error;
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
 use futures_util::StreamExt;
@@ -8,9 +7,9 @@ use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user::event_map::{UserAuthService, UserCredentials, UserWorkspace};
 use flowy_user::services::{third_party_params_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -22,7 +21,7 @@ use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
 use crate::supabase::{PgConnectMode, SupabaseServerService};
 
 pub(crate) const USER_TABLE: &str = "af_user";
-pub(crate) const USER_PROFILE_TABLE: &str = "af_user_profile";
+pub(crate) const USER_PROFILE_VIEW: &str = "af_user_profile_view";
 pub const USER_UUID: &str = "uuid";
 pub const USER_EMAIL: &str = "email";
 
@@ -73,10 +72,13 @@ where
           let client = server.get_pg_client().await.recv().await?;
           let uuid = third_party_params_from_box_any(params)?.uuid;
           let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
+          let user_workspace = get_latest_user_workspace(&client, user_profile.uid).await?;
           Ok(SignInResponse {
             user_id: user_profile.uid,
-            workspace_id: user_profile.workspace_id,
-            ..Default::default()
+            name: "".to_string(),
+            user_workspace,
+            email: None,
+            token: None,
           })
         }
         .await,
@@ -137,13 +139,29 @@ where
                 token: "".to_string(),
                 icon_url: "".to_string(),
                 openai_key: "".to_string(),
-                workspace_id: user_profile.workspace_id,
+                workspace_id: user_profile.latest_workspace_id,
                 auth_type: AuthType::Supabase,
               });
             Ok(user_profile)
           } else {
             Ok(None)
           }
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
+
+  fn get_latest_user_workspace(&self, uid: i64) -> FutureResult<UserWorkspace, FlowyError> {
+    let server = self.server.try_get_pg_server();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async {
+          let server = try_upgrade_server(server)?;
+          let client = server.get_pg_client().await.recv().await?;
+          get_latest_user_workspace(&client, uid).await
         }
         .await,
       )
@@ -187,34 +205,40 @@ async fn create_user_with_uuid(
     .await?;
   if row.get::<'_, usize, bool>(0) {
     is_new = false;
-  } else {
-    if let Err(err) = client
-      .execute(
-        &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
-        &[&uuid, &email],
-      )
-      .await
-    {
-      if let Some(db_error) = err.as_db_error() {
-        if db_error.code() == &SqlState::UNIQUE_VIOLATION {
-          let detail = db_error.detail();
-          tracing::error!("create user failed:{:?}", detail);
-          return Err(FlowyError::email_exist().context(db_error.message()).into());
-        }
+  } else if let Err(err) = client
+    .execute(
+      &format!("INSERT INTO {} (uuid, email) VALUES ($1,$2);", USER_TABLE),
+      &[&uuid, &email],
+    )
+    .await
+  {
+    if let Some(db_error) = err.as_db_error() {
+      if db_error.code() == &SqlState::UNIQUE_VIOLATION {
+        let detail = db_error.detail();
+        tracing::error!("create user failed:{:?}", detail);
+        return Err(FlowyError::email_exist().context(db_error.message()).into());
       }
-      return Err(err.into());
     }
+    return Err(err.into());
   }
 
   let user_profile = get_user_profile(client, GetUserProfileParams::Uuid(uuid)).await?;
+  let user_workspace = get_latest_user_workspace(client, user_profile.uid).await?;
   Ok(SignUpResponse {
     user_id: user_profile.uid,
     name: user_profile.name,
-    workspace_id: user_profile.workspace_id,
+    user_workspace,
     is_new,
     email: Some(user_profile.email),
     token: None,
   })
+}
+
+async fn get_latest_user_workspace<C: GenericClient>(
+  _client: &C,
+  _uid: i64,
+) -> FlowyResult<UserWorkspace> {
+  todo!()
 }
 
 /// Returns the user profile of the given user.
@@ -226,14 +250,14 @@ async fn get_user_profile<C: GenericClient>(
 ) -> Result<UserProfileResponse, FlowyError> {
   let rows = match params {
     GetUserProfileParams::Uid(uid) => {
-      let stmt = format!("SELECT * FROM {} WHERE uid = $1", USER_PROFILE_TABLE);
+      let stmt = format!("SELECT * FROM {} WHERE uid = $1", USER_PROFILE_VIEW);
       client
         .query(&stmt, &[&uid])
         .await
         .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?
     },
     GetUserProfileParams::Uuid(uuid) => {
-      let stmt = format!("SELECT * FROM {} WHERE uuid = $1", USER_PROFILE_TABLE);
+      let stmt = format!("SELECT * FROM {} WHERE uuid = $1", USER_PROFILE_VIEW);
       client
         .query(&stmt, &[&uuid])
         .await
@@ -270,7 +294,7 @@ async fn update_user_profile(
       .query_one(
         &format!(
           "SELECT EXISTS (SELECT 1 FROM {} WHERE email = $1 and uid != $2)",
-          USER_PROFILE_TABLE
+          USER_TABLE
         ),
         &[&email, &params.id],
       )
@@ -284,7 +308,7 @@ async fn update_user_profile(
     }
   }
 
-  let (sql, pg_params) = UpdateSqlBuilder::new(USER_PROFILE_TABLE)
+  let (sql, pg_params) = UpdateSqlBuilder::new(USER_TABLE)
     .set("name", params.name)
     .set("email", params.email)
     .where_clause("uid", params.id)
@@ -326,7 +350,7 @@ async fn check_user(
       .build(),
   };
 
-  let stmt = prepare_cached(pg_mode, stmt, &client)
+  let stmt = prepare_cached(pg_mode, stmt, client)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   let rows = Box::pin(

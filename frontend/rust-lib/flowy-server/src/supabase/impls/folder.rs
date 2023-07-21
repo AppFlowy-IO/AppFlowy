@@ -1,5 +1,3 @@
-use std::sync::{Arc, Weak};
-
 use chrono::{DateTime, Utc};
 use collab_folder::core::{CollabOrigin, Folder};
 use futures_util::{pin_mut, StreamExt};
@@ -16,10 +14,10 @@ use crate::supabase::impls::{
 };
 use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
 use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
-use crate::supabase::{PgConnectMode, PostgresServer, SupabaseServerService};
+use crate::supabase::{PgConnectMode, SupabaseServerService};
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
-pub(crate) const WORKSPACE_ID: &str = "workspace_id";
+pub(crate) const LATEST_WORKSPACE_ID: &str = "latest_workspace_id";
 const WORKSPACE_NAME: &str = "workspace_name";
 const CREATED_AT: &str = "created_at";
 
@@ -80,8 +78,8 @@ where
 
   fn remove_member_from_workspace(
     &self,
-    email: &str,
-    workspace_id: &str,
+    _email: &str,
+    _workspace_id: &str,
   ) -> FutureResult<(), FlowyError> {
     todo!()
   }
@@ -184,10 +182,10 @@ where
 }
 
 async fn add_member_to_workspace(
-  client: &PostgresObject,
-  pg_mode: &PgConnectMode,
-  email: &str,
-  workspace_id: &str,
+  _client: &PostgresObject,
+  _pg_mode: &PgConnectMode,
+  _email: &str,
+  _workspace_id: &str,
 ) -> FlowyResult<()> {
   Ok(())
 }
@@ -203,7 +201,7 @@ async fn create_workspace(
   // Create workspace
   let (sql, params) = InsertSqlBuilder::new(WORKSPACE_TABLE)
     .value("uid", uid)
-    .value(WORKSPACE_ID, new_workspace_id)
+    .value(LATEST_WORKSPACE_ID, new_workspace_id)
     .value(WORKSPACE_NAME, name.to_string())
     .build();
   let stmt = prepare_cached(pg_mode, sql, client)
@@ -216,10 +214,10 @@ async fn create_workspace(
 
   // Read the workspace
   let (sql, params) = SelectSqlBuilder::new(WORKSPACE_TABLE)
-    .column(WORKSPACE_ID)
+    .column(LATEST_WORKSPACE_ID)
     .column(WORKSPACE_NAME)
     .column(CREATED_AT)
-    .where_clause(WORKSPACE_ID, new_workspace_id)
+    .where_clause(LATEST_WORKSPACE_ID, new_workspace_id)
     .build();
   let stmt = prepare_cached(pg_mode, sql, client)
     .await
@@ -237,7 +235,7 @@ async fn create_workspace(
     let created_at = row
       .try_get::<&str, DateTime<Utc>>(CREATED_AT)
       .unwrap_or_default();
-    let workspace_id: Uuid = row.get(WORKSPACE_ID);
+    let workspace_id: Uuid = row.get(LATEST_WORKSPACE_ID);
 
     Ok(Workspace {
       id: workspace_id.to_string(),

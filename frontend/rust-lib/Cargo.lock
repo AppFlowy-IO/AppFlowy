@@ -1979,7 +1979,9 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "appflowy-integrate",
+ "base64 0.21.0",
  "bytes",
+ "chrono",
  "collab",
  "collab-folder",
  "diesel",

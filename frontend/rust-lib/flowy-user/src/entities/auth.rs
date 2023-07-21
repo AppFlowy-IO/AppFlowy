@@ -7,7 +7,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
-use crate::event_map::UserCredentials;
+use crate::event_map::{UserCredentials, UserWorkspace};
 use crate::services::AuthType;
 
 #[derive(ProtoBuf, Default)]
@@ -87,11 +87,11 @@ pub struct SignInParams {
   pub uid: Option<i64>,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SignInResponse {
   pub user_id: i64,
   pub name: String,
-  pub workspace_id: String,
+  pub user_workspace: UserWorkspace,
   pub email: Option<String>,
   pub token: Option<String>,
 }
@@ -104,11 +104,11 @@ pub struct SignUpParams {
   pub auth_type: AuthType,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SignUpResponse {
   pub user_id: i64,
   pub name: String,
-  pub workspace_id: String,
+  pub user_workspace: UserWorkspace,
   pub is_new: bool,
   pub email: Option<String>,
   pub token: Option<String>,

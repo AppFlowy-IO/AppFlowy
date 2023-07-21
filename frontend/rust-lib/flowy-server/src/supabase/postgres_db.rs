@@ -3,7 +3,6 @@ use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
 use anyhow::Error;
-use deadpool_postgres::StatementCache;
 use deadpool_postgres::{GenericClient, Transaction};
 use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
 use tokio_postgres::{NoTls, ToStatement};

@@ -1,0 +1,95 @@
+@startuml
+left to right direction
+entity "af_roles" {
+  id : SERIAL (PK)
+  name : TEXT
+}
+
+entity "af_permissions" {
+  id : SERIAL (PK)
+  name : VARCHAR(255)
+  access_level : INTEGER
+  description : TEXT
+}
+
+entity "af_role_permissions" {
+  role_id : INT (FK af_roles.id)
+  permission_id : INT (FK af_permissions.id)
+}
+
+entity "af_user" {
+  uuid : UUID (PK)
+  email : TEXT
+  uid : BIGSERIAL
+  name : TEXT
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+entity "af_workspace" {
+  workspace_id : UUID (PK)
+  database_storage_id : UUID
+  owner_uid : BIGINT
+  created_at : TIMESTAMP WITH TIME ZONE
+  workspace_name : TEXT
+}
+
+entity "af_workspace_member" {
+  uid : BIGINT
+  role_id : INT (FK af_roles.id)
+  workspace_id : UUID (FK af_workspace.workspace_id)
+  created_at : TIMESTAMP WITH TIME ZONE
+  updated_at : TIMESTAMP WITH TIME ZONE
+}
+
+entity "af_collab" {
+  oid : TEXT (PK)
+  owner_uid : BIGINT
+  workspace_id : UUID
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+entity "af_collab_update" {
+  oid : TEXT (FK af_collab.oid)
+  name : TEXT
+  key : BIGINT
+  value : BYTEA
+  value_size : INTEGER
+  uid : BIGINT
+  md5 : TEXT
+  created_at : TIMESTAMP WITH TIME ZONE
+  workspace_id : UUID
+}
+
+entity "af_collab_member" {
+  uid : BIGINT (FK af_user.uid)
+  oid : TEXT (FK af_collab.oid)
+  role_id : INTEGER (FK af_roles.id)
+}
+
+entity "af_collab_statistics" {
+  oid : TEXT (PK)
+  edit_count : BIGINT
+}
+
+entity "af_collab_snapshot" {
+  sid : BIGSERIAL (PK)
+  oid : TEXT
+  name : TEXT
+  blob : BYTEA
+  blob_size : INTEGER
+  edit_count : BIGINT
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+af_roles --|{ af_role_permissions
+af_permissions --|{ af_role_permissions
+af_roles ||--o{ af_workspace_member
+af_workspace ||--o{ af_workspace_member
+af_user ||--o{ af_workspace
+af_user ||--o{ af_collab_member
+af_collab --|{ af_collab_member
+af_collab --|{ af_collab_update
+af_collab --o{ af_collab_statistics
+af_collab --o{ af_collab_snapshot
+
+@enduml

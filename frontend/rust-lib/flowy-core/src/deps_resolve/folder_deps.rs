@@ -23,7 +23,6 @@ use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
 };
 use flowy_folder2::ViewLayout;
-use flowy_sqlite::schema::user_table::workspace;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;

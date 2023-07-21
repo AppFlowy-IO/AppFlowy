@@ -339,7 +339,7 @@ impl FolderManager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
-    let workspace_id = self.get_current_workspace_id().await?;
+    let _workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();

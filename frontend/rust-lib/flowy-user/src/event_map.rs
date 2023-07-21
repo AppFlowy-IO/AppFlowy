@@ -1,6 +1,8 @@
 use std::sync::{Arc, Weak};
 
+use chrono::{DateTime, Utc};
 use collab_folder::core::FolderData;
+use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -42,20 +44,48 @@ pub struct SignUpContext {
   pub local_folder: Option<FolderData>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UserWorkspace {
+  pub id: String,
+  pub name: String,
+  pub created_at: DateTime<Utc>,
+  pub database_storage_id: String,
+}
+
+impl UserWorkspace {
+  pub fn new(workspace_id: &str, _uid: i64) -> Self {
+    Self {
+      id: workspace_id.to_string(),
+      name: "".to_string(),
+      created_at: Utc::now(),
+      database_storage_id: uuid::Uuid::new_v4().to_string(),
+    }
+  }
+}
+
 pub trait UserStatusCallback: Send + Sync + 'static {
   /// When the [AuthType] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
   fn auth_type_did_changed(&self, auth_type: AuthType);
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
-  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed in.
-  fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed up.
-  fn did_sign_up(&self, context: SignUpContext, user_profile: &UserProfile)
-    -> Fut<FlowyResult<()>>;
+  fn did_sign_up(
+    &self,
+    context: SignUpContext,
+    user_profile: &UserProfile,
+    user_workspace: &UserWorkspace,
+  ) -> Fut<FlowyResult<()>>;
+
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn did_open_workspace(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_open_workspace(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+  ) -> Fut<FlowyResult<()>>;
 }
 
 /// The user cloud service provider.
@@ -146,6 +176,9 @@ pub trait UserAuthService: Send + Sync {
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
 
+  /// Return the latest user workspace  
+  fn get_latest_user_workspace(&self, uid: i64) -> FutureResult<UserWorkspace, FlowyError>;
+
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 }
 
@@ -154,11 +187,11 @@ pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
-  fn did_init(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_init(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
-  fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
@@ -166,6 +199,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     &self,
     _context: SignUpContext,
     _user_profile: &UserProfile,
+    _user_workspace: &UserWorkspace,
   ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
@@ -174,7 +208,11 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     to_fut(async { Ok(()) })
   }
 
-  fn did_open_workspace(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_open_workspace(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+  ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 }

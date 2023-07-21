@@ -8,8 +8,8 @@ use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  make_workspace_database_id, CollabFuture, CollabObjectUpdate, CollabObjectUpdateByOid,
-  DatabaseCollabService, WorkspaceDatabase,
+  CollabFuture, CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCollabService,
+  WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use tokio::sync::RwLock;
@@ -58,7 +58,7 @@ impl DatabaseManager {
     read_txn.is_exist(uid, object_id)
   }
 
-  pub async fn initialize(&self, uid: i64, workspace_database_id: String) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64, database_storage_id: String) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
       collab_builder: self.collab_builder.clone(),
@@ -68,28 +68,28 @@ impl DatabaseManager {
     let mut collab_raw_data = CollabRawData::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &workspace_database_id) {
+    if !self.is_collab_exist(uid, &collab_db, &database_storage_id) {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&workspace_database_id)
+        .get_collab_update(&database_storage_id)
         .await
       {
         Ok(updates) => collab_raw_data = updates,
         Err(err) => {
           return Err(FlowyError::record_not_found().context(format!(
             "get workspace database :{} failed: {}",
-            workspace_database_id, err,
+            database_storage_id, err,
           )));
         },
       }
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &workspace_database_id);
+    tracing::trace!("open workspace database: {}", &database_storage_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &workspace_database_id,
+      &database_storage_id,
       "databases",
       collab_db.clone(),
       collab_raw_data,
@@ -105,9 +105,9 @@ impl DatabaseManager {
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
-    workspace_database_id: String,
+    database_storage_id: String,
   ) -> FlowyResult<()> {
-    self.initialize(user_id, workspace_database_id).await?;
+    self.initialize(user_id, database_storage_id).await?;
     Ok(())
   }
 

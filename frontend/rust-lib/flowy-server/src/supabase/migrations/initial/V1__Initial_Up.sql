@@ -80,73 +80,45 @@ CREATE TABLE IF NOT EXISTS af_user (
    uuid UUID PRIMARY KEY,
    email TEXT NOT NULL DEFAULT '' UNIQUE,
    uid BIGSERIAL UNIQUE,
+   name TEXT NOT NULL DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
--- user profile table
-CREATE TABLE IF NOT EXISTS af_user_profile (
-   uid BIGINT PRIMARY KEY,
-   uuid UUID,
-   name TEXT UNIQUE,
-   email TEXT,
-   workspace_id UUID DEFAULT uuid_generate_v4(),
-   FOREIGN KEY (uid) REFERENCES af_user(uid) ON DELETE CASCADE
-);
--- This create_af_user_profile_trigger trigger is fired after an insert operation on the af_user table. It automatically creates a
--- corresponding user profile in the af_user_profile table with the same uid, uuid, and email
-CREATE OR REPLACE FUNCTION create_af_user_profile_trigger_func() RETURNS TRIGGER AS $$BEGIN
-INSERT INTO af_user_profile (uid, uuid, email)
-VALUES (NEW.uid, NEW.uuid, NEW.email);
-RETURN NEW;
-END $$LANGUAGE plpgsql;
-CREATE TRIGGER create_af_user_profile_trigger
-AFTER
-INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_user_profile_trigger_func();
 -- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+   database_storage_id UUID DEFAULT uuid_generate_v4(),
    owner_uid BIGINT,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_name TEXT DEFAULT 'My Workspace'
 );
--- This trigger is fired before an insert operation on the af_user_profile table. It automatically creates a workspace
--- in the af_workspace table with the uid of the new user profile as the owner_uid and the workspace_id from the new
--- user profile.
-CREATE OR REPLACE FUNCTION create_af_workspace_trigger_func() RETURNS TRIGGER AS $$BEGIN
-INSERT INTO af_workspace (owner_uid, workspace_id)
-VALUES (NEW.uid, NEW.workspace_id);
+-- This trigger is fired before an insert operation on the af_user table. It automatically creates a workspace
+-- in the af_workspace table with the uid of the new user profile as the owner_uid
+CREATE OR REPLACE FUNCTION create_af_workspace_func() RETURNS TRIGGER AS $$BEGIN
+INSERT INTO af_workspace (owner_uid)
+VALUES (NEW.uid);
 RETURN NEW;
 END $$LANGUAGE plpgsql;
 CREATE TRIGGER create_af_workspace_trigger BEFORE
-INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION create_af_workspace_trigger_func();
+INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_workspace_func();
 -- af_workspace_member contains all the members associated with a workspace and their roles.
 CREATE TABLE IF NOT EXISTS af_workspace_member (
    uid BIGINT,
    role_id INT REFERENCES af_roles(id),
    workspace_id UUID REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
 );
--- This trigger is fired after an insert operation on the af_user_profile table. It automatically creates a workspace
+-- This trigger is fired after an insert operation on the af_workspace table. It automatically creates a workspace
 -- member in the af_workspace_member table. If the user is the owner of the workspace, they are given the role 'Owner'.
--- Otherwise, they are given the role 'Member'. If a member with the same uid and workspace_id already exists, their
--- role is updated.
-CREATE OR REPLACE FUNCTION manage_af_workspace_member_role_trigger_func() RETURNS TRIGGER AS $$ BEGIN -- For new user profile, set as owner if user is the owner of the workspace, else set as member
+CREATE OR REPLACE FUNCTION manage_af_workspace_member_role_func() RETURNS TRIGGER AS $$ BEGIN
 INSERT INTO af_workspace_member (uid, role_id, workspace_id)
 VALUES (
-      NEW.uid,
+      NEW.owner_uid,
       (
          SELECT id
          FROM af_roles
-         WHERE name = (
-               CASE
-                  WHEN NEW.uid IN (
-                     SELECT owner_uid
-                     FROM af_workspace
-                     WHERE workspace_id = NEW.workspace_id
-                  ) THEN 'Owner'
-                  ELSE 'Member'
-               END
-            )
+         WHERE name = 'Owner'
       ),
       NEW.workspace_id
    ) ON CONFLICT (uid, workspace_id) DO
@@ -157,7 +129,26 @@ END;
 $$ LANGUAGE plpgsql;
 CREATE TRIGGER manage_af_workspace_member_role_trigger
 AFTER
-INSERT ON af_user_profile FOR EACH ROW EXECUTE FUNCTION manage_af_workspace_member_role_trigger_func();
+INSERT ON af_workspace FOR EACH ROW EXECUTE FUNCTION manage_af_workspace_member_role_func();
+-- af_user_profile_view is a view that contains all the user profiles and their latest workspace_id.
+-- a subquery is first used to find the workspace_id of the workspace with the latest updated_at timestamp for each
+-- user. This subquery is then joined with the af_user table to create the view. Note that a LEFT JOIN is used in
+-- case there are users without workspaces, in which case latest_workspace_id will be NULL for those users.
+CREATE OR REPLACE VIEW af_user_profile_view AS
+SELECT u.*,
+   w.workspace_id AS latest_workspace_id
+FROM af_user u
+   INNER JOIN (
+      SELECT uid,
+         workspace_id,
+         rank() OVER (
+            PARTITION BY uid
+            ORDER BY updated_at DESC
+         ) AS rn
+      FROM af_workspace_member
+   ) w ON u.uid = w.uid
+   AND w.rn = 1;
+-- af_collab contains all the collabs.
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
    owner_uid BIGINT,
@@ -165,6 +156,28 @@ CREATE TABLE IF NOT EXISTS af_collab(
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_af_collab_oid ON af_collab (oid);
+-- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
+-- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
+-- row in the af_workspace_member table.
+CREATE OR REPLACE FUNCTION update_af_workspace_member_updated_at_func() RETURNS TRIGGER AS $$ BEGIN IF (
+      NEW.oid = (
+         SELECT workspace_id
+         FROM af_workspace_member
+         WHERE workspace_id = NEW.oid
+      )
+   ) THEN
+UPDATE af_workspace_member
+SET updated_at = CURRENT_TIMESTAMP
+WHERE workspace_id = NEW.oid;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER update_af_workspace_member_updated_at_trigger
+AFTER
+INSERT
+   OR
+UPDATE ON af_collab_update FOR EACH ROW EXECUTE PROCEDURE update_af_workspace_member_updated_at_func();
 -- collab update table.
 CREATE TABLE IF NOT EXISTS af_collab_update (
    oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
@@ -175,7 +188,7 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    workspace_id UUID NOT NULL,
+   workspace_id UUID NOT NULL,
    PRIMARY KEY (oid, key)
 );
 -- This trigger is fired before an insert operation on the af_collab_update table. It checks if a corresponding collab
@@ -196,7 +209,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER insert_into_af_collab_trigger BEFORE
 INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_if_not_exists();
 CREATE TABLE af_collab_member (
-   uid BIGINT REFERENCES af_user(uid) ON DELETE CASCADE ,
+   uid BIGINT REFERENCES af_user(uid) ON DELETE CASCADE,
    oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
    role_id INTEGER REFERENCES af_roles(id),
    PRIMARY KEY(uid, oid)
