@@ -1,81 +1,163 @@
 PODS:
-  - flowy_editor (0.0.1):
-    - Flutter
-  - flowy_infra_ui (0.0.1):
+  - app_links (0.0.1):
     - Flutter
   - appflowy_backend (0.0.1):
     - Flutter
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
+  - DKImagePickerController/Core (4.3.4):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.3.4)
+  - DKImagePickerController/PhotoGallery (4.3.4):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.3.4)
+  - DKPhotoGallery (0.0.17):
+    - DKPhotoGallery/Core (= 0.0.17)
+    - DKPhotoGallery/Model (= 0.0.17)
+    - DKPhotoGallery/Preview (= 0.0.17)
+    - DKPhotoGallery/Resource (= 0.0.17)
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - file_picker (0.0.1):
+    - DKImagePickerController/PhotoGallery
+    - Flutter
+  - flowy_infra_ui (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
-  - flutter_inappwebview (0.0.1):
+  - fluttertoast (0.0.2):
     - Flutter
-    - flutter_inappwebview/Core (= 0.0.1)
-    - OrderedSet (~> 5.0)
-  - flutter_inappwebview/Core (0.0.1):
+    - Toast
+  - integration_test (0.0.1):
     - Flutter
-    - OrderedSet (~> 5.0)
-  - flutter_keyboard_visibility (0.0.1):
+  - package_info_plus (0.4.5):
     - Flutter
-  - image_picker (0.0.1):
+  - path_provider_foundation (0.0.1):
     - Flutter
-  - OrderedSet (5.0.0)
-  - path_provider (0.0.1):
+    - FlutterMacOS
+  - ReachabilitySwift (5.0.0)
+  - rich_clipboard_ios (0.0.1):
     - Flutter
-  - url_launcher (0.0.1):
+  - SDWebImage (5.14.2):
+    - SDWebImage/Core (= 5.14.2)
+  - SDWebImage/Core (5.14.2)
+  - shared_preferences_foundation (0.0.1):
     - Flutter
-  - video_player (0.0.1):
+    - FlutterMacOS
+  - sign_in_with_apple (0.0.1):
+    - Flutter
+  - SwiftyGif (5.4.3)
+  - Toast (4.0.0)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - webview_flutter_wkwebview (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - flowy_editor (from `.symlinks/plugins/flowy_editor/ios`)
-  - flowy_infra_ui (from `.symlinks/plugins/flowy_infra_ui/ios`)
+  - app_links (from `.symlinks/plugins/app_links/ios`)
   - appflowy_backend (from `.symlinks/plugins/appflowy_backend/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
+  - flowy_infra_ui (from `.symlinks/plugins/flowy_infra_ui/ios`)
   - Flutter (from `Flutter`)
-  - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
-  - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
-  - image_picker (from `.symlinks/plugins/image_picker/ios`)
-  - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
-  - video_player (from `.symlinks/plugins/video_player/ios`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - rich_clipboard_ios (from `.symlinks/plugins/rich_clipboard_ios/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
   trunk:
-    - OrderedSet
+    - DKImagePickerController
+    - DKPhotoGallery
+    - ReachabilitySwift
+    - SDWebImage
+    - SwiftyGif
+    - Toast
 
 EXTERNAL SOURCES:
-  flowy_editor:
-    :path: ".symlinks/plugins/flowy_editor/ios"
-  flowy_infra_ui:
-    :path: ".symlinks/plugins/flowy_infra_ui/ios"
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
   appflowy_backend:
     :path: ".symlinks/plugins/appflowy_backend/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
+  flowy_infra_ui:
+    :path: ".symlinks/plugins/flowy_infra_ui/ios"
   Flutter:
     :path: Flutter
-  flutter_inappwebview:
-    :path: ".symlinks/plugins/flutter_inappwebview/ios"
-  flutter_keyboard_visibility:
-    :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
-  image_picker:
-    :path: ".symlinks/plugins/image_picker/ios"
-  path_provider:
-    :path: ".symlinks/plugins/path_provider/ios"
-  url_launcher:
-    :path: ".symlinks/plugins/url_launcher/ios"
-  video_player:
-    :path: ".symlinks/plugins/video_player/ios"
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  rich_clipboard_ios:
+    :path: ".symlinks/plugins/rich_clipboard_ios/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sign_in_with_apple:
+    :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
-  flowy_editor: bf8d58894ddb03453bd4d8521c57267ad638b837
-  flowy_infra_ui: 146c88346fd55d2ee6a41ae35059a5bf095cfbb3
-  appflowy_backend: c416222c639e678828776789bf0c1a1d0d59df3c
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
-  flutter_inappwebview: bfd58618f49dc62f2676de690fc6dcda1d6c3721
-  flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
-  image_picker: 9aa50e1d8cdacdbed739e925b7eea16d014367e6
-  OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
-  url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
-  video_player: ecd305f42e9044793efd34846e1ce64c31ea6fcb
+  app_links: 5ef33d0d295a89d9d16bb81b0e3b0d5f70d6c875
+  appflowy_backend: 652da8c7a089ffe165cb119a68eb168a6ed2c9d0
+  connectivity_plus: 07c49e96d7fc92bc9920617b83238c4d178b446a
+  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
+  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
+  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
+  file_picker: ce3938a0df3cc1ef404671531facef740d03f920
+  flowy_infra_ui: 0455e1fa8c51885aa1437848e361e99419f34ebc
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
+  integration_test: 13825b8a9334a850581300559b8839134b124670
+  package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
+  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  rich_clipboard_ios: 7588abe18f881a6d0e9ec0b12e51cae2761e8942
+  SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
+  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
+  SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
+  webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3

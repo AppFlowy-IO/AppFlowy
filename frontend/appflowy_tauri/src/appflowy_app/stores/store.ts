@@ -16,6 +16,8 @@ import { documentReducers } from './reducers/document/slice';
 import { boardSlice } from './reducers/board/slice';
 import { errorSlice } from './reducers/error/slice';
 import { sidebarSlice } from '$app_reducers/sidebar/slice';
+import { blockDraggableSlice } from '$app_reducers/block-draggable/slice';
+import { trashSlice } from '$app_reducers/trash/slice';
 
 const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
@@ -31,6 +33,8 @@ const store = configureStore({
     [workspaceSlice.name]: workspaceSlice.reducer,
     [errorSlice.name]: errorSlice.reducer,
     [sidebarSlice.name]: sidebarSlice.reducer,
+    [blockDraggableSlice.name]: blockDraggableSlice.reducer,
+    [trashSlice.name]: trashSlice.reducer,
     ...documentReducers,
   },
   middleware: (gDM) => gDM({ serializableCheck: false }).prepend(listenerMiddlewareInstance.middleware),

@@ -8,7 +8,6 @@ import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
 import 'util/emoji.dart';
-import 'util/ime.dart';
 import 'util/util.dart';
 
 void main() {

@@ -224,21 +224,26 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  Future<void> createNewPageWithName(ViewLayoutPB layout, String name) async {
+  Future<void> createNewPageWithName(
+    ViewLayoutPB layout, [
+    String? name,
+  ]) async {
     // create a new page
     await tapAddButton();
     await tapButtonWithName(layout.menuName);
     await pumpAndSettle();
 
     // hover on it and change it's name
-    await hoverOnPageName(
-      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-      onHover: () async {
-        await renamePage(name);
-        await pumpAndSettle();
-      },
-    );
-    await pumpAndSettle();
+    if (name != null) {
+      await hoverOnPageName(
+        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        onHover: () async {
+          await renamePage(name);
+          await pumpAndSettle();
+        },
+      );
+      await pumpAndSettle();
+    }
   }
 
   Future<void> simulateKeyEvent(

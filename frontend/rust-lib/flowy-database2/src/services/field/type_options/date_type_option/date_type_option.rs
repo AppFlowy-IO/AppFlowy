@@ -302,4 +302,8 @@ impl TypeOptionCellDataCompare for DateTypeOption {
       (None, None) => default_order(),
     }
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.timestamp.is_none()
+  }
 }

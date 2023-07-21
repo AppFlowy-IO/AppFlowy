@@ -6,14 +6,17 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
       fn.apply(undefined, args);
     }, delay);
   };
+
   debounceFn.cancel = () => {
     clearTimeout(timeout);
   };
+
   return debounceFn;
 }
 
 export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {
   let timeout: NodeJS.Timeout | null = null;
+
   return (...args: any[]) => {
     if (!timeout) {
       timeout = setTimeout(() => {
@@ -27,25 +30,31 @@ export function throttle(fn: (...args: any[]) => void, delay: number, immediate 
 
 export function get<T = any>(obj: any, path: string[], defaultValue?: any): T {
   let value = obj;
+
   for (const prop of path) {
-    value = value[prop];
-    if (value === undefined) {
+    if (value === undefined || typeof value !== 'object' || value[prop] === undefined) {
       return defaultValue !== undefined ? defaultValue : undefined;
     }
+
+    value = value[prop];
   }
+
   return value;
 }
 
 export function set(obj: any, path: string[], value: any): void {
   let current = obj;
+
   for (let i = 0; i < path.length; i++) {
     const prop = path[i];
+
     if (i === path.length - 1) {
       current[prop] = value;
     } else {
       if (!current[prop]) {
         current[prop] = {};
       }
+
       current = current[prop];
     }
   }
@@ -84,6 +93,7 @@ export function isEqual<T>(value1: T, value2: T): boolean {
       return false;
     }
   }
+
   return true;
 }
 
@@ -97,8 +107,10 @@ export function clone<T>(value: T): T {
   }
 
   const result: any = {};
+
   for (const key in value) {
     result[key] = clone(value[key]);
   }
+
   return result;
 }
