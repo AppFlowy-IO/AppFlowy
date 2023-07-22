@@ -248,10 +248,11 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         onTap: () async {
           final TemplateService templateService = TemplateService();
 
-          final template =  await templateService.pickTemplate();
+          final archive = await templateService.pickTemplate();
+          
           await templateService.unloadTemplate(
             widget.view.parentViewId,
-            template,
+            archive,
           );
         },
         useIntrinsicWidth: true,
@@ -548,4 +549,3 @@ Future<void> extractRarFile(String filePath) async {
     await outputFile.writeAsBytes(data);
   }
 }
-

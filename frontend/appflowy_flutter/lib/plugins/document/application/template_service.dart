@@ -17,7 +17,7 @@ import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
 class TemplateService {
-  void saveTemplate(EditorState editorState) async {
+  Future<void> saveTemplate(EditorState editorState) async {
     final directory = await getApplicationDocumentsDirectory();
 
     final dir = Directory(path.join(directory.path, 'template'));
@@ -69,7 +69,7 @@ class TemplateService {
   /// 2. Zip may contain several files, use [config.json] to determine which files to use.
   /// 3. Load template into editor, using [TemplateService.unloadTemplate] function
 
-  Future<TemplateModel?> pickTemplate() async {
+  Future<Archive?> pickTemplate() async {
     // Pick a ZIP file from the system
     final result = await FilePicker().pickFiles(
       type: FileType.custom,
@@ -86,6 +86,15 @@ class TemplateService {
     final contents = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(contents);
 
+    return archive;
+  }
+
+  Future<void> unloadTemplate(
+    String parentViewId,
+    Archive? archive,
+  ) async {
+    if (archive == null) return;
+
     final directory = await getTemporaryDirectory();
 
     for (final file in archive) {
@@ -100,15 +109,6 @@ class TemplateService {
         json.decode(await File("${directory.path}/config.json").readAsString());
 
     final TemplateModel template = TemplateModel.fromJson(config);
-    return template;
-  }
-
-  Future<void> unloadTemplate(
-    String parentViewId,
-    TemplateModel? template,
-  ) async {
-    // If no template was selected, return
-    if (template == null) return;
 
     debugPrint("Loading Template:  ${template.templateName} into editor");
 
