@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use appflowy_integrate::{CollabObject, CollabPersistenceConfig, CollabType, RocksCollabDB};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
@@ -77,7 +77,7 @@ impl DatabaseManager {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&database_storage_id)
+        .get_collab_update(&database_storage_id, CollabType::WorkspaceDatabase)
         .await
       {
         Ok(updates) => collab_raw_data = updates,
@@ -95,7 +95,7 @@ impl DatabaseManager {
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_storage_id,
-      "database storage",
+      CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,
       &config,
@@ -360,6 +360,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
   fn get_collab_update(
     &self,
     object_id: &str,
+    object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdate, DatabaseError>> {
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
@@ -371,7 +372,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_update(&object_id)
+            .get_collab_update(&object_id, object_ty)
             .await
             .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
           Ok(updates)
@@ -383,6 +384,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
   fn batch_get_collab_update(
     &self,
     object_ids: Vec<String>,
+    object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdateByOid, DatabaseError>> {
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
@@ -393,7 +395,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_updates(object_ids)
+            .batch_get_collab_updates(object_ids, object_ty)
             .await
             .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
           Ok(updates)
@@ -406,7 +408,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     uid: i64,
     object_id: &str,
-    object_name: &str,
+    object_type: CollabType,
     collab_db: Arc<RocksCollabDB>,
     collab_raw_data: CollabRawData,
     config: &CollabPersistenceConfig,
@@ -416,7 +418,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       .build_with_config(
         uid,
         object_id,
-        object_name,
+        object_type,
         collab_db,
         collab_raw_data,
         config,

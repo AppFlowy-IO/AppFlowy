@@ -1,3 +1,4 @@
+use appflowy_integrate::CollabType;
 use collab_document::document::Document;
 use collab_folder::core::CollabOrigin;
 use tokio::sync::oneshot::channel;
@@ -33,10 +34,12 @@ where
         async move {
           match weak_server {
             None => Ok(vec![]),
-            Some(weak_server) => FetchObjectUpdateAction::new(&document_id, pg_mode, weak_server)
-              .run_with_fix_interval(5, 5)
-              .await
-              .map_err(internal_error),
+            Some(weak_server) => {
+              FetchObjectUpdateAction::new(document_id, CollabType::Document, pg_mode, weak_server)
+                .run_with_fix_interval(5, 5)
+                .await
+                .map_err(internal_error)
+            },
           }
         }
         .await,
@@ -96,7 +99,12 @@ where
           match weak_server {
             None => Ok(Ok(None)),
             Some(weak_server) => {
-              let action = FetchObjectUpdateAction::new(&document_id, pg_mode, weak_server);
+              let action = FetchObjectUpdateAction::new(
+                document_id.clone(),
+                CollabType::Document,
+                pg_mode,
+                weak_server,
+              );
               action.run().await.map(|updates| {
                 let document =
                   Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;

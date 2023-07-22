@@ -83,12 +83,14 @@ CREATE TABLE IF NOT EXISTS af_user (
    name TEXT NOT NULL DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TYPE WorkspaceType AS ENUM ('Free');
 -- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    database_storage_id UUID DEFAULT uuid_generate_v4(),
    owner_uid BIGINT,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+   workspace_type WorkspaceType NOT NULL DEFAULT 'Free',
    workspace_name TEXT DEFAULT 'My Workspace'
 );
 -- This trigger is fired before an insert operation on the af_user table. It automatically creates a workspace
@@ -149,17 +151,18 @@ FROM af_user u
    ) w ON u.uid = w.uid
    AND w.rn = 1;
 -- af_collab contains all the collabs.
+CREATE TYPE AccessLevel AS ENUM ('Shared', 'Private');
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
    owner_uid BIGINT,
    workspace_id UUID NOT NULL,
+   access_level AccessLevel NOT NULL DEFAULT 'Private',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX idx_af_collab_oid ON af_collab (oid);
 -- collab update table.
 CREATE TABLE IF NOT EXISTS af_collab_update (
    oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
-   name TEXT DEFAULT '',
    key BIGINT GENERATED ALWAYS AS IDENTITY,
    value BYTEA NOT NULL,
    value_size INTEGER,
@@ -168,6 +171,16 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_id UUID NOT NULL,
    PRIMARY KEY (oid, key)
+);
+-- Used to store the rows of the database
+CREATE TABLE IF NOT EXISTS af_database_row_update (
+   oid TEXT PRIMARY KEY,
+   key BIGINT GENERATED ALWAYS AS IDENTITY,
+   value BYTEA NOT NULL,
+   value_size INTEGER,
+   uid BIGINT NOT NULL,
+   md5 TEXT DEFAULT '',
+   workspace_id UUID NOT NULL
 );
 -- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
 -- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
@@ -210,6 +223,7 @@ END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+-- af_collab_update
 CREATE TRIGGER insert_into_af_collab_trigger BEFORE
 INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_if_not_exists();
 CREATE TABLE af_collab_member (
@@ -294,3 +308,37 @@ SELECT a.oid,
    b.edit_count AS current_edit_count
 FROM af_collab_snapshot AS a
    JOIN af_collab_statistics AS b ON a.oid = b.oid;
+-- Insert a workspace member if the user with given uid is the owner of the workspace
+CREATE OR REPLACE FUNCTION insert_af_workspace_member_if_owner(
+      p_uid BIGINT,
+      p_role_id INT,
+      p_workspace_id UUID
+   ) RETURNS VOID AS $$
+DECLARE v_owner BIGINT;
+BEGIN -- Check if the user is the owner of the workspace
+SELECT owner_uid INTO v_owner
+FROM af_workspace
+WHERE workspace_id = p_workspace_id;
+IF v_owner != p_uid THEN RAISE EXCEPTION 'Unsupported operation: User is not the owner of the workspace.';
+END IF;
+-- If user is the owner, proceed with the insert operation
+INSERT INTO af_workspace_member (uid, role_id, workspace_id)
+VALUES (p_uid, p_role_id, p_workspace_id);
+END;
+$$ LANGUAGE plpgsql;
+-- show the shared documents and databases for the given uid
+CREATE OR REPLACE FUNCTION af_shared_collab_for_uid(_uid BIGINT) RETURNS TABLE (
+      oid TEXT,
+      owner_uid BIGINT,
+      workspace_id UUID,
+      access_level AccessLevel,
+      created_at TIMESTAMP WITH TIME ZONE
+   ) AS $$ BEGIN RETURN QUERY
+SELECT c.*
+FROM af_collab c
+   JOIN af_collab_member cm ON c.oid = cm.oid
+   JOIN af_workspace_member wm ON c.workspace_id = wm.workspace_id
+WHERE cm.uid = _uid
+   AND c.owner_uid != _uid;
+END;
+$$ LANGUAGE plpgsql;

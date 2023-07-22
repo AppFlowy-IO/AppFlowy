@@ -3,12 +3,13 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
+use futures_util::future::BoxFuture;
 use futures_util::StreamExt;
 use tokio::sync::oneshot::channel;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
 use flowy_user::services::{third_party_params_from_box_any, AuthType};
@@ -34,6 +35,30 @@ impl<T> SupabaseUserAuthServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self { server }
   }
+
+  fn execute_async<F, R>(&self, func: F) -> FutureResult<R, FlowyError>
+  where
+    T: SupabaseServerService,
+    F: FnOnce(PostgresObject, PgConnectMode) -> BoxFuture<'static, FlowyResult<R>>
+      + Sync
+      + Send
+      + 'static,
+    R: Send + Sync + 'static,
+  {
+    let pg_mode = self.server.get_pg_mode();
+    let weak_server = self.server.try_get_pg_server();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      let result = async move {
+        let server = try_upgrade_server(weak_server)?;
+        let client = server.get_pg_client().await.recv().await?;
+        (func)(client, pg_mode).await
+      }
+      .await;
+      let _ = tx.send(result);
+    });
+    FutureResult::new(async { rx.await.map_err(internal_error)? })
+  }
 }
 
 impl<T> UserService for SupabaseUserAuthServiceImpl<T>
@@ -41,60 +66,42 @@ where
   T: SupabaseServerService,
 {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    let weak_server = self.server.try_get_pg_server();
-    let pg_mode = self.server.get_pg_mode();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          let server = try_upgrade_server(weak_server)?;
-          let mut client = server.get_pg_client().await.recv().await?;
-          let params = third_party_params_from_box_any(params)?;
-          create_user_with_uuid(&mut client, &pg_mode, params.uuid, params.email)
-            .await
-            .map_err(|err| {
-              err
-                .downcast::<FlowyError>()
-                .unwrap_or_else(|err| FlowyError::new(ErrorCode::PgDatabaseError, err))
-            })
-        }
-        .await,
-      )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    self.execute_async(move |mut pg_client, pg_mode| {
+      Box::pin(async move {
+        let params = third_party_params_from_box_any(params)?;
+        create_user_with_uuid(&mut pg_client, &pg_mode, params.uuid, params.email)
+          .await
+          .map_err(|err| {
+            err
+              .downcast::<FlowyError>()
+              .unwrap_or_else(|err| FlowyError::new(ErrorCode::PgDatabaseError, err))
+          })
+      })
+    })
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
-    let server = self.server.try_get_pg_server();
-    let pg_mode = self.server.get_pg_mode();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async {
-          let server = try_upgrade_server(server)?;
-          let client = server.get_pg_client().await.recv().await?;
-          let uuid = third_party_params_from_box_any(params)?.uuid;
-          let user_profile = get_user_profile(&client, GetUserProfileParams::Uuid(uuid)).await?;
-          let user_workspaces = get_user_workspaces(&client, &pg_mode, user_profile.uid)
-            .await
-            .map_err(internal_error)?;
-          let latest_workspace = user_workspaces
-            .iter()
-            .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
-            .cloned();
-          Ok(SignInResponse {
-            user_id: user_profile.uid,
-            name: "".to_string(),
-            latest_workspace: latest_workspace.unwrap(),
-            user_workspaces,
-            email: None,
-            token: None,
-          })
-        }
-        .await,
-      )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(async move {
+        let uuid = third_party_params_from_box_any(params)?.uuid;
+        let user_profile = get_user_profile(&pg_client, GetUserProfileParams::Uuid(uuid)).await?;
+        let user_workspaces = get_user_workspaces(&pg_client, &pg_mode, user_profile.uid)
+          .await
+          .map_err(internal_error)?;
+        let latest_workspace = user_workspaces
+          .iter()
+          .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+          .cloned();
+        Ok(SignInResponse {
+          user_id: user_profile.uid,
+          name: "".to_string(),
+          latest_workspace: latest_workspace.unwrap(),
+          user_workspaces,
+          email: None,
+          token: None,
+        })
+      })
+    })
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
@@ -106,114 +113,77 @@ where
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    let pg_mode = self.server.get_pg_mode();
-    let weak_server = self.server.try_get_pg_server();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          if let Some(server) = weak_server?.upgrade() {
-            let client = server.get_pg_client().await.recv().await?;
-            update_user_profile(&client, &pg_mode, params).await
-          } else {
-            Ok(())
-          }
-        }
-        .await,
-      )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(async move { update_user_profile(&pg_client, &pg_mode, params).await })
+    })
   }
 
   fn get_user_profile(
     &self,
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    let weak_server = self.server.try_get_pg_server();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          if let Some(server) = weak_server?.upgrade() {
-            let client = server.get_pg_client().await.recv().await?;
-            let uid = credential
-              .uid
-              .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
-            let user_profile = get_user_profile(&client, GetUserProfileParams::Uid(uid))
-              .await
-              .ok()
-              .map(|user_profile| UserProfile {
-                id: user_profile.uid,
-                email: user_profile.email,
-                name: user_profile.name,
-                token: "".to_string(),
-                icon_url: "".to_string(),
-                openai_key: "".to_string(),
-                workspace_id: user_profile.latest_workspace_id,
-                auth_type: AuthType::Supabase,
-              });
-            Ok(user_profile)
-          } else {
-            Ok(None)
-          }
-        }
-        .await,
-      )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    self.execute_async(move |pg_client, _pg_mode| {
+      Box::pin(async move {
+        let uid = credential
+          .uid
+          .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
+        let user_profile = get_user_profile(&pg_client, GetUserProfileParams::Uid(uid))
+          .await
+          .ok()
+          .map(|user_profile| UserProfile {
+            id: user_profile.uid,
+            email: user_profile.email,
+            name: user_profile.name,
+            token: "".to_string(),
+            icon_url: "".to_string(),
+            openai_key: "".to_string(),
+            workspace_id: user_profile.latest_workspace_id,
+            auth_type: AuthType::Supabase,
+          });
+        Ok(user_profile)
+      })
+    })
   }
 
   fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
-    let server = self.server.try_get_pg_server();
-    let pg_mode = self.server.get_pg_mode();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async {
-          let server = try_upgrade_server(server)?;
-          let client = server.get_pg_client().await.recv().await?;
-          get_user_workspaces(&client, &pg_mode, uid)
-            .await
-            .map_err(internal_error)
-        }
-        .await,
-      )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(async move {
+        get_user_workspaces(&pg_client, &pg_mode, uid)
+          .await
+          .map_err(internal_error)
+      })
+    })
   }
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let weak_server = self.server.try_get_pg_server();
-    let pg_mode = self.server.get_pg_mode();
-    let (tx, rx) = channel();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          let server = try_upgrade_server(weak_server)?;
-          let client = server.get_pg_client().await.recv().await?;
-          check_user(&client, &pg_mode, credential.uid, uuid).await
-        }
-        .await,
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(async move { check_user(&pg_client, &pg_mode, credential.uid, uuid).await })
+    })
+  }
+
+  fn add_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+  ) -> FutureResult<(), FlowyError> {
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(
+        async move { add_workspace_member(&pg_client, &pg_mode, user_email, workspace_id).await },
       )
-    });
-    FutureResult::new(async { rx.await.map_err(internal_error)? })
+    })
   }
 
-  fn add_user_to_workspace(
+  fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
   ) -> FutureResult<(), FlowyError> {
-    todo!()
-  }
-
-  fn remove_user_from_workspace(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
-    todo!()
+    self.execute_async(move |pg_client, pg_mode| {
+      Box::pin(async move {
+        remove_workspace_member(&pg_client, &pg_mode, user_email, workspace_id).await
+      })
+    })
   }
 }
 
@@ -429,4 +399,22 @@ async fn check_user(
       "Can't find the user in pg database",
     ))
   }
+}
+
+async fn add_workspace_member<C: GenericClient>(
+  _client: &C,
+  _pg_mode: &PgConnectMode,
+  _email: String,
+  _workspace_id: String,
+) -> Result<(), FlowyError> {
+  Ok(())
+}
+
+async fn remove_workspace_member<C: GenericClient>(
+  _client: &C,
+  _pg_mode: &PgConnectMode,
+  _email: String,
+  _workspace_id: String,
+) -> Result<(), FlowyError> {
+  Ok(())
 }

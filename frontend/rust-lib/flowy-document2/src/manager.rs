@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::CollabType;
 use collab::core::collab::MutexCollab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -82,7 +83,7 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, "document", updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -160,7 +161,7 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, "document", updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)?;
     Ok(collab)
   }
 

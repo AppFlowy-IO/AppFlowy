@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS af_role_permissions CASCADE;
 DROP TABLE IF EXISTS af_collab_member CASCADE;
 DROP TABLE IF EXISTS af_workspace_member CASCADE;
 DROP VIEW IF EXISTS af_user_profile_view CASCADE;
+DROP TABLE IF EXISTS af_database_row_update CASCADE;
 
 DROP TRIGGER IF EXISTS create_af_workspace_trigger ON af_workspace CASCADE;
 DROP FUNCTION IF EXISTS create_af_workspace_func;
@@ -57,6 +58,14 @@ DROP FUNCTION IF EXISTS manage_af_workspace_member_role_func;
 
 DROP TRIGGER IF EXISTS update_af_workspace_member_updated_at_trigger ON af_collab_update CASCADE;
 DROP FUNCTION IF EXISTS update_af_workspace_member_updated_at_func;
+
+DROP FUNCTION IF EXISTS insert_af_workspace_member_if_owner;
+DROP FUNCTION IF EXISTS af_shared_collab_for_uid;
+
+DROP TYPE WorkspaceType;
+DROP TYPE AccessLevel;
+
+
 "#;
   client.batch_execute(sql).await.unwrap();
   client

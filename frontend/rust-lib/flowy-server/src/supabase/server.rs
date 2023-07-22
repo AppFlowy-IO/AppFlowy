@@ -283,13 +283,19 @@ impl RequestHandler<PostgresEvent> for PostgresRequestHandler {
                 request.set_state(RequestState::Done);
               }
             },
-            Err(e) => tracing::error!("Error connecting to the postgres db: {}", e),
+            Err(e) => {
+              tracing::error!("Error connecting to the postgres db: {}", e);
+              tokio::time::sleep(Duration::from_secs(5)).await;
+            },
           }
         }
       },
       PostgresEvent::GetPgClient { id: _, sender } => {
         match self.db.lock().await.as_ref().map(|db| db.client.clone()) {
-          None => tracing::error!("Can't get the postgres client"),
+          None => {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            tracing::error!("Can't get the postgres client");
+          },
           Some(pool) => {
             match pool.get().await {
               Ok(object) => {

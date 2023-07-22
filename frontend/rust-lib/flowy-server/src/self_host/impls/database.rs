@@ -1,3 +1,5 @@
+use appflowy_integrate::CollabType;
+
 use flowy_database2::deps::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
@@ -7,13 +9,18 @@ use lib_infra::future::FutureResult;
 pub(crate) struct SelfHostedDatabaseCloudServiceImpl();
 
 impl DatabaseCloudService for SelfHostedDatabaseCloudServiceImpl {
-  fn get_collab_update(&self, _object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  fn get_collab_update(
+    &self,
+    object_id: &str,
+    object_ty: CollabType,
+  ) -> FutureResult<CollabObjectUpdate, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn batch_get_collab_updates(
     &self,
     _object_ids: Vec<String>,
+    _object_ty: CollabType,
   ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
     FutureResult::new(async move { Ok(CollabObjectUpdateByOid::default()) })
   }

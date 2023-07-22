@@ -2,10 +2,12 @@ use std::ops::Deref;
 
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
+use collab::core::collab_plugin::CollabPluginType;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
 
+use flowy_database2::deps::CollabType;
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
 use flowy_folder2::entities::ViewPB;
@@ -77,7 +79,10 @@ impl FlowySupabaseDatabaseTest {
 
   pub async fn get_collab_update(&self, database_id: &str) -> Vec<u8> {
     let cloud_service = self.database_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service.get_collab_update(database_id).await.unwrap();
+    let remote_updates = cloud_service
+      .get_collab_update(database_id, CollabType::Database)
+      .await
+      .unwrap();
 
     if remote_updates.is_empty() {
       return vec![];

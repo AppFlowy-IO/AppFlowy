@@ -1,3 +1,4 @@
+use appflowy_integrate::CollabType;
 use chrono::{DateTime, Utc};
 use collab_folder::core::{CollabOrigin, Folder};
 use futures_util::{pin_mut, StreamExt};
@@ -165,7 +166,12 @@ where
           match weak_server {
             None => Ok(vec![]),
             Some(weak_server) => {
-              let action = FetchObjectUpdateAction::new(&workspace_id, pg_mode, weak_server);
+              let action = FetchObjectUpdateAction::new(
+                workspace_id,
+                CollabType::Folder,
+                pg_mode,
+                weak_server,
+              );
               action.run_with_fix_interval(5, 10).await
             },
           }

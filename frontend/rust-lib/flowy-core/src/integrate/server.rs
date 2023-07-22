@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::RemoteCollabStorage;
+use appflowy_integrate::{CollabType, RemoteCollabStorage};
 use parking_lot::RwLock;
 use serde_repr::*;
 
@@ -241,13 +241,17 @@ impl FolderCloudService for AppFlowyServerProvider {
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  fn get_collab_update(
+    &self,
+    object_id: &str,
+    object_ty: CollabType,
+  ) -> FutureResult<CollabObjectUpdate, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id)
+        .get_collab_update(&database_id, object_ty)
         .await
     })
   }
@@ -255,12 +259,13 @@ impl DatabaseCloudService for AppFlowyServerProvider {
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
+    object_ty: CollabType,
   ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids)
+        .batch_get_collab_updates(object_ids, object_ty)
         .await
     })
   }

@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use anyhow::Error;
 use appflowy_integrate::{
-  merge_updates_v1, CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState,
+  merge_updates_v1, CollabObject, CollabType, MsgId, RemoteCollabSnapshot, RemoteCollabState,
   RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use chrono::{DateTime, Utc};
@@ -35,6 +35,7 @@ pub struct PgCollabStorageImpl<T> {
   mode: PgConnectMode,
 }
 const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
+const AF_COLLAB_DATABASE_ROW_UPDATE_TABLE: &str = "af_database_row_update";
 const AF_COLLAB_KEY_COLUMN: &str = "key";
 const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
@@ -51,16 +52,17 @@ where
     Self { server, mode }
   }
 
-  pub async fn get_client(&self) -> Option<PostgresObject> {
-    self
+  pub async fn get_client(&self) -> Result<PostgresObject, Error> {
+    let client = self
       .server
-      .get_pg_server()?
-      .upgrade()?
+      .get_pg_server()
+      .and_then(|server| server.upgrade())
+      .ok_or(anyhow::anyhow!("Postgres server is closed"))?
       .get_pg_client()
       .await
       .recv()
-      .await
-      .ok()
+      .await?;
+    Ok(client)
   }
 }
 
@@ -77,9 +79,14 @@ where
       .is_some()
   }
 
-  async fn get_all_updates(&self, object_id: &str) -> Result<Vec<Vec<u8>>, Error> {
+  async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
     let pg_server = self.server.try_get_pg_server()?;
-    let action = FetchObjectUpdateAction::new(object_id, self.mode.clone(), pg_server);
+    let action = FetchObjectUpdateAction::new(
+      object.id.clone(),
+      object.ty.clone(),
+      self.mode.clone(),
+      pg_server,
+    );
     let updates = action.run().await?;
     Ok(updates)
   }
@@ -97,7 +104,7 @@ where
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
     let client = self.get_client().await;
-    if client.is_none() {
+    if client.is_err() {
       return Ok(None);
     }
 
@@ -132,14 +139,11 @@ where
   }
 
   async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<i64, Error> {
-    let client = self
-      .get_client()
-      .await
-      .ok_or_else(|| anyhow::anyhow!("Create snapshot failed. No client available"))?;
+    let client = self.get_client().await?;
     let value_size = snapshot.len() as i32;
     let (sql, params) = InsertSqlBuilder::new("af_collab_snapshot")
       .value(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.id.clone())
-      .value("name", object.name.clone())
+      .value("name", object.ty.to_string())
       .value(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
       .value(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
       .returning(AF_COLLAB_SNAPSHOT_ID_COLUMN)
@@ -163,25 +167,24 @@ where
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    if let Some(client) = self.get_client().await {
-      let workspace_id = object
-        .get_workspace_id()
-        .and_then(|workspace_id| uuid::Uuid::from_str(&workspace_id).ok())
-        .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-      let value_size = update.len() as i32;
-      let md5 = md5(&update);
-      let (sql, params) = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
-        .value("oid", object.id.clone())
-        .value("name", object.name.clone())
-        .value("value", update)
-        .value("uid", object.uid)
-        .value("md5", md5)
-        .value("workspace_id", workspace_id)
-        .value("value_size", value_size)
-        .build();
-      let stmt = prepare_cached(&self.mode, sql, &client).await?;
-      client.execute_raw(stmt.as_ref(), params).await?;
-    }
+    let client = self.get_client().await?;
+    let workspace_id = object
+      .get_workspace_id()
+      .and_then(|workspace_id| uuid::Uuid::from_str(&workspace_id).ok())
+      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+    let value_size = update.len() as i32;
+    let md5 = md5(&update);
+    let (sql, params) = InsertSqlBuilder::new(table_name_for_collab_ty(&object.ty))
+      .value("oid", object.id.clone())
+      .value("value", update)
+      .value("uid", object.uid)
+      .value("md5", md5)
+      .value("workspace_id", workspace_id)
+      .value("value_size", value_size)
+      .build();
+    let stmt = prepare_cached(&self.mode, sql, &client).await?;
+    client.execute_raw(stmt.as_ref(), params).await?;
+
     Ok(())
   }
 
@@ -191,12 +194,7 @@ where
     _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
-    let client = self.get_client().await;
-    if client.is_none() {
-      return Ok(());
-    }
-
-    let mut client = client.unwrap();
+    let mut client = self.get_client().await?;
     let txn = client.transaction().await?;
     let workspace_id = object
       .get_workspace_id()
@@ -206,7 +204,7 @@ where
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
     // FOR UPDATE by this transaction will not result in a lock wait. other transactions that try
     // to update or lock these specific rows will be blocked until the current transaction ends
-    let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+    let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object.ty))
       .column(AF_COLLAB_KEY_COLUMN)
       .column("value")
       .order_by(AF_COLLAB_KEY_COLUMN, true)
@@ -218,11 +216,10 @@ where
     let row_stream = txn.query_raw(get_all_update_stmt.as_ref(), params).await?;
     let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
-    let insert_builder = InsertSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+    let insert_builder = InsertSqlBuilder::new(table_name_for_collab_ty(&object.ty))
       .value("oid", object.id.clone())
       .value("uid", object.uid)
-      .value("workspace_id", workspace_id)
-      .value("name", object.name.clone());
+      .value("workspace_id", workspace_id);
 
     let (sql, params) = if !pg_rows.is_empty() {
       let last_row_key = pg_rows
@@ -236,7 +233,7 @@ where
       tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
 
       // 3. Delete merged updates
-      let (sql, params) = DeleteSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+      let (sql, params) = DeleteSqlBuilder::new(table_name_for_collab_ty(&object.ty))
         .where_condition(WhereCondition::Equals(
           "oid".to_string(),
           Box::new(object.id.clone()),
@@ -301,7 +298,7 @@ pub async fn get_updates_from_server(
     None => Ok(vec![]),
     Some(server) => {
       let client = server.get_pg_client().await.recv().await?;
-      let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+      let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&CollabType::Folder))
         .column("value")
         .order_by(AF_COLLAB_KEY_COLUMN, true)
         .where_clause("oid", object_id.to_string())
@@ -401,16 +398,23 @@ struct MergeResult {
 
 pub struct FetchObjectUpdateAction {
   object_id: String,
+  object_ty: CollabType,
   mode: PgConnectMode,
   pg_server: Weak<PostgresServer>,
 }
 
 impl FetchObjectUpdateAction {
-  pub fn new(object_id: &str, mode: PgConnectMode, pg_server: Weak<PostgresServer>) -> Self {
+  pub fn new(
+    object_id: String,
+    object_ty: CollabType,
+    mode: PgConnectMode,
+    pg_server: Weak<PostgresServer>,
+  ) -> Self {
     Self {
       pg_server,
       mode,
-      object_id: object_id.to_string(),
+      object_id,
+      object_ty,
     }
   }
 
@@ -437,13 +441,14 @@ impl Action for FetchObjectUpdateAction {
   fn run(&mut self) -> Self::Future {
     let weak_pb_server = self.pg_server.clone();
     let object_id = self.object_id.clone();
+    let object_ty = self.object_ty.clone();
     let mode = self.mode.clone();
     Box::pin(async move {
       match weak_pb_server.upgrade() {
         None => Ok(vec![]),
         Some(server) => {
           let client = server.get_pg_client().await.recv().await?;
-          let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+          let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object_ty))
             .column("value")
             .order_by(AF_COLLAB_KEY_COLUMN, true)
             .where_clause("oid", object_id)
@@ -467,18 +472,21 @@ impl Action for FetchObjectUpdateAction {
 pub struct BatchFetchObjectUpdateAction {
   mode: PgConnectMode,
   object_ids: Vec<String>,
+  object_ty: CollabType,
   pg_server: Weak<PostgresServer>,
 }
 
 impl BatchFetchObjectUpdateAction {
   pub fn new(
     object_ids: Vec<String>,
+    object_ty: CollabType,
     mode: PgConnectMode,
     pg_server: Weak<PostgresServer>,
   ) -> Self {
     Self {
       mode,
       pg_server,
+      object_ty,
       object_ids,
     }
   }
@@ -498,6 +506,7 @@ impl Action for BatchFetchObjectUpdateAction {
     let weak_pb_server = self.pg_server.clone();
     let object_ids = self.object_ids.clone();
     let mode = self.mode.clone();
+    let object_ty = self.object_ty.clone();
     Box::pin(async move {
       match weak_pb_server.upgrade() {
         None => Ok(CollabObjectUpdateByOid::default()),
@@ -506,7 +515,7 @@ impl Action for BatchFetchObjectUpdateAction {
           let mut updates_by_oid = CollabObjectUpdateByOid::new();
 
           // Group the updates by oid
-          let (sql, params) = SelectSqlBuilder::new(AF_COLLAB_UPDATE_TABLE)
+          let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object_ty))
             .column("oid")
             .array_agg("value")
             .group_by("oid")
@@ -526,5 +535,15 @@ impl Action for BatchFetchObjectUpdateAction {
         },
       }
     })
+  }
+}
+
+fn table_name_for_collab_ty(ty: &CollabType) -> &str {
+  match ty {
+    CollabType::Document => AF_COLLAB_UPDATE_TABLE,
+    CollabType::Database => AF_COLLAB_UPDATE_TABLE,
+    CollabType::WorkspaceDatabase => AF_COLLAB_UPDATE_TABLE,
+    CollabType::DatabaseRow => AF_COLLAB_DATABASE_ROW_UPDATE_TABLE,
+    CollabType::Folder => AF_COLLAB_UPDATE_TABLE,
   }
 }

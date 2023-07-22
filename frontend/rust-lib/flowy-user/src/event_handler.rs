@@ -229,3 +229,18 @@ pub async fn remove_user_from_workspace_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn update_network_state_handler(
+  data: AFPluginData<NetworkStatePB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let reachable = data.into_inner().ty.is_reachable();
+  session
+    .user_status_callback
+    .read()
+    .await
+    .did_update_network(reachable);
+  Ok(())
+}

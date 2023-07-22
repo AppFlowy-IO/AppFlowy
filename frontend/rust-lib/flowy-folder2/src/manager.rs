@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
@@ -178,7 +178,7 @@ impl FolderManager {
     let collab = self.collab_builder.build_with_config(
       uid,
       workspace_id,
-      "workspace",
+      CollabType::Folder,
       collab_db,
       raw_data,
       &CollabPersistenceConfig::new().enable_snapshot(true),

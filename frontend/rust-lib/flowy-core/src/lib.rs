@@ -403,6 +403,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       Ok(())
     })
   }
+
+  fn did_update_network(&self, reachable: bool) {
+    self.collab_builder.update_network(reachable);
+  }
 }
 
 impl From<ServerProviderType> for CollabStorageType {

@@ -89,18 +89,18 @@ impl UserService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn add_user_to_workspace(
+  fn add_workspace_member(
     &self,
-    user_email: String,
-    workspace_id: String,
+    _user_email: String,
+    _workspace_id: String,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn remove_user_from_workspace(
+  fn remove_workspace_member(
     &self,
-    user_email: String,
-    workspace_id: String,
+    _user_email: String,
+    _workspace_id: String,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }

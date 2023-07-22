@@ -181,3 +181,31 @@ impl TryFrom<PostgresConfigurationPB> for PostgresConfiguration {
     })
   }
 }
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum NetworkTypePB {
+  #[default]
+  NetworkUnknown = 0,
+  Wifi = 1,
+  Cell = 2,
+  Ethernet = 3,
+  Bluetooth = 4,
+  VPN = 5,
+}
+
+impl NetworkTypePB {
+  pub fn is_reachable(&self) -> bool {
+    match self {
+      NetworkTypePB::NetworkUnknown | NetworkTypePB::Bluetooth => false,
+      NetworkTypePB::Wifi | NetworkTypePB::Cell | NetworkTypePB::Ethernet | NetworkTypePB::VPN => {
+        true
+      },
+    }
+  }
+}
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct NetworkStatePB {
+  #[pb(index = 1)]
+  pub ty: NetworkTypePB,
+}

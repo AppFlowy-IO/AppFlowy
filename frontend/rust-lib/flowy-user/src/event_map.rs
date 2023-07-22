@@ -44,6 +44,7 @@ pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
       UserEvent::RemoveUserToWorkspace,
       remove_user_from_workspace_handler,
     )
+    .event(UserEvent::UpdateNetworkState, update_network_state_handler)
 }
 
 pub struct SignUpContext {
@@ -92,6 +93,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  fn did_update_network(&self, reachable: bool);
 }
 
 /// The user cloud service provider.
@@ -187,13 +189,13 @@ pub trait UserService: Send + Sync {
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 
-  fn add_user_to_workspace(
+  fn add_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
   ) -> FutureResult<(), FlowyError>;
 
-  fn remove_user_from_workspace(
+  fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
@@ -229,6 +231,8 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
+
+  fn did_update_network(&self, _reachable: bool) {}
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -299,4 +303,7 @@ pub enum UserEvent {
 
   #[event(input = "RemoveWorkspaceUserPB")]
   RemoveUserToWorkspace = 23,
+
+  #[event(input = "NetworkStatePB")]
+  UpdateNetworkState = 24,
 }

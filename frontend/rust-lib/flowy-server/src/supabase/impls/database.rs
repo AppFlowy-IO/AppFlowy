@@ -1,3 +1,4 @@
+use appflowy_integrate::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database2::deps::{
@@ -25,7 +26,11 @@ impl<T> DatabaseCloudService for SupabaseDatabaseCloudServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  fn get_collab_update(
+    &self,
+    object_id: &str,
+    object_ty: CollabType,
+  ) -> FutureResult<CollabObjectUpdate, FlowyError> {
     let weak_server = self.server.get_pg_server();
     let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
@@ -36,7 +41,7 @@ where
           match weak_server {
             None => Ok(CollabObjectUpdate::default()),
             Some(weak_server) => {
-              FetchObjectUpdateAction::new(&database_id, pg_mode, weak_server)
+              FetchObjectUpdateAction::new(database_id, object_ty, pg_mode, weak_server)
                 .run()
                 .await
             },
@@ -51,6 +56,7 @@ where
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
+    object_ty: CollabType,
   ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
     let weak_server = self.server.get_pg_server();
     let pg_mode = self.server.get_pg_mode();
@@ -61,7 +67,7 @@ where
           match weak_server {
             None => Ok(CollabObjectUpdateByOid::default()),
             Some(weak_server) => {
-              BatchFetchObjectUpdateAction::new(object_ids, pg_mode, weak_server)
+              BatchFetchObjectUpdateAction::new(object_ids, object_ty, pg_mode, weak_server)
                 .run()
                 .await
             },

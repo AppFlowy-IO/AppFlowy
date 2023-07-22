@@ -58,8 +58,8 @@ impl UserSessionConfig {
 pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
-  pub cloud_services: Arc<dyn UserCloudServiceProvider>,
-  user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
+  cloud_services: Arc<dyn UserCloudServiceProvider>,
+  pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
 impl UserSession {
@@ -345,7 +345,7 @@ impl UserSession {
     self
       .cloud_services
       .get_user_service()?
-      .add_user_to_workspace(user_email, to_workspace_id)
+      .add_workspace_member(user_email, to_workspace_id)
       .await?;
     Ok(())
   }
@@ -358,7 +358,7 @@ impl UserSession {
     self
       .cloud_services
       .get_user_service()?
-      .remove_user_from_workspace(user_email, from_workspace_id)
+      .remove_workspace_member(user_email, from_workspace_id)
       .await?;
     Ok(())
   }
