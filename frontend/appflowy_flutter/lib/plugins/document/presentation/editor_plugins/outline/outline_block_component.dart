@@ -180,13 +180,14 @@ class OutlineItemWidget extends StatelessWidget {
     );
   }
 
-  void updateBlockSelection(BuildContext context) {
+  void updateBlockSelection(BuildContext context) async {
     final editorState = context.read<EditorState>();
     editorState.selectionType = SelectionType.block;
     editorState.selection = Selection.collapse(
       node.path,
       node.delta?.length ?? 0,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
     editorState.selectionType = null;
   }
 }
