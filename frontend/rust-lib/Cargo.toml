@@ -5,6 +5,7 @@ members = [
   "flowy-net",
   "flowy-core",
   "dart-ffi",
+  "flowy-ai",
   "flowy-user",
   "flowy-test",
   "flowy-sqlite",
