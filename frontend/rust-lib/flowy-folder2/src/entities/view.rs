@@ -369,6 +369,26 @@ pub struct MoveViewPayloadPB {
   pub to: i32,
 }
 
+/// * `view_id` - A string slice that holds the id of the view to be moved.
+/// * `new_parent_id` - A string slice that holds the id of the new parent view.
+/// * `prev_view_id` - An `Option<String>` that holds the id of the view after which the `view_id` should be positioned.
+///
+/// If `prev_view_id` is provided, the moved view will be placed right after
+/// the view corresponding to `prev_view_id` under the `new_parent_id`.
+///
+/// If `prev_view_id` is `None`, the moved view will become the first child of the new parent.
+#[derive(Default, ProtoBuf)]
+pub struct MoveNestedViewPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub new_parent_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub prev_view_id: Option<String>,
+}
+
 pub struct MoveViewParams {
   pub view_id: String,
   pub from: usize,
@@ -384,6 +404,27 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
       view_id,
       from: self.from as usize,
       to: self.to as usize,
+    })
+  }
+}
+
+pub struct MoveNestedViewParams {
+  pub view_id: String,
+  pub new_parent_id: String,
+  pub prev_view_id: Option<String>,
+}
+
+impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<MoveNestedViewParams, Self::Error> {
+    let view_id = ViewIdentify::parse(self.view_id)?.0;
+    let new_parent_id = ViewIdentify::parse(self.new_parent_id)?.0;
+    let prev_view_id = self.prev_view_id;
+    Ok(MoveNestedViewParams {
+      view_id,
+      new_parent_id,
+      prev_view_id,
     })
   }
 }

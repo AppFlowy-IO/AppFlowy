@@ -6,14 +6,14 @@ import {
   FolderEventDuplicateView,
   FolderEventCloseView,
   FolderEventImportData,
-  FolderEventMoveView,
   ViewIdPB,
   CreateViewPayloadPB,
   UpdateViewPayloadPB,
   RepeatedViewIdPB,
   ViewPB,
   ImportPB,
-  MoveViewPayloadPB,
+  MoveNestedViewPayloadPB,
+  FolderEventMoveNestedView,
 } from '@/services/backend/events/flowy-folder2';
 import { Page } from '$app_reducers/pages/slice';
 
@@ -31,16 +31,13 @@ export class PageBackendService {
   };
 
   movePage = async (params: { viewId: string; parentId: string; prevId?: string }) => {
-    console.log('movePage', params);
-    const payload = new MoveViewPayloadPB({
+    const payload = new MoveNestedViewPayloadPB({
       view_id: params.viewId,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      parent_view_id: params.parentId,
+      new_parent_id: params.parentId,
       prev_view_id: params.prevId,
     });
 
-    return FolderEventMoveView(payload);
+    return FolderEventMoveNestedView(payload);
   };
 
   createPage = async (params: ReturnType<typeof CreateViewPayloadPB.prototype.toObject>) => {

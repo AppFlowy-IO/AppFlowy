@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { blockDraggableActions, BlockDraggableType, DragInsertType } from '$app_reducers/block-draggable/slice';
 import { getDragDropContext } from '$app/utils/draggable';
 
 export function useDraggableState(id: string, type: BlockDraggableType) {
-  const ref = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { dropState, isDragging } = useAppSelector((state) => {
     const draggableState = state.blockDraggable;
@@ -28,7 +27,6 @@ export function useDraggableState(id: string, type: BlockDraggableType) {
 
   const onDragStart = useCallback(
     (event: React.MouseEvent | MouseEvent) => {
-      if (!ref.current) return;
       if (event.button !== 0) return;
 
       event.preventDefault();
@@ -73,7 +71,6 @@ export function useDraggableState(id: string, type: BlockDraggableType) {
 
   return {
     onDragStart,
-    ref,
     beforeDropping,
     afterDropping,
     childDropping,

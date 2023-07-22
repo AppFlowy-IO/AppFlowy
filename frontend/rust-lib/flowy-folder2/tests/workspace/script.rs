@@ -42,6 +42,11 @@ pub enum FolderScript {
   },
   DeleteView,
   DeleteViews(Vec<String>),
+  MoveView {
+    view_id: String,
+    new_parent_id: String,
+    prev_view_id: Option<String>,
+  },
 
   // Trash
   RestoreAppFromTrash,
@@ -127,6 +132,13 @@ impl FolderTest {
       FolderScript::CreateView { name, desc, layout } => {
         let view = create_view(sdk, &self.parent_view.id, &name, &desc, layout).await;
         self.child_view = view;
+      },
+      FolderScript::MoveView {
+        view_id,
+        new_parent_id,
+        prev_view_id,
+      } => {
+        move_view(sdk, view_id, new_parent_id, prev_view_id).await;
       },
       FolderScript::AssertView(view) => {
         assert_eq!(self.child_view, view, "View not equal");
@@ -256,6 +268,23 @@ pub async fn read_view(sdk: &FlowyCoreTest, view_id: &str) -> ViewPB {
     .parse::<ViewPB>()
 }
 
+pub async fn move_view(
+  sdk: &FlowyCoreTest,
+  view_id: String,
+  parent_id: String,
+  prev_view_id: Option<String>,
+) {
+  let request = MoveNestedViewPayloadPB {
+    view_id,
+    new_parent_id: parent_id,
+    prev_view_id,
+  };
+  EventBuilder::new(sdk.clone())
+    .event(MoveNestedView)
+    .payload(request)
+    .async_send()
+    .await;
+}
 pub async fn update_view(
   sdk: &FlowyCoreTest,
   view_id: &str,

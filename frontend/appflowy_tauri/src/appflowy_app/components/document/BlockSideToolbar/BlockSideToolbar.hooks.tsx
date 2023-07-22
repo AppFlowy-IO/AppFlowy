@@ -8,10 +8,10 @@ import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 import { getNode } from '$app/utils/document/node';
 import { get } from '$app/utils/tool';
 
-const headingBlockTopOffset: Record<number, number> = {
-  1: 6,
-  2: 4,
-  3: 3,
+const headingBlockTopOffset: Record<number, string> = {
+  1: '1.65rem',
+  2: '1.3rem',
+  3: '0.25rem',
 };
 
 export function useBlockSideToolbar(id: string) {

@@ -163,6 +163,17 @@ pub(crate) async fn move_view_handler(
   Ok(())
 }
 
+pub(crate) async fn move_nested_view_handler(
+  data: AFPluginData<MoveNestedViewPayloadPB>,
+  folder: AFPluginState<Arc<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let params: MoveNestedViewParams = data.into_inner().try_into()?;
+  folder
+    .move_nested_view(params.view_id, params.new_parent_id, params.prev_view_id)
+    .await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn duplicate_view_handler(
   data: AFPluginData<ViewPB>,

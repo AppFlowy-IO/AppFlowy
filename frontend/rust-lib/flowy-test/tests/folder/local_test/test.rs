@@ -508,3 +508,67 @@ fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
     ("1234".repeat(100), ErrorCode::WorkspaceNameTooLong),
   ]
 }
+
+#[tokio::test]
+async fn move_view_across_parent_test() {
+  let test = FlowyCoreTest::new_with_guest_user().await;
+  let current_workspace = test.get_current_workspace().await.workspace;
+  let parent_1 = test
+    .create_view(&current_workspace.id, "My view 1".to_string())
+    .await;
+  let parent_2 = test
+    .create_view(&current_workspace.id, "My view 2".to_string())
+    .await;
+
+  for j in 1..6 {
+    let _ = test
+      .create_view(&parent_1.id, format!("My 1-{} view 1", j))
+      .await;
+  }
+
+  let views = test.get_view(&parent_1.id).await.child_views;
+  // Move `My 1-1 view 1` to `My view 2`
+  let move_view_id = views[0].id.clone();
+  let new_parent_id = parent_2.id.clone();
+  let prev_id = None;
+  move_folder_nested_view(test.clone(), move_view_id, new_parent_id, prev_id).await;
+  let parent1_views = test.get_view(&parent_1.id).await.child_views;
+  let parent2_views = test.get_view(&parent_2.id).await.child_views;
+  assert_eq!(parent2_views.len(), 1);
+  assert_eq!(parent2_views[0].name, "My 1-1 view 1");
+  assert_eq!(parent1_views[0].name, "My 1-2 view 1");
+
+  // Move My 1-2 view 1 from My view 1 to the current workspace and insert it after My view 1.
+  let move_view_id = parent1_views[0].id.clone();
+  let new_parent_id = current_workspace.id.clone();
+  let prev_id = Some(parent_1.id.clone());
+  move_folder_nested_view(test.clone(), move_view_id, new_parent_id, prev_id).await;
+  let parent1_views = test.get_view(&parent_1.id).await.child_views;
+  let workspace_views = test.get_all_workspace_views().await;
+  let workspace_views_len = workspace_views.len();
+  assert_eq!(parent1_views[0].name, "My 1-3 view 1");
+  assert_eq!(workspace_views[workspace_views_len - 3].name, "My view 1");
+  assert_eq!(
+    workspace_views[workspace_views_len - 2].name,
+    "My 1-2 view 1"
+  );
+  assert_eq!(workspace_views[workspace_views_len - 1].name, "My view 2");
+}
+
+async fn move_folder_nested_view(
+  sdk: FlowyCoreTest,
+  view_id: String,
+  new_parent_id: String,
+  prev_view_id: Option<String>,
+) {
+  let payload = MoveNestedViewPayloadPB {
+    view_id,
+    new_parent_id,
+    prev_view_id,
+  };
+  EventBuilder::new(sdk)
+    .event(flowy_folder2::event_map::FolderEvent::MoveNestedView)
+    .payload(payload)
+    .async_send()
+    .await;
+}
