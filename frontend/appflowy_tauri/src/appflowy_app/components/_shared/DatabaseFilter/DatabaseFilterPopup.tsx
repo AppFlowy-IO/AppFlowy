@@ -5,9 +5,23 @@ import { MouseEventHandler, useMemo, useRef, useState } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 
 import { DatabaseFilterItem } from '$app/components/_shared/DatabaseFilter/DatabaseFilterItem';
-import { databaseActions, IDatabaseFilter } from '$app_reducers/database/slice';
+import { IDatabaseFilter, TDatabaseOperators } from '$app_reducers/database/slice';
+import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
+import {
+  CheckboxFilterPB,
+  FieldType,
+  SelectOptionFilterPB,
+  TextFilterConditionPB,
+  TextFilterPB,
+} from '@/services/backend';
 
-export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => void }) => {
+export const DatabaseFilterPopup = ({
+  filterController,
+  onOutsideClick,
+}: {
+  filterController: FilterController;
+  onOutsideClick: () => void;
+}) => {
   const refContainer = useRef<HTMLDivElement>(null);
 
   useOutsideClick(refContainer, onOutsideClick);
@@ -25,9 +39,55 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
     setShowBlankFilter(true);
   };
 
-  const onSaveFilterItem = (filter: IDatabaseFilter) => {
+  const transformOperator: (operator: TDatabaseOperators) => TextFilterConditionPB = (operator) => {
+    // ['contains', 'doesNotContain', 'endsWith', 'startWith', 'is', 'isNot', 'isEmpty', 'isNotEmpty'],
+    switch (operator) {
+      case 'contains':
+        return TextFilterConditionPB.Contains;
+      case 'doesNotContain':
+        return TextFilterConditionPB.DoesNotContain;
+      case 'endsWith':
+        return TextFilterConditionPB.EndsWith;
+      case 'startWith':
+        return TextFilterConditionPB.StartsWith;
+      case 'is':
+        return TextFilterConditionPB.Is;
+      case 'isNot':
+        return TextFilterConditionPB.IsNot;
+      case 'isEmpty':
+        return TextFilterConditionPB.TextIsEmpty;
+      case 'isNotEmpty':
+        return TextFilterConditionPB.TextIsNotEmpty;
+      default:
+        return TextFilterConditionPB.Is;
+    }
+  };
+
+  const onSaveFilterItem = async (filter: IDatabaseFilter) => {
     // update global store
-    dispatch(databaseActions.upsertFilter({ filter }));
+    // dispatch(databaseActions.upsertFilter({ filter }));
+    let val: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB;
+
+    switch (filter.fieldType) {
+      case FieldType.RichText:
+        val = new TextFilterPB({
+          condition: transformOperator(filter.operator),
+          content: filter.value as string,
+        });
+        break;
+      default:
+        val = new TextFilterPB({
+          condition: transformOperator('contains'),
+          content: '',
+        });
+        break;
+    }
+
+    if (filter.id) {
+      await filterController.updateFilter(filter.id, filter.fieldId, filter.fieldType, val);
+    } else {
+      await filterController.addFilter(filter.fieldId, filter.fieldType, val);
+    }
 
     // update local copy
     const index = filters.findIndex((f) => f?.fieldId === filter.fieldId);
@@ -44,7 +104,7 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
   const onDeleteFilterItem = (filter: IDatabaseFilter | null) => {
     if (!filter) return;
     // update global store
-    dispatch(databaseActions.removeFilter({ filter }));
+    // dispatch(databaseActions.removeFilter({ filter }));
 
     // add blank filter if no filters left
     if (filters.length === 1) {
@@ -84,7 +144,10 @@ export const DatabaseFilterPopup = ({ onOutsideClick }: { onOutsideClick: () => 
 
           <hr />
 
-          <button onClick={onAddClick} className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-text-caption'>
+          <button
+            onClick={onAddClick}
+            className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-text-caption'
+          >
             <div className='h-5 w-5'>
               <AddSvg />
             </div>

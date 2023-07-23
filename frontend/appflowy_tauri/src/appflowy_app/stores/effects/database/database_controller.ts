@@ -1,7 +1,7 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB, FlowyError, FilterPB } from '@/services/backend';
+import { DatabasePB, GroupPB, FlowyError } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
@@ -9,12 +9,13 @@ import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
 import { Log } from '$app/utils/log';
 import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
+import { FilterParsed } from '$app/stores/effects/database/filter/filter_bd_svc';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
-  onFiltersChanged?: (filters: readonly FilterPB[]) => void;
+  onFiltersChanged?: (filters: readonly FilterParsed[]) => void;
   onGroupByField?: (groups: GroupPB[]) => void;
 
   onNumOfGroupChanged?: {

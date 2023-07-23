@@ -1,5 +1,5 @@
-import { FilterBackendService } from '$app/stores/effects/database/filter/filter_bd_svc';
-import { CheckboxFilterPB, FieldType, FilterPB, SelectOptionFilterPB, TextFilterPB } from '@/services/backend';
+import { FilterBackendService, FilterParsed } from '$app/stores/effects/database/filter/filter_bd_svc';
+import { CheckboxFilterPB, FieldType, SelectOptionFilterPB, TextFilterPB } from '@/services/backend';
 import { ChangeNotifier } from '$app/utils/change_notifier';
 
 export class FilterController {
@@ -31,6 +31,19 @@ export class FilterController {
     }
   };
 
+  updateFilter = async (
+    filterId: string,
+    fieldId: string,
+    fieldType: FieldType,
+    filter: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB
+  ) => {
+    const result = await this.filterService.updateFilter(filterId, fieldId, fieldType, filter);
+
+    if (result.ok) {
+      await this.readFilters();
+    }
+  };
+
   removeFilter = async (fieldId: string, fieldType: FieldType, filterId: string) => {
     const result = await this.filterService.removeFilter(fieldId, fieldType, filterId);
 
@@ -39,7 +52,7 @@ export class FilterController {
     }
   };
 
-  subscribe = (callbacks: { onFiltersChanged?: (filters: FilterPB[]) => void }) => {
+  subscribe = (callbacks: { onFiltersChanged?: (filters: FilterParsed[]) => void }) => {
     if (callbacks.onFiltersChanged) {
       this.notifier.observer?.subscribe(callbacks.onFiltersChanged);
     }
@@ -50,14 +63,14 @@ export class FilterController {
   };
 }
 
-class FilterNotifier extends ChangeNotifier<FilterPB[]> {
-  private _filters: FilterPB[] = [];
+class FilterNotifier extends ChangeNotifier<FilterParsed[]> {
+  private _filters: FilterParsed[] = [];
 
-  get filters(): FilterPB[] {
+  get filters(): FilterParsed[] {
     return this._filters;
   }
 
-  set filters(value: FilterPB[]) {
+  set filters(value: FilterParsed[]) {
     this._filters = value;
     this.notify(value);
   }

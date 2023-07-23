@@ -66,7 +66,7 @@ export const SupportedOperatorsByType: TSupportedOperatorsByType = {
 };
 
 export interface IDatabaseFilter {
-  id: string;
+  id?: string;
   fieldId: string;
   fieldType: FieldType;
   logicalOperator: 'and' | 'or';
@@ -140,7 +140,7 @@ export const databaseSlice = createSlice({
       state.fields[fieldId].width = width;
     },
 
-    addFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
+    /* addFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
       const { filter } = action.payload;
       state.filters.push(filter);
     },
@@ -160,6 +160,10 @@ export const databaseSlice = createSlice({
       const { filter } = action.payload;
 
       state.filters = state.filters.filter((f) => f.fieldId !== filter.fieldId);
+    },*/
+
+    updateFilters: (state, action: PayloadAction<{ filters: IDatabaseFilter[] }>) => {
+      state.filters = action.payload.filters;
     },
 
     upsertSort: (state, action: PayloadAction<{ sort: IDatabaseSort }>) => {
