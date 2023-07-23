@@ -95,17 +95,19 @@ where
         async move {
           match weak_server {
             None => Ok(Ok(None)),
-            Some(weak_server) => get_updates_from_server(&workspace_id, &pg_mode, weak_server)
-              .await
-              .map(|updates| {
-                let folder = Folder::from_collab_raw_data(
-                  CollabOrigin::Empty,
-                  updates,
-                  &workspace_id,
-                  vec![],
-                )?;
-                Ok(folder.get_folder_data())
-              }),
+            Some(weak_server) => {
+              get_updates_from_server(&workspace_id, &CollabType::Document, &pg_mode, weak_server)
+                .await
+                .map(|updates| {
+                  let folder = Folder::from_collab_raw_data(
+                    CollabOrigin::Empty,
+                    updates,
+                    &workspace_id,
+                    vec![],
+                  )?;
+                  Ok(folder.get_folder_data())
+                })
+            },
           }
         }
         .await,

@@ -174,8 +174,9 @@ where
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
     let value_size = update.len() as i32;
     let md5 = md5(&update);
-    let (sql, params) = InsertSqlBuilder::new(table_name_for_collab_ty(&object.ty))
+    let (sql, params) = InsertSqlBuilder::new(&table_name(&object.ty))
       .value("oid", object.id.clone())
+      .value("partition_key", partition_key(&object.ty))
       .value("value", update)
       .value("uid", object.uid)
       .value("md5", md5)
@@ -204,7 +205,7 @@ where
     // 1.Get all updates and lock the table. It means that a subsequent UPDATE, DELETE, or SELECT
     // FOR UPDATE by this transaction will not result in a lock wait. other transactions that try
     // to update or lock these specific rows will be blocked until the current transaction ends
-    let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object.ty))
+    let (sql, params) = SelectSqlBuilder::new(&table_name(&object.ty))
       .column(AF_COLLAB_KEY_COLUMN)
       .column("value")
       .order_by(AF_COLLAB_KEY_COLUMN, true)
@@ -216,12 +217,21 @@ where
     let row_stream = txn.query_raw(get_all_update_stmt.as_ref(), params).await?;
     let pg_rows = row_stream.try_collect::<Vec<_>>().await?;
 
-    let insert_builder = InsertSqlBuilder::new(table_name_for_collab_ty(&object.ty))
+    let insert_builder = InsertSqlBuilder::new(&table_name(&object.ty))
       .value("oid", object.id.clone())
       .value("uid", object.uid)
+      .value("partition_key", partition_key(&object.ty))
       .value("workspace_id", workspace_id);
 
-    let (sql, params) = if !pg_rows.is_empty() {
+    let (sql, params) = if pg_rows.is_empty() {
+      let value_size = init_update.len() as i32;
+      let md5 = md5(&init_update);
+      insert_builder
+        .value("value", init_update)
+        .value("md5", md5)
+        .value("value_size", value_size)
+        .build()
+    } else {
       let last_row_key = pg_rows
         .last()
         .map(|row| row.get::<_, i64>(AF_COLLAB_KEY_COLUMN))
@@ -233,7 +243,7 @@ where
       tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
 
       // 3. Delete merged updates
-      let (sql, params) = DeleteSqlBuilder::new(table_name_for_collab_ty(&object.ty))
+      let (sql, params) = DeleteSqlBuilder::new(&table_name(&object.ty))
         .where_condition(WhereCondition::Equals(
           "oid".to_string(),
           Box::new(object.id.clone()),
@@ -263,14 +273,6 @@ where
         .value(AF_COLLAB_KEY_COLUMN, last_row_key)
         .overriding_system_value()
         .build()
-    } else {
-      let value_size = init_update.len() as i32;
-      let md5 = md5(&init_update);
-      insert_builder
-        .value("value", init_update)
-        .value("md5", md5)
-        .value("value_size", value_size)
-        .build()
     };
 
     // 4.Insert the merged update
@@ -291,6 +293,7 @@ where
 
 pub async fn get_updates_from_server(
   object_id: &str,
+  object_ty: &CollabType,
   pg_mode: &PgConnectMode,
   server: Weak<PostgresServer>,
 ) -> Result<Vec<Vec<u8>>, Error> {
@@ -298,7 +301,7 @@ pub async fn get_updates_from_server(
     None => Ok(vec![]),
     Some(server) => {
       let client = server.get_pg_client().await.recv().await?;
-      let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&CollabType::Folder))
+      let (sql, params) = SelectSqlBuilder::new(&table_name(&CollabType::Folder))
         .column("value")
         .order_by(AF_COLLAB_KEY_COLUMN, true)
         .where_clause("oid", object_id.to_string())
@@ -448,7 +451,7 @@ impl Action for FetchObjectUpdateAction {
         None => Ok(vec![]),
         Some(server) => {
           let client = server.get_pg_client().await.recv().await?;
-          let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object_ty))
+          let (sql, params) = SelectSqlBuilder::new(&table_name(&object_ty))
             .column("value")
             .order_by(AF_COLLAB_KEY_COLUMN, true)
             .where_clause("oid", object_id)
@@ -515,7 +518,7 @@ impl Action for BatchFetchObjectUpdateAction {
           let mut updates_by_oid = CollabObjectUpdateByOid::new();
 
           // Group the updates by oid
-          let (sql, params) = SelectSqlBuilder::new(table_name_for_collab_ty(&object_ty))
+          let (sql, params) = SelectSqlBuilder::new(&table_name(&object_ty))
             .column("oid")
             .array_agg("value")
             .group_by("oid")
@@ -538,12 +541,16 @@ impl Action for BatchFetchObjectUpdateAction {
   }
 }
 
-fn table_name_for_collab_ty(ty: &CollabType) -> &str {
+fn table_name(ty: &CollabType) -> String {
   match ty {
-    CollabType::Document => AF_COLLAB_UPDATE_TABLE,
-    CollabType::Database => AF_COLLAB_UPDATE_TABLE,
-    CollabType::WorkspaceDatabase => AF_COLLAB_UPDATE_TABLE,
-    CollabType::DatabaseRow => AF_COLLAB_DATABASE_ROW_UPDATE_TABLE,
-    CollabType::Folder => AF_COLLAB_UPDATE_TABLE,
+    CollabType::DatabaseRow => AF_COLLAB_DATABASE_ROW_UPDATE_TABLE.to_string(),
+    CollabType::Document
+    | CollabType::Database
+    | CollabType::WorkspaceDatabase
+    | CollabType::Folder => format!("{}_{}", AF_COLLAB_UPDATE_TABLE, ty.value()),
   }
+}
+
+fn partition_key(ty: &CollabType) -> i32 {
+  ty.value()
 }

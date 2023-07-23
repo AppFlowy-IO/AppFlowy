@@ -75,14 +75,14 @@ CREATE TABLE IF NOT EXISTS af_user (
    name TEXT NOT NULL DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TYPE WorkspaceType AS ENUM ('Free');
 -- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    database_storage_id UUID DEFAULT uuid_generate_v4(),
    owner_uid BIGINT REFERENCES af_user(uid),
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-   workspace_type WorkspaceType NOT NULL DEFAULT 'Free',
+   -- 0: Free
+   workspace_type INTEGER NOT NULL DEFAULT 0,
    workspace_name TEXT DEFAULT 'My Workspace'
 );
 -- This trigger is fired after an insert operation on the af_user table. It automatically creates a workspace
@@ -97,9 +97,9 @@ AFTER
 INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_workspace_func();
 -- af_workspace_member contains all the members associated with a workspace and their roles.
 CREATE TABLE IF NOT EXISTS af_workspace_member (
-    uid BIGINT NOT NULL,
-    role_id INT NOT NULL REFERENCES af_roles(id),
-    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
+   uid BIGINT NOT NULL,
+   role_id INT NOT NULL REFERENCES af_roles(id),
+   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
@@ -145,36 +145,44 @@ FROM af_user u
    ) w ON u.uid = w.uid
    AND w.rn = 1;
 -- af_collab contains all the collabs.
-CREATE TYPE AccessLevel AS ENUM ('Shared', 'Private');
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
    owner_uid BIGINT REFERENCES af_user(uid),
    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id),
-   access_level AccessLevel NOT NULL DEFAULT 'Private',
+   -- 0: Private, 1: Shared
+   access_level INTEGER NOT NULL DEFAULT 0,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX idx_af_collab_oid ON af_collab (oid);
 -- collab update table.
 CREATE TABLE IF NOT EXISTS af_collab_update (
    oid TEXT REFERENCES af_collab(oid) ON DELETE CASCADE,
-   key BIGINT GENERATED ALWAYS AS IDENTITY,
+   key BIGSERIAL,
    value BYTEA NOT NULL,
    value_size INTEGER,
+   partition_key INTEGER NOT NULL,
    uid BIGINT NOT NULL REFERENCES af_user(uid),
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_id UUID NOT NULL,
-   PRIMARY KEY (oid, key)
-);
+   PRIMARY KEY (oid, key, partition_key)
+) PARTITION BY LIST (partition_key);
+CREATE TABLE af_collab_update_0 PARTITION OF af_collab_update FOR VALUES IN (0);
+CREATE TABLE af_collab_update_1 PARTITION OF af_collab_update FOR VALUES IN (1);
+CREATE TABLE af_collab_update_2 PARTITION OF af_collab_update FOR VALUES IN (2);
+CREATE TABLE af_collab_update_3 PARTITION OF af_collab_update FOR VALUES IN (3);
+CREATE TABLE af_collab_update_4 PARTITION OF af_collab_update FOR VALUES IN (4);
 -- Used to store the rows of the database
 CREATE TABLE IF NOT EXISTS af_database_row_update (
-   oid TEXT PRIMARY KEY,
-   key BIGINT GENERATED ALWAYS AS IDENTITY,
+   oid TEXT,
+   key BIGSERIAL,
    value BYTEA NOT NULL,
    value_size INTEGER,
+   partition_key INTEGER NOT NULL,
    uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
-   workspace_id UUID NOT NULL
+   workspace_id UUID NOT NULL,
+   PRIMARY KEY (oid, key)
 );
 -- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
 -- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
@@ -325,7 +333,7 @@ CREATE OR REPLACE FUNCTION af_shared_collab_for_uid(_uid BIGINT) RETURNS TABLE (
       oid TEXT,
       owner_uid BIGINT,
       workspace_id UUID,
-      access_level AccessLevel,
+      access_level INTEGER,
       created_at TIMESTAMP WITH TIME ZONE
    ) AS $$ BEGIN RETURN QUERY
 SELECT c.*

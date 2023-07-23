@@ -44,7 +44,7 @@ impl Default for FlowyCoreTest {
   fn default() -> Self {
     let temp_dir = temp_dir();
     let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
-      .log_filter("debug", vec!["flowy_test".to_string()]);
+      .log_filter("trace", vec!["flowy_test".to_string()]);
 
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
