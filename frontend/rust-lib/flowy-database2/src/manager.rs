@@ -62,7 +62,7 @@ impl DatabaseManager {
     &self,
     uid: i64,
     _workspace_id: String,
-    database_storage_id: String,
+    workspace_database_id: String,
   ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
@@ -73,28 +73,28 @@ impl DatabaseManager {
     let mut collab_raw_data = CollabRawData::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &database_storage_id) {
+    if !self.is_collab_exist(uid, &collab_db, &workspace_database_id) {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&database_storage_id, CollabType::WorkspaceDatabase)
+        .get_collab_update(&workspace_database_id, CollabType::WorkspaceDatabase)
         .await
       {
         Ok(updates) => collab_raw_data = updates,
         Err(err) => {
           return Err(FlowyError::record_not_found().context(format!(
             "get workspace database :{} failed: {}",
-            database_storage_id, err,
+            workspace_database_id, err,
           )));
         },
       }
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &database_storage_id);
+    tracing::trace!("open workspace database: {}", &workspace_database_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &database_storage_id,
+      &workspace_database_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,

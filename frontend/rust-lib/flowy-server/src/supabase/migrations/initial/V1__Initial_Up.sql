@@ -38,42 +38,34 @@ CREATE TABLE af_role_permissions (
    PRIMARY KEY (role_id, permission_id)
 );
 -- Associate permissions with roles
+WITH role_ids AS (
+   SELECT id,
+      name
+   FROM af_roles
+   WHERE name IN ('Owner', 'Member', 'Guest')
+),
+permission_ids AS (
+   SELECT id,
+      name
+   FROM af_permissions
+   WHERE name IN ('Full access', 'Read and write', 'Read only')
+)
 INSERT INTO af_role_permissions (role_id, permission_id)
-VALUES (
-      (
-         SELECT id
-         FROM af_roles
-         WHERE name = 'Owner'
-      ),
-      (
-         SELECT id
-         FROM af_permissions
-         WHERE name = 'Full access'
-      )
-   ),
-   (
-      (
-         SELECT id
-         FROM af_roles
-         WHERE name = 'Member'
-      ),
-      (
-         SELECT id
-         FROM af_permissions
-         WHERE name = 'Read and write'
-      )
-   ),
-   (
-      (
-         SELECT id
-         FROM af_roles
-         WHERE name = 'Guest'
-      ),
-      (
-         SELECT id
-         FROM af_permissions
-         WHERE name = 'Read only'
-      )
+SELECT r.id,
+   p.id
+FROM role_ids r
+   CROSS JOIN permission_ids p
+WHERE (
+      r.name = 'Owner'
+      AND p.name = 'Full access'
+   )
+   OR (
+      r.name = 'Member'
+      AND p.name = 'Read and write'
+   )
+   OR (
+      r.name = 'Guest'
+      AND p.name = 'Read only'
    );
 -- user table
 CREATE TABLE IF NOT EXISTS af_user (
@@ -88,29 +80,31 @@ CREATE TYPE WorkspaceType AS ENUM ('Free');
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    database_storage_id UUID DEFAULT uuid_generate_v4(),
-   owner_uid BIGINT,
+   owner_uid BIGINT REFERENCES af_user(uid),
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_type WorkspaceType NOT NULL DEFAULT 'Free',
    workspace_name TEXT DEFAULT 'My Workspace'
 );
--- This trigger is fired before an insert operation on the af_user table. It automatically creates a workspace
+-- This trigger is fired after an insert operation on the af_user table. It automatically creates a workspace
 -- in the af_workspace table with the uid of the new user profile as the owner_uid
 CREATE OR REPLACE FUNCTION create_af_workspace_func() RETURNS TRIGGER AS $$BEGIN
 INSERT INTO af_workspace (owner_uid)
 VALUES (NEW.uid);
 RETURN NEW;
 END $$LANGUAGE plpgsql;
-CREATE TRIGGER create_af_workspace_trigger BEFORE
+CREATE TRIGGER create_af_workspace_trigger
+AFTER
 INSERT ON af_user FOR EACH ROW EXECUTE FUNCTION create_af_workspace_func();
 -- af_workspace_member contains all the members associated with a workspace and their roles.
 CREATE TABLE IF NOT EXISTS af_workspace_member (
-   uid BIGINT,
-   role_id INT REFERENCES af_roles(id),
-   workspace_id UUID REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
+    uid BIGINT NOT NULL,
+    role_id INT NOT NULL REFERENCES af_roles(id),
+    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    UNIQUE(uid, workspace_id)
 );
+CREATE UNIQUE INDEX idx_af_workspace_member ON af_workspace_member (uid, workspace_id, role_id);
 -- This trigger is fired after an insert operation on the af_workspace table. It automatically creates a workspace
 -- member in the af_workspace_member table. If the user is the owner of the workspace, they are given the role 'Owner'.
 CREATE OR REPLACE FUNCTION manage_af_workspace_member_role_func() RETURNS TRIGGER AS $$ BEGIN
@@ -154,8 +148,8 @@ FROM af_user u
 CREATE TYPE AccessLevel AS ENUM ('Shared', 'Private');
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
-   owner_uid BIGINT,
-   workspace_id UUID NOT NULL,
+   owner_uid BIGINT REFERENCES af_user(uid),
+   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id),
    access_level AccessLevel NOT NULL DEFAULT 'Private',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -166,7 +160,7 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    key BIGINT GENERATED ALWAYS AS IDENTITY,
    value BYTEA NOT NULL,
    value_size INTEGER,
-   uid BIGINT NOT NULL,
+   uid BIGINT NOT NULL REFERENCES af_user(uid),
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    workspace_id UUID NOT NULL,
@@ -313,17 +307,17 @@ CREATE OR REPLACE FUNCTION insert_af_workspace_member_if_owner(
       p_uid BIGINT,
       p_role_id INT,
       p_workspace_id UUID
-   ) RETURNS VOID AS $$
-DECLARE v_owner BIGINT;
-BEGIN -- Check if the user is the owner of the workspace
-SELECT owner_uid INTO v_owner
-FROM af_workspace
-WHERE workspace_id = p_workspace_id;
-IF v_owner != p_uid THEN RAISE EXCEPTION 'Unsupported operation: User is not the owner of the workspace.';
-END IF;
--- If user is the owner, proceed with the insert operation
+   ) RETURNS VOID AS $$ BEGIN -- If user is the owner, proceed with the insert operation
 INSERT INTO af_workspace_member (uid, role_id, workspace_id)
-VALUES (p_uid, p_role_id, p_workspace_id);
+SELECT p_uid,
+   p_role_id,
+   p_workspace_id
+FROM af_workspace
+WHERE workspace_id = p_workspace_id
+   AND owner_uid = p_uid;
+-- Check if the insert operation was successful. If not, user is not the owner of the workspace.
+IF NOT FOUND THEN RAISE EXCEPTION 'Unsupported operation: User is not the owner of the workspace.';
+END IF;
 END;
 $$ LANGUAGE plpgsql;
 -- show the shared documents and databases for the given uid

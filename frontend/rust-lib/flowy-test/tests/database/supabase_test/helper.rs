@@ -77,7 +77,7 @@ impl FlowySupabaseDatabaseTest {
       .parse::<RepeatedDatabaseSnapshotPB>()
   }
 
-  pub async fn get_collab_update(&self, database_id: &str) -> Vec<u8> {
+  pub async fn get_database_collab_update(&self, database_id: &str) -> Vec<u8> {
     let cloud_service = self.database_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
       .get_collab_update(database_id, CollabType::Database)

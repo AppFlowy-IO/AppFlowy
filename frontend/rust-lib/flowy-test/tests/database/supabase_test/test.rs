@@ -60,7 +60,7 @@ async fn supabase_edit_database_test() {
 
     assert_eq!(test.get_all_database_fields(&view.id).await.items.len(), 2);
     let expected = test.get_collab_json(&database.id).await;
-    let update = test.get_collab_update(&database.id).await;
+    let update = test.get_database_collab_update(&database.id).await;
     assert_database_collab_content(&database.id, &update, expected);
   }
 }
