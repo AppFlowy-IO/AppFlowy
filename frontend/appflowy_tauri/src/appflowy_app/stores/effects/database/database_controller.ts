@@ -1,18 +1,20 @@
 import { DatabaseBackendService } from './database_bd_svc';
 import { FieldController, FieldInfo } from './field/field_controller';
 import { DatabaseViewCache } from './view/database_view_cache';
-import { DatabasePB, GroupPB, FlowyError } from '@/services/backend';
+import { DatabasePB, GroupPB, FlowyError, FilterPB } from '@/services/backend';
 import { RowChangedReason, RowInfo } from './row/row_cache';
 import { Err, Ok } from 'ts-results';
 import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
 import { Log } from '$app/utils/log';
+import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
+  onFiltersChanged?: (filters: readonly FilterPB[]) => void;
   onGroupByField?: (groups: GroupPB[]) => void;
 
   onNumOfGroupChanged?: {
@@ -25,6 +27,7 @@ export type DatabaseSubscriberCallbacks = {
 export class DatabaseController {
   private readonly backendService: DatabaseBackendService;
   fieldController: FieldController;
+  filterController: FilterController;
   databaseViewCache: DatabaseViewCache;
   private _callback?: DatabaseSubscriberCallbacks;
   public groups: BehaviorSubject<DatabaseGroupController[]>;
@@ -33,6 +36,7 @@ export class DatabaseController {
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
+    this.filterController = new FilterController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
     this.groups = new BehaviorSubject<DatabaseGroupController[]>([]);
     this.groupsObserver = new DatabaseGroupObserver(viewId);
@@ -41,6 +45,7 @@ export class DatabaseController {
   subscribe = (callbacks: DatabaseSubscriberCallbacks) => {
     this._callback = callbacks;
     this.fieldController.subscribe({ onNumOfFieldsChanged: callbacks.onFieldsChanged });
+    this.filterController.subscribe({ onFiltersChanged: callbacks.onFiltersChanged });
     this.databaseViewCache.getRowCache().subscribe({
       onRowsChanged: (reason) => {
         this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
@@ -211,6 +216,7 @@ export class DatabaseController {
     await this.groupsObserver.unsubscribe();
     await this.backendService.closeDatabase();
     await this.fieldController.dispose();
+    this.filterController.dispose();
     await this.databaseViewCache.dispose();
   };
 }

@@ -66,6 +66,7 @@ export const SupportedOperatorsByType: TSupportedOperatorsByType = {
 };
 
 export interface IDatabaseFilter {
+  id: string;
   fieldId: string;
   fieldType: FieldType;
   logicalOperator: 'and' | 'or';
