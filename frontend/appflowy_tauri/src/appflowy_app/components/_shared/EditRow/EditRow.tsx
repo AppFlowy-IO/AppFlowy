@@ -147,33 +147,6 @@ export const EditRow = ({
     setEditCellOptionTop(_top);
   };
 
-  const onUpdateSelectOption = (option: SelectOptionPB) => {
-    if (!editingCell) return;
-    const updatingField = fieldsStore[editingCell.fieldId];
-    const allOptions = (updatingField.fieldOptions as ISelectOptionType).selectOptions;
-
-    dispatch(
-      databaseActions.updateField({
-        field: {
-          ...updatingField,
-          fieldOptions: {
-            selectOptions: allOptions.map((o) =>
-              o.selectOptionId === option.id
-                ? {
-                    selectOptionId: option.id,
-                    color: option.color,
-                    title: option.name,
-                  }
-                : o
-            ),
-          },
-        },
-      })
-    );
-
-    setEditingSelectOption(option);
-  };
-
   const onOpenCheckListDetailClick = (_left: number, _top: number, _select_option: SelectOptionPB) => {
     setEditingSelectOption(_select_option);
     setShowEditCheckList(true);
@@ -352,7 +325,7 @@ export const EditRow = ({
               left={editCellOptionLeft}
               cellIdentifier={editingCell}
               editingSelectOption={editingSelectOption}
-              onUpdateSelectOption={onUpdateSelectOption}
+              setEditingSelectOption={setEditingSelectOption}
               onOutsideClick={() => {
                 setShowEditCellOption(false);
               }}

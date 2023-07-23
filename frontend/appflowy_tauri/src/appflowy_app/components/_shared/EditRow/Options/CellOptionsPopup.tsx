@@ -82,7 +82,7 @@ export const CellOptionsPopup = ({
           />
           <div className={'font-mono text-text-caption'}>{value.length}/30</div>
         </div>
-        <div className={'-mx-4 h-[1px] bg-line-border'}></div>
+        <div className={'-mx-4 h-[1px] bg-line-divider'}></div>
         <div className={'font-medium text-text-caption'}>{t('grid.selectOption.panelTitle') ?? ''}</div>
         <div className={'flex flex-col gap-1'}>
           {(databaseStore.fields[cellIdentifier.fieldId]?.fieldOptions as ISelectOptionType).selectOptions.map(

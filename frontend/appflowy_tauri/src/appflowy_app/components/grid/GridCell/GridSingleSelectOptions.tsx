@@ -53,7 +53,7 @@ export default function GridSingleSelectOptions({
           cellIdentifier={cellIdentifier}
           cellCache={cellCache}
           fieldController={fieldController}
-          onOutsideClick={() => setShowOptionsPopup(false)}
+          onOutsideClick={() => !showEditCellOption && setShowOptionsPopup(false)}
           openOptionDetail={onOpenOptionDetailClick}
         />
       )}
@@ -63,7 +63,7 @@ export default function GridSingleSelectOptions({
           left={editCellOptionLeft}
           cellIdentifier={cellIdentifier}
           editingSelectOption={editingSelectOption}
-          onUpdateSelectOption={() => console.log('placeholder')}
+          setEditingSelectOption={setEditingSelectOption}
           onOutsideClick={() => {
             setShowEditCellOption(false);
           }}

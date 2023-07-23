@@ -16,7 +16,7 @@ export const GridTitleOptionsPopup = ({
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <FilterSvg />
         </i>
       ),
@@ -28,7 +28,7 @@ export const GridTitleOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <SortSvg />
         </i>
       ),
@@ -40,7 +40,7 @@ export const GridTitleOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <PropertiesSvg />
         </i>
       ),
@@ -51,7 +51,7 @@ export const GridTitleOptionsPopup = ({
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <GroupBySvg />
         </i>
       ),
@@ -62,5 +62,5 @@ export const GridTitleOptionsPopup = ({
     },
   ];
 
-  return <PopupSelect items={items} className={'absolute top-full z-10 w-fit'} onOutsideClick={onClose} />;
+  return <PopupSelect items={items} className={'absolute top-full z-10 w-[140px]'} onOutsideClick={onClose} />;
 };
