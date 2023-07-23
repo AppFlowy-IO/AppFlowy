@@ -3,6 +3,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_pag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -45,7 +48,12 @@ final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
 
-  final inlinePageReferenceService = InlinePageReferenceService();
+  late final InlineActionsService inlineActionsService = InlineActionsService(
+    context: context,
+    handlers: [
+      InlinePageReferenceService().inlinePageReferenceDelegate,
+    ],
+  );
 
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
@@ -82,9 +90,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       _customAppFlowyBlockComponentBuilders();
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
-        // inline page reference list
-        ...inlinePageReferenceShortcuts,
-
         // code block
         ...codeBlockCharacterEvents,
 
@@ -102,19 +107,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           ..removeWhere(
             (element) => element == slashCommand,
           ), // remove the default slash command.
-      ];
 
-  late final inlinePageReferenceShortcuts = [
-    inlinePageReferenceService.customPageLinkMenu(
-      character: '@',
-      style: styleCustomizer.selectionMenuStyleBuilder(),
-    ),
-    // uncomment this to enable the inline page reference list
-    // inlinePageReferenceService.customPageLinkMenu(
-    //   character: '+',
-    //   style: styleCustomizer.selectionMenuStyleBuilder(),
-    // ),
-  ];
+        /// Inline Actions
+        /// - Reminder
+        /// - Inline-page reference
+        inlineActionsCommand(
+          inlineActionsService,
+          style: styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+      ];
 
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
@@ -141,6 +142,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
+    inlineActionsService.dispose();
 
     super.dispose();
   }

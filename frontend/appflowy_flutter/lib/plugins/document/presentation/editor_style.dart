@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -153,6 +154,15 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: theme.hoverColor,
+    );
+  }
+
+  InlineActionsMenuStyle inlineActionsMenuStyleBuilder() {
+    final theme = Theme.of(context);
+    return InlineActionsMenuStyle(
+      backgroundColor: theme.cardColor,
+      groupTextColor: theme.colorScheme.onBackground,
+      menuItemSelectedColor: theme.hoverColor,
     );
   }
 

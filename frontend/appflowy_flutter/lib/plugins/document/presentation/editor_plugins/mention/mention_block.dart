@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:flutter/material.dart';
 
 class MentionBlock extends StatelessWidget {

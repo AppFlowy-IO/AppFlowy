@@ -704,5 +704,9 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
+  },
+  "inlineActions": {
+    "noResults": "No results",
+    "pageReference": "Page reference"
   }
 }
