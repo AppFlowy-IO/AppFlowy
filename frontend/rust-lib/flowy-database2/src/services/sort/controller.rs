@@ -258,22 +258,30 @@ fn cmp_row(
         cell_data_cache,
         sort.condition,
       ),
-      (Some(_), None) => {
+      (Some(cell), None) => {
         if field_type.is_checkbox() {
-          match sort.condition {
-            SortCondition::Ascending => Ordering::Greater,
-            SortCondition::Descending => Ordering::Less,
-          }
+          cmp_option_checkbox_cell(
+            Some(cell.as_ref()),
+            None,
+            field_rev,
+            field_type,
+            cell_data_cache,
+            sort.condition,
+          )
         } else {
           Ordering::Less
         }
       },
-      (None, Some(_)) => {
+      (None, Some(cell)) => {
         if field_type.is_checkbox() {
-          match sort.condition {
-            SortCondition::Ascending => Ordering::Less,
-            SortCondition::Descending => Ordering::Greater,
-          }
+          cmp_option_checkbox_cell(
+            None,
+            Some(cell.as_ref()),
+            field_rev,
+            field_type,
+            cell_data_cache,
+            sort.condition,
+          )
         } else {
           Ordering::Greater
         }
@@ -306,6 +314,48 @@ fn cmp_cell(
     },
   }
 }
+
+fn cmp_option_checkbox_cell(
+  left_cell: Option<&Cell>,
+  right_cell: Option<&Cell>,
+  field: &Arc<Field>,
+  field_type: FieldType,
+  cell_data_cache: &CellCache,
+  sort_condition: SortCondition,
+) -> Ordering {
+  let order = match TypeOptionCellExt::new_with_cell_data_cache(
+    field.as_ref(),
+    Some(cell_data_cache.clone()),
+  )
+  .get_type_option_cell_data_handler(&field_type)
+  {
+    None => default_order(),
+    Some(handler) => match (left_cell, right_cell) {
+      (None, Some(cell)) => {
+        let right = handler.stringify_cell_str(cell, &field_type, field);
+        if right == "No" {
+          default_order()
+        } else {
+          Ordering::Less
+        }
+      },
+      (Some(cell), None) => {
+        let left = handler.stringify_cell_str(cell, &field_type, field);
+        if left == "No" {
+          default_order()
+        } else {
+          Ordering::Greater
+        }
+      },
+      _ => default_order(),
+    },
+  };
+  match sort_condition {
+    SortCondition::Ascending => order,
+    SortCondition::Descending => order.reverse(),
+  }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum SortEvent {
   SortDidChanged,
