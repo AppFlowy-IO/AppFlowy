@@ -123,7 +123,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     'BASIC',
     'C',
     'C#',
-    'C++',
+    'CPP',
     'Clojure',
     'CSS',
     'Dart',
@@ -167,7 +167,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       .map((e) => e.toLowerCase())
       .toSet()
       .intersection(allLanguages.keys.toSet())
-      .toList();
+      .toList()
+    ..add('auto')
+    ..add('c')
+    ..sort();
 
   late final editorState = context.read<EditorState>();
 
