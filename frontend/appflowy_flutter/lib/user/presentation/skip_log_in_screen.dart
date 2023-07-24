@@ -233,43 +233,44 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-      builder: (context, state) {
-        return AppFlowyPopover(
-          offset: const Offset(0, -450),
-          direction: PopoverDirection.bottomWithRightAligned,
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            text: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const FlowySvg(
-                  name: 'login/language',
-                  size: Size.square(20),
-                ),
-                const HSpace(4),
-                FlowyText(
-                  languageFromLocale(state.locale),
-                ),
-                // const HSpace(4),
-                const FlowySvg(
-                  name: 'home/drop_down_hide',
-                  size: Size.square(20),
-                ),
-              ],
+    return AppFlowyPopover(
+      offset: const Offset(0, -450),
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const FlowySvg(
+              name: 'login/language',
+              size: Size.square(20),
             ),
-          ),
-          popupBuilder: (BuildContext context) {
-            final easyLocalization = EasyLocalization.of(context);
-            if (easyLocalization == null) {
-              return const SizedBox.shrink();
-            }
-            final allLocales = easyLocalization.supportedLocales;
-            return LanguageItemsListView(
-              allLocales: allLocales,
-            );
-          },
+            const HSpace(4),
+            Builder(
+              builder: (context) {
+                final currentLocale =
+                    context.watch<AppearanceSettingsCubit>().state.locale;
+                return FlowyText(
+                  languageFromLocale(currentLocale),
+                );
+              },
+            ),
+            const FlowySvg(
+              name: 'home/drop_down_hide',
+              size: Size.square(20),
+            ),
+          ],
+        ),
+      ),
+      popupBuilder: (BuildContext context) {
+        final easyLocalization = EasyLocalization.of(context);
+        if (easyLocalization == null) {
+          return const SizedBox.shrink();
+        }
+        final allLocales = easyLocalization.supportedLocales;
+        return LanguageItemsListView(
+          allLocales: allLocales,
         );
       },
     );
