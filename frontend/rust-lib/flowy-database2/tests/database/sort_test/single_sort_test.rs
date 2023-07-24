@@ -31,7 +31,7 @@ async fn sort_change_notification_by_update_text_test() {
   let scripts = vec![
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["A", "", "C", "DA", "AE", "AE", ""],
+      orders: vec!["A", "", "C", "DA", "AE", "AE", "CB"],
     },
     InsertSort {
       field: text_field.clone(),
@@ -53,8 +53,8 @@ async fn sort_change_notification_by_update_text_test() {
       text: "E".to_string(),
     },
     AssertSortChanged {
-      old_row_orders: vec!["A", "E", "AE", "C", "DA", ""],
-      new_row_orders: vec!["A", "AE", "C", "CB", "DA", "E"],
+      old_row_orders: vec!["A", "E", "AE", "C", "CB", "DA", ""],
+      new_row_orders: vec!["A", "AE", "C", "CB", "DA", "E", ""],
     },
   ];
   test.run_scripts(scripts).await;
@@ -98,7 +98,7 @@ async fn sort_text_by_descending_test() {
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["DA", "CB", "C", "AE", "AE", "A", "", ""],
+      orders: vec!["DA", "CB", "C", "AE", "AE", "A", ""],
     },
   ];
   test.run_scripts(scripts).await;
@@ -119,7 +119,7 @@ async fn sort_checkbox_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
-      orders: vec!["", "No", "No", "No", "Yes", "Yes", "Yes"],
+      orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],
     },
   ];
   test.run_scripts(scripts).await;
