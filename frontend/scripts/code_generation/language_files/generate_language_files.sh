@@ -11,8 +11,9 @@ cd "$(dirname "$0")"
 cd ../../../appflowy_flutter
 
 # copy the resources/translations folder to
-#   the appflowy_flutter/assets/translation directory
-cp -rf ../resources/translations/ assets/translations/
+# the appflowy_flutter/assets/translation directory
+mkdir -p assets/translations/
+cp -f ../resources/translations/* assets/translations/
 
 flutter packages pub get
 
