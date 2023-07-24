@@ -36,54 +36,56 @@ export const GridTableRow = ({
             {...provided.draggableProps}
             className={`group flex cursor-pointer items-stretch border-b border-line-divider `}
           >
-            {cells.map((cell, cellIndex) => {
-              return (
-                <div className={`relative flex flex-shrink-0 `} key={cellIndex} draggable={false}>
-                  <GridCell
-                    width={fields[cell.fieldId]?.width}
-                    cellIdentifier={cell.cellIdentifier}
-                    cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
-                    fieldController={controller.fieldController}
-                  />
+            {cells
+              .filter((cell) => fields[cell.fieldId].visible)
+              .map((cell, cellIndex) => {
+                return (
+                  <div className={`relative flex flex-shrink-0 `} key={cellIndex} draggable={false}>
+                    <GridCell
+                      width={fields[cell.fieldId]?.width}
+                      cellIdentifier={cell.cellIdentifier}
+                      cellCache={controller.databaseViewCache.getRowCache().getCellCache()}
+                      fieldController={controller.fieldController}
+                    />
 
-                  {cellIndex === 0 && (
-                    <>
-                      <div className='absolute inset-y-0 left-[-30px] my-auto flex w-8 items-center justify-center'>
-                        <button
-                          className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-fill-list-hover group-hover:flex ${
-                            snapshot.isDragging ? '!flex' : ''
-                          }`}
-                          onClick={() => setShowMenu(true)}
-                          {...provided.dragHandleProps}
+                    {cellIndex === 0 && (
+                      <>
+                        <div className='absolute inset-y-0 left-[-30px] my-auto flex w-8 items-center justify-center'>
+                          <button
+                            className={`hidden h-5 w-5 cursor-pointer items-center rounded hover:bg-fill-list-hover group-hover:flex ${
+                              snapshot.isDragging ? '!flex' : ''
+                            }`}
+                            onClick={() => setShowMenu(true)}
+                            {...provided.dragHandleProps}
+                          >
+                            <DragSvg />
+                          </button>
+
+                          {showMenu && (
+                            <GridRowActions
+                              controller={controller}
+                              rowId={row.row.id}
+                              onOutsideClick={() => setShowMenu(false)}
+                            />
+                          )}
+                        </div>
+                        <div
+                          onClick={() => onOpenRow(row)}
+                          className=' absolute inset-y-0 right-0 my-auto mr-1 hidden flex-shrink-0 cursor-pointer items-center justify-center rounded p-1 hover:bg-fill-list-hover group-hover:flex '
                         >
-                          <DragSvg />
-                        </button>
+                          <i className={' block h-5 w-5'}>
+                            <FullView />
+                          </i>
+                        </div>
+                      </>
+                    )}
 
-                        {showMenu && (
-                          <GridRowActions
-                            controller={controller}
-                            rowId={row.row.id}
-                            onOutsideClick={() => setShowMenu(false)}
-                          />
-                        )}
-                      </div>
-                      <div
-                        onClick={() => onOpenRow(row)}
-                        className=' absolute inset-y-0 right-0 my-auto mr-1 hidden flex-shrink-0 cursor-pointer items-center justify-center rounded p-1 hover:bg-fill-list-hover group-hover:flex '
-                      >
-                        <i className={' block h-5 w-5'}>
-                          <FullView />
-                        </i>
-                      </div>
-                    </>
-                  )}
-
-                  <div className={'flex h-full justify-center'}>
-                    <div className={'h-full w-[1px] bg-line-divider'}></div>
+                    <div className={'flex h-full justify-center'}>
+                      <div className={'h-full w-[1px] bg-line-divider'}></div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         )}
       </Draggable>

@@ -21,18 +21,20 @@ export const GridTableHeader = ({
 
   return (
     <div className={'flex select-none pl-8 text-xs'} style={{ userSelect: 'none' }}>
-      {columns.map((column, i) => {
-        return (
-          <GridTableHeaderItem
-            onShowFilterClick={onShowFilterClick}
-            onShowSortClick={onShowSortClick}
-            field={fields[column.fieldId]}
-            controller={controller}
-            key={i}
-            index={i}
-          />
-        );
-      })}
+      {columns
+        .filter((column) => column.visible)
+        .map((column, i) => {
+          return (
+            <GridTableHeaderItem
+              onShowFilterClick={onShowFilterClick}
+              onShowSortClick={onShowSortClick}
+              field={fields[column.fieldId]}
+              controller={controller}
+              key={i}
+              index={i}
+            />
+          );
+        })}
       <div className='m-0 w-40 border border-r-0 border-line-divider p-0'>
         <div
           className='flex cursor-pointer items-center px-4 py-2 text-text-caption hover:bg-fill-list-hover hover:text-text-title'
