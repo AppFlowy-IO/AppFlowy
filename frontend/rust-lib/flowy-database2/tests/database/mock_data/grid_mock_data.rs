@@ -116,7 +116,7 @@ pub fn make_test_grid() -> DatabaseData {
     }
   }
 
-  for i in 0..6 {
+  for i in 0..7 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
@@ -222,6 +222,9 @@ pub fn make_test_grid() -> DatabaseData {
             _ => "".to_owned(),
           };
         }
+      },
+      6 => {
+        row_builder.insert_text_cell("CB");
       },
       _ => {},
     }
