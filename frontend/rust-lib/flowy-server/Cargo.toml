@@ -26,7 +26,7 @@ uuid = { version = "1.3.3", features = ["v4"] }
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 appflowy-integrate = { version = "0.1.0" }
 
-postgrest = "1.0"
+postgrest = "1.6"
 tokio-postgres = { version = "0.7.8", optional = true, features = ["with-uuid-1","with-chrono-0_4"] }
 deadpool-postgres = "0.10.5"
 refinery= { version = "0.8.10", optional = true, features = ["tokio-postgres"] }

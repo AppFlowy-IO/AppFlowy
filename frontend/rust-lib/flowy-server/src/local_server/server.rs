@@ -10,8 +10,10 @@ use flowy_document2::deps::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder2::deps::FolderCloudService;
 use flowy_user::entities::UserProfile;
-use flowy_user::event_map::UserService;
-use flowy_user::services::database::{get_user_profile, open_collab_db, open_user_db};
+use flowy_user::event_map::{UserService, UserWorkspace};
+use flowy_user::services::database::{
+  get_user_profile, get_user_workspace, open_collab_db, open_user_db,
+};
 
 use crate::local_server::impls::{
   LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
@@ -21,6 +23,7 @@ use crate::AppFlowyServer;
 
 pub trait LocalServerDB: Send + Sync + 'static {
   fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError>;
+  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError>;
   fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError>;
 }
 
@@ -82,6 +85,12 @@ impl LocalServerDB for LocalServerDBImpl {
     let sqlite_db = open_user_db(&self.storage_path, uid)?;
     let user_profile = get_user_profile(&sqlite_db, uid).ok();
     Ok(user_profile)
+  }
+
+  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
+    let sqlite_db = open_user_db(&self.storage_path, uid)?;
+    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
+    Ok(user_workspace)
   }
 
   fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {

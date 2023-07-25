@@ -2,19 +2,46 @@ use std::sync::Arc;
 
 use postgrest::Postgrest;
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
+use flowy_user::services::third_party_params_from_box_any;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+
+use crate::supabase::storage_impls::pooler::USER_TABLE;
+use crate::supabase::storage_impls::serverless_api::util::InsertParamsBuilder;
+use crate::supabase::storage_impls::USER_UUID;
 
 pub struct SLSupabaseUserAuthServiceImpl {
   postgrest: Arc<Postgrest>,
 }
 
 impl UserService for SLSupabaseUserAuthServiceImpl {
-  fn sign_up(&self, _params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
-    FutureResult::new(async move { todo!() })
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+    let postgrest = self.postgrest.clone();
+    FutureResult::new(async move {
+      // let mut is_new = true;
+      let params = third_party_params_from_box_any(params)?;
+      let response = postgrest
+        .from(USER_TABLE)
+        .select("*")
+        .eq("uuid", &params.uuid.to_string())
+        .single()
+        .execute()
+        .await
+        .map_err(|e| FlowyError::new(ErrorCode::HttpError, e))?;
+
+      if response.status() == 200 {
+        // is_new = false;
+      } else {
+        let insert = InsertParamsBuilder::new()
+          .insert(USER_UUID, params.uuid.to_string())
+          .build();
+        let _response = postgrest.from(USER_TABLE).insert(insert).execute().await?;
+      }
+      todo!()
+    })
   }
 
   fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {

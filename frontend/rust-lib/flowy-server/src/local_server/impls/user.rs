@@ -43,6 +43,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+    let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
       let uid = match params.uid {
@@ -50,7 +51,9 @@ impl UserService for LocalServerUserAuthServiceImpl {
         Some(uid) => uid,
       };
 
-      let user_workspace = make_user_workspace();
+      let user_workspace = db
+        .get_user_workspace(uid)?
+        .unwrap_or_else(make_user_workspace);
       Ok(SignInResponse {
         user_id: uid,
         name: params.name,

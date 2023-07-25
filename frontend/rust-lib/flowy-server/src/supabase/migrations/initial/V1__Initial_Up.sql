@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS af_user (
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    database_storage_id UUID DEFAULT uuid_generate_v4(),
-   owner_uid BIGINT REFERENCES af_user(uid),
+   owner_uid BIGINT REFERENCES af_user(uid) ON DELETE CASCADE,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    -- 0: Free
    workspace_type INTEGER NOT NULL DEFAULT 0,
@@ -147,8 +147,8 @@ FROM af_user u
 -- af_collab contains all the collabs.
 CREATE TABLE IF NOT EXISTS af_collab(
    oid TEXT PRIMARY KEY,
-   owner_uid BIGINT REFERENCES af_user(uid),
-   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id),
+   owner_uid BIGINT NOT NULL,
+   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    -- 0: Private, 1: Shared
    access_level INTEGER NOT NULL DEFAULT 0,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -161,10 +161,10 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    value BYTEA NOT NULL,
    value_size INTEGER,
    partition_key INTEGER NOT NULL,
-   uid BIGINT NOT NULL REFERENCES af_user(uid),
+   uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-   workspace_id UUID NOT NULL,
+    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    PRIMARY KEY (oid, key, partition_key)
 ) PARTITION BY LIST (partition_key);
 CREATE TABLE af_collab_update_document PARTITION OF af_collab_update FOR VALUES IN (0);
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS af_database_row_update (
    partition_key INTEGER NOT NULL,
    uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
-   workspace_id UUID NOT NULL,
+   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    PRIMARY KEY (oid, key)
 );
 -- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
@@ -280,7 +280,7 @@ INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION increment_af_collab_edi
 -- collab snapshot. It will be used to store the snapshots of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_snapshot (
    sid BIGSERIAL PRIMARY KEY,
-   oid TEXT NOT NULL,
+   oid TEXT NOT NULL REFERENCES af_collab(oid) ON DELETE CASCADE,
    name TEXT DEFAULT '',
    blob BYTEA NOT NULL,
    blob_size INTEGER NOT NULL,

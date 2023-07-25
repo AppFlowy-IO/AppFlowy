@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError};
+use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{
   query_dsl::*,
@@ -14,7 +15,9 @@ use flowy_sqlite::{
 };
 
 use crate::entities::UserProfile;
+use crate::event_map::UserWorkspace;
 use crate::services::user_sql::UserTable;
+use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 pub struct UserDB {
   root: String,
@@ -83,6 +86,17 @@ pub fn get_user_profile(pool: &Arc<ConnectionPool>, uid: i64) -> Result<UserProf
     .first::<UserTable>(&*conn)?;
 
   Ok(user.into())
+}
+
+pub fn get_user_workspace(
+  pool: &Arc<ConnectionPool>,
+  uid: i64,
+) -> Result<Option<UserWorkspace>, FlowyError> {
+  let conn = pool.get()?;
+  let row = user_workspace_table::dsl::user_workspace_table
+    .filter(user_workspace_table::uid.eq(uid))
+    .first::<UserWorkspaceTable>(&*conn)?;
+  Ok(Some(UserWorkspace::from(row)))
 }
 
 pub fn user_db_path_from_uid(root: &str, uid: i64) -> PathBuf {
