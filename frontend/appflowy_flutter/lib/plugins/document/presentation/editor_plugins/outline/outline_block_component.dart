@@ -187,8 +187,9 @@ class OutlineItemWidget extends StatelessWidget {
       node.path,
       node.delta?.length ?? 0,
     );
-    await Future.delayed(const Duration(milliseconds: 100));
-    editorState.selectionType = null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      editorState.selectionType = null;
+    });
   }
 }
 
