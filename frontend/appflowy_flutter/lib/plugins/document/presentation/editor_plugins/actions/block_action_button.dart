@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +24,9 @@ class BlockActionButton extends StatelessWidget {
         preferBelow: false,
         richMessage: richMessage,
         child: MouseRegion(
-          cursor: SystemMouseCursors.grab,
+          cursor: Platform.isWindows
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.grab,
           child: IgnoreParentGestureWidget(
             child: GestureDetector(
               onTap: onTap,
