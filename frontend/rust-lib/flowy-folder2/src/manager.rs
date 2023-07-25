@@ -393,13 +393,10 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let view = self
-      .with_folder(None, |folder| folder.views.get_view(view_id))
-      .ok_or_else(|| {
-        FlowyError::record_not_found().context("Can't find the view when closing the view")
-      })?;
-    let handler = self.get_handler(&view.layout)?;
-    handler.close_view(view_id).await?;
+    if let Some(view) = self.with_folder(None, |folder| folder.views.get_view(view_id)) {
+      let handler = self.get_handler(&view.layout)?;
+      handler.close_view(view_id).await?;
+    }
     Ok(())
   }
 

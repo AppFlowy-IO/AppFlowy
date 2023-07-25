@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::supabase::collab_storage_impls::pooler::LATEST_WORKSPACE_ID;
+use crate::supabase::storage_impls::pooler::LATEST_WORKSPACE_ID;
 use crate::util::deserialize_null_or_default;
 
 pub enum GetUserProfileParams {

@@ -9,7 +9,7 @@ use flowy_folder2::deps::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user::event_map::UserService;
 
-use crate::supabase::collab_storage_impls::pooler::{
+use crate::supabase::storage_impls::pooler::{
   PostgresServer, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
   SupabaseFolderCloudServiceImpl, SupabaseRemoteCollabStorageImpl, SupabaseServerServiceImpl,
   SupabaseUserAuthServiceImpl,

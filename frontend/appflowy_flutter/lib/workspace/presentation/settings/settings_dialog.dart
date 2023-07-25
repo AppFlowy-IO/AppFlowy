@@ -18,10 +18,12 @@ const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 
 class SettingsDialog extends StatelessWidget {
   final VoidCallback dismissDialog;
+  final VoidCallback didLogout;
   final UserProfilePB user;
   SettingsDialog(
     this.user, {
     required this.dismissDialog,
+    required this.didLogout,
     Key? key,
   }) : super(key: ValueKey(user.id));
 
@@ -93,7 +95,7 @@ class SettingsDialog extends StatelessWidget {
         return SettingsUserView(
           user,
           didLogin: () => dismissDialog(),
-          didLogout: () => dismissDialog(),
+          didLogout: didLogout,
         );
       case SettingsPage.supabaseSetting:
         return const SupabaseSettingView();

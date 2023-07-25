@@ -15,14 +15,12 @@ use flowy_user::services::{third_party_params_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
-use crate::supabase::collab_storage_impls::pooler::sql_builder::{
-  SelectSqlBuilder, UpdateSqlBuilder,
-};
-use crate::supabase::collab_storage_impls::pooler::util::execute_async;
-use crate::supabase::collab_storage_impls::pooler::{
+use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
+use crate::supabase::storage_impls::pooler::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
+use crate::supabase::storage_impls::pooler::util::execute_async;
+use crate::supabase::storage_impls::pooler::{
   prepare_cached, PostgresObject, SupabaseServerService,
 };
-use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
 use crate::supabase::PgPoolMode;
 
 pub(crate) const USER_TABLE: &str = "af_user";

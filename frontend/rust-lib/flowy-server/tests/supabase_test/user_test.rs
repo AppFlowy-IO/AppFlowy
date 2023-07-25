@@ -4,10 +4,10 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 use uuid::Uuid;
 
-use flowy_server::supabase::collab_storage_impls::pooler::{
+use flowy_server::supabase::storage_impls::pooler::{
   PostgresServer, SupabaseServerServiceImpl, SupabaseUserAuthServiceImpl,
 };
-use flowy_server::supabase::collab_storage_impls::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
 use flowy_server::supabase::PgPoolMode;
 use flowy_server_config::supabase_config::PostgresConfiguration;
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};

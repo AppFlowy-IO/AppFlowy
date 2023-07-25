@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
@@ -106,10 +105,6 @@ class SettingsUserView extends StatelessWidget {
           title: LocaleKeys.settings_menu_logoutPrompt.tr(),
           confirm: () async {
             await getIt<AuthService>().signOut();
-            await FlowyRunner.run(
-              FlowyApp(),
-              integrationEnv(),
-            );
             didLogout();
           },
         ).show(context);

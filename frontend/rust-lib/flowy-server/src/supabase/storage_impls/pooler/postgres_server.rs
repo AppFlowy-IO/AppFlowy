@@ -12,12 +12,10 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_server_config::supabase_config::PostgresConfiguration;
 use lib_infra::async_trait::async_trait;
 
-use crate::supabase::collab_storage_impls::pooler::{
-  PgClientReceiver, PostgresEvent, PostgresPool,
-};
 use crate::supabase::queue::{
   PendingRequest, RequestHandler, RequestQueue, RequestRunner, RequestState,
 };
+use crate::supabase::storage_impls::pooler::{PgClientReceiver, PostgresEvent, PostgresPool};
 use crate::supabase::PgPoolMode;
 
 pub struct PostgresServer {

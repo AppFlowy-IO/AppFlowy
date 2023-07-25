@@ -19,7 +19,7 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_server::supabase::collab_storage_impls::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;

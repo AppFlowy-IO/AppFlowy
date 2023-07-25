@@ -10,12 +10,10 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::collab_storage_impls::pooler::postgres_server::SupabaseServerService;
-use crate::supabase::collab_storage_impls::pooler::sql_builder::{
-  InsertSqlBuilder, SelectSqlBuilder,
-};
-use crate::supabase::collab_storage_impls::pooler::util::execute_async;
-use crate::supabase::collab_storage_impls::pooler::{
+use crate::supabase::storage_impls::pooler::postgres_server::SupabaseServerService;
+use crate::supabase::storage_impls::pooler::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
+use crate::supabase::storage_impls::pooler::util::execute_async;
+use crate::supabase::storage_impls::pooler::{
   get_latest_snapshot_from_server, get_updates_from_server, prepare_cached,
   FetchObjectUpdateAction, PostgresObject,
 };

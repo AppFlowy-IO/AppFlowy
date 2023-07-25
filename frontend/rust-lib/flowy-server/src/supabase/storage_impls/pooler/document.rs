@@ -7,9 +7,9 @@ use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::collab_storage_impls::pooler::postgres_server::SupabaseServerService;
-use crate::supabase::collab_storage_impls::pooler::util::execute_async;
-use crate::supabase::collab_storage_impls::pooler::{
+use crate::supabase::storage_impls::pooler::postgres_server::SupabaseServerService;
+use crate::supabase::storage_impls::pooler::util::execute_async;
+use crate::supabase::storage_impls::pooler::{
   get_latest_snapshot_from_server, FetchObjectUpdateAction,
 };
 
