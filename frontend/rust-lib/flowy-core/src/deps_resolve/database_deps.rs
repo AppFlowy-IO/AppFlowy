@@ -47,7 +47,7 @@ impl DatabaseUser for DatabaseUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
       .0
       .upgrade()

@@ -30,11 +30,13 @@ impl UserDB {
   /// Close the database connection for the user.
   pub(crate) fn close(&self, user_id: i64) -> Result<(), FlowyError> {
     if let Some(mut sqlite_dbs) = DB_MAP.try_write_for(Duration::from_millis(300)) {
+      tracing::trace!("close sqlite db for user {}", user_id);
       sqlite_dbs.remove(&user_id);
     }
 
     if let Some(mut collab_dbs) = COLLAB_DB_MAP.try_write_for(Duration::from_millis(300)) {
       if let Some(db) = collab_dbs.remove(&user_id) {
+        tracing::trace!("close collab db for user {}", user_id);
         drop(db);
       }
     }

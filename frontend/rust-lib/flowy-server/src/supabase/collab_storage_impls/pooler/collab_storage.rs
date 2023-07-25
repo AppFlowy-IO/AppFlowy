@@ -33,7 +33,7 @@ use crate::supabase::collab_storage_impls::pooler::sql_builder::{
 use crate::supabase::collab_storage_impls::pooler::{prepare_cached, PostgresObject};
 use crate::supabase::PgPoolMode;
 
-pub struct PgCollabStorageImpl<T> {
+pub struct SupabaseRemoteCollabStorageImpl<T> {
   server: T,
   mode: PgPoolMode,
 }
@@ -47,7 +47,7 @@ const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
 const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
-impl<T> PgCollabStorageImpl<T>
+impl<T> SupabaseRemoteCollabStorageImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -70,7 +70,7 @@ where
 }
 
 #[async_trait]
-impl<T> RemoteCollabStorage for PgCollabStorageImpl<T>
+impl<T> RemoteCollabStorage for SupabaseRemoteCollabStorageImpl<T>
 where
   T: SupabaseServerService,
 {

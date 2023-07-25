@@ -87,7 +87,8 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    final String name = userName(context.read<MenuUserBloc>().state.userProfile);
+    final String name =
+        userName(context.read<MenuUserBloc>().state.userProfile);
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,
@@ -106,7 +107,10 @@ class MenuUser extends StatelessWidget {
             builder: (context) {
               return BlocProvider<DocumentAppearanceCubit>.value(
                 value: BlocProvider.of<DocumentAppearanceCubit>(context),
-                child: SettingsDialog(userProfile),
+                child: SettingsDialog(
+                  userProfile,
+                  dismissDialog: () => Navigator.of(context).pop(),
+                ),
               );
             },
           );

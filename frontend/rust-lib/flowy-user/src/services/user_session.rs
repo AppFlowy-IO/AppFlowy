@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
@@ -104,8 +104,11 @@ impl UserSession {
     self.database.get_pool(uid)
   }
 
-  pub fn get_collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
-    self.database.get_collab_db(uid)
+  pub fn get_collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
+    self
+      .database
+      .get_collab_db(uid)
+      .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
   pub async fn migrate_old_user_data(

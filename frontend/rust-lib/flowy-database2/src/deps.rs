@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 pub use appflowy_integrate::CollabType;
 use appflowy_integrate::RocksCollabDB;
@@ -11,7 +11,7 @@ use lib_infra::future::FutureResult;
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
 
 /// A trait for database cloud service.

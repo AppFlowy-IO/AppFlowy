@@ -17,8 +17,13 @@ const _dialogHorizontalPadding = EdgeInsets.symmetric(horizontal: 12);
 const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 
 class SettingsDialog extends StatelessWidget {
+  final VoidCallback dismissDialog;
   final UserProfilePB user;
-  SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsDialog(
+    this.user, {
+    required this.dismissDialog,
+    Key? key,
+  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +90,11 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.files:
         return const SettingsFileSystemView();
       case SettingsPage.user:
-        return SettingsUserView(user);
+        return SettingsUserView(
+          user,
+          didLogin: () => dismissDialog(),
+          didLogout: () => dismissDialog(),
+        );
       case SettingsPage.supabaseSetting:
         return const SupabaseSettingView();
       default:
