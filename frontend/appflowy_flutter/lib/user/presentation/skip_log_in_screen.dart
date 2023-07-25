@@ -184,6 +184,7 @@ class SubscribeButtons extends StatelessWidget {
             ),
             FlowyTextButton(
               LocaleKeys.githubStarText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               fontWeight: FontWeight.w500,
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
@@ -204,6 +205,7 @@ class SubscribeButtons extends StatelessWidget {
             ),
             FlowyTextButton(
               LocaleKeys.subscribeNewsletterText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
               fontWeight: FontWeight.w500,
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
