@@ -48,3 +48,18 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   @apply text-text-placeholder;
   opacity: 1 !important;
 }
+
+.sketch-picker {
+    background-color: var(--bg-body) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+.sketch-picker .flexbox-fix {
+    border-color: var(--line-divider) !important;
+}
+.sketch-picker [id^='rc-editable-input'] {
+    background-color: var(--bg-body) !important;
+    border-color: var(--line-divider) !important;
+    color: var(--text-title) !important;
+    box-shadow: var(--line-border) 0px 0px 0px 1px inset !important;
+}
