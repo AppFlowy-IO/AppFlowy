@@ -106,6 +106,7 @@ dependencies:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
+  protocol_handler: ^0.1.5
 
 dev_dependencies:
   flutter_lints: ^2.0.1

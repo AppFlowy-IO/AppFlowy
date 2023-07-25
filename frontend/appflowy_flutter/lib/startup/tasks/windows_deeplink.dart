@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:url_protocol/url_protocol.dart';
+import 'package:protocol_handler/protocol_handler.dart';
 
 import '../startup.dart';
 
@@ -20,7 +20,6 @@ class WindowsDeepLink extends LaunchTask {
     }
 
     const deepLink = 'io.appflowy.appflowy-flutter';
-    unregisterProtocolHandler(deepLink);
-    registerProtocolHandler(deepLink);
+    await protocolHandler.register(deepLink);
   }
 }
