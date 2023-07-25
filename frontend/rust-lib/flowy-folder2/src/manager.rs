@@ -172,7 +172,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Arc<RocksCollabDB>,
+    collab_db: Weak<RocksCollabDB>,
     raw_data: CollabRawData,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self.collab_builder.build_with_config(

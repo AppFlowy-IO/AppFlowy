@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
@@ -53,9 +53,14 @@ impl DatabaseManager {
     }
   }
 
-  fn is_collab_exist(&self, uid: i64, collab_db: &Arc<RocksCollabDB>, object_id: &str) -> bool {
-    let read_txn = collab_db.read_txn();
-    read_txn.is_exist(uid, object_id)
+  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<RocksCollabDB>, object_id: &str) -> bool {
+    match collab_db.upgrade() {
+      None => false,
+      Some(collab_db) => {
+        let read_txn = collab_db.read_txn();
+        read_txn.is_exist(uid, object_id)
+      },
+    }
   }
 
   pub async fn initialize(
@@ -409,7 +414,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_db: Arc<RocksCollabDB>,
+    collab_db: Weak<RocksCollabDB>,
     collab_raw_data: CollabRawData,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {

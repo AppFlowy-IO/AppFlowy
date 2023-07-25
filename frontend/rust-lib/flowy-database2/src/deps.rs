@@ -1,4 +1,4 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
 pub use appflowy_integrate::CollabType;
 use appflowy_integrate::RocksCollabDB;

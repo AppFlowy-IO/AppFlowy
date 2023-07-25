@@ -38,12 +38,12 @@ impl Deref for DocumentTest {
 }
 
 pub struct FakeUser {
-  kv: Arc<RocksCollabDB>,
+  collab_db: Arc<RocksCollabDB>,
 }
 
 impl FakeUser {
   pub fn new() -> Self {
-    Self { kv: db() }
+    Self { collab_db: db() }
   }
 }
 
@@ -56,8 +56,11 @@ impl DocumentUser for FakeUser {
     Ok(None)
   }
 
-  fn collab_db(&self, _uid: i64) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
-    Ok(self.kv.clone())
+  fn collab_db(
+    &self,
+    _uid: i64,
+  ) -> Result<std::sync::Weak<RocksCollabDB>, flowy_error::FlowyError> {
+    Ok(Arc::downgrade(&self.collab_db))
   }
 }
 

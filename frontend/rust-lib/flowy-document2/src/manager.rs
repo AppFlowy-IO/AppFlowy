@@ -120,12 +120,13 @@ impl DocumentManager {
 
   pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let _ = db.with_write_txn(|txn| {
-      txn.delete_doc(uid, &doc_id)?;
-      Ok(())
-    });
-    self.documents.write().remove(doc_id);
+    if let Some(db) = self.user.collab_db(uid)?.upgrade() {
+      let _ = db.with_write_txn(|txn| {
+        txn.delete_doc(uid, &doc_id)?;
+        Ok(())
+      });
+      self.documents.write().remove(doc_id);
+    }
     Ok(())
   }
 
@@ -167,9 +168,12 @@ impl DocumentManager {
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let read_txn = db.read_txn();
-    Ok(read_txn.is_exist(uid, doc_id))
+    if let Some(collab_db) = self.user.collab_db(uid)?.upgrade() {
+      let read_txn = collab_db.read_txn();
+      Ok(read_txn.is_exist(uid, doc_id))
+    } else {
+      Ok(false)
+    }
   }
 
   /// Only expose this method for testing
