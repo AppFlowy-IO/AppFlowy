@@ -1,7 +1,7 @@
 pub use server::*;
 
+pub mod collab_storage_impls;
 mod entities;
-pub mod impls;
 mod postgres_db;
 mod sql_builder;
 // mod postgres_http;

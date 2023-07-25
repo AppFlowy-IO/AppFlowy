@@ -17,7 +17,7 @@ use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfig
 use flowy_user::event_map::UserService;
 use lib_infra::async_trait::async_trait;
 
-use crate::supabase::impls::{
+use crate::supabase::collab_storage_impls::pooler::{
   PgCollabStorageImpl, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
   SupabaseFolderCloudServiceImpl, SupabaseUserAuthServiceImpl,
 };
@@ -28,12 +28,12 @@ use crate::supabase::queue::{
 use crate::AppFlowyServer;
 
 /// https://www.pgbouncer.org/features.html
-/// Both session and transaction modes are supported.
+/// Only support session mode.
 ///
 /// Session mode:
 /// When a new client connects, a connection is assigned to the client until it disconnects. Afterward,
 /// the connection is returned back to the pool. All PostgreSQL features can be used with this option.
-/// For the moment, the default pool size of pgbouncer in supabse is 15 in session mode. Which means
+/// For the moment, the default pool size of pgbouncer in supabase is 15 in session mode. Which means
 /// that we can have 15 concurrent connections to the database.
 ///
 /// Transaction mode:
@@ -46,16 +46,18 @@ use crate::AppFlowyServer;
 /// Most of the case, Session mode is faster than Transaction mode(no statement cache(https://github.com/supabase/supavisor/issues/69) and queue transaction).
 /// But Transaction mode is more suitable for serverless functions. It can reduce the number of concurrent
 /// connections to the database.
+/// TODO(nathan): fix prepared statement error when using transaction mode. https://github.com/prisma/prisma/issues/11643
+///
 #[derive(Clone, Debug, Default)]
-pub enum PgConnectMode {
+pub enum PgPoolMode {
   #[default]
   Session,
   Transaction,
 }
 
-impl PgConnectMode {
+impl PgPoolMode {
   pub fn support_prepare_cached(&self) -> bool {
-    matches!(self, PgConnectMode::Session)
+    matches!(self, PgPoolMode::Session)
   }
 }
 /// Supabase server is used to provide the implementation of the [AppFlowyServer] trait.
@@ -63,13 +65,13 @@ impl PgConnectMode {
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  mode: PgConnectMode,
+  mode: PgPoolMode,
   postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
-    let mode = PgConnectMode::default();
+    let mode = PgPoolMode::default();
     tracing::info!("postgre db connect mode: {:?}", mode);
     let postgres = if config.enable_sync {
       Some(Arc::new(PostgresServer::new(
@@ -144,7 +146,7 @@ impl AppFlowyServer for SupabaseServer {
 /// For example, when user stop syncing, the services will be unavailable or when the user is logged
 /// out.
 pub trait SupabaseServerService: Send + Sync + 'static {
-  fn get_pg_mode(&self) -> PgConnectMode;
+  fn get_pg_mode(&self) -> PgPoolMode;
 
   fn get_pg_server(&self) -> Option<Weak<PostgresServer>>;
 
@@ -154,7 +156,7 @@ pub trait SupabaseServerService: Send + Sync + 'static {
 #[derive(Clone)]
 pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<PostgresServer>>>>);
 impl SupabaseServerService for SupabaseServerServiceImpl {
-  fn get_pg_mode(&self) -> PgConnectMode {
+  fn get_pg_mode(&self) -> PgPoolMode {
     self
       .0
       .read()
@@ -180,7 +182,7 @@ impl SupabaseServerService for SupabaseServerServiceImpl {
 }
 
 pub struct PostgresServer {
-  mode: PgConnectMode,
+  mode: PgPoolMode,
   request_handler: Arc<PostgresRequestHandler>,
 }
 
@@ -193,7 +195,7 @@ impl Deref for PostgresServer {
 }
 
 impl PostgresServer {
-  pub fn new(mode: PgConnectMode, config: PostgresConfiguration) -> Self {
+  pub fn new(mode: PgPoolMode, config: PostgresConfiguration) -> Self {
     let (runner_notifier_tx, runner_notifier) = watch::channel(false);
     let request_handler = Arc::new(PostgresRequestHandler::new(runner_notifier_tx, config));
 

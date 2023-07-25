@@ -12,7 +12,7 @@ use flowy_server_config::supabase_config::PostgresConfiguration;
 
 use crate::supabase::migration::run_migrations;
 use crate::supabase::queue::RequestPayload;
-use crate::supabase::PgConnectMode;
+use crate::supabase::PgPoolMode;
 
 pub type PostgresObject = Object;
 pub struct PostgresDB {
@@ -29,7 +29,6 @@ impl PostgresDB {
 
   pub async fn new(configuration: PostgresConfiguration) -> Result<Self, anyhow::Error> {
     // https://supabase.com/docs/guides/database/connecting-to-postgres
-    tracing::trace!("pg config: {:?}", configuration);
     let mut pg_config = tokio_postgres::Config::new();
     pg_config
       .host(&configuration.url)
@@ -43,7 +42,7 @@ impl PostgresDB {
 
     // Using the https://docs.rs/postgres-openssl/latest/postgres_openssl/ to enable tls connection.
     let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
-    let pool = Pool::builder(mgr).max_size(1).build()?;
+    let pool = Pool::builder(mgr).max_size(15).build()?;
     let mut client = pool.get().await?;
     // Run migrations
     run_migrations(&mut client).await?;
@@ -56,7 +55,7 @@ impl PostgresDB {
 }
 
 pub async fn prepare_cached<C: GenericClient>(
-  mode: &PgConnectMode,
+  mode: &PgPoolMode,
   stmt: String,
   client: &C,
 ) -> Result<Box<dyn ToStatement + Sync + Send>, Error> {

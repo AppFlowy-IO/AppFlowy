@@ -7,7 +7,8 @@ use flowy_database2::deps::{
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::impls::{
+use crate::supabase::collab_storage_impls::pooler::util::execute_async;
+use crate::supabase::collab_storage_impls::pooler::{
   get_latest_snapshot_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
 };
 use crate::supabase::SupabaseServerService;
@@ -83,34 +84,22 @@ where
     &self,
     object_id: &str,
   ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
-    let pg_mode = self.server.get_pg_mode();
-    let weak_server = self.server.get_pg_server();
-    let (tx, rx) = channel();
     let object_id = object_id.to_string();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          match weak_server {
-            None => Ok(None),
-            Some(weak_server) => get_latest_snapshot_from_server(&object_id, pg_mode, weak_server)
-              .await
-              .map_err(internal_error),
-          }
-        }
-        .await,
-      )
+    let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
+      Box::pin(async move {
+        get_latest_snapshot_from_server(&object_id, pg_mode, &mut pg_client)
+          .await
+          .map_err(internal_error)
+      })
     });
-    FutureResult::new(async {
-      Ok(
-        rx.await
-          .map_err(internal_error)??
-          .map(|snapshot| DatabaseSnapshot {
-            snapshot_id: snapshot.snapshot_id,
-            database_id: snapshot.oid,
-            data: snapshot.data,
-            created_at: snapshot.created_at,
-          }),
-      )
+    FutureResult::new(async move {
+      let snapshot = fut.await?.map(|snapshot| DatabaseSnapshot {
+        snapshot_id: snapshot.snapshot_id,
+        database_id: snapshot.oid,
+        data: snapshot.data,
+        created_at: snapshot.created_at,
+      });
+      Ok(snapshot)
     })
   }
 }

@@ -7,7 +7,10 @@ use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::impls::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
+use crate::supabase::collab_storage_impls::pooler::util::execute_async;
+use crate::supabase::collab_storage_impls::pooler::{
+  get_latest_snapshot_from_server, FetchObjectUpdateAction,
+};
 use crate::supabase::SupabaseServerService;
 
 pub struct SupabaseDocumentCloudServiceImpl<T> {
@@ -52,39 +55,22 @@ where
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
-    let weak_server = self.server.get_pg_server();
-    let pg_mode = self.server.get_pg_mode();
-    let (tx, rx) = channel();
     let document_id = document_id.to_string();
-    tokio::spawn(async move {
-      tx.send(
-        async move {
-          match weak_server {
-            None => Ok(None),
-            Some(weak_server) => {
-              get_latest_snapshot_from_server(&document_id, pg_mode, weak_server)
-                .await
-                .map_err(internal_error)
-            },
-          }
-        }
-        .await,
-      )
+    let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
+      Box::pin(async move {
+        get_latest_snapshot_from_server(&document_id, pg_mode, &mut pg_client)
+          .await
+          .map_err(internal_error)
+      })
     });
-
-    FutureResult::new(async {
-      {
-        Ok(
-          rx.await
-            .map_err(internal_error)??
-            .map(|snapshot| DocumentSnapshot {
-              snapshot_id: snapshot.snapshot_id,
-              document_id: snapshot.oid,
-              data: snapshot.data,
-              created_at: snapshot.created_at,
-            }),
-        )
-      }
+    FutureResult::new(async move {
+      let snapshot = fut.await?.map(|snapshot| DocumentSnapshot {
+        snapshot_id: snapshot.snapshot_id,
+        document_id: snapshot.oid,
+        data: snapshot.data,
+        created_at: snapshot.created_at,
+      });
+      Ok(snapshot)
     })
   }
 

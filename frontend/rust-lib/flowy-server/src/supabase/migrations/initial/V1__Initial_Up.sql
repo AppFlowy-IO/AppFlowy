@@ -167,11 +167,10 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    workspace_id UUID NOT NULL,
    PRIMARY KEY (oid, key, partition_key)
 ) PARTITION BY LIST (partition_key);
-CREATE TABLE af_collab_update_0 PARTITION OF af_collab_update FOR VALUES IN (0);
-CREATE TABLE af_collab_update_1 PARTITION OF af_collab_update FOR VALUES IN (1);
-CREATE TABLE af_collab_update_2 PARTITION OF af_collab_update FOR VALUES IN (2);
-CREATE TABLE af_collab_update_3 PARTITION OF af_collab_update FOR VALUES IN (3);
-CREATE TABLE af_collab_update_4 PARTITION OF af_collab_update FOR VALUES IN (4);
+CREATE TABLE af_collab_update_document PARTITION OF af_collab_update FOR VALUES IN (0);
+CREATE TABLE af_collab_update_database PARTITION OF af_collab_update FOR VALUES IN (1);
+CREATE TABLE af_collab_update_w_database PARTITION OF af_collab_update FOR VALUES IN (2);
+CREATE TABLE af_collab_update_folder PARTITION OF af_collab_update FOR VALUES IN (3);
 -- Used to store the rows of the database
 CREATE TABLE IF NOT EXISTS af_database_row_update (
    oid TEXT,
@@ -204,7 +203,7 @@ CREATE TRIGGER update_af_workspace_member_updated_at_trigger
 AFTER
 INSERT
    OR
-UPDATE ON af_collab_update FOR EACH ROW EXECUTE PROCEDURE update_af_workspace_member_updated_at_func();
+UPDATE ON af_collab_update_folder FOR EACH ROW EXECUTE PROCEDURE update_af_workspace_member_updated_at_func();
 -- This trigger is fired before an insert operation on the af_collab_update table. It checks if a corresponding collab
 -- exists in the af_collab table. If not, it creates one with the oid, uid, and current timestamp. It might cause a
 -- performance issue if the af_collab_update table is updated very frequently, especially if the af_collab table is large
@@ -225,7 +224,6 @@ END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
--- af_collab_update
 CREATE TRIGGER insert_into_af_collab_trigger BEFORE
 INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION insert_into_af_collab_if_not_exists();
 CREATE TABLE af_collab_member (

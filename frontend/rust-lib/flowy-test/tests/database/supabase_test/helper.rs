@@ -2,7 +2,6 @@ use std::ops::Deref;
 
 use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
-use collab::core::collab_plugin::CollabPluginType;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};

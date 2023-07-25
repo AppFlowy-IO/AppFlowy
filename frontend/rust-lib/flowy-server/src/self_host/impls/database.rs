@@ -11,8 +11,8 @@ pub(crate) struct SelfHostedDatabaseCloudServiceImpl();
 impl DatabaseCloudService for SelfHostedDatabaseCloudServiceImpl {
   fn get_collab_update(
     &self,
-    object_id: &str,
-    object_ty: CollabType,
+    _object_id: &str,
+    _object_ty: CollabType,
   ) -> FutureResult<CollabObjectUpdate, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
