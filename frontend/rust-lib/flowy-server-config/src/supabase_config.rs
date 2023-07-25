@@ -13,18 +13,19 @@ pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
 pub const SUPABASE_DB_PASSWORD: &str = "SUPABASE_DB_PASSWORD";
 pub const SUPABASE_DB_PORT: &str = "SUPABASE_DB_PORT";
 
+/// The configuration for the postgres database. It supports deserializing from the json string that
+/// passed from the frontend application. [AppFlowyEnv::parser]
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SupabaseConfiguration {
   /// The url of the supabase server.
   pub url: String,
-
   /// The key of the supabase server.
   pub key: String,
   /// The secret used to sign the JWT tokens.
   pub jwt_secret: String,
-
+  /// Whether to enable the supabase sync.
+  /// User can disable it by injecting the environment variable ENABLE_SUPABASE_SYNC=false
   pub enable_sync: bool,
-
   pub postgres_config: PostgresConfiguration,
 }
 
@@ -51,6 +52,7 @@ impl SupabaseConfiguration {
     })
   }
 
+  /// Write the configuration to the environment variables.
   pub fn write_env(&self) {
     if self.enable_sync {
       std::env::set_var(ENABLE_SUPABASE_SYNC, "true");

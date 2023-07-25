@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Formatter};
+use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Error;
@@ -15,12 +16,12 @@ use crate::supabase::queue::RequestPayload;
 use crate::supabase::PgPoolMode;
 
 pub type PostgresObject = Object;
-pub struct PostgresDB {
+pub struct PostgresPool {
   pub configuration: PostgresConfiguration,
-  pub client: Arc<Pool>,
+  inner: Arc<Pool>,
 }
 
-impl PostgresDB {
+impl PostgresPool {
   #[allow(dead_code)]
   pub async fn from_env() -> Result<Self, anyhow::Error> {
     let configuration = PostgresConfiguration::from_env()?;
@@ -49,8 +50,16 @@ impl PostgresDB {
 
     Ok(Self {
       configuration,
-      client: Arc::new(pool),
+      inner: Arc::new(pool),
     })
+  }
+}
+
+impl Deref for PostgresPool {
+  type Target = Arc<Pool>;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
   }
 }
 

@@ -24,11 +24,14 @@ use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
-use crate::supabase::sql_builder::{
+use crate::supabase::collab_storage_impls::pooler::postgres_server::{
+  PostgresServer, SupabaseServerService,
+};
+use crate::supabase::collab_storage_impls::pooler::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
-use crate::supabase::{PgPoolMode, PostgresServer, SupabaseServerService};
+use crate::supabase::collab_storage_impls::pooler::{prepare_cached, PostgresObject};
+use crate::supabase::PgPoolMode;
 
 pub struct PgCollabStorageImpl<T> {
   server: T,

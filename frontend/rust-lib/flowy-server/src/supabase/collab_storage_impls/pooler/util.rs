@@ -3,11 +3,12 @@ use std::sync::{Arc, Weak};
 use futures_util::future::BoxFuture;
 use tokio::sync::oneshot::channel;
 
+use crate::supabase::collab_storage_impls::pooler::{
+  PostgresObject, PostgresServer, SupabaseServerService,
+};
+use crate::supabase::PgPoolMode;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
-
-use crate::supabase::postgres_db::PostgresObject;
-use crate::supabase::{PgPoolMode, PostgresServer, SupabaseServerService};
 
 pub fn try_upgrade_server(
   weak_server: FlowyResult<Weak<PostgresServer>>,

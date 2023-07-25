@@ -10,13 +10,16 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
+use crate::supabase::collab_storage_impls::pooler::postgres_server::SupabaseServerService;
+use crate::supabase::collab_storage_impls::pooler::sql_builder::{
+  InsertSqlBuilder, SelectSqlBuilder,
+};
 use crate::supabase::collab_storage_impls::pooler::util::execute_async;
 use crate::supabase::collab_storage_impls::pooler::{
-  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
+  get_latest_snapshot_from_server, get_updates_from_server, prepare_cached,
+  FetchObjectUpdateAction, PostgresObject,
 };
-use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
-use crate::supabase::sql_builder::{InsertSqlBuilder, SelectSqlBuilder};
-use crate::supabase::{PgPoolMode, SupabaseServerService};
+use crate::supabase::PgPoolMode;
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
 pub(crate) const LATEST_WORKSPACE_ID: &str = "latest_workspace_id";
@@ -216,50 +219,5 @@ async fn create_workspace(
       ErrorCode::PgDatabaseError,
       "Create workspace failed",
     ))
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use std::collections::HashMap;
-  use std::sync::Arc;
-
-  use parking_lot::RwLock;
-  use uuid::Uuid;
-
-  use flowy_folder2::deps::FolderCloudService;
-  use flowy_server_config::supabase_config::PostgresConfiguration;
-  use flowy_user::event_map::UserService;
-  use lib_infra::box_any::BoxAny;
-
-  use crate::supabase::collab_storage_impls::pooler::folder::SupabaseFolderCloudServiceImpl;
-  use crate::supabase::collab_storage_impls::pooler::SupabaseUserAuthServiceImpl;
-  use crate::supabase::{PgPoolMode, PostgresServer, SupabaseServerServiceImpl};
-
-  #[tokio::test]
-  async fn create_user_workspace() {
-    if dotenv::from_filename("./.env.workspace.test").is_err() {
-      return;
-    }
-    let server = Arc::new(PostgresServer::new(
-      PgPoolMode::default(),
-      PostgresConfiguration::from_env().unwrap(),
-    ));
-    let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server.clone()))));
-    let user_service = SupabaseUserAuthServiceImpl::new(weak_server.clone());
-
-    // create user
-    let mut params = HashMap::new();
-    params.insert("uuid".to_string(), Uuid::new_v4().to_string());
-    let user = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-
-    // create workspace
-    let folder_service = SupabaseFolderCloudServiceImpl::new(weak_server);
-    let workspace = folder_service
-      .create_workspace(user.user_id, "my test workspace")
-      .await
-      .unwrap();
-
-    assert_eq!(workspace.name, "my test workspace");
   }
 }

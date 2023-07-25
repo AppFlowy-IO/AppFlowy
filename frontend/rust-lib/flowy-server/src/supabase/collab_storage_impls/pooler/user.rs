@@ -15,11 +15,15 @@ use flowy_user::services::{third_party_params_from_box_any, AuthType};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::supabase::collab_storage_impls::pooler::sql_builder::{
+  SelectSqlBuilder, UpdateSqlBuilder,
+};
 use crate::supabase::collab_storage_impls::pooler::util::execute_async;
+use crate::supabase::collab_storage_impls::pooler::{
+  prepare_cached, PostgresObject, SupabaseServerService,
+};
 use crate::supabase::entities::{GetUserProfileParams, UserProfileResponse};
-use crate::supabase::postgres_db::{prepare_cached, PostgresObject};
-use crate::supabase::sql_builder::{SelectSqlBuilder, UpdateSqlBuilder};
-use crate::supabase::{PgPoolMode, SupabaseServerService};
+use crate::supabase::PgPoolMode;
 
 pub(crate) const USER_TABLE: &str = "af_user";
 pub(crate) const USER_PROFILE_VIEW: &str = "af_user_profile_view";
@@ -372,7 +376,6 @@ async fn check_user(
       .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
   );
   pin_mut!(rows);
-
   // TODO(nathan): would it be better to use token.
   if rows.next().await.is_some() {
     Ok(())
