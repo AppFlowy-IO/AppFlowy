@@ -145,3 +145,59 @@ roles <-- collab_member : FK
 
 
 @enduml
+
+@startuml
+title Triggers in Database Schema
+
+participant "af_user" as A
+participant "af_workspace" as B
+participant "af_workspace_member" as C
+participant "af_collab" as D
+participant "af_collab_update" as E
+participant "af_collab_member" as F
+participant "af_collab_statistics" as G
+participant "af_collab_snapshot" as H
+
+A -> B: create_af_workspace_trigger
+note right
+This trigger fires after an insert on af_user. It automatically creates a workspace
+with the uid of the new user as the owner_uid.
+end note
+
+B -> C: manage_af_workspace_member_role_trigger
+note right
+This trigger fires after an insert on af_workspace. It automatically
+creates a workspace member in the af_workspace_member table with the
+role 'Owner'.
+end note
+
+E -> D: insert_into_af_collab_trigger
+note right
+This trigger fires before an insert on af_collab_update.
+It checks if a corresponding collab exists in the af_collab table.
+If not, it creates one with the oid, uid, and current timestamp.
+end note
+
+D -> F: insert_into_af_collab_member_trigger
+note right
+This trigger fires after an insert on af_collab.
+It automatically adds the collab's owner to the af_collab_member
+table with the role 'Owner'.
+end note
+
+E -> G: af_collab_update_edit_count_trigger
+note right
+ This trigger fires after an insert on af_collab_update.
+ It increments the edit_count of the corresponding collab in
+ the af_collab_statistics table.
+end note
+
+H -> G: af_collab_snapshot_update_edit_count_trigger
+note right
+ This trigger fires after an insert on af_collab_snapshot.
+ It sets the edit_count of the new snapshot to the current
+ edit_count of the collab in the af_collab_statistics table.
+end note
+
+@enduml
+
