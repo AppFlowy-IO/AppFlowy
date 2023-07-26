@@ -14,15 +14,38 @@ use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
 use flowy_user::event_map::{UserCredentials, UserService};
 use lib_infra::box_any::BoxAny;
 
-use crate::setup_log;
+use crate::supabase_test::util::get_supabase_config;
+
+enum Mode {
+  RESTfulAPI,
+  // The pooler mode will be deprecated soon
+  Pooler,
+}
+
+fn user_auth_service() -> Arc<dyn UserService> {
+  let mode = Mode::Pooler;
+  match mode {
+    Mode::RESTfulAPI => {
+      todo!()
+    },
+    Mode::Pooler => {
+      let server = Arc::new(PostgresServer::new(
+        PgPoolMode::Transaction,
+        PostgresConfiguration::from_env().unwrap(),
+      ));
+      let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server))));
+      Arc::new(SupabaseUserAuthServiceImpl::new(weak_server))
+    },
+  }
+}
 
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
-async fn user_sign_up_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_user_sign_up_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
+  let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
@@ -31,21 +54,12 @@ async fn user_sign_up_test() {
   assert!(!user.latest_workspace.database_storage_id.is_empty());
 }
 
-fn user_auth_service_impl() -> SupabaseUserAuthServiceImpl<SupabaseServerServiceImpl> {
-  let server = Arc::new(PostgresServer::new(
-    PgPoolMode::Transaction,
-    PostgresConfiguration::from_env().unwrap(),
-  ));
-  let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server))));
-  SupabaseUserAuthServiceImpl::new(weak_server)
-}
-
 #[tokio::test]
-async fn user_sign_up_with_existing_uuid_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_user_sign_up_with_existing_uuid_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
+  let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = sign_up_param(uuid);
   let _user: SignUpResponse = user_service
@@ -59,11 +73,11 @@ async fn user_sign_up_with_existing_uuid_test() {
 }
 
 #[tokio::test]
-async fn update_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_update_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
+  let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service
@@ -97,12 +111,11 @@ async fn update_user_profile_test() {
 }
 
 #[tokio::test]
-async fn get_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_get_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  setup_log();
-  let user_service = user_auth_service_impl();
+  let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service
@@ -111,41 +124,20 @@ async fn get_user_profile_test() {
     .unwrap();
 
   let credential = UserCredentials::from_uid(user.user_id);
-
   user_service
     .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential)
     .await
     .unwrap()
     .unwrap();
 }
 
 #[tokio::test]
-async fn get_not_exist_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_get_not_exist_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  setup_log();
-  let user_service = user_auth_service_impl();
+
+  let user_service = user_auth_service();
   let result = user_service
     .get_user_profile(UserCredentials::from_uid(i64::MAX))
     .await

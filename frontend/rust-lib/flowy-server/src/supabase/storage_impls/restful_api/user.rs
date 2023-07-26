@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use postgrest::Postgrest;
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{internal_error, ErrorCode, FlowyError};
 use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
 use flowy_user::services::third_party_params_from_box_any;
@@ -38,7 +38,12 @@ impl UserService for SLSupabaseUserAuthServiceImpl {
         let insert = InsertParamsBuilder::new()
           .insert(USER_UUID, params.uuid.to_string())
           .build();
-        let _response = postgrest.from(USER_TABLE).insert(insert).execute().await?;
+        let _response = postgrest
+          .from(USER_TABLE)
+          .insert(insert)
+          .execute()
+          .await
+          .map_err(internal_error)?;
       }
       todo!()
     })
