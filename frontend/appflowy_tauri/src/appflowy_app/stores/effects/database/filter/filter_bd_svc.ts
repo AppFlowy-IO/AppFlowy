@@ -4,7 +4,7 @@ import {
   DatabaseViewIdPB,
   DeleteFilterPayloadPB,
   FieldType,
-  FilterInfo,
+  FilterPB,
   FlowyError,
   SelectOptionFilterPB,
   TextFilterPB,
@@ -97,7 +97,7 @@ export class FilterParsed {
   field_type: FieldType;
   data: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB | Uint8Array;
 
-  constructor(view_id: string, filter: FilterInfo) {
+  constructor(view_id: string, filter: FilterPB) {
     this.view_id = view_id;
 
     this.id = filter.id;

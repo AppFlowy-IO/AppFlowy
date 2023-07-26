@@ -37,7 +37,7 @@ export const GridTableRow = ({
             className={`group flex cursor-pointer items-stretch border-b border-line-divider `}
           >
             {cells
-              .filter((cell) => fields[cell.fieldId].visible)
+              .filter((cell) => fields[cell.fieldId]?.visible)
               .map((cell, cellIndex) => {
                 return (
                   <div className={`relative flex flex-shrink-0 `} key={cellIndex} draggable={false}>
