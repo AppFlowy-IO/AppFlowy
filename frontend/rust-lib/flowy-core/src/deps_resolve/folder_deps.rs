@@ -15,14 +15,14 @@ use flowy_document2::entities::DocumentDataPB;
 use flowy_document2::manager::DocumentManager;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder2::deps::{FolderCloudService, FolderUser};
 use flowy_folder2::entities::ViewLayoutPB;
-use flowy_folder2::manager::FolderManager;
+use flowy_folder2::manager::{FolderManager, FolderUser};
 use flowy_folder2::share::ImportType;
 use flowy_folder2::view_operation::{
   FolderOperationHandler, FolderOperationHandlers, View, WorkspaceViewBuilder,
 };
 use flowy_folder2::ViewLayout;
+use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;

@@ -1,5 +1,6 @@
 use collab_plugins::cloud_storage::CollabType;
-use flowy_database2::deps::{
+
+use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
 use flowy_error::FlowyError;

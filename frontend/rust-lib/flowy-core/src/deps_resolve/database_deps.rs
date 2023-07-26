@@ -4,8 +4,8 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
-use flowy_database2::deps::{DatabaseCloudService, DatabaseUser};
-use flowy_database2::DatabaseManager;
+use flowy_database2::{DatabaseManager, DatabaseUser};
+use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;

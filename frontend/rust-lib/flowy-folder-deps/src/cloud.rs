@@ -1,17 +1,7 @@
-use std::sync::Weak;
-
-use appflowy_integrate::RocksCollabDB;
-pub use collab_folder::core::{CollabOrigin, Folder, FolderData, Workspace};
+pub use collab_folder::core::{Folder, FolderData, Workspace};
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
-
-/// [FolderUser] represents the user for folder.
-pub trait FolderUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
-}
 
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
@@ -50,4 +40,8 @@ pub struct FolderSnapshot {
   pub database_id: String,
   pub data: Vec<u8>,
   pub created_at: i64,
+}
+
+pub fn gen_workspace_id() -> String {
+  uuid::Uuid::new_v4().to_string()
 }

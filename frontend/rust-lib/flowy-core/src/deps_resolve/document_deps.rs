@@ -4,8 +4,8 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 
 use flowy_database2::DatabaseManager;
-use flowy_document2::deps::{DocumentCloudService, DocumentUser};
-use flowy_document2::manager::DocumentManager;
+use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_user::services::UserSession;
 

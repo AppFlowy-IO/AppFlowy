@@ -9,10 +9,10 @@ use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot, DocumentUser};
 use flowy_document2::document::MutexDocument;
 use flowy_document2::document_data::default_document_data;
-use flowy_document2::manager::DocumentManager;
+use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 

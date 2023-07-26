@@ -1,6 +1,7 @@
 use flowy_error::FlowyError;
-use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
-use flowy_folder2::gen_workspace_id;
+use flowy_folder_deps::cloud::{
+  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+};
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 

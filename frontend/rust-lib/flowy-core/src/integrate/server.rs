@@ -6,12 +6,11 @@ use appflowy_integrate::{CollabType, RemoteCollabStorage};
 use parking_lot::RwLock;
 use serde_repr::*;
 
-use flowy_database2::deps::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
-use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
+use flowy_database_deps::cloud::*;
+use flowy_document2::deps::DocumentData;
+use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::*;
 use flowy_server::local_server::LocalServer;
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;

@@ -14,10 +14,10 @@ use collab_database::user::{
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use tokio::sync::RwLock;
 
+use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
 
-use crate::deps::{DatabaseCloudService, DatabaseUser};
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
   RepeatedDatabaseDescriptionPB,
@@ -26,6 +26,12 @@ use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
+
+pub trait DatabaseUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+}
 
 pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,

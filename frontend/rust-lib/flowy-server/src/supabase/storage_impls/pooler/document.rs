@@ -1,9 +1,10 @@
 use collab::core::origin::CollabOrigin;
+use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
+use flowy_document_deps::cloud::*;
 use flowy_error::{internal_error, FlowyError};
 use lib_infra::future::FutureResult;
 
@@ -93,7 +94,8 @@ where
               );
               action.run().await.map(|updates| {
                 let document =
-                  Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
+                  Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])
+                    .map_err(internal_error)?;
                 Ok(document.get_document_data().ok())
               })
             },

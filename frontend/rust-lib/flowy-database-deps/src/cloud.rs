@@ -1,18 +1,12 @@
-use std::sync::Weak;
+use std::collections::HashMap;
 
-pub use appflowy_integrate::CollabType;
-use appflowy_integrate::RocksCollabDB;
-pub use collab_database::user::CollabObjectUpdate;
-pub use collab_database::user::CollabObjectUpdateByOid;
+use collab_plugins::cloud_storage::CollabType;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
-pub trait DatabaseUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
-}
+pub type CollabObjectUpdateByOid = HashMap<String, CollabObjectUpdate>;
+pub type CollabObjectUpdate = Vec<Vec<u8>>;
 
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of

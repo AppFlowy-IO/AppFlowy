@@ -16,8 +16,8 @@ use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_deps::cloud::FolderCloudService;
 
-use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
@@ -32,6 +32,13 @@ use crate::user_default::DefaultFolderBuilder;
 use crate::view_operation::{
   create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
 };
+
+/// [FolderUser] represents the user for folder.
+pub trait FolderUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+}
 
 pub struct FolderManager {
   mutex_folder: Arc<MutexFolder>,

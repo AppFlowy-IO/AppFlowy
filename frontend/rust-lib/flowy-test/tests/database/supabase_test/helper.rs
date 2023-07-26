@@ -5,8 +5,8 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
+use collab_plugins::cloud_storage::CollabType;
 
-use flowy_database2::deps::CollabType;
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
 use flowy_folder2::entities::ViewPB;

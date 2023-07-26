@@ -5,10 +5,10 @@ use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
-use flowy_database2::deps::DatabaseCloudService;
-use flowy_document2::deps::DocumentCloudService;
+use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_folder2::deps::FolderCloudService;
+use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_user::entities::UserProfile;
 use flowy_user::event_map::{UserService, UserWorkspace};
 use flowy_user::services::database::{

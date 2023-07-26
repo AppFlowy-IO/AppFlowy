@@ -1,7 +1,7 @@
 use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_database2::deps::{
+use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
 use flowy_error::{internal_error, FlowyError};

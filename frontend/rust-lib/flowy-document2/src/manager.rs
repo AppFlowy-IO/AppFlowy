@@ -1,18 +1,25 @@
+use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::CollabType;
+use appflowy_integrate::{CollabType, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
+use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 
-use crate::deps::{DocumentCloudService, DocumentUser};
 use crate::entities::DocumentSnapshotPB;
 use crate::{document::MutexDocument, document_data::default_document_data};
+
+pub trait DocumentUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+}
 
 pub struct DocumentManager {
   user: Arc<dyn DocumentUser>,

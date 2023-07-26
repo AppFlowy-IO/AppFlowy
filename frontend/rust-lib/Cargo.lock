@@ -1630,7 +1630,6 @@ dependencies = [
 name = "flowy-config"
 version = "0.1.0"
 dependencies = [
- "appflowy-integrate",
  "bytes",
  "flowy-codegen",
  "flowy-derive",
@@ -1651,9 +1650,12 @@ dependencies = [
  "console-subscriber",
  "diesel",
  "flowy-config",
+ "flowy-database-deps",
  "flowy-database2",
+ "flowy-document-deps",
  "flowy-document2",
  "flowy-error",
+ "flowy-folder-deps",
  "flowy-folder2",
  "flowy-net",
  "flowy-server",
@@ -1676,6 +1678,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-database-deps"
+version = "0.1.0"
+dependencies = [
+ "collab-plugins",
+ "flowy-error",
+ "lib-infra",
+]
+
+[[package]]
 name = "flowy-database2"
 version = "0.1.0"
 dependencies = [
@@ -1692,6 +1703,7 @@ dependencies = [
  "dashmap",
  "fancy-regex 0.10.0",
  "flowy-codegen",
+ "flowy-database-deps",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
@@ -1734,6 +1746,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-document-deps"
+version = "0.1.0"
+dependencies = [
+ "collab-document",
+ "flowy-error",
+ "lib-infra",
+]
+
+[[package]]
 name = "flowy-document2"
 version = "0.1.0"
 dependencies = [
@@ -1744,6 +1765,7 @@ dependencies = [
  "collab-document",
  "flowy-codegen",
  "flowy-derive",
+ "flowy-document-deps",
  "flowy-error",
  "flowy-notification",
  "futures",
@@ -1788,6 +1810,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-folder-deps"
+version = "0.1.0"
+dependencies = [
+ "collab-folder",
+ "flowy-error",
+ "lib-infra",
+ "uuid",
+]
+
+[[package]]
 name = "flowy-folder2"
 version = "0.1.0"
 dependencies = [
@@ -1799,6 +1831,7 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",
+ "flowy-folder-deps",
  "flowy-folder2",
  "flowy-notification",
  "flowy-test",
@@ -1861,10 +1894,10 @@ dependencies = [
  "config",
  "deadpool-postgres",
  "dotenv",
- "flowy-database2",
- "flowy-document2",
+ "flowy-database-deps",
+ "flowy-document-deps",
  "flowy-error",
- "flowy-folder2",
+ "flowy-folder-deps",
  "flowy-server-config",
  "flowy-user",
  "futures",
@@ -1943,6 +1976,7 @@ dependencies = [
  "collab-database",
  "collab-document",
  "collab-folder",
+ "collab-plugins",
  "dotenv",
  "flowy-core",
  "flowy-database2",

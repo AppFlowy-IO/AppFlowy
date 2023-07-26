@@ -1,4 +1,4 @@
-use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
+use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 

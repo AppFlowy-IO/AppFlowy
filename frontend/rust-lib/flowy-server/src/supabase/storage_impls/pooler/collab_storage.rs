@@ -12,6 +12,7 @@ use collab_plugins::cloud_storage::{
   RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use deadpool_postgres::GenericClient;
+use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use futures::pin_mut;
 use futures_util::{StreamExt, TryStreamExt};
 use tokio::task::spawn_blocking;
@@ -20,7 +21,6 @@ use tokio_postgres::Row;
 use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Retry};
 
-use flowy_database2::deps::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 

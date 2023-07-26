@@ -1,9 +1,10 @@
-use collab_plugins::cloud_storage::RemoteCollabStorage;
 use std::sync::Arc;
 
-use flowy_database2::deps::DatabaseCloudService;
-use flowy_document2::deps::DocumentCloudService;
-use flowy_folder2::deps::FolderCloudService;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
+
+use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_user::event_map::UserService;
 
 use crate::self_host::configuration::SelfHostedConfiguration;
