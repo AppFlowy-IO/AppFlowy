@@ -11,6 +11,10 @@ export class FilterController {
     this.notifier = new FilterNotifier();
   }
 
+  initialize = async () => {
+    await this.readFilters();
+  };
+
   readFilters = async () => {
     const result = await this.filterService.getFilters();
 

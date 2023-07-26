@@ -94,6 +94,7 @@ export const DatabaseFilterItem = ({
       }
 
       onSave({
+        id: data?.id,
         logicalOperator: currentLogicalOperator,
         fieldId: currentFieldId,
         fieldType: currentFieldType,

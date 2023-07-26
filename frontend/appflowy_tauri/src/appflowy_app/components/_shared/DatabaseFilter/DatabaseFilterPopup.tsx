@@ -101,8 +101,8 @@ export const DatabaseFilterPopup = ({
     setShowBlankFilter(false);
   };
 
-  const onDeleteFilterItem = (filter: IDatabaseFilter | null) => {
-    if (!filter) return;
+  const onDeleteFilterItem = async (filter: IDatabaseFilter | null) => {
+    if (!filter || !filter.id || !filter.fieldId) return;
     // update global store
     // dispatch(databaseActions.removeFilter({ filter }));
 
@@ -111,12 +111,12 @@ export const DatabaseFilterPopup = ({
       setShowBlankFilter(true);
     }
 
+    await filterController.removeFilter(filter.fieldId, filter.fieldType, filter.id);
+
     // update local copy
     const index = filters.findIndex((f) => f?.fieldId === filter.fieldId);
 
-    if (index >= 0) {
-      setFilters([...filters.slice(0, index), ...filters.slice(index + 1)]);
-    }
+    setFilters([...filters.slice(0, index), ...filters.slice(index + 1)]);
   };
 
   // null row represents new filter

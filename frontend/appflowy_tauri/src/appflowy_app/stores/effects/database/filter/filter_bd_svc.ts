@@ -15,6 +15,7 @@ import {
   DatabaseEventUpdateDatabaseSetting,
 } from '@/services/backend/events/flowy-database2';
 import { Err, Ok, Result } from 'ts-results';
+import { nanoid } from 'nanoid';
 
 export class FilterBackendService {
   constructor(public readonly viewId: string) {}
@@ -44,6 +45,7 @@ export class FilterBackendService {
       DatabaseSettingChangesetPB.fromObject({
         view_id: this.viewId,
         update_filter: UpdateFilterPayloadPB.fromObject({
+          filter_id: nanoid(4),
           view_id: this.viewId,
           field_id: fieldId,
           field_type: fieldType,

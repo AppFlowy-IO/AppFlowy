@@ -62,6 +62,7 @@ export class DatabaseController {
 
       await this.databaseViewCache.initialize();
       await this.fieldController.initialize();
+      await this.filterController.initialize();
 
       // subscriptions
       await this.subscribeOnGroupsChanged();
