@@ -1,8 +1,7 @@
 use std::sync::Weak;
 
 use appflowy_integrate::RocksCollabDB;
-pub use collab_folder::core::FolderData;
-pub use collab_folder::core::Workspace;
+pub use collab_folder::core::{CollabOrigin, Folder, FolderData, Workspace};
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;

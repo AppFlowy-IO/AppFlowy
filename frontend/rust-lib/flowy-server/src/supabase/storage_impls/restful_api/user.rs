@@ -33,7 +33,6 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
         .from(USER_TABLE)
         .select("*")
         .eq("uuid", &params.uuid.to_string())
-        .single()
         .execute()
         .await
         .map_err(|e| FlowyError::new(ErrorCode::HttpError, e))?;

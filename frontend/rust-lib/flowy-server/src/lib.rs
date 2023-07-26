@@ -1,6 +1,5 @@
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use std::sync::Arc;
-
-use appflowy_integrate::RemoteCollabStorage;
 
 use flowy_database2::deps::DatabaseCloudService;
 use flowy_document2::deps::DocumentCloudService;

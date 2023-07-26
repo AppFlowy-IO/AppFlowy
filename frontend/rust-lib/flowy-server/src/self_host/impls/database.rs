@@ -1,5 +1,4 @@
-use appflowy_integrate::CollabType;
-
+use collab_plugins::cloud_storage::CollabType;
 use flowy_database2::deps::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };

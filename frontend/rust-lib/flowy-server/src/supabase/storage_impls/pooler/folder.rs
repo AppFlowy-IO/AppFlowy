@@ -1,13 +1,14 @@
-use appflowy_integrate::CollabType;
 use chrono::{DateTime, Utc};
-use collab_folder::core::{CollabOrigin, Folder};
+use collab_plugins::cloud_storage::CollabType;
 use deadpool_postgres::GenericClient;
 use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder2::deps::{
+  CollabOrigin, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::storage_impls::pooler::postgres_server::SupabaseServerService;

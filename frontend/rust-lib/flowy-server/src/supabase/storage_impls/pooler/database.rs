@@ -1,4 +1,4 @@
-use appflowy_integrate::CollabType;
+use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database2::deps::{

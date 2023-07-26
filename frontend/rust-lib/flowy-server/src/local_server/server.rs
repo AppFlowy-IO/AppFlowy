@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use appflowy_integrate::RemoteCollabStorage;
 use collab_document::YrsDocAction;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 

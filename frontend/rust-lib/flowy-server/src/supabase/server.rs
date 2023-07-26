@@ -1,6 +1,6 @@
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use std::sync::Arc;
 
-use appflowy_integrate::RemoteCollabStorage;
 use parking_lot::RwLock;
 
 use flowy_database2::deps::DatabaseCloudService;

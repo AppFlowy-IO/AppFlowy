@@ -26,7 +26,7 @@ enum Mode {
 }
 
 fn user_auth_service() -> Arc<dyn UserService> {
-  let mode = Mode::Pooler;
+  let mode = Mode::RESTfulAPI;
   match mode {
     Mode::RESTfulAPI => {
       let config = SupabaseConfiguration::from_env().unwrap();

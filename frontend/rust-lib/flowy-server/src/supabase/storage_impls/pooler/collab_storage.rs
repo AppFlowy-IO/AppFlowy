@@ -6,11 +6,11 @@ use std::sync::Weak;
 use std::time::Duration;
 
 use anyhow::Error;
-use appflowy_integrate::{
+use chrono::{DateTime, Utc};
+use collab_plugins::cloud_storage::{
   merge_updates_v1, CollabObject, CollabType, MsgId, RemoteCollabSnapshot, RemoteCollabState,
   RemoteCollabStorage, RemoteUpdateReceiver,
 };
-use chrono::{DateTime, Utc};
 use deadpool_postgres::GenericClient;
 use futures::pin_mut;
 use futures_util::{StreamExt, TryStreamExt};

@@ -1,6 +1,6 @@
-use appflowy_integrate::CollabType;
+use collab::core::origin::CollabOrigin;
 use collab_document::document::Document;
-use collab_folder::core::CollabOrigin;
+use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
