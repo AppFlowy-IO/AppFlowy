@@ -1663,6 +1663,7 @@ dependencies = [
  "flowy-sqlite",
  "flowy-task",
  "flowy-user",
+ "flowy-user-deps",
  "futures-core",
  "lib-dispatch",
  "lib-infra",
@@ -1899,7 +1900,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder-deps",
  "flowy-server-config",
- "flowy-user",
+ "flowy-user-deps",
  "futures",
  "futures-util",
  "hyper",
@@ -1987,6 +1988,7 @@ dependencies = [
  "flowy-server",
  "flowy-server-config",
  "flowy-user",
+ "flowy-user-deps",
  "futures-util",
  "lib-dispatch",
  "lib-infra",
@@ -2024,6 +2026,7 @@ dependencies = [
  "flowy-notification",
  "flowy-server-config",
  "flowy-sqlite",
+ "flowy-user-deps",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2046,6 +2049,19 @@ dependencies = [
  "unicode-segmentation",
  "uuid",
  "validator",
+]
+
+[[package]]
+name = "flowy-user-deps"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "flowy-error",
+ "lib-infra",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "uuid",
 ]
 
 [[package]]

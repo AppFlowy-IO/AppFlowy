@@ -7,7 +7,7 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::event_map::UserService;
+use flowy_user_deps::cloud::UserService;
 
 use crate::supabase::storage_impls::pooler::{
   PostgresServer, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,

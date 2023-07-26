@@ -13,9 +13,8 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, Database, ExpressionMethods,
 };
+use flowy_user_deps::entities::{UserProfile, UserWorkspace};
 
-use crate::entities::UserProfile;
-use crate::event_map::UserWorkspace;
 use crate::services::user_sql::UserTable;
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 

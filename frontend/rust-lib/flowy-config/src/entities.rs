@@ -1,5 +1,4 @@
 use flowy_derive::ProtoBuf;
-use flowy_error::FlowyError;
 
 #[derive(Default, ProtoBuf)]
 pub struct KeyValuePB {

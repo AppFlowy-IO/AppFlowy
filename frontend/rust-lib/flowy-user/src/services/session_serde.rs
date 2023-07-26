@@ -7,8 +7,7 @@ use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::entities::SignInResponse;
-use crate::event_map::UserWorkspace;
+use flowy_user_deps::entities::{SignInResponse, UserWorkspace};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {

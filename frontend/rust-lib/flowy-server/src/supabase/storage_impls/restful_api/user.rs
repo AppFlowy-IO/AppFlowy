@@ -3,9 +3,8 @@ use std::sync::Arc;
 use postgrest::Postgrest;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError};
-use flowy_user::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
-use flowy_user::services::third_party_params_from_box_any;
+use flowy_user_deps::cloud::*;
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 

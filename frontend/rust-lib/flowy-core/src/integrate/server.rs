@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::{CollabType, RemoteCollabStorage};
+use appflowy_integrate::{CollabType, RemoteCollabStorage, YrsDocAction};
 use parking_lot::RwLock;
 use serde_repr::*;
 
@@ -11,15 +11,19 @@ use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::*;
-use flowy_server::local_server::LocalServer;
+use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
-use flowy_user::event_map::{UserCloudServiceProvider, UserService};
-use flowy_user::services::AuthType;
+use flowy_user::event_map::UserCloudServiceProvider;
+use flowy_user::services::database::{
+  get_user_profile, get_user_workspace, open_collab_db, open_user_db,
+};
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
 use crate::AppFlowyCoreConfig;
@@ -77,7 +81,11 @@ impl AppFlowyServerProvider {
 
     let server = match provider_type {
       ServerProviderType::Local => {
-        let server = Arc::new(LocalServer::new(&self.config.storage_path));
+        let local_db = Arc::new(LocalServerDBImpl {
+          storage_path: self.config.storage_path.clone(),
+        });
+        let server = Arc::new(LocalServer::new(local_db));
+
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerProviderType::SelfHosted => {
@@ -368,5 +376,33 @@ fn current_server_provider() -> ServerProviderType {
   match KV::get_object::<ServerProviderType>(SERVER_PROVIDER_TYPE_KEY) {
     None => ServerProviderType::Local,
     Some(provider_type) => provider_type,
+  }
+}
+
+struct LocalServerDBImpl {
+  storage_path: String,
+}
+
+impl LocalServerDB for LocalServerDBImpl {
+  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError> {
+    let sqlite_db = open_user_db(&self.storage_path, uid)?;
+    let user_profile = get_user_profile(&sqlite_db, uid).ok();
+    Ok(user_profile)
+  }
+
+  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
+    let sqlite_db = open_user_db(&self.storage_path, uid)?;
+    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
+    Ok(user_workspace)
+  }
+
+  fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {
+    let collab_db = open_collab_db(&self.storage_path, uid)?;
+    let read_txn = collab_db.read_txn();
+    let updates = read_txn
+      .get_all_updates(uid, object_id)
+      .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
+
+    Ok(updates)
   }
 }

@@ -5,12 +5,12 @@ use std::{convert::TryInto, sync::Arc};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
+use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
-use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::services::{get_supabase_config, AuthType, UserSession};
+use crate::services::{get_supabase_config, UserSession};
 
 fn upgrade_session(session: AFPluginState<Weak<UserSession>>) -> FlowyResult<Arc<UserSession>> {
   let session = session

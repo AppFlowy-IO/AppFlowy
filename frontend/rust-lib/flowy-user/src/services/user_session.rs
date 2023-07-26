@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
 use serde::{Deserialize, Serialize};
-use serde_repr::*;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -14,17 +11,14 @@ use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::schema::{user_table, user_workspace_table};
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{kv::KV, query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
 
-use crate::entities::{
-  AuthTypePB, RepeatedUserWorkspacePB, SignInResponse, SignUpResponse, UpdateUserProfileParams,
-  UserProfile,
-};
+use crate::entities::{AuthTypePB, RepeatedUserWorkspacePB};
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
-  DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserCredentials,
-  UserStatusCallback, UserWorkspace,
+  DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
 };
 use crate::services::database::UserDB;
 use crate::services::session_serde::Session;
@@ -580,21 +574,6 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
 
-pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, FlowyError> {
-  let map: HashMap<String, String> = any.unbox_or_error()?;
-  let uuid = uuid_from_map(&map)?;
-  let email = map.get("email").cloned().unwrap_or_default();
-  Ok(ThirdPartyParams { uuid, email })
-}
-
-pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, FlowyError> {
-  let uuid = map
-    .get("uuid")
-    .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing uuid field"))?
-    .as_str();
-  Uuid::from_str(uuid).map_err(internal_error)
-}
-
 pub fn save_user_workspaces(
   pool: Arc<ConnectionPool>,
   user_workspaces: Vec<UserWorkspaceTable>,
@@ -627,30 +606,6 @@ pub fn save_user_workspaces(
   })
 }
 
-#[derive(Debug, Clone, Hash, Serialize_repr, Deserialize_repr, Eq, PartialEq)]
-#[repr(u8)]
-pub enum AuthType {
-  /// It's a local server, we do fake sign in default.
-  Local = 0,
-  /// Currently not supported. It will be supported in the future when the
-  /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  SelfHosted = 1,
-  /// It uses Supabase as the backend.
-  Supabase = 2,
-}
-
-impl AuthType {
-  pub fn is_local(&self) -> bool {
-    matches!(self, AuthType::Local)
-  }
-}
-
-impl Default for AuthType {
-  fn default() -> Self {
-    Self::Local
-  }
-}
-
 impl From<AuthTypePB> for AuthType {
   fn from(pb: AuthTypePB) -> Self {
     match pb {
@@ -669,22 +624,6 @@ impl From<AuthType> for AuthTypePB {
       AuthType::SelfHosted => AuthTypePB::SelfHosted,
     }
   }
-}
-
-impl From<i32> for AuthType {
-  fn from(value: i32) -> Self {
-    match value {
-      0 => AuthType::Local,
-      1 => AuthType::SelfHosted,
-      2 => AuthType::Supabase,
-      _ => AuthType::Local,
-    }
-  }
-}
-
-pub struct ThirdPartyParams {
-  pub uuid: Uuid,
-  pub email: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

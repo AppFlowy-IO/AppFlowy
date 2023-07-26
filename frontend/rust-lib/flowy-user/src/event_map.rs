@@ -1,20 +1,17 @@
 use std::sync::{Arc, Weak};
 
-use chrono::{DateTime, Utc};
 use collab_folder::core::FolderData;
-use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
-use lib_infra::box_any::BoxAny;
-use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::future::{to_fut, Fut};
 
-use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
-use crate::services::AuthType;
 use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
@@ -53,25 +50,6 @@ pub struct SignUpContext {
   /// If the user is sign in as guest, and the is_new is true, then the folder data will be not
   /// None.
   pub local_folder: Option<FolderData>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UserWorkspace {
-  pub id: String,
-  pub name: String,
-  pub created_at: DateTime<Utc>,
-  pub database_storage_id: String,
-}
-
-impl UserWorkspace {
-  pub fn new(workspace_id: &str, _uid: i64) -> Self {
-    Self {
-      id: workspace_id.to_string(),
-      name: "".to_string(),
-      created_at: Utc::now(),
-      database_storage_id: uuid::Uuid::new_v4().to_string(),
-    }
-  }
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
@@ -119,87 +97,6 @@ where
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
     (**self).get_user_service()
   }
-}
-
-#[derive(Clone, Debug)]
-pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is SelfHosted
-  pub token: Option<String>,
-
-  /// The user id
-  pub uid: Option<i64>,
-
-  /// The user id
-  pub uuid: Option<String>,
-}
-
-impl UserCredentials {
-  pub fn from_uid(uid: i64) -> Self {
-    Self {
-      token: None,
-      uid: Some(uid),
-      uuid: None,
-    }
-  }
-
-  pub fn from_uuid(uuid: String) -> Self {
-    Self {
-      token: None,
-      uid: None,
-      uuid: Some(uuid),
-    }
-  }
-
-  pub fn new(token: Option<String>, uid: Option<i64>, uuid: Option<String>) -> Self {
-    Self { token, uid, uuid }
-  }
-}
-
-/// Provide the generic interface for the user cloud service
-/// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserService: Send + Sync {
-  /// Sign up a new account.
-  /// The type of the params is defined the this trait's implementation.
-  /// Use the `unbox_or_error` of the [BoxAny] to get the params.
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError>;
-
-  /// Sign in an account
-  /// The type of the params is defined the this trait's implementation.
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
-
-  /// Sign out an account
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError>;
-
-  /// Using the user's token to update the user information
-  fn update_user(
-    &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError>;
-
-  /// Get the user information using the user's token or uid
-  /// return None if the user is not found
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError>;
-
-  /// Return the all the workspaces of the user  
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
-
-  fn add_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError>;
-
-  fn remove_workspace_member(
-    &self,
-    user_email: String,
-    workspace_id: String,
-  ) -> FutureResult<(), FlowyError>;
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function

@@ -13,7 +13,7 @@ use flowy_user::entities::{
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
-use flowy_user::services::AuthType;
+use flowy_user_deps::entities::AuthType;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.test").ok()?;

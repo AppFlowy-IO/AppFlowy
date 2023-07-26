@@ -1,8 +1,7 @@
 use chrono::{TimeZone, Utc};
 
 use flowy_sqlite::schema::user_workspace_table;
-
-use crate::event_map::UserWorkspace;
+use flowy_user_deps::entities::UserWorkspace;
 
 #[derive(Clone, Default, Queryable, Identifiable, Insertable)]
 #[table_name = "user_workspace_table"]

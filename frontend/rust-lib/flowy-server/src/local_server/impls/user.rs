@@ -4,10 +4,8 @@ use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
 use flowy_error::FlowyError;
-use flowy_user::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
-use flowy_user::event_map::{UserCredentials, UserService, UserWorkspace};
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 

@@ -5,7 +5,7 @@ use collab_plugins::cloud_storage::RemoteCollabStorage;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_user::event_map::UserService;
+use flowy_user_deps::cloud::UserService;
 
 use crate::self_host::configuration::SelfHostedConfiguration;
 use crate::self_host::impls::{

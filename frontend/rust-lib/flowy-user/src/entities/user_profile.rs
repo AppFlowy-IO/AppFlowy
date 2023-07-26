@@ -1,11 +1,11 @@
 use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
+use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{AuthTypePB, UpdateUserProfileParams, UserProfile};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
-use crate::event_map::UserWorkspace;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {

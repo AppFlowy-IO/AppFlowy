@@ -9,6 +9,7 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
+flowy-user-deps = { path = "../flowy-user-deps" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-folder-deps = { path = "../flowy-folder-deps" }

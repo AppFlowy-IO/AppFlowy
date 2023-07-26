@@ -18,11 +18,9 @@ use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::KV;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::entities::UserProfile;
-use flowy_user::event_map::{
-  SignUpContext, UserCloudServiceProvider, UserStatusCallback, UserWorkspace,
-};
-use flowy_user::services::{get_supabase_config, AuthType, UserSession, UserSessionConfig};
+use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::services::{get_supabase_config, UserSession, UserSessionConfig};
+use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
 use lib_infra::future::{to_fut, Fut};

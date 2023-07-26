@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use collab_document::YrsDocAction;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
@@ -9,11 +8,11 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_user::entities::UserProfile;
-use flowy_user::event_map::{UserService, UserWorkspace};
-use flowy_user::services::database::{
-  get_user_profile, get_user_workspace, open_collab_db, open_user_db,
-};
+// use flowy_user::services::database::{
+//   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
+// };
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 
 use crate::local_server::impls::{
   LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
@@ -28,14 +27,14 @@ pub trait LocalServerDB: Send + Sync + 'static {
 }
 
 pub struct LocalServer {
-  storage_path: String,
+  local_db: Arc<dyn LocalServerDB>,
   stop_tx: RwLock<Option<mpsc::Sender<()>>>,
 }
 
 impl LocalServer {
-  pub fn new(storage_path: &str) -> Self {
+  pub fn new(local_db: Arc<dyn LocalServerDB>) -> Self {
     Self {
-      storage_path: storage_path.to_string(),
+      local_db,
       stop_tx: Default::default(),
     }
   }
@@ -50,17 +49,15 @@ impl LocalServer {
 
 impl AppFlowyServer for LocalServer {
   fn user_service(&self) -> Arc<dyn UserService> {
-    let db = LocalServerDBImpl {
-      storage_path: self.storage_path.clone(),
-    };
-    Arc::new(LocalServerUserAuthServiceImpl { db: Arc::new(db) })
+    Arc::new(LocalServerUserAuthServiceImpl {
+      db: self.local_db.clone(),
+    })
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    let db = LocalServerDBImpl {
-      storage_path: self.storage_path.clone(),
-    };
-    Arc::new(LocalServerFolderCloudServiceImpl { db: Arc::new(db) })
+    Arc::new(LocalServerFolderCloudServiceImpl {
+      db: self.local_db.clone(),
+    })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
@@ -73,33 +70,5 @@ impl AppFlowyServer for LocalServer {
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
-  }
-}
-
-struct LocalServerDBImpl {
-  storage_path: String,
-}
-
-impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_profile = get_user_profile(&sqlite_db, uid).ok();
-    Ok(user_profile)
-  }
-
-  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
-    let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
-    Ok(user_workspace)
-  }
-
-  fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {
-    let collab_db = open_collab_db(&self.storage_path, uid)?;
-    let read_txn = collab_db.read_txn();
-    let updates = read_txn
-      .get_all_updates(uid, object_id)
-      .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
-
-    Ok(updates)
   }
 }

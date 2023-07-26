@@ -13,8 +13,8 @@ use flowy_server::supabase::storage_impls::restful_api::{
 use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
 use flowy_server::supabase::PgPoolMode;
 use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
-use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
-use flowy_user::event_map::{UserCredentials, UserService};
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::get_supabase_config;

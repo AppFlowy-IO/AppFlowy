@@ -1,7 +1,5 @@
 use flowy_sqlite::schema::user_table;
-
-use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
-use crate::services::AuthType;
+use flowy_user_deps::entities::*;
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
 /// Check out the [schema.rs] for table schema.

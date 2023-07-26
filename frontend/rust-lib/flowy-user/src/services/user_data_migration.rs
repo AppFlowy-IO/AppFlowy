@@ -7,8 +7,8 @@ use collab::preclude::Collab;
 use collab_folder::core::{Folder, FolderData};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_user_deps::entities::UserProfile;
 
-use crate::entities::UserProfile;
 use crate::services::session_serde::Session;
 
 pub struct UserDataMigration();
