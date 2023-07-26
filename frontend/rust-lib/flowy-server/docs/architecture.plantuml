@@ -1,0 +1,78 @@
+@startuml
+title "Application"
+left to right direction
+package "AppFlowy Application" {
+  [User]
+}
+
+cloud "Supabase Server" {
+  [Supabase Server Component]
+}
+
+database "LocalServer" {
+  [Local Server Component]
+}
+
+database "Postgres DB" {
+}
+
+cloud "AppFlowy Cloud Server" {
+  [AppFlowy Cloud Server Component]
+}
+
+User --> [AppFlowy Application]
+
+[AppFlowy Application] --> [Local Server Component] : Connect
+
+[AppFlowy Application] --> [Supabase Server Component] : RESTful API Communication
+
+[AppFlowy Application] --> [AppFlowy Cloud Server Component] : RESTful API Communication
+
+[Supabase Server Component] --> [Postgres DB]
+[AppFlowy Cloud Server Component] --> [Postgres DB]
+
+@enduml
+
+
+@startuml
+left to right direction
+
+interface AppFlowyServer {
+  + enable_sync(_enable: bool)
+  + user_service(): Arc<dyn UserService>
+  + folder_service(): Arc<dyn FolderCloudService>
+  + database_service(): Arc<dyn DatabaseCloudService>
+  + document_service(): Arc<dyn DocumentCloudService>
+  + collab_storage(): Option<Arc<dyn RemoteCollabStorage>>
+}
+
+class SupabaseServer {
+  + enable_sync(_enable: bool)
+  + user_service(): Arc<dyn UserService>
+  + folder_service(): Arc<dyn FolderCloudService>
+  + database_service(): Arc<dyn DatabaseCloudService>
+  + document_service(): Arc<dyn DocumentCloudService>
+  + collab_storage(): Option<Arc<dyn RemoteCollabStorage>>
+}
+
+class SelfHostServer {
+  + user_service(): Arc<dyn UserService>
+  + folder_service(): Arc<dyn FolderCloudService>
+  + database_service(): Arc<dyn DatabaseCloudService>
+  + document_service(): Arc<dyn DocumentCloudService>
+  + collab_storage(): Option<Arc<dyn RemoteCollabStorage>>
+}
+
+class LocalServer {
+  + user_service(): Arc<dyn UserService>
+  + folder_service(): Arc<dyn FolderCloudService>
+  + database_service(): Arc<dyn DatabaseCloudService>
+  + document_service(): Arc<dyn DocumentCloudService>
+  + collab_storage(): Option<Arc<dyn RemoteCollabStorage>>
+}
+
+SupabaseServer -u-|> AppFlowyServer
+SelfHostServer -u-|> AppFlowyServer
+LocalServer -u-|> AppFlowyServer
+
+@enduml
