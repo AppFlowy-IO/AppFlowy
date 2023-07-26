@@ -14,7 +14,6 @@ config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde-aux = "4.2.0"
-nanoid = "0.4.0"
 thiserror = "1.0"
 tokio = { version = "1.26", features = ["sync"]}
 parking_lot = "0.12"
@@ -32,7 +31,6 @@ postgrest = "1.0"
 tokio-postgres = { version = "0.7.8", optional = true, features = ["with-uuid-1","with-chrono-0_4"] }
 deadpool-postgres = "0.10.5"
 refinery= { version = "0.8.10", optional = true, features = ["tokio-postgres"] }
-async-stream = "0.3.4"
 futures = "0.3.26"
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }

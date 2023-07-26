@@ -21,7 +21,6 @@ protobuf = {version = "2.28.0"}
 bytes = { version = "1.4" }
 nanoid = "0.4.0"
 parking_lot = "0.12.1"
-strum = "0.21"
 strum_macros = "0.21"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
