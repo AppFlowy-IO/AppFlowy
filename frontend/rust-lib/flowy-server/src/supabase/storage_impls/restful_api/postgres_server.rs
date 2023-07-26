@@ -4,11 +4,11 @@ use postgrest::Postgrest;
 
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 
-pub struct SLPostgresServer {
+pub struct RESTfulPostgresServer {
   pub postgres: Arc<Postgrest>,
 }
 
-impl SLPostgresServer {
+impl RESTfulPostgresServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
     let url = format!("{}/rest/v1/", config.url);
     let auth = format!("Bearer {}", config.key);

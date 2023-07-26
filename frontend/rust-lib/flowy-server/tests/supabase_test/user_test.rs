@@ -7,9 +7,12 @@ use uuid::Uuid;
 use flowy_server::supabase::storage_impls::pooler::{
   PostgresServer, SupabaseServerServiceImpl, SupabaseUserAuthServiceImpl,
 };
+use flowy_server::supabase::storage_impls::restful_api::{
+  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl,
+};
 use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
 use flowy_server::supabase::PgPoolMode;
-use flowy_server_config::supabase_config::PostgresConfiguration;
+use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
 use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
 use flowy_user::event_map::{UserCredentials, UserService};
 use lib_infra::box_any::BoxAny;
@@ -26,7 +29,9 @@ fn user_auth_service() -> Arc<dyn UserService> {
   let mode = Mode::Pooler;
   match mode {
     Mode::RESTfulAPI => {
-      todo!()
+      let config = SupabaseConfiguration::from_env().unwrap();
+      let server = RESTfulPostgresServer::new(config);
+      Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(server.postgres))
     },
     Mode::Pooler => {
       let server = Arc::new(PostgresServer::new(

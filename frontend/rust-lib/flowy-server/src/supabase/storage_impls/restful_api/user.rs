@@ -13,11 +13,17 @@ use crate::supabase::storage_impls::pooler::USER_TABLE;
 use crate::supabase::storage_impls::restful_api::util::InsertParamsBuilder;
 use crate::supabase::storage_impls::USER_UUID;
 
-pub struct SLSupabaseUserAuthServiceImpl {
+pub struct RESTfulSupabaseUserAuthServiceImpl {
   postgrest: Arc<Postgrest>,
 }
 
-impl UserService for SLSupabaseUserAuthServiceImpl {
+impl RESTfulSupabaseUserAuthServiceImpl {
+  pub fn new(postgrest: Arc<Postgrest>) -> Self {
+    Self { postgrest }
+  }
+}
+
+impl UserService for RESTfulSupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
