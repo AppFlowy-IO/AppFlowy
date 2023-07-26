@@ -38,7 +38,7 @@ export const DatabaseFilterItem = ({
   const [currentLogicalOperator, setCurrentLogicalOperator] = useState<'and' | 'or'>('and');
   const [currentFieldId, setCurrentFieldId] = useState<string | null>(data?.fieldId ?? null);
   const [currentOperator, setCurrentOperator] = useState<TDatabaseOperators | null>(data?.operator ?? null);
-  const [currentValue, setCurrentValue] = useState<SelectOptionPB[] | string | boolean | null>(data?.value ?? null);
+  const [currentValue, setCurrentValue] = useState<string[] | string | boolean | null>(data?.value ?? null);
 
   useEffect(() => {
     if (data) {
@@ -181,15 +181,12 @@ export const DatabaseFilterItem = ({
   };
 
   const onValueOptionClick = (option: ISelectOption) => {
-    const value = currentValue as SelectOptionPB[];
+    const value = currentValue as string[];
 
-    if (value.findIndex((v) => v.id === option.selectOptionId) === -1) {
-      setCurrentValue([
-        ...value,
-        new SelectOptionPB({ id: option.selectOptionId, name: option.title, color: option.color }),
-      ]);
+    if (value.findIndex((v) => v === option.selectOptionId) === -1) {
+      setCurrentValue([...value, option.selectOptionId]);
     } else {
-      setCurrentValue(value.filter((v) => v.id !== option.selectOptionId));
+      setCurrentValue(value.filter((v) => v !== option.selectOptionId));
     }
   };
 
@@ -199,6 +196,13 @@ export const DatabaseFilterItem = ({
   };
 
   const LogicalOperators: ('and' | 'or')[] = ['and', 'or'];
+
+  const getSelectOption = (optionId: string) => {
+    if (!currentFieldId) return undefined;
+    return (fields[currentFieldId].fieldOptions as ISelectOptionType).selectOptions.find(
+      (option) => option.selectOptionId === optionId
+    );
+  };
 
   return (
     <>
@@ -277,12 +281,15 @@ export const DatabaseFilterItem = ({
               >
                 {currentValue ? (
                   <div className={'flex flex-1 items-center gap-1 overflow-hidden'}>
-                    {(currentValue as SelectOptionPB[]).length === 0 && (
+                    {(currentValue as string[]).length === 0 && (
                       <span className={'text-text-placeholder'}>none selected</span>
                     )}
-                    {(currentValue as SelectOptionPB[]).map((option, i) => (
-                      <span className={`${getBgColor(option.color)} rounded px-2 py-0.5 text-xs`} key={i}>
-                        {option.name}
+                    {(currentValue as string[]).map((option, i) => (
+                      <span
+                        className={`${getBgColor(getSelectOption(option)?.color)} rounded px-2 py-0.5 text-xs`}
+                        key={i}
+                      >
+                        {getSelectOption(option)?.title}
                       </span>
                     ))}
                   </div>
@@ -398,7 +405,7 @@ export const DatabaseFilterItem = ({
               <CellOption
                 key={index}
                 option={option}
-                checked={(currentValue as SelectOptionPB[]).findIndex((o) => o.id === option.selectOptionId) !== -1}
+                checked={(currentValue as string[]).findIndex((o) => o === option.selectOptionId) !== -1}
                 noSelect={true}
                 noDetail={true}
                 onOptionClick={() => onValueOptionClick(option)}

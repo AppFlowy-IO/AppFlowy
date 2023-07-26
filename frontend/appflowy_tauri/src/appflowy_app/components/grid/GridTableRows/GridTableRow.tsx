@@ -37,7 +37,9 @@ export const GridTableRow = ({
             className={`group flex cursor-pointer items-stretch border-b border-line-divider `}
           >
             {cells
-              .filter((cell) => fields[cell.fieldId]?.visible)
+              // filter out hidden fields
+              // ?? true is to prevent DnD from causing exceptions
+              .filter((cell) => fields[cell.fieldId]?.visible ?? true)
               .map((cell, cellIndex) => {
                 return (
                   <div className={`relative flex flex-shrink-0 `} key={cellIndex} draggable={false}>

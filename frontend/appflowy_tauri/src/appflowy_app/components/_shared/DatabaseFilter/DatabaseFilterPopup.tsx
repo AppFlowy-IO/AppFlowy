@@ -10,7 +10,9 @@ import { FilterController } from '$app/stores/effects/database/filter/filter_con
 import {
   CheckboxFilterPB,
   FieldType,
+  SelectOptionConditionPB,
   SelectOptionFilterPB,
+  SelectOptionPB,
   TextFilterConditionPB,
   TextFilterPB,
 } from '@/services/backend';
@@ -39,25 +41,50 @@ export const DatabaseFilterPopup = ({
     setShowBlankFilter(true);
   };
 
-  const transformOperator: (operator: TDatabaseOperators) => TextFilterConditionPB = (operator) => {
-    // ['contains', 'doesNotContain', 'endsWith', 'startWith', 'is', 'isNot', 'isEmpty', 'isNotEmpty'],
-    switch (operator) {
-      case 'contains':
-        return TextFilterConditionPB.Contains;
-      case 'doesNotContain':
-        return TextFilterConditionPB.DoesNotContain;
-      case 'endsWith':
-        return TextFilterConditionPB.EndsWith;
-      case 'startWith':
-        return TextFilterConditionPB.StartsWith;
-      case 'is':
-        return TextFilterConditionPB.Is;
-      case 'isNot':
-        return TextFilterConditionPB.IsNot;
-      case 'isEmpty':
-        return TextFilterConditionPB.TextIsEmpty;
-      case 'isNotEmpty':
-        return TextFilterConditionPB.TextIsNotEmpty;
+  const transformOperator: (
+    operator: TDatabaseOperators,
+    type: FieldType
+  ) => TextFilterConditionPB | SelectOptionConditionPB = (operator, type) => {
+    switch (type) {
+      case FieldType.RichText:
+        switch (operator) {
+          case 'contains':
+            return TextFilterConditionPB.Contains;
+          case 'doesNotContain':
+            return TextFilterConditionPB.DoesNotContain;
+          case 'endsWith':
+            return TextFilterConditionPB.EndsWith;
+          case 'startWith':
+            return TextFilterConditionPB.StartsWith;
+          case 'is':
+            return TextFilterConditionPB.Is;
+          case 'isNot':
+            return TextFilterConditionPB.IsNot;
+          case 'isEmpty':
+            return TextFilterConditionPB.TextIsEmpty;
+          case 'isNotEmpty':
+            return TextFilterConditionPB.TextIsNotEmpty;
+          default:
+            return TextFilterConditionPB.Is;
+        }
+
+      case FieldType.SingleSelect:
+      case FieldType.MultiSelect:
+        switch (operator) {
+          case 'is':
+          case 'contains':
+            return SelectOptionConditionPB.OptionIs;
+          case 'isNot':
+          case 'doesNotContain':
+            return SelectOptionConditionPB.OptionIsNot;
+          case 'isEmpty':
+            return SelectOptionConditionPB.OptionIsEmpty;
+          case 'isNotEmpty':
+            return SelectOptionConditionPB.OptionIsNotEmpty;
+          default:
+            return SelectOptionConditionPB.OptionIs;
+        }
+
       default:
         return TextFilterConditionPB.Is;
     }
@@ -71,13 +98,20 @@ export const DatabaseFilterPopup = ({
     switch (filter.fieldType) {
       case FieldType.RichText:
         val = new TextFilterPB({
-          condition: transformOperator(filter.operator),
+          condition: transformOperator(filter.operator, filter.fieldType) as TextFilterConditionPB,
           content: filter.value as string,
+        });
+        break;
+      case FieldType.SingleSelect:
+      case FieldType.MultiSelect:
+        val = new SelectOptionFilterPB({
+          condition: transformOperator(filter.operator, filter.fieldType) as SelectOptionConditionPB,
+          option_ids: filter.value as string[],
         });
         break;
       default:
         val = new TextFilterPB({
-          condition: transformOperator('contains'),
+          condition: transformOperator('is', FieldType.RichText) as TextFilterConditionPB,
           content: '',
         });
         break;

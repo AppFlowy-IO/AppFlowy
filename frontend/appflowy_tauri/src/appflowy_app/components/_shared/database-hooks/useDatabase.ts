@@ -11,7 +11,14 @@ import { useAppDispatch } from '$app/stores/store';
 import loadField from './loadField';
 import { FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { RowInfo } from '$app/stores/effects/database/row/row_cache';
-import { FieldType, TextFilterConditionPB, TextFilterPB, ViewLayoutPB } from '@/services/backend';
+import {
+  FieldType,
+  SelectOptionConditionPB,
+  SelectOptionFilterPB,
+  TextFilterConditionPB,
+  TextFilterPB,
+  ViewLayoutPB,
+} from '@/services/backend';
 import { DatabaseGroupController } from '$app/stores/effects/database/group/group_controller';
 import { OnDragEndResponder } from 'react-beautiful-dnd';
 import { AsyncQueue } from '$app/utils/async_queue';
@@ -61,8 +68,19 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     return new AsyncQueue<readonly FieldInfo[]>(loadFields);
   }, [loadFields]);
 
-  const transformCondition: (condition: TextFilterConditionPB) => TDatabaseOperators = (condition) => {
+  const transformCondition: (condition: TextFilterConditionPB | SelectOptionConditionPB) => TDatabaseOperators = (
+    condition
+  ) => {
     switch (condition) {
+      case SelectOptionConditionPB.OptionIs:
+        return 'is';
+      case SelectOptionConditionPB.OptionIsNot:
+        return 'isNot';
+      case SelectOptionConditionPB.OptionIsEmpty:
+        return 'isEmpty';
+      case SelectOptionConditionPB.OptionIsNotEmpty:
+        return 'isNotEmpty';
+
       case TextFilterConditionPB.Contains:
         return 'contains';
       case TextFilterConditionPB.DoesNotContain:
@@ -79,6 +97,8 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
         return 'isEmpty';
       case TextFilterConditionPB.TextIsNotEmpty:
         return 'isNotEmpty';
+      default:
+        return 'is';
     }
   };
 
@@ -95,24 +115,36 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
         },
         onFiltersChanged: (filters) => {
           const reduxFilters = filters.map<IDatabaseFilter>((filter) => {
-            if (filter.field_type === FieldType.RichText) {
-              return {
-                logicalOperator: 'and',
-                fieldType: filter.field_type,
-                fieldId: filter.field_id,
-                id: filter.id,
-                operator: transformCondition((filter.data as TextFilterPB).condition),
-                value: (filter.data as TextFilterPB).content,
-              };
-            } else {
-              return {
-                logicalOperator: 'and',
-                fieldType: filter.field_type,
-                fieldId: filter.field_id,
-                id: filter.id,
-                operator: 'is',
-                value: '',
-              };
+            switch (filter.field_type) {
+              case FieldType.SingleSelect:
+              case FieldType.MultiSelect:
+                return {
+                  logicalOperator: 'and',
+                  fieldType: filter.field_type,
+                  fieldId: filter.field_id,
+                  id: filter.id,
+                  operator: transformCondition((filter.data as SelectOptionFilterPB).condition),
+                  value: (filter.data as SelectOptionFilterPB).option_ids,
+                };
+              case FieldType.RichText:
+                return {
+                  logicalOperator: 'and',
+                  fieldType: filter.field_type,
+                  fieldId: filter.field_id,
+                  id: filter.id,
+                  operator: transformCondition((filter.data as TextFilterPB).condition),
+                  value: (filter.data as TextFilterPB).content,
+                };
+
+              default:
+                return {
+                  logicalOperator: 'and',
+                  fieldType: filter.field_type,
+                  fieldId: filter.field_id,
+                  id: filter.id,
+                  operator: 'is',
+                  value: '',
+                };
             }
           });
 

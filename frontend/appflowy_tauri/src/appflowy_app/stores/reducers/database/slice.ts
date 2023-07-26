@@ -71,7 +71,7 @@ export interface IDatabaseFilter {
   fieldType: FieldType;
   logicalOperator: 'and' | 'or';
   operator: TDatabaseOperators;
-  value: SelectOptionPB[] | string | boolean;
+  value: string[] | string | boolean;
 }
 
 export interface IDatabaseSort {
