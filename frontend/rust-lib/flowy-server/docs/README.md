@@ -5,7 +5,7 @@ AWS, or our own AppFlowyCloud (Self-hosted server).
 
 ![](architecture-Application.png)
 
-## Design 
+## Design
 
 AppFlowy use the traits [AppFlowyServer] to abstract the cloud provider. Each cloud provider implements the [AppFlowyServer]
 trait. As the image below shows. Users can choose their preferred cloud provider or simply use the default option, which is the LocalServer. When using the
@@ -14,7 +14,6 @@ could migrate from LocalServer to AppFlowyCloud. This migration would create a n
 data from the local database to the cloud.
 
 ![](architecture.png)
-
 
 ## AppFlowy Cloud Implementation (WIP)
 

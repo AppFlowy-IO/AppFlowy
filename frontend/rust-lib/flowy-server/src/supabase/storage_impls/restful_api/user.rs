@@ -10,7 +10,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::storage_impls::pooler::USER_TABLE;
-use crate::supabase::storage_impls::serverless_api::util::InsertParamsBuilder;
+use crate::supabase::storage_impls::restful_api::util::InsertParamsBuilder;
 use crate::supabase::storage_impls::USER_UUID;
 
 pub struct SLSupabaseUserAuthServiceImpl {

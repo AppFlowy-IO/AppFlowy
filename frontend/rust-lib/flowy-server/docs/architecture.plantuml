@@ -6,30 +6,30 @@ package "AppFlowy Application" {
 }
 
 cloud "Supabase Server" {
-  [Supabase Server Component]
+  [RESTful Component]
+  [Realtime Component]
+  [Postgres DB]
 }
 
 database "LocalServer" {
   [Local Server Component]
 }
 
-database "Postgres DB" {
-}
 
 cloud "AppFlowy Cloud Server" {
-  [AppFlowy Cloud Server Component]
+  [RESTful Component] as [AppFlowy RESTful Component]
+  [Realtime Component] as [AppFlowy Realtime Component]
+  [Postgres DB] as [AppFlowy Postgres DB]
 }
 
 User --> [AppFlowy Application]
-
 [AppFlowy Application] --> [Local Server Component] : Connect
 
-[AppFlowy Application] --> [Supabase Server Component] : RESTful API Communication
+[AppFlowy Application] --> [RESTful Component] : RESTful API Communication
+[AppFlowy Application] <..> [Realtime Component] : WebSocket Communication
 
-[AppFlowy Application] --> [AppFlowy Cloud Server Component] : RESTful API Communication
-
-[Supabase Server Component] --> [Postgres DB]
-[AppFlowy Cloud Server Component] --> [Postgres DB]
+[AppFlowy Application] --> [AppFlowy RESTful Component] : RESTful API Communication
+[AppFlowy Application] <..> [AppFlowy Realtime Component] : WebSocket Communication
 
 @enduml
 
