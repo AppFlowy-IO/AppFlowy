@@ -13,7 +13,7 @@ class FlowyHover extends StatefulWidget {
 
   /// Reset the hover state when the parent widget get rebuild.
   /// Default to true.
-  final bool? resetHoverOnRebuild;
+  final bool resetHoverOnRebuild;
 
   /// Determined whether the [builder] should get called when onEnter/onExit
   /// happened
