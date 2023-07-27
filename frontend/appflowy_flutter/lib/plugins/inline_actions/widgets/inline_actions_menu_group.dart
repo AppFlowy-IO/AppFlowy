@@ -28,25 +28,25 @@ class InlineActionsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: FlowyText.medium(result.title, color: style.groupTextColor),
-        ),
-        const SizedBox(height: 4),
-        ...result.results.mapIndexed(
-          (index, item) => InlineActionsWidget(
-            item: item,
-            editorState: editorState,
-            menuService: menuService,
-            isSelected: isGroupSelected && index == selectedIndex,
-            style: style,
-            onSelected: onSelected,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowyText.medium(result.title, color: style.groupTextColor),
+          const SizedBox(height: 4),
+          ...result.results.mapIndexed(
+            (index, item) => InlineActionsWidget(
+              item: item,
+              editorState: editorState,
+              menuService: menuService,
+              isSelected: isGroupSelected && index == selectedIndex,
+              style: style,
+              onSelected: onSelected,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

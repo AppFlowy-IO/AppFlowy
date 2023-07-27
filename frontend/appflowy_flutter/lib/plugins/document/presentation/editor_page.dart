@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
@@ -52,6 +53,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     context: context,
     handlers: [
       InlinePageReferenceService().inlinePageReferenceDelegate,
+      DateReferenceService(context).dateReferenceDelegate,
     ],
   );
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -9,27 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-
-enum MentionType {
-  page;
-
-  static MentionType fromString(String value) {
-    switch (value) {
-      case 'page':
-        return page;
-      default:
-        throw UnimplementedError();
-    }
-  }
-}
-
-class MentionBlockKeys {
-  const MentionBlockKeys._();
-
-  static const mention = 'mention';
-  static const type = 'type'; // MentionType, String
-  static const pageId = 'page_id';
-}
 
 class InlinePageReferenceService {
   InlinePageReferenceService() {

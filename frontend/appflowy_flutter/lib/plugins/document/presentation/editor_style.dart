@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
@@ -161,7 +160,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
-      groupTextColor: theme.colorScheme.onBackground,
+      groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
       menuItemSelectedColor: theme.hoverColor,
     );
   }
@@ -199,19 +198,28 @@ class EditorStyleCustomizer {
       return textSpan;
     }
 
-    // customize the inline mention block, like inline page
-    final mention = attributes[MentionBlockKeys.mention] as Map?;
+    // Inline Mentions (Page Reference, Date, Reminder, etc.)
+    final mention =
+        attributes[MentionBlockKeys.mention] as Map<String, dynamic>?;
     if (mention != null) {
       final type = mention[MentionBlockKeys.type];
-      if (type == MentionType.page.name) {
-        return WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: MentionBlock(
-            key: ValueKey(mention[MentionBlockKeys.pageId]),
-            mention: mention,
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: MentionBlock(
+          key: ValueKey(
+            switch (type) {
+              MentionType.page => mention[MentionBlockKeys.pageId],
+              MentionType.date ||
+              MentionType.reminder =>
+                mention[MentionBlockKeys.date],
+              _ => MentionBlockKeys.mention,
+            },
           ),
-        );
-      }
+          node: node,
+          index: index,
+          mention: mention,
+        ),
+      );
     }
 
     // customize the inline math equation block

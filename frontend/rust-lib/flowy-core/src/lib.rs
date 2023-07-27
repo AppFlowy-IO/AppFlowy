@@ -103,6 +103,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("flowy_net={}", level));
+  filters.push(format!("flowy_date=", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));
 

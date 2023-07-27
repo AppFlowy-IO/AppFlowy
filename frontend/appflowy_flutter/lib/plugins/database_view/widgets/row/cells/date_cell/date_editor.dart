@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/log.dart';
@@ -10,22 +11,15 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 import 'date_cal_bloc.dart';
-
-final kFirstDay = DateTime.utc(1970, 1, 1);
-final kLastDay = DateTime.utc(2100, 1, 1);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
@@ -52,7 +46,7 @@ class _DateCellEditor extends State<DateCellEditor> {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
         } else {
-          return const SizedBox();
+          return const SizedBox.shrink();
         }
       },
     );
@@ -151,80 +145,19 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   Widget _buildCalendar(BuildContext context) {
     return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
       builder: (context, state) {
-        final textStyle = Theme.of(context).textTheme.bodyMedium!;
-        final boxDecoration = BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          shape: BoxShape.rectangle,
-          borderRadius: Corners.s6Border,
-        );
-        return TableCalendar(
-          firstDay: kFirstDay,
-          lastDay: kLastDay,
+        return AppFlowyCalendar(
+          selectedDate: state.dateTime,
           focusedDay: state.focusedDay,
-          rowHeight: GridSize.popoverItemHeight,
-          calendarFormat: state.format,
-          daysOfWeekHeight: GridSize.popoverItemHeight,
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextStyle: textStyle,
-            leftChevronMargin: EdgeInsets.zero,
-            leftChevronPadding: EdgeInsets.zero,
-            leftChevronIcon: FlowySvg(
-              FlowySvgs.arrow_left_s,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            rightChevronPadding: EdgeInsets.zero,
-            rightChevronMargin: EdgeInsets.zero,
-            rightChevronIcon: FlowySvg(
-              FlowySvgs.arrow_right_s,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            headerMargin: const EdgeInsets.only(bottom: 8.0),
-          ),
-          daysOfWeekStyle: DaysOfWeekStyle(
-            dowTextFormatter: (date, locale) =>
-                DateFormat.E(locale).format(date).toUpperCase(),
-            weekdayStyle: AFThemeExtension.of(context).caption,
-            weekendStyle: AFThemeExtension.of(context).caption,
-          ),
-          calendarStyle: CalendarStyle(
-            cellMargin: const EdgeInsets.all(3),
-            defaultDecoration: boxDecoration,
-            selectedDecoration: boxDecoration.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            todayDecoration: boxDecoration.copyWith(
-              color: AFThemeExtension.of(context).lightGreyHover,
-            ),
-            weekendDecoration: boxDecoration,
-            outsideDecoration: boxDecoration,
-            defaultTextStyle: textStyle,
-            weekendTextStyle: textStyle,
-            selectedTextStyle: textStyle.copyWith(
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            todayTextStyle: textStyle,
-            outsideTextStyle: textStyle.copyWith(
-              color: Theme.of(context).disabledColor,
-            ),
-          ),
-          selectedDayPredicate: (day) => isSameDay(state.dateTime, day),
-          onDaySelected: (selectedDay, focusedDay) {
-            context.read<DateCellCalendarBloc>().add(
-                  DateCellCalendarEvent.selectDay(selectedDay.toLocal().date),
-                );
-          },
-          onFormatChanged: (format) {
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setCalFormat(format));
-          },
-          onPageChanged: (focusedDay) {
-            context
-                .read<DateCellCalendarBloc>()
-                .add(DateCellCalendarEvent.setFocusedDay(focusedDay));
-          },
+          format: state.format,
+          onDaySelected: (selectedDay, focusedDay) => context
+              .read<DateCellCalendarBloc>()
+              .add(DateCellCalendarEvent.selectDay(selectedDay.toLocal().date)),
+          onFormatChanged: (format) => context
+              .read<DateCellCalendarBloc>()
+              .add(DateCellCalendarEvent.setCalFormat(format)),
+          onPageChanged: (focusedDay) => context
+              .read<DateCellCalendarBloc>()
+              .add(DateCellCalendarEvent.setFocusedDay(focusedDay)),
         );
       },
     );
