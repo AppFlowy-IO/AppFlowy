@@ -7,13 +7,13 @@ const _white = Color(0xFFFFFFFF);
 
 const _lightHover = Color(0xffd8d6fc);
 const _lightSelector = Color(0xffe5e3f9);
-const _lightBg1 = Color(0xffffe1f5);
+const _lightBg1 = Color(0xfff2f0f6);
 const _lightBg2 = Color(0xffd8d6fc);
 const _lightShader1 = Color(0xff333333);
 const _lightShader3 = Color(0xff828282);
 const _lightShader5 = Color(0xffe0e0e0);
 const _lightShader6 = Color(0xffd8d6fc);
-const _lightMain1 = Color(0xff9c89b8);
+const _lightMain1 = Color(0xffaba9e7);
 const _lightTint9 = Color(0xffe1fbff);
 
 const _darkShader1 = Color(0xff131720);
