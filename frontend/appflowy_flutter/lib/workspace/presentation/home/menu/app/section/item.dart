@@ -166,8 +166,8 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewDisclosureAction.favorite:
         return state!.view.isFavorite
-            ? "Remove from favorites"
-            : "Add to favorites";
+            ? LocaleKeys.disclosureAction_unfavorite.tr()
+            : LocaleKeys.disclosureAction_favorite.tr();
       case ViewDisclosureAction.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
     }
@@ -207,9 +207,7 @@ class ViewDisclosureButton extends StatelessWidget {
     return PopoverActionList<ViewDisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: ViewDisclosureAction.values
-          .map(
-            (action) => ViewDisclosureActionWrapper(action, state),
-          )
+          .map((action) => ViewDisclosureActionWrapper(action, state))
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
