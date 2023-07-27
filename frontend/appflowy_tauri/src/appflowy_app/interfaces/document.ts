@@ -82,7 +82,11 @@ export interface ImageBlockData {
   align: Align;
 }
 
-export type PageBlockData = TextBlockData;
+export interface PageBlockData extends TextBlockData {
+  cover?: string;
+  icon?: string;
+  coverType?: 'image' | 'color';
+}
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData

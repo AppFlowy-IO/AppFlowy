@@ -34,6 +34,7 @@
 .MuiButtonBase-root.MuiIconButton-root {
     border-radius: 4px;
     padding: 2px;
+    box-shadow: none;
 }
 
 .MuiButtonBase-root.MuiButton-containedPrimary.MuiButton-contained:hover {
