@@ -222,10 +222,48 @@ async fn get_user_workspaces(
 }
 
 async fn update_user_profile(
-  _postgrest: Arc<PostgresWrapper>,
-  _params: UpdateUserProfileParams,
+  postgrest: Arc<PostgresWrapper>,
+  params: UpdateUserProfileParams,
 ) -> Result<(), Error> {
-  todo!()
+  if params.is_empty() {
+    anyhow::bail!("no params to update");
+  }
+
+  // check if user exists
+  let exists = !postgrest
+    .from(USER_TABLE)
+    .select("uid")
+    .eq("uid", params.id.to_string())
+    .execute()
+    .await?
+    .error_for_status()?
+    .get_value::<Vec<i64>>()
+    .await?
+    .is_empty();
+  if !exists {
+    anyhow::bail!("user uid {} does not exist", params.id);
+  }
+
+  let mut update_params = serde_json::Map::new();
+  if let Some(name) = params.name {
+    update_params.insert("name".to_string(), serde_json::json!(name));
+  }
+  if let Some(email) = params.email {
+    update_params.insert("email".to_string(), serde_json::json!(email));
+  }
+  let update_payload = serde_json::to_string(&update_params).unwrap();
+
+  let resp = postgrest
+    .from(USER_TABLE)
+    .update(update_payload)
+    .eq("uid", params.id.to_string())
+    .execute()
+    .await?
+    .success_with_body()
+    .await?;
+
+  tracing::debug!("update user profile resp: {:?}", resp);
+  Ok(())
 }
 
 async fn check_user(
