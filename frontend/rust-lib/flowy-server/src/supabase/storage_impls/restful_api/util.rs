@@ -53,6 +53,8 @@ pub trait ExtendedResponse {
   fn get_json(self) -> Fut<Result<Value, Error>>;
 
   fn success(self) -> Fut<Result<(), Error>>;
+
+  fn success_with_body(self) -> Fut<Result<String, Error>>;
 }
 
 impl ExtendedResponse for Response {
@@ -67,7 +69,7 @@ impl ExtendedResponse for Response {
           FlowyError::new(
             ErrorCode::HttpError,
             format!(
-              "expected status code 200, but got {}, body: {}",
+              "expected status code 2XX, but got {}, body: {}",
               self.status(),
               self.text().await.unwrap_or_default()
             ),
@@ -88,7 +90,7 @@ impl ExtendedResponse for Response {
           FlowyError::new(
             ErrorCode::HttpError,
             format!(
-              "expected status code 200, but got {}, body: {}",
+              "expected status code 2XX, but got {}, body: {}",
               self.status(),
               self.text().await.unwrap_or_default()
             ),
@@ -109,7 +111,7 @@ impl ExtendedResponse for Response {
           FlowyError::new(
             ErrorCode::HttpError,
             format!(
-              "expected status code 200, but got {}, body: {}",
+              "expected status code 2XX, but got {}, body: {}",
               self.status(),
               self.text().await.unwrap_or_default()
             ),
@@ -118,6 +120,25 @@ impl ExtendedResponse for Response {
         );
       }
       Ok(())
+    })
+  }
+
+  fn success_with_body(self) -> Fut<Result<String, Error>> {
+    to_fut(async move {
+      if !self.status().is_success() {
+        return Err(
+          FlowyError::new(
+            ErrorCode::HttpError,
+            format!(
+              "expected status code 2XX, but got {}, body: {}",
+              self.status(),
+              self.text().await.unwrap_or_default()
+            ),
+          )
+          .into(),
+        );
+      }
+      Ok(self.text().await?)
     })
   }
 }

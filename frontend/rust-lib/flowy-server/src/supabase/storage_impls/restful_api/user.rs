@@ -50,13 +50,14 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
           .insert(USER_UUID, params.uuid.to_string())
           .insert(USER_EMAIL, params.email)
           .build();
-        let response = postgrest
+        let resp = postgrest
           .from(USER_TABLE)
           .insert(insert_params)
           .execute()
           .await?
-          .error_for_status()?;
-        tracing::debug!("Create user response: {:?}", response.text().await);
+          .success_with_body()
+          .await?;
+        tracing::debug!("Create user response: {:?}", resp);
       }
 
       // Query the user profile and workspaces
@@ -135,10 +136,10 @@ async fn get_user_profile(
 ) -> Result<UserProfileResponse, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
-    .select("uid:id, email, name");
+    .select("uid, email, name, latest_workspace_id");
 
   match params {
-    GetUserProfileParams::Uid(uid) => builder = builder.eq("id", uid.to_string()),
+    GetUserProfileParams::Uid(uid) => builder = builder.eq("uid", uid.to_string()),
     GetUserProfileParams::Uuid(uuid) => builder = builder.eq("uuid", uuid.to_string()),
   }
 
@@ -159,7 +160,7 @@ async fn get_user_workspaces(
 ) -> Result<Vec<UserWorkspace>, Error> {
   postgrest
     .from(WORKSPACE_TABLE)
-    .select("workspace_id:id, workspace_name:name, created_at, database_storage_id")
+    .select("id:workspace_id, name:workspace_name, created_at, database_storage_id")
     .eq("owner_uid", uid.to_string())
     .execute()
     .await?

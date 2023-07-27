@@ -22,7 +22,7 @@ pub struct RESTfulPostgresServer {
 
 impl RESTfulPostgresServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
-    let url = format!("{}/rest/v1/", config.url);
+    let url = format!("{}/rest/v1", config.url);
     let auth = format!("Bearer {}", config.key);
     let postgrest = Postgrest::new(url)
       .insert_header("apikey", config.key)
