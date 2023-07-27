@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -93,6 +94,7 @@ class ViewSectionItem extends StatelessWidget {
     if (onHover || state.isEditing) {
       children.add(
         ViewDisclosureButton(
+          state: state,
           onEdit: (isEdit) =>
               blocContext.read<ViewBloc>().add(ViewEvent.setIsEditing(isEdit)),
           onAction: (action) {
@@ -154,7 +156,7 @@ enum ViewDisclosureAction {
 }
 
 extension ViewDisclosureExtension on ViewDisclosureAction {
-  String get name {
+  String name({ViewState? state}) {
     switch (this) {
       case ViewDisclosureAction.rename:
         return LocaleKeys.disclosureAction_rename.tr();
@@ -163,13 +165,15 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
       case ViewDisclosureAction.duplicate:
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewDisclosureAction.favorite:
-        return LocaleKeys.disclosureAction_favorite.tr();
+        return state!.view.isFavorite
+            ? "Remove from favorites"
+            : "Add to favorites";
       case ViewDisclosureAction.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
     }
   }
 
-  Widget icon(Color iconColor) {
+  Widget icon(Color iconColor, {ViewState? state}) {
     switch (this) {
       case ViewDisclosureAction.rename:
         return const FlowySvg(name: 'editor/edit');
@@ -178,7 +182,9 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
       case ViewDisclosureAction.duplicate:
         return const FlowySvg(name: 'editor/copy');
       case ViewDisclosureAction.favorite:
-        return const FlowySvg(name: 'home/favorite');
+        return state!.view.isFavorite
+            ? const FlowySvg(name: 'home/favorite')
+            : const FlowySvg(name: 'home/unfavorite');
       case ViewDisclosureAction.openInNewTab:
         return const FlowySvg(name: 'grid/expander');
     }
@@ -188,9 +194,11 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
 class ViewDisclosureButton extends StatelessWidget {
   final Function(bool) onEdit;
   final Function(ViewDisclosureAction) onAction;
+  final ViewState state;
   const ViewDisclosureButton({
     required this.onEdit,
     required this.onAction,
+    required this.state,
     Key? key,
   }) : super(key: key);
 
@@ -199,7 +207,9 @@ class ViewDisclosureButton extends StatelessWidget {
     return PopoverActionList<ViewDisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: ViewDisclosureAction.values
-          .map((action) => ViewDisclosureActionWrapper(action))
+          .map(
+            (action) => ViewDisclosureActionWrapper(action, state),
+          )
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
@@ -230,11 +240,12 @@ class ViewDisclosureButton extends StatelessWidget {
 
 class ViewDisclosureActionWrapper extends ActionCell {
   final ViewDisclosureAction inner;
+  final ViewState? state;
 
-  ViewDisclosureActionWrapper(this.inner);
+  ViewDisclosureActionWrapper(this.inner, [this.state]);
   @override
-  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor, state: state);
 
   @override
-  String get name => inner.name;
+  String get name => inner.name(state: state);
 }
