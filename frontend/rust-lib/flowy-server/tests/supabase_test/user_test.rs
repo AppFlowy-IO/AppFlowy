@@ -21,7 +21,9 @@ use crate::supabase_test::util::get_supabase_config;
 
 enum Mode {
   RESTfulAPI,
-  // The pooler mode will be deprecated soon
+
+  #[allow(dead_code)]
+  #[deprecated(note = "The pooler mode will be deprecated soon")]
   Pooler,
 }
 

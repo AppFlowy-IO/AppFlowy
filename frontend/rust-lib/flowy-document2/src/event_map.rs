@@ -1,4 +1,4 @@
-use std::sync::{Weak};
+use std::sync::Weak;
 
 use strum_macros::Display;
 
