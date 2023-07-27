@@ -66,7 +66,9 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
       // Query the user profile and workspaces
       tracing::debug!("user uuid: {}", params.uuid);
       let user_profile =
-        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid)).await?;
+        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
+          .await?
+          .unwrap();
       let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
@@ -90,8 +92,9 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     FutureResult::new(async move {
       let params = third_party_params_from_box_any(params)?;
       let uuid = params.uuid;
-      let user_profile =
-        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid)).await?;
+      let user_profile = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
+        .await?
+        .unwrap();
       let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
@@ -135,16 +138,19 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
       .unwrap();
     FutureResult::new(async move {
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
-      Ok(Some(UserProfile {
-        id: user_profile_resp.uid,
-        email: user_profile_resp.email,
-        name: user_profile_resp.name,
-        token: "".to_string(),
-        icon_url: "".to_string(),
-        openai_key: "".to_string(),
-        workspace_id: user_profile_resp.latest_workspace_id,
-        auth_type: AuthType::Supabase,
-      }))
+      match user_profile_resp {
+        None => Ok(None),
+        Some(user_profile_resp) => Ok(Some(UserProfile {
+          id: user_profile_resp.uid,
+          email: user_profile_resp.email,
+          name: user_profile_resp.name,
+          token: "".to_string(),
+          icon_url: "".to_string(),
+          openai_key: "".to_string(),
+          workspace_id: user_profile_resp.latest_workspace_id,
+          auth_type: AuthType::Supabase,
+        })),
+      }
     })
   }
 
@@ -186,7 +192,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
 async fn get_user_profile(
   postgrest: Arc<PostgresWrapper>,
   params: GetUserProfileParams,
-) -> Result<UserProfileResponse, Error> {
+) -> Result<Option<UserProfileResponse>, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
     .select("uid, email, name, latest_workspace_id");
@@ -202,9 +208,11 @@ async fn get_user_profile(
     .error_for_status()?
     .get_value::<Vec<UserProfileResponse>>()
     .await?;
-
-  assert!(profiles.len() == 1);
-  Ok(profiles.swap_remove(0))
+  match profiles.len() {
+    0 => Ok(None),
+    1 => Ok(Some(profiles.swap_remove(0))),
+    _ => unreachable!(),
+  }
 }
 
 async fn get_user_workspaces(
