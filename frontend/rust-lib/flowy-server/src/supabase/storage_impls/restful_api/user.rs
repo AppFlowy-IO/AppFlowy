@@ -1,8 +1,6 @@
 use anyhow::Error;
+use core::assert;
 
-use anyhow::anyhow;
-use flowy_error::internal_error;
-use reqwest::Response;
 use std::sync::Arc;
 
 use flowy_user_deps::cloud::*;
@@ -11,9 +9,11 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::GetUserProfileParams;
+use crate::supabase::entities::UserProfileResponse;
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
 use crate::supabase::storage_impls::USER_EMAIL;
+use crate::supabase::storage_impls::USER_PROFILE_VIEW;
 use crate::supabase::storage_impls::USER_TABLE;
 use crate::supabase::storage_impls::USER_UUID;
 use crate::supabase::storage_impls::WORKSPACE_TABLE;
@@ -63,14 +63,14 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
       tracing::debug!("user uuid: {}", params.uuid);
       let user_profile =
         get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid)).await?;
-      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.id).await?;
+      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
-        .find(|user_workspace| user_workspace.id == user_profile.workspace_id)
+        .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
         .cloned();
 
       Ok(SignUpResponse {
-        user_id: user_profile.id,
+        user_id: user_profile.uid,
         name: user_profile.name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
@@ -130,10 +130,27 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
 }
 
 async fn get_user_profile(
-  _postgrest: Arc<PostgresWrapper>,
-  _params: GetUserProfileParams,
-) -> Result<UserProfile, Error> {
-  todo!()
+  postgrest: Arc<PostgresWrapper>,
+  params: GetUserProfileParams,
+) -> Result<UserProfileResponse, Error> {
+  let mut builder = postgrest
+    .from(USER_PROFILE_VIEW)
+    .select("uid:id, email, name");
+
+  match params {
+    GetUserProfileParams::Uid(uid) => builder = builder.eq("id", uid.to_string()),
+    GetUserProfileParams::Uuid(uuid) => builder = builder.eq("uuid", uuid.to_string()),
+  }
+
+  let mut profiles = builder
+    .execute()
+    .await?
+    .error_for_status()?
+    .get_value::<Vec<UserProfileResponse>>()
+    .await?;
+
+  assert!(profiles.len() == 1);
+  Ok(profiles.swap_remove(0))
 }
 
 async fn get_user_workspaces(
@@ -142,7 +159,7 @@ async fn get_user_workspaces(
 ) -> Result<Vec<UserWorkspace>, Error> {
   postgrest
     .from(WORKSPACE_TABLE)
-    .select("workspace_id, workspace_name, created_at, database_storage_id")
+    .select("workspace_id:id, workspace_name:name, created_at, database_storage_id")
     .eq("owner_uid", uid.to_string())
     .execute()
     .await?
