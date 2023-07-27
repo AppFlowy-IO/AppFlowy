@@ -1,8 +1,8 @@
+use anyhow::Error;
 use std::collections::HashMap;
 
 use collab_plugins::cloud_storage::CollabType;
 
-use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 pub type CollabObjectUpdateByOid = HashMap<String, CollabObjectUpdate>;
@@ -16,18 +16,18 @@ pub trait DatabaseCloudService: Send + Sync {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdate, FlowyError>;
+  ) -> FutureResult<CollabObjectUpdate, Error>;
 
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError>;
+  ) -> FutureResult<CollabObjectUpdateByOid, Error>;
 
   fn get_collab_latest_snapshot(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError>;
+  ) -> FutureResult<Option<DatabaseSnapshot>, Error>;
 }
 
 pub struct DatabaseSnapshot {

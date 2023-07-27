@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 use futures_util::future::BoxFuture;
 use tokio::sync::oneshot::channel;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::storage_impls::pooler::{
@@ -23,10 +23,10 @@ pub fn try_upgrade_server(
   }
 }
 
-pub fn execute_async<F, R, T>(service: &T, func: F) -> FutureResult<R, FlowyError>
+pub fn execute_async<F, R, T>(service: &T, func: F) -> FutureResult<R, anyhow::Error>
 where
   T: SupabaseServerService,
-  F: FnOnce(PostgresObject, PgPoolMode) -> BoxFuture<'static, FlowyResult<R>>
+  F: FnOnce(PostgresObject, PgPoolMode) -> BoxFuture<'static, Result<R, anyhow::Error>>
     + Sync
     + Send
     + 'static,
@@ -44,5 +44,5 @@ where
     .await;
     let _ = tx.send(result);
   });
-  FutureResult::new(async { rx.await.map_err(internal_error)? })
+  FutureResult::new(async { rx.await? })
 }

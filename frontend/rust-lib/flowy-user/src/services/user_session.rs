@@ -309,13 +309,15 @@ impl UserSession {
     let user_id = self.get_session()?.user_id;
     let credential = UserCredentials::from_uid(user_id);
     let auth_service = self.cloud_services.get_user_service()?;
-    auth_service.check_user(credential).await
+    auth_service.check_user(credential).await?;
+    Ok(())
   }
 
   pub async fn check_user_with_uuid(&self, uuid: &Uuid) -> Result<(), FlowyError> {
     let credential = UserCredentials::from_uuid(uuid.to_string());
     let auth_service = self.cloud_services.get_user_service()?;
-    auth_service.check_user(credential).await
+    auth_service.check_user(credential).await?;
+    Ok(())
   }
 
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {

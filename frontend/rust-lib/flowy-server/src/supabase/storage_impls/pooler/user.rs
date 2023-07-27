@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
@@ -38,7 +39,7 @@ impl<T> UserService for SupabaseUserAuthServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let params = third_party_params_from_box_any(params)?;
@@ -49,7 +50,7 @@ where
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let uuid = third_party_params_from_box_any(params)?.uuid;
@@ -73,7 +74,7 @@ where
     })
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -81,7 +82,7 @@ where
     &self,
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let txn = pg_client.transaction().await?;
@@ -95,7 +96,7 @@ where
   fn get_user_profile(
     &self,
     credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<Option<UserProfile>, Error> {
     execute_async(&self.server, move |mut pg_client, _pg_mode| {
       Box::pin(async move {
         let uid = credential
@@ -121,7 +122,7 @@ where
     })
   }
 
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
+  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let txn = pg_client.transaction().await?;
@@ -132,7 +133,7 @@ where
     })
   }
 
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
@@ -148,7 +149,7 @@ where
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     execute_async(&self.server, move |pg_client, pg_mode| {
       Box::pin(
         async move { add_workspace_member(&pg_client, &pg_mode, user_email, workspace_id).await },
@@ -160,7 +161,7 @@ where
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     execute_async(&self.server, move |pg_client, pg_mode| {
       Box::pin(async move {
         remove_workspace_member(&pg_client, &pg_mode, user_email, workspace_id).await
@@ -174,7 +175,7 @@ async fn create_user_with_uuid(
   pg_mode: &PgPoolMode,
   uuid: Uuid,
   email: String,
-) -> Result<SignUpResponse, anyhow::Error> {
+) -> Result<SignUpResponse, Error> {
   let mut is_new = true;
   let txn = client.transaction().await?;
   let row = txn
@@ -230,7 +231,7 @@ async fn get_user_workspaces<'a>(
   transaction: &'a Transaction<'a>,
   pg_mode: &PgPoolMode,
   uid: i64,
-) -> Result<Vec<UserWorkspace>, anyhow::Error> {
+) -> Result<Vec<UserWorkspace>, Error> {
   let sql = "SELECT af_workspace.* FROM af_workspace INNER JOIN af_workspace_member ON af_workspace.workspace_id = af_workspace_member.workspace_id WHERE af_workspace_member.uid = $1";
   let stmt = prepare_cached(pg_mode, sql.to_string(), transaction).await?;
   let all_rows = transaction.query(stmt.as_ref(), &[&uid]).await?;
@@ -381,7 +382,7 @@ async fn add_workspace_member<C: GenericClient>(
   _pg_mode: &PgPoolMode,
   _email: String,
   _workspace_id: String,
-) -> Result<(), FlowyError> {
+) -> Result<(), Error> {
   Ok(())
 }
 
@@ -390,6 +391,6 @@ async fn remove_workspace_member<C: GenericClient>(
   _pg_mode: &PgPoolMode,
   _email: String,
   _workspace_id: String,
-) -> Result<(), FlowyError> {
+) -> Result<(), Error> {
   Ok(())
 }

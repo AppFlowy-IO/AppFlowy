@@ -244,7 +244,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  ) -> FutureResult<CollabObjectUpdate, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
@@ -259,7 +259,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
+  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
       server?
@@ -272,7 +272,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
   fn get_collab_latest_snapshot(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
@@ -285,7 +285,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
 }
 
 impl DocumentCloudService for AppFlowyServerProvider {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
@@ -299,7 +299,7 @@ impl DocumentCloudService for AppFlowyServerProvider {
   fn get_document_latest_snapshot(
     &self,
     document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
@@ -310,7 +310,7 @@ impl DocumentCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
+  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {

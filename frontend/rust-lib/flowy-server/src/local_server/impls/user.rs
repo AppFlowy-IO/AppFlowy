@@ -1,9 +1,9 @@
+use anyhow::Error;
 use std::sync::Arc;
 
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
-use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
@@ -22,7 +22,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
 }
 
 impl UserService for LocalServerUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
@@ -40,7 +40,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
@@ -63,7 +63,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -71,22 +71,22 @@ impl UserService for LocalServerUserAuthServiceImpl {
     &self,
     _credential: UserCredentials,
     _params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<Option<UserProfile>, Error> {
     FutureResult::new(async { Ok(None) })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
+  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -94,7 +94,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -102,7 +102,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 }

@@ -384,8 +384,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         Some(cloud_service) => {
           let updates = cloud_service
             .get_collab_update(&object_id, object_ty)
-            .await
-            .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
+            .await?;
           Ok(updates)
         },
       }
@@ -407,8 +406,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         Some(cloud_service) => {
           let updates = cloud_service
             .batch_get_collab_updates(object_ids, object_ty)
-            .await
-            .map_err(|e| DatabaseError::Internal(Box::new(e)))?;
+            .await?;
           Ok(updates)
         },
       }

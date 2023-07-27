@@ -104,7 +104,10 @@ impl HttpRequestBuilder {
     let builder = self.inner_send().await?;
     match builder.response {
       None => Err(unexpected_empty_payload(&builder.url)),
-      Some(data) => serde_json::from_slice(&data).map_err(internal_error),
+      Some(data) => {
+        let value = serde_json::from_slice(&data)?;
+        Ok(value)
+      },
     }
   }
 

@@ -1,10 +1,11 @@
+use anyhow::Error;
 use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
-use flowy_error::{internal_error, FlowyError};
+
 use lib_infra::future::FutureResult;
 
 use crate::supabase::storage_impls::pooler::postgres_server::SupabaseServerService;
@@ -31,7 +32,7 @@ where
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  ) -> FutureResult<CollabObjectUpdate, Error> {
     let weak_server = self.server.get_pg_server();
     let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
@@ -51,14 +52,14 @@ where
         .await,
       )
     });
-    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
+    FutureResult::new(async { rx.await? })
   }
 
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
-  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
+  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     let weak_server = self.server.get_pg_server();
     let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
@@ -77,13 +78,13 @@ where
         .await,
       )
     });
-    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
+    FutureResult::new(async { rx.await? })
   }
 
   fn get_collab_latest_snapshot(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
     let object_id = object_id.to_string();
     let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {

@@ -1,7 +1,7 @@
 pub use collab_folder::core::{Folder, FolderData, Workspace};
 
 pub use anyhow::Error;
-use flowy_error::FlowyError;
+
 use lib_infra::future::FutureResult;
 
 /// [FolderCloudService] represents the cloud service for folder.

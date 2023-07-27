@@ -1,3 +1,4 @@
+use anyhow::Error;
 use std::sync::Arc;
 
 use postgrest::Postgrest;
@@ -23,7 +24,7 @@ impl RESTfulSupabaseUserAuthServiceImpl {
 }
 
 impl UserService for RESTfulSupabaseUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
       // let mut is_new = true;
@@ -53,11 +54,11 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, Error> {
     todo!()
   }
 
-  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     todo!()
   }
 
@@ -65,22 +66,22 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     &self,
     _credential: UserCredentials,
     _params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     todo!()
   }
 
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<Option<UserProfile>, Error> {
     todo!()
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
+  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     todo!()
   }
 
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
     todo!()
   }
 
@@ -88,7 +89,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     todo!()
   }
 
@@ -96,7 +97,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     todo!()
   }
 }

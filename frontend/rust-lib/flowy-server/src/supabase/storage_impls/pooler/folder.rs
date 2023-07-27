@@ -1,3 +1,4 @@
+use anyhow::Error;
 use chrono::{DateTime, Utc};
 use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::CollabType;
@@ -6,7 +7,7 @@ use futures_util::{pin_mut, StreamExt};
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
@@ -38,18 +39,14 @@ impl<T> FolderCloudService for SupabaseFolderCloudServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
+  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let name = name.to_string();
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move { create_workspace(&mut pg_client, &pg_mode, uid, &name).await })
     })
   }
 
-  fn add_member_to_workspace(
-    &self,
-    email: &str,
-    workspace_id: &str,
-  ) -> FutureResult<(), FlowyError> {
+  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error> {
     let email = email.to_string();
     let workspace_id = workspace_id.to_string();
     execute_async(&self.server, move |pg_client, pg_mode| {
@@ -63,11 +60,11 @@ where
     &self,
     _email: &str,
     _workspace_id: &str,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     todo!()
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
     let workspace_id = workspace_id.to_string();
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
@@ -92,7 +89,7 @@ where
   fn get_folder_latest_snapshot(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
     let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
@@ -112,11 +109,7 @@ where
     })
   }
 
-  fn get_folder_updates(
-    &self,
-    workspace_id: &str,
-    _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let weak_server = self.server.get_pg_server();
     let pg_mode = self.server.get_pg_mode();
     let (tx, rx) = channel();
@@ -140,7 +133,7 @@ where
         .await,
       )
     });
-    FutureResult::new(async { rx.await.map_err(internal_error)?.map_err(internal_error) })
+    FutureResult::new(async { rx.await? })
   }
 
   fn service_name(&self) -> String {
@@ -153,7 +146,7 @@ async fn add_member_to_workspace(
   _pg_mode: &PgPoolMode,
   _email: &str,
   _workspace_id: &str,
-) -> FlowyResult<()> {
+) -> Result<(), Error> {
   Ok(())
 }
 
@@ -162,7 +155,7 @@ async fn create_workspace(
   pg_mode: &PgPoolMode,
   uid: i64,
   name: &str,
-) -> Result<Workspace, FlowyError> {
+) -> Result<Workspace, Error> {
   let new_workspace_id = Uuid::new_v4();
 
   // Create workspace
@@ -200,9 +193,6 @@ async fn create_workspace(
       created_at: created_at.timestamp(),
     })
   } else {
-    Err(FlowyError::new(
-      ErrorCode::PgDatabaseError,
-      "Create workspace failed",
-    ))
+    Err(FlowyError::new(ErrorCode::PgDatabaseError, "Create workspace failed").into())
   }
 }
