@@ -78,9 +78,16 @@ impl ExtendedResponse for Response {
         );
       }
       let bytes = self.bytes().await?;
-      let value = serde_json::from_slice(&bytes)?;
-      // let text = self.text().await?;
-      // let value = serde_json::from_str(&text)?;
+      let value = serde_json::from_slice(&bytes).map_err(|e| {
+        FlowyError::new(
+          ErrorCode::Serde,
+          format!(
+            "failed to parse json: {}, body: {}",
+            e,
+            String::from_utf8_lossy(&bytes)
+          ),
+        )
+      })?;
       Ok(value)
     })
   }

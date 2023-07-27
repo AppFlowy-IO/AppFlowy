@@ -11,6 +11,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::entities::GetUserProfileParams;
+use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
@@ -41,7 +42,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
         .eq("uuid", params.uuid.to_string())
         .execute()
         .await?
-        .get_value::<Vec<i64>>()
+        .get_value::<Vec<UidResponse>>()
         .await?
         .is_empty();
 
@@ -237,7 +238,7 @@ async fn update_user_profile(
     .execute()
     .await?
     .error_for_status()?
-    .get_value::<Vec<i64>>()
+    .get_value::<Vec<UidResponse>>()
     .await?
     .is_empty();
   if !exists {
@@ -285,7 +286,7 @@ async fn check_user(
     .execute()
     .await?
     .error_for_status()?
-    .get_value::<Vec<i64>>()
+    .get_value::<Vec<UidResponse>>()
     .await?
     .is_empty();
   if !exists {

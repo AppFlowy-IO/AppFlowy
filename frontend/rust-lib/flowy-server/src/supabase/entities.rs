@@ -37,3 +37,8 @@ impl From<tokio_postgres::Row> for UserProfileResponse {
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
+
+#[derive(Deserialize, Clone)]
+pub(crate) struct UidResponse {
+  pub uid: i64,
+}
