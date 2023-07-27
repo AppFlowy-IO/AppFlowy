@@ -790,6 +790,7 @@ class FieldInfo {
       case FieldType.RichText:
       case FieldType.Checkbox:
       case FieldType.Number:
+      case FieldType.DateTime:
         return true;
       default:
         return false;

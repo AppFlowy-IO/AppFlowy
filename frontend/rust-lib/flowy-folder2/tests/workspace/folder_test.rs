@@ -300,3 +300,46 @@ async fn delete_favorites() {
   test.run_scripts(vec![DeleteView, ReadFavorites]).await;
   assert!(test.favorites.len() == 0);
 }
+
+async fn move_view_event_test() {
+  let mut test = FolderTest::new().await;
+  let parent_view = test.parent_view.clone();
+  test
+    .run_scripts(vec![
+      CreateView {
+        name: "View A".to_owned(),
+        desc: "View A description".to_owned(),
+        layout: ViewLayout::Document,
+      },
+      ReloadParentView(parent_view.id.clone()),
+    ])
+    .await;
+  let view_ids = test
+    .parent_view
+    .child_views
+    .iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+  let move_view_id = view_ids[0].clone();
+  let new_prev_view_id = view_ids[1].clone();
+  let new_parent_view_id = parent_view.id.clone();
+  test
+    .run_scripts(vec![
+      MoveView {
+        view_id: move_view_id.clone(),
+        new_parent_id: new_parent_view_id.clone(),
+        prev_view_id: Some(new_prev_view_id.clone()),
+      },
+      ReloadParentView(parent_view.id.clone()),
+    ])
+    .await;
+
+  let after_view_ids = test
+    .parent_view
+    .child_views
+    .iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+  assert_eq!(after_view_ids[0], view_ids[1]);
+  assert_eq!(after_view_ids[1], view_ids[0]);
+}

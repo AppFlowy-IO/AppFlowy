@@ -126,7 +126,12 @@ impl TypeOptionCellDataCompare for URLTypeOption {
   ) -> Ordering {
     cell_data.data.cmp(&other_cell_data.data)
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.data.is_empty()
+  }
 }
+
 fn auto_append_scheme(s: &str) -> String {
   // Only support https scheme by now
   match url::Url::parse(s) {

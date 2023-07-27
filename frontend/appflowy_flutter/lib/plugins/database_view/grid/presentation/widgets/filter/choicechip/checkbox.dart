@@ -107,7 +107,12 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.fieldInfo.name),
+          Expanded(
+            child: FlowyText(
+              state.filterInfo.fieldInfo.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const HSpace(4),
           CheckboxFilterConditionList(
             filterInfo: state.filterInfo,
@@ -118,7 +123,6 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
                   .add(CheckboxFilterEditorEvent.updateCondition(condition));
             },
           ),
-          const Spacer(),
           DisclosureButton(
             popoverMutex: popoverMutex,
             onAction: (action) {

@@ -22,7 +22,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.70"
-  FLUTTER_VERSION: "3.10.1"
 
 jobs:
   test-on-ubuntu:
@@ -40,14 +39,6 @@ jobs:
           components: rustfmt, clippy
           profile: minimal
 
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
       - name: Install prerequisites
         working-directory: frontend
         run: |
@@ -59,11 +50,6 @@ jobs:
           prefix-key: 'ubuntu-latest'
           workspaces: |
             frontend/rust-lib 
-
-      - name: Build FlowySDK
-        working-directory: frontend
-        run: |
-          cargo make --profile development-linux-x86_64 appflowy-core-dev
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib

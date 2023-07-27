@@ -16,7 +16,7 @@ async fn sort_text_with_checkbox_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
-      orders: vec!["Yes", "Yes", "No", "No", "No"],
+      orders: vec!["Yes", "Yes", "No", "No", "No", "Yes"],
     },
     InsertSort {
       field: text_field.clone(),
@@ -24,7 +24,11 @@ async fn sort_text_with_checkbox_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["", "A", "AE", "AE", "C", "DA"],
+      orders: vec!["A", "AE", "AE", "C", "DA", ""],
+    },
+    AssertCellContentOrder {
+      field_id: checkbox_field.id.clone(),
+      orders: vec!["Yes", "No", "Yes", "No", "No", "Yes"],
     },
   ];
   test.run_scripts(scripts).await;
@@ -36,11 +40,11 @@ async fn sort_text_with_checkbox_by_ascending_test() {
     },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
-      orders: vec!["", "A", "AE", "AE", "C", "DA"],
+      orders: vec!["A", "AE", "AE", "C", "DA", ""],
     },
     AssertCellContentOrder {
       field_id: checkbox_field.id.clone(),
-      orders: vec!["Yes", "Yes", "Yes", "No", "No"],
+      orders: vec!["Yes", "Yes", "No", "No", "No", "Yes"],
     },
   ];
   test.run_scripts(scripts).await;

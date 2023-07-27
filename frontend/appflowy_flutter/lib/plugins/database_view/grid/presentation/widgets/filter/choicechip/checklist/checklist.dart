@@ -91,12 +91,16 @@ class ChecklistState extends State<ChecklistFilterEditor> {
             height: 20,
             child: Row(
               children: [
-                FlowyText(state.filterInfo.fieldInfo.name),
+                Expanded(
+                  child: FlowyText(
+                    state.filterInfo.fieldInfo.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 const HSpace(4),
                 ChecklistFilterConditionList(
                   filterInfo: state.filterInfo,
                 ),
-                const Spacer(),
                 DisclosureButton(
                   popoverMutex: widget.popoverMutex,
                   onAction: (action) {
