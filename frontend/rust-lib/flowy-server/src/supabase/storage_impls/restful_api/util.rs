@@ -77,8 +77,10 @@ impl ExtendedResponse for Response {
           .into(),
         );
       }
-      let text = self.text().await?;
-      let value = serde_json::from_str(&text)?;
+      let bytes = self.bytes().await?;
+      let value = serde_json::from_slice(&bytes)?;
+      // let text = self.text().await?;
+      // let value = serde_json::from_str(&text)?;
       Ok(value)
     })
   }
@@ -98,8 +100,8 @@ impl ExtendedResponse for Response {
           .into(),
         );
       }
-      let text = self.text().await?;
-      let value = serde_json::from_str::<Value>(&text)?;
+      let bytes = self.bytes().await?;
+      let value = serde_json::from_slice::<Value>(&bytes)?;
       Ok(value)
     })
   }

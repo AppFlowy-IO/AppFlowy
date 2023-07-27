@@ -54,19 +54,15 @@ where
     let workspace_id = workspace_id.to_string();
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        let folder_data = get_updates_from_server(
-          &workspace_id,
-          &CollabType::Document,
-          &pg_mode,
-          &mut pg_client,
-        )
-        .await
-        .map(|updates| {
-          let folder =
-            Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
-              .ok()?;
-          folder.get_folder_data()
-        })?;
+        let folder_data =
+          get_updates_from_server(&workspace_id, &CollabType::Folder, &pg_mode, &mut pg_client)
+            .await
+            .map(|updates| {
+              let folder =
+                Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
+                  .ok()?;
+              folder.get_folder_data()
+            })?;
         Ok(folder_data)
       })
     })
@@ -86,9 +82,9 @@ where
     });
     FutureResult::new(async move {
       let snapshot = fut.await?.map(|snapshot| FolderSnapshot {
-        snapshot_id: snapshot.snapshot_id,
+        snapshot_id: snapshot.sid,
         database_id: snapshot.oid,
-        data: snapshot.data,
+        data: snapshot.blob,
         created_at: snapshot.created_at,
       });
       Ok(snapshot)

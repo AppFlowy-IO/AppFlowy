@@ -280,7 +280,7 @@ INSERT ON af_collab_update FOR EACH ROW EXECUTE FUNCTION increment_af_collab_edi
 -- collab snapshot. It will be used to store the snapshots of the collab.
 CREATE TABLE IF NOT EXISTS af_collab_snapshot (
    sid BIGSERIAL PRIMARY KEY,
-   oid TEXT NOT NULL REFERENCES af_collab(oid) ON DELETE CASCADE,
+   oid TEXT NOT NULL,
    name TEXT DEFAULT '',
    blob BYTEA NOT NULL,
    blob_size INTEGER NOT NULL,

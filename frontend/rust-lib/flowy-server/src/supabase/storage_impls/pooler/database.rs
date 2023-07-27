@@ -94,9 +94,9 @@ where
     });
     FutureResult::new(async move {
       let snapshot = fut.await?.map(|snapshot| DatabaseSnapshot {
-        snapshot_id: snapshot.snapshot_id,
+        snapshot_id: snapshot.sid,
         database_id: snapshot.oid,
-        data: snapshot.data,
+        data: snapshot.blob,
         created_at: snapshot.created_at,
       });
       Ok(snapshot)

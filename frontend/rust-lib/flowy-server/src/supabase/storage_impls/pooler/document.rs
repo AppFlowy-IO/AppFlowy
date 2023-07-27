@@ -64,9 +64,9 @@ where
     });
     FutureResult::new(async move {
       let snapshot = fut.await?.map(|snapshot| DocumentSnapshot {
-        snapshot_id: snapshot.snapshot_id,
+        snapshot_id: snapshot.sid,
         document_id: snapshot.oid,
-        data: snapshot.data,
+        data: snapshot.blob,
         created_at: snapshot.created_at,
       });
       Ok(snapshot)

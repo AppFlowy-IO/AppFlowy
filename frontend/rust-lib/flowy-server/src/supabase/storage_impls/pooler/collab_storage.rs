@@ -31,21 +31,22 @@ use crate::supabase::storage_impls::pooler::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
 use crate::supabase::storage_impls::pooler::{prepare_cached, PostgresObject};
+use crate::supabase::storage_impls::table_name;
 use crate::supabase::PgPoolMode;
 
 pub struct SupabaseRemoteCollabStorageImpl<T> {
   server: T,
   mode: PgPoolMode,
 }
-const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
-const AF_COLLAB_DATABASE_ROW_UPDATE_TABLE: &str = "af_database_row_update";
-const AF_COLLAB_KEY_COLUMN: &str = "key";
-const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
-const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
-const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
-const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
-const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
-const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
+pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
+pub const AF_COLLAB_DATABASE_ROW_UPDATE_TABLE: &str = "af_database_row_update";
+pub const AF_COLLAB_KEY_COLUMN: &str = "key";
+pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
+pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
+pub const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+pub const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
+pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
+pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 impl<T> SupabaseRemoteCollabStorageImpl<T>
 where
@@ -294,11 +295,11 @@ where
 
 pub async fn get_updates_from_server(
   object_id: &str,
-  _object_ty: &CollabType,
+  object_ty: &CollabType,
   pg_mode: &PgPoolMode,
   client: &mut PostgresObject,
 ) -> Result<Vec<Vec<u8>>, Error> {
-  let (sql, params) = SelectSqlBuilder::new(&table_name(&CollabType::Folder))
+  let (sql, params) = SelectSqlBuilder::new(&table_name(object_ty))
     .column("value")
     .order_by(AF_COLLAB_KEY_COLUMN, true)
     .where_clause("oid", object_id.to_string())
@@ -350,9 +351,9 @@ pub async fn get_latest_snapshot_from_server(
     .timestamp();
 
   Ok(Some(RemoteCollabSnapshot {
-    snapshot_id,
+    sid: snapshot_id,
     oid: object_id.to_string(),
-    data: update,
+    blob: update,
     created_at,
   }))
 }
@@ -533,16 +534,6 @@ impl Action for BatchFetchObjectUpdateAction {
         },
       }
     })
-  }
-}
-
-fn table_name(ty: &CollabType) -> String {
-  match ty {
-    CollabType::DatabaseRow => AF_COLLAB_DATABASE_ROW_UPDATE_TABLE.to_string(),
-    CollabType::Document => format!("{}_document", AF_COLLAB_UPDATE_TABLE),
-    CollabType::Database => format!("{}_database", AF_COLLAB_UPDATE_TABLE),
-    CollabType::WorkspaceDatabase => format!("{}_w_database", AF_COLLAB_UPDATE_TABLE),
-    CollabType::Folder => format!("{}_folder", AF_COLLAB_UPDATE_TABLE),
   }
 }
 
