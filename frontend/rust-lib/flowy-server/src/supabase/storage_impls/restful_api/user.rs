@@ -267,9 +267,29 @@ async fn update_user_profile(
 }
 
 async fn check_user(
-  _postgrest: Arc<PostgresWrapper>,
-  _uid: Option<i64>,
-  _uuid: Option<Uuid>,
+  postgrest: Arc<PostgresWrapper>,
+  uid: Option<i64>,
+  uuid: Option<Uuid>,
 ) -> Result<(), Error> {
-  todo!()
+  let mut builder = postgrest.from(USER_TABLE);
+
+  if let Some(uid) = uid {
+    builder = builder.eq("uid", uid.to_string());
+  } else if let Some(uuid) = uuid {
+    builder = builder.eq("uuid", uuid.to_string());
+  } else {
+    anyhow::bail!("uid or uuid is required");
+  }
+
+  let exists = !builder
+    .execute()
+    .await?
+    .error_for_status()?
+    .get_value::<Vec<i64>>()
+    .await?
+    .is_empty();
+  if !exists {
+    anyhow::bail!("user does not exist, uid: {:?}, uuid: {:?}", uid, uuid);
+  }
+  Ok(())
 }
