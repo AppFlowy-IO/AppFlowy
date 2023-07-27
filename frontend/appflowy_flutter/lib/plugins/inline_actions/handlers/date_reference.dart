@@ -1,4 +1,5 @@
 import 'package:appflowy/date/date_service.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
@@ -31,7 +32,7 @@ class DateReferenceService {
     _setLocale();
 
     // Filters static options
-    await _filterOptions(search);
+    _filterOptions(search);
 
     // Searches for date by pattern
     _searchDate(search);
@@ -40,12 +41,12 @@ class DateReferenceService {
     _searchDateNLP(search);
 
     return InlineActionsResult(
-      title: 'Date',
+      title: LocaleKeys.inlineActions_date.tr(),
       results: options,
     );
   }
 
-  Future<void> _filterOptions(String? search) async {
+  void _filterOptions(String? search) {
     if (search == null || search.isEmpty) {
       options = [];
       return;
@@ -157,7 +158,6 @@ class DateReferenceService {
     final locale = context.locale.toLanguageTag();
 
     if (locale != _locale) {
-      debugPrint("REACHED!! $_locale : $locale");
       _locale = context.locale.toLanguageTag();
       _setOptions();
     }

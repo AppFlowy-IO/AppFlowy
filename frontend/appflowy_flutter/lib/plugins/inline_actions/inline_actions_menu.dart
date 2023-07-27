@@ -89,8 +89,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
         height: editorSize.height,
         width: editorSize.width,
 
-        /// GestureDetector handles clicks outside of the context menu,
-        /// to dismiss the context menu.
+        // GestureDetector handles clicks outside of the context menu,
+        // to dismiss the context menu.
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: dismiss,
@@ -172,5 +172,6 @@ class InlineActionsMenuStyle {
   final Color groupTextColor;
 
   /// The background of the currently selected [InlineActionsMenuITem]
+  ///
   final Color menuItemSelectedColor;
 }

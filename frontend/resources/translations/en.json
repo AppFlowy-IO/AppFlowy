@@ -707,6 +707,7 @@
   },
   "inlineActions": {
     "noResults": "No results",
-    "pageReference": "Page reference"
+    "pageReference": "Page reference",
+    "date": "Date"
   }
 }

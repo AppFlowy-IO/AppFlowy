@@ -14,6 +14,12 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+final List<CommandShortcutEvent> commandShortcutEvents = [
+  toggleToggleListCommand,
+  ...codeBlockCommands,
+  ...standardCommandShortcutEvents,
+];
+
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
   const AppFlowyEditorPage({
@@ -37,15 +43,6 @@ class AppFlowyEditorPage extends StatefulWidget {
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
-final List<CommandShortcutEvent> commandShortcutEvents = [
-  ...codeBlockCommands,
-  ...standardCommandShortcutEvents,
-];
-
-final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
-  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
-];
-
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
 
@@ -56,15 +53,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       DateReferenceService(context).dateReferenceDelegate,
     ],
   );
-
-  final List<CommandShortcutEvent> commandShortcutEvents = [
-    toggleToggleListCommand,
-    ...codeBlockCommands,
-    customCopyCommand,
-    customPasteCommand,
-    customCutCommand,
-    ...standardCommandShortcutEvents,
-  ];
 
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -446,8 +434,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Future<void> _initializeShortcuts() async {
-    //TODO(Xazin): Refactor lazy initialization
-    defaultCommandShortcutEvents;
     final settingsShortcutService = SettingsShortcutService();
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();

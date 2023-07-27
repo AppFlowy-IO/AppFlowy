@@ -11,9 +11,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// TODO(Xazin): Dismiss context menu on too many invalid searches
-///  Maybe?: consider logic for keepAlive requests from delegate (?)
-// const _invalidSearchesAmount = 3;
+const _invalidSearchesAmount = 10;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -42,7 +40,7 @@ class InlineActionsHandler extends StatefulWidget {
 class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
 
-  List<InlineActionsResult> results = [];
+  late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
 
   String _search = '';
@@ -56,9 +54,14 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     for (final handler in widget.service.handlers) {
       final group = await handler.call(_search);
 
-      if (group.results.isNotEmpty) {
-        newResults.add(group);
-      }
+      newResults.add(group);
+    }
+
+    invalidCounter = results.every((group) => group.results.isEmpty)
+        ? invalidCounter + 1
+        : 0;
+    if (invalidCounter >= _invalidSearchesAmount) {
+      widget.onDismiss();
     }
 
     setState(() {
@@ -74,7 +77,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   @override
   void initState() {
     super.initState();
-    results = widget.results;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -110,6 +112,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: results
+                      .where((g) => g.results.isNotEmpty)
                       .mapIndexed(
                         (index, group) => InlineActionsGroup(
                           result: group,
@@ -178,7 +181,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       /// that the selection change occurred from the handler.
       widget.onSelectionUpdate();
 
-      /// TODO(Xazin): Consider delete word backward with CTRL+BACKSPACE
       widget.editorState.deleteBackward();
       return KeyEventResult.handled;
     } else if (event.character != null &&
