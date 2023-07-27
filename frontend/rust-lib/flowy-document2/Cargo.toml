@@ -13,7 +13,7 @@ flowy-document-deps = { path = "../flowy-document-deps" }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_serde", "adaptor_database", "adaptor_dispatch", "collab"] }
+flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_sqlite", "impl_from_dispatch_error", "impl_from_collab"] }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 

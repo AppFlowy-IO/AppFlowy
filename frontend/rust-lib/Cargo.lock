@@ -1797,12 +1797,15 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
+ "tokio",
+ "tokio-postgres",
 ]
 
 [[package]]
 name = "flowy-folder-deps"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "collab-folder",
  "flowy-error",
  "lib-infra",

@@ -87,9 +87,8 @@ where
     let object_id = object_id.to_string();
     let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        get_latest_snapshot_from_server(&object_id, pg_mode, &mut pg_client)
-          .await
-          .map_err(internal_error)
+        let snapshot = get_latest_snapshot_from_server(&object_id, pg_mode, &mut pg_client).await?;
+        Ok(snapshot)
       })
     });
     FutureResult::new(async move {

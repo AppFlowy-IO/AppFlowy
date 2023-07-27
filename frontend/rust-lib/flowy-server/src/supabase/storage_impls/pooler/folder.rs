@@ -71,7 +71,7 @@ where
     let workspace_id = workspace_id.to_string();
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        get_updates_from_server(
+        let folder_data = get_updates_from_server(
           &workspace_id,
           &CollabType::Document,
           &pg_mode,
@@ -83,8 +83,8 @@ where
             Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
               .ok()?;
           folder.get_folder_data()
-        })
-        .map_err(internal_error)
+        })?;
+        Ok(folder_data)
       })
     })
   }
@@ -96,9 +96,9 @@ where
     let workspace_id = workspace_id.to_string();
     let fut = execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        get_latest_snapshot_from_server(&workspace_id, pg_mode, &mut pg_client)
-          .await
-          .map_err(internal_error)
+        let snapshot =
+          get_latest_snapshot_from_server(&workspace_id, pg_mode, &mut pg_client).await?;
+        Ok(snapshot)
       })
     });
     FutureResult::new(async move {
@@ -171,14 +171,9 @@ async fn create_workspace(
     .value(LATEST_WORKSPACE_ID, new_workspace_id)
     .value(WORKSPACE_NAME, name.to_string())
     .build();
-  let txn = client.transaction().await.map_err(internal_error)?;
-  let stmt = prepare_cached(pg_mode, sql, &txn)
-    .await
-    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
-  txn
-    .execute_raw(stmt.as_ref(), params)
-    .await
-    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+  let txn = client.transaction().await?;
+  let stmt = prepare_cached(pg_mode, sql, &txn).await?;
+  txn.execute_raw(stmt.as_ref(), params).await?;
 
   // Read the workspace
   let (sql, params) = SelectSqlBuilder::new(WORKSPACE_TABLE)
@@ -187,18 +182,10 @@ async fn create_workspace(
     .column(CREATED_AT)
     .where_clause(LATEST_WORKSPACE_ID, new_workspace_id)
     .build();
-  let stmt = prepare_cached(pg_mode, sql, &txn)
-    .await
-    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
-
-  let rows = Box::pin(
-    txn
-      .query_raw(stmt.as_ref(), params)
-      .await
-      .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
-  );
+  let stmt = prepare_cached(pg_mode, sql, &txn).await?;
+  let rows = Box::pin(txn.query_raw(stmt.as_ref(), params).await?);
   pin_mut!(rows);
-  txn.commit().await.map_err(internal_error)?;
+  txn.commit().await?;
 
   if let Some(Ok(row)) = rows.next().await {
     let created_at = row

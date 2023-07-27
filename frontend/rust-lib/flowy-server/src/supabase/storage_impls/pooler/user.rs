@@ -7,7 +7,7 @@ use futures_util::StreamExt;
 use tokio_postgres::error::SqlState;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
@@ -42,13 +42,9 @@ where
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let params = third_party_params_from_box_any(params)?;
-        create_user_with_uuid(&mut pg_client, &pg_mode, params.uuid, params.email)
-          .await
-          .map_err(|err| {
-            err
-              .downcast::<FlowyError>()
-              .unwrap_or_else(|err| FlowyError::new(ErrorCode::PgDatabaseError, err))
-          })
+        let response =
+          create_user_with_uuid(&mut pg_client, &pg_mode, params.uuid, params.email).await?;
+        Ok(response)
       })
     })
   }
@@ -57,12 +53,10 @@ where
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
         let uuid = third_party_params_from_box_any(params)?.uuid;
-        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        let txn = pg_client.transaction().await?;
         let user_profile = get_user_profile(&txn, GetUserProfileParams::Uuid(uuid)).await?;
-        let user_workspaces = get_user_workspaces(&txn, &pg_mode, user_profile.uid)
-          .await
-          .map_err(internal_error)?;
-        txn.commit().await.map_err(internal_error)?;
+        let user_workspaces = get_user_workspaces(&txn, &pg_mode, user_profile.uid).await?;
+        txn.commit().await?;
         let latest_workspace = user_workspaces
           .iter()
           .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
@@ -90,9 +84,9 @@ where
   ) -> FutureResult<(), FlowyError> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        let txn = pg_client.transaction().await?;
         update_user_profile(&txn, &pg_mode, params).await?;
-        txn.commit().await.map_err(internal_error)?;
+        txn.commit().await?;
         Ok(())
       })
     })
@@ -107,7 +101,7 @@ where
         let uid = credential
           .uid
           .ok_or(FlowyError::new(ErrorCode::InvalidParams, "uid is required"))?;
-        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        let txn = pg_client.transaction().await?;
         let user_profile = get_user_profile(&txn, GetUserProfileParams::Uid(uid))
           .await
           .ok()
@@ -121,7 +115,7 @@ where
             workspace_id: user_profile.latest_workspace_id,
             auth_type: AuthType::Supabase,
           });
-        txn.commit().await.map_err(internal_error)?;
+        txn.commit().await?;
         Ok(user_profile)
       })
     })
@@ -130,12 +124,10 @@ where
   fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError> {
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        let txn = pg_client.transaction().await.map_err(internal_error)?;
-        let result = get_user_workspaces(&txn, &pg_mode, uid)
-          .await
-          .map_err(internal_error);
-        txn.commit().await.map_err(internal_error)?;
-        result
+        let txn = pg_client.transaction().await?;
+        let result = get_user_workspaces(&txn, &pg_mode, uid).await?;
+        txn.commit().await?;
+        Ok(result)
       })
     })
   }
@@ -144,9 +136,9 @@ where
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move {
-        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        let txn = pg_client.transaction().await?;
         check_user(&txn, &pg_mode, credential.uid, uuid).await?;
-        txn.commit().await.map_err(internal_error)?;
+        txn.commit().await?;
         Ok(())
       })
     })
@@ -240,9 +232,7 @@ async fn get_user_workspaces<'a>(
   uid: i64,
 ) -> Result<Vec<UserWorkspace>, anyhow::Error> {
   let sql = "SELECT af_workspace.* FROM af_workspace INNER JOIN af_workspace_member ON af_workspace.workspace_id = af_workspace_member.workspace_id WHERE af_workspace_member.uid = $1";
-  let stmt = prepare_cached(pg_mode, sql.to_string(), transaction)
-    .await
-    .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
+  let stmt = prepare_cached(pg_mode, sql.to_string(), transaction).await?;
   let all_rows = transaction.query(stmt.as_ref(), &[&uid]).await?;
   Ok(
     all_rows
@@ -335,15 +325,7 @@ async fn update_user_profile<'a>(
     .set("email", params.email)
     .where_clause("uid", params.id)
     .build();
-  let stmt = prepare_cached(pg_mode, sql, transaction)
-    .await
-    .map_err(|e| {
-      FlowyError::new(
-        ErrorCode::PgDatabaseError,
-        format!("Prepare update user profile sql error: {}", e),
-      )
-    })?;
-
+  let stmt = prepare_cached(pg_mode, sql, transaction).await?;
   let affect_rows = transaction
     .execute_raw(stmt.as_ref(), pg_params)
     .await

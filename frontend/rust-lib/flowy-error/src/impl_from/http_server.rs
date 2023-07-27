@@ -9,7 +9,7 @@ impl std::convert::From<ServerErrorCode> for ErrorCode {
       ServerErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
       ServerErrorCode::ConnectRefused
       | ServerErrorCode::ConnectTimeout
-      | ServerErrorCode::ConnectClose => ErrorCode::HttpServerConnectError,
+      | ServerErrorCode::ConnectClose => ErrorCode::HttpError,
       _ => ErrorCode::Internal,
     }
   }

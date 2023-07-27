@@ -16,7 +16,7 @@ flowy-notification = { path = "../flowy-notification" }
 parking_lot = "0.12.1"
 unicode-segmentation = "1.10"
 tracing = { version = "0.1", features = ["log"] }
-flowy-error = { path = "../flowy-error", features = ["adaptor_dispatch"]}
+flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error"]}
 lib-dispatch = { path = "../lib-dispatch" }
 bytes = { version = "1.4" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }

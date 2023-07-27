@@ -1,36 +1,29 @@
 pub use collab_folder::core::{Folder, FolderData, Workspace};
 
+pub use anyhow::Error;
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
-  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError>;
+  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error>;
 
-  fn add_member_to_workspace(
-    &self,
-    email: &str,
-    workspace_id: &str,
-  ) -> FutureResult<(), FlowyError>;
+  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error>;
 
   fn remove_member_from_workspace(
     &self,
     email: &str,
     workspace_id: &str,
-  ) -> FutureResult<(), FlowyError>;
+  ) -> FutureResult<(), Error>;
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError>;
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error>;
 
   fn get_folder_latest_snapshot(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, FlowyError>;
+  ) -> FutureResult<Option<FolderSnapshot>, Error>;
 
-  fn get_folder_updates(
-    &self,
-    workspace_id: &str,
-    uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError>;
+  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 
   fn service_name(&self) -> String;
 }

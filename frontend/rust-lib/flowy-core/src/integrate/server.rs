@@ -161,17 +161,13 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
 }
 
 impl FolderCloudService for AppFlowyServerProvider {
-  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
+  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
-  fn add_member_to_workspace(
-    &self,
-    email: &str,
-    workspace_id: &str,
-  ) -> FutureResult<(), FlowyError> {
+  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error> {
     let server = self.get_provider(&self.provider_type.read());
     let email = email.to_string();
     let workspace_id = workspace_id.to_string();
@@ -187,7 +183,7 @@ impl FolderCloudService for AppFlowyServerProvider {
     &self,
     email: &str,
     workspace_id: &str,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     let server = self.get_provider(&self.provider_type.read());
     let email = email.to_string();
     let workspace_id = workspace_id.to_string();
@@ -199,7 +195,7 @@ impl FolderCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
@@ -213,7 +209,7 @@ impl FolderCloudService for AppFlowyServerProvider {
   fn get_folder_latest_snapshot(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
@@ -224,11 +220,7 @@ impl FolderCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_folder_updates(
-    &self,
-    workspace_id: &str,
-    uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {

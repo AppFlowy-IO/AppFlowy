@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
-flowy-error = { path = "../flowy-error", features = ["adaptor_database", "adaptor_dispatch"] }
+flowy-error = { path = "../flowy-error", features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 flowy-server-config = { path = "../flowy-server-config" }
