@@ -31,7 +31,6 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let postgrest = self.postgrest.clone();
     FutureResult::new(async move {
-      // let mut is_new = true;
       let params = third_party_params_from_box_any(params)?;
       let params_uuid = params.uuid;
       let params_uuid_str = params_uuid.to_string();
@@ -48,10 +47,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
       println!("uids: {:?}", uids);
 
       if uids.len() > 1 {
-        return Err(FlowyError::new(
-          ErrorCode::HttpError,
-          format!("expected 0 or 1 records, but got {}", uids.len()),
-        ));
+        return Err(anyhow::anyhow!("expected 0 or 1 records, but got {}", uids.len()));
       }
 
       if uids.len() == 0 {
@@ -66,13 +62,10 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
           .await
           .map_err(internal_error)?;
         if response.status() != StatusCode::OK {
-          return Err(FlowyError::new(
-            ErrorCode::HttpError,
-            format!(
+          return Err(anyhow::anyhow!(
               "user creation error. expected status code 200, but got {}, body: {}",
               response.status(),
               response.text().await.unwrap_or_default()
-            ),
           ));
         }
       }
