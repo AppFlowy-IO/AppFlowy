@@ -1,6 +1,8 @@
 use anyhow::Error;
 use core::assert;
+use uuid::Uuid;
 
+use std::str::FromStr;
 use std::sync::Arc;
 
 use flowy_user_deps::cloud::*;
@@ -82,35 +84,85 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, Error> {
-    todo!()
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+    let postgrest = self.postgrest.clone();
+    FutureResult::new(async move {
+      let params = third_party_params_from_box_any(params)?;
+      let uuid = params.uuid;
+      let user_profile =
+        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid)).await?;
+      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
+      let latest_workspace = user_workspaces
+        .iter()
+        .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+        .cloned();
+      Ok(SignInResponse {
+        user_id: user_profile.uid,
+        name: "".to_string(),
+        latest_workspace: latest_workspace.unwrap(),
+        user_workspaces,
+        email: None,
+        token: None,
+      })
+    })
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
-    todo!()
+    FutureResult::new(async { Ok(()) })
   }
 
   fn update_user(
     &self,
     _credential: UserCredentials,
-    _params: UpdateUserProfileParams,
+    params: UpdateUserProfileParams,
   ) -> FutureResult<(), Error> {
-    todo!()
+    let postgrest = self.postgrest.clone();
+    FutureResult::new(async move {
+      update_user_profile(postgrest, params).await?;
+      Ok(())
+    })
   }
 
   fn get_user_profile(
     &self,
-    _credential: UserCredentials,
+    credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, Error> {
-    todo!()
+    let postgrest = self.postgrest.clone();
+    let uid = credential
+      .uid
+      .ok_or(anyhow::anyhow!("uid is required"))
+      .unwrap();
+    FutureResult::new(async move {
+      let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
+      Ok(Some(UserProfile {
+        id: user_profile_resp.uid,
+        email: user_profile_resp.email,
+        name: user_profile_resp.name,
+        token: "".to_string(),
+        icon_url: "".to_string(),
+        openai_key: "".to_string(),
+        workspace_id: user_profile_resp.latest_workspace_id,
+        auth_type: AuthType::Supabase,
+      }))
+    })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
-    todo!()
+  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+    let postgrest = self.postgrest.clone();
+    FutureResult::new(async move {
+      let user_workspaces = get_user_workspaces(postgrest, uid).await?;
+      Ok(user_workspaces)
+    })
   }
 
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
-    todo!()
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
+    let postgrest = self.postgrest.clone();
+    let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
+    let uid = credential.uid;
+    FutureResult::new(async move {
+      check_user(postgrest, uid, uuid).await?;
+      Ok(())
+    })
   }
 
   fn add_workspace_member(
@@ -167,4 +219,19 @@ async fn get_user_workspaces(
     .error_for_status()?
     .get_value::<Vec<UserWorkspace>>()
     .await
+}
+
+async fn update_user_profile(
+  _postgrest: Arc<PostgresWrapper>,
+  _params: UpdateUserProfileParams,
+) -> Result<(), Error> {
+  todo!()
+}
+
+async fn check_user(
+  _postgrest: Arc<PostgresWrapper>,
+  _uid: Option<i64>,
+  _uuid: Option<Uuid>,
+) -> Result<(), Error> {
+  todo!()
 }
