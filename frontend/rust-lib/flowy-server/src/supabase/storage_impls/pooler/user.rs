@@ -232,7 +232,12 @@ async fn get_user_workspaces<'a>(
   pg_mode: &PgPoolMode,
   uid: i64,
 ) -> Result<Vec<UserWorkspace>, Error> {
-  let sql = "SELECT af_workspace.* FROM af_workspace INNER JOIN af_workspace_member ON af_workspace.workspace_id = af_workspace_member.workspace_id WHERE af_workspace_member.uid = $1";
+  let sql = r#"
+      SELECT af_workspace.*
+      FROM af_workspace
+      INNER JOIN af_workspace_member
+        ON af_workspace.workspace_id = af_workspace_member.workspace_id
+      WHERE af_workspace_member.uid = $1"#;
   let stmt = prepare_cached(pg_mode, sql.to_string(), transaction).await?;
   let all_rows = transaction.query(stmt.as_ref(), &[&uid]).await?;
   Ok(

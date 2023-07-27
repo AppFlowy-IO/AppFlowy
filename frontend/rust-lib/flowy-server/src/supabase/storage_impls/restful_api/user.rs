@@ -1,5 +1,8 @@
 use anyhow::Error;
 
+use anyhow::anyhow;
+use flowy_error::internal_error;
+use reqwest::Response;
 use std::sync::Arc;
 
 use flowy_user_deps::cloud::*;
@@ -58,8 +61,8 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
       // Query the user profile and workspaces
       tracing::debug!("user uuid: {}", params.uuid);
       let user_profile =
-        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))?;
-      let user_workspaces = get_user_workspaces(postgrest, user_profile.id)?;
+        get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid)).await?;
+      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.id).await?;
       let latest_workspace = user_workspaces
         .iter()
         .find(|user_workspace| user_workspace.id == user_profile.workspace_id)
@@ -125,16 +128,31 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
   }
 }
 
-fn get_user_profile(
+async fn get_user_profile(
   _postgrest: Arc<PostgresWrapper>,
   _params: GetUserProfileParams,
 ) -> Result<UserProfile, Error> {
   todo!()
 }
 
-fn get_user_workspaces(
+async fn get_user_workspaces(
   _postgrest: Arc<PostgresWrapper>,
   _uid: i64,
 ) -> Result<Vec<UserWorkspace>, Error> {
-  todo!()
+  todo!();
+}
+
+async fn from_response<T>(response: Response) -> Result<T, Error>
+where
+  T: serde::de::DeserializeOwned,
+{
+  let resp = response.error_for_status()?;
+  let text = resp.text().await.map_err(internal_error)?;
+  serde_json::from_str(&text).map_err(|e| {
+    anyhow!(
+      "failed to deserialize response body to json. body: {}, error: {}",
+      text,
+      e
+    )
+  })
 }
