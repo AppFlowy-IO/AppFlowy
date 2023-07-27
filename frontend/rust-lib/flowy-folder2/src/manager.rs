@@ -606,26 +606,38 @@ impl FolderManager {
   /// not a favorite or removes it from list if it is a favorite
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
-    self.with_folder((), |folder| {
-      let arc_view = folder.views.get_view(view_id);
-      if let Some(view) = arc_view {
-        if !view.is_favorite {
+    let value = self.with_folder(None, |folder| {
+      let old_view = folder.views.get_view(view_id);
+      if let Some(old_view) = old_view.clone() {
+        if old_view.is_favorite {
           folder.delete_favorites(vec![view_id.to_string()]);
-          send_notification("favorite", FolderNotification::DidUnFavoriteView)
+        } else {
+          folder.add_favorites(vec![view_id.to_string()]);
+        }
+      }
+      let new_view = folder.views.get_view(view_id);
+      if let Some(new_view) = new_view.clone() {
+        if new_view.is_favorite {
+          send_notification("favorite", FolderNotification::DidFavoriteView)
             .payload(RepeatedViewPB {
-              items: vec![view_pb_without_child_views(view)],
+              items: vec![view_pb_without_child_views(new_view)],
             })
             .send();
         } else {
-          folder.add_favorites(vec![view_id.to_string()]);
-          send_notification("favorite", FolderNotification::DidFavoriteView)
+          send_notification("favorite", FolderNotification::DidUnFavoriteView)
             .payload(RepeatedViewPB {
-              items: vec![view_pb_without_child_views(view)],
+              items: vec![view_pb_without_child_views(new_view)],
             })
             .send();
         }
       }
+      Some((old_view, new_view))
     });
+    if let Some((Some(old_view), Some(new_view))) = value {
+      if let Ok(handler) = self.get_handler(&old_view.layout) {
+        handler.did_update_view(&old_view, &new_view).await?;
+      }
+    }
     Ok(())
   }
 
@@ -652,65 +664,17 @@ impl FolderManager {
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
     self.with_folder((), |folder| {
-      folder.get_all_trash().iter().for_each(|trash_info| {
-        if let Some(view) = folder.views.get_view(&trash_info.id) {
-          let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
-          all_descendant_views.extend(folder.views.get_views_belong_to(&trash_info.id));
-          let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
-            .iter()
-            .filter(|descendant| descendant.is_favorite)
-            .map(|view| view_pb_without_child_views(view.clone()))
-            .collect();
-
-          if !favorite_descendant_views.is_empty() {
-            folder.add_favorites(
-              favorite_descendant_views
-                .iter()
-                .map(|v| v.id.clone())
-                .collect(),
-            );
-            send_notification("favorite", FolderNotification::DidFavoriteView)
-              .payload(RepeatedViewPB {
-                items: favorite_descendant_views,
-              })
-              .send();
-          }
-        }
-      });
-
       folder.remote_all_trash();
-      send_notification("trash", FolderNotification::DidUpdateTrash)
-        .payload(RepeatedTrashPB { items: vec![] })
-        .send();
     });
+    send_notification("trash", FolderNotification::DidUpdateTrash)
+      .payload(RepeatedTrashPB { items: vec![] })
+      .send();
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
     self.with_folder((), |folder| {
       folder.delete_trash(vec![trash_id.to_string()]);
-      if let Some(view) = folder.views.get_view(&trash_id) {
-        let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
-        all_descendant_views.extend(folder.views.get_views_belong_to(&trash_id));
-        let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
-          .iter()
-          .filter(|descendant| descendant.is_favorite)
-          .map(|view| view_pb_without_child_views(view.clone()))
-          .collect();
-        if !favorite_descendant_views.is_empty() {
-          folder.add_favorites(
-            favorite_descendant_views
-              .iter()
-              .map(|v| v.id.clone())
-              .collect(),
-          );
-          send_notification("favorite", FolderNotification::DidFavoriteView)
-            .payload(RepeatedViewPB {
-              items: favorite_descendant_views,
-            })
-            .send();
-        }
-      }
     });
   }
 

@@ -257,15 +257,10 @@ async fn toggle_favorites() {
   let view = test.child_view.clone();
   test
     .run_scripts(vec![
-      UpdateView {
-        name: None,
-        desc: None,
-        is_favorite: Some(!view.is_favorite),
-      },
       ReadView(view.id.clone()),
       ToggleFavorite,
       ReadFavorites,
-      ReloadParentView(view.parent_view_id.clone()),
+      ReadView(view.id.clone()),
     ])
     .await;
   assert_eq!(test.child_view.is_favorite, true);
@@ -275,15 +270,10 @@ async fn toggle_favorites() {
   let view = test.child_view.clone();
   test
     .run_scripts(vec![
-      UpdateView {
-        name: None,
-        desc: None,
-        is_favorite: Some(!view.is_favorite),
-      },
-      ReadView(view.id),
+      ReadView(view.id.clone()),
       ToggleFavorite,
       ReadFavorites,
-      ReloadParentView(view.parent_view_id.clone()),
+      ReadView(view.id.clone()),
     ])
     .await;
 
@@ -292,36 +282,21 @@ async fn toggle_favorites() {
 }
 
 #[tokio::test]
-async fn delete_and_restore_child_favorites() {
+async fn delete_favorites() {
   let mut test = FolderTest::new().await;
   let view = test.child_view.clone();
   test
     .run_scripts(vec![
-      UpdateView {
-        name: None,
-        desc: None,
-        is_favorite: Some(!view.is_favorite),
-      },
       ReadView(view.id.clone()),
       ToggleFavorite,
       ReadFavorites,
-      ReloadParentView(view.parent_view_id.clone()),
+      ReadView(view.id.clone()),
     ])
     .await;
   assert_eq!(test.child_view.is_favorite, true);
   assert!(test.favorites.len() != 0);
   assert_eq!(test.favorites[0].id, view.id);
 
-  let view = test.child_view.clone();
-  test
-    .run_scripts(vec![
-      DeleteView,
-      RestoreViewFromTrash,
-      ReadView(view.id.clone()),
-      ReadFavorites,
-    ])
-    .await;
-  assert_eq!(test.child_view.is_favorite, true);
-  assert!(test.favorites.len() != 0);
-  assert_eq!(test.favorites[0].id, view.id);
+  test.run_scripts(vec![DeleteView, ReadFavorites]).await;
+  assert!(test.favorites.len() == 0);
 }
