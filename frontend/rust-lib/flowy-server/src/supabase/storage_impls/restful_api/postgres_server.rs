@@ -1,11 +1,23 @@
+use std::ops::Deref;
 use std::sync::Arc;
 
 use postgrest::Postgrest;
 
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 
+/// Creates a wrapper for Postgrest, which allows us to extend the functionality of Postgrest.
+pub struct PostgresWrapper(Postgrest);
+
+impl Deref for PostgresWrapper {
+  type Target = Postgrest;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
 pub struct RESTfulPostgresServer {
-  pub postgres: Arc<Postgrest>,
+  pub postgrest: Arc<PostgresWrapper>,
 }
 
 impl RESTfulPostgresServer {
@@ -15,7 +27,8 @@ impl RESTfulPostgresServer {
     let postgrest = Postgrest::new(url)
       .insert_header("apikey", config.key)
       .insert_header("Authorization", auth);
-    let postgres = Arc::new(postgrest);
-    Self { postgres }
+    Self {
+      postgrest: Arc::new(PostgresWrapper(postgrest)),
+    }
   }
 }

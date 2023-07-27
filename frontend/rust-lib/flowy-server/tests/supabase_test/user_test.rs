@@ -33,7 +33,7 @@ fn user_auth_service() -> Arc<dyn UserService> {
     Mode::RESTfulAPI => {
       let config = SupabaseConfiguration::from_env().unwrap();
       let server = RESTfulPostgresServer::new(config);
-      Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(server.postgres))
+      Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(server.postgrest))
     },
     Mode::Pooler => {
       let server = Arc::new(PostgresServer::new(
