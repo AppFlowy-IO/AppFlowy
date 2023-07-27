@@ -52,7 +52,7 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
 
       if uids.len() == 0 {
         let insert_params = InsertParamsBuilder::new()
-          .insert(USER_UUID, params.uuid)
+          .insert(USER_UUID, params.uuid.to_string())
           .insert(USER_EMAIL, params.email)
           .build();
         let response = postgrest
