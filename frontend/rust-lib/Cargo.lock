@@ -1890,6 +1890,7 @@ dependencies = [
  "flowy-user-deps",
  "futures",
  "futures-util",
+ "hex",
  "hyper",
  "lazy_static",
  "lib-infra",

@@ -25,8 +25,8 @@ async fn supabase_get_folder_test() {
   }
 
   let service = folder_service();
-  let workspace_id = "a0f9c2c8-8054-4e8c-944a-cc2c164418ce";
   // will replace the uid with the real workspace_id
+  let workspace_id = "a0f9c2c8-8054-4e8c-944a-cc2c164418ce";
   let folder = service.get_folder_data(workspace_id).await.unwrap();
   assert!(folder.is_some());
 

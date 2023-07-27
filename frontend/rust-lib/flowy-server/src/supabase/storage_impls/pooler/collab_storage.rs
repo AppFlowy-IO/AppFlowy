@@ -31,7 +31,7 @@ use crate::supabase::storage_impls::pooler::sql_builder::{
   DeleteSqlBuilder, InsertSqlBuilder, SelectSqlBuilder, WhereCondition,
 };
 use crate::supabase::storage_impls::pooler::{prepare_cached, PostgresObject};
-use crate::supabase::storage_impls::table_name;
+use crate::supabase::storage_impls::{partition_key, table_name};
 use crate::supabase::PgPoolMode;
 
 pub struct SupabaseRemoteCollabStorageImpl<T> {
@@ -535,8 +535,4 @@ impl Action for BatchFetchObjectUpdateAction {
       }
     })
   }
-}
-
-fn partition_key(ty: &CollabType) -> i32 {
-  ty.value()
 }

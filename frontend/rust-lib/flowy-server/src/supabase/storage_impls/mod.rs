@@ -23,3 +23,7 @@ pub fn table_name(ty: &CollabType) -> String {
     CollabType::Folder => format!("{}_folder", AF_COLLAB_UPDATE_TABLE),
   }
 }
+
+pub fn partition_key(ty: &CollabType) -> i32 {
+  ty.value()
+}

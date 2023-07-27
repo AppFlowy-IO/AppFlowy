@@ -26,6 +26,7 @@ chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 collab = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
+hex = "0.4.3"
 
 postgrest = "1.0"
 tokio-postgres = { version = "0.7.8", optional = true, features = ["with-uuid-1","with-chrono-0_4"] }

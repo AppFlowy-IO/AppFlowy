@@ -1,256 +1,143 @@
-use crate::supabase::storage_impls::pooler::{
-  AF_COLLAB_KEY_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_COLUMN, AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN,
-  AF_COLLAB_SNAPSHOT_ID_COLUMN, AF_COLLAB_SNAPSHOT_OID_COLUMN, AF_COLLAB_SNAPSHOT_TABLE,
+use crate::supabase::storage_impls::restful_api::request::{
+  get_latest_snapshot_from_server, FetchObjectUpdateAction,
 };
-use crate::supabase::storage_impls::restful_api::util::ExtendedResponse;
+use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
-use crate::supabase::storage_impls::table_name;
+use crate::supabase::storage_impls::{partition_key, table_name};
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab_plugins::cloud_storage::{CollabType, RemoteCollabSnapshot};
-use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
+use collab_plugins::cloud_storage::{
+  CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage,
+  RemoteUpdateReceiver,
+};
+use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
-use serde_json::Value;
-use std::future::Future;
-use std::iter::Take;
-use std::pin::Pin;
+
 use std::str::FromStr;
-use std::sync::{Arc, Weak};
-use std::time::Duration;
-use tokio_retry::strategy::FixedInterval;
-use tokio_retry::{Action, Retry};
+use std::sync::Arc;
 
-pub struct FetchObjectUpdateAction {
-  object_id: String,
-  object_ty: CollabType,
-  postgrest: Weak<PostgresWrapper>,
-}
-
-impl FetchObjectUpdateAction {
-  pub fn new(object_id: String, object_ty: CollabType, postgrest: Weak<PostgresWrapper>) -> Self {
-    Self {
-      postgrest,
-      object_id,
-      object_ty,
-    }
-  }
-
-  pub fn run(self) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
-    let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
-    Retry::spawn(retry_strategy, self)
-  }
-
-  pub fn run_with_fix_interval(
-    self,
-    secs: u64,
-    times: usize,
-  ) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
-    let retry_strategy = FixedInterval::new(Duration::from_secs(secs)).take(times);
-    Retry::spawn(retry_strategy, self)
-  }
-}
-
-impl Action for FetchObjectUpdateAction {
-  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdate;
-  type Error = anyhow::Error;
-
-  fn run(&mut self) -> Self::Future {
-    let weak_postgres = self.postgrest.clone();
-    let object_id = self.object_id.clone();
-    let object_ty = self.object_ty.clone();
-    Box::pin(async move {
-      match weak_postgres.upgrade() {
-        None => Ok(vec![]),
-        Some(postgrest) => get_updates_from_server(&object_id, &object_ty, postgrest).await,
-      }
-    })
-  }
-}
-
-pub struct BatchFetchObjectUpdateAction {
-  object_ids: Vec<String>,
-  object_ty: CollabType,
-  postgrest: Weak<PostgresWrapper>,
-}
-
-impl BatchFetchObjectUpdateAction {
-  pub fn new(
-    object_ids: Vec<String>,
-    object_ty: CollabType,
-    postgrest: Weak<PostgresWrapper>,
-  ) -> Self {
-    Self {
-      postgrest,
-      object_ty,
-      object_ids,
-    }
-  }
-
-  pub fn run(self) -> Retry<Take<FixedInterval>, BatchFetchObjectUpdateAction> {
-    let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
-    Retry::spawn(retry_strategy, self)
-  }
-}
-
-impl Action for BatchFetchObjectUpdateAction {
-  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdateByOid;
-  type Error = anyhow::Error;
-
-  fn run(&mut self) -> Self::Future {
-    let weak_postgrest = self.postgrest.clone();
-    let object_ids = self.object_ids.clone();
-    let object_ty = self.object_ty.clone();
-    Box::pin(async move {
-      match weak_postgrest.upgrade() {
-        None => Ok(CollabObjectUpdateByOid::default()),
-        Some(server) => batch_get_updates_from_server(object_ids, &object_ty, server).await,
-      }
-    })
-  }
-}
-
-pub async fn get_latest_snapshot_from_server(
-  object_id: &str,
+pub struct RESTfulSupabaseCollabStorageImpl {
   postgrest: Arc<PostgresWrapper>,
-) -> Result<Option<RemoteCollabSnapshot>, Error> {
-  let json = postgrest
-    .from(AF_COLLAB_SNAPSHOT_TABLE)
-    .select(format!(
-      "{},{},{}",
-      AF_COLLAB_SNAPSHOT_ID_COLUMN,
-      AF_COLLAB_SNAPSHOT_BLOB_COLUMN,
-      AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN
-    ))
-    .order(format!("{}.desc", AF_COLLAB_SNAPSHOT_ID_COLUMN))
-    .limit(1)
-    .eq(AF_COLLAB_SNAPSHOT_OID_COLUMN, object_id)
-    .execute()
-    .await?
-    .get_json()
-    .await?;
-
-  let snapshot = json
-    .as_array()
-    .and_then(|array| array.first())
-    .and_then(|value| {
-      let blob = value
-        .get("blob")
-        .and_then(|blob| blob.as_str())
-        .and_then(decode_hex_string)?;
-      let sid = value.get("sid").and_then(|id| id.as_i64())?;
-      let created_at = value.get("created_at").and_then(|created_at| {
-        created_at
-          .as_str()
-          .map(|id| DateTime::<Utc>::from_str(id).ok())
-          .and_then(|date| date)
-      })?;
-
-      Some(RemoteCollabSnapshot {
-        sid,
-        oid: object_id.to_string(),
-        blob,
-        created_at: created_at.timestamp(),
-      })
-    });
-  Ok(snapshot)
 }
 
-pub async fn batch_get_updates_from_server(
-  object_ids: Vec<String>,
-  object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
-) -> Result<CollabObjectUpdateByOid, Error> {
-  let json = postgrest
-    .from(table_name(object_ty))
-    .select("value, md5")
-    .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
-    .in_("oid", object_ids)
-    .execute()
-    .await?
-    .get_json()
-    .await?;
+impl RESTfulSupabaseCollabStorageImpl {
+  pub fn new(postgrest: Arc<PostgresWrapper>) -> Self {
+    Self { postgrest }
+  }
+}
 
-  let updates_by_oid = CollabObjectUpdateByOid::new();
-  if let Some(records) = json.as_array() {
-    for record in records {
-      tracing::debug!("record: {:?}", record);
-    }
+#[async_trait]
+impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
+  fn is_enable(&self) -> bool {
+    true
   }
 
-  Ok(updates_by_oid)
-}
-
-pub async fn get_updates_from_server(
-  object_id: &str,
-  object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
-) -> Result<Vec<Vec<u8>>, Error> {
-  let json = postgrest
-    .from(table_name(object_ty))
-    .select("value, md5")
-    .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
-    .eq("oid", object_id)
-    .execute()
-    .await?
-    .get_json()
-    .await?;
-  parser_updates_form_json(json)
-}
-
-/// json format:
-/// ```json
-/// [
-///  {
-///   "value": "\\x...",
-///   "md5": "..."
-///  },
-///  {
-///   "value": "\\x...",
-///   "md5": "..."
-///  },
-/// ...
-/// ]
-/// ```
-fn parser_updates_form_json(json: Value) -> Result<Vec<Vec<u8>>, Error> {
-  let mut updates = vec![];
-  if let Some(records) = json.as_array() {
-    for record in records {
-      if let Some(bytes) = record
-        .get("value")
-        .and_then(|value| value.as_str())
-        .and_then(decode_hex_string)
-      {
-        if let Some(b) = record.get("md5").and_then(|v| v.as_str()) {
-          let a = md5(&bytes);
-          debug_assert!(a == b, "md5 not match: {} != {}", a, b);
-        }
-        updates.push(bytes);
-      } else {
-        return Err(anyhow::anyhow!("value not found in json: {:?}", record));
-      }
-    }
+  async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
+    let action = FetchObjectUpdateAction::new(
+      object.id.clone(),
+      object.ty.clone(),
+      Arc::downgrade(&self.postgrest),
+    );
+    let updates = action.run().await?;
+    Ok(updates)
   }
-  Ok(updates)
-}
 
-fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
-  let s = s.strip_prefix("\\x")?;
-  let bytes = s.as_bytes();
-  let mut out = Vec::with_capacity(bytes.len() / 2);
-  let mut iter = bytes.iter();
-  while let Some(&high) = iter.next() {
-    if let Some(&low) = iter.next() {
-      let high = high as char;
-      let low = low as char;
-      if let (Some(high), Some(low)) = (high.to_digit(16), low.to_digit(16)) {
-        let value = (high << 4) | low;
-        out.push(value as u8);
-      } else {
-        return None;
-      }
-    }
+  async fn get_latest_snapshot(&self, object_id: &str) -> Option<RemoteCollabSnapshot> {
+    get_latest_snapshot_from_server(object_id, self.postgrest.clone())
+      .await
+      .ok()?
   }
-  Some(out)
+
+  async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
+    let json = self
+      .postgrest
+      .from("af_collab_state")
+      .select("*")
+      .eq("oid", object_id)
+      .order("snapshot_created_at.desc".to_string())
+      .limit(1)
+      .execute()
+      .await?
+      .get_json()
+      .await?;
+
+    Ok(
+      json
+        .as_array()
+        .and_then(|array| array.first())
+        .and_then(|value| {
+          let created_at = value.get("snapshot_created_at").and_then(|created_at| {
+            created_at
+              .as_str()
+              .map(|id| DateTime::<Utc>::from_str(id).ok())
+              .and_then(|date| date)
+          })?;
+
+          let current_edit_count = value.get("current_edit_count").and_then(|id| id.as_i64())?;
+          let last_snapshot_edit_count = value
+            .get("last_snapshot_edit_count")
+            .and_then(|id| id.as_i64())?;
+
+          Some(RemoteCollabState {
+            current_edit_count,
+            last_snapshot_edit_count,
+            last_snapshot_created_at: created_at.timestamp(),
+          })
+        }),
+    )
+  }
+
+  async fn create_snapshot(
+    &self,
+    _object: &CollabObject,
+    _snapshot: Vec<u8>,
+  ) -> Result<i64, Error> {
+    todo!()
+  }
+
+  async fn send_update(
+    &self,
+    object: &CollabObject,
+    _id: MsgId,
+    update: Vec<u8>,
+  ) -> Result<(), Error> {
+    let workspace_id = object
+      .get_workspace_id()
+      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+    let value_size = update.len() as i32;
+    let md5 = md5(&update);
+    let update = format!("\\x{}", hex::encode(update));
+    let insert_params = InsertParamsBuilder::new()
+      .insert("oid", object.id.clone())
+      .insert("partition_key", partition_key(&object.ty))
+      .insert("value", update)
+      .insert("uid", object.uid)
+      .insert("md5", md5)
+      .insert("workspace_id", workspace_id)
+      .insert("value_size", value_size)
+      .build();
+
+    self
+      .postgrest
+      .from(&table_name(&object.ty))
+      .insert(insert_params)
+      .execute()
+      .await?
+      .success()
+      .await?;
+    Ok(())
+  }
+
+  async fn send_init_sync(
+    &self,
+    _object: &CollabObject,
+    _id: MsgId,
+    _init_update: Vec<u8>,
+  ) -> Result<(), Error> {
+    todo!()
+  }
+
+  async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
+    todo!()
+  }
 }

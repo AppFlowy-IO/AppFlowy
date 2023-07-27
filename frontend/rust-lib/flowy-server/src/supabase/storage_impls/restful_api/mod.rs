@@ -1,3 +1,4 @@
+pub use collab_storage::*;
 pub use database::*;
 pub use document::*;
 pub use folder::*;
@@ -9,5 +10,6 @@ mod database;
 mod document;
 mod folder;
 mod postgres_server;
+mod request;
 mod user;
 mod util;
