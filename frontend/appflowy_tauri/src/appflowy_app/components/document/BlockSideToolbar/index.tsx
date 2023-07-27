@@ -29,7 +29,7 @@ export default function BlockSideToolbar({ id }: { id: string }) {
           opacity: show ? 1 : 0,
           top: topOffset,
         }}
-        className='absolute left-[-50px] inline-flex transition-opacity duration-100'
+        className='absolute left-[-50px] inline-flex'
       >
         {/** Add Block below */}
         <Tooltip disableInteractive={true} title={t('blockActions.addBelowTooltip')} placement={'top-start'}>

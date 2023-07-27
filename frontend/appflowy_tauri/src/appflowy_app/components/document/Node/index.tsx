@@ -90,7 +90,7 @@ function NodeComponent({ id, ...props }: { id: string } & React.HTMLAttributes<H
         {...props}
         ref={ref}
         data-block-id={node.id}
-        className={`pt-[0.5px] ${className}`}
+        className={className}
       >
         {renderBlock()}
         <BlockOverlay id={id} />
