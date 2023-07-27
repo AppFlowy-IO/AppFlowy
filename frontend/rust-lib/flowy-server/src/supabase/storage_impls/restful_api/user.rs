@@ -16,6 +16,7 @@ use crate::supabase::storage_impls::restful_api::PostgresWrapper;
 use crate::supabase::storage_impls::USER_EMAIL;
 use crate::supabase::storage_impls::USER_TABLE;
 use crate::supabase::storage_impls::USER_UUID;
+use crate::supabase::storage_impls::WORKSPACE_TABLE;
 
 pub struct RESTfulSupabaseUserAuthServiceImpl {
   postgrest: Arc<PostgresWrapper>,
@@ -136,23 +137,16 @@ async fn get_user_profile(
 }
 
 async fn get_user_workspaces(
-  _postgrest: Arc<PostgresWrapper>,
-  _uid: i64,
+  postgrest: Arc<PostgresWrapper>,
+  uid: i64,
 ) -> Result<Vec<UserWorkspace>, Error> {
-  todo!();
-}
-
-async fn from_response<T>(response: Response) -> Result<T, Error>
-where
-  T: serde::de::DeserializeOwned,
-{
-  let resp = response.error_for_status()?;
-  let text = resp.text().await.map_err(internal_error)?;
-  serde_json::from_str(&text).map_err(|e| {
-    anyhow!(
-      "failed to deserialize response body to json. body: {}, error: {}",
-      text,
-      e
-    )
-  })
+  postgrest
+    .from(WORKSPACE_TABLE)
+    .select("workspace_id, workspace_name, created_at, database_storage_id")
+    .eq("owner_uid", uid.to_string())
+    .execute()
+    .await?
+    .error_for_status()?
+    .get_value::<Vec<UserWorkspace>>()
+    .await
 }
