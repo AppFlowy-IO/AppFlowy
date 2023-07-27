@@ -2,7 +2,7 @@
     <b>
         <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
     </b>
-    ⭐️  The Open Source Alternative To Notion  ⭐️ <br>
+    ⭐️  Mostafa Borham  ⭐️ <br>
 </h1>
 
 <p align="center">
