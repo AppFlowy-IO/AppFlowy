@@ -2,7 +2,7 @@
     <b>
         <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
     </b>
-    ⭐️  Mostafa Borham  ⭐️ <br>
+    ⭐️⭐️⭐️  Mostafa Borham  ⭐️⭐️⭐️ <br>
 </h1>
 
 <p align="center">
