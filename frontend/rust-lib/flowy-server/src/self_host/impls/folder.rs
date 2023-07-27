@@ -12,24 +12,12 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     let name = name.to_string();
     FutureResult::new(async move {
       Ok(Workspace {
-        id: gen_workspace_id(),
+        id: gen_workspace_id().to_string(),
         name: name.to_string(),
         child_views: Default::default(),
         created_at: timestamp(),
       })
     })
-  }
-
-  fn add_member_to_workspace(&self, _email: &str, _workspace_id: &str) -> FutureResult<(), Error> {
-    FutureResult::new(async move { Ok(()) })
-  }
-
-  fn remove_member_from_workspace(
-    &self,
-    _email: &str,
-    _workspace_id: &str,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async move { Ok(()) })
   }
 
   fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {

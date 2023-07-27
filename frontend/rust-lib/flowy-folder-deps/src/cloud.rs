@@ -3,18 +3,11 @@ pub use collab_folder::core::{Folder, FolderData, Workspace};
 pub use anyhow::Error;
 
 use lib_infra::future::FutureResult;
+use uuid::Uuid;
 
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error>;
-
-  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error>;
-
-  fn remove_member_from_workspace(
-    &self,
-    email: &str,
-    workspace_id: &str,
-  ) -> FutureResult<(), Error>;
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error>;
 
@@ -35,6 +28,6 @@ pub struct FolderSnapshot {
   pub created_at: i64,
 }
 
-pub fn gen_workspace_id() -> String {
-  uuid::Uuid::new_v4().to_string()
+pub fn gen_workspace_id() -> Uuid {
+  uuid::Uuid::new_v4()
 }

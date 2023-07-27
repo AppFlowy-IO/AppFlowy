@@ -8,7 +8,9 @@ use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::{
+  gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+};
 use lib_infra::future::FutureResult;
 
 use crate::supabase::storage_impls::pooler::postgres_server::SupabaseServerService;
@@ -18,12 +20,14 @@ use crate::supabase::storage_impls::pooler::{
   get_latest_snapshot_from_server, get_updates_from_server, prepare_cached,
   FetchObjectUpdateAction, PostgresObject,
 };
+use crate::supabase::storage_impls::OWNER_USER_UID;
 use crate::supabase::PgPoolMode;
 
 pub(crate) const WORKSPACE_TABLE: &str = "af_workspace";
 pub(crate) const LATEST_WORKSPACE_ID: &str = "latest_workspace_id";
-const WORKSPACE_NAME: &str = "workspace_name";
-const CREATED_AT: &str = "created_at";
+pub(crate) const WORKSPACE_ID: &str = "workspace_id";
+pub(crate) const WORKSPACE_NAME: &str = "workspace_name";
+pub(crate) const CREATED_AT: &str = "created_at";
 
 pub struct SupabaseFolderCloudServiceImpl<T> {
   server: T,
@@ -44,24 +48,6 @@ where
     execute_async(&self.server, move |mut pg_client, pg_mode| {
       Box::pin(async move { create_workspace(&mut pg_client, &pg_mode, uid, &name).await })
     })
-  }
-
-  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error> {
-    let email = email.to_string();
-    let workspace_id = workspace_id.to_string();
-    execute_async(&self.server, move |pg_client, pg_mode| {
-      Box::pin(
-        async move { add_member_to_workspace(&pg_client, &pg_mode, &email, &workspace_id).await },
-      )
-    })
-  }
-
-  fn remove_member_from_workspace(
-    &self,
-    _email: &str,
-    _workspace_id: &str,
-  ) -> FutureResult<(), Error> {
-    todo!()
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
@@ -141,27 +127,18 @@ where
   }
 }
 
-async fn add_member_to_workspace(
-  _client: &PostgresObject,
-  _pg_mode: &PgPoolMode,
-  _email: &str,
-  _workspace_id: &str,
-) -> Result<(), Error> {
-  Ok(())
-}
-
 async fn create_workspace(
   client: &mut PostgresObject,
   pg_mode: &PgPoolMode,
   uid: i64,
   name: &str,
 ) -> Result<Workspace, Error> {
-  let new_workspace_id = Uuid::new_v4();
+  let new_workspace_id = gen_workspace_id();
 
   // Create workspace
   let (sql, params) = InsertSqlBuilder::new(WORKSPACE_TABLE)
-    .value("uid", uid)
-    .value(LATEST_WORKSPACE_ID, new_workspace_id)
+    .value(OWNER_USER_UID, uid)
+    .value(WORKSPACE_ID, new_workspace_id)
     .value(WORKSPACE_NAME, name.to_string())
     .build();
   let txn = client.transaction().await?;
@@ -170,10 +147,10 @@ async fn create_workspace(
 
   // Read the workspace
   let (sql, params) = SelectSqlBuilder::new(WORKSPACE_TABLE)
-    .column(LATEST_WORKSPACE_ID)
+    .column(WORKSPACE_ID)
     .column(WORKSPACE_NAME)
     .column(CREATED_AT)
-    .where_clause(LATEST_WORKSPACE_ID, new_workspace_id)
+    .where_clause(WORKSPACE_ID, new_workspace_id)
     .build();
   let stmt = prepare_cached(pg_mode, sql, &txn).await?;
   let rows = Box::pin(txn.query_raw(stmt.as_ref(), params).await?);
@@ -184,7 +161,7 @@ async fn create_workspace(
     let created_at = row
       .try_get::<&str, DateTime<Utc>>(CREATED_AT)
       .unwrap_or_default();
-    let workspace_id: Uuid = row.get(LATEST_WORKSPACE_ID);
+    let workspace_id: Uuid = row.get(WORKSPACE_ID);
 
     Ok(Workspace {
       id: workspace_id.to_string(),

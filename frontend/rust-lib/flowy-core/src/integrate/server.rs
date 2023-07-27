@@ -167,34 +167,6 @@ impl FolderCloudService for AppFlowyServerProvider {
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
-  fn add_member_to_workspace(&self, email: &str, workspace_id: &str) -> FutureResult<(), Error> {
-    let server = self.get_provider(&self.provider_type.read());
-    let email = email.to_string();
-    let workspace_id = workspace_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .add_member_to_workspace(&email, &workspace_id)
-        .await
-    })
-  }
-
-  fn remove_member_from_workspace(
-    &self,
-    email: &str,
-    workspace_id: &str,
-  ) -> FutureResult<(), Error> {
-    let server = self.get_provider(&self.provider_type.read());
-    let email = email.to_string();
-    let workspace_id = workspace_id.to_string();
-    FutureResult::new(async move {
-      server?
-        .folder_service()
-        .remove_member_from_workspace(&email, &workspace_id)
-        .await
-    })
-  }
-
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let workspace_id = workspace_id.to_string();

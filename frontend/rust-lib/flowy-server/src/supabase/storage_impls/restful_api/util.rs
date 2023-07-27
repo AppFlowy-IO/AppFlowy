@@ -49,6 +49,10 @@ pub trait ExtendedResponse {
   fn get_value<T>(self) -> Fut<Result<T, Error>>
   where
     T: serde::de::DeserializeOwned + Send + Sync + 'static;
+
+  fn get_json(self) -> Fut<Result<Value, Error>>;
+
+  fn success(self) -> Fut<Result<(), Error>>;
 }
 
 impl ExtendedResponse for Response {
@@ -74,6 +78,46 @@ impl ExtendedResponse for Response {
       let text = self.text().await?;
       let value = serde_json::from_str(&text)?;
       Ok(value)
+    })
+  }
+
+  fn get_json(self) -> Fut<Result<Value, Error>> {
+    to_fut(async move {
+      if !self.status().is_success() {
+        return Err(
+          FlowyError::new(
+            ErrorCode::HttpError,
+            format!(
+              "expected status code 200, but got {}, body: {}",
+              self.status(),
+              self.text().await.unwrap_or_default()
+            ),
+          )
+          .into(),
+        );
+      }
+      let text = self.text().await?;
+      let value = serde_json::from_str::<Value>(&text)?;
+      Ok(value)
+    })
+  }
+
+  fn success(self) -> Fut<Result<(), Error>> {
+    to_fut(async move {
+      if !self.status().is_success() {
+        return Err(
+          FlowyError::new(
+            ErrorCode::HttpError,
+            format!(
+              "expected status code 200, but got {}, body: {}",
+              self.status(),
+              self.text().await.unwrap_or_default()
+            ),
+          )
+          .into(),
+        );
+      }
+      Ok(())
     })
   }
 }
