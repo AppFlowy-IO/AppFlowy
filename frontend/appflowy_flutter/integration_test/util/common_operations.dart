@@ -163,13 +163,13 @@ extension CommonOperations on WidgetTester {
   /// Tap the delete page button.
   Future<void> tapDeletePageButton() async {
     await tapPageOptionButton();
-    await tapButtonWithName(ViewDisclosureAction.delete.name);
+    await tapButtonWithName(ViewDisclosureAction.delete.name());
   }
 
   /// Tap the rename page button.
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
-    await tapButtonWithName(ViewDisclosureAction.rename.name);
+    await tapButtonWithName(ViewDisclosureAction.rename.name());
   }
 
   /// Rename the page.
@@ -297,6 +297,14 @@ extension CommonOperations on WidgetTester {
     await tap(find.byType(ViewDisclosureButton));
     await pumpAndSettle();
     await tap(find.text(LocaleKeys.disclosureAction_favorite.tr()));
+    await pumpAndSettle();
+  }
+
+  Future<void> unfavoriteViewsByName(String name) async {
+    await hoverOnPageName(name);
+    await tap(find.byType(ViewDisclosureButton));
+    await pumpAndSettle();
+    await tap(find.text(LocaleKeys.disclosureAction_unfavorite.tr()));
     await pumpAndSettle();
   }
 

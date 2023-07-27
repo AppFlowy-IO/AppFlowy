@@ -70,8 +70,8 @@ void main() {
         ),
         findsNWidgets(2),
       );
-      await tester.favoriteViewByName(_readmeName);
-      await tester.favoriteViewByName(_calendarName);
+      await tester.unfavoriteViewsByName(_readmeName);
+      await tester.unfavoriteViewsByName(_calendarName);
 
       expect(
         find.byType(
@@ -120,7 +120,7 @@ void main() {
     );
 
     testWidgets(
-      'deleting first level favorite view removes its instance from favorite header, deleting root level views leads to removal of all favorites that are its children, restoring brings back favorites under same header',
+      'deleting first level favorite view removes its instance from favorite header, deleting root level views leads to removal of all favorites that are its children',
       (tester) async {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
@@ -168,11 +168,11 @@ void main() {
             matching: find.byType(ViewSectionItem),
             skipOffstage: false,
           ),
-          findsNWidgets(2),
+          findsOneWidget,
         );
 
         await tester.openContextMenuOnRootView('⭐️ Getting started');
-        await tester.tapButtonWithName(ViewDisclosureAction.delete.name);
+        await tester.tapButtonWithName(ViewDisclosureAction.delete.name());
         await tester.pumpAndSettle();
 
         expect(
@@ -191,7 +191,7 @@ void main() {
             matching: find.byType(ViewSectionItem),
             skipOffstage: false,
           ),
-          findsNWidgets(2),
+          findsNothing,
         );
       },
     );
