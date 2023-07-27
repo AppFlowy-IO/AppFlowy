@@ -7,6 +7,7 @@ use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_user_deps::cloud::UserService;
 
+mod error;
 pub mod local_server;
 mod request;
 mod response;

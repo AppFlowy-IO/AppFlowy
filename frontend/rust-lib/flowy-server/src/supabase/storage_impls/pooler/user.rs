@@ -1,11 +1,10 @@
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use deadpool_postgres::GenericClient;
+use deadpool_postgres::{GenericClient, Transaction};
 use futures::pin_mut;
 use futures_util::StreamExt;
 use tokio_postgres::error::SqlState;
-use tokio_postgres::Transaction;
 use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError};
@@ -89,8 +88,13 @@ where
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), FlowyError> {
-    execute_async(&self.server, move |pg_client, pg_mode| {
-      Box::pin(async move { update_user_profile(&pg_client, &pg_mode, params).await })
+    execute_async(&self.server, move |mut pg_client, pg_mode| {
+      Box::pin(async move {
+        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        update_user_profile(&txn, &pg_mode, params).await?;
+        txn.commit().await.map_err(internal_error)?;
+        Ok(())
+      })
     })
   }
 
@@ -138,8 +142,13 @@ where
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError> {
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    execute_async(&self.server, move |pg_client, pg_mode| {
-      Box::pin(async move { check_user(&pg_client, &pg_mode, credential.uid, uuid).await })
+    execute_async(&self.server, move |mut pg_client, pg_mode| {
+      Box::pin(async move {
+        let txn = pg_client.transaction().await.map_err(internal_error)?;
+        check_user(&txn, &pg_mode, credential.uid, uuid).await?;
+        txn.commit().await.map_err(internal_error)?;
+        Ok(())
+      })
     })
   }
 
@@ -225,8 +234,8 @@ async fn create_user_with_uuid(
   })
 }
 
-async fn get_user_workspaces<C: GenericClient>(
-  transaction: &C,
+async fn get_user_workspaces<'a>(
+  transaction: &'a Transaction<'a>,
   pg_mode: &PgPoolMode,
   uid: i64,
 ) -> Result<Vec<UserWorkspace>, anyhow::Error> {
@@ -289,8 +298,8 @@ async fn get_user_profile<'a>(
   }
 }
 
-async fn update_user_profile(
-  client: &PostgresObject,
+async fn update_user_profile<'a>(
+  transaction: &'a Transaction<'a>,
   pg_mode: &PgPoolMode,
   params: UpdateUserProfileParams,
 ) -> Result<(), FlowyError> {
@@ -303,7 +312,7 @@ async fn update_user_profile(
 
   // The email is unique, so we need to check if the email already exists.
   if let Some(email) = params.email.as_ref() {
-    let row = client
+    let row = transaction
       .query_one(
         &format!(
           "SELECT EXISTS (SELECT 1 FROM {} WHERE email = $1 and uid != $2)",
@@ -326,14 +335,16 @@ async fn update_user_profile(
     .set("email", params.email)
     .where_clause("uid", params.id)
     .build();
-  let stmt = prepare_cached(pg_mode, sql, client).await.map_err(|e| {
-    FlowyError::new(
-      ErrorCode::PgDatabaseError,
-      format!("Prepare update user profile sql error: {}", e),
-    )
-  })?;
+  let stmt = prepare_cached(pg_mode, sql, transaction)
+    .await
+    .map_err(|e| {
+      FlowyError::new(
+        ErrorCode::PgDatabaseError,
+        format!("Prepare update user profile sql error: {}", e),
+      )
+    })?;
 
-  let affect_rows = client
+  let affect_rows = transaction
     .execute_raw(stmt.as_ref(), pg_params)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
@@ -341,8 +352,8 @@ async fn update_user_profile(
   Ok(())
 }
 
-async fn check_user(
-  client: &PostgresObject,
+async fn check_user<'a>(
+  transaction: &Transaction<'a>,
   pg_mode: &PgPoolMode,
   uid: Option<i64>,
   uuid: Option<Uuid>,
@@ -362,12 +373,11 @@ async fn check_user(
       .where_clause("uid", uid)
       .build(),
   };
-
-  let stmt = prepare_cached(pg_mode, stmt, client)
+  let stmt = prepare_cached(pg_mode, stmt, transaction)
     .await
     .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?;
   let rows = Box::pin(
-    client
+    transaction
       .query_raw(stmt.as_ref(), params)
       .await
       .map_err(|e| FlowyError::new(ErrorCode::PgDatabaseError, e))?,
