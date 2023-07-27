@@ -148,7 +148,7 @@ class HomeMenu extends StatelessWidget {
                           .toList(),
                     ),
                   ),
-                  collapsed: const SizedBox(),
+                  collapsed: const SizedBox.shrink(),
                 ),
               )
             : const SizedBox.shrink();
