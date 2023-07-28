@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use flowy_folder2::entities::WorkspaceSettingPB;
 use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
-use flowy_server::supabase::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::event_map::UserEvent::*;

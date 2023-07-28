@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use nanoid::nanoid;
 
-use flowy_server::supabase::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{
