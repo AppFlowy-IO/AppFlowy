@@ -2,6 +2,12 @@
 
 set -e
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
 PSQL="psql \
     --host=$PGHOST \
     --username=$PGUSER \
@@ -9,26 +15,32 @@ PSQL="psql \
     --port=$PGPORT \
 "
 
+echo -e "${BLUE}Test af_user triggers${NC}"
+
 UUID=$(uuidgen)
 NAME="test_name_$(date +%s)"
 EMAIL="test_mail_$(date +%s)@test.com"
+echo -e "${YELLOW}UUID: $UUID, NAME: $NAME, EMAIL: $EMAIL${NC}"
 
 # test trigger workspace_table insertion when any record of af_user is inserted
 $PSQL --command "\
     INSERT INTO public.af_user (uuid, email, name) \
-    VALUES ('$UUID', '$EMAIL', '$NAME'); \
-"
-echo "af_user record inserted, $UUID, $EMAIL, $NAME"
+    VALUES ('$UUID', '$EMAIL', '$NAME');"
+echo -e "${GREEN}af_user inserted${NC}"
 
+# check uid
+NEW_UID=$($PSQL --tuples-only --command "\
+    SELECT uid FROM af_user WHERE uuid = '$UUID'")
+echo -e "${GREEN}af_user uid: $NEW_UID${NC}"
+
+# check workspace
 WORKSPACE_ID=$($PSQL --tuples-only --command "\
     SELECT workspace_id \
     FROM public.af_workspace \
-    WHERE owner_uid = (SELECT uid FROM af_user WHERE uuid = '$UUID') \
-")
-
+    WHERE owner_uid = $NEW_UID")
 if [ -z "$WORKSPACE_ID" ]; then
-    echo "workspace not associated with af_user of uuid: $UUID"
+    echo -e "${RED}workspace not associated with af_user of uuid: $UUID${NC}"
     exit 1
 else
-    echo "workspace associated with af_user, $WORKSPACE_ID"
+    echo -e "${GREEN}workspace id associated with af_user(owner_uid): $WORKSPACE_ID${NC}"
 fi
