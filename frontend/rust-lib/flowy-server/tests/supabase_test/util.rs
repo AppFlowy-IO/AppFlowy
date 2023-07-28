@@ -1,17 +1,20 @@
-use crate::setup_log;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use collab_plugins::cloud_storage::RemoteCollabStorage;
+use uuid::Uuid;
+
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_server::supabase::storage_impls::restful_api::{
+use flowy_server::supabase::api::{
   RESTfulPostgresServer, RESTfulSupabaseCollabStorageImpl, RESTfulSupabaseDatabaseServiceImpl,
   RESTfulSupabaseFolderServiceImpl, RESTfulSupabaseUserAuthServiceImpl, SupabaseServerServiceImpl,
 };
-use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
-use std::collections::HashMap;
-use std::sync::Arc;
-use uuid::Uuid;
+
+use crate::setup_log;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_filename("./.env.test").ok()?;

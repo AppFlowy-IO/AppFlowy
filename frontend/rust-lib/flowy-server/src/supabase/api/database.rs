@@ -1,15 +1,16 @@
-use crate::supabase::storage_impls::restful_api::request::{
-  get_latest_snapshot_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
-};
-use crate::supabase::storage_impls::restful_api::SupabaseServerService;
 use anyhow::Error;
 use collab_plugins::cloud_storage::CollabType;
+use tokio::sync::oneshot::channel;
+
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
 use lib_infra::future::FutureResult;
 
-use tokio::sync::oneshot::channel;
+use crate::supabase::api::request::{
+  get_latest_snapshot_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
+};
+use crate::supabase::api::SupabaseServerService;
 
 pub struct RESTfulSupabaseDatabaseServiceImpl<T> {
   server: T,

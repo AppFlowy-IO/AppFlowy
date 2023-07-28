@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 tracing = { version = "0.1" }
+futures = "0.3.26"
 futures-util = "0.3.26"
 reqwest = "0.11.14"
 hyper = "0.14"
@@ -27,13 +28,7 @@ collab = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 hex = "0.4.3"
-
 postgrest = "1.0"
-tokio-postgres = { version = "0.7.8", optional = true, features = ["with-uuid-1","with-chrono-0_4"] }
-deadpool-postgres = "0.10.5"
-refinery= { version = "0.8.10", optional = true, features = ["tokio-postgres"] }
-futures = "0.3.26"
-
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-user-deps = { path = "../flowy-user-deps" }
 flowy-folder-deps = { path = "../flowy-folder-deps" }
@@ -48,6 +43,3 @@ tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
 yrs = "0.16.5"
 
-[features]
-default = ["postgres_storage"]
-postgres_storage = ["tokio-postgres", "refinery", ]

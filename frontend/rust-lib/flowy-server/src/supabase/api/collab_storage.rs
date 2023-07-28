@@ -13,13 +13,13 @@ use tokio::task::spawn_blocking;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use crate::supabase::storage_impls::restful_api::request::{
+use crate::supabase::api::request::{
   create_snapshot, get_latest_snapshot_from_server, get_updates_from_server,
   FetchObjectUpdateAction, UpdateItem,
 };
-use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::{PostgresWrapper, SupabaseServerService};
-use crate::supabase::storage_impls::{partition_key, table_name};
+use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
+use crate::supabase::define::*;
 
 pub struct RESTfulSupabaseCollabStorageImpl<T>(T);
 

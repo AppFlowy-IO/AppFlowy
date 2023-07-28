@@ -9,7 +9,7 @@ use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
-use crate::supabase::storage_impls::restful_api::{
+use crate::supabase::api::{
   RESTfulPostgresServer, RESTfulSupabaseCollabStorageImpl, RESTfulSupabaseDatabaseServiceImpl,
   RESTfulSupabaseDocumentServiceImpl, RESTfulSupabaseFolderServiceImpl,
   RESTfulSupabaseUserAuthServiceImpl, SupabaseServerServiceImpl,

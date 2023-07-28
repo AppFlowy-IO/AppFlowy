@@ -1,25 +1,20 @@
-use anyhow::Error;
-
-use uuid::Uuid;
-
 use std::str::FromStr;
 use std::sync::Arc;
+
+use anyhow::Error;
+use uuid::Uuid;
 
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
+use crate::supabase::define::*;
 use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
-use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::{PostgresWrapper, SupabaseServerService};
-use crate::supabase::storage_impls::USER_EMAIL;
-use crate::supabase::storage_impls::USER_PROFILE_VIEW;
-use crate::supabase::storage_impls::USER_TABLE;
-use crate::supabase::storage_impls::USER_UUID;
-use crate::supabase::storage_impls::WORKSPACE_TABLE;
 
 pub struct RESTfulSupabaseUserAuthServiceImpl<T> {
   server: T,

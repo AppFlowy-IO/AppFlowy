@@ -1,17 +1,15 @@
-use crate::supabase::storage_impls::restful_api::request::{
-  get_latest_snapshot_from_server, FetchObjectUpdateAction,
-};
-use crate::supabase::storage_impls::restful_api::SupabaseServerService;
 use anyhow::Error;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_plugins::cloud_storage::CollabType;
-use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use tokio::sync::oneshot::channel;
 
+use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use lib_infra::future::FutureResult;
 
-use tokio::sync::oneshot::channel;
+use crate::supabase::api::request::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
+use crate::supabase::api::SupabaseServerService;
 
 pub struct RESTfulSupabaseDocumentServiceImpl<T>(T);
 impl<T> RESTfulSupabaseDocumentServiceImpl<T> {

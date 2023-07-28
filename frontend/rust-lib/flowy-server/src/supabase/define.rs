@@ -1,8 +1,13 @@
-use crate::supabase::storage_impls::pooler::AF_COLLAB_UPDATE_TABLE;
 use collab_plugins::cloud_storage::CollabType;
 
-pub mod pooler;
-pub mod restful_api;
+pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
+pub const AF_COLLAB_KEY_COLUMN: &str = "key";
+pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
+pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
+pub const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+pub const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
+pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
+pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 pub const USER_UUID: &str = "uuid";
 pub const USER_UID: &str = "uid";
@@ -11,6 +16,10 @@ pub const USER_EMAIL: &str = "email";
 pub const USER_TABLE: &str = "af_user";
 pub const WORKSPACE_TABLE: &str = "af_workspace";
 pub const USER_PROFILE_VIEW: &str = "af_user_profile_view";
+
+pub(crate) const WORKSPACE_ID: &str = "workspace_id";
+pub(crate) const WORKSPACE_NAME: &str = "workspace_name";
+pub(crate) const CREATED_AT: &str = "created_at";
 
 pub fn table_name(ty: &CollabType) -> String {
   match ty {

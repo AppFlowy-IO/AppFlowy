@@ -15,14 +15,9 @@ use tokio_retry::{Action, Retry};
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
-use crate::supabase::storage_impls::pooler::{
-  AF_COLLAB_KEY_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN,
-  AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN, AF_COLLAB_SNAPSHOT_ID_COLUMN,
-  AF_COLLAB_SNAPSHOT_OID_COLUMN, AF_COLLAB_SNAPSHOT_TABLE,
-};
-use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
-use crate::supabase::storage_impls::table_name;
+use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::PostgresWrapper;
+use crate::supabase::define::*;
 
 pub struct FetchObjectUpdateAction {
   object_id: String,

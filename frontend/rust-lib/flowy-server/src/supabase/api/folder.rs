@@ -12,15 +12,12 @@ use flowy_folder_deps::cloud::{
 };
 use lib_infra::future::FutureResult;
 
-use crate::supabase::storage_impls::pooler::{
-  CREATED_AT, WORKSPACE_ID, WORKSPACE_NAME, WORKSPACE_TABLE,
-};
-use crate::supabase::storage_impls::restful_api::request::{
+use crate::supabase::api::request::{
   get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
-use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::SupabaseServerService;
-use crate::supabase::storage_impls::OWNER_USER_UID;
+use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::SupabaseServerService;
+use crate::supabase::define::*;
 
 pub struct RESTfulSupabaseFolderServiceImpl<T>(T);
 
