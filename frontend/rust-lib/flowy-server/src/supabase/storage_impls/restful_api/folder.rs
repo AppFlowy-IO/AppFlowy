@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::sync::Arc;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
@@ -20,25 +19,27 @@ use crate::supabase::storage_impls::restful_api::request::{
   get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
+use crate::supabase::storage_impls::restful_api::SupabaseServerService;
 use crate::supabase::storage_impls::OWNER_USER_UID;
 
-pub struct RESTfulSupabaseFolderServiceImpl {
-  postgrest: Arc<PostgresWrapper>,
-}
+pub struct RESTfulSupabaseFolderServiceImpl<T>(T);
 
-impl RESTfulSupabaseFolderServiceImpl {
-  pub fn new(postgrest: Arc<PostgresWrapper>) -> Self {
-    Self { postgrest }
+impl<T> RESTfulSupabaseFolderServiceImpl<T> {
+  pub fn new(server: T) -> Self {
+    Self(server)
   }
 }
 
-impl FolderCloudService for RESTfulSupabaseFolderServiceImpl {
+impl<T> FolderCloudService for RESTfulSupabaseFolderServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.0.try_get_postgrest();
     let name = name.to_string();
     let new_workspace_id = gen_workspace_id().to_string();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let insert_params = InsertParamsBuilder::new()
         .insert(OWNER_USER_UID, uid)
         .insert(WORKSPACE_ID, new_workspace_id.clone())
@@ -68,9 +69,10 @@ impl FolderCloudService for RESTfulSupabaseFolderServiceImpl {
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.0.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest)
         .await
         .map(|updates| {
@@ -87,9 +89,10 @@ impl FolderCloudService for RESTfulSupabaseFolderServiceImpl {
     &self,
     workspace_id: &str,
   ) -> FutureResult<Option<FolderSnapshot>, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.0.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let snapshot = get_latest_snapshot_from_server(&workspace_id, postgrest)
         .await?
         .map(|snapshot| FolderSnapshot {
@@ -103,12 +106,13 @@ impl FolderCloudService for RESTfulSupabaseFolderServiceImpl {
   }
 
   fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let postgrest = Arc::downgrade(&self.postgrest);
+    let try_get_postgrest = self.0.try_get_weak_postgrest();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
+          let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(workspace_id, CollabType::Folder, postgrest);
           action.run_with_fix_interval(5, 10).await
         }

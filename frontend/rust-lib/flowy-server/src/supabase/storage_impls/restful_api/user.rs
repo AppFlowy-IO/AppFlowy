@@ -14,27 +14,31 @@ use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
+use crate::supabase::storage_impls::restful_api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::storage_impls::USER_EMAIL;
 use crate::supabase::storage_impls::USER_PROFILE_VIEW;
 use crate::supabase::storage_impls::USER_TABLE;
 use crate::supabase::storage_impls::USER_UUID;
 use crate::supabase::storage_impls::WORKSPACE_TABLE;
 
-pub struct RESTfulSupabaseUserAuthServiceImpl {
-  postgrest: Arc<PostgresWrapper>,
+pub struct RESTfulSupabaseUserAuthServiceImpl<T> {
+  server: T,
 }
 
-impl RESTfulSupabaseUserAuthServiceImpl {
-  pub fn new(postgrest: Arc<PostgresWrapper>) -> Self {
-    Self { postgrest }
+impl<T> RESTfulSupabaseUserAuthServiceImpl<T> {
+  pub fn new(server: T) -> Self {
+    Self { server }
   }
 }
 
-impl UserService for RESTfulSupabaseUserAuthServiceImpl {
+impl<T> UserService for RESTfulSupabaseUserAuthServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let params = third_party_params_from_box_any(params)?;
       let is_new_user = postgrest
         .from(USER_TABLE)
@@ -88,8 +92,9 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
   }
 
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let params = third_party_params_from_box_any(params)?;
       let uuid = params.uuid;
       let user_profile = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
@@ -120,8 +125,9 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     _credential: UserCredentials,
     params: UpdateUserProfileParams,
   ) -> FutureResult<(), Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       update_user_profile(postgrest, params).await?;
       Ok(())
     })
@@ -131,12 +137,13 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
     &self,
     credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     let uid = credential
       .uid
       .ok_or(anyhow::anyhow!("uid is required"))
       .unwrap();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
       match user_profile_resp {
         None => Ok(None),
@@ -155,18 +162,20 @@ impl UserService for RESTfulSupabaseUserAuthServiceImpl {
   }
 
   fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let user_workspaces = get_user_workspaces(postgrest, uid).await?;
       Ok(user_workspaces)
     })
   }
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.server.try_get_postgrest();
     let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
     let uid = credential.uid;
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       check_user(postgrest, uid, uuid).await?;
       Ok(())
     })

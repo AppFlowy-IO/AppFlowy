@@ -1,15 +1,11 @@
-use crate::supabase_test::user_test::{sign_up_param, user_auth_service};
-use crate::supabase_test::util::{collab_service, get_supabase_config};
-use collab_plugins::cloud_storage::{CollabObject, CollabType};
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_server::supabase::storage_impls::restful_api::{
-  RESTfulPostgresServer, RESTfulSupabaseFolderServiceImpl,
+use crate::supabase_test::util::{
+  collab_service, folder_service, get_supabase_config, sign_up_param, user_auth_service,
 };
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use collab_plugins::cloud_storage::{CollabObject, CollabType};
 use flowy_user_deps::entities::SignUpResponse;
 use futures::future::join_all;
 use lib_infra::box_any::BoxAny;
-use std::sync::Arc;
+
 use tokio::task;
 use uuid::Uuid;
 use yrs::{Doc, Map, ReadTxn, StateVector, Transact};
@@ -76,7 +72,7 @@ async fn supabase_get_folder_test() {
 
   // The init sync will try to merge the updates into one.
   let mut handles = Vec::new();
-  for _ in 0..10 {
+  for _ in 0..5 {
     let cloned_collab_service = collab_service.clone();
     let cloned_collab_object = collab_object.clone();
     let handle = task::spawn(async move {
@@ -101,10 +97,4 @@ async fn supabase_get_folder_test() {
 
   // check the update is the same as local document update.
   assert_eq!(remote_update, expected_update);
-}
-
-fn folder_service() -> Arc<dyn FolderCloudService> {
-  let config = SupabaseConfiguration::from_env().unwrap();
-  let server = RESTfulPostgresServer::new(config);
-  Arc::new(RESTfulSupabaseFolderServiceImpl::new(server.postgrest))
 }

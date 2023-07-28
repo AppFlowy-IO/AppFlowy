@@ -1,6 +1,7 @@
-use crate::supabase_test::user_test::{sign_up_param, user_auth_service};
-use crate::supabase_test::util::{collab_service, database_service, get_supabase_config};
-use collab_plugins::cloud_storage::{CollabObject, CollabType, RemoteCollabStorage};
+use crate::supabase_test::util::{
+  collab_service, database_service, get_supabase_config, sign_up_param, user_auth_service,
+};
+use collab_plugins::cloud_storage::{CollabObject, CollabType};
 use flowy_user_deps::entities::SignUpResponse;
 use lib_infra::box_any::BoxAny;
 use uuid::Uuid;
@@ -20,7 +21,7 @@ async fn supabase_create_workspace_test() {
   let database_service = database_service();
 
   let mut row_ids = vec![];
-  for i in 0..3 {
+  for _i in 0..3 {
     let row_id = uuid::Uuid::new_v4().to_string();
     row_ids.push(row_id.clone());
     let collab_object = CollabObject {

@@ -1,50 +1,9 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use parking_lot::RwLock;
 use uuid::Uuid;
 
-use flowy_server::supabase::storage_impls::pooler::{
-  PostgresServer, SupabaseServerServiceImpl, SupabaseUserAuthServiceImpl,
-};
-use flowy_server::supabase::storage_impls::restful_api::{
-  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl,
-};
-use flowy_server::supabase::storage_impls::{USER_EMAIL, USER_UUID};
-use flowy_server::supabase::PgPoolMode;
-use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
-use flowy_user_deps::cloud::UserService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::supabase_test::util::get_supabase_config;
-
-enum Mode {
-  RESTfulAPI,
-
-  #[allow(dead_code)]
-  #[deprecated(note = "The pooler mode will be deprecated soon")]
-  Pooler,
-}
-
-pub fn user_auth_service() -> Arc<dyn UserService> {
-  let mode = Mode::RESTfulAPI;
-  match mode {
-    Mode::RESTfulAPI => {
-      let config = SupabaseConfiguration::from_env().unwrap();
-      let server = RESTfulPostgresServer::new(config);
-      Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(server.postgrest))
-    },
-    Mode::Pooler => {
-      let server = Arc::new(PostgresServer::new(
-        PgPoolMode::Transaction,
-        PostgresConfiguration::from_env().unwrap(),
-      ));
-      let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server))));
-      Arc::new(SupabaseUserAuthServiceImpl::new(weak_server))
-    },
-  }
-}
+use crate::supabase_test::util::{get_supabase_config, sign_up_param, user_auth_service};
 
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
@@ -151,14 +110,4 @@ async fn supabase_get_not_exist_user_profile_test() {
     .unwrap();
   // user not found
   assert!(result.is_none());
-}
-
-pub fn sign_up_param(uuid: String) -> HashMap<String, String> {
-  let mut params = HashMap::new();
-  params.insert(USER_UUID.to_string(), uuid);
-  params.insert(
-    USER_EMAIL.to_string(),
-    format!("{}@test.com", Uuid::new_v4()),
-  );
-  params
 }

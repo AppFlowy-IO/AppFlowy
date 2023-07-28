@@ -40,5 +40,6 @@ pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
 
 #[derive(Deserialize, Clone)]
 pub(crate) struct UidResponse {
+  #[allow(dead_code)]
   pub uid: i64,
 }

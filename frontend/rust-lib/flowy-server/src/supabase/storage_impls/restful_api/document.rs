@@ -1,7 +1,7 @@
 use crate::supabase::storage_impls::restful_api::request::{
   get_latest_snapshot_from_server, FetchObjectUpdateAction,
 };
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
+use crate::supabase::storage_impls::restful_api::SupabaseServerService;
 use anyhow::Error;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
@@ -10,27 +10,28 @@ use collab_plugins::cloud_storage::CollabType;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 
 use lib_infra::future::FutureResult;
-use std::sync::Arc;
+
 use tokio::sync::oneshot::channel;
 
-pub struct RESTfulSupabaseDocumentServiceImpl {
-  postgrest: Arc<PostgresWrapper>,
-}
-
-impl RESTfulSupabaseDocumentServiceImpl {
-  pub fn new(postgrest: Arc<PostgresWrapper>) -> Self {
-    Self { postgrest }
+pub struct RESTfulSupabaseDocumentServiceImpl<T>(T);
+impl<T> RESTfulSupabaseDocumentServiceImpl<T> {
+  pub fn new(server: T) -> Self {
+    Self(server)
   }
 }
 
-impl DocumentCloudService for RESTfulSupabaseDocumentServiceImpl {
+impl<T> DocumentCloudService for RESTfulSupabaseDocumentServiceImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let postgrest = Arc::downgrade(&self.postgrest);
+    let try_get_postgrest = self.0.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
+          let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
           action.run_with_fix_interval(5, 5).await
         }
@@ -44,9 +45,10 @@ impl DocumentCloudService for RESTfulSupabaseDocumentServiceImpl {
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    let postgrest = self.postgrest.clone();
+    let try_get_postgrest = self.0.try_get_postgrest();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
+      let postgrest = try_get_postgrest?;
       let snapshot = get_latest_snapshot_from_server(&document_id, postgrest)
         .await?
         .map(|snapshot| DocumentSnapshot {
@@ -60,12 +62,13 @@ impl DocumentCloudService for RESTfulSupabaseDocumentServiceImpl {
   }
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
-    let postgrest = Arc::downgrade(&self.postgrest);
+    let try_get_postgrest = self.0.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
       tx.send(
         async move {
+          let postgrest = try_get_postgrest?;
           let action =
             FetchObjectUpdateAction::new(document_id.clone(), CollabType::Document, postgrest);
           let updates = action.run_with_fix_interval(5, 10).await?;

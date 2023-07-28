@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab_plugins::cloud_storage::{CollabType, RemoteCollabSnapshot};
+use collab_plugins::cloud_storage::{CollabObject, CollabType, RemoteCollabSnapshot};
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Retry};
@@ -16,10 +16,11 @@ use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
 use crate::supabase::storage_impls::pooler::{
-  AF_COLLAB_KEY_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_COLUMN, AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN,
-  AF_COLLAB_SNAPSHOT_ID_COLUMN, AF_COLLAB_SNAPSHOT_OID_COLUMN, AF_COLLAB_SNAPSHOT_TABLE,
+  AF_COLLAB_KEY_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN,
+  AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN, AF_COLLAB_SNAPSHOT_ID_COLUMN,
+  AF_COLLAB_SNAPSHOT_OID_COLUMN, AF_COLLAB_SNAPSHOT_TABLE,
 };
-use crate::supabase::storage_impls::restful_api::util::ExtendedResponse;
+use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
 use crate::supabase::storage_impls::table_name;
 
@@ -115,6 +116,31 @@ impl Action for BatchFetchObjectUpdateAction {
       }
     })
   }
+}
+
+pub async fn create_snapshot(
+  postgrest: &Arc<PostgresWrapper>,
+  object: &CollabObject,
+  snapshot: Vec<u8>,
+) -> Result<i64, Error> {
+  let value_size = snapshot.len() as i32;
+  let snapshot = format!("\\x{}", hex::encode(snapshot));
+  postgrest
+    .from(AF_COLLAB_SNAPSHOT_TABLE)
+    .insert(
+      InsertParamsBuilder::new()
+        .insert(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.id.clone())
+        .insert("name", object.ty.to_string())
+        .insert(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
+        .insert(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
+        .build(),
+    )
+    .execute()
+    .await?
+    .success()
+    .await?;
+
+  Ok(1)
 }
 
 pub async fn get_latest_snapshot_from_server(
@@ -236,7 +262,7 @@ fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
     },
     Some(values) => {
       for value in values {
-        updates.push(parser_update_from_json(&value)?);
+        updates.push(parser_update_from_json(value)?);
       }
     },
   }
@@ -265,10 +291,10 @@ fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
     }
     Ok(UpdateItem { key, value })
   } else {
-    return Err(anyhow::anyhow!(
+    Err(anyhow::anyhow!(
       "missing key or value column in json: {:?}",
       json
-    ));
+    ))
   }
 }
 

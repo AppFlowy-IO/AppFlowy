@@ -9,10 +9,11 @@ use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
-use crate::supabase::storage_impls::pooler::{
-  PostgresServer, SupabaseDatabaseCloudServiceImpl, SupabaseDocumentCloudServiceImpl,
-  SupabaseFolderCloudServiceImpl, SupabaseRemoteCollabStorageImpl, SupabaseServerServiceImpl,
-  SupabaseUserAuthServiceImpl,
+use crate::supabase::storage_impls::pooler::PostgresServer;
+use crate::supabase::storage_impls::restful_api::{
+  RESTfulPostgresServer, RESTfulSupabaseCollabStorageImpl, RESTfulSupabaseDatabaseServiceImpl,
+  RESTfulSupabaseDocumentServiceImpl, RESTfulSupabaseFolderServiceImpl,
+  RESTfulSupabaseUserAuthServiceImpl, SupabaseServerServiceImpl,
 };
 use crate::AppFlowyServer;
 
@@ -56,6 +57,7 @@ pub struct SupabaseServer {
   config: SupabaseConfiguration,
   mode: PgPoolMode,
   postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
+  restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
 }
 
 impl SupabaseServer {
@@ -70,10 +72,17 @@ impl SupabaseServer {
     } else {
       None
     };
+
+    let restful_postgres = if config.enable_sync {
+      Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
+    } else {
+      None
+    };
     Self {
       config,
       mode,
       postgres: Arc::new(RwLock::new(postgres)),
+      restful_postgres: Arc::new(RwLock::new(restful_postgres)),
     }
   }
 
@@ -99,33 +108,32 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserService> {
-    Arc::new(SupabaseUserAuthServiceImpl::new(SupabaseServerServiceImpl(
-      self.postgres.clone(),
-    )))
+    Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(
+      SupabaseServerServiceImpl(self.restful_postgres.clone()),
+    ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(SupabaseFolderCloudServiceImpl::new(
-      SupabaseServerServiceImpl(self.postgres.clone()),
+    Arc::new(RESTfulSupabaseFolderServiceImpl::new(
+      SupabaseServerServiceImpl(self.restful_postgres.clone()),
     ))
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(SupabaseDatabaseCloudServiceImpl::new(
-      SupabaseServerServiceImpl(self.postgres.clone()),
+    Arc::new(RESTfulSupabaseDatabaseServiceImpl::new(
+      SupabaseServerServiceImpl(self.restful_postgres.clone()),
     ))
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    Arc::new(SupabaseDocumentCloudServiceImpl::new(
-      SupabaseServerServiceImpl(self.postgres.clone()),
+    Arc::new(RESTfulSupabaseDocumentServiceImpl::new(
+      SupabaseServerServiceImpl(self.restful_postgres.clone()),
     ))
   }
 
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
-    Some(Arc::new(SupabaseRemoteCollabStorageImpl::new(
-      SupabaseServerServiceImpl(self.postgres.clone()),
-      self.mode.clone(),
+    Some(Arc::new(RESTfulSupabaseCollabStorageImpl::new(
+      SupabaseServerServiceImpl(self.restful_postgres.clone()),
     )))
   }
 }

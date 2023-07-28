@@ -14,47 +14,47 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
 use crate::supabase::storage_impls::restful_api::request::{
-  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction, UpdateItem,
+  create_snapshot, get_latest_snapshot_from_server, get_updates_from_server,
+  FetchObjectUpdateAction, UpdateItem,
 };
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
+use crate::supabase::storage_impls::restful_api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::storage_impls::{partition_key, table_name};
 
-pub struct RESTfulSupabaseCollabStorageImpl {
-  postgrest: Arc<PostgresWrapper>,
-}
+pub struct RESTfulSupabaseCollabStorageImpl<T>(T);
 
-impl RESTfulSupabaseCollabStorageImpl {
-  pub fn new(postgrest: Arc<PostgresWrapper>) -> Self {
-    Self { postgrest }
+impl<T> RESTfulSupabaseCollabStorageImpl<T> {
+  pub fn new(server: T) -> Self {
+    Self(server)
   }
 }
 
 #[async_trait]
-impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
+impl<T> RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl<T>
+where
+  T: SupabaseServerService,
+{
   fn is_enable(&self) -> bool {
     true
   }
 
   async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
-    let action = FetchObjectUpdateAction::new(
-      object.id.clone(),
-      object.ty.clone(),
-      Arc::downgrade(&self.postgrest),
-    );
+    let postgrest = self.0.try_get_weak_postgrest()?;
+    let action = FetchObjectUpdateAction::new(object.id.clone(), object.ty.clone(), postgrest);
     let updates = action.run().await?;
     Ok(updates)
   }
 
   async fn get_latest_snapshot(&self, object_id: &str) -> Option<RemoteCollabSnapshot> {
-    get_latest_snapshot_from_server(object_id, self.postgrest.clone())
+    let postgrest = self.0.try_get_postgrest().ok()?;
+    get_latest_snapshot_from_server(object_id, postgrest)
       .await
       .ok()?
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
-    let json = self
-      .postgrest
+    let postgrest = self.0.try_get_postgrest()?;
+    let json = postgrest
       .from("af_collab_state")
       .select("*")
       .eq("oid", object_id)
@@ -91,12 +91,9 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     )
   }
 
-  async fn create_snapshot(
-    &self,
-    _object: &CollabObject,
-    _snapshot: Vec<u8>,
-  ) -> Result<i64, Error> {
-    todo!()
+  async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<i64, Error> {
+    let postgrest = self.0.try_get_postgrest()?;
+    create_snapshot(&postgrest, object, snapshot).await
   }
 
   async fn send_update(
@@ -105,10 +102,11 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
+    let postgrest = self.0.try_get_postgrest()?;
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    send_update(workspace_id, object, update, &self.postgrest).await
+    send_update(workspace_id, object, update, &postgrest).await
   }
 
   async fn send_init_sync(
@@ -117,16 +115,16 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
+    let postgrest = self.0.try_get_postgrest()?;
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
 
-    let update_items =
-      get_updates_from_server(&object.id, &object.ty, self.postgrest.clone()).await?;
+    let update_items = get_updates_from_server(&object.id, &object.ty, postgrest.clone()).await?;
 
     // If the update_items is empty, we can send the init_update directly
     if update_items.is_empty() {
-      send_update(workspace_id, object, init_update, &self.postgrest).await?;
+      send_update(workspace_id, object, init_update, &postgrest).await?;
     } else {
       // 2.Merge the updates into one and then delete the merged updates
       let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
@@ -148,8 +146,7 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
         .insert("removed_keys", merge_result.merged_keys)
         .build();
 
-      self
-        .postgrest
+      postgrest
         .rpc("flush_collab_updates", params)
         .execute()
         .await?
