@@ -59,11 +59,6 @@ function DocumentIcon({
         anchorPosition={anchorPosition}
         onClose={() => setAnchorPosition(undefined)}
       >
-        <div className={'flex items-center justify-end p-2'}>
-          <Button onClick={onRemoveIcon} startIcon={<DeleteOutlineRounded />}>
-            {t('document.plugins.cover.removeIcon')}
-          </Button>
-        </div>
         <EmojiPicker onEmojiSelect={onEmojiSelect} />
       </Popover>
     </>
