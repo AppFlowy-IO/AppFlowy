@@ -73,8 +73,23 @@ CREATE TABLE IF NOT EXISTS af_user (
    email TEXT NOT NULL DEFAULT '' UNIQUE,
    uid BIGSERIAL UNIQUE,
    name TEXT NOT NULL DEFAULT '',
+   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE OR REPLACE FUNCTION update_updated_at_column_func()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.updated_at = NOW();
+RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_af_user_modtime
+    BEFORE UPDATE ON af_user
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_updated_at_column_func();
+
 -- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -83,6 +98,7 @@ CREATE TABLE IF NOT EXISTS af_workspace (
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    -- 0: Free
    workspace_type INTEGER NOT NULL DEFAULT 0,
+   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
    workspace_name TEXT DEFAULT 'My Workspace'
 );
 -- This trigger is fired after an insert operation on the af_user table. It automatically creates a workspace
@@ -151,6 +167,7 @@ CREATE TABLE IF NOT EXISTS af_collab(
    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    -- 0: Private, 1: Shared
    access_level INTEGER NOT NULL DEFAULT 0,
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX idx_af_collab_oid ON af_collab (oid);

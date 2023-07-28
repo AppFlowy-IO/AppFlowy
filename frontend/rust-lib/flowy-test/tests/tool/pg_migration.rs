@@ -59,6 +59,9 @@ DROP FUNCTION IF EXISTS manage_af_workspace_member_role_func;
 DROP TRIGGER IF EXISTS update_af_workspace_member_updated_at_trigger ON af_collab_update CASCADE;
 DROP FUNCTION IF EXISTS update_af_workspace_member_updated_at_func;
 
+DROP TRIGGER IF EXISTS update_af_user_modtime ON af_user CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column_func;
+
 DROP FUNCTION IF EXISTS insert_af_workspace_member_if_owner;
 DROP FUNCTION IF EXISTS af_shared_collab_for_uid;
 "#;
