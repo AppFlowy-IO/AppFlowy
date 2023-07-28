@@ -91,8 +91,6 @@ export const DatabaseFilterPopup = ({
   };
 
   const onSaveFilterItem = async (filter: IDatabaseFilter) => {
-    // update global store
-    // dispatch(databaseActions.upsertFilter({ filter }));
     let val: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB;
 
     switch (filter.fieldType) {
@@ -129,7 +127,12 @@ export const DatabaseFilterPopup = ({
 
     const index = filters.findIndex((f) => f?.fieldId === filter.fieldId);
 
-    setFilters([...filters.slice(0, index), updatedFilter, ...filters.slice(index + 1)]);
+    if (index === -1) {
+      setFilters([...filters, updatedFilter]);
+    } else {
+      setFilters([...filters.slice(0, index), updatedFilter, ...filters.slice(index + 1)]);
+    }
+
     setShowBlankFilter(false);
   };
 
