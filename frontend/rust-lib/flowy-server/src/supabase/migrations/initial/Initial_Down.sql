@@ -12,7 +12,6 @@ DROP TABLE IF EXISTS af_role_permissions CASCADE;
 DROP TABLE IF EXISTS af_collab_member CASCADE;
 DROP TABLE IF EXISTS af_workspace_member CASCADE;
 DROP VIEW IF EXISTS af_user_profile_view CASCADE;
-DROP TABLE IF EXISTS af_database_row_update CASCADE;
 
 DROP TRIGGER IF EXISTS create_af_workspace_trigger ON af_workspace CASCADE;
 DROP FUNCTION IF EXISTS create_af_workspace_func;

@@ -9,7 +9,6 @@ use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
-use crate::supabase::storage_impls::pooler::PostgresServer;
 use crate::supabase::storage_impls::restful_api::{
   RESTfulPostgresServer, RESTfulSupabaseCollabStorageImpl, RESTfulSupabaseDatabaseServiceImpl,
   RESTfulSupabaseDocumentServiceImpl, RESTfulSupabaseFolderServiceImpl,
@@ -55,24 +54,11 @@ impl PgPoolMode {
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  mode: PgPoolMode,
-  postgres: Arc<RwLock<Option<Arc<PostgresServer>>>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
-    let mode = PgPoolMode::default();
-    tracing::info!("postgre db connect mode: {:?}", mode);
-    let postgres = if config.enable_sync {
-      Some(Arc::new(PostgresServer::new(
-        mode.clone(),
-        config.postgres_config.clone(),
-      )))
-    } else {
-      None
-    };
-
     let restful_postgres = if config.enable_sync {
       Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
     } else {
@@ -80,23 +66,19 @@ impl SupabaseServer {
     };
     Self {
       config,
-      mode,
-      postgres: Arc::new(RwLock::new(postgres)),
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
     }
   }
 
   pub fn set_enable_sync(&self, enable: bool) {
     if enable {
-      if self.postgres.read().is_some() {
+      if self.restful_postgres.read().is_some() {
         return;
       }
-      *self.postgres.write() = Some(Arc::new(PostgresServer::new(
-        self.mode.clone(),
-        self.config.postgres_config.clone(),
-      )));
+      *self.restful_postgres.write() =
+        Some(Arc::new(RESTfulPostgresServer::new(self.config.clone())));
     } else {
-      *self.postgres.write() = None;
+      *self.restful_postgres.write() = None;
     }
   }
 }

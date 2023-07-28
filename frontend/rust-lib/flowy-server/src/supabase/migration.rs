@@ -5,7 +5,7 @@ embed_migrations!("./src/supabase/migrations");
 
 const AF_MIGRATION_HISTORY: &str = "af_migration_history";
 
-pub(crate) async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Error> {
+pub async fn run_migrations(client: &mut Client) -> Result<(), anyhow::Error> {
   match migrations::runner()
     .set_migration_table_name(AF_MIGRATION_HISTORY)
     .run_async(client)

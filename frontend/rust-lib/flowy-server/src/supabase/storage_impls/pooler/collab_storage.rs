@@ -39,7 +39,6 @@ pub struct SupabaseRemoteCollabStorageImpl<T> {
   mode: PgPoolMode,
 }
 pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
-pub const AF_COLLAB_DATABASE_ROW_UPDATE_TABLE: &str = "af_database_row_update";
 pub const AF_COLLAB_KEY_COLUMN: &str = "key";
 pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";

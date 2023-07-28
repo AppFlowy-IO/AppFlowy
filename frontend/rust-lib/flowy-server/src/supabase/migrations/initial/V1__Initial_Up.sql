@@ -185,18 +185,8 @@ CREATE TABLE af_collab_update_w_database PARTITION OF af_collab_update FOR
 VALUES IN (2);
 CREATE TABLE af_collab_update_folder PARTITION OF af_collab_update FOR
 VALUES IN (3);
--- Used to store the rows of the database
-CREATE TABLE IF NOT EXISTS af_database_row_update (
-   oid TEXT,
-   key BIGSERIAL,
-   value BYTEA NOT NULL,
-   value_size INTEGER,
-   partition_key INTEGER NOT NULL,
-   uid BIGINT NOT NULL,
-   md5 TEXT DEFAULT '',
-   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
-   PRIMARY KEY (oid, key)
-);
+CREATE TABLE af_collab_update_database_row PARTITION OF af_collab_update FOR
+VALUES IN (4);
 -- This trigger will fire after an INSERT or UPDATE operation on af_collab_update. If the oid of the new or updated row
 -- equals to a workspace_id in the af_workspace_member table, it will update the updated_at timestamp for the corresponding
 -- row in the af_workspace_member table.

@@ -1,3 +1,4 @@
+use flowy_server::supabase::migration::run_migrations;
 use tokio_postgres::{Client, NoTls};
 
 use flowy_server_config::supabase_config::PostgresConfiguration;
@@ -24,7 +25,6 @@ DROP TABLE IF EXISTS af_role_permissions CASCADE;
 DROP TABLE IF EXISTS af_collab_member CASCADE;
 DROP TABLE IF EXISTS af_workspace_member CASCADE;
 DROP VIEW IF EXISTS af_user_profile_view CASCADE;
-DROP TABLE IF EXISTS af_database_row_update CASCADE;
 
 DROP TRIGGER IF EXISTS create_af_workspace_trigger ON af_workspace CASCADE;
 DROP FUNCTION IF EXISTS create_af_workspace_func;
@@ -91,7 +91,7 @@ async fn run_initial_drop_test() -> Result<(), anyhow::Error> {
     .port(configuration.port);
 
   // Using the https://docs.rs/postgres-openssl/latest/postgres_openssl/ to enable tls connection.
-  let (client, connection) = config.connect(NoTls).await?;
+  let (mut client, connection) = config.connect(NoTls).await?;
   tokio::spawn(async move {
     if let Err(e) = connection.await {
       tracing::error!("postgres db connection error: {}", e);
@@ -101,6 +101,7 @@ async fn run_initial_drop_test() -> Result<(), anyhow::Error> {
   #[cfg(debug_assertions)]
   {
     run_initial_drop(&client).await;
+    run_migrations(&mut client).await?;
   }
   Ok(())
 }
