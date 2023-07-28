@@ -1,5 +1,5 @@
 use anyhow::Error;
-use core::assert;
+
 use uuid::Uuid;
 
 use std::str::FromStr;

@@ -64,6 +64,8 @@ DROP FUNCTION IF EXISTS update_updated_at_column_func;
 
 DROP FUNCTION IF EXISTS insert_af_workspace_member_if_owner;
 DROP FUNCTION IF EXISTS af_shared_collab_for_uid;
+
+DROP FUNCTION IF EXISTS flush_collab_updates;
 "#;
   client.batch_execute(sql).await.unwrap();
   client

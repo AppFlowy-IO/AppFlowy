@@ -27,7 +27,7 @@ enum Mode {
   Pooler,
 }
 
-fn user_auth_service() -> Arc<dyn UserService> {
+pub fn user_auth_service() -> Arc<dyn UserService> {
   let mode = Mode::RESTfulAPI;
   match mode {
     Mode::RESTfulAPI => {
@@ -153,7 +153,7 @@ async fn supabase_get_not_exist_user_profile_test() {
   assert!(result.is_none());
 }
 
-fn sign_up_param(uuid: String) -> HashMap<String, String> {
+pub fn sign_up_param(uuid: String) -> HashMap<String, String> {
   let mut params = HashMap::new();
   params.insert(USER_UUID.to_string(), uuid);
   params.insert(

@@ -357,20 +357,20 @@ WHERE cm.uid = _uid
 END;
 $$ LANGUAGE plpgsql;
 -- Flush the collab updates
-CREATE OR REPLACE FUNCTION flush_collab_updates(
-      new_key BIGSERIAL,
+CREATE OR REPLACE FUNCTION public.flush_collab_updates(
+      oid TEXT,
+      new_key BIGINT,
       new_value BYTEA,
-      removed_keys BIGSERIAL [],
-      new_oid TEXT,
-      new_value_size INTEGER,
-      new_partition_key INTEGER,
-      new_uid BIGINT,
-      new_md5 TEXT,
-      new_workspace_id UUID
+      md5 TEXT,
+      value_size INTEGER,
+      partition_key INTEGER,
+      uid BIGINT,
+      workspace_id UUID,
+      removed_keys BIGINT []
    ) RETURNS void AS $$
 DECLARE lock_key INTEGER;
 BEGIN -- Hashing the oid to an integer for the advisory lock
-lock_key := (hashtext(new_oid)::bigint)::integer;
+lock_key := (hashtext(oid)::bigint)::integer;
 -- Getting a session level lock
 PERFORM pg_advisory_lock(lock_key);
 -- Deleting rows with keys in removed_keys
@@ -381,21 +381,21 @@ INSERT INTO af_collab_update(
       oid,
       key,
       value,
+      md5,
       value_size,
       partition_key,
       uid,
-      md5,
       workspace_id
    )
 VALUES (
-      new_oid,
+      oid,
       new_key,
       new_value,
-      new_value_size,
-      new_partition_key,
-      new_uid,
-      new_md5,
-      new_workspace_id
+      md5,
+      value_size,
+      partition_key,
+      uid,
+      workspace_id
    );
 -- Releasing the lock
 PERFORM pg_advisory_unlock(lock_key);

@@ -170,7 +170,7 @@ pub async fn batch_get_updates_from_server(
 ) -> Result<CollabObjectUpdateByOid, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("value, md5")
+    .select("oid, key, value, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .in_("oid", object_ids)
     .execute()
@@ -178,13 +178,22 @@ pub async fn batch_get_updates_from_server(
     .get_json()
     .await?;
 
-  let updates_by_oid = CollabObjectUpdateByOid::new();
+  let mut updates_by_oid = CollabObjectUpdateByOid::new();
   if let Some(records) = json.as_array() {
     for record in records {
-      tracing::debug!("record: {:?}", record);
+      if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
+        if let Ok(updates) = parser_updates_form_json(record.clone()) {
+          let object_updates = updates_by_oid
+            .entry(oid.to_string())
+            .or_insert_with(Vec::new);
+          tracing::debug!("get updates from server: {:?}", record);
+          for update in updates {
+            object_updates.push(update.value);
+          }
+        }
+      }
     }
   }
-
   Ok(updates_by_oid)
 }
 
@@ -221,33 +230,46 @@ pub async fn get_updates_from_server(
 /// ```
 fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
   let mut updates = vec![];
-  if let Some(records) = json.as_array() {
-    for record in records {
-      let some_record = record
-        .get("value")
-        .and_then(|value| value.as_str())
-        .and_then(decode_hex_string);
-
-      let some_key = record.get("key").and_then(|value| value.as_i64());
-      if let (Some(value), Some(key)) = (some_record, some_key) {
-        // Check the md5 of the value that we received from the server is equal to the md5 of the value
-        // that we calculated locally.
-        if let Some(expected_md5) = record.get("md5").and_then(|v| v.as_str()) {
-          let value_md5 = md5(&value);
-          debug_assert!(
-            value_md5 == expected_md5,
-            "md5 not match: {} != {}",
-            value_md5,
-            expected_md5
-          );
-        }
-        updates.push(UpdateItem { key, value });
-      } else {
-        return Err(anyhow::anyhow!("value not found in json: {:?}", record));
+  match json.as_array() {
+    None => {
+      updates.push(parser_update_from_json(&json)?);
+    },
+    Some(values) => {
+      for value in values {
+        updates.push(parser_update_from_json(&value)?);
       }
-    }
+    },
   }
+
   Ok(updates)
+}
+
+fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
+  let some_record = json
+    .get("value")
+    .and_then(|value| value.as_str())
+    .and_then(decode_hex_string);
+
+  let some_key = json.get("key").and_then(|value| value.as_i64());
+  if let (Some(value), Some(key)) = (some_record, some_key) {
+    // Check the md5 of the value that we received from the server is equal to the md5 of the value
+    // that we calculated locally.
+    if let Some(expected_md5) = json.get("md5").and_then(|v| v.as_str()) {
+      let value_md5 = md5(&value);
+      debug_assert!(
+        value_md5 == expected_md5,
+        "md5 not match: {} != {}",
+        value_md5,
+        expected_md5
+      );
+    }
+    Ok(UpdateItem { key, value })
+  } else {
+    return Err(anyhow::anyhow!(
+      "missing key or value column in json: {:?}",
+      json
+    ));
+  }
 }
 
 pub struct UpdateItem {

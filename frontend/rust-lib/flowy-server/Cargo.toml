@@ -46,6 +46,7 @@ flowy-server-config = { path = "../flowy-server-config" }
 uuid = { version = "1.3.3", features = ["v4"] }
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
+yrs = "0.16.5"
 
 [features]
 default = ["postgres_storage"]

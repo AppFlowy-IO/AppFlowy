@@ -13,7 +13,6 @@ use tokio::task::spawn_blocking;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use crate::supabase::storage_impls::pooler::AF_COLLAB_KEY_COLUMN;
 use crate::supabase::storage_impls::restful_api::request::{
   get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction, UpdateItem,
 };
@@ -109,7 +108,7 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    send_update(workspace_id, object, update, None, &self.postgrest).await
+    send_update(workspace_id, object, update, &self.postgrest).await
   }
 
   async fn send_init_sync(
@@ -127,20 +126,35 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
 
     // If the update_items is empty, we can send the init_update directly
     if update_items.is_empty() {
-      send_update(workspace_id, object, init_update, None, &self.postgrest).await?;
+      send_update(workspace_id, object, init_update, &self.postgrest).await?;
     } else {
       // 2.Merge the updates into one and then delete the merged updates
       let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
       tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
-      let override_key = merge_result.merged_keys.last().cloned();
-      send_update(
-        workspace_id,
-        object,
-        merge_result.new_update,
-        override_key,
-        &self.postgrest,
-      )
-      .await?;
+      let override_key = merge_result.merged_keys.last().cloned().unwrap();
+
+      let value_size = merge_result.new_update.len() as i32;
+      let md5 = md5(&merge_result.new_update);
+      let new_update = format!("\\x{}", hex::encode(merge_result.new_update));
+      let params = InsertParamsBuilder::new()
+        .insert("oid", object.id.clone())
+        .insert("new_key", override_key)
+        .insert("new_value", new_update)
+        .insert("md5", md5)
+        .insert("value_size", value_size)
+        .insert("partition_key", partition_key(&object.ty))
+        .insert("uid", object.uid)
+        .insert("workspace_id", workspace_id)
+        .insert("removed_keys", merge_result.merged_keys)
+        .build();
+
+      self
+        .postgrest
+        .rpc("flush_collab_updates", params)
+        .execute()
+        .await?
+        .success()
+        .await?;
     }
     Ok(())
   }
@@ -150,25 +164,10 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
   }
 }
 
-async fn delete_updates(
-  object: &CollabObject,
-  keys: Vec<i64>,
-  postgrest: &Arc<PostgresWrapper>,
-) -> Result<(), Error> {
-  postgrest
-    .from(&table_name(&object.ty))
-    .delete()
-    .in_("key", keys)
-    .execute()
-    .await?;
-  Ok(())
-}
-
 async fn send_update(
   workspace_id: String,
   object: &CollabObject,
   update: Vec<u8>,
-  override_key: Option<i64>,
   postgrest: &Arc<PostgresWrapper>,
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
@@ -183,9 +182,6 @@ async fn send_update(
     .insert("workspace_id", workspace_id)
     .insert("value_size", value_size);
 
-  if let Some(override_key) = override_key {
-    builder.insert(AF_COLLAB_KEY_COLUMN, override_key)
-  }
   let params = builder.build();
   postgrest
     .from(&table_name(&object.ty))
@@ -204,7 +200,9 @@ fn merge_updates(update_items: Vec<UpdateItem>, new_update: Vec<u8>) -> Result<M
     merged_keys.push(item.key);
     updates.push(item.value);
   }
-  updates.push(new_update);
+  if !new_update.is_empty() {
+    updates.push(new_update);
+  }
   let updates = updates
     .iter()
     .map(|update| update.as_ref())

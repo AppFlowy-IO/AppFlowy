@@ -1908,6 +1908,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber 0.3.16",
  "uuid",
+ "yrs",
 ]
 
 [[package]]
