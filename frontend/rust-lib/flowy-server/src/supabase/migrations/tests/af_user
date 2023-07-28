@@ -1,5 +1,14 @@
 #!/bin/env bash
 
+trim() {
+    local var="$*"
+    # Remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+    # Remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
+
 set -e
 
 GREEN='\033[0;32m'
@@ -34,13 +43,33 @@ NEW_UID=$($PSQL --tuples-only --command "\
 echo -e "${GREEN}af_user uid: $NEW_UID${NC}"
 
 # check workspace
-WORKSPACE_ID=$($PSQL --tuples-only --command "\
+WORKSPACE_ID=$(trim $($PSQL --tuples-only --command "\
     SELECT workspace_id \
     FROM public.af_workspace \
-    WHERE owner_uid = $NEW_UID")
+    WHERE owner_uid = $NEW_UID"))
 if [ -z "$WORKSPACE_ID" ]; then
     echo -e "${RED}workspace not associated with af_user of uuid: $UUID${NC}"
     exit 1
 else
     echo -e "${GREEN}workspace id associated with af_user(owner_uid): $WORKSPACE_ID${NC}"
+fi
+
+# check af_workspace_member role
+WORKSPACE_ROLE=$(trim $($PSQL --tuples-only --command "\
+    SELECT name \
+    FROM public.af_roles \
+    WHERE id = (\
+        SELECT role_id \
+        FROM public.af_workspace_member \
+        WHERE workspace_id = '$WORKSPACE_ID')"))
+if [ -z "$WORKSPACE_ROLE" ]; then
+    echo -e "${RED}workspace role not associated with workspace of id: $WORKSPACE_ID${NC}"
+    exit 1
+else
+    echo -e "${GREEN}workspace role id associated with workspace: $WORKSPACE_ROLE${NC}"
+fi
+
+if [ "$WORKSPACE_ROLE" != "Owner" ]; then
+    echo -e "${RED}workspace role is not Owner${NC}"
+    exit 1
 fi
