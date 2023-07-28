@@ -77,19 +77,12 @@ CREATE TABLE IF NOT EXISTS af_user (
    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-CREATE OR REPLACE FUNCTION update_updated_at_column_func()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.updated_at = NOW();
+CREATE OR REPLACE FUNCTION update_updated_at_column_func() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
 RETURN NEW;
 END;
 $$ language 'plpgsql';
-
-CREATE TRIGGER update_af_user_modtime
-    BEFORE UPDATE ON af_user
-    FOR EACH ROW
-    EXECUTE PROCEDURE update_updated_at_column_func();
-
+CREATE TRIGGER update_af_user_modtime BEFORE
+UPDATE ON af_user FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column_func();
 -- af_workspace contains all the workspaces. Each workspace contains a list of members defined in af_workspace_member
 CREATE TABLE IF NOT EXISTS af_workspace (
    workspace_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -167,7 +160,7 @@ CREATE TABLE IF NOT EXISTS af_collab(
    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    -- 0: Private, 1: Shared
    access_level INTEGER NOT NULL DEFAULT 0,
-    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE UNIQUE INDEX idx_af_collab_oid ON af_collab (oid);
@@ -181,13 +174,17 @@ CREATE TABLE IF NOT EXISTS af_collab_update (
    uid BIGINT NOT NULL,
    md5 TEXT DEFAULT '',
    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
+   workspace_id UUID NOT NULL REFERENCES af_workspace(workspace_id) ON DELETE CASCADE,
    PRIMARY KEY (oid, key, partition_key)
 ) PARTITION BY LIST (partition_key);
-CREATE TABLE af_collab_update_document PARTITION OF af_collab_update FOR VALUES IN (0);
-CREATE TABLE af_collab_update_database PARTITION OF af_collab_update FOR VALUES IN (1);
-CREATE TABLE af_collab_update_w_database PARTITION OF af_collab_update FOR VALUES IN (2);
-CREATE TABLE af_collab_update_folder PARTITION OF af_collab_update FOR VALUES IN (3);
+CREATE TABLE af_collab_update_document PARTITION OF af_collab_update FOR
+VALUES IN (0);
+CREATE TABLE af_collab_update_database PARTITION OF af_collab_update FOR
+VALUES IN (1);
+CREATE TABLE af_collab_update_w_database PARTITION OF af_collab_update FOR
+VALUES IN (2);
+CREATE TABLE af_collab_update_folder PARTITION OF af_collab_update FOR
+VALUES IN (3);
 -- Used to store the rows of the database
 CREATE TABLE IF NOT EXISTS af_database_row_update (
    oid TEXT,
@@ -357,5 +354,51 @@ FROM af_collab c
    JOIN af_workspace_member wm ON c.workspace_id = wm.workspace_id
 WHERE cm.uid = _uid
    AND c.owner_uid != _uid;
+END;
+$$ LANGUAGE plpgsql;
+-- Flush the collab updates
+CREATE OR REPLACE FUNCTION flush_collab_updates(
+      new_key BIGSERIAL,
+      new_value BYTEA,
+      removed_keys BIGSERIAL [],
+      new_oid TEXT,
+      new_value_size INTEGER,
+      new_partition_key INTEGER,
+      new_uid BIGINT,
+      new_md5 TEXT,
+      new_workspace_id UUID
+   ) RETURNS void AS $$
+DECLARE lock_key INTEGER;
+BEGIN -- Hashing the oid to an integer for the advisory lock
+lock_key := (hashtext(new_oid)::bigint)::integer;
+-- Getting a session level lock
+PERFORM pg_advisory_lock(lock_key);
+-- Deleting rows with keys in removed_keys
+DELETE FROM af_collab_update
+WHERE key = ANY (removed_keys);
+-- Inserting a new update with the new key and value
+INSERT INTO af_collab_update(
+      oid,
+      key,
+      value,
+      value_size,
+      partition_key,
+      uid,
+      md5,
+      workspace_id
+   )
+VALUES (
+      new_oid,
+      new_key,
+      new_value,
+      new_value_size,
+      new_partition_key,
+      new_uid,
+      new_md5,
+      new_workspace_id
+   );
+-- Releasing the lock
+PERFORM pg_advisory_unlock(lock_key);
+RETURN;
 END;
 $$ LANGUAGE plpgsql;

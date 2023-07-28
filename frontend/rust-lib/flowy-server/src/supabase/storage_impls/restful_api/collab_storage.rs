@@ -109,7 +109,7 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    send_update(workspace_id, object, update, &self.postgrest).await
+    send_update(workspace_id, object, update, None, &self.postgrest).await
   }
 
   async fn send_init_sync(
@@ -124,29 +124,24 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
 
     let update_items =
       get_updates_from_server(&object.id, &object.ty, self.postgrest.clone()).await?;
-    self
-      .postgrest
-      .from(table_name(&object.ty))
-      .select(format!("{}, value", AF_COLLAB_KEY_COLUMN))
-      .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
-      .eq("oid", object.id.clone())
-      .execute()
-      .await?
-      .get_json()
+
+    // If the update_items is empty, we can send the init_update directly
+    if update_items.is_empty() {
+      send_update(workspace_id, object, init_update, None, &self.postgrest).await?;
+    } else {
+      // 2.Merge the updates into one and then delete the merged updates
+      let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
+      tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
+      let override_key = merge_result.merged_keys.last().cloned();
+      send_update(
+        workspace_id,
+        object,
+        merge_result.new_update,
+        override_key,
+        &self.postgrest,
+      )
       .await?;
-
-    // 2.Merge the updates into one and then delete the merged updates
-    let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
-    tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
-
-    // 3. Send the update to remote
-    send_update(
-      workspace_id,
-      object,
-      merge_result.new_update,
-      &self.postgrest,
-    )
-    .await?;
+    }
     Ok(())
   }
 
@@ -155,28 +150,46 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
   }
 }
 
+async fn delete_updates(
+  object: &CollabObject,
+  keys: Vec<i64>,
+  postgrest: &Arc<PostgresWrapper>,
+) -> Result<(), Error> {
+  postgrest
+    .from(&table_name(&object.ty))
+    .delete()
+    .in_("key", keys)
+    .execute()
+    .await?;
+  Ok(())
+}
+
 async fn send_update(
   workspace_id: String,
   object: &CollabObject,
   update: Vec<u8>,
+  override_key: Option<i64>,
   postgrest: &Arc<PostgresWrapper>,
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
   let md5 = md5(&update);
   let update = format!("\\x{}", hex::encode(update));
-  let insert_params = InsertParamsBuilder::new()
+  let builder = InsertParamsBuilder::new()
     .insert("oid", object.id.clone())
     .insert("partition_key", partition_key(&object.ty))
     .insert("value", update)
     .insert("uid", object.uid)
     .insert("md5", md5)
     .insert("workspace_id", workspace_id)
-    .insert("value_size", value_size)
-    .build();
+    .insert("value_size", value_size);
 
+  if let Some(override_key) = override_key {
+    builder.insert(AF_COLLAB_KEY_COLUMN, override_key)
+  }
+  let params = builder.build();
   postgrest
     .from(&table_name(&object.ty))
-    .insert(insert_params)
+    .insert(params)
     .execute()
     .await?
     .success()
