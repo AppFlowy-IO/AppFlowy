@@ -40,7 +40,7 @@ flutter test --dart-define=RUST_LOG=${RUST_LOG} -j, --concurrency=1 --coverage
 run_task = { name = ["rust_lib_unit_test", "shared_lib_unit_test"] }
 
 [tasks.supabase_unit_test]
-env = { RUST_LOG = "debug" }
+env = { RUST_LOG = "info" }
 description = "Run cloud unit tests"
 script = '''
 cd rust-lib/flowy-test

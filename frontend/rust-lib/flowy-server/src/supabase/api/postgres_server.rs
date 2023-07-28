@@ -26,9 +26,9 @@ pub struct RESTfulPostgresServer {
 impl RESTfulPostgresServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
     let url = format!("{}/rest/v1", config.url);
-    let auth = format!("Bearer {}", config.key);
+    let auth = format!("Bearer {}", config.anon_key);
     let postgrest = Postgrest::new(url)
-      .insert_header("apikey", config.key)
+      .insert_header("apikey", config.anon_key)
       .insert_header("Authorization", auth);
     Self {
       postgrest: Arc::new(PostgresWrapper(postgrest)),

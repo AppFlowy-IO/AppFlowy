@@ -274,16 +274,19 @@ pub async fn move_view(
   parent_id: String,
   prev_view_id: Option<String>,
 ) {
-  let request = MoveNestedViewPayloadPB {
+  let payload = MoveNestedViewPayloadPB {
     view_id,
     new_parent_id: parent_id,
     prev_view_id,
   };
-  EventBuilder::new(sdk.clone())
+  let error = EventBuilder::new(sdk.clone())
     .event(MoveNestedView)
-    .payload(request)
+    .payload(payload)
     .async_send()
-    .await;
+    .await
+    .error();
+
+  assert!(error.is_none());
 }
 pub async fn update_view(
   sdk: &FlowyCoreTest,
