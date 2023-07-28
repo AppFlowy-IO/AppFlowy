@@ -68,35 +68,45 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
     return new AsyncQueue<readonly FieldInfo[]>(loadFields);
   }, [loadFields]);
 
-  const transformCondition: (condition: TextFilterConditionPB | SelectOptionConditionPB) => TDatabaseOperators = (
-    condition
-  ) => {
-    switch (condition) {
-      case SelectOptionConditionPB.OptionIs:
-        return 'is';
-      case SelectOptionConditionPB.OptionIsNot:
-        return 'isNot';
-      case SelectOptionConditionPB.OptionIsEmpty:
-        return 'isEmpty';
-      case SelectOptionConditionPB.OptionIsNotEmpty:
-        return 'isNotEmpty';
+  const transformCondition: (condition: number, fieldType: FieldType) => TDatabaseOperators = (condition, fieldType) => {
+    switch (fieldType) {
+      case FieldType.RichText:
+        switch (condition) {
+          case TextFilterConditionPB.Contains:
+            return 'contains';
+          case TextFilterConditionPB.DoesNotContain:
+            return 'doesNotContain';
+          case TextFilterConditionPB.EndsWith:
+            return 'endsWith';
+          case TextFilterConditionPB.StartsWith:
+            return 'startWith';
+          case TextFilterConditionPB.Is:
+            return 'is';
+          case TextFilterConditionPB.IsNot:
+            return 'isNot';
+          case TextFilterConditionPB.TextIsEmpty:
+            return 'isEmpty';
+          case TextFilterConditionPB.TextIsNotEmpty:
+            return 'isNotEmpty';
+          default:
+            return 'is';
+        }
 
-      case TextFilterConditionPB.Contains:
-        return 'contains';
-      case TextFilterConditionPB.DoesNotContain:
-        return 'doesNotContain';
-      case TextFilterConditionPB.EndsWith:
-        return 'endsWith';
-      case TextFilterConditionPB.StartsWith:
-        return 'startWith';
-      case TextFilterConditionPB.Is:
-        return 'is';
-      case TextFilterConditionPB.IsNot:
-        return 'isNot';
-      case TextFilterConditionPB.TextIsEmpty:
-        return 'isEmpty';
-      case TextFilterConditionPB.TextIsNotEmpty:
-        return 'isNotEmpty';
+      case FieldType.SingleSelect:
+      case FieldType.MultiSelect:
+        switch (condition) {
+          case SelectOptionConditionPB.OptionIs:
+            return 'is';
+          case SelectOptionConditionPB.OptionIsNot:
+            return 'isNot';
+          case SelectOptionConditionPB.OptionIsEmpty:
+            return 'isEmpty';
+          case SelectOptionConditionPB.OptionIsNotEmpty:
+            return 'isNotEmpty';
+          default:
+            return 'is';
+        }
+
       default:
         return 'is';
     }
@@ -114,6 +124,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
           queue.enqueue(fieldInfos);
         },
         onFiltersChanged: (filters) => {
+          console.log('filters changed', filters);
           const reduxFilters = filters.map<IDatabaseFilter>((filter) => {
             switch (filter.field_type) {
               case FieldType.SingleSelect:
@@ -123,7 +134,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
                   fieldType: filter.field_type,
                   fieldId: filter.field_id,
                   id: filter.id,
-                  operator: transformCondition((filter.data as SelectOptionFilterPB).condition),
+                  operator: transformCondition((filter.data as SelectOptionFilterPB).condition, filter.field_type),
                   value: (filter.data as SelectOptionFilterPB).option_ids,
                 };
               case FieldType.RichText:
@@ -132,7 +143,7 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
                   fieldType: filter.field_type,
                   fieldId: filter.field_id,
                   id: filter.id,
-                  operator: transformCondition((filter.data as TextFilterPB).condition),
+                  operator: transformCondition((filter.data as TextFilterPB).condition, filter.field_type),
                   value: (filter.data as TextFilterPB).content,
                 };
 

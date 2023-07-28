@@ -117,28 +117,24 @@ export const DatabaseFilterPopup = ({
         break;
     }
 
+    let updatedFilter = filter;
+
     if (filter.id) {
       await filterController.updateFilter(filter.id, filter.fieldId, filter.fieldType, val);
     } else {
-      await filterController.addFilter(filter.fieldId, filter.fieldType, val);
+      const newId = await filterController.addFilter(filter.fieldId, filter.fieldType, val);
+
+      updatedFilter = { ...filter, id: newId };
     }
 
-    // update local copy
     const index = filters.findIndex((f) => f?.fieldId === filter.fieldId);
 
-    if (index >= 0) {
-      setFilters([...filters.slice(0, index), filter, ...filters.slice(index + 1)]);
-    } else {
-      setFilters([...filters, filter]);
-    }
-
+    setFilters([...filters.slice(0, index), updatedFilter, ...filters.slice(index + 1)]);
     setShowBlankFilter(false);
   };
 
   const onDeleteFilterItem = async (filter: IDatabaseFilter | null) => {
     if (!filter || !filter.id || !filter.fieldId) return;
-    // update global store
-    // dispatch(databaseActions.removeFilter({ filter }));
 
     // add blank filter if no filters left
     if (filters.length === 1) {

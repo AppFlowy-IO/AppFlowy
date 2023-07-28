@@ -34,18 +34,19 @@ export class FilterBackendService {
     }
   };
 
-  addFilter = (
+  addFilter = async (
     fieldId: string,
     fieldType: FieldType,
     filter: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB
   ) => {
     const data = filter.serializeBinary();
+    const id = nanoid(4);
 
-    return DatabaseEventUpdateDatabaseSetting(
+    await DatabaseEventUpdateDatabaseSetting(
       DatabaseSettingChangesetPB.fromObject({
         view_id: this.viewId,
         update_filter: UpdateFilterPayloadPB.fromObject({
-          filter_id: nanoid(4),
+          filter_id: id,
           view_id: this.viewId,
           field_id: fieldId,
           field_type: fieldType,
@@ -53,6 +54,7 @@ export class FilterBackendService {
         }),
       })
     );
+    return id;
   };
 
   updateFilter = (

@@ -28,11 +28,10 @@ export class FilterController {
     fieldType: FieldType,
     filter: TextFilterPB | SelectOptionFilterPB | CheckboxFilterPB
   ) => {
-    const result = await this.filterService.addFilter(fieldId, fieldType, filter);
+    const id = await this.filterService.addFilter(fieldId, fieldType, filter);
 
-    if (result.ok) {
-      await this.readFilters();
-    }
+    await this.readFilters();
+    return id;
   };
 
   updateFilter = async (
