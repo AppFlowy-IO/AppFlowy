@@ -54,7 +54,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     for (final handler in widget.service.handlers) {
       final group = await handler.call(_search);
 
-      newResults.add(group);
+      if (group.results.isNotEmpty) {
+        newResults.add(group);
+      }
     }
 
     invalidCounter = results.every((group) => group.results.isEmpty)
@@ -64,9 +66,16 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       widget.onDismiss();
     }
 
+    _resetSelection();
+
     setState(() {
       results = newResults;
     });
+  }
+
+  void _resetSelection() {
+    _selectedGroup = 0;
+    _selectedIndex = 0;
   }
 
   int _searchLength = 0;
@@ -184,7 +193,11 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       widget.editorState.deleteBackward();
       return KeyEventResult.handled;
     } else if (event.character != null &&
-        !moveKeys.contains(event.logicalKey)) {
+        ![
+          ...moveKeys,
+          LogicalKeyboardKey.arrowLeft,
+          LogicalKeyboardKey.arrowRight
+        ].contains(event.logicalKey)) {
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.
       widget.onSelectionUpdate();
@@ -204,6 +217,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     if ([LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowRight]
         .contains(event.logicalKey)) {
       widget.onSelectionUpdate();
+
       event.logicalKey == LogicalKeyboardKey.arrowLeft
           ? widget.editorState.moveCursorForward(SelectionMoveRange.character)
           : widget.editorState.moveCursorBackward(SelectionMoveRange.character);

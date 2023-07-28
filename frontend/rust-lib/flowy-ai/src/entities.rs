@@ -9,5 +9,5 @@ pub struct DateQueryPB {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct DateResultPB {
   #[pb(index = 1)]
-  pub seconds_since_epoch: String,
+  pub date: String,
 }

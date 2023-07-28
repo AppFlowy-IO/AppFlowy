@@ -25,9 +25,19 @@ class DateReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
+  static const maxSearchLength = 20;
   Future<InlineActionsResult> dateReferenceDelegate([
     String? search,
   ]) async {
+    if (search != null &&
+        search.isNotEmpty &&
+        search.length > maxSearchLength) {
+      return InlineActionsResult(
+        title: LocaleKeys.inlineActions_date.tr(),
+        results: [],
+      );
+    }
+
     // Checks if Locale has changed since last
     _setLocale();
 
@@ -38,7 +48,7 @@ class DateReferenceService {
     _searchDate(search);
 
     // Searches for date by natural language prompt
-    _searchDateNLP(search);
+    await _searchDateNLP(search);
 
     return InlineActionsResult(
       title: LocaleKeys.inlineActions_date.tr(),

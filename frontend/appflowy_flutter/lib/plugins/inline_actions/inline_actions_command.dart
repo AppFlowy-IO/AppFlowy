@@ -42,7 +42,10 @@ Future<bool> inlineActionsCommandHandler(
   final List<InlineActionsResult> initialResults = [];
   for (final handler in service.handlers) {
     final group = await handler();
-    initialResults.add(group);
+
+    if (group.results.isNotEmpty) {
+      initialResults.add(group);
+    }
   }
 
   if (service.context != null) {

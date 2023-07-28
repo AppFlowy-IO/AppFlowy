@@ -19,7 +19,7 @@ pub fn make_plugins(
   let user_plugin = flowy_user::event_map::init(user_session);
   let folder_plugin = flowy_folder2::event_map::init(folder_manager);
   let network_plugin = flowy_net::event_map::init();
-  let date_plugin = flowy_date::event_map::init();
+  let ai_plugin = flowy_ai::event_map::init();
   let database_plugin = flowy_database2::event_map::init(database_manager);
   let document_plugin2 = flowy_document2::event_map::init(document_manager2);
   let config_plugin = flowy_config::event_map::init(store_preferences);
@@ -27,7 +27,7 @@ pub fn make_plugins(
     user_plugin,
     folder_plugin,
     network_plugin,
-    date_plugin,
+    ai_plugin,
     database_plugin,
     document_plugin2,
     config_plugin,

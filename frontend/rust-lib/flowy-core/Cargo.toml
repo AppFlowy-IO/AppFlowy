@@ -11,7 +11,7 @@ lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-user-deps = { path = "../flowy-user-deps" }
 flowy-net = { path = "../flowy-net" }
-flowy-date = { path = "../flowy-date" }
+flowy-ai = { path = "../flowy-ai" }
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-folder-deps = { path = "../flowy-folder-deps" }
 flowy-database2 = { path = "../flowy-database2" }
@@ -50,7 +50,7 @@ use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
     "flowy-net/dart",
-    "flowy-date/dart",
+    "flowy-ai/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
     "flowy-document2/dart",
@@ -59,13 +59,11 @@ dart = [
 ts = [
     "flowy-user/ts",
     "flowy-net/ts",
-    "flowy-date/ts",
+    "flowy-ai/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",
     "flowy-document2/ts",
     "flowy-config/ts",
 ]
-rev-sqlite = [
-    "flowy-user/rev-sqlite",
-]
+rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]

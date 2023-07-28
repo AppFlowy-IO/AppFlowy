@@ -8,12 +8,12 @@ use crate::event_handler::query_date_handler;
 pub fn init() -> AFPlugin {
   AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
-    .event(DateEvent::QueryDate, query_date_handler)
+    .event(AIEvent::QueryDate, query_date_handler)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
-pub enum DateEvent {
+pub enum AIEvent {
   #[event(input = "DateQueryPB", output = "DateResultPB")]
   QueryDate = 0,
 }

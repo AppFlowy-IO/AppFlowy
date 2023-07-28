@@ -1312,6 +1312,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-ai"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "date_time_parser",
+ "fancy-regex 0.11.0",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "lib-dispatch",
+ "protobuf",
+ "strum_macros",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-ast"
 version = "0.1.0"
 dependencies = [
@@ -1366,10 +1383,10 @@ dependencies = [
  "bytes",
  "console-subscriber",
  "diesel",
+ "flowy-ai",
  "flowy-config",
  "flowy-database-deps",
  "flowy-database2",
- "flowy-date",
  "flowy-document-deps",
  "flowy-document2",
  "flowy-error",
@@ -1448,22 +1465,6 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
-]
-
-[[package]]
-name = "flowy-date"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "date_time_parser",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "lib-dispatch",
- "protobuf",
- "strum_macros",
- "tracing",
 ]
 
 [[package]]
