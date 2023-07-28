@@ -1,20 +1,25 @@
-use crate::supabase::storage_impls::restful_api::request::{
-  get_latest_snapshot_from_server, FetchObjectUpdateAction,
-};
-use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::storage_impls::restful_api::PostgresWrapper;
-use crate::supabase::storage_impls::{partition_key, table_name};
+use std::str::FromStr;
+use std::sync::Arc;
+
 use anyhow::Error;
 use chrono::{DateTime, Utc};
+use collab::preclude::merge_updates_v1;
 use collab_plugins::cloud_storage::{
   CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage,
   RemoteUpdateReceiver,
 };
+use tokio::task::spawn_blocking;
+
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
-use std::str::FromStr;
-use std::sync::Arc;
+use crate::supabase::storage_impls::pooler::AF_COLLAB_KEY_COLUMN;
+use crate::supabase::storage_impls::restful_api::request::{
+  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction, UpdateItem,
+};
+use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::storage_impls::restful_api::PostgresWrapper;
+use crate::supabase::storage_impls::{partition_key, table_name};
 
 pub struct RESTfulSupabaseCollabStorageImpl {
   postgrest: Arc<PostgresWrapper>,
@@ -104,40 +109,102 @@ impl RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl {
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    let value_size = update.len() as i32;
-    let md5 = md5(&update);
-    let update = format!("\\x{}", hex::encode(update));
-    let insert_params = InsertParamsBuilder::new()
-      .insert("oid", object.id.clone())
-      .insert("partition_key", partition_key(&object.ty))
-      .insert("value", update)
-      .insert("uid", object.uid)
-      .insert("md5", md5)
-      .insert("workspace_id", workspace_id)
-      .insert("value_size", value_size)
-      .build();
-
-    self
-      .postgrest
-      .from(&table_name(&object.ty))
-      .insert(insert_params)
-      .execute()
-      .await?
-      .success()
-      .await?;
-    Ok(())
+    send_update(workspace_id, object, update, &self.postgrest).await
   }
 
   async fn send_init_sync(
     &self,
-    _object: &CollabObject,
+    object: &CollabObject,
     _id: MsgId,
-    _init_update: Vec<u8>,
+    init_update: Vec<u8>,
   ) -> Result<(), Error> {
-    todo!()
+    let workspace_id = object
+      .get_workspace_id()
+      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+
+    let update_items =
+      get_updates_from_server(&object.id, &object.ty, self.postgrest.clone()).await?;
+    self
+      .postgrest
+      .from(table_name(&object.ty))
+      .select(format!("{}, value", AF_COLLAB_KEY_COLUMN))
+      .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
+      .eq("oid", object.id.clone())
+      .execute()
+      .await?
+      .get_json()
+      .await?;
+
+    // 2.Merge the updates into one and then delete the merged updates
+    let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
+    tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
+
+    // 3. Send the update to remote
+    send_update(
+      workspace_id,
+      object,
+      merge_result.new_update,
+      &self.postgrest,
+    )
+    .await?;
+    Ok(())
   }
 
   async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
     todo!()
   }
+}
+
+async fn send_update(
+  workspace_id: String,
+  object: &CollabObject,
+  update: Vec<u8>,
+  postgrest: &Arc<PostgresWrapper>,
+) -> Result<(), Error> {
+  let value_size = update.len() as i32;
+  let md5 = md5(&update);
+  let update = format!("\\x{}", hex::encode(update));
+  let insert_params = InsertParamsBuilder::new()
+    .insert("oid", object.id.clone())
+    .insert("partition_key", partition_key(&object.ty))
+    .insert("value", update)
+    .insert("uid", object.uid)
+    .insert("md5", md5)
+    .insert("workspace_id", workspace_id)
+    .insert("value_size", value_size)
+    .build();
+
+  postgrest
+    .from(&table_name(&object.ty))
+    .insert(insert_params)
+    .execute()
+    .await?
+    .success()
+    .await?;
+  Ok(())
+}
+
+fn merge_updates(update_items: Vec<UpdateItem>, new_update: Vec<u8>) -> Result<MergeResult, Error> {
+  let mut updates = vec![];
+  let mut merged_keys = vec![];
+  for item in update_items {
+    merged_keys.push(item.key);
+    updates.push(item.value);
+  }
+  updates.push(new_update);
+  let updates = updates
+    .iter()
+    .map(|update| update.as_ref())
+    .collect::<Vec<&[u8]>>();
+
+  let new_update = merge_updates_v1(&updates)?;
+  Ok(MergeResult {
+    merged_keys,
+    new_update,
+  })
+}
+
+struct MergeResult {
+  merged_keys: Vec<i64>,
+  new_update: Vec<u8>,
 }

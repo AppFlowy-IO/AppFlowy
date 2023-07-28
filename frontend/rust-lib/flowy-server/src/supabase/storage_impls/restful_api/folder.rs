@@ -1,3 +1,18 @@
+use std::str::FromStr;
+use std::sync::Arc;
+
+use anyhow::Error;
+use chrono::{DateTime, Utc};
+use collab::core::origin::CollabOrigin;
+use collab_plugins::cloud_storage::CollabType;
+use serde_json::Value;
+use tokio::sync::oneshot::channel;
+
+use flowy_folder_deps::cloud::{
+  gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+};
+use lib_infra::future::FutureResult;
+
 use crate::supabase::storage_impls::pooler::{
   CREATED_AT, WORKSPACE_ID, WORKSPACE_NAME, WORKSPACE_TABLE,
 };
@@ -7,18 +22,6 @@ use crate::supabase::storage_impls::restful_api::request::{
 use crate::supabase::storage_impls::restful_api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
 use crate::supabase::storage_impls::OWNER_USER_UID;
-use anyhow::Error;
-use chrono::{DateTime, Utc};
-use collab::core::origin::CollabOrigin;
-use collab_plugins::cloud_storage::CollabType;
-use flowy_folder_deps::cloud::{
-  gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
-};
-use lib_infra::future::FutureResult;
-use serde_json::Value;
-use std::str::FromStr;
-use std::sync::Arc;
-use tokio::sync::oneshot::channel;
 
 pub struct RESTfulSupabaseFolderServiceImpl {
   postgrest: Arc<PostgresWrapper>,
@@ -71,6 +74,7 @@ impl FolderCloudService for RESTfulSupabaseFolderServiceImpl {
       get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest)
         .await
         .map(|updates| {
+          let updates = updates.into_iter().map(|item| item.value).collect();
           let folder =
             Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
               .ok()?;

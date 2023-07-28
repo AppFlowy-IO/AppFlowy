@@ -1,3 +1,20 @@
+use std::future::Future;
+use std::iter::Take;
+use std::pin::Pin;
+use std::str::FromStr;
+use std::sync::{Arc, Weak};
+use std::time::Duration;
+
+use anyhow::Error;
+use chrono::{DateTime, Utc};
+use collab_plugins::cloud_storage::{CollabType, RemoteCollabSnapshot};
+use serde_json::Value;
+use tokio_retry::strategy::FixedInterval;
+use tokio_retry::{Action, Retry};
+
+use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
+use lib_infra::util::md5;
+
 use crate::supabase::storage_impls::pooler::{
   AF_COLLAB_KEY_COLUMN, AF_COLLAB_SNAPSHOT_BLOB_COLUMN, AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN,
   AF_COLLAB_SNAPSHOT_ID_COLUMN, AF_COLLAB_SNAPSHOT_OID_COLUMN, AF_COLLAB_SNAPSHOT_TABLE,
@@ -5,20 +22,6 @@ use crate::supabase::storage_impls::pooler::{
 use crate::supabase::storage_impls::restful_api::util::ExtendedResponse;
 use crate::supabase::storage_impls::restful_api::PostgresWrapper;
 use crate::supabase::storage_impls::table_name;
-use anyhow::Error;
-use chrono::{DateTime, Utc};
-use collab_plugins::cloud_storage::{CollabType, RemoteCollabSnapshot};
-use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
-use lib_infra::util::md5;
-use serde_json::Value;
-use std::future::Future;
-use std::iter::Take;
-use std::pin::Pin;
-use std::str::FromStr;
-use std::sync::{Arc, Weak};
-use std::time::Duration;
-use tokio_retry::strategy::FixedInterval;
-use tokio_retry::{Action, Retry};
 
 pub struct FetchObjectUpdateAction {
   object_id: String,
@@ -62,7 +65,10 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => get_updates_from_server(&object_id, &object_ty, postgrest).await,
+        Some(postgrest) => {
+          let items = get_updates_from_server(&object_id, &object_ty, postgrest).await?;
+          Ok(items.into_iter().map(|item| item.value).collect())
+        },
       }
     })
   }
@@ -186,10 +192,10 @@ pub async fn get_updates_from_server(
   object_id: &str,
   object_ty: &CollabType,
   postgrest: Arc<PostgresWrapper>,
-) -> Result<Vec<Vec<u8>>, Error> {
+) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("value, md5")
+    .select("key, value, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .eq("oid", object_id)
     .execute()
@@ -213,26 +219,40 @@ pub async fn get_updates_from_server(
 /// ...
 /// ]
 /// ```
-fn parser_updates_form_json(json: Value) -> Result<Vec<Vec<u8>>, Error> {
+fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
   let mut updates = vec![];
   if let Some(records) = json.as_array() {
     for record in records {
-      if let Some(bytes) = record
+      let some_record = record
         .get("value")
         .and_then(|value| value.as_str())
-        .and_then(decode_hex_string)
-      {
-        if let Some(b) = record.get("md5").and_then(|v| v.as_str()) {
-          let a = md5(&bytes);
-          debug_assert!(a == b, "md5 not match: {} != {}", a, b);
+        .and_then(decode_hex_string);
+
+      let some_key = record.get("key").and_then(|value| value.as_i64());
+      if let (Some(value), Some(key)) = (some_record, some_key) {
+        // Check the md5 of the value that we received from the server is equal to the md5 of the value
+        // that we calculated locally.
+        if let Some(expected_md5) = record.get("md5").and_then(|v| v.as_str()) {
+          let value_md5 = md5(&value);
+          debug_assert!(
+            value_md5 == expected_md5,
+            "md5 not match: {} != {}",
+            value_md5,
+            expected_md5
+          );
         }
-        updates.push(bytes);
+        updates.push(UpdateItem { key, value });
       } else {
         return Err(anyhow::anyhow!("value not found in json: {:?}", record));
       }
     }
   }
   Ok(updates)
+}
+
+pub struct UpdateItem {
+  pub key: i64,
+  pub value: Vec<u8>,
 }
 
 fn decode_hex_string(s: &str) -> Option<Vec<u8>> {

@@ -1,10 +1,9 @@
 use anyhow::Error;
-use flowy_error::{ErrorCode, FlowyError};
-
-use lib_infra::future::{to_fut, Fut};
 use reqwest::Response;
-
 use serde_json::Value;
+
+use flowy_error::{ErrorCode, FlowyError};
+use lib_infra::future::{to_fut, Fut};
 
 pub struct InsertParamsBuilder {
   map: serde_json::Map<String, Value>,
