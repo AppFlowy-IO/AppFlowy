@@ -1,0 +1,34 @@
+#!/bin/env bash
+
+set -e
+
+PSQL="psql \
+    --host=$PGHOST \
+    --username=$PGUSER \
+    --dbname=$PGDB \
+    --port=$PGPORT \
+"
+
+UUID=$(uuidgen)
+NAME="test_name_$(date +%s)"
+EMAIL="test_mail_$(date +%s)@test.com"
+
+# test trigger workspace_table insertion when any record of af_user is inserted
+$PSQL --command "\
+    INSERT INTO public.af_user (uuid, email, name) \
+    VALUES ('$UUID', '$EMAIL', '$NAME'); \
+"
+echo "af_user record inserted, $UUID, $EMAIL, $NAME"
+
+WORKSPACE_ID=$($PSQL --tuples-only --command "\
+    SELECT workspace_id \
+    FROM public.af_workspace \
+    WHERE owner_uid = (SELECT uid FROM af_user WHERE uuid = '$UUID') \
+")
+
+if [ -z "$WORKSPACE_ID" ]; then
+    echo "workspace not associated with af_user of uuid: $UUID"
+    exit 1
+else
+    echo "workspace associated with af_user, $WORKSPACE_ID"
+fi

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+RET_CODE=0
+
+vars_to_check=(
+  "PGHOST"
+  "PGPORT"
+  "PGDB"
+  "PGUSER"
+  "PGPASSWORD"
+)
+
+commands_to_check=(
+  "psql"
+  "uuidgen"
+)
+
+# Loop over each variable and check if it's set
+for var in "${vars_to_check[@]}"; do
+  if [ -z "${!var}" ]; then
+    echo "Error: $var not set" >&2
+    RET_CODE=1
+  fi
+done
+
+# Loop over each command and check if it's in the path
+for cmd in "${commands_to_check[@]}"; do
+  if ! command -v $cmd >/dev/null 2>&1; then
+    echo "Error: $cmd is not in PATH" >&2
+    RET_CODE=1
+  fi
+done
+
+exit $RET_CODE
