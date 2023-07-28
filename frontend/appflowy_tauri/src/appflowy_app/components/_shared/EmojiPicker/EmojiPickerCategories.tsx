@@ -3,7 +3,7 @@ import {
   EmojiCategory,
   getRowsWithCategories,
   useVirtualizedCategories,
-} from '$app/components/document/_shared/EmojiPicker/EmojiPicker.hooks';
+} from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@mui/material';
 

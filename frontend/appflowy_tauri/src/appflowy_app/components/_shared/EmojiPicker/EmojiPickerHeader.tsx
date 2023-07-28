@@ -6,7 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { randomEmoji } from '$app/utils/document/emoji';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import Popover from '@mui/material/Popover';
-import { useSelectSkinPopoverProps } from '$app/components/document/_shared/EmojiPicker/EmojiPicker.hooks';
+import { useSelectSkinPopoverProps } from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
 import { useTranslation } from 'react-i18next';
 
 const skinTones = [

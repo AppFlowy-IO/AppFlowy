@@ -17,18 +17,7 @@ function DocumentCover({
   const [leftOffset, setLeftOffset] = useState(0);
   const [width, setWidth] = useState(0);
   const [coverSrc, setCoverSrc] = useState<string | undefined>();
-  const calcLeftOffset = useCallback(() => {
-    const docBody = document.getElementById('appflowy-block-doc') as HTMLElement;
-
-    if (!docBody) {
-      setLeftOffset(0);
-      return;
-    }
-
-    const bodyRect = docBody.getBoundingClientRect();
-
-    setWidth(bodyRect.width);
-    const docOffsetLeft = bodyRect.left;
+  const calcLeftOffset = useCallback((bodyOffsetLeft: number) => {
     const docTitle = document.querySelector('.doc-title') as HTMLElement;
 
     if (!docTitle) {
@@ -38,16 +27,32 @@ function DocumentCover({
 
     const titleOffsetLeft = docTitle.getBoundingClientRect().left;
 
-    setLeftOffset(titleOffsetLeft - docOffsetLeft);
+    setLeftOffset(titleOffsetLeft - bodyOffsetLeft);
   }, []);
 
+  const handleWidthChange: ResizeObserverCallback = useCallback(
+    (entries) => {
+      entries.forEach((entry) => {
+        const { width } = entry.contentRect;
+
+        setWidth(width);
+        const left = entry.target.getBoundingClientRect().left;
+
+        calcLeftOffset(left);
+      });
+    },
+    [calcLeftOffset]
+  );
+
   useEffect(() => {
-    calcLeftOffset();
-    window.addEventListener('resize', calcLeftOffset);
+    const observer = new ResizeObserver(handleWidthChange);
+    const docPage = document.getElementById('appflowy-block-doc') as HTMLElement;
+
+    observer.observe(docPage);
     return () => {
-      window.removeEventListener('resize', calcLeftOffset);
+      observer.disconnect();
     };
-  }, [calcLeftOffset]);
+  }, [handleWidthChange]);
 
   useEffect(() => {
     if (coverType === 'image' && cover) {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-import { useLoadEmojiData } from '$app/components/document/_shared/EmojiPicker/EmojiPicker.hooks';
+import { useLoadEmojiData } from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
 
-import EmojiPickerHeader from '$app/components/document/_shared/EmojiPicker/EmojiPickerHeader';
-import EmojiPickerCategories from '$app/components/document/_shared/EmojiPicker/EmojiPickerCategories';
+import EmojiPickerHeader from '$app/components/_shared/EmojiPicker/EmojiPickerHeader';
+import EmojiPickerCategories from '$app/components/_shared/EmojiPicker/EmojiPickerCategories';
 
 interface Props {
   onEmojiSelect: (emoji: string) => void;

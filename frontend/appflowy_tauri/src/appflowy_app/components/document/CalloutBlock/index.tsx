@@ -4,7 +4,7 @@ import NodeChildren from '$app/components/document/Node/NodeChildren';
 import { IconButton } from '@mui/material';
 import { useCalloutBlock } from '$app/components/document/CalloutBlock/CalloutBlock.hooks';
 import Popover from '@mui/material/Popover';
-import EmojiPicker from '$app/components/document/_shared/EmojiPicker';
+import EmojiPicker from '$app/components/_shared/EmojiPicker';
 
 export default function CalloutBlock({
   node,

@@ -1,9 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Popover from '@mui/material/Popover';
-import EmojiPicker from '$app/components/document/_shared/EmojiPicker';
-import { useTranslation } from 'react-i18next';
-import Button from '@mui/material/Button';
-import { DeleteOutlineRounded } from '@mui/icons-material';
+import EmojiPicker from '$app/components/_shared/EmojiPicker';
 
 function DocumentIcon({
   icon,
@@ -14,7 +11,6 @@ function DocumentIcon({
   className?: string;
   onUpdateIcon: (icon: string) => void;
 }) {
-  const { t } = useTranslation();
   const [anchorPosition, setAnchorPosition] = useState<
     | undefined
     | {
@@ -39,11 +35,6 @@ function DocumentIcon({
     },
     [onUpdateIcon]
   );
-
-  const onRemoveIcon = useCallback(() => {
-    onUpdateIcon('');
-    setAnchorPosition(undefined);
-  }, [onUpdateIcon]);
 
   if (!icon) return null;
   return (
