@@ -1,5 +1,5 @@
 use anyhow::Error;
-use reqwest::Response;
+use reqwest::{Response, StatusCode};
 use serde_json::Value;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -64,17 +64,7 @@ impl ExtendedResponse for Response {
     to_fut(async move {
       let status_code = self.status();
       if !status_code.is_success() {
-        return Err(
-          FlowyError::new(
-            ErrorCode::HttpError,
-            format!(
-              "expected status code 2XX, but got {}, body: {}",
-              self.status(),
-              self.text().await.unwrap_or_default()
-            ),
-          )
-          .into(),
-        );
+        return Err(parse_response_as_error(self).await.into());
       }
       let bytes = self.bytes().await?;
       let value = serde_json::from_slice(&bytes).map_err(|e| {
@@ -94,17 +84,7 @@ impl ExtendedResponse for Response {
   fn get_json(self) -> Fut<Result<Value, Error>> {
     to_fut(async move {
       if !self.status().is_success() {
-        return Err(
-          FlowyError::new(
-            ErrorCode::HttpError,
-            format!(
-              "expected status code 2XX, but got {}, body: {}",
-              self.status(),
-              self.text().await.unwrap_or_default()
-            ),
-          )
-          .into(),
-        );
+        return Err(parse_response_as_error(self).await.into());
       }
       let bytes = self.bytes().await?;
       let value = serde_json::from_slice::<Value>(&bytes)?;
@@ -115,17 +95,7 @@ impl ExtendedResponse for Response {
   fn success(self) -> Fut<Result<(), Error>> {
     to_fut(async move {
       if !self.status().is_success() {
-        return Err(
-          FlowyError::new(
-            ErrorCode::HttpError,
-            format!(
-              "expected status code 2XX, but got {}, body: {}",
-              self.status(),
-              self.text().await.unwrap_or_default()
-            ),
-          )
-          .into(),
-        );
+        return Err(parse_response_as_error(self).await.into());
       }
       Ok(())
     })
@@ -134,19 +104,25 @@ impl ExtendedResponse for Response {
   fn success_with_body(self) -> Fut<Result<String, Error>> {
     to_fut(async move {
       if !self.status().is_success() {
-        return Err(
-          FlowyError::new(
-            ErrorCode::HttpError,
-            format!(
-              "expected status code 2XX, but got {}, body: {}",
-              self.status(),
-              self.text().await.unwrap_or_default()
-            ),
-          )
-          .into(),
-        );
+        return Err(parse_response_as_error(self).await.into());
       }
       Ok(self.text().await?)
     })
   }
+}
+
+async fn parse_response_as_error(response: Response) -> FlowyError {
+  let status_code = response.status();
+  let msg = response.text().await.unwrap_or_default();
+  if status_code == StatusCode::CONFLICT {
+    return FlowyError::new(ErrorCode::Conflict, msg);
+  }
+
+  FlowyError::new(
+    ErrorCode::HttpError,
+    format!(
+      "expected status code 2XX, but got {}, body: {}",
+      status_code, msg
+    ),
+  )
 }

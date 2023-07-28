@@ -85,7 +85,7 @@ async fn third_party_sign_up_with_duplicated_email() {
       .await
       .err()
       .unwrap();
-    assert_eq!(error.code, ErrorCode::EmailAlreadyExists.value());
+    assert_eq!(error.code, ErrorCode::Conflict.value());
   };
 }
 
@@ -238,6 +238,6 @@ async fn update_user_profile_with_existing_email_test() {
       )
       .await
       .unwrap();
-    assert_eq!(error.code, ErrorCode::EmailAlreadyExists.value());
+    assert_eq!(error.code, ErrorCode::Conflict.value());
   }
 }

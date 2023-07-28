@@ -44,7 +44,7 @@ env = { RUST_LOG = "debug" }
 description = "Run cloud unit tests"
 script = '''
 cd rust-lib/flowy-test
-RUST_BACKTRACE=1 cargo test supabase_ --features "cloud_test" -- --test-threads=1
+RUST_BACKTRACE=1 cargo test supabase_ --features "cloud_test"
 '''
 
 [tasks.rust_lib_unit_test]

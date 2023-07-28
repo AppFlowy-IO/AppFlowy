@@ -217,6 +217,9 @@ pub enum ErrorCode {
 
   #[error("Enable supabase sync")]
   SupabaseSyncRequired = 72,
+
+  #[error("Conflict")]
+  Conflict = 73,
 }
 
 impl ErrorCode {
