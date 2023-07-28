@@ -177,18 +177,23 @@ class _CalendarPageState extends State<CalendarPage> {
     return Padding(
       padding: GridSize.contentInsets,
       child: LayoutBuilder(
-        // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => MonthView(
-          key: _calendarState,
-          controller: _eventController,
-          width: constraints.maxWidth,
-          cellAspectRatio: 0.6,
-          startDay: _weekdayFromInt(firstDayOfWeek),
-          borderColor: Theme.of(context).dividerColor,
-          headerBuilder: _headerNavigatorBuilder,
-          weekDayBuilder: _headerWeekDayBuilder,
-          cellBuilder: _calendarDayBuilder,
-          useAvailableVerticalSpace: isInDocument,
+        builder: (context, constraints) => ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            scrollbars: false,
+          ), // workaround to hide overlapped scrollbars, can restore when a scrollcontroller can be exposed in MonthView
+          child: MonthView(
+            key: _calendarState,
+            controller: _eventController,
+            width: constraints
+                .maxWidth, // must specify MonthView width for useAvailableVerticalSpace to work properly
+            cellAspectRatio: 0.6,
+            startDay: _weekdayFromInt(firstDayOfWeek),
+            borderColor: Theme.of(context).dividerColor,
+            headerBuilder: _headerNavigatorBuilder,
+            weekDayBuilder: _headerWeekDayBuilder,
+            cellBuilder: _calendarDayBuilder,
+            useAvailableVerticalSpace: isInDocument,
+          ),
         ),
       ),
     );
