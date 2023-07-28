@@ -14,6 +14,7 @@ enum SettingsPage {
   files,
   user,
   supabaseSetting,
+  shortcuts,
 }
 
 class SettingsDialogBloc

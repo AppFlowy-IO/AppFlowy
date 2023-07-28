@@ -9,14 +9,14 @@ function BlockMenuTurnInto({
   onHovered,
   isHovered,
   menuOpened,
-  lable,
+  label,
 }: {
   id: string;
   onClose: () => void;
   onHovered: (e: MouseEvent) => void;
   isHovered: boolean;
   menuOpened: boolean;
-  lable?: string;
+  label?: string;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [anchorPosition, setAnchorPosition] = React.useState<{ top: number; left: number }>();
@@ -39,7 +39,7 @@ function BlockMenuTurnInto({
     <>
       <MenuItem
         ref={ref}
-        title={lable}
+        title={label}
         isHovered={isHovered}
         icon={<Transform />}
         extra={<ArrowRight />}
@@ -60,7 +60,10 @@ function BlockMenuTurnInto({
             pointerEvents: 'auto',
           },
         }}
-        onClose={onClose}
+        onOk={() => onClose()}
+        onClose={() => {
+          setAnchorPosition(undefined);
+        }}
         anchorReference={'anchorPosition'}
         anchorPosition={anchorPosition}
         transformOrigin={{

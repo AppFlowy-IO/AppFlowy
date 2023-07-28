@@ -45,7 +45,7 @@ export function useSubscribeNode(id: string) {
 }
 
 export function getBlock(docId: string, id: string) {
-  return store.getState().document[docId].nodes[id];
+  return store.getState().document[docId]?.nodes[id];
 }
 
 export const NodeIdContext = createContext<string>('');

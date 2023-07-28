@@ -29,7 +29,7 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   const { node: focusNode } = useSubscribeNode(focusId);
 
   const [isActive, setIsActive] = React.useState(false);
-  const color = useMemo(() => (isActive ? 'text-content-on-fill-hover' : ''), [isActive]);
+  const color = useMemo(() => (isActive ? 'text-fill-hover' : ''), [isActive]);
 
   const isFormatActive = useCallback(async () => {
     if (!focusNode) return false;
@@ -125,22 +125,18 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
         return <StrikethroughSOutlined sx={iconSize} />;
       case TextAction.Link:
         return (
-          <div className={'flex items-center justify-center px-1 text-[0.8rem]'}>
-            <LinkIcon
-              sx={{
-                fontSize: '1.2rem',
-                marginRight: '0.25rem',
-              }}
-            />
-            <div className={'underline'}>{t('toolbar.link')}</div>
-          </div>
+          <LinkIcon
+            sx={{
+              fontSize: '1.2rem',
+            }}
+          />
         );
       case TextAction.Equation:
         return <Functions sx={iconSize} />;
       default:
         return null;
     }
-  }, [icon, t]);
+  }, [icon]);
 
   return (
     <ToolbarTooltip title={formatTooltips[format]}>

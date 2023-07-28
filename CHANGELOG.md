@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 0.2.7 - 07/18/2023
+
+### New Features
+
+- Dynamic load themes
+- Inline math equation
+
 ## Version 0.2.6 - 07/11/2023
 
 ### New Features

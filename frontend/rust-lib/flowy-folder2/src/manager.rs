@@ -467,6 +467,42 @@ impl FolderManager {
     Ok(())
   }
 
+  /// Moves a nested view to a new location in the hierarchy.
+  ///
+  /// This function takes the `view_id` of the view to be moved,
+  /// `new_parent_id` of the view under which the `view_id` should be moved,
+  /// and an optional `prev_view_id` to position the `view_id` right after
+  /// this specific view.
+  ///
+  /// If `prev_view_id` is provided, the moved view will be placed right after
+  /// the view corresponding to `prev_view_id` under the `new_parent_id`.
+  /// If `prev_view_id` is `None`, the moved view will become the first child of the new parent.
+  ///
+  /// # Arguments
+  ///
+  /// * `view_id` - A string slice that holds the id of the view to be moved.
+  /// * `new_parent_id` - A string slice that holds the id of the new parent view.
+  /// * `prev_view_id` - An `Option<String>` that holds the id of the view after which the `view_id` should be positioned.
+  ///
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn move_nested_view(
+    &self,
+    view_id: String,
+    new_parent_id: String,
+    prev_view_id: Option<String>,
+  ) -> FlowyResult<()> {
+    let view = self.get_view(&view_id).await?;
+    let old_parent_id = view.parent_view_id;
+    self.with_folder((), |folder| {
+      folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
+    });
+    notify_parent_view_did_change(
+      self.mutex_folder.clone(),
+      vec![new_parent_id, old_parent_id],
+    );
+    Ok(())
+  }
+
   /// Move the view with given id from one position to another position.
   /// The view will be moved to the new position in the same parent view.
   /// The passed in index is the index of the view that displayed in the UI.

@@ -202,6 +202,10 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
       Ordering::Equal
     }
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.selected_option_ids.is_empty()
+  }
 }
 
 impl TypeOptionTransform for ChecklistTypeOption {}

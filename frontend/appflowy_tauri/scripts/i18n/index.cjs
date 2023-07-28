@@ -44,7 +44,8 @@ function flattenJSON(obj, prefix = '') {
             const nestedKeys = flattenJSON(obj[key], `${prefix}${key}.`);
             result = { ...result, ...nestedKeys };
         } else {
-            result[`${prefix}${key}`] = obj[key];
+
+            result[`${prefix}${key}`] = obj[key].replaceAll('{', '{{').replaceAll('}', '}}');
         }
     }
 

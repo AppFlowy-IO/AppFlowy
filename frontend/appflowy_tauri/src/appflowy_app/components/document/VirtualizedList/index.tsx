@@ -4,6 +4,8 @@ import DocumentTitle from '../DocumentTitle';
 import Overlay from '../Overlay';
 import { Node } from '$app/interfaces/document';
 
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+
 export default function VirtualizedList({
   childIds,
   node,
@@ -16,10 +18,13 @@ export default function VirtualizedList({
   const { virtualize, parentRef } = useVirtualizedList(childIds.length);
   const virtualItems = virtualize.getVirtualItems();
 
+  const { docId } = useSubscribeDocument();
+
   return (
     <>
       <div
         ref={parentRef}
+        id={`appflowy-scroller_${docId}`}
         className={`doc-scroller-container flex h-[100%] flex-wrap justify-center overflow-auto px-20`}
       >
         <div
@@ -42,13 +47,9 @@ export default function VirtualizedList({
             >
               {virtualItems.map((virtualRow) => {
                 const id = childIds[virtualRow.index];
+
                 return (
-                  <div
-                    className='mt-[-0.5px] pt-[0.5px]'
-                    key={id}
-                    data-index={virtualRow.index}
-                    ref={virtualize.measureElement}
-                  >
+                  <div className={'pt-[0.5px]'} key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
                     {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
                     {renderNode(id)}
                   </div>

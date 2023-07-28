@@ -117,7 +117,7 @@ class _DebugToast {
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
     return deviceInfo.data.entries
-        .fold('', (prev, el) => "$prev${el.key}: ${el.value}");
+        .fold('', (prev, el) => "$prev${el.key}: ${el.value}\n");
   }
 
   Future<String> _getDocumentPath() async {
@@ -222,7 +222,7 @@ extension QuestionBubbleExtension on BubbleAction {
         return Padding(
           padding: const EdgeInsets.all(3.0),
           child: svgWidget(
-            'login/github-mark',
+            'login/github-light',
             size: const Size.square(12),
           ),
         );

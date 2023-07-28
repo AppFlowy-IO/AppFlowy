@@ -1,0 +1,55 @@
+
+[tasks.env_check]
+dependencies = ["echo_env", "install_flutter_protobuf"]
+condition = { env_set = [
+  "BUILD_FLAG",
+  "RUST_COMPILE_TARGET",
+  "CRATE_TYPE",
+  "TARGET_OS",
+], channels = [
+  "stable",
+] }
+
+[tasks.appflowy-core-dev-ios]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-ios",
+  "post-mobile-ios",
+  "restore-crate-type",
+] }
+
+[tasks.sdk-build-ios]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.post-mobile-ios]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core for iOS platform build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}/${lib}"
+    rm -f ${dart_ffi_dir}/${lib}
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
+    ${dart_ffi_dir}/${lib}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    rm -f ${dart_ffi_dir}/Classes/binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"

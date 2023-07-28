@@ -12,7 +12,9 @@
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
-    "addAboveTooltip": "to add above"
+    "addAboveTooltip": "to add above",
+    "dragTooltip": "Drag to move",
+    "openMenuTooltip": "Click to open menu"
   },
   "signUp": {
     "buttonText": "Sign Up",
@@ -80,6 +82,14 @@
       "fileName": "File name",
       "lastModified": "Last Modified",
       "created": "Created"
+    },
+    "confirmDeleteAll": {
+      "title": "Are you sure to delete all pages in Trash?",
+      "caption": "This action cannot be undone."
+    },
+    "confirmRestoreAll": {
+      "title": "Are you sure to restore all pages in Trash?",
+      "caption": "This action cannot be undone."
     }
   },
   "deletePagePrompt": {
@@ -169,7 +179,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "done": "Done"
+    "done": "Done",
+    "putback": "Put Back"
   },
   "label": {
     "welcome": "Welcome!",
@@ -269,6 +280,17 @@
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Shortcuts",
+      "command": "Command",
+      "keyBinding": "Keybinding",
+      "addNewCommand": "Add New Command",
+      "updateShortcutStep": "Press desired key combination and press ENTER",
+      "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
+      "resetToDefault": "Reset to default keybindings",
+      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
     }
   },
   "grid": {
@@ -278,7 +300,8 @@
       "filter": "Filter",
       "sort": "Sort",
       "sortBy": "Sort by",
-      "Properties": "Properties",
+      "properties": "Properties",
+      "reorderPropertiesTooltip": "Drag to reorder properties",
       "group": "Group",
       "addFilter": "Add Filter",
       "deleteFilter": "Delete filter",
@@ -445,6 +468,7 @@
       "smartEditDisabled": "Connect OpenAI in Settings",
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
+      "toggleList": "Toggle List",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -582,5 +606,22 @@
       "fail": "Unable to copy"
     }
   },
-  "unSupportBlock": "The current version does not support this Block."
+  "unSupportBlock": "The current version does not support this Block.",
+  "views": {
+    "deleteContentTitle": "Are you sure want to delete the {pageType}?",
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
+  }
 }
