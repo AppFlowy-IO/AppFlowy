@@ -85,7 +85,7 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "collab",
@@ -888,7 +888,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "bytes",
@@ -906,7 +906,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -924,7 +924,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -951,7 +951,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -963,7 +963,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "collab",
@@ -982,7 +982,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1002,7 +1002,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "bincode",
  "chrono",
@@ -1022,7 +1022,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1052,7 +1052,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=5783a5#5783a5ba6416125b669814d4089ed9afaf3469b5"
 dependencies = [
  "bytes",
  "collab",
@@ -1834,6 +1834,7 @@ name = "flowy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "assert-json-diff",
  "bytes",
  "chrono",
  "collab",
@@ -4187,9 +4188,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.103"
+version = "1.0.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d03b412469450d4404fe8499a268edd7f8b79fecb074b0d812ad64ca21f4031b"
+checksum = "076066c5f1078eac5b722a31827a8832fe108bed65dfa75e233c89f8206e976c"
 dependencies = [
  "itoa",
  "ryu",
