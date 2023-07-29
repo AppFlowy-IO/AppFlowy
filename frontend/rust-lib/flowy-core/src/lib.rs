@@ -232,7 +232,6 @@ impl AppFlowyCore {
   }
 
   /// Only expose the dispatcher in test
-  #[cfg(debug_assertions)]
   pub fn dispatcher(&self) -> Arc<AFPluginDispatcher> {
     self.event_dispatcher.clone()
   }
