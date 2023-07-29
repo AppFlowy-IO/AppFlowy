@@ -61,6 +61,12 @@ export const pagesSlice = createSlice({
       state.relationMap[id] = children;
     },
 
+    onPageChanged(state, action: PayloadAction<Page>) {
+      const page = action.payload;
+
+      state.pageMap[page.id] = page;
+    },
+
     removeChildPages(state, action: PayloadAction<string>) {
       const parentId = action.payload;
 

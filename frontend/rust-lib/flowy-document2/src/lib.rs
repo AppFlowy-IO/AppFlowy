@@ -8,5 +8,5 @@ pub mod parser;
 pub mod protobuf;
 
 pub mod deps;
-mod notification;
+pub mod notification;
 mod parse;

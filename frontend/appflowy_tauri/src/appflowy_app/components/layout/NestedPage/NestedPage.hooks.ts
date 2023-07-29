@@ -36,6 +36,13 @@ export function useLoadChildPages(pageId: string) {
     [dispatch, pageId]
   );
 
+  const onPageChanged = useCallback(
+    (page: Page) => {
+      dispatch(pagesActions.onPageChanged(page));
+    },
+    [dispatch]
+  );
+
   const onPageCollapsed = useCallback(async () => {
     dispatch(pagesActions.removeChildPages(pageId));
     await controller.unsubscribe();
@@ -52,8 +59,9 @@ export function useLoadChildPages(pageId: string) {
     );
     await controller.subscribe({
       onChildPagesChanged,
+      onPageChanged,
     });
-  }, [controller, dispatch, onChildPagesChanged, pageId]);
+  }, [controller, dispatch, onChildPagesChanged, onPageChanged, pageId]);
 
   useEffect(() => {
     if (collapsed) {

@@ -235,6 +235,8 @@ export enum TextAction {
   Code = 'code',
   Equation = 'formula',
   Link = 'href',
+  TextColor = 'font_color',
+  Highlight = 'bg_color',
 }
 export interface TextActionMenuProps {
   /**

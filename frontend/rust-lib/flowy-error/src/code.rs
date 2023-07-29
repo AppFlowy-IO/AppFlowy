@@ -57,9 +57,6 @@ pub enum ErrorCode {
   #[error("View name too long")]
   ViewNameTooLong = 17,
 
-  #[error("Http server connection error")]
-  HttpServerConnectError = 18,
-
   #[error("Email can not be empty or whitespace")]
   EmailIsEmpty = 19,
 
@@ -179,7 +176,7 @@ pub enum ErrorCode {
   #[error("Sql error")]
   SqlError = 58,
 
-  #[error("Http request error")]
+  #[error("Http error")]
   HttpError = 59,
 
   #[error("The content should not be empty")]
@@ -215,8 +212,14 @@ pub enum ErrorCode {
   #[error("Postgres database error")]
   PgDatabaseError = 70,
 
+  #[error("Postgres transaction error")]
+  PgTransactionError = 71,
+
   #[error("Enable supabase sync")]
-  SupabaseSyncRequired = 71,
+  SupabaseSyncRequired = 72,
+
+  #[error("Conflict")]
+  Conflict = 73,
 }
 
 impl ErrorCode {
