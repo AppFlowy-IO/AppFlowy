@@ -210,6 +210,8 @@
       "user": "User",
       "files": "Files",
       "open": "Open Settings",
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure to logout?",
       "supabaseSetting": "Supabase Setting"
     },
     "appearance": {

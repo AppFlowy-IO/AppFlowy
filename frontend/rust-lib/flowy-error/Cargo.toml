@@ -22,16 +22,20 @@ flowy-sqlite = { path = "../flowy-sqlite", optional = true}
 r2d2 = { version = "0.8", optional = true}
 collab-database = { version = "0.1.0", optional = true }
 collab-document = { version = "0.1.0", optional = true }
+tokio-postgres = { version = "0.7.8", optional = true }
+tokio = { version = "1.0", optional = true }
 
 [features]
-adaptor_dispatch = ["lib-dispatch"]
-adaptor_serde = ["serde_json"]
-adaptor_reqwest = ["reqwest"]
-adaptor_database = ["flowy-sqlite", "r2d2"]
-adaptor_server_error = ["http-error-code"]
+impl_from_dispatch_error = ["lib-dispatch"]
+impl_from_serde = ["serde_json"]
+impl_from_reqwest = ["reqwest"]
+impl_from_sqlite = ["flowy-sqlite", "r2d2"]
+impl_from_appflowy_cloud = ["http-error-code"]
+impl_from_collab = ["collab-database", "collab-document", "impl_from_reqwest"]
+impl_from_postgres = ["tokio-postgres"]
+impl_from_tokio= ["tokio"]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
-collab = ["collab-database", "collab-document"]
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["proto_gen"]}

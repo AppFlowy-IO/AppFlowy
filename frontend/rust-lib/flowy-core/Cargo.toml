@@ -9,17 +9,21 @@ edition = "2018"
 lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
+flowy-user-deps = { path = "../flowy-user-deps" }
 flowy-net = { path = "../flowy-net" }
 flowy-folder2 = { path = "../flowy-folder2" }
+flowy-folder-deps = { path = "../flowy-folder-deps" }
 flowy-database2 = { path = "../flowy-database2" }
+flowy-database-deps = { path = "../flowy-database-deps" }
 flowy-sqlite = { path = "../flowy-sqlite" }
 flowy-document2 = { path = "../flowy-document2" }
+flowy-document-deps = { path = "../flowy-document-deps" }
 flowy-error = { path = "../flowy-error" }
 flowy-task = { path = "../flowy-task" }
 flowy-server = { path = "../flowy-server" }
 flowy-server-config = { path = "../flowy-server-config" }
 flowy-config = { path = "../flowy-config" }
-appflowy-integrate = { version = "0.1.0" }
+appflowy-integrate = { version = "0.1.0", features = ["postgres_storage_plugin", "snapshot_plugin"] }
 diesel = { version = "1.4.8", features = ["sqlite"] }
 uuid = { version = "1.3.3", features = ["v4"] }
 
@@ -30,7 +34,6 @@ tokio = { version = "1.26", features = ["full"] }
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
 
-lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
 serde_json = "1.0"

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use strum_macros::Display;
 
@@ -8,7 +8,7 @@ use lib_dispatch::prelude::*;
 use crate::event_handler::*;
 use crate::manager::FolderManager;
 
-pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
+pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)

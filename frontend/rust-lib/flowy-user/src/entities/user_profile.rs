@@ -1,9 +1,10 @@
 use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
+use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{AuthTypePB, UpdateUserProfileParams, UserProfile};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 
 #[derive(Default, ProtoBuf)]
@@ -153,4 +154,54 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       openai_key,
     })
   }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedUserWorkspacePB {
+  #[pb(index = 1)]
+  pub items: Vec<UserWorkspacePB>,
+}
+
+impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
+  fn from(workspaces: Vec<UserWorkspace>) -> Self {
+    Self {
+      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct UserWorkspacePB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+}
+
+impl From<UserWorkspace> for UserWorkspacePB {
+  fn from(value: UserWorkspace) -> Self {
+    Self {
+      id: value.id,
+      name: value.name,
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct AddWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct RemoveWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }
