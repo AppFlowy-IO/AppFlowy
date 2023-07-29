@@ -6,13 +6,17 @@ members = [
   "flowy-core",
   "dart-ffi",
   "flowy-user",
+  "flowy-user-deps",
   "flowy-test",
   "flowy-sqlite",
   "flowy-folder2",
+  "flowy-folder-deps",
   "flowy-notification",
   "flowy-document2",
+  "flowy-document-deps",
   "flowy-error",
   "flowy-database2",
+  "flowy-database-deps",
   "flowy-task",
   "flowy-server",
   "flowy-server-config",
@@ -34,15 +38,17 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
 
-#collab = { path = "../../../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../../../AppFlowy-Collab/collab-folder" }
-#collab-database= { path = "../../../AppFlowy-Collab/collab-database" }
-#collab-document = { path = "../../../AppFlowy-Collab/collab-document" }
-#appflowy-integrate = { path = "../../../AppFlowy-Collab/appflowy-integrate" }
+#collab = { path = "../AppFlowy-Collab/collab" }
+#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+#collab-database= { path = "../AppFlowy-Collab/collab-database" }
+#collab-document = { path = "../AppFlowy-Collab/collab-document" }
+#collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
+#appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
 

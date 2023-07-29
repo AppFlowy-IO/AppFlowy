@@ -11,7 +11,7 @@ use crate::entities::{view_pb_without_child_views, WorkspacePB, WorkspaceSetting
 const FOLDER_OBSERVABLE_SOURCE: &str = "Workspace";
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
-pub(crate) enum FolderNotification {
+pub enum FolderNotification {
   #[default]
   Unknown = 0,
   /// Trigger after creating a workspace

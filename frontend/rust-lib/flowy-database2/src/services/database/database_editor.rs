@@ -74,7 +74,11 @@ impl DatabaseEditor {
     tokio::spawn(async move {
       while let Some(snapshot_state) = snapshot_state.next().await {
         if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-          tracing::debug!("Did create database remote snapshot: {}", new_snapshot_id);
+          tracing::debug!(
+            "Did create {} database remote snapshot: {}",
+            database_id,
+            new_snapshot_id
+          );
           send_notification(
             &database_id,
             DatabaseNotification::DidUpdateDatabaseSnapshotState,

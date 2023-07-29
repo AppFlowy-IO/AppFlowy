@@ -210,6 +210,8 @@
       "user": "User",
       "files": "Files",
       "open": "Open Settings",
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure to logout?",
       "supabaseSetting": "Supabase Setting"
     },
     "appearance": {
@@ -608,5 +610,18 @@
   "views": {
     "deleteContentTitle": "Are you sure want to delete the {pageType}?",
     "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
   }
 }

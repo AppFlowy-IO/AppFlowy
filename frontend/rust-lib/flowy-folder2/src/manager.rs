@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB};
+use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
@@ -16,8 +16,8 @@ use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_deps::cloud::FolderCloudService;
 
-use crate::deps::{FolderCloudService, FolderUser};
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
@@ -32,6 +32,13 @@ use crate::user_default::DefaultFolderBuilder;
 use crate::view_operation::{
   create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
 };
+
+/// [FolderUser] represents the user for folder.
+pub trait FolderUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+}
 
 pub struct FolderManager {
   mutex_folder: Arc<MutexFolder>,
@@ -172,13 +179,13 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    collab_db: Arc<RocksCollabDB>,
+    collab_db: Weak<RocksCollabDB>,
     raw_data: CollabRawData,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab = self.collab_builder.build_with_config(
       uid,
       workspace_id,
-      "workspace",
+      CollabType::Folder,
       collab_db,
       raw_data,
       &CollabPersistenceConfig::new().enable_snapshot(true),
@@ -186,8 +193,14 @@ impl FolderManager {
     Ok(collab)
   }
 
+  /// Initialize the folder with the given workspace id.
+  /// Fetch the folder updates from the cloud service and initialize the folder.
   #[tracing::instrument(level = "debug", skip(self, user_id), err)]
-  pub async fn initialize_when_sign_in(&self, user_id: i64, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn initialize_with_workspace_id(
+    &self,
+    user_id: i64,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
     let folder_updates = self
       .cloud_service
       .get_folder_updates(workspace_id, user_id)
@@ -209,7 +222,9 @@ impl FolderManager {
     Ok(())
   }
 
-  pub async fn initialize_when_sign_up(
+  /// Initialize the folder for the new user.
+  /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
+  pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
     _token: &str,
@@ -239,11 +254,6 @@ impl FolderManager {
           FolderInitializeData::Data(folder_data),
         )
         .await?;
-      // send_notification(token, FolderNotification::DidCreateWorkspace)
-      //   .payload(RepeatedWorkspacePB {
-      //     items: vec![workspace_pb],
-      //   })
-      //   .send();
     } else {
       // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
       // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
@@ -310,6 +320,15 @@ impl FolderManager {
     self.with_folder(None, |folder| folder.workspaces.get_workspace(workspace_id))
   }
 
+  async fn get_current_workspace_id(&self) -> FlowyResult<String> {
+    self
+      .mutex_folder
+      .lock()
+      .as_ref()
+      .and_then(|folder| folder.get_current_workspace_id())
+      .ok_or(FlowyError::internal().context("Unexpected empty workspace id"))
+  }
+
   fn with_folder<F, Output>(&self, default_value: Output, f: F) -> Output
   where
     F: FnOnce(&Folder) -> Output,
@@ -327,6 +346,7 @@ impl FolderManager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
+    let _workspace_id = self.get_current_workspace_id().await?;
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     let meta = params.meta.clone();
@@ -380,13 +400,10 @@ impl FolderManager {
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let view = self
-      .with_folder(None, |folder| folder.views.get_view(view_id))
-      .ok_or_else(|| {
-        FlowyError::record_not_found().context("Can't find the view when closing the view")
-      })?;
-    let handler = self.get_handler(&view.layout)?;
-    handler.close_view(view_id).await?;
+    if let Some(view) = self.with_folder(None, |folder| folder.views.get_view(view_id)) {
+      let handler = self.get_handler(&view.layout)?;
+      handler.close_view(view_id).await?;
+    }
     Ok(())
   }
 

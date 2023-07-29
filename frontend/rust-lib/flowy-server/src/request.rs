@@ -83,7 +83,7 @@ impl HttpRequestBuilder {
   where
     T: serde::Serialize,
   {
-    let bytes = Bytes::from(serde_json::to_vec(&body).map_err(internal_error)?);
+    let bytes = Bytes::from(serde_json::to_vec(&body)?);
     self.bytes(bytes)
   }
 
@@ -104,7 +104,10 @@ impl HttpRequestBuilder {
     let builder = self.inner_send().await?;
     match builder.response {
       None => Err(unexpected_empty_payload(&builder.url)),
-      Some(data) => serde_json::from_slice(&data).map_err(internal_error),
+      Some(data) => {
+        let value = serde_json::from_slice(&data)?;
+        Ok(value)
+      },
     }
   }
 
@@ -137,9 +140,9 @@ impl HttpRequestBuilder {
       let _ = tx.send(response);
     });
 
-    let response = rx.await.map_err(internal_error)?.map_err(internal_error)?;
+    let response = rx.await.map_err(internal_error)?;
     tracing::trace!("Http Response: {:?}", response);
-    let flowy_response = flowy_response_from(response).await?;
+    let flowy_response = flowy_response_from(response?).await?;
     let token = self.token();
     self.middleware.iter().for_each(|middleware| {
       middleware.receive_response(&token, &flowy_response);
@@ -160,16 +163,16 @@ fn unexpected_empty_payload(url: &str) -> FlowyError {
 }
 
 async fn flowy_response_from(original: Response) -> Result<HttpResponse, FlowyError> {
-  let bytes = original.bytes().await.map_err(internal_error)?;
-  let response: HttpResponse = serde_json::from_slice(&bytes).map_err(internal_error)?;
+  let bytes = original.bytes().await?;
+  let response: HttpResponse = serde_json::from_slice(&bytes)?;
   Ok(response)
 }
 
 #[allow(dead_code)]
 async fn get_response_data(original: Response) -> Result<Bytes, FlowyError> {
   if original.status() == http::StatusCode::OK {
-    let bytes = original.bytes().await.map_err(internal_error)?;
-    let response: HttpResponse = serde_json::from_slice(&bytes).map_err(internal_error)?;
+    let bytes = original.bytes().await?;
+    let response: HttpResponse = serde_json::from_slice(&bytes)?;
     match response.error {
       None => Ok(response.data),
       Some(error) => Err(FlowyError::new(error.code, &error.msg)),

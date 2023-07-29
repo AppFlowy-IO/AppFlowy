@@ -40,9 +40,6 @@ function BlockDraggable(
         data-draggable-type={type}
         onMouseDown={getAnchorEl ? undefined : onDragStart}
         className={`relative ${className || ''}`}
-        style={{
-          opacity: isDragging ? 0.7 : 1,
-        }}
         {...props}
       >
         {

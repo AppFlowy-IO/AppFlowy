@@ -11,10 +11,6 @@ pub fn init() -> AFPlugin {
     .event(ConfigEvent::SetKeyValue, set_key_value_handler)
     .event(ConfigEvent::GetKeyValue, get_key_value_handler)
     .event(ConfigEvent::RemoveKeyValue, remove_key_value_handler)
-    .event(
-      ConfigEvent::SetCollabPluginConfig,
-      set_collab_plugin_config_handler,
-    )
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -28,7 +24,4 @@ pub enum ConfigEvent {
 
   #[event(input = "KeyPB")]
   RemoveKeyValue = 2,
-
-  #[event(input = "CollabPluginConfigPB")]
-  SetCollabPluginConfig = 4,
 }
