@@ -1,11 +1,9 @@
 use std::sync::{Arc, Weak};
 
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-
 use crate::entities::*;
 use crate::manager::FolderManager;
 use crate::share::ImportParams;
+use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 fn upgrade_folder(
@@ -154,9 +152,10 @@ pub(crate) async fn delete_view_handler(
 }
 pub(crate) async fn toggle_favorites_handler(
   data: AFPluginData<RepeatedViewIdPB>,
-  folder: AFPluginState<Arc<FolderManager>>,
+  folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let params: RepeatedViewIdPB = data.into_inner();
+  let folder = upgrade_folder(folder)?;
   for view_id in &params.items {
     let _ = folder.toggle_favorites(view_id).await;
   }
@@ -220,8 +219,9 @@ pub(crate) async fn duplicate_view_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_favorites_handler(
-  folder: AFPluginState<Arc<FolderManager>>,
+  folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
   let favorites = folder.get_all_favorites().await;
   let mut views = vec![];
   for info in favorites {
