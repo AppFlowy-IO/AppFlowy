@@ -141,6 +141,7 @@ class ViewBackendService {
     return FolderEventUpdateView(payload).send();
   }
 
+  // deprecated
   static Future<Either<Unit, FlowyError>> moveView({
     required String viewId,
     required int fromIndex,
@@ -152,6 +153,21 @@ class ViewBackendService {
       ..to = toIndex;
 
     return FolderEventMoveView(payload).send();
+  }
+
+  /// support nested view
+  static Future<Either<Unit, FlowyError>> moveViewV2({
+    required String viewId,
+    required String newParentId,
+    required String? prevViewId,
+  }) {
+    final payload = MoveNestedViewPayloadPB(
+      viewId: viewId,
+      newParentId: newParentId,
+      prevViewId: prevViewId,
+    );
+
+    return FolderEventMoveNestedView(payload).send();
   }
 
   Future<List<(ViewPB, List<ViewPB>)>> fetchViewsWithLayoutType(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -43,7 +44,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
             desc: event.desc ?? "",
           );
           result.fold(
-            (app) => {},
+            (app) => emit(state.copyWith(plugin: app.plugin())),
             (error) {
               Log.error(error);
               emit(state.copyWith(successOrFailure: right(error)));

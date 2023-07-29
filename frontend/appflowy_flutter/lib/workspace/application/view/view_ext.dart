@@ -40,9 +40,25 @@ extension FlowyPluginExtension on FlowyPlugin {
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     const String thumbnail = "file_icon";
-
     const Widget widget = FlowySvg(name: thumbnail);
     return widget;
+  }
+
+  Widget icon() {
+    String iconName = 'file_icon';
+    switch (layout) {
+      case ViewLayoutPB.Board:
+        iconName = 'editor/board';
+      case ViewLayoutPB.Calendar:
+        iconName = 'editor/calendar';
+      case ViewLayoutPB.Grid:
+        iconName = 'editor/grid';
+      case ViewLayoutPB.Document:
+        iconName = 'editor/documents';
+    }
+    return FlowySvg(
+      name: iconName,
+    );
   }
 
   PluginType get pluginType {

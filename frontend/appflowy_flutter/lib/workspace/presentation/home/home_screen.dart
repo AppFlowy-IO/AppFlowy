@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:appflowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:appflowy_backend/log.dart';
@@ -23,7 +24,6 @@ import 'package:styled_widget/styled_widget.dart';
 import '../widgets/edit_panel/edit_panel.dart';
 import 'home_layout.dart';
 import 'home_stack.dart';
-import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserProfilePB user;
@@ -145,7 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
     required BuildContext context,
   }) {
     final workspaceSetting = widget.workspaceSetting;
-    final homeMenu = HomeMenu(
+    // final homeMenu = HomeMenu(
+    //   user: widget.user,
+    //   workspaceSetting: workspaceSetting,
+    // );
+    final homeMenu = HomeSideBar(
       user: widget.user,
       workspaceSetting: workspaceSetting,
     );

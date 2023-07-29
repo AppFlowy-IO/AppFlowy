@@ -70,7 +70,10 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "openNewTab": "Open in a new tab"
+    "openNewTab": "Open in a new tab",
+    "moveTo": "Move to",
+    "addToFavorites": "Add to Favorites",
+    "copyLink": "Copy Link"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -111,6 +114,7 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
