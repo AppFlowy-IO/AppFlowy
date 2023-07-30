@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -11,6 +13,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -173,10 +176,21 @@ class SingleInnerViewItem extends StatefulWidget {
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
-  bool onHover = false;
-
   @override
   Widget build(BuildContext context) {
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.secondary,
+      ),
+      buildWhenOnHover: () => !widget.showActions,
+      builder: (_, onHover) => _buildViewItem(onHover),
+      isSelected: () =>
+          widget.showActions ||
+          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+    );
+  }
+
+  Widget _buildViewItem(bool onHover) {
     final children = [
       // expand icon
       _buildExpandedIcon(),
@@ -204,18 +218,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       children.add(_buildViewAddButton(context));
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => onHover = true),
-      onExit: (_) => setState(() => onHover = false),
-      child: GestureDetector(
-        onTap: () => widget.onSelected(widget.view),
-        child: SizedBox(
-          height: 26,
-          child: Padding(
-            padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-            child: Row(
-              children: children,
-            ),
+    return GestureDetector(
+      onTap: () => widget.onSelected(widget.view),
+      child: SizedBox(
+        height: 26,
+        child: Padding(
+          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+          child: Row(
+            children: children,
           ),
         ),
       ),
