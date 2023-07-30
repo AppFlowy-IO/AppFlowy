@@ -59,10 +59,6 @@ impl DefaultFolderBuilder {
   }
 }
 
-pub fn gen_workspace_id() -> String {
-  uuid::Uuid::new_v4().to_string()
-}
-
 impl From<&ParentChildViews> for ViewPB {
   fn from(value: &ParentChildViews) -> Self {
     view_pb_with_child_views(

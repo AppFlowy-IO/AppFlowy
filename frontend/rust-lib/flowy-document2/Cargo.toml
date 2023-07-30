@@ -9,10 +9,11 @@ edition = "2021"
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 appflowy-integrate = {version = "0.1.0" }
+flowy-document-deps = { path = "../flowy-document-deps" }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }
-flowy-error = { path = "../flowy-error", features = ["adaptor_serde", "adaptor_database", "adaptor_dispatch", "collab"] }
+flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_sqlite", "impl_from_dispatch_error", "impl_from_collab"] }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
@@ -20,7 +21,6 @@ protobuf = {version = "2.28.0"}
 bytes = { version = "1.4" }
 nanoid = "0.4.0"
 parking_lot = "0.12.1"
-strum = "0.21"
 strum_macros = "0.21"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}

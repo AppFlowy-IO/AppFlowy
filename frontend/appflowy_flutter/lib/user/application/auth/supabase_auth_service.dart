@@ -145,10 +145,9 @@ class SupabaseAuthService implements AuthService {
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Supabase,
   }) async {
-    if (!isSupabaseEnable) {
-      return _appFlowyAuthService.signOut();
+    if (isSupabaseEnable) {
+      await _auth.signOut();
     }
-    await _auth.signOut();
     await _appFlowyAuthService.signOut(
       authType: authType,
     );

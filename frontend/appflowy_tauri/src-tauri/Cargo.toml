@@ -34,18 +34,20 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "f420738" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5783a5" }
 
-#collab = { path = "../../../../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
-#collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
-#collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
-#appflowy-integrate = { path = "../../../../AppFlowy-Collab/appflowy-integrate" }
+#collab = { path = "../../AppFlowy-Collab/collab" }
+#collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }
+#collab-document = { path = "../../AppFlowy-Collab/collab-document" }
+#collab-database = { path = "../../AppFlowy-Collab/collab-database" }
+#appflowy-integrate = { path = "../../AppFlowy-Collab/appflowy-integrate" }
+#collab-plugins = { path = "../../AppFlowy-Collab/collab-plugins" }
 
 
 
