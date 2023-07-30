@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
@@ -26,6 +25,7 @@ class ViewAddButton extends StatelessWidget {
     String? name,
     List<int>? initialDataBytes,
     bool openAfterCreated,
+    bool createNewView,
   ) onSelected;
 
   List<PopoverAction> get _actions {
@@ -82,7 +82,7 @@ class ViewAddButton extends StatelessWidget {
     BuildContext context,
     ViewAddButtonActionWrapper action,
   ) {
-    onSelected(action.pluginBuilder, null, null, true);
+    onSelected(action.pluginBuilder, null, null, true, true);
   }
 
   void _showViewImportAction(
@@ -93,30 +93,7 @@ class ViewAddButton extends StatelessWidget {
       parentViewId,
       context,
       (type, name, initialDataBytes) {
-        if (initialDataBytes == null) {
-          return;
-        }
-        switch (type) {
-          case ImportType.historyDocument:
-          case ImportType.historyDatabase:
-          case ImportType.databaseCSV:
-          case ImportType.databaseRawData:
-            onSelected(
-              action.pluginBuilder,
-              name,
-              initialDataBytes,
-              false,
-            );
-            break;
-          case ImportType.markdownOrText:
-            onSelected(
-              action.pluginBuilder,
-              name,
-              initialDataBytes,
-              true,
-            );
-            break;
-        }
+        onSelected(action.pluginBuilder, null, null, true, false);
       },
     );
   }

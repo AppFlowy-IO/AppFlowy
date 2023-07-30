@@ -73,13 +73,13 @@ Future<void> insertReferenceDatabase(
   final id = uuid();
   final name = '${layout.name}_$id';
   await tester.createNewPageWithName(
-    layout,
-    name,
+    name: name,
+    layout: layout,
   );
   // create a new document
   await tester.createNewPageWithName(
-    ViewLayoutPB.Document,
-    'insert_a_reference_${layout.name}',
+    name: 'insert_a_reference_${layout.name}',
+    layout: ViewLayoutPB.Document,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);

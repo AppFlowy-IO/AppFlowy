@@ -77,9 +77,9 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapGoButton();
 
     // expect to see a readme page
-    expectToSeePageName(readme);
+    expectToSeePageName(gettingStated);
 
-    await tapAddButton();
+    await tapAddViewButton();
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
@@ -103,7 +103,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
       paths: paths,
     );
     await tapDatabaseRawDataButton();
-    await openPage('v020');
+    await pumpAndSettle();
+    await openPage('v020', layout: ViewLayoutPB.Grid);
   }
 
   Future<void> hoverOnFirstRowOfGrid() async {

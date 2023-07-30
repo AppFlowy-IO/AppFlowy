@@ -255,14 +255,22 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         parentViewId: widget.view.id,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onSelected: (pluginBuilder, name, initialDataBytes, openAfterCreated) {
-          context.read<ViewBloc>().add(
-                ViewEvent.createView(
-                  name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                  pluginBuilder.layoutType!,
-                  openAfterCreated: openAfterCreated,
-                ),
-              );
+        onSelected: (
+          pluginBuilder,
+          name,
+          initialDataBytes,
+          openAfterCreated,
+          createNewView,
+        ) {
+          if (createNewView) {
+            context.read<ViewBloc>().add(
+                  ViewEvent.createView(
+                    name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                    pluginBuilder.layoutType!,
+                    openAfterCreated: openAfterCreated,
+                  ),
+                );
+          }
           context.read<ViewBloc>().add(
                 const ViewEvent.setIsExpanded(true),
               );
