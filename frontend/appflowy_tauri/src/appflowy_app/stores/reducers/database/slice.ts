@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { FieldType } from '@/services/backend/models/flowy-database2/field_entities';
-import { DateFormatPB, NumberFormatPB, SelectOptionColorPB, SelectOptionPB, TimeFormatPB } from '@/services/backend';
+import { DateFormatPB, NumberFormatPB, SelectOptionColorPB, SortConditionPB, TimeFormatPB } from '@/services/backend';
 
 export interface ISelectOption {
   selectOptionId: string;
@@ -75,8 +75,10 @@ export interface IDatabaseFilter {
 }
 
 export interface IDatabaseSort {
+  id?: string;
   fieldId: string;
-  sort: 'asc' | 'desc';
+  fieldType: FieldType;
+  order: SortConditionPB;
 }
 
 export interface IDatabase {

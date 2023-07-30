@@ -10,12 +10,15 @@ import { DatabaseGroupObserver } from './group/group_observer';
 import { Log } from '$app/utils/log';
 import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
 import { FilterParsed } from '$app/stores/effects/database/filter/filter_bd_svc';
+import { SortController } from '$app/stores/effects/database/sort/sort_controller';
+import { IDatabaseSort } from '$app_reducers/database/slice';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
   onFiltersChanged?: (filters: readonly FilterParsed[]) => void;
+  onSortChanged?: (sorts: readonly IDatabaseSort[]) => void;
   onGroupByField?: (groups: GroupPB[]) => void;
 
   onNumOfGroupChanged?: {
@@ -28,6 +31,7 @@ export type DatabaseSubscriberCallbacks = {
 export class DatabaseController {
   private readonly backendService: DatabaseBackendService;
   fieldController: FieldController;
+  sortController: SortController;
   filterController: FilterController;
   databaseViewCache: DatabaseViewCache;
   private _callback?: DatabaseSubscriberCallbacks;
@@ -38,6 +42,7 @@ export class DatabaseController {
     this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
     this.filterController = new FilterController(viewId);
+    this.sortController = new SortController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
     this.groups = new BehaviorSubject<DatabaseGroupController[]>([]);
     this.groupsObserver = new DatabaseGroupObserver(viewId);
@@ -47,6 +52,7 @@ export class DatabaseController {
     this._callback = callbacks;
     this.fieldController.subscribe({ onNumOfFieldsChanged: callbacks.onFieldsChanged });
     this.filterController.subscribe({ onFiltersChanged: callbacks.onFiltersChanged });
+    this.sortController.subscribe({ onSortChanged: callbacks.onSortChanged });
     this.databaseViewCache.getRowCache().subscribe({
       onRowsChanged: (reason) => {
         this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
