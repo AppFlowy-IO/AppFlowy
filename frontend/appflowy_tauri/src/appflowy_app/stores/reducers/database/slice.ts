@@ -134,55 +134,22 @@ export const databaseSlice = createSlice({
 
     updateField: (state, action: PayloadAction<{ field: IDatabaseField }>) => {
       const { field } = action.payload;
+
       state.fields[field.fieldId] = field;
     },
 
     changeWidth: (state, action: PayloadAction<{ fieldId: string; width: number }>) => {
       const { fieldId, width } = action.payload;
+
       state.fields[fieldId].width = width;
     },
-
-    /* addFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
-      const { filter } = action.payload;
-      state.filters.push(filter);
-    },
-
-    upsertFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
-      const { filter } = action.payload;
-      const index = state.filters.findIndex((f) => f.fieldId === filter.fieldId);
-
-      if (index >= 0) {
-        state.filters[index] = filter;
-      } else {
-        state.filters.push(filter);
-      }
-    },
-
-    removeFilter: (state, action: PayloadAction<{ filter: IDatabaseFilter }>) => {
-      const { filter } = action.payload;
-
-      state.filters = state.filters.filter((f) => f.fieldId !== filter.fieldId);
-    },*/
 
     updateFilters: (state, action: PayloadAction<{ filters: IDatabaseFilter[] }>) => {
       state.filters = action.payload.filters;
     },
 
-    upsertSort: (state, action: PayloadAction<{ sort: IDatabaseSort }>) => {
-      const { sort } = action.payload;
-      const index = state.sort.findIndex((s) => s.fieldId === sort.fieldId);
-
-      if (index >= 0) {
-        state.sort[index] = sort;
-      } else {
-        state.sort.push(sort);
-      }
-    },
-
-    removeSort: (state, action: PayloadAction<{ sort: IDatabaseSort }>) => {
-      const { sort } = action.payload;
-
-      state.sort = state.sort.filter((s) => s.fieldId !== sort.fieldId);
+    updateSorts: (state, action: PayloadAction<{ sorts: IDatabaseSort[] }>) => {
+      state.sort = action.payload.sorts;
     },
   },
 });

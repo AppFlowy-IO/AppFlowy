@@ -124,7 +124,6 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
           queue.enqueue(fieldInfos);
         },
         onFiltersChanged: (filters) => {
-          console.log('filters changed', filters);
           const reduxFilters = filters.map<IDatabaseFilter>((filter) => {
             switch (filter.field_type) {
               case FieldType.SingleSelect:
@@ -160,6 +159,10 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
           });
 
           dispatch(databaseActions.updateFilters({ filters: reduxFilters }));
+        },
+        onSortChanged: (sorts) => {
+          console.log('sorts', sorts);
+          dispatch(databaseActions.updateSorts({ sorts: [...sorts] }));
         },
       });
 

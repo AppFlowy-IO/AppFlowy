@@ -73,7 +73,9 @@ export const Grid = ({ viewId }: { viewId: string }) => {
           onOutsideClick={() => setShowFilterPopup(false)}
         />
       )}
-      {showSortPopup && <DatabaseSortPopup onOutsideClick={() => setShowSortPopup(false)} />}
+      {showSortPopup && controller && controller.sortController && (
+        <DatabaseSortPopup sortController={controller.sortController} onOutsideClick={() => setShowSortPopup(false)} />
+      )}
     </>
   );
 };

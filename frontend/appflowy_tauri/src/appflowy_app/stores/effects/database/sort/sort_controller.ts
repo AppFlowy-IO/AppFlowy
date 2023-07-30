@@ -31,8 +31,8 @@ export class SortController {
     return id;
   };
 
-  updateSort = async (filterId: string, fieldId: string, fieldType: FieldType, sort: SortConditionPB) => {
-    const result = await this.sortService.updateSort(filterId, fieldId, fieldType, sort);
+  updateSort = async (sortId: string, fieldId: string, fieldType: FieldType, sort: SortConditionPB) => {
+    const result = await this.sortService.updateSort(sortId, fieldId, fieldType, sort);
 
     if (result.ok) {
       await this.readSorts();

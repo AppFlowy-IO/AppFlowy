@@ -1,10 +1,10 @@
-import { IDatabaseSort, SupportedOperatorsByType } from '$app_reducers/database/slice';
+import { IDatabaseSort } from '$app_reducers/database/slice';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
 import { IPopupItem, PopupSelect } from '$app/components/_shared/PopupSelect';
 import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
-import { FieldType } from '@/services/backend';
+import { SortConditionPB } from '@/services/backend';
 import { SortAscSvg } from '$app/components/_shared/svg/SortAscSvg';
 import { SortDescSvg } from '$app/components/_shared/svg/SortDescSvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
@@ -25,7 +25,7 @@ export const DatabaseSortItem = ({
 
   // values
   const [currentFieldId, setCurrentFieldId] = useState<string | null>(data?.fieldId ?? null);
-  const [currentOrder, setCurrentOrder] = useState<'asc' | 'desc' | null>(data?.sort ?? null);
+  const [currentOrder, setCurrentOrder] = useState<SortConditionPB | null>(data?.order ?? null);
 
   // ui
   const [showFieldSelect, setShowFieldSelect] = useState(false);
@@ -46,7 +46,7 @@ export const DatabaseSortItem = ({
   useEffect(() => {
     if (data) {
       setCurrentFieldId(data.fieldId);
-      setCurrentOrder(data.sort);
+      setCurrentOrder(data.order);
     } else {
       setCurrentFieldId(null);
       setCurrentOrder(null);
@@ -54,15 +54,20 @@ export const DatabaseSortItem = ({
   }, [data]);
 
   useEffect(() => {
-    if (currentFieldId && currentOrder) {
-      onSave({ fieldId: currentFieldId, sort: currentOrder });
+    if (currentFieldId && currentOrder !== null) {
+      onSave({
+        id: data?.id,
+        fieldId: currentFieldId,
+        order: currentOrder,
+        fieldType: fields[currentFieldId].fieldType,
+      });
     }
   }, [currentFieldId, currentOrder]);
 
   const onSelectFieldClick = (id: string) => {
     setCurrentFieldId(id);
     // set ascending order by default
-    setCurrentOrder('asc');
+    setCurrentOrder(SortConditionPB.Ascending);
     setShowFieldSelect(false);
   };
 
@@ -75,7 +80,7 @@ export const DatabaseSortItem = ({
     setShowFieldSelect(true);
   };
 
-  const onSelectOrderClick = (order: 'asc' | 'desc') => {
+  const onSelectOrderClick = (order: SortConditionPB) => {
     setCurrentOrder(order);
     setShowOrderSelect(false);
   };
@@ -123,7 +128,7 @@ export const DatabaseSortItem = ({
             ref={refOrderSelect}
             onClick={onOrderClick}
           >
-            {currentOrder ? (
+            {currentOrder !== null ? (
               <SortLabel value={currentOrder}></SortLabel>
             ) : (
               <span className={'text-shade-4'}>Select order</span>
@@ -165,7 +170,7 @@ export const DatabaseSortItem = ({
                 </i>
               ),
               title: 'Ascending',
-              onClick: () => onSelectOrderClick('asc'),
+              onClick: () => onSelectOrderClick(SortConditionPB.Ascending),
             },
             {
               icon: (
@@ -174,7 +179,7 @@ export const DatabaseSortItem = ({
                 </i>
               ),
               title: 'Descending',
-              onClick: () => onSelectOrderClick('desc'),
+              onClick: () => onSelectOrderClick(SortConditionPB.Descending),
             },
           ]}
           className={'fixed z-10 text-sm'}
@@ -186,8 +191,8 @@ export const DatabaseSortItem = ({
   );
 };
 
-const SortLabel = ({ value }: { value: 'asc' | 'desc' }) => {
-  return value === 'asc' ? (
+const SortLabel = ({ value }: { value: SortConditionPB }) => {
+  return value === SortConditionPB.Ascending ? (
     <div className={'flex items-center gap-2'}>
       <i className={'block h-5 w-5'}>
         <SortAscSvg></SortAscSvg>

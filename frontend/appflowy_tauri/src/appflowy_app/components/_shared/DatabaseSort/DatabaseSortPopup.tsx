@@ -1,56 +1,65 @@
 import { t } from 'i18next';
 import { MouseEventHandler, useMemo, useRef, useState } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
-import { databaseActions, IDatabaseSort } from '$app_reducers/database/slice';
+import { useAppSelector } from '$app/stores/store';
+import { IDatabaseSort } from '$app_reducers/database/slice';
 import { DatabaseSortItem } from '$app/components/_shared/DatabaseSort/DatabaseSortItem';
 import AddSvg from '$app/components/_shared/svg/AddSvg';
+import { SortController } from '$app/stores/effects/database/sort/sort_controller';
 
-export const DatabaseSortPopup = ({ onOutsideClick }: { onOutsideClick: () => void }) => {
+export const DatabaseSortPopup = ({
+  sortController,
+  onOutsideClick,
+}: {
+  sortController: SortController;
+  onOutsideClick: () => void;
+}) => {
   const refContainer = useRef<HTMLDivElement>(null);
 
   useOutsideClick(refContainer, onOutsideClick);
 
   // stores
   const sortStore = useAppSelector((state) => state.database.sort);
-  const dispatch = useAppDispatch();
-
   const [sort, setSort] = useState<(IDatabaseSort | null)[]>(sortStore);
 
   const [showBlankSort, setShowBlankSort] = useState(sortStore.length === 0);
 
-  const onSaveClick = (sortItem: IDatabaseSort) => {
-    // update global store
-    dispatch(databaseActions.upsertSort({ sort: sortItem }));
+  const onSaveSortItem = async (sortItem: IDatabaseSort) => {
+    let updatedSort = sortItem;
+
+    if (sortItem.id) {
+      await sortController.updateSort(sortItem.id, sortItem.fieldId, sortItem.fieldType, sortItem.order);
+    } else {
+      const newId = await sortController.addSort(sortItem.fieldId, sortItem.fieldType, sortItem.order);
+
+      updatedSort = { ...updatedSort, id: newId };
+    }
 
     // update local copy
     const index = sort.findIndex((s) => s?.fieldId === sortItem.fieldId);
 
-    if (index >= 0) {
-      setSort([...sort.slice(0, index), sortItem, ...sort.slice(index + 1)]);
+    if (index === -1) {
+      setSort([...sort, updatedSort]);
     } else {
-      setSort([...sort, sortItem]);
+      setSort([...sort.slice(0, index), updatedSort, ...sort.slice(index + 1)]);
     }
 
     setShowBlankSort(false);
   };
 
-  const onDeleteClick = (sortItem: IDatabaseSort | null) => {
-    if (!sortItem) return;
-    // update global store
-    dispatch(databaseActions.removeSort({ sort: sortItem }));
+  const onDeleteClick = async (sortItem: IDatabaseSort | null) => {
+    if (!sortItem || !sortItem.id) return;
 
     // add blank sort if no sorts left
     if (sort.length === 1) {
       setShowBlankSort(true);
     }
 
-    // update local copy
+    await sortController.removeSort(sortItem.fieldId, sortItem.fieldType, sortItem.id);
+
     const index = sort.findIndex((s) => s?.fieldId === sortItem.fieldId);
 
-    if (index >= 0) {
-      setSort([...sort.slice(0, index), ...sort.slice(index + 1)]);
-    }
+    setSort([...sort.slice(0, index), ...sort.slice(index + 1)]);
   };
 
   const onAddClick: MouseEventHandler = () => {
@@ -65,14 +74,14 @@ export const DatabaseSortPopup = ({ onOutsideClick }: { onOutsideClick: () => vo
 
       <div className={'fixed inset-0 z-10 flex items-center justify-center overflow-y-auto'}>
         <div className='flex flex-col rounded-lg bg-white shadow-md' ref={refContainer}>
-          <div className='px-6 pt-6 text-sm text-shade-3'>{t('grid.settings.sort')}</div>
+          <div className='text-shade-3 px-6 pt-6 text-sm'>{t('grid.settings.sort')}</div>
 
           <div className='flex flex-col gap-3 overflow-y-scroll px-6 py-6 text-sm'>
             {rows.map((sortItem, index) => (
               <DatabaseSortItem
                 key={index}
                 data={sortItem}
-                onSave={onSaveClick}
+                onSave={onSaveSortItem}
                 onDelete={() => onDeleteClick(sortItem)}
               />
             ))}
@@ -80,7 +89,7 @@ export const DatabaseSortPopup = ({ onOutsideClick }: { onOutsideClick: () => vo
 
           <hr />
 
-          <button onClick={onAddClick} className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-shade-1'>
+          <button onClick={onAddClick} className='text-shade-1 flex cursor-pointer items-center gap-2 px-6 py-6 text-sm'>
             <div className='h-5 w-5'>
               <AddSvg />
             </div>
