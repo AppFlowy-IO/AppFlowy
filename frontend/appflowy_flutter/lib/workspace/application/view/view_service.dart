@@ -155,7 +155,10 @@ class ViewBackendService {
     return FolderEventMoveView(payload).send();
   }
 
-  /// support nested view
+  /// Move the view to the new parent view.
+  ///
+  /// supports nested view
+  /// if the [prevViewId] is null, the view will be moved to the beginning of the list
   static Future<Either<Unit, FlowyError>> moveViewV2({
     required String viewId,
     required String newParentId,

@@ -43,7 +43,7 @@ class ViewSection extends StatelessWidget {
     );
   }
 
-  Widget _reorderableColumn(
+  ReorderableColumn _reorderableColumn(
     BuildContext context,
     ViewSectionState state,
   ) {

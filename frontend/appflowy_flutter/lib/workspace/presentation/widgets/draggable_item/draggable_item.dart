@@ -62,9 +62,11 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           }
         },
         onDragEnd: (details) {
+          autoScroller?.stopAutoScroll();
           dragTarget = null;
         },
         onDraggableCanceled: (_, __) {
+          autoScroller?.stopAutoScroll();
           dragTarget = null;
         },
       ),

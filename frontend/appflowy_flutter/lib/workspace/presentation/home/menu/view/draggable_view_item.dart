@@ -167,9 +167,6 @@ extension on ViewPB {
       return true;
     }
 
-    print('this = $this');
-    print('target = $view');
-
     return childViews.any((v) => v.containsView(view));
   }
 }

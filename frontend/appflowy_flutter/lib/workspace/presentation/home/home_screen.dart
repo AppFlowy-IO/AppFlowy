@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
             buildContext: context,
           ),
         );
-        final menu = _buildHomeMenu(
+        final menu = _buildHomeSidebar(
           layout: layout,
           context: context,
         );
@@ -140,20 +140,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeMenu({
+  Widget _buildHomeSidebar({
     required HomeLayout layout,
     required BuildContext context,
   }) {
     final workspaceSetting = widget.workspaceSetting;
-    // final homeMenu = HomeMenu(
-    //   user: widget.user,
-    //   workspaceSetting: workspaceSetting,
-    // );
     final homeMenu = HomeSideBar(
       user: widget.user,
       workspaceSetting: workspaceSetting,
     );
-
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
