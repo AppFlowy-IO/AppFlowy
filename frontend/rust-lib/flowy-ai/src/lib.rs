@@ -2,7 +2,7 @@ use reqwest::header::{HeaderMap, AUTHORIZATION, CONTENT_TYPE};
 use serde_json::json;
 use std::env;
 
-pub async fn send_request() -> Result<String, reqwest::Error> {
+pub async fn send_request(prompt: String) -> Result<String, reqwest::Error> {
   let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not found");
 
   let mut headers = HeaderMap::new();
@@ -18,7 +18,7 @@ pub async fn send_request() -> Result<String, reqwest::Error> {
       "model": "gpt-3.5-turbo",
       "messages": [
           {"role": "system", "content": "You are a helpful assistant."},
-          {"role": "user", "content": "Hello, Reply with 'YES'!"}
+          {"role": "user", "content": prompt}
       ]
   });
 
