@@ -70,6 +70,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
+    "unfavorite": "Remove from favorites",
+    "favorite": "Add to favorites",
     "openNewTab": "Open in a new tab"
   },
   "blankPageTitle": "Blank page",
