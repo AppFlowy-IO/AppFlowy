@@ -42,6 +42,13 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   Rect? dragTarget;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    initAutoScrollerIfNeeded(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     initAutoScrollerIfNeeded(context);
 
@@ -85,6 +92,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         'when enableAutoScroll is true.',
       );
     }
+
+    autoScroller?.stopAutoScroll();
     autoScroller = EdgeDraggingAutoScroller(
       scrollable!,
       onScrollViewScrolled: () {
