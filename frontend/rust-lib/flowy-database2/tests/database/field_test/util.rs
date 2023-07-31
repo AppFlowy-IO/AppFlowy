@@ -83,6 +83,7 @@ pub fn make_date_cell_string(s: &str) -> String {
     date: Some(s.to_string()),
     time: None,
     include_time: Some(false),
+    clear_flag: None,
   })
   .unwrap()
 }

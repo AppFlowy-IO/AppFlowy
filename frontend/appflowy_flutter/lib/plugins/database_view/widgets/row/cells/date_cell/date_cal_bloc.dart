@@ -1,18 +1,19 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:easy_localization/easy_localization.dart'
-    show StringTranslateExtension;
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:easy_localization/easy_localization.dart'
+    show StringTranslateExtension;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'dart:async';
 import 'package:protobuf/protobuf.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 part 'date_cal_bloc.freezed.dart';
 
@@ -63,6 +64,9 @@ class DateCellCalendarBloc
           },
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
+          },
+          clearDate: () async {
+            await _clearDate(emit);
           },
         );
       },
@@ -116,6 +120,29 @@ class DateCellCalendarBloc
                 Log.error(err);
             }
           },
+        );
+      },
+    );
+  }
+
+  Future<void> _clearDate(Emitter<DateCellCalendarState> emit) async {
+    final DateCellData newDateData = DateCellData(
+      dateTime: null,
+      time: null,
+      includeTime: state.includeTime,
+      clearFlag: true,
+    );
+
+    cellController.saveCellData(
+      newDateData,
+      onFinish: (result) {
+        result.fold(
+          () {
+            if (!isClosed) {
+              add(const DateCellCalendarEvent.didReceiveTimeFormatError(null));
+            }
+          },
+          (err) => Log.error(err),
         );
       },
     );
@@ -237,6 +264,8 @@ class DateCellCalendarEvent with _$DateCellCalendarEvent {
       _TimeFormat;
   const factory DateCellCalendarEvent.setDateFormat(DateFormatPB dateFormat) =
       _DateFormat;
+
+  const factory DateCellCalendarEvent.clearDate() = _ClearDate;
 }
 
 @freezed
