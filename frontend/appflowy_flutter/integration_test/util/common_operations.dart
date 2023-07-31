@@ -42,7 +42,7 @@ extension CommonOperations on WidgetTester {
 
   /// Tap the 'New Page' Button on the sidebar.
   Future<void> tapNewPageButton() async {
-    final newPageButton = find.byType(SidebarNewAppButton);
+    final newPageButton = find.byType(SidebarNewPageButton);
     await tapButton(newPageButton);
   }
 

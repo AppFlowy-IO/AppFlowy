@@ -45,17 +45,13 @@ extension ViewExtension on ViewPB {
   }
 
   Widget icon() {
-    String iconName = 'file_icon';
-    switch (layout) {
-      case ViewLayoutPB.Board:
-        iconName = 'editor/board';
-      case ViewLayoutPB.Calendar:
-        iconName = 'editor/calendar';
-      case ViewLayoutPB.Grid:
-        iconName = 'editor/grid';
-      case ViewLayoutPB.Document:
-        iconName = 'editor/documents';
-    }
+    final iconName = switch (layout) {
+      ViewLayoutPB.Board => 'editor/board',
+      ViewLayoutPB.Calendar => 'editor/calendar',
+      ViewLayoutPB.Grid => 'editor/grid',
+      ViewLayoutPB.Document => 'editor/documents',
+      _ => 'file_icon',
+    };
     return FlowySvg(
       name: iconName,
     );

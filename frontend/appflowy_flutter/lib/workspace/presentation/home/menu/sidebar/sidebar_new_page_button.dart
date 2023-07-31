@@ -8,8 +8,8 @@ import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SidebarNewAppButton extends StatelessWidget {
-  const SidebarNewAppButton({
+class SidebarNewPageButton extends StatelessWidget {
+  const SidebarNewPageButton({
     super.key,
   });
 
@@ -20,7 +20,7 @@ class SidebarNewAppButton extends StatelessWidget {
       fillColor: Colors.transparent,
       hoverColor: Colors.transparent,
       fontColor: Theme.of(context).colorScheme.tertiary,
-      onPressed: () async => await _showCreateAppDialog(context),
+      onPressed: () async => await _showCreatePageDialog(context),
       heading: Container(
         width: 16,
         height: 16,
@@ -42,7 +42,7 @@ class SidebarNewAppButton extends StatelessWidget {
     );
   }
 
-  Future<void> _showCreateAppDialog(BuildContext context) async {
+  Future<void> _showCreatePageDialog(BuildContext context) async {
     return NavigatorTextFieldDialog(
       title: LocaleKeys.newPageText.tr(),
       value: '',

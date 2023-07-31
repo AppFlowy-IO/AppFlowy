@@ -80,9 +80,12 @@ class HomeSideBar extends StatelessWidget {
             const VSpace(10),
             // trash
             const SidebarTrashButton(),
-            const VSpace(24),
+            const VSpace(10),
             // new page button
-            const SidebarNewAppButton(),
+            const Padding(
+              padding: EdgeInsets.only(left: 6.0),
+              child: SidebarNewPageButton(),
+            ),
           ],
         ),
       ),

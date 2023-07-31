@@ -49,7 +49,9 @@ class SidebarTopMenu extends StatelessWidget {
     final name = Theme.of(context).brightness == Brightness.dark
         ? 'flowy_logo_dark_mode'
         : 'flowy_logo_with_text';
-    return FlowySvg(name: name);
+    return svgWidget(
+      name,
+    );
   }
 
   Widget _buildCollapseMenuButton(BuildContext context) {

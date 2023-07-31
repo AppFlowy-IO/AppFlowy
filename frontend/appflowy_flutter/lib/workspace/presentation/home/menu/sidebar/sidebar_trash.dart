@@ -48,6 +48,7 @@ class SidebarTrashButton extends StatelessWidget {
   Widget _buildTextButton(BuildContext context) {
     return Row(
       children: [
+        const HSpace(6),
         const FlowySvg(
           size: Size(16, 16),
           name: 'home/trash',
