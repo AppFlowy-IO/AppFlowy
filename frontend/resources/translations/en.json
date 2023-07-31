@@ -72,7 +72,10 @@
     "duplicate": "Duplicate",
     "unfavorite": "Remove from favorites",
     "favorite": "Add to favorites",
-    "openNewTab": "Open in a new tab"
+    "openNewTab": "Open in a new tab",
+    "moveTo": "Move to",
+    "addToFavorites": "Add to Favorites",
+    "copyLink": "Copy Link"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -113,6 +116,7 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
@@ -148,7 +152,11 @@
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar"
+    "openSidebar": "Open side bar",
+    "personal": "Personal",
+    "favorites": "Favorites",
+    "clickToHidePersonal": "Click to hide personal section",
+    "addAPage": "Add a page"
   },
   "notifications": {
     "export": {

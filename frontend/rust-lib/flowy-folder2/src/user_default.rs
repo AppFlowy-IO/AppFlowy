@@ -27,14 +27,7 @@ impl DefaultFolderBuilder {
 
     let views = workspace_view_builder.write().await.build();
     // Safe to unwrap because we have at least one view. check out the DocumentFolderOperation.
-    let first_view = views
-      .first()
-      .unwrap()
-      .child_views
-      .first()
-      .unwrap()
-      .parent_view
-      .clone();
+    let first_view = views.first().unwrap().parent_view.clone();
 
     let first_level_views = views
       .iter()

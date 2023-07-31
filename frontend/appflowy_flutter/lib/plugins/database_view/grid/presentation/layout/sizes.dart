@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 class GridSize {
   static double scale = 1;
 
-  static double get scrollBarSize => 12 * scale;
+  static double get scrollBarSize => 8 * scale;
   static double get headerHeight => 40 * scale;
   static double get footerHeight => 40 * scale;
   static double get leadingHeaderPadding => 50 * scale;

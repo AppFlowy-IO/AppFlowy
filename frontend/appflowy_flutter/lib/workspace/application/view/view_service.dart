@@ -150,6 +150,7 @@ class ViewBackendService {
     return FolderEventUpdateView(payload).send();
   }
 
+  // deprecated
   static Future<Either<Unit, FlowyError>> moveView({
     required String viewId,
     required int fromIndex,
@@ -161,6 +162,24 @@ class ViewBackendService {
       ..to = toIndex;
 
     return FolderEventMoveView(payload).send();
+  }
+
+  /// Move the view to the new parent view.
+  ///
+  /// supports nested view
+  /// if the [prevViewId] is null, the view will be moved to the beginning of the list
+  static Future<Either<Unit, FlowyError>> moveViewV2({
+    required String viewId,
+    required String newParentId,
+    required String? prevViewId,
+  }) {
+    final payload = MoveNestedViewPayloadPB(
+      viewId: viewId,
+      newParentId: newParentId,
+      prevViewId: prevViewId,
+    );
+
+    return FolderEventMoveNestedView(payload).send();
   }
 
   Future<List<(ViewPB, List<ViewPB>)>> fetchViewsWithLayoutType(

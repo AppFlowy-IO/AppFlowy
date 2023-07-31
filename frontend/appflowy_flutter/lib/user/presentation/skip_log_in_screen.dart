@@ -85,7 +85,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           ),
         ),
         const Spacer(),
-        const VSpace(48),
         const SkipLoginPageFooter(),
         const VSpace(20),
       ],
@@ -172,36 +171,48 @@ class SubscribeButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      alignment: WrapAlignment.center,
       children: [
-        FlowyText.regular(
-          LocaleKeys.youCanAlso.tr(),
-          fontSize: FontSizes.s12,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyText.regular(
+              LocaleKeys.youCanAlso.tr(),
+              fontSize: FontSizes.s12,
+            ),
+            FlowyTextButton(
+              LocaleKeys.githubStarText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              fontWeight: FontWeight.w500,
+              fontColor: Theme.of(context).colorScheme.primary,
+              hoverColor: Colors.transparent,
+              fillColor: Colors.transparent,
+              onPressed: () => _launchURL(
+                'https://github.com/AppFlowy-IO/appflowy',
+              ),
+            ),
+          ],
         ),
-        FlowyTextButton(
-          LocaleKeys.githubStarText.tr(),
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL(
-            'https://github.com/AppFlowy-IO/appflowy',
-          ),
-        ),
-        FlowyText.regular(
-          LocaleKeys.and.tr(),
-          fontSize: FontSizes.s12,
-        ),
-        FlowyTextButton(
-          LocaleKeys.subscribeNewsletterText.tr(),
-          overflow: TextOverflow.ellipsis,
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyText.regular(
+              LocaleKeys.and.tr(),
+              fontSize: FontSizes.s12,
+            ),
+            FlowyTextButton(
+              LocaleKeys.subscribeNewsletterText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              fontWeight: FontWeight.w500,
+              fontColor: Theme.of(context).colorScheme.primary,
+              hoverColor: Colors.transparent,
+              fillColor: Colors.transparent,
+              onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+            ),
+          ],
         ),
       ],
     );
@@ -224,43 +235,44 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-      builder: (context, state) {
-        return AppFlowyPopover(
-          offset: const Offset(0, -450),
-          direction: PopoverDirection.bottomWithRightAligned,
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            text: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const FlowySvg(
-                  name: 'login/language',
-                  size: Size.square(20),
-                ),
-                const HSpace(4),
-                FlowyText(
-                  languageFromLocale(state.locale),
-                ),
-                // const HSpace(4),
-                const FlowySvg(
-                  name: 'home/drop_down_hide',
-                  size: Size.square(20),
-                ),
-              ],
+    return AppFlowyPopover(
+      offset: const Offset(0, -450),
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const FlowySvg(
+              name: 'login/language',
+              size: Size.square(20),
             ),
-          ),
-          popupBuilder: (BuildContext context) {
-            final easyLocalization = EasyLocalization.of(context);
-            if (easyLocalization == null) {
-              return const SizedBox.shrink();
-            }
-            final allLocales = easyLocalization.supportedLocales;
-            return LanguageItemsListView(
-              allLocales: allLocales,
-            );
-          },
+            const HSpace(4),
+            Builder(
+              builder: (context) {
+                final currentLocale =
+                    context.watch<AppearanceSettingsCubit>().state.locale;
+                return FlowyText(
+                  languageFromLocale(currentLocale),
+                );
+              },
+            ),
+            const FlowySvg(
+              name: 'home/drop_down_hide',
+              size: Size.square(20),
+            ),
+          ],
+        ),
+      ),
+      popupBuilder: (BuildContext context) {
+        final easyLocalization = EasyLocalization.of(context);
+        if (easyLocalization == null) {
+          return const SizedBox.shrink();
+        }
+        final allLocales = easyLocalization.supportedLocales;
+        return LanguageItemsListView(
+          allLocales: allLocales,
         );
       },
     );

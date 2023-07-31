@@ -1,11 +1,16 @@
 import 'package:appflowy/plugins/trash/menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/favorite_header.dart';
+import 'dart:ui';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -26,35 +31,48 @@ extension CommonOperations on WidgetTester {
   }
 
   /// Tap the + button on the home page.
-  Future<void> tapAddButton() async {
-    final addButton = find.byType(AddButton);
-    await tapButton(addButton);
+  Future<void> tapAddViewButton({
+    String name = gettingStated,
+  }) async {
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        final addButton = find.byType(ViewAddButton);
+        await tapButton(addButton);
+      },
+    );
+  }
+
+  /// Tap the 'New Page' Button on the sidebar.
+  Future<void> tapNewPageButton() async {
+    final newPageButton = find.byType(SidebarNewPageButton);
+    await tapButton(newPageButton);
   }
 
   /// Tap the create document button.
   ///
-  /// Must call [tapAddButton] first.
+  /// Must call [tapAddViewButton] first.
   Future<void> tapCreateDocumentButton() async {
     await tapButtonWithName(LocaleKeys.document_menuName.tr());
   }
 
   /// Tap the create grid button.
   ///
-  /// Must call [tapAddButton] first.
+  /// Must call [tapAddViewButton] first.
   Future<void> tapCreateGridButton() async {
     await tapButtonWithName(LocaleKeys.grid_menuName.tr());
   }
 
   /// Tap the create grid button.
   ///
-  /// Must call [tapAddButton] first.
+  /// Must call [tapAddViewButton] first.
   Future<void> tapCreateCalendarButton() async {
     await tapButtonWithName(LocaleKeys.calendar_menuName.tr());
   }
 
   /// Tap the import button.
   ///
-  /// Must call [tapAddButton] first.
+  /// Must call [tapAddViewButton] first.
   Future<void> tapImportButton() async {
     await tapButtonWithName(LocaleKeys.moreAction_import.tr());
   }
@@ -118,6 +136,7 @@ extension CommonOperations on WidgetTester {
     Finder finder, {
     Offset? offset,
     Future<void> Function()? onHover,
+    bool removePointer = true,
   }) async {
     try {
       final gesture = await createGesture(kind: PointerDeviceKind.mouse);
@@ -135,19 +154,30 @@ extension CommonOperations on WidgetTester {
   /// Hover on the page name.
   Future<void> hoverOnPageName(
     String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
     Future<void> Function()? onHover,
     bool useLast = true,
   }) async {
+    final pageNames = findPageName(name, layout: layout);
     if (useLast) {
-      await hoverOnWidget(findPageName(name).last, onHover: onHover);
+      await hoverOnWidget(
+        pageNames.last,
+        onHover: onHover,
+      );
     } else {
-      await hoverOnWidget(findPageName(name).first, onHover: onHover);
+      await hoverOnWidget(
+        pageNames.first,
+        onHover: onHover,
+      );
     }
   }
 
   /// open the page with given name.
-  Future<void> openPage(String name) async {
-    final finder = findPageName(name);
+  Future<void> openPage(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+  }) async {
+    final finder = findPageName(name, layout: layout);
     expect(finder, findsOneWidget);
     await tapButton(finder);
   }
@@ -156,7 +186,7 @@ extension CommonOperations on WidgetTester {
   ///
   /// Must call [hoverOnPageName] first.
   Future<void> tapPageOptionButton() async {
-    final optionButton = find.byType(ViewDisclosureButton);
+    final optionButton = find.byType(ViewMoreActionButton);
     await tapButton(optionButton);
   }
 
@@ -170,6 +200,7 @@ extension CommonOperations on WidgetTester {
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.rename.name());
+    await tapButtonWithName(ViewMoreActionType.rename.name);
   }
 
   /// Rename the page.
@@ -226,12 +257,14 @@ extension CommonOperations on WidgetTester {
     await tapButton(markdownButton);
   }
 
-  Future<void> createNewPageWithName(
-    ViewLayoutPB layout, [
+  Future<void> createNewPageWithName({
     String? name,
-  ]) async {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    String? parentName,
+    bool openAfterCreated = true,
+  }) async {
     // create a new page
-    await tapAddButton();
+    await tapAddViewButton(name: parentName ?? gettingStated);
     await tapButtonWithName(layout.menuName);
     await pumpAndSettle();
 
@@ -239,10 +272,21 @@ extension CommonOperations on WidgetTester {
     if (name != null) {
       await hoverOnPageName(
         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        layout: layout,
         onHover: () async {
           await renamePage(name);
           await pumpAndSettle();
         },
+      );
+      await pumpAndSettle();
+    }
+
+    // open the page after created
+    if (openAfterCreated) {
+      await openPage(
+        // if the name is null, use the default name
+        name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+        layout: layout,
       );
       await pumpAndSettle();
     }
@@ -327,9 +371,34 @@ extension CommonOperations on WidgetTester {
   Future<void> openContextMenuOnRootView(String name) async {
     await hoverOnPageName(name);
     await tap(find.findTextInFlowyText(name), buttons: kSecondaryButton);
+  }
+  Future<void> movePageToOtherPage({
+    required String name,
+    required String parentName,
+    required ViewLayoutPB layout,
+    required ViewLayoutPB parentLayout,
+    DraggableHoverPosition position = DraggableHoverPosition.center,
+  }) async {
+    final from = findPageName(name, layout: layout);
+    final to = findPageName(parentName, layout: parentLayout);
+    final gesture = await startGesture(getCenter(from));
+    Offset offset = Offset.zero;
+    switch (position) {
+      case DraggableHoverPosition.center:
+        offset = getCenter(to);
+        break;
+      case DraggableHoverPosition.top:
+        offset = getTopLeft(to);
+        break;
+      case DraggableHoverPosition.bottom:
+        offset = getBottomLeft(to);
+        break;
+      default:
+    }
+    await gesture.moveTo(offset);
+    await gesture.up();
     await pumpAndSettle();
   }
-}
 
 extension ViewLayoutPBTest on ViewLayoutPB {
   String get menuName {
@@ -345,7 +414,7 @@ extension ViewLayoutPBTest on ViewLayoutPB {
       default:
         throw UnsupportedError('Unsupported layout: $this');
     }
-  }
+  }}
 
   String get referencedMenuName {
     switch (this) {

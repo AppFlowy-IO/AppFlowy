@@ -195,6 +195,7 @@ class FlowyTextButton extends StatelessWidget {
       highlightColor: Colors.transparent,
       elevation: 0,
       constraints: constraints,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       onPressed: () {},
       child: child,
     );
