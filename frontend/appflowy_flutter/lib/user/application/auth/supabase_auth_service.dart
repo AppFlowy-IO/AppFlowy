@@ -105,6 +105,9 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
+    if (!isSupabaseEnable) {
+      return _appFlowyAuthService.signUpWithOAuth(platform: platform);
+    }
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {

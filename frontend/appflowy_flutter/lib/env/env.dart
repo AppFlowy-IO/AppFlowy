@@ -1,4 +1,5 @@
 // lib/env/env.dart
+import 'package:appflowy/startup/startup.dart';
 import 'package:envied/envied.dart';
 
 part 'env.g.dart';
@@ -37,7 +38,13 @@ abstract class Env {
   static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
 }
 
-bool get isSupabaseEnable =>
-    Env.supabaseUrl.isNotEmpty &&
-    Env.supabaseAnonKey.isNotEmpty &&
-    Env.supabaseJwtSecret.isNotEmpty;
+bool get isSupabaseEnable {
+  // Only enable supabase in release and develop mode.
+  if (integrationEnv().isRelease || integrationEnv().isDevelop) {
+    return Env.supabaseUrl.isNotEmpty &&
+        Env.supabaseAnonKey.isNotEmpty &&
+        Env.supabaseJwtSecret.isNotEmpty;
+  } else {
+    return false;
+  }
+}
