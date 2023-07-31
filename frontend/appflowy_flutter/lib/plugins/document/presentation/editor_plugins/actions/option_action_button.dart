@@ -16,7 +16,7 @@ class OptionActionList extends StatelessWidget {
   }) : super(key: key);
 
   final BlockComponentContext blockComponentContext;
-  final BlockComponentState blockComponentState;
+  final BlockComponentActionState blockComponentState;
   final List<OptionAction> actions;
   final EditorState editorState;
 
@@ -102,10 +102,8 @@ class OptionActionList extends StatelessWidget {
       case OptionAction.moveDown:
         transaction.moveNode(node.path.next.next, node);
         break;
+      case OptionAction.align:
       case OptionAction.color:
-        // show the color picker
-
-        break;
       case OptionAction.divider:
         throw UnimplementedError();
     }

@@ -4,7 +4,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
+use collab_database::rows::{Cell, Row, RowDetail, RowId};
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -25,7 +25,7 @@ use crate::services::sort::{
 pub trait SortDelegate: Send + Sync {
   fn get_sort(&self, view_id: &str, sort_id: &str) -> Fut<Option<Arc<Sort>>>;
   /// Returns all the rows after applying grid's filter
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 }
@@ -82,19 +82,21 @@ impl SortController {
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
     let task_type = SortEvent::RowDidChanged(row_id);
-    self.gen_task(task_type, QualityOfService::Background).await;
+    if !self.sorts.is_empty() {
+      self.gen_task(task_type, QualityOfService::Background).await;
+    }
   }
 
-  #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
+  // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
-    let mut rows = self.delegate.get_rows(&self.view_id).await;
+    let mut row_details = self.delegate.get_rows(&self.view_id).await;
     match event_type {
-      SortEvent::SortDidChanged => {
-        self.sort_rows(&mut rows).await;
-        let row_orders = rows
+      SortEvent::SortDidChanged | SortEvent::DeleteAllSorts => {
+        self.sort_rows(&mut row_details).await;
+        let row_orders = row_details
           .iter()
-          .map(|row| row.id.to_string())
+          .map(|row_detail| row_detail.row.id.to_string())
           .collect::<Vec<String>>();
 
         let notification = ReorderAllRowsResult {
@@ -110,7 +112,7 @@ impl SortController {
       },
       SortEvent::RowDidChanged(row_id) => {
         let old_row_index = self.row_index_cache.get(&row_id).cloned();
-        self.sort_rows(&mut rows).await;
+        self.sort_rows(&mut row_details).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
         match (old_row_index, new_row_index) {
           (Some(old_row_index), Some(new_row_index)) => {
@@ -148,28 +150,31 @@ impl SortController {
     self.task_scheduler.write().await.add_task(task);
   }
 
-  pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn sort_rows(&mut self, rows: &mut Vec<Arc<RowDetail>>) {
     if self.sorts.is_empty() {
       return;
     }
 
-    let field_revs = self.delegate.get_fields(&self.view_id, None).await;
-    for sort in self.sorts.iter() {
-      rows.par_sort_by(|left, right| cmp_row(left, right, sort, &field_revs, &self.cell_cache));
+    let fields = self.delegate.get_fields(&self.view_id, None).await;
+    for sort in self.sorts.iter().rev() {
+      rows
+        .par_sort_by(|left, right| cmp_row(&left.row, &right.row, sort, &fields, &self.cell_cache));
     }
-    rows.iter().enumerate().for_each(|(index, row)| {
-      self.row_index_cache.insert(row.id.clone(), index);
+    rows.iter().enumerate().for_each(|(index, row_detail)| {
+      self
+        .row_index_cache
+        .insert(row_detail.row.id.clone(), index);
     });
   }
 
   pub async fn delete_all_sorts(&mut self) {
     self.sorts.clear();
     self
-      .gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+      .gen_task(SortEvent::DeleteAllSorts, QualityOfService::Background)
       .await;
   }
 
-  pub async fn did_update_view_field_type_option(&self, _field_rev: &Field) {
+  pub async fn did_update_field_type_option(&self, _field: &Field) {
     //
   }
 
@@ -229,41 +234,52 @@ impl SortController {
 }
 
 fn cmp_row(
-  left: &Arc<Row>,
-  right: &Arc<Row>,
+  left: &Row,
+  right: &Row,
   sort: &Arc<Sort>,
-  field_revs: &[Arc<Field>],
+  fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let order = match (
-    left.cells.get(&sort.field_id),
-    right.cells.get(&sort.field_id),
-  ) {
-    (Some(left_cell), Some(right_cell)) => {
-      let field_type = sort.field_type.clone();
-      match field_revs
-        .iter()
-        .find(|field_rev| field_rev.id == sort.field_id)
-      {
-        None => default_order(),
-        Some(field_rev) => cmp_cell(
-          left_cell,
-          right_cell,
-          field_rev,
-          field_type,
-          cell_data_cache,
-        ),
-      }
+  let field_type = sort.field_type.clone();
+  match fields
+    .iter()
+    .find(|field_rev| field_rev.id == sort.field_id)
+  {
+    None => default_order(),
+    Some(field_rev) => match (
+      left.cells.get(&sort.field_id),
+      right.cells.get(&sort.field_id),
+    ) {
+      (Some(left_cell), Some(right_cell)) => cmp_cell(
+        left_cell,
+        right_cell,
+        field_rev,
+        field_type,
+        cell_data_cache,
+        sort.condition,
+      ),
+      (Some(_), None) => {
+        if field_type.is_checkbox() {
+          match sort.condition {
+            SortCondition::Ascending => Ordering::Greater,
+            SortCondition::Descending => Ordering::Less,
+          }
+        } else {
+          Ordering::Less
+        }
+      },
+      (None, Some(_)) => {
+        if field_type.is_checkbox() {
+          match sort.condition {
+            SortCondition::Ascending => Ordering::Less,
+            SortCondition::Descending => Ordering::Greater,
+          }
+        } else {
+          Ordering::Greater
+        }
+      },
+      _ => default_order(),
     },
-    (Some(_), None) => Ordering::Greater,
-    (None, Some(_)) => Ordering::Less,
-    _ => default_order(),
-  };
-
-  // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
-  match sort.condition {
-    SortCondition::Ascending => order,
-    SortCondition::Descending => order.reverse(),
   }
 }
 
@@ -273,6 +289,7 @@ fn cmp_cell(
   field: &Arc<Field>,
   field_type: FieldType,
   cell_data_cache: &CellCache,
+  sort_condition: SortCondition,
 ) -> Ordering {
   match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)
@@ -280,7 +297,8 @@ fn cmp_cell(
     None => default_order(),
     Some(handler) => {
       let cal_order = || {
-        let order = handler.handle_cell_compare(left_cell, right_cell, field.as_ref());
+        let order =
+          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
         Option::<Ordering>::Some(order)
       };
 
@@ -292,6 +310,7 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
+  DeleteAllSorts,
 }
 
 impl ToString for SortEvent {

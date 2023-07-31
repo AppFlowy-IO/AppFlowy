@@ -1,104 +1,133 @@
-import { BlockType, HeadingBlockData, NestedBlock } from "@/appflowy_app/interfaces/document";
-import { useAppDispatch } from "@/appflowy_app/stores/store";
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { getBlockByIdThunk } from "$app_reducers/document/async-actions";
+import { BlockType, HeadingBlockData } from '@/appflowy_app/interfaces/document';
+import { useAppSelector } from '@/appflowy_app/stores/store';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
+import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
+import { getNode } from '$app/utils/document/node';
+import { get } from '$app/utils/tool';
 
-const headingBlockTopOffset: Record<number, number> = {
-  1: 7,
-  2: 6,
-  3: 3,
+const headingBlockTopOffset: Record<number, string> = {
+  1: '0.4rem',
+  2: '0.2rem',
+  3: '0.15rem',
 };
-export function useBlockSideToolbar({ container }: { container: HTMLDivElement }) {
-  const [nodeId, setHoverNodeId] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+
+export function useBlockSideToolbar(id: string) {
+  const { docId } = useSubscribeDocument();
+
+  const isDragging = useAppSelector((state) => {
+    return (
+      get(state, [RECT_RANGE_NAME, docId, 'isDragging'], false) ||
+      get(state, [RANGE_NAME, docId, 'isDragging'], false) ||
+      get(state, ['blockDraggable', 'dragging'], false)
+    );
+  });
   const ref = useRef<HTMLDivElement | null>(null);
-  const dispatch = useAppDispatch();
-  const [style, setStyle] = useState<React.CSSProperties>({});
+  const [opacity, setOpacity] = useState(0);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !nodeId) return;
-    void(async () => {
-      const{ payload: node } = await dispatch(getBlockByIdThunk(nodeId)) as {
-        payload: NestedBlock;
-      };
-      if (!node) {
-        setStyle({
-          opacity: '0',
-          pointerEvents: 'none',
-        });
-        return;
-      } else {
-        let top = 1;
+  const topOffset = useMemo(() => {
+    const block = getBlock(docId, id);
 
-        if (node.type === BlockType.HeadingBlock) {
-          const nodeData = node.data as HeadingBlockData;
-          top = headingBlockTopOffset[nodeData.level];
-        }
-
-        setStyle({
-          opacity: '1',
-          pointerEvents: 'auto',
-          top: `${top}px`,
-        });
-      }
-    })();
-
-  }, [dispatch, nodeId]);
-
-  const handleToggleMenu = useCallback((isOpen: boolean) => {
-    setMenuOpen(isOpen);
-    if (!isOpen) {
-      setHoverNodeId('');
+    if (!block) return 0;
+    if (block.type === BlockType.HeadingBlock) {
+      return headingBlockTopOffset[(block.data as HeadingBlockData).level];
     }
-  }, []);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const { clientX, clientY } = e;
-    const id = getNodeIdByPoint(clientX, clientY);
-    setHoverNodeId(id);
+    if (block.type === BlockType.DividerBlock) {
+      return -6;
+    }
+
+    return 0;
+  }, [docId, id]);
+
+  const onMouseMove = useCallback(
+    (e: Event) => {
+      if (isDragging) {
+        setOpacity(0);
+        return;
+      }
+
+      const target = (e.target as HTMLElement).closest('[data-block-id]');
+
+      if (!target) return;
+      const targetId = target.getAttribute('data-block-id');
+
+      if (targetId !== id) {
+        setOpacity(0);
+        return;
+      }
+
+      setOpacity(1);
+    },
+    [id, isDragging]
+  );
+
+  const onMouseLeave = useCallback(() => {
+    setOpacity(0);
   }, []);
 
   useEffect(() => {
-    container.addEventListener('mousemove', handleMouseMove);
+    const node = getNode(id);
+
+    if (!node) return;
+    node.addEventListener('mousemove', onMouseMove);
+    node.addEventListener('mouseleave', onMouseLeave);
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
+      node.removeEventListener('mousemove', onMouseMove);
+      node.removeEventListener('mouseleave', onMouseLeave);
     };
-  }, [container, handleMouseMove]);
+  }, [id, onMouseMove, onMouseLeave]);
 
   return {
-    nodeId,
     ref,
-    handleToggleMenu,
-    menuOpen,
-    style
+    opacity,
+    topOffset,
   };
 }
 
-function getNodeIdByPoint(x: number, y: number) {
-  const viewportNodes = document.querySelectorAll('[data-block-id]');
-  let node: {
-    el: Element;
-    rect: DOMRect;
-  } | null = null;
-  viewportNodes.forEach((el) => {
-    const rect = el.getBoundingClientRect();
+const transformOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'left',
+};
 
-    if (rect.x + rect.width - 1 >= x && rect.y + rect.height - 1 >= y && rect.y <= y) {
-      if (!node || rect.y > node.rect.y) {
-        node = {
-          el,
-          rect,
-        };
-      }
-    }
-  });
-  return node
-    ? (
-        node as {
-          el: Element;
-          rect: DOMRect;
-        }
-      ).el.getAttribute('data-block-id')
-    : null;
+export function usePopover() {
+  const [anchorPosition, setAnchorPosition] = React.useState<{
+    top: number;
+    left: number;
+  }>();
+
+  const onClose = useCallback(() => {
+    setAnchorPosition(undefined);
+  }, []);
+
+  const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setAnchorPosition({
+      top: rect.top + rect.height,
+      left: rect.left + rect.width,
+    });
+  }, []);
+
+  const open = Boolean(anchorPosition);
+
+  const onMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  }, []);
+
+  return {
+    anchorPosition,
+    onClose,
+    open,
+    handleOpen,
+    anchorReference: 'anchorPosition' as const,
+    transformOrigin,
+    onMouseDown,
+    disableRestoreFocus: true,
+    disableAutoFocus: true,
+    disableEnforceFocus: true,
+  };
 }

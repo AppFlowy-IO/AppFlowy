@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
@@ -14,8 +15,10 @@ void main() {
 
   test('create build-in kanban board test', () async {
     final context = await boardTest.createTestBoard();
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: DatabaseController(view: context.gridView),
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
     assert(boardBloc.groupControllers.values.length == 4);
@@ -24,8 +27,10 @@ void main() {
 
   test('edit kanban board field name test', () async {
     final context = await boardTest.createTestBoard();
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: DatabaseController(view: context.gridView),
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
     final fieldInfo = context.singleSelectFieldContext();
@@ -35,10 +40,9 @@ void main() {
     );
 
     final editorBloc = FieldEditorBloc(
-      viewId: context.gridView.id,
-      fieldName: fieldInfo.name,
       isGroupField: fieldInfo.isGroupField,
       loader: loader,
+      field: fieldInfo.field,
     )..add(const FieldEditorEvent.initial());
     await boardResponseFuture();
 
@@ -59,8 +63,10 @@ void main() {
 
   test('create a new field in kanban board test', () async {
     final context = await boardTest.createTestBoard();
-    final boardBloc = BoardBloc(view: context.gridView)
-      ..add(const BoardEvent.initial());
+    final boardBloc = BoardBloc(
+      view: context.gridView,
+      databaseController: DatabaseController(view: context.gridView),
+    )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
     await context.createField(FieldType.Checkbox);

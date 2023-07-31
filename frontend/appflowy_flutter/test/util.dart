@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -34,7 +34,10 @@ class AppFlowyUnitTest {
     SharedPreferences.setMockInitialValues({});
     _pathProviderInitialized();
 
-    await FlowyRunner.run(FlowyTestApp());
+    await FlowyRunner.run(
+      FlowyTestApp(),
+      IntegrationMode.unitTest,
+    );
 
     final test = AppFlowyUnitTest();
     await test._signIn();
@@ -54,12 +57,14 @@ class AppFlowyUnitTest {
       password: password,
       email: userEmail,
     );
-    return result.fold(
+    result.fold(
+      (error) {
+        assert(false, 'Error: $error');
+      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
       },
-      (error) {},
     );
   }
 
@@ -88,7 +93,7 @@ class AppFlowyUnitTest {
   }
 
   Future<List<ViewPB>> loadApps() async {
-    final result = await workspaceService.getApps();
+    final result = await workspaceService.getViews();
 
     return result.fold(
       (apps) => apps,
@@ -100,8 +105,9 @@ class AppFlowyUnitTest {
 void _pathProviderInitialized() {
   const MethodChannel channel =
       MethodChannel('plugins.flutter.io/path_provider');
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
-    return ".";
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+    return '.';
   });
 }
 

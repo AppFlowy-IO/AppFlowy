@@ -1,24 +1,34 @@
-import { useAppSelector } from '@/appflowy_app/stores/store';
-import { useMemo, useRef } from 'react';
-import { DocumentState, Node, RangeSelectionState } from '$app/interfaces/document';
-import { nodeInRange } from '$app/utils/document/blocks/common';
-import { getNodeEndSelection, selectionIsForward } from '$app/utils/document/blocks/text/delta';
+import { store, useAppSelector } from '@/appflowy_app/stores/store';
+import { createContext, useMemo } from 'react';
+import { Node } from '$app/interfaces/document';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { DOCUMENT_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 
 /**
  * Subscribe node information
  * @param id
  */
 export function useSubscribeNode(id: string) {
-  const node = useAppSelector<Node>((state) => state.document.nodes[id]);
+  const { docId } = useSubscribeDocument();
+
+  const node = useAppSelector<Node>((state) => {
+    const documentState = state[DOCUMENT_NAME][docId];
+
+    return documentState?.nodes[id];
+  });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
-    const childrenId = state.document.nodes[id]?.children;
+    const documentState = state[DOCUMENT_NAME][docId];
+
+    if (!documentState) return;
+    const childrenId = documentState.nodes[id]?.children;
+
     if (!childrenId) return;
-    return state.document.children[childrenId];
+    return documentState.children[childrenId];
   });
 
   const isSelected = useAppSelector<boolean>((state) => {
-    return state.documentRectSelection.includes(id) || false;
+    return state[RECT_RANGE_NAME][docId]?.selection.includes(id) || false;
   });
 
   // Memoize the node and its children
@@ -34,54 +44,8 @@ export function useSubscribeNode(id: string) {
   };
 }
 
-/**
- * Subscribe selection information
- * @param id
- */
-export function useSubscribeRangeSelection(id: string) {
-  const rangeRef = useRef<RangeSelectionState>();
-
-  const currentSelection = useAppSelector((state) => {
-    const range = state.documentRangeSelection;
-    rangeRef.current = range;
-    if (range.anchor?.id === id) {
-      return range.anchor.selection;
-    }
-    if (range.focus?.id === id) {
-      return range.focus.selection;
-    }
-    return getAmendInRangeNodeSelection(id, range, state.document);
-  });
-
-  return {
-    rangeRef,
-    currentSelection,
-  };
+export function getBlock(docId: string, id: string) {
+  return store.getState().document[docId]?.nodes[id];
 }
 
-function getAmendInRangeNodeSelection(id: string, range: RangeSelectionState, document: DocumentState) {
-  if (!range.anchor || !range.focus || range.anchor.id === range.focus.id) {
-    return null;
-  }
-  const isForward = selectionIsForward(range.anchor.selection);
-  const isNodeInRange = nodeInRange(
-    id,
-    {
-      startId: range.anchor.id,
-      endId: range.focus.id,
-    },
-    isForward,
-    document
-  );
-
-  if (isNodeInRange) {
-    const delta = document.nodes[id].data.delta;
-    return {
-      anchor: {
-        path: [0, 0],
-        offset: 0,
-      },
-      focus: getNodeEndSelection(delta).anchor,
-    };
-  }
-}
+export const NodeIdContext = createContext<string>('');

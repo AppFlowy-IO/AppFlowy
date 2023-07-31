@@ -10,7 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
-  Color make(BuildContext context) {
+  Color toColor(BuildContext context) {
     switch (this) {
       case SelectOptionColorPB.Purple:
         return AFThemeExtension.of(context).tint1;
@@ -82,7 +82,7 @@ class SelectOptionTag extends StatelessWidget {
   }) {
     return SelectOptionTag(
       name: option.name,
-      color: option.color.make(context),
+      color: option.color.toColor(context),
       onSelected: onSelected,
       onRemove: onRemove,
     );

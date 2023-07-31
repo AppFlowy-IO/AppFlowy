@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,7 +32,7 @@ class InitAppWidgetTask extends LaunchTask {
       EasyLocalization(
         supportedLocales: const [
           // In alphabetical order
-          Locale('ar', 'AR'),
+          Locale('ar', 'SA'),
           Locale('ca', 'ES'),
           Locale('de', 'DE'),
           Locale('en'),
@@ -79,8 +80,13 @@ class ApplicationWidget extends StatelessWidget {
     final cubit = AppearanceSettingsCubit(appearanceSetting)
       ..readLocaleWhenAppLaunch(context);
 
-    return BlocProvider(
-      create: (context) => cubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: cubit),
+        BlocProvider<DocumentAppearanceCubit>(
+          create: (_) => DocumentAppearanceCubit()..fetch(),
+        ),
+      ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
         builder: (context, state) => MaterialApp(
           builder: overlayManagerBuilder(),

@@ -1,9 +1,10 @@
 use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
+use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{UpdateUserProfileParams, UserProfile};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 
 #[derive(Default, ProtoBuf)]
@@ -18,7 +19,7 @@ pub struct UserSettingPB {
   pub(crate) user_folder: String,
 }
 
-#[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
+#[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
 pub struct UserProfilePB {
   #[pb(index = 1)]
   pub id: i64,
@@ -37,6 +38,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 6)]
   pub openai_key: String,
+
+  #[pb(index = 7)]
+  pub auth_type: AuthTypePB,
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
@@ -48,6 +52,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
+      auth_type: user_profile.auth_type.into(),
     }
   }
 }
@@ -71,6 +76,9 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
+
+  #[pb(index = 7)]
+  pub auth_type: AuthTypePB,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -138,6 +146,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
 
     Ok(UpdateUserProfileParams {
       id: self.id,
+      auth_type: self.auth_type.into(),
       name,
       email,
       password,
@@ -145,4 +154,54 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       openai_key,
     })
   }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedUserWorkspacePB {
+  #[pb(index = 1)]
+  pub items: Vec<UserWorkspacePB>,
+}
+
+impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
+  fn from(workspaces: Vec<UserWorkspace>) -> Self {
+    Self {
+      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct UserWorkspacePB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+}
+
+impl From<UserWorkspace> for UserWorkspacePB {
+  fn from(value: UserWorkspace) -> Self {
+    Self {
+      id: value.id,
+      name: value.name,
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct AddWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct RemoveWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }

@@ -1,8 +1,9 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
@@ -21,12 +22,20 @@ abstract class GridCellDelegate {
 }
 
 class GridDateCell extends GridCellWidget {
+  final bool editable;
+
+  /// The [GridDateCell] is used by Field Type [FieldType.DateTime],
+  /// [FieldType.CreatedTime], [FieldType.LastEditedTime]. So it needs
+  /// to know the field type.
+  final FieldType fieldType;
   final CellControllerBuilder cellControllerBuilder;
   late final DateCellStyle? cellStyle;
 
   GridDateCell({
     GridCellStyle? style,
+    required this.fieldType,
     required this.cellControllerBuilder,
+    this.editable = true,
     Key? key,
   }) : super(key: key) {
     if (style != null) {
@@ -63,35 +72,33 @@ class _DateCellState extends GridCellState<GridDateCell> {
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyPopover(
-            controller: _popover,
-            triggerActions: PopoverTriggerFlags.none,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(260, 500)),
-            margin: EdgeInsets.zero,
-            child: SizedBox.expand(
-              child: Align(
-                alignment: alignment,
-                child: Padding(
-                  padding: GridSize.cellContentInsets,
-                  child: FlowyText.medium(
-                    state.dateStr,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ),
-            popupBuilder: (BuildContext popoverContent) {
-              return DateCellEditor(
-                cellController:
-                    widget.cellControllerBuilder.build() as DateCellController,
-                onDismissed: () => widget.onCellEditing.value = false,
-              );
-            },
-            onClose: () {
-              widget.onCellEditing.value = false;
-            },
+          Widget dateTextWidget = GridDateCellText(
+            dateStr: state.dateStr,
+            alignment: alignment,
           );
+
+          // If the cell is editable, wrap it in a popover.
+          if (widget.editable) {
+            dateTextWidget = AppFlowyPopover(
+              controller: _popover,
+              triggerActions: PopoverTriggerFlags.none,
+              direction: PopoverDirection.bottomWithLeftAligned,
+              constraints: BoxConstraints.loose(const Size(260, 520)),
+              margin: EdgeInsets.zero,
+              child: dateTextWidget,
+              popupBuilder: (BuildContext popoverContent) {
+                return DateCellEditor(
+                  cellController: widget.cellControllerBuilder.build()
+                      as DateCellController,
+                  onDismissed: () => widget.onCellFocus.value = false,
+                );
+              },
+              onClose: () {
+                widget.onCellFocus.value = false;
+              },
+            );
+          }
+          return dateTextWidget;
         },
       ),
     );
@@ -106,9 +113,38 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   void requestBeginFocus() {
     _popover.show();
-    widget.onCellEditing.value = true;
+
+    if (widget.editable) {
+      widget.onCellFocus.value = true;
+    }
   }
 
   @override
   String? onCopy() => _cellBloc.state.dateStr;
+}
+
+class GridDateCellText extends StatelessWidget {
+  final String dateStr;
+  final Alignment alignment;
+  const GridDateCellText({
+    required this.dateStr,
+    required this.alignment,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: GridSize.cellContentInsets,
+          child: FlowyText.medium(
+            dateStr,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    );
+  }
 }

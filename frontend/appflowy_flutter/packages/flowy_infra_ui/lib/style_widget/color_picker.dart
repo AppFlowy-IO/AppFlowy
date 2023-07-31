@@ -2,8 +2,8 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class ColorOption {
-  const ColorOption({
+class FlowyColorOption {
+  const FlowyColorOption({
     required this.color,
     required this.name,
   });
@@ -13,12 +13,13 @@ class ColorOption {
 }
 
 class FlowyColorPicker extends StatelessWidget {
-  final List<ColorOption> colors;
+  final List<FlowyColorOption> colors;
   final Color? selected;
   final Function(Color color, int index)? onTap;
   final double separatorSize;
   final double iconSize;
   final double itemHeight;
+  final Border? border;
 
   const FlowyColorPicker({
     Key? key,
@@ -28,6 +29,7 @@ class FlowyColorPicker extends StatelessWidget {
     this.separatorSize = 4,
     this.iconSize = 16,
     this.itemHeight = 32,
+    this.border,
   }) : super(key: key);
 
   @override
@@ -46,7 +48,10 @@ class FlowyColorPicker extends StatelessWidget {
     );
   }
 
-  Widget _buildColorOption(ColorOption option, int i) {
+  Widget _buildColorOption(
+    FlowyColorOption option,
+    int i,
+  ) {
     Widget? checkmark;
     if (selected == option.color) {
       checkmark = svgWidget("grid/checkmark");
@@ -58,6 +63,7 @@ class FlowyColorPicker extends StatelessWidget {
         decoration: BoxDecoration(
           color: option.color,
           shape: BoxShape.circle,
+          // border: border,
         ),
       ),
     );

@@ -6,57 +6,79 @@ on:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/integration_test.yml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
       - "main"
       - "release/*"
     paths:
-      - "frontend/appflowy_flutter/**"
+      - ".github/workflows/integration_test.yml"
+      - "frontend/**"
+      - "!frontend/appflowy_tauri/**"
 
 env:
   CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.10.1"
+  RUST_TOOLCHAIN: "1.70"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  tests:
+  build:
+    if: github.event.pull_request.draft != true
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: "stable-2022-04-07"
+      - name: Checkout source code
+        uses: actions/checkout@v2
 
-      - uses: subosito/flutter-action@v2
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: ${{ matrix.target }}
+          override: true
+          profile: minimal
+
+      - name: Install flutter
+        id: flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.7.5"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - name: Cache Cargo
-        uses: actions/cache@v2
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          prefix-key: ${{ matrix.os }}
+          workspaces: |
+            frontend/rust-lib
+          cache-all-crates: true
 
-      - name: Cache Rust
-        id: cache-rust-target
-        uses: actions/cache@v2
+      - uses: davidB/rust-cargo-make@v1
         with:
-          path: |
-            frontend/rust-lib/target
-            shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+          version: '0.36.6'
 
-      - name: Setup Environment
+      - name: Install prerequisites
+        working-directory: frontend
         run: |
-          cargo install --force cargo-make
           cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
@@ -69,57 +91,50 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
+          cargo make appflowy-flutter-deps-tools
         shell: bash
 
-      - if: steps.cache-cargo.outputs.cache-hit != 'true'
-        name: Rust Deps
-        working-directory: frontend
-        run: |
-          cargo install cargo-make
-          cargo make appflowy-flutter-deps-tools
-
-      - name: Config Flutter
+      - name: Enable Flutter Desktop
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             flutter config --enable-linux-desktop
           elif [ "$RUNNER_OS" == "macOS" ]; then
             flutter config --enable-macos-desktop
           elif [ "$RUNNER_OS" == "Windows" ]; then
+            git config --system core.longpaths true
             flutter config --enable-windows-desktop
           fi
         shell: bash
 
-      - name: Build Test lib
+      - name: Build AppFlowy
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            cargo make --profile development-linux-x86_64 appflowy-dev
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make --profile development-mac-x86_64 appflowy-dev
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            cargo make --profile development-windows-x86 appflowy-dev
-          fi
-        shell: bash
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
 
-      - name: Run AppFlowy tests
+      - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             export DISPLAY=:99
             sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
             sudo apt-get install network-manager
-            flutter test integration_test/runner.dart -d Linux --coverage --verbose
+            flutter test integration_test/runner.dart -d Linux --coverage
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            flutter test integration_test/runner.dart -d macOS --coverage --verbose
+            flutter test integration_test/runner.dart -d macOS --coverage
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            flutter test integration_test/runner.dart -d Windows --coverage --verbose
+            flutter test integration_test/runner.dart -d Windows --coverage
           fi
         shell: bash
 
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     name: appflowy
-      #     flags: appflowy
-      #     env_vars: ${{ matrix.os }}
-      #     fail_ci_if_error: true
-      #     verbose: true
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@v1.0.36
+        with:
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_integrateion_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+          attempt_limit: 20
+          attempt_delay: 10000

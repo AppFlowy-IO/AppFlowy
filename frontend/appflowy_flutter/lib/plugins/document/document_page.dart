@@ -1,22 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
+    hide DocumentEvent;
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 class DocumentPage extends StatefulWidget {
@@ -63,7 +67,13 @@ class _DocumentPageState extends State<DocumentPage> {
           return state.loadingState.when(
             loading: () => const SizedBox.shrink(),
             finish: (result) => result.fold(
-              (error) => FlowyErrorPage(error.toString()),
+              (error) {
+                Log.error(error);
+                return FlowyErrorPage.message(
+                  error.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                );
+              },
               (data) {
                 if (state.forceClose) {
                   widget.onDeleted();
@@ -89,6 +99,10 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
       editorState: editorState!,
+      styleCustomizer: EditorStyleCustomizer(
+        context: context,
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+      ),
       header: _buildCoverAndIcon(context),
     );
     return Column(
@@ -113,13 +127,13 @@ class _DocumentPageState extends State<DocumentPage> {
       return const Placeholder();
     }
     final page = editorState!.document.root;
-    return CoverImageNodeWidget(
+    return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
     );
   }
 
-  Future<void> _exportPage(DocumentDataPB2 data) async {
+  Future<void> _exportPage(DocumentDataPB data) async {
     final picker = getIt<FilePickerService>();
     final dir = await picker.getDirectoryPath();
     if (dir == null) {

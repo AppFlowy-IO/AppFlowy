@@ -92,7 +92,7 @@ impl std::convert::From<SortConditionPB> for SortCondition {
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct AlterSortPayloadPB {
+pub struct UpdateSortPayloadPB {
   #[pb(index = 1)]
   pub view_id: String,
 
@@ -110,10 +110,10 @@ pub struct AlterSortPayloadPB {
   pub condition: SortConditionPB,
 }
 
-impl TryInto<AlterSortParams> for AlterSortPayloadPB {
+impl TryInto<UpdateSortParams> for UpdateSortPayloadPB {
   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<AlterSortParams, Self::Error> {
+  fn try_into(self) -> Result<UpdateSortParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
       .0;
@@ -131,7 +131,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
       ),
     };
 
-    Ok(AlterSortParams {
+    Ok(UpdateSortParams {
       view_id,
       field_id,
       sort_id,
@@ -142,7 +142,7 @@ impl TryInto<AlterSortParams> for AlterSortPayloadPB {
 }
 
 #[derive(Debug)]
-pub struct AlterSortParams {
+pub struct UpdateSortParams {
   pub view_id: String,
   pub field_id: String,
   /// Create a new sort if the sort is None
@@ -178,7 +178,7 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
       .0;
 
     let sort_id = NotEmptyStr::parse(self.sort_id)
-      .map_err(|_| ErrorCode::UnexpectedEmptyString)?
+      .map_err(|_| ErrorCode::UnexpectedEmpty)?
       .0;
 
     let sort_type = SortType {

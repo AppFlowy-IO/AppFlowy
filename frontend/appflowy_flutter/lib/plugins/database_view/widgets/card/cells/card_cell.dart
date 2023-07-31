@@ -106,7 +106,7 @@ class EditableRowNotifier {
       : isEditing = ValueNotifier(isEditing);
 
   void bindCell(
-    CellIdentifier cellIdentifier,
+    DatabaseCellContext cellIdentifier,
     EditableCardNotifier notifier,
   ) {
     assert(
@@ -157,7 +157,7 @@ class EditableRowNotifier {
   }
 }
 
-abstract class EditableCell {
+abstract mixin class EditableCell {
   // Each cell notifier will be bind to the [EditableRowNotifier], which enable
   // the row notifier receive its cells event. For example: begin editing the
   // cell or end editing the cell.
@@ -171,7 +171,8 @@ class EditableCellId {
 
   EditableCellId(this.rowId, this.fieldId);
 
-  factory EditableCellId.from(CellIdentifier cellIdentifier) => EditableCellId(
+  factory EditableCellId.from(DatabaseCellContext cellIdentifier) =>
+      EditableCellId(
         cellIdentifier.rowId,
         cellIdentifier.fieldId,
       );

@@ -1,42 +1,32 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../workspace/application/settings/settings_location_cubit.dart';
 import 'deps_resolver.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
 
-// [[diagram: flowy startup flow]]
-//                   ┌──────────┐
-//                   │ FlowyApp │
-//                   └──────────┘
-//                         │  impl
-//                         ▼
-// ┌────────┐  1.run ┌──────────┐
-// │ System │───┬───▶│EntryPoint│
-// └────────┘   │    └──────────┘         ┌─────────────────┐
-//              │                    ┌──▶ │ RustSDKInitTask │
-//              │    ┌───────────┐   │    └─────────────────┘
-//              └──▶ │AppLauncher│───┤
-//        2.launch   └───────────┘   │    ┌─────────────┐         ┌──────────────────┐      ┌───────────────┐
-//                                   └───▶│AppWidgetTask│────────▶│ApplicationWidget │─────▶│ SplashScreen  │
-//                                        └─────────────┘         └──────────────────┘      └───────────────┘
-//
-//                                                 3.build MaterialApp
 final getIt = GetIt.instance;
 
 abstract class EntryPoint {
   Widget create(LaunchConfiguration config);
 }
 
+class FlowyRunnerContext {
+  final Directory applicationDataDirectory;
+
+  FlowyRunnerContext({required this.applicationDataDirectory});
+}
+
 class FlowyRunner {
-  static Future<void> run(
-    EntryPoint f, {
+  static Future<FlowyRunnerContext> run(
+    EntryPoint f,
+    IntegrationMode mode, {
     LaunchConfiguration config = const LaunchConfiguration(
       autoRegistrationSupported: false,
     ),
@@ -45,38 +35,44 @@ class FlowyRunner {
     await getIt.reset();
 
     // Specify the env
-    final env = integrationEnv();
-    initGetIt(getIt, env, f, config);
+    initGetIt(getIt, mode, f, config);
 
-    final directory = getIt<SettingsLocationCubit>()
-        .fetchLocation()
-        .then((value) => Directory(value));
+    final applicationDataDirectory =
+        await getIt<ApplicationDataStorage>().getPath().then(
+              (value) => Directory(value),
+            );
 
     // add task
     final launcher = getIt<AppLauncher>();
     launcher.addTasks(
       [
-        // handle platform errors.
-        const PlatformErrorCatcherTask(),
+        // this task should be first task, for handling platform errors.
+        // don't catch errors in test mode
+        if (!mode.isUnitTest) const PlatformErrorCatcherTask(),
         // localization
         const InitLocalizationTask(),
         // init the app window
         const InitAppWindowTask(),
         // Init Rust SDK
-        InitRustSDKTask(directory: directory),
+        InitRustSDKTask(directory: applicationDataDirectory),
         // Load Plugins, like document, grid ...
         const PluginLoadTask(),
 
         // init the app widget
         // ignore in test mode
-        if (!env.isTest()) ...[
+        if (!mode.isUnitTest) ...[
           const HotKeyTask(),
+          InitSupabaseTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],
       ],
     );
     await launcher.launch(); // execute the tasks
+
+    return FlowyRunnerContext(
+      applicationDataDirectory: applicationDataDirectory,
+    );
   }
 }
 
@@ -101,7 +97,7 @@ Future<void> initGetIt(
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await DependencyResolver.resolve(getIt);
+  await DependencyResolver.resolve(getIt, env);
 }
 
 class LaunchContext {
@@ -152,18 +148,24 @@ class AppLauncher {
 enum IntegrationMode {
   develop,
   release,
-  test,
-}
+  unitTest,
+  integrationTest;
 
-extension IntegrationEnvExt on IntegrationMode {
-  bool isTest() {
-    return this == IntegrationMode.test;
-  }
+  // test mode
+  bool get isTest => isUnitTest || isIntegrationTest;
+  bool get isUnitTest => this == IntegrationMode.unitTest;
+  bool get isIntegrationTest => this == IntegrationMode.integrationTest;
+
+  // release mode
+  bool get isRelease => this == IntegrationMode.release;
+
+  // develop mode
+  bool get isDevelop => this == IntegrationMode.develop;
 }
 
 IntegrationMode integrationEnv() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
-    return IntegrationMode.test;
+    return IntegrationMode.unitTest;
   }
 
   if (kReleaseMode) {

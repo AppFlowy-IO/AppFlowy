@@ -57,9 +57,6 @@ pub enum ErrorCode {
   #[error("View name too long")]
   ViewNameTooLong = 17,
 
-  #[error("Http server connection error")]
-  HttpServerConnectError = 18,
-
   #[error("Email can not be empty or whitespace")]
   EmailIsEmpty = 19,
 
@@ -149,11 +146,8 @@ pub enum ErrorCode {
   #[error("Invalid date time format")]
   InvalidDateTimeFormat = 47,
 
-  #[error("The input string is empty or contains invalid characters")]
-  UnexpectedEmptyString = 48,
-
-  #[error("Invalid data")]
-  InvalidData = 49,
+  #[error("Invalid params")]
+  InvalidParams = 49,
 
   #[error("Serde")]
   Serde = 50,
@@ -182,17 +176,50 @@ pub enum ErrorCode {
   #[error("Sql error")]
   SqlError = 58,
 
-  #[error("Http request error")]
+  #[error("Http error")]
   HttpError = 59,
 
-  #[error("Payload should not be empty")]
-  UnexpectedEmptyPayload = 60,
+  #[error("The content should not be empty")]
+  UnexpectedEmpty = 60,
 
   #[error("Only the date type can be used in calendar")]
   UnexpectedCalendarFieldType = 61,
 
   #[error("Document Data Invalid")]
   DocumentDataInvalid = 62,
+
+  #[error("Unsupported auth type")]
+  UnsupportedAuthType = 63,
+
+  #[error("Invalid auth configuration")]
+  InvalidAuthConfig = 64,
+
+  #[error("Missing auth field")]
+  MissingAuthField = 65,
+
+  #[error("Only one application can access the database")]
+  MultipleDBInstance = 66,
+
+  #[error("Document id is empty")]
+  DocumentIdIsEmpty = 67,
+
+  #[error("Apply actions is empty")]
+  ApplyActionsIsEmpty = 68,
+
+  #[error("Connect postgres database failed")]
+  PgConnectError = 69,
+
+  #[error("Postgres database error")]
+  PgDatabaseError = 70,
+
+  #[error("Postgres transaction error")]
+  PgTransactionError = 71,
+
+  #[error("Enable supabase sync")]
+  SupabaseSyncRequired = 72,
+
+  #[error("Conflict")]
+  Conflict = 73,
 }
 
 impl ErrorCode {

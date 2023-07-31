@@ -1,7 +1,7 @@
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_customize_location_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../../../application/settings/settings_location_cubit.dart';
 
 class SettingsFileSystemView extends StatefulWidget {
   const SettingsFileSystemView({
@@ -13,23 +13,19 @@ class SettingsFileSystemView extends StatefulWidget {
 }
 
 class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
-  final _locationCubit = SettingsLocationCubit()..fetchLocation();
+  late final _items = [
+    const SettingsFileLocationCustomizer(),
+    // disable export data for v0.2.0 in release mode.
+    if (kDebugMode) const SettingsExportFileWidget()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return SettingsFileLocationCustomzier(
-            cubit: _locationCubit,
-          );
-        } else if (index == 1) {
-          // return _buildExportDatabaseButton();
-        }
-        return Container();
-      },
+      shrinkWrap: true,
+      itemBuilder: (context, index) => _items[index],
       separatorBuilder: (context, index) => const Divider(),
-      itemCount: 2, // make the divider taking effect.
+      itemCount: _items.length,
     );
   }
 }

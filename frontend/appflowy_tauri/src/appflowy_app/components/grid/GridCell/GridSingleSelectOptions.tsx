@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { CellOptions } from '$app/components/_shared/EditRow/CellOptions';
+import { CellOptions } from '$app/components/_shared/EditRow/Options/CellOptions';
 import { CellIdentifier } from '@/appflowy_app/stores/effects/database/cell/cell_bd_svc';
 import { CellCache } from '@/appflowy_app/stores/effects/database/cell/cell_cache';
 import { FieldController } from '@/appflowy_app/stores/effects/database/field/field_controller';
 import { useCell } from '$app/components/_shared/database-hooks/useCell';
-import { CellOptionsPopup } from '$app/components/_shared/EditRow/CellOptionsPopup';
-import { EditCellOptionPopup } from '$app/components/_shared/EditRow/EditCellOptionPopup';
+import { CellOptionsPopup } from '$app/components/_shared/EditRow/Options/CellOptionsPopup';
+import { EditCellOptionPopup } from '$app/components/_shared/EditRow/Options/EditCellOptionPopup';
 import { SelectOptionCellDataPB, SelectOptionPB } from '@/services/backend';
 
 export default function GridSingleSelectOptions({

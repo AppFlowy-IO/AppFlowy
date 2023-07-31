@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 import '../../row/cell_builder.dart';
 import '../bloc/text_card_cell_bloc.dart';
 import '../define.dart';
@@ -108,7 +107,7 @@ class _TextCardCellState extends State<TextCardCell> {
           },
           builder: (context, state) {
             // Returns a custom render widget
-            Widget? custom = widget.renderHook?.call(
+            final Widget? custom = widget.renderHook?.call(
               state.content,
               widget.cardData,
               context,
@@ -178,7 +177,10 @@ class _TextCardCellState extends State<TextCardCell> {
         onChanged: (value) => focusChanged(),
         onEditingComplete: () => focusNode.unfocus(),
         maxLines: null,
-        style: Theme.of(context).textTheme.bodyMedium!.size(_fontSize()),
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium!
+            .copyWith(fontSize: _fontSize()),
         decoration: InputDecoration(
           // Magic number 4 makes the textField take up the same space as FlowyText
           contentPadding: EdgeInsets.symmetric(

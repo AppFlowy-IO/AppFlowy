@@ -13,9 +13,6 @@ pub struct NumberTypeOptionPB {
   #[pb(index = 3)]
   pub symbol: String,
 
-  #[pb(index = 4)]
-  pub sign_positive: bool,
-
   #[pb(index = 5)]
   pub name: String,
 }
@@ -26,7 +23,6 @@ impl From<NumberTypeOption> for NumberTypeOptionPB {
       format: data.format.into(),
       scale: data.scale,
       symbol: data.symbol,
-      sign_positive: data.sign_positive,
       name: data.name,
     }
   }
@@ -38,14 +34,14 @@ impl From<NumberTypeOptionPB> for NumberTypeOption {
       format: data.format.into(),
       scale: data.scale,
       symbol: data.symbol,
-      sign_positive: data.sign_positive,
       name: data.name,
     }
   }
 }
 
-#[derive(Clone, Copy, Debug, ProtoBuf_Enum)]
+#[derive(Clone, Copy, Debug, ProtoBuf_Enum, Default)]
 pub enum NumberFormatPB {
+  #[default]
   Num = 0,
   USD = 1,
   CanadianDollar = 2,
@@ -82,12 +78,6 @@ pub enum NumberFormatPB {
   ArgentinePeso = 34,
   UruguayanPeso = 35,
   Percent = 36,
-}
-
-impl std::default::Default for NumberFormatPB {
-  fn default() -> Self {
-    NumberFormatPB::Num
-  }
 }
 
 impl From<NumberFormat> for NumberFormatPB {

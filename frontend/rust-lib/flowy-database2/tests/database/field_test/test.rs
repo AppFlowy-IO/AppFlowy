@@ -30,6 +30,16 @@ async fn grid_create_field() {
     },
   ];
   test.run_scripts(scripts).await;
+
+  let (params, field) = create_date_field(&test.view_id(), FieldType::CreatedTime);
+  let scripts = vec![
+    CreateField { params },
+    AssertFieldTypeOptionEqual {
+      field_index: test.field_count(),
+      expected_type_option_data: field.get_any_type_option(field.field_type).unwrap(),
+    },
+  ];
+  test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -218,30 +228,6 @@ async fn grid_switch_from_checkbox_to_text_test() {
       row_index: 2,
       from_field_type: FieldType::Checkbox,
       expected_content: "No".to_string(),
-    },
-  ];
-  test.run_scripts(scripts).await;
-}
-
-// Test when switching the current field from Checkbox to Text test
-// input:
-//      "Yes" -> check
-//      "" -> unchecked
-#[tokio::test]
-async fn grid_switch_from_text_to_checkbox_test() {
-  let mut test = DatabaseFieldTest::new().await;
-  let field = test.get_first_field(FieldType::RichText).clone();
-
-  let scripts = vec![
-    SwitchToField {
-      field_id: field.id.clone(),
-      new_field_type: FieldType::Checkbox,
-    },
-    AssertCellContent {
-      field_id: field.id.clone(),
-      row_index: 0,
-      from_field_type: FieldType::RichText,
-      expected_content: "".to_string(),
     },
   ];
   test.run_scripts(scripts).await;

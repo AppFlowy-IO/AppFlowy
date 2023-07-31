@@ -9,17 +9,16 @@ import { EarthSvg } from '../../_shared/svg/EarthSvg';
 import { useState } from 'react';
 import { LanguageSelectPopup } from '../../_shared/LanguageSelectPopup';
 
-
 export const Login = () => {
   const { showPassword, onTogglePassword, onSignInClick, email, setEmail, password, setPassword, authError } =
     useLogin();
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   return (
     <>
       <form onSubmit={(e) => e.preventDefault()} method='POST'>
-        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 text-center'>
+        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 bg-bg-body text-center text-text-title'>
           <div className='flex h-10 w-10 justify-center'>
             <AppflowyLogo />
           </div>
@@ -34,17 +33,17 @@ export const Login = () => {
             <input
               type='text'
               className={`input w-full ${authError && 'error'}`}
-              placeholder={t('signIn.emailHint') || ''}
+              placeholder={t('signIn.emailHint') ?? ''}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <div className='relative w-full'>
               {/* Password input field */}
-              
+
               <input
                 type={showPassword ? 'text' : 'password'}
                 className={`input w-full  !pr-10 ${authError && 'error'}`}
-                placeholder={t('signIn.passwordHint') || ''}
+                placeholder={t('signIn.passwordHint') ?? ''}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -62,7 +61,7 @@ export const Login = () => {
             <div className='flex justify-center'>
               {/* Forget password link */}
               <Link to={'/auth/confirm-account'}>
-                <span className='text-xs text-main-accent hover:text-main-hovered'>{t('signIn.forgotPassword')}</span>
+                <span className='text-xs text-fill-default hover:text-fill-hover'>{t('signIn.forgotPassword')}</span>
               </Link>
             </div>
           </div>
@@ -77,7 +76,7 @@ export const Login = () => {
               <span className='text-xs text-gray-400'>
                 {t('signIn.dontHaveAnAccount')}
                 <Link to={'/auth/signUp'}>
-                  <span className='ml-2 text-main-accent hover:text-main-hovered'>{t('signUp.buttonText')}</span>
+                  <span className='ml-2 text-fill-default hover:text-fill-hover'>{t('signUp.buttonText')}</span>
                 </Link>
               </span>
             </div>
@@ -85,7 +84,10 @@ export const Login = () => {
 
           <div className={'absolute right-0 top-0 px-12 py-8'}>
             <div className={'relative h-full w-full'}>
-              <button className={'h-8 w-8 text-shade-3 hover:text-black'} onClick={() => setShowLanguagePopup(true)}>
+              <button
+                className={'h-8 w-8 text-text-caption hover:text-text-title'}
+                onClick={() => setShowLanguagePopup(true)}
+              >
                 <EarthSvg></EarthSvg>
               </button>
               {showLanguagePopup && (

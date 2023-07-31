@@ -60,7 +60,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
   required TypeOptionController dataController,
   required PopoverMutex popoverMutex,
 }) {
-  final viewId = dataController.viewId;
+  final viewId = dataController.loader.viewId;
   final fieldType = dataController.field.fieldType;
 
   switch (dataController.field.fieldType) {
@@ -73,6 +73,8 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
         ),
       );
     case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       return DateTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<DateTypeOptionPB>(
           viewId: viewId,
@@ -144,9 +146,8 @@ TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
 }) {
   final loader = FieldTypeOptionLoader(viewId: viewId, field: fieldInfo.field);
   final dataController = TypeOptionController(
-    viewId: viewId,
     loader: loader,
-    fieldInfo: fieldInfo,
+    field: fieldInfo.field,
   );
   return makeTypeOptionContextWithDataController(
     viewId: viewId,
@@ -178,8 +179,8 @@ TypeOptionContext<T> makeSelectTypeOptionContext<T extends GeneratedMessage>({
     field: fieldPB,
   );
   final dataController = TypeOptionController(
-    viewId: viewId,
     loader: loader,
+    field: fieldPB,
   );
   final typeOptionContext = makeTypeOptionContextWithDataController<T>(
     viewId: viewId,
@@ -202,6 +203,8 @@ TypeOptionContext<T>
         dataParser: CheckboxTypeOptionWidgetDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
       return DateTypeOptionContext(
         dataController: dataController,
         dataParser: DateTypeOptionDataParser(),

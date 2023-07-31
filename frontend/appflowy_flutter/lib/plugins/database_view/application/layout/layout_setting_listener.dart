@@ -8,15 +8,15 @@ import 'package:dartz/dartz.dart';
 
 typedef LayoutSettingsValue<T> = Either<T, FlowyError>;
 
-class DatabaseLayoutListener {
+class DatabaseLayoutSettingListener {
   final String viewId;
-  PublishNotifier<LayoutSettingsValue<LayoutSettingPB>>? _settingNotifier =
-      PublishNotifier();
+  PublishNotifier<LayoutSettingsValue<DatabaseLayoutSettingPB>>?
+      _settingNotifier = PublishNotifier();
   DatabaseNotificationListener? _listener;
-  DatabaseLayoutListener(this.viewId);
+  DatabaseLayoutSettingListener(this.viewId);
 
   void start({
-    required void Function(LayoutSettingsValue<LayoutSettingPB>)
+    required void Function(LayoutSettingsValue<DatabaseLayoutSettingPB>)
         onLayoutChanged,
   }) {
     _settingNotifier?.addPublishListener(onLayoutChanged);
@@ -34,7 +34,7 @@ class DatabaseLayoutListener {
       case DatabaseNotification.DidUpdateLayoutSettings:
         result.fold(
           (payload) => _settingNotifier?.value =
-              left(LayoutSettingPB.fromBuffer(payload)),
+              left(DatabaseLayoutSettingPB.fromBuffer(payload)),
           (error) => _settingNotifier?.value = right(error),
         );
         break;

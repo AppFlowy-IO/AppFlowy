@@ -14,7 +14,8 @@ export const BoardSettingsPopup = ({
   onGroupClick: () => void;
 }) => {
   const [settingsItems, setSettingsItems] = useState<IPopupItem[]>([]);
-  const { t } = useTranslation('');
+  const { t } = useTranslation();
+
   useEffect(() => {
     setSettingsItems([
       {
@@ -23,7 +24,7 @@ export const BoardSettingsPopup = ({
             <PropertiesSvg></PropertiesSvg>
           </i>
         ),
-        title: t('grid.settings.Properties'),
+        title: t('grid.settings.properties'),
         onClick: onFieldsClick,
       },
       {
@@ -42,7 +43,7 @@ export const BoardSettingsPopup = ({
     <PopupSelect
       onOutsideClick={() => hidePopup()}
       items={settingsItems}
-      className={'absolute top-full left-full z-10 text-xs'}
+      className={'absolute left-full top-full z-10 text-xs'}
     ></PopupSelect>
   );
 };

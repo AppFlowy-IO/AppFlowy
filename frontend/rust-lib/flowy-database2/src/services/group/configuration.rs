@@ -1,18 +1,21 @@
-use crate::entities::{GroupChangesetPB, GroupPB, InsertedGroupPB};
-use crate::services::field::RowSingleCellData;
-use crate::services::group::{
-  default_group_setting, GeneratedGroupContext, Group, GroupData, GroupSetting,
-};
-use collab_database::fields::Field;
-use flowy_error::{FlowyError, FlowyResult};
-use indexmap::IndexMap;
-use lib_infra::future::Fut;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
+
+use collab_database::fields::Field;
+use indexmap::IndexMap;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::future::Fut;
+
+use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
+use crate::services::field::RowSingleCellData;
+use crate::services::group::{
+  default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
+};
 
 pub trait GroupSettingReader: Send + Sync + 'static {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
@@ -25,7 +28,7 @@ pub trait GroupSettingWriter: Send + Sync + 'static {
 
 impl<T> std::fmt::Display for GroupContext<T> {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    self.groups_map.iter().for_each(|(_, group)| {
+    self.group_by_id.iter().for_each(|(_, group)| {
       let _ = f.write_fmt(format_args!(
         "Group:{} has {} rows \n",
         group.id,
@@ -54,8 +57,9 @@ pub struct GroupContext<C> {
   /// The grouping field
   field: Arc<Field>,
 
-  /// Cache all the groups
-  groups_map: IndexMap<String, GroupData>,
+  /// Cache all the groups. Cache the group by its id.
+  /// We use the id of the [Field] as the [No Status] group id.
+  group_by_id: IndexMap<String, GroupData>,
 
   /// A reader that implement the [GroupSettingReader] trait
   ///
@@ -93,7 +97,7 @@ where
     Ok(Self {
       view_id,
       field,
-      groups_map: IndexMap::new(),
+      group_by_id: IndexMap::new(),
       reader,
       writer,
       setting,
@@ -105,26 +109,26 @@ where
   ///
   /// We take the `id` of the `field` as the no status group id
   pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
-    self.groups_map.get(&self.field.id)
+    self.group_by_id.get(&self.field.id)
   }
 
   pub(crate) fn get_mut_no_status_group(&mut self) -> Option<&mut GroupData> {
-    self.groups_map.get_mut(&self.field.id)
+    self.group_by_id.get_mut(&self.field.id)
   }
 
   pub(crate) fn groups(&self) -> Vec<&GroupData> {
-    self.groups_map.values().collect()
+    self.group_by_id.values().collect()
   }
 
   pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut GroupData> {
-    self.groups_map.get_mut(group_id)
+    self.group_by_id.get_mut(group_id)
   }
 
   // Returns the index and group specified by the group_id
   pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &GroupData)> {
     match (
-      self.groups_map.get_index_of(group_id),
-      self.groups_map.get(group_id),
+      self.group_by_id.get_index_of(group_id),
+      self.group_by_id.get(group_id),
     ) {
       (Some(index), Some(group)) => Some((index, group)),
       _ => None,
@@ -133,7 +137,7 @@ where
 
   /// Iterate mut the groups without `No status` group
   pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
-    self.groups_map.iter_mut().for_each(|(_, group)| {
+    self.group_by_id.iter_mut().for_each(|(_, group)| {
       if group.id != self.field.id {
         each(group);
       }
@@ -141,7 +145,7 @@ where
   }
 
   pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
-    self.groups_map.iter_mut().for_each(|(_, group)| {
+    self.group_by_id.iter_mut().for_each(|(_, group)| {
       each(group);
     });
   }
@@ -153,7 +157,7 @@ where
       group.name.clone(),
       group.id.clone(),
     );
-    self.groups_map.insert(group.id.clone(), group_data);
+    self.group_by_id.insert(group.id.clone(), group_data);
     let (index, group_data) = self.get_group(&group.id).unwrap();
     let insert_group = InsertedGroupPB {
       group: GroupPB::from(group_data.clone()),
@@ -170,7 +174,7 @@ where
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) fn delete_group(&mut self, deleted_group_id: &str) -> FlowyResult<()> {
-    self.groups_map.remove(deleted_group_id);
+    self.group_by_id.remove(deleted_group_id);
     self.mut_configuration(|configuration| {
       configuration
         .groups
@@ -181,11 +185,11 @@ where
   }
 
   pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {
-    let from_index = self.groups_map.get_index_of(from_id);
-    let to_index = self.groups_map.get_index_of(to_id);
+    let from_index = self.group_by_id.get_index_of(from_id);
+    let to_index = self.group_by_id.get_index_of(to_id);
     match (from_index, to_index) {
       (Some(from_index), Some(to_index)) => {
-        self.groups_map.move_index(from_index, to_index);
+        self.group_by_id.move_index(from_index, to_index);
 
         self.mut_configuration(|configuration| {
           let from_index = configuration
@@ -205,7 +209,7 @@ where
             let group = configuration.groups.remove(*from);
             configuration.groups.insert(*to, group);
           }
-          tracing::debug!(
+          tracing::trace!(
             "Group order: {:?} ",
             configuration
               .groups
@@ -237,15 +241,15 @@ where
   /// [GroupConfigurationRevision] as old groups. The old groups and the new groups will be merged
   /// while keeping the order of the old groups.
   ///
-  #[tracing::instrument(level = "trace", skip(self, generated_group_context), err)]
+  #[tracing::instrument(level = "trace", skip_all, err)]
   pub(crate) fn init_groups(
     &mut self,
-    generated_group_context: GeneratedGroupContext,
-  ) -> FlowyResult<Option<GroupChangesetPB>> {
-    let GeneratedGroupContext {
+    generated_groups: GeneratedGroups,
+  ) -> FlowyResult<Option<GroupChangesPB>> {
+    let GeneratedGroups {
       no_status_group,
       group_configs,
-    } = generated_group_context;
+    } = generated_groups;
 
     let mut new_groups = vec![];
     let mut filter_content_map = HashMap::new();
@@ -310,18 +314,13 @@ where
     })?;
 
     // Update the memory cache of the groups
-    all_groups.into_iter().for_each(|group_rev| {
+    all_groups.into_iter().for_each(|group| {
       let filter_content = filter_content_map
-        .get(&group_rev.id)
+        .get(&group.id)
         .cloned()
         .unwrap_or_else(|| "".to_owned());
-      let group = GroupData::new(
-        group_rev.id,
-        self.field.id.clone(),
-        group_rev.name,
-        filter_content,
-      );
-      self.groups_map.insert(group.id.clone(), group);
+      let group = GroupData::new(group.id, self.field.id.clone(), group.name, filter_content);
+      self.group_by_id.insert(group.id.clone(), group);
     });
 
     let initial_groups = new_groups
@@ -338,13 +337,14 @@ where
       })
       .collect();
 
-    let changeset = GroupChangesetPB {
+    let changeset = GroupChangesPB {
       view_id: self.view_id.clone(),
       initial_groups,
       deleted_groups: deleted_group_ids,
       update_groups: vec![],
       inserted_groups: vec![],
     };
+
     tracing::trace!("Group changeset: {:?}", changeset);
     if changeset.is_empty() {
       Ok(None)
@@ -353,19 +353,22 @@ where
     }
   }
 
-  #[allow(dead_code)]
-  pub(crate) async fn hide_group(&mut self, group_id: &str) -> FlowyResult<()> {
-    self.mut_group_rev(group_id, |group_rev| {
-      group_rev.visible = false;
+  pub(crate) fn update_group(&mut self, group_changeset: GroupChangeset) -> FlowyResult<()> {
+    let update_group = self.mut_group(&group_changeset.group_id, |group| {
+      if let Some(visible) = group_changeset.visible {
+        group.visible = visible;
+      }
+      if let Some(name) = &group_changeset.name {
+        group.name = name.clone();
+      }
     })?;
-    Ok(())
-  }
 
-  #[allow(dead_code)]
-  pub(crate) async fn show_group(&mut self, group_id: &str) -> FlowyResult<()> {
-    self.mut_group_rev(group_id, |group_rev| {
-      group_rev.visible = true;
-    })?;
+    if let Some(group) = update_group {
+      if let Some(group_data) = self.group_by_id.get_mut(&group.id) {
+        group_data.name = group.name.clone();
+        group_data.is_visible = group.visible;
+      };
+    }
     Ok(())
   }
 
@@ -376,6 +379,11 @@ where
       .await
   }
 
+  /// # Arguments
+  ///
+  /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is
+  /// changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
+  ///
   fn mut_configuration(
     &mut self,
     mut_configuration_fn: impl FnOnce(&mut GroupSetting) -> bool,
@@ -385,9 +393,9 @@ where
     if is_changed {
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
-      let field_id = self.field.id.clone();
+      let view_id = self.view_id.clone();
       tokio::spawn(async move {
-        match writer.save_configuration(&field_id, configuration).await {
+        match writer.save_configuration(&view_id, configuration).await {
           Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);
@@ -398,11 +406,12 @@ where
     Ok(())
   }
 
-  fn mut_group_rev(
+  fn mut_group(
     &mut self,
     group_id: &str,
     mut_groups_fn: impl Fn(&mut Group),
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<Option<Group>> {
+    let mut updated_group = None;
     self.mut_configuration(|configuration| {
       match configuration
         .groups
@@ -412,10 +421,12 @@ where
         None => false,
         Some(group) => {
           mut_groups_fn(group);
+          updated_group = Some(group.clone());
           true
         },
       }
-    })
+    })?;
+    Ok(updated_group)
   }
 }
 

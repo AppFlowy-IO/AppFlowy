@@ -1,8 +1,8 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_view_section_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +11,7 @@ import 'package:reorderables/reorderables.dart';
 import 'item.dart';
 
 class ViewSection extends StatelessWidget {
-  final AppViewDataContext appViewData;
+  final ViewDataContext appViewData;
   const ViewSection({Key? key, required this.appViewData}) : super(key: key);
 
   @override
@@ -27,7 +27,11 @@ class ViewSection extends StatelessWidget {
         listener: (context, state) {
           if (state.selectedView != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              getIt<HomeStackManager>().setPlugin(state.selectedView!.plugin());
+              getIt<TabsBloc>().add(
+                TabsEvent.openPlugin(
+                  plugin: state.selectedView!.plugin(listenOnViewChanged: true),
+                ),
+              );
             });
           }
         },
@@ -45,10 +49,11 @@ class ViewSection extends StatelessWidget {
     ViewSectionState state,
   ) {
     final children = state.views.map((view) {
+      final isSelected = _isViewSelected(state, view.id);
       return ViewSectionItem(
-        key: ValueKey(view.id),
         view: view,
-        isSelected: _isViewSelected(state, view.id),
+        key: ValueKey('$view.hashCode/$isSelected'),
+        isSelected: isSelected,
         onSelected: (view) => getIt<MenuSharedState>().latestOpenView = view,
       );
     }).toList();
@@ -70,10 +75,6 @@ class ViewSection extends StatelessWidget {
   }
 
   bool _isViewSelected(ViewSectionState state, String viewId) {
-    final view = state.selectedView;
-    if (view == null) {
-      return false;
-    }
-    return view.id == viewId;
+    return state.selectedView?.id == viewId;
   }
 }

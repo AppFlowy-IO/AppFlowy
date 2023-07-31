@@ -28,13 +28,13 @@
       }
     },
     {
-      "label": "AF: Clean + Rebuild All (Android)",
+      "label": "AF: Clean + Rebuild All (iOS)",
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
         "AF: Dart Clean",
         "AF: Flutter Clean",
-        "AF: Build Appflowy Core_for_android",
+        "AF: Build Appflowy Core For iOS",
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
@@ -46,9 +46,36 @@
       }
     },
     {
-      "label": "AF: Build Appflowy Core_for_android",
+      "label": "AF: Clean + Rebuild All (iOS Simulator)",
       "type": "shell",
-      "command": "cargo make --profile development-android appflowy-core-dev-android",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core For iOS Simulator",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64 appflowy-core-dev-ios",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS Simulator",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios",
       "group": "build",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -118,15 +145,11 @@
     {
       "label": "AF: Generate Freezed Files",
       "type": "shell",
-      "command": "flutter pub run build_runner build --delete-conflicting-outputs",
+      "command": "sh ./scripts/code_generation/freezed/generate_freezed.sh",
       "options": {
-        "cwd": "${workspaceFolder}/appflowy_flutter"
-      }
-    },
-    {
-      "label": "AF: Generate Language Files",
-      "type": "shell",
-      "command": "sh ./scripts/generate_language_files.sh",
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
       "windows": {
         "options": {
           "shell": {
@@ -134,7 +157,24 @@
             "args": [
               "/d",
               "/c",
-              ".\\scripts\\generate_language_files.cmd"
+              ".\\scripts\\code_generation\\freezed\\generate_freezed.cmd"
+            ]
+          }
+        }
+      },
+    },
+    {
+      "label": "AF: Generate Language Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/language_files/generate_language_files.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\language_files\\generate_language_files.cmd"
             ]
           }
         }
@@ -219,6 +259,14 @@
       "command": "npx eslint --fix src",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
+      }
+    },
+    {
+      "label": "AF: Generate Env",
+      "type": "shell",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
       }
     },
   ]

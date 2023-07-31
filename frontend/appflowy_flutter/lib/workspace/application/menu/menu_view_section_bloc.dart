@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/workspace/application/app/app_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -12,67 +12,58 @@ part 'menu_view_section_bloc.freezed.dart';
 class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   void Function()? _viewsListener;
   void Function()? _selectedViewlistener;
-  final AppViewDataContext _appViewData;
-  late final AppBackendService _appService;
+  final ViewDataContext _appViewData;
 
   ViewSectionBloc({
-    required AppViewDataContext appViewData,
-  })  : _appService = AppBackendService(),
-        _appViewData = appViewData,
+    required ViewDataContext appViewData,
+  })  : _appViewData = appViewData,
         super(ViewSectionState.initial(appViewData)) {
     on<ViewSectionEvent>((event, emit) async {
-      await event.map(
-        initial: (e) async {
+      await event.when(
+        initial: () async {
           _startListening();
         },
-        setSelectedView: (_SetSelectedView value) {
-          _setSelectView(value, emit);
+        setSelectedView: (view) {
+          emit(state.copyWith(selectedView: view));
         },
-        didReceiveViewUpdated: (_DidReceiveViewUpdated value) {
-          emit(state.copyWith(views: value.views));
+        didReceiveViewUpdated: (views) {
+          emit(state.copyWith(views: views));
         },
-        moveView: (_MoveView value) async {
-          _moveView(value, emit);
+        moveView: (fromIndex, toIndex) async {
+          _moveView(fromIndex, toIndex, emit);
         },
       );
     });
   }
 
   void _startListening() {
-    _viewsListener = _appViewData.addViewsChangeListener((views) {
+    _viewsListener = _appViewData.onViewsChanged((views) {
       if (!isClosed) {
         add(ViewSectionEvent.didReceiveViewUpdated(views));
       }
     });
-    _selectedViewlistener = _appViewData.addSelectedViewChangeListener((view) {
+    _selectedViewlistener = _appViewData.onViewSelected((view) {
       if (!isClosed) {
         add(ViewSectionEvent.setSelectedView(view));
       }
     });
   }
 
-  void _setSelectView(_SetSelectedView value, Emitter<ViewSectionState> emit) {
-    if (state.views.contains(value.view)) {
-      emit(state.copyWith(selectedView: value.view));
-    } else {
-      emit(state.copyWith(selectedView: null));
-    }
-  }
-
   Future<void> _moveView(
-    _MoveView value,
+    int fromIndex,
+    int toIndex,
     Emitter<ViewSectionState> emit,
   ) async {
-    if (value.fromIndex < state.views.length) {
-      final viewId = state.views[value.fromIndex].id;
+    if (fromIndex < state.views.length) {
+      final viewId = state.views[fromIndex].id;
       final views = List<ViewPB>.from(state.views);
-      views.insert(value.toIndex, views.removeAt(value.fromIndex));
+      views.insert(toIndex, views.removeAt(fromIndex));
       emit(state.copyWith(views: views));
 
-      final result = await _appService.moveView(
+      final result = await ViewBackendService.moveView(
         viewId: viewId,
-        fromIndex: value.fromIndex,
-        toIndex: value.toIndex,
+        fromIndex: fromIndex,
+        toIndex: toIndex,
       );
       result.fold((l) => null, (err) => Log.error(err));
     }
@@ -81,11 +72,11 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   @override
   Future<void> close() async {
     if (_selectedViewlistener != null) {
-      _appViewData.removeSelectedViewListener(_selectedViewlistener!);
+      _appViewData.removeOnViewSelectedListener(_selectedViewlistener!);
     }
 
     if (_viewsListener != null) {
-      _appViewData.removeViewsListener(_viewsListener!);
+      _appViewData.removeOnViewChangedListener(_viewsListener!);
     }
 
     return super.close();
@@ -110,7 +101,7 @@ class ViewSectionState with _$ViewSectionState {
     ViewPB? selectedView,
   }) = _ViewSectionState;
 
-  factory ViewSectionState.initial(AppViewDataContext appViewData) =>
+  factory ViewSectionState.initial(ViewDataContext appViewData) =>
       ViewSectionState(
         views: appViewData.views,
         selectedView: appViewData.selectedView,

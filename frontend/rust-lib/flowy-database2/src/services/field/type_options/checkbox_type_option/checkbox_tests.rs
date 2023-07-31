@@ -41,7 +41,7 @@ mod tests {
   ) {
     assert_eq!(
       type_option
-        .decode_cell_str(
+        .decode_cell(
           &CheckboxCellData::from_cell_str(input_str).unwrap().into(),
           field_type,
           field

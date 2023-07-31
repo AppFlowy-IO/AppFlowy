@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../layout/sizes.dart';
 import 'emoji_menu_item.dart';
 
-CommandShortcutEvent showEmojiPickerEvent = CommandShortcutEvent(
+final CommandShortcutEvent showEmojiPickerEvent = CommandShortcutEvent(
   key: 'Show emoji picker',
   command: 'ctrl+alt+e',
   macOSCommand: 'cmd+alt+e',
@@ -14,9 +14,11 @@ CommandShortcutEvent showEmojiPickerEvent = CommandShortcutEvent(
 KeyEventResult _showEmojiSelectionMenuShortcut(
   EditorState editorState,
 ) {
-  final context = editorState.document.root.context!;
-  final selectionService = editorState.service.selectionService;
-  final selectionRects = selectionService.selectionRects;
+  final context = editorState.document.root.context;
+  if (context == null) {
+    return KeyEventResult.ignored;
+  }
+  final selectionRects = editorState.selectionRects();
   final editorOffset =
       editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
   final editorHeight = editorState.renderBox!.size.height;
@@ -41,10 +43,12 @@ KeyEventResult _showEmojiSelectionMenuShortcut(
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
+  keepEditorFocusNotifier.value += 1;
   final emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
+    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
     builder: (context) => Material(
       child: Container(
         width: 300,

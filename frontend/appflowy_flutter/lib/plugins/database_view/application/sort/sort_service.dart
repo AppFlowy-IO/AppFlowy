@@ -29,7 +29,7 @@ class SortBackendService {
     required FieldType fieldType,
     required SortConditionPB condition,
   }) {
-    var insertSortPayload = AlterSortPayloadPB.create()
+    final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -38,7 +38,7 @@ class SortBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..alterSort = insertSortPayload;
+      ..updateSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
@@ -55,7 +55,7 @@ class SortBackendService {
     required FieldType fieldType,
     required SortConditionPB condition,
   }) {
-    var insertSortPayload = AlterSortPayloadPB.create()
+    final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -63,7 +63,7 @@ class SortBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..alterSort = insertSortPayload;
+      ..updateSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),
@@ -80,7 +80,7 @@ class SortBackendService {
     required String sortId,
     required FieldType fieldType,
   }) {
-    final deleteFilterPayload = DeleteSortPayloadPB.create()
+    final deleteSortPayload = DeleteSortPayloadPB.create()
       ..fieldId = fieldId
       ..sortId = sortId
       ..viewId = viewId
@@ -88,7 +88,7 @@ class SortBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..deleteSort = deleteFilterPayload;
+      ..deleteSort = deleteSortPayload;
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(

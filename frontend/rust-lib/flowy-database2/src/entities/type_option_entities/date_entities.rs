@@ -4,7 +4,7 @@ use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::entities::CellIdPB;
+use crate::entities::{CellIdPB, FieldType};
 use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -20,15 +20,12 @@ pub struct DateCellDataPB {
 
   #[pb(index = 4)]
   pub include_time: bool,
-
-  #[pb(index = 5)]
-  pub timezone_id: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPB {
   #[pb(index = 1)]
-  pub cell_path: CellIdPB,
+  pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
   pub date: Option<String>,
@@ -40,7 +37,7 @@ pub struct DateChangesetPB {
   pub include_time: Option<bool>,
 
   #[pb(index = 5, one_of)]
-  pub timezone_id: Option<String>,
+  pub clear_flag: Option<bool>,
 }
 
 // Date
@@ -51,6 +48,12 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 2)]
   pub time_format: TimeFormatPB,
+
+  #[pb(index = 3)]
+  pub timezone_id: String,
+
+  #[pb(index = 4)]
+  pub field_type: FieldType,
 }
 
 impl From<DateTypeOption> for DateTypeOptionPB {
@@ -58,6 +61,8 @@ impl From<DateTypeOption> for DateTypeOptionPB {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      timezone_id: data.timezone_id,
+      field_type: data.field_type,
     }
   }
 }
@@ -67,22 +72,20 @@ impl From<DateTypeOptionPB> for DateTypeOption {
     Self {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
+      timezone_id: data.timezone_id,
+      field_type: data.field_type,
     }
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum)]
+#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum, Default)]
 pub enum DateFormatPB {
   Local = 0,
   US = 1,
   ISO = 2,
+  #[default]
   Friendly = 3,
   DayMonthYear = 4,
-}
-impl std::default::Default for DateFormatPB {
-  fn default() -> Self {
-    DateFormatPB::Friendly
-  }
 }
 
 impl From<DateFormatPB> for DateFormat {
@@ -109,16 +112,11 @@ impl From<DateFormat> for DateFormatPB {
   }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, ProtoBuf_Enum)]
+#[derive(Clone, Copy, PartialEq, Eq, EnumIter, Debug, Hash, ProtoBuf_Enum, Default)]
 pub enum TimeFormatPB {
   TwelveHour = 0,
+  #[default]
   TwentyFourHour = 1,
-}
-
-impl std::default::Default for TimeFormatPB {
-  fn default() -> Self {
-    TimeFormatPB::TwentyFourHour
-  }
 }
 
 impl From<TimeFormatPB> for TimeFormat {

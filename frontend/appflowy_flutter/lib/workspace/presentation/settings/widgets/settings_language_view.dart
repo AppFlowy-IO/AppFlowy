@@ -49,10 +49,8 @@ class LanguageSelector extends StatelessWidget {
       ),
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
-
         return LanguageItemsListView(
           allLocales: allLocales,
-          currentLocale: currentLocale,
         );
       },
     );
@@ -63,20 +61,20 @@ class LanguageItemsListView extends StatelessWidget {
   const LanguageItemsListView({
     super.key,
     required this.allLocales,
-    required this.currentLocale,
   });
 
   final List<Locale> allLocales;
-  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {
+    // get current locale from cubit
+    final state = context.watch<AppearanceSettingsCubit>().state;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 400),
       child: ListView.builder(
         itemBuilder: (context, index) {
           final locale = allLocales[index];
-          return LanguageItem(locale: locale, currentLocale: currentLocale);
+          return LanguageItem(locale: locale, currentLocale: state.locale);
         },
         itemCount: allLocales.length,
       ),

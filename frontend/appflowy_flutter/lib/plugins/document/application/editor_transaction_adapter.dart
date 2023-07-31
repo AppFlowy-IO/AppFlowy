@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
@@ -11,9 +10,12 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         UpdateOperation,
         DeleteOperation,
         PathExtensions,
-        Node;
+        Node,
+        composeAttributes;
 import 'package:collection/collection.dart';
 import 'dart:async';
+
+import 'package:nanoid/nanoid.dart';
 
 /// Uses to adjust the data structure between the editor and the backend.
 ///
@@ -29,11 +31,13 @@ class TransactionAdapter {
   final String documentId;
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
+    // Log.debug('transaction => ${transaction.toJson()}');
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState))
         .whereNotNull()
-        .expand((element) => element);
-    Log.debug('actions => $actions');
+        .expand((element) => element)
+        .toList(growable: false); // avoid lazy evaluation
+    // Log.debug('actions => $actions');
     await documentService.applyAction(
       documentId: documentId,
       actions: actions,
@@ -64,20 +68,31 @@ extension on InsertOperation {
     for (final node in nodes) {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
-      final prevId = previousNode?.id ??
-          node.previous?.id ??
+      var prevId = previousNode?.id ??
           editorState.getNodeAtPath(path.previous)?.id ??
           '';
-      assert(parentId.isNotEmpty && prevId.isNotEmpty);
+      assert(parentId.isNotEmpty);
+      if (path.equals(path.previous)) {
+        prevId = '';
+      } else {
+        assert(prevId.isNotEmpty && prevId != node.id);
+      }
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
+        ..block = node.toBlock(childrenId: nanoid(10))
         ..parentId = parentId
         ..prevId = prevId;
+      assert(payload.block.childrenId.isNotEmpty);
       actions.add(
         BlockActionPB()
           ..action = BlockActionTypePB.Insert
           ..payload = payload,
       );
+      if (node.children.isNotEmpty) {
+        final childrenActions = node.children
+            .map((e) => InsertOperation(e.path, [e]).toBlockAction(editorState))
+            .expand((element) => element);
+        actions.addAll(childrenActions);
+      }
       previousNode = node;
     }
     return actions;
@@ -101,7 +116,10 @@ extension on UpdateOperation {
         node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
     assert(parentId.isNotEmpty);
     final payload = BlockActionPayloadPB()
-      ..block = node.toBlock()
+      ..block = node.toBlock(
+        parentId: parentId,
+        attributes: composeAttributes(oldAttributes, attributes),
+      )
       ..parentId = parentId;
     actions.add(
       BlockActionPB()
@@ -119,7 +137,9 @@ extension on DeleteOperation {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock()
+        ..block = node.toBlock(
+          parentId: parentId,
+        )
         ..parentId = parentId;
       assert(parentId.isNotEmpty);
       actions.add(

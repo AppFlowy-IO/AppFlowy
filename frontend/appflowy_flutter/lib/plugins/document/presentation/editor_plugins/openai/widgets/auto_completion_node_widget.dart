@@ -24,6 +24,7 @@ class AutoCompletionBlockKeys {
   static const String type = 'auto_completion';
   static const String prompt = 'prompt';
   static const String startSelection = 'start_selection';
+  static const String generationCount = 'generation_count';
 }
 
 Node autoCompletionNode({
@@ -35,6 +36,7 @@ Node autoCompletionNode({
     attributes: {
       AutoCompletionBlockKeys.prompt: prompt,
       AutoCompletionBlockKeys.startSelection: start.toJson(),
+      AutoCompletionBlockKeys.generationCount: 0,
     },
   );
 }
@@ -54,11 +56,16 @@ class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
   AutoCompletionBlockComponentBuilder();
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return AutoCompletionBlockComponent(
       key: node.key,
       node: node,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -70,13 +77,14 @@ class AutoCompletionBlockComponentBuilder extends BlockComponentBuilder {
   }
 }
 
-class AutoCompletionBlockComponent extends StatefulWidget {
+class AutoCompletionBlockComponent extends BlockComponentStatefulWidget {
   const AutoCompletionBlockComponent({
     super.key,
-    required this.node,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
 
   @override
   State<AutoCompletionBlockComponent> createState() =>
@@ -92,6 +100,16 @@ class _AutoCompletionBlockComponentState
   late final SelectionGestureInterceptor interceptor;
 
   String get prompt => widget.node.attributes[AutoCompletionBlockKeys.prompt];
+  int get generationCount =>
+      widget.node.attributes[AutoCompletionBlockKeys.generationCount] ?? 0;
+  Selection? get startSelection {
+    final selection =
+        widget.node.attributes[AutoCompletionBlockKeys.startSelection];
+    if (selection != null) {
+      return Selection.fromJson(selection);
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -106,6 +124,7 @@ class _AutoCompletionBlockComponentState
 
   @override
   void dispose() {
+    _onExit();
     _unsubscribeSelectionGesture();
     controller.dispose();
 
@@ -124,7 +143,7 @@ class _AutoCompletionBlockComponentState
           children: [
             const AutoCompletionHeader(),
             const Space(0, 10),
-            if (prompt.isEmpty) ...[
+            if (prompt.isEmpty && generationCount < 1) ...[
               _buildInputWidget(context),
               const Space(0, 10),
               AutoCompletionInputFooter(
@@ -134,6 +153,7 @@ class _AutoCompletionBlockComponentState
             ] else ...[
               AutoCompletionFooter(
                 onKeep: _onExit,
+                onRewrite: _onRewrite,
                 onDiscard: _onDiscard,
               )
             ],
@@ -213,13 +233,39 @@ class _AutoCompletionBlockComponentState
         await _showError(error.message);
       },
     );
+    await _updateGenerationCount();
   }
 
   Future<void> _onDiscard() async {
-    final selection =
-        widget.node.attributes[AutoCompletionBlockKeys.startSelection];
+    final selection = startSelection;
     if (selection != null) {
-      final start = Selection.fromJson(selection).start.path;
+      final start = selection.start.path;
+      final end = widget.node.previous?.path;
+      if (end != null) {
+        final transaction = editorState.transaction;
+        transaction.deleteNodesAtPath(
+          start,
+          end.last - start.last + 1,
+        );
+        await editorState.apply(transaction);
+        await _makeSurePreviousNodeIsEmptyParagraphNode();
+      }
+    }
+    _onExit();
+  }
+
+  Future<void> _onRewrite() async {
+    final previousOutput = _getPreviousOutput();
+    if (previousOutput == null) {
+      return;
+    }
+
+    final loading = Loading(context);
+    loading.start();
+    // clear previous response
+    final selection = startSelection;
+    if (selection != null) {
+      final start = selection.start.path;
       final end = widget.node.previous?.path;
       if (end != null) {
         final transaction = editorState.transaction;
@@ -230,7 +276,71 @@ class _AutoCompletionBlockComponentState
         await editorState.apply(transaction);
       }
     }
-    _onExit();
+    // generate new response
+    final userProfile = await UserBackendService.getCurrentUserProfile()
+        .then((value) => value.toOption().toNullable());
+    if (userProfile == null) {
+      loading.stop();
+      await _showError(
+        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+      );
+      return;
+    }
+    final textRobot = TextRobot(editorState: editorState);
+    final openAIRepository = HttpOpenAIRepository(
+      client: http.Client(),
+      apiKey: userProfile.openaiKey,
+    );
+    await openAIRepository.getStreamedCompletions(
+      prompt: _rewritePrompt(previousOutput),
+      onStart: () async {
+        loading.stop();
+        await _makeSurePreviousNodeIsEmptyParagraphNode();
+      },
+      onProcess: (response) async {
+        if (response.choices.isNotEmpty) {
+          final text = response.choices.first.text;
+          await textRobot.autoInsertText(
+            text,
+            inputType: TextRobotInputType.word,
+            delay: Duration.zero,
+          );
+        }
+      },
+      onEnd: () async {},
+      onError: (error) async {
+        loading.stop();
+        await _showError(error.message);
+      },
+    );
+    await _updateGenerationCount();
+  }
+
+  String? _getPreviousOutput() {
+    final startSelection = this.startSelection;
+    if (startSelection != null) {
+      final end = widget.node.previous?.path;
+
+      if (end != null) {
+        final result = editorState
+            .getNodesInSelection(
+          startSelection.copyWith(end: Position(path: end)),
+        )
+            .fold(
+          '',
+          (previousValue, element) {
+            final delta = element.delta;
+            if (delta != null) {
+              return "$previousValue\n${delta.toPlainText()}";
+            } else {
+              return previousValue;
+            }
+          },
+        );
+        return result.trim();
+      }
+    }
+    return null;
   }
 
   Future<void> _updateEditingText() async {
@@ -244,13 +354,28 @@ class _AutoCompletionBlockComponentState
     await editorState.apply(transaction);
   }
 
+  Future<void> _updateGenerationCount() async {
+    final transaction = editorState.transaction;
+    transaction.updateNode(
+      widget.node,
+      {
+        AutoCompletionBlockKeys.generationCount: generationCount + 1,
+      },
+    );
+    await editorState.apply(transaction);
+  }
+
+  String _rewritePrompt(String previousOutput) {
+    return 'I am not satisfied with your previous response ($previousOutput) to the query ($prompt). Please provide an alternative response.';
+  }
+
   Future<void> _makeSurePreviousNodeIsEmptyParagraphNode() async {
     // make sure the previous node is a empty paragraph node without any styles.
     final transaction = editorState.transaction;
     final previous = widget.node.previous;
     final Selection selection;
     if (previous == null ||
-        previous.type != 'paragraph' ||
+        previous.type != ParagraphBlockKeys.type ||
         (previous.delta?.toPlainText().isNotEmpty ?? false)) {
       selection = Selection.single(
         path: widget.node.path,
@@ -393,10 +518,12 @@ class AutoCompletionFooter extends StatelessWidget {
   const AutoCompletionFooter({
     super.key,
     required this.onKeep,
+    required this.onRewrite,
     required this.onDiscard,
   });
 
   final VoidCallback onKeep;
+  final VoidCallback onRewrite;
   final VoidCallback onDiscard;
 
   @override
@@ -406,6 +533,11 @@ class AutoCompletionFooter extends StatelessWidget {
         PrimaryTextButton(
           LocaleKeys.button_keep.tr(),
           onPressed: onKeep,
+        ),
+        const Space(10, 0),
+        SecondaryTextButton(
+          LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+          onPressed: onRewrite,
         ),
         const Space(10, 0),
         SecondaryTextButton(

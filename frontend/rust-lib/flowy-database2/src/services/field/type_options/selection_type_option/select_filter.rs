@@ -1,19 +1,12 @@
 #![allow(clippy::needless_collect)]
 
 use crate::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
-use crate::services::field::SelectedSelectOptions;
+use crate::services::field::SelectOption;
 
 impl SelectOptionFilterPB {
-  pub fn is_visible(
-    &self,
-    selected_options: &SelectedSelectOptions,
-    field_type: FieldType,
-  ) -> bool {
-    let selected_option_ids: Vec<&String> = selected_options
-      .options
-      .iter()
-      .map(|option| &option.id)
-      .collect();
+  pub fn is_visible(&self, selected_options: &[SelectOption], field_type: FieldType) -> bool {
+    let selected_option_ids: Vec<&String> =
+      selected_options.iter().map(|option| &option.id).collect();
     match self.condition {
       SelectOptionConditionPB::OptionIs => match field_type {
         FieldType::SingleSelect => {
@@ -21,7 +14,7 @@ impl SelectOptionFilterPB {
             return true;
           }
 
-          if selected_options.options.is_empty() {
+          if selected_options.is_empty() {
             return false;
           }
 
@@ -54,7 +47,7 @@ impl SelectOptionFilterPB {
             return true;
           }
 
-          if selected_options.options.is_empty() {
+          if selected_options.is_empty() {
             return false;
           }
 
@@ -87,7 +80,6 @@ impl SelectOptionFilterPB {
 mod tests {
   #![allow(clippy::all)]
   use crate::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
-  use crate::services::field::selection_type_option::SelectedSelectOptions;
   use crate::services::field::SelectOption;
 
   #[test]
@@ -98,37 +90,15 @@ mod tests {
       option_ids: vec![],
     };
 
+    assert_eq!(filter.is_visible(&vec![], FieldType::SingleSelect), true);
     assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions { options: vec![] },
-        FieldType::SingleSelect
-      ),
-      true
-    );
-    assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions {
-          options: vec![option.clone()]
-        },
-        FieldType::SingleSelect
-      ),
+      filter.is_visible(&vec![option.clone()], FieldType::SingleSelect),
       false,
     );
 
+    assert_eq!(filter.is_visible(&vec![], FieldType::MultiSelect), true);
     assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions { options: vec![] },
-        FieldType::MultiSelect
-      ),
-      true
-    );
-    assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions {
-          options: vec![option]
-        },
-        FieldType::MultiSelect
-      ),
+      filter.is_visible(&vec![option], FieldType::MultiSelect),
       false,
     );
   }
@@ -143,38 +113,16 @@ mod tests {
     };
 
     assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions {
-          options: vec![option_1.clone()]
-        },
-        FieldType::SingleSelect
-      ),
+      filter.is_visible(&vec![option_1.clone()], FieldType::SingleSelect),
       true
     );
-    assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions { options: vec![] },
-        FieldType::SingleSelect
-      ),
-      false,
-    );
+    assert_eq!(filter.is_visible(&vec![], FieldType::SingleSelect), false,);
 
     assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions {
-          options: vec![option_1.clone()]
-        },
-        FieldType::MultiSelect
-      ),
+      filter.is_visible(&vec![option_1.clone()], FieldType::MultiSelect),
       true
     );
-    assert_eq!(
-      filter.is_visible(
-        &SelectedSelectOptions { options: vec![] },
-        FieldType::MultiSelect
-      ),
-      false,
-    );
+    assert_eq!(filter.is_visible(&vec![], FieldType::MultiSelect), false,);
   }
 
   #[test]
@@ -194,7 +142,7 @@ mod tests {
       (vec![option_1.clone(), option_2.clone()], false),
     ] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
+        filter.is_visible(&options, FieldType::SingleSelect),
         is_visible
       );
     }
@@ -217,7 +165,7 @@ mod tests {
       (vec![option_1.clone(), option_2.clone()], true),
     ] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
+        filter.is_visible(&options, FieldType::SingleSelect),
         is_visible
       );
     }
@@ -238,7 +186,7 @@ mod tests {
       (vec![option_1.clone(), option_2.clone()], true),
     ] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::SingleSelect),
+        filter.is_visible(&options, FieldType::SingleSelect),
         is_visible
       );
     }
@@ -266,7 +214,7 @@ mod tests {
       (vec![], true),
     ] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::MultiSelect),
+        filter.is_visible(&options, FieldType::MultiSelect),
         is_visible
       );
     }
@@ -292,7 +240,7 @@ mod tests {
       (vec![option_3.clone()], false),
     ] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::MultiSelect),
+        filter.is_visible(&options, FieldType::MultiSelect),
         is_visible
       );
     }
@@ -308,7 +256,7 @@ mod tests {
     };
     for (options, is_visible) in vec![(vec![option_1.clone()], true), (vec![], true)] {
       assert_eq!(
-        filter.is_visible(&SelectedSelectOptions { options }, FieldType::MultiSelect),
+        filter.is_visible(&options, FieldType::MultiSelect),
         is_visible
       );
     }

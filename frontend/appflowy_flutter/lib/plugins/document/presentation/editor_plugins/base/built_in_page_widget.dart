@@ -1,6 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -38,13 +38,18 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   late Future<dartz.Either<FlowyError, ViewPB>> future;
   final focusNode = FocusNode();
 
-  String get appId => widget.node.attributes[DatabaseBlockKeys.kAppID];
-  String get viewId => widget.node.attributes[DatabaseBlockKeys.kViewID];
+  String get parentViewId => widget.node.attributes[DatabaseBlockKeys.parentID];
+  String get childViewId => widget.node.attributes[DatabaseBlockKeys.viewID];
 
   @override
   void initState() {
     super.initState();
-    future = AppBackendService().getChildView(viewId, appId).then(
+    future = ViewBackendService()
+        .getChildView(
+          parentViewId: parentViewId,
+          childViewId: childViewId,
+        )
+        .then(
           (value) => value.swap(),
         );
   }
@@ -64,6 +69,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           return _build(context, page);
         }
         if (snapshot.connectionState == ConnectionState.done) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            // just delete the page if it is not found
+            _deletePage();
+          });
           return const Center(
             child: FlowyText('Cannot load the page'),
           );
@@ -82,10 +91,12 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: SizedBox(
         height: 400,
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
-            _buildPage(context, viewPB),
+            Expanded(child: _buildPage(context, viewPB)),
           ],
         ),
       ),
@@ -105,68 +116,69 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   }
 
   Widget _buildMenu(BuildContext context, ViewPB viewPB) {
-    return Positioned(
-      top: 5,
-      left: 5,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // information
-          FlowyIconButton(
-            tooltipText: LocaleKeys.tooltip_referencePage.tr(
-              namedArgs: {'name': viewPB.layout.name},
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // information
+        FlowyIconButton(
+          tooltipText: LocaleKeys.tooltip_referencePage.tr(
+            namedArgs: {'name': viewPB.layout.name},
+          ),
+          width: 24,
+          height: 24,
+          iconPadding: const EdgeInsets.all(3),
+          icon: svgWidget(
+            'common/information',
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
+        // setting
+        const Space(7, 0),
+        PopoverActionList<_ActionWrapper>(
+          direction: PopoverDirection.bottomWithCenterAligned,
+          actions: _ActionType.values
+              .map((action) => _ActionWrapper(action))
+              .toList(),
+          buildChild: (controller) => FlowyIconButton(
+            tooltipText: LocaleKeys.tooltip_openMenu.tr(),
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
             icon: svgWidget(
-              'common/information',
+              'common/settings',
               color: Theme.of(context).iconTheme.color,
             ),
+            onPressed: () => controller.show(),
           ),
-          // Name
-          const Space(7, 0),
-          FlowyText.medium(
-            viewPB.name,
-            fontSize: 16.0,
-          ),
-          // setting
-          const Space(7, 0),
-          PopoverActionList<_ActionWrapper>(
-            direction: PopoverDirection.bottomWithCenterAligned,
-            actions: _ActionType.values
-                .map((action) => _ActionWrapper(action))
-                .toList(),
-            buildChild: (controller) => FlowyIconButton(
-              tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-              width: 24,
-              height: 24,
-              iconPadding: const EdgeInsets.all(3),
-              icon: svgWidget(
-                'common/settings',
-                color: Theme.of(context).iconTheme.color,
-              ),
-              onPressed: () => controller.show(),
-            ),
-            onSelected: (action, controller) async {
-              switch (action.inner) {
-                case _ActionType.viewDatabase:
-                  getIt<MenuSharedState>().latestOpenView = viewPB;
-                  getIt<HomeStackManager>().setPlugin(viewPB.plugin());
-                  break;
-                case _ActionType.delete:
-                  final transaction = widget.editorState.transaction;
-                  transaction.deleteNode(widget.node);
-                  widget.editorState.apply(transaction);
-                  break;
-              }
-              controller.close();
-            },
-          )
-        ],
-      ),
+          onSelected: (action, controller) async {
+            switch (action.inner) {
+              case _ActionType.viewDatabase:
+                getIt<MenuSharedState>().latestOpenView = viewPB;
+
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: viewPB.plugin(),
+                  ),
+                );
+                break;
+              case _ActionType.delete:
+                final transaction = widget.editorState.transaction;
+                transaction.deleteNode(widget.node);
+                widget.editorState.apply(transaction);
+                break;
+            }
+            controller.close();
+          },
+        )
+      ],
     );
+  }
+
+  Future<void> _deletePage() async {
+    final transaction = widget.editorState.transaction;
+    transaction.deleteNode(widget.node);
+    widget.editorState.apply(transaction);
   }
 }
 

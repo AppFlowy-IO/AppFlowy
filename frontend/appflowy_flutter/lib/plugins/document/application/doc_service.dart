@@ -14,27 +14,24 @@ class DocumentService {
     if (canOpen.isRight()) {
       return const Right(unit);
     }
-    final payload = CreateDocumentPayloadPBV2()..documentId = view.id;
-    final result = await DocumentEvent2CreateDocument(payload).send();
+    final payload = CreateDocumentPayloadPB()..documentId = view.id;
+    final result = await DocumentEventCreateDocument(payload).send();
     return result.swap();
   }
 
-  Future<Either<FlowyError, DocumentDataPB2>> openDocument({
+  Future<Either<FlowyError, DocumentDataPB>> openDocument({
     required ViewPB view,
   }) async {
-    // set the latest view
-    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
-
-    final payload = OpenDocumentPayloadPBV2()..documentId = view.id;
-    final result = await DocumentEvent2OpenDocument(payload).send();
+    final payload = OpenDocumentPayloadPB()..documentId = view.id;
+    final result = await DocumentEventOpenDocument(payload).send();
     return result.swap();
   }
 
   Future<Either<FlowyError, Unit>> closeDocument({
     required ViewPB view,
   }) async {
-    final payload = CloseDocumentPayloadPBV2()..documentId = view.id;
-    final result = await DocumentEvent2CloseDocument(payload).send();
+    final payload = CloseDocumentPayloadPB()..documentId = view.id;
+    final result = await DocumentEventCloseDocument(payload).send();
     return result.swap();
   }
 
@@ -42,11 +39,11 @@ class DocumentService {
     required String documentId,
     required Iterable<BlockActionPB> actions,
   }) async {
-    final payload = ApplyActionPayloadPBV2(
+    final payload = ApplyActionPayloadPB(
       documentId: documentId,
       actions: actions,
     );
-    final result = await DocumentEvent2ApplyAction(payload).send();
+    final result = await DocumentEventApplyAction(payload).send();
     return result.swap();
   }
 }

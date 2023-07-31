@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
@@ -13,12 +16,21 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'setting_third_party_login.dart';
+
 const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
+  final VoidCallback didLogin;
+  final VoidCallback didLogout;
   final UserProfilePB user;
-  SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsUserView(
+    this.user, {
+    required this.didLogin,
+    required this.didLogout,
+    Key? key,
+  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +38,44 @@ class SettingsUserView extends StatelessWidget {
       create: (context) => getIt<SettingsUserViewBloc>(param1: user)
         ..add(const SettingsUserEvent.initial()),
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
-        builder: (context, state) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _renderUserNameInput(context),
-              const VSpace(20),
-              _renderCurrentIcon(context),
-              const VSpace(20),
-              _renderCurrentOpenaiKey(context)
-            ],
-          ),
+        builder: (context, state) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _renderUserNameInput(context),
+            const VSpace(20),
+            _renderCurrentIcon(context),
+            const VSpace(20),
+            _renderCurrentOpenaiKey(context),
+            const Spacer(),
+            _renderLoginOrLogoutButton(context, state),
+            const VSpace(20),
+          ],
         ),
       ),
     );
   }
 
+  Widget _renderLoginOrLogoutButton(
+    BuildContext context,
+    SettingsUserState state,
+  ) {
+    if (!isSupabaseEnable) {
+      return _renderLogoutButton(context);
+    }
+
+    if (state.userProfile.authType == AuthTypePB.Local) {
+      return SettingThirdPartyLogin(
+        didLogin: didLogin,
+      );
+    } else {
+      return _renderLogoutButton(context);
+    }
+  }
+
   Widget _renderUserNameInput(BuildContext context) {
-    String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
+    final String name =
+        context.read<SettingsUserViewBloc>().state.userProfile.name;
     return UserNameInput(name);
   }
 
@@ -57,9 +89,27 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderCurrentOpenaiKey(BuildContext context) {
-    String openAIKey =
+    final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
+  }
+
+  Widget _renderLogoutButton(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyText(
+        LocaleKeys.settings_menu_logout.tr(),
+      ),
+      onTap: () async {
+        NavigatorAlertDialog(
+          title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+          confirm: () async {
+            await getIt<AuthService>().signOut();
+            didLogout();
+          },
+        ).show(context);
+      },
+    );
   }
 }
 

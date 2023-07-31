@@ -1,71 +1,38 @@
-import 'dart:io';
-
-import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../startup/tasks/prelude.dart';
 
-@visibleForTesting
-const String kSettingsLocationDefaultLocation =
-    'kSettingsLocationDefaultLocation';
+part 'settings_location_cubit.freezed.dart';
 
-class SettingsLocation {
-  SettingsLocation({
-    String? path,
-  }) : _path = path;
-
-  String? _path;
-
-  set path(String? path) {
-    _path = path;
-  }
-
-  String? get path {
-    if (Platform.isMacOS) {
-      // remove the prefix `/Volumes/*`
-      return _path?.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
-    } else if (Platform.isWindows) {
-      return _path?.replaceAll("/", "\\");
-    }
-    return _path;
-  }
-
-  SettingsLocation copyWith({String? path}) {
-    return SettingsLocation(
-      path: path ?? this.path,
-    );
-  }
+@freezed
+class SettingsLocationState with _$SettingsLocationState {
+  const factory SettingsLocationState.initial() = _Initial;
+  const factory SettingsLocationState.didReceivedPath(String path) =
+      _DidReceivedPath;
 }
 
-class SettingsLocationCubit extends Cubit<SettingsLocation> {
-  SettingsLocationCubit() : super(SettingsLocation(path: null));
-
-  /// Returns a path that used to store user data
-  Future<String> fetchLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    /// Use the [appFlowyDocumentDirectory] instead if there is no user
-    /// preference location
-    final path = prefs.getString(kSettingsLocationDefaultLocation) ??
-        (await appFlowyDocumentDirectory()).path;
-
-    emit(state.copyWith(path: path));
-    return Future.value(path);
+class SettingsLocationCubit extends Cubit<SettingsLocationState> {
+  SettingsLocationCubit() : super(const SettingsLocationState.initial()) {
+    _init();
   }
 
-  /// Saves the user preference local data store location
-  Future<void> setLocation(String? path) async {
-    path = path ?? (await appFlowyDocumentDirectory()).path;
+  Future<void> resetDataStoragePathToApplicationDefault() async {
+    final directory = await appFlowyApplicationDataDirectory();
+    await getIt<ApplicationDataStorage>().setPath(directory.path);
+    emit(SettingsLocationState.didReceivedPath(directory.path));
+  }
 
-    assert(path.isNotEmpty);
-    if (path.isEmpty) {
-      path = (await appFlowyDocumentDirectory()).path;
-    }
+  Future<void> setCustomPath(String path) async {
+    await getIt<ApplicationDataStorage>().setCustomPath(path);
+    emit(SettingsLocationState.didReceivedPath(path));
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(kSettingsLocationDefaultLocation, path);
-    await Directory(path).create(recursive: true);
-    emit(state.copyWith(path: path));
+  Future<void> _init() async {
+    final path = await getIt<ApplicationDataStorage>().getPath();
+    emit(SettingsLocationState.didReceivedPath(path));
   }
 }

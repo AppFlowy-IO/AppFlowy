@@ -1,21 +1,38 @@
+use std::convert::TryFrom;
+use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
-use flowy_error::FlowyError;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::KV;
+use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
+use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
-use crate::entities::{SignInParams, SignUpParams, UpdateUserProfileParams};
-use crate::services::UserSession;
+use crate::services::{get_supabase_config, UserSession};
 
-// tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
+fn upgrade_session(session: AFPluginState<Weak<UserSession>>) -> FlowyResult<Arc<UserSession>> {
+  let session = session
+    .upgrade()
+    .ok_or(FlowyError::internal().context("The user session is already drop"))?;
+  Ok(session)
+}
+
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
   data: AFPluginData<SignInPayloadPB>,
-  session: AFPluginState<Arc<UserSession>>,
+  session: AFPluginState<Weak<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
+  let session = upgrade_session(session)?;
   let params: SignInParams = data.into_inner().try_into()?;
-  let user_profile: UserProfilePB = session.sign_in(params).await?.into();
+  let auth_type = params.auth_type.clone();
+  session.update_auth_type(&auth_type).await;
+
+  let user_profile: UserProfilePB = session
+    .sign_in(BoxAny::new(params), auth_type)
+    .await?
+    .into();
   data_result_ok(user_profile)
 }
 
@@ -31,38 +48,48 @@ pub async fn sign_in(
 )]
 pub async fn sign_up(
   data: AFPluginData<SignUpPayloadPB>,
-  session: AFPluginState<Arc<UserSession>>,
+  session: AFPluginState<Weak<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
+  let session = upgrade_session(session)?;
   let params: SignUpParams = data.into_inner().try_into()?;
-  let user_profile: UserProfilePB = session.sign_up(params).await?.into();
+  let auth_type = params.auth_type.clone();
+  session.update_auth_type(&auth_type).await;
 
-  data_result_ok(user_profile)
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params)).await?;
+  data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
-pub async fn init_user_handler(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
+pub async fn init_user_handler(
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
   session.init_user().await?;
   Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn check_user_handler(
-  session: AFPluginState<Arc<UserSession>>,
-) -> DataResult<UserProfilePB, FlowyError> {
-  let user_profile: UserProfilePB = session.check_user().await?.into();
-  data_result_ok(user_profile)
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  session.check_user().await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
 pub async fn get_user_profile_handler(
-  session: AFPluginState<Arc<UserSession>>,
+  session: AFPluginState<Weak<UserSession>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
-  let user_profile: UserProfilePB = session.get_user_profile().await?.into();
+  let session = upgrade_session(session)?;
+  let uid = session.get_session()?.user_id;
+  let user_profile: UserProfilePB = session.get_user_profile(uid, true).await?.into();
   data_result_ok(user_profile)
 }
 
-#[tracing::instrument(level = "debug", name = "sign_out", skip(session))]
-pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), FlowyError> {
+#[tracing::instrument(level = "debug", skip(session))]
+pub async fn sign_out(session: AFPluginState<Weak<UserSession>>) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
   session.sign_out().await?;
   Ok(())
 }
@@ -70,8 +97,9 @@ pub async fn sign_out(session: AFPluginState<Arc<UserSession>>) -> Result<(), Fl
 #[tracing::instrument(level = "debug", skip(data, session))]
 pub async fn update_user_profile_handler(
   data: AFPluginData<UpdateUserProfilePayloadPB>,
-  session: AFPluginState<Arc<UserSession>>,
+  session: AFPluginState<Weak<UserSession>>,
 ) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
   let params: UpdateUserProfileParams = data.into_inner().try_into()?;
   session.update_user_profile(params).await?;
   Ok(())
@@ -88,8 +116,7 @@ pub async fn set_appearance_setting(
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
 
-  let s = serde_json::to_string(&setting)?;
-  KV::set_str(APPEARANCE_SETTING_CACHE_KEY, s);
+  KV::set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
   Ok(())
 }
 
@@ -115,8 +142,105 @@ pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyE
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_user_setting(
-  session: AFPluginState<Arc<UserSession>>,
+  session: AFPluginState<Weak<UserSession>>,
 ) -> DataResult<UserSettingPB, FlowyError> {
+  let session = upgrade_session(session)?;
   let user_setting = session.user_setting()?;
   data_result_ok(user_setting)
+}
+
+/// Only used for third party auth.
+/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn third_party_auth_handler(
+  data: AFPluginData<ThirdPartyAuthPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<UserProfilePB, FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  let auth_type: AuthType = params.auth_type.into();
+  session.update_auth_type(&auth_type).await;
+  let user_profile = session.sign_up(auth_type, BoxAny::new(params.map)).await?;
+  data_result_ok(user_profile.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn set_supabase_config_handler(
+  data: AFPluginData<SupabaseConfigPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let config = SupabaseConfiguration::try_from(data.into_inner())?;
+  session.save_supabase_config(config);
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_supabase_config_handler(
+  _session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<SupabaseConfigPB, FlowyError> {
+  let config = get_supabase_config().unwrap_or_default();
+  data_result_ok(config.into())
+}
+
+#[tracing::instrument(level = "debug", skip(session), err)]
+pub async fn get_all_user_workspace_handler(
+  session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
+  let session = upgrade_session(session)?;
+  let uid = session.get_session()?.user_id;
+  let user_workspaces = session.get_all_user_workspaces(uid)?;
+  data_result_ok(user_workspaces.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn open_workspace_handler(
+  data: AFPluginData<UserWorkspacePB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session.open_workspace(&params.id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn add_user_to_workspace_handler(
+  data: AFPluginData<AddWorkspaceUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session
+    .add_user_to_workspace(params.email, params.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn remove_user_from_workspace_handler(
+  data: AFPluginData<RemoveWorkspaceUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let params = data.into_inner();
+  session
+    .remove_user_to_workspace(params.email, params.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, session), err)]
+pub async fn update_network_state_handler(
+  data: AFPluginData<NetworkStatePB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let session = upgrade_session(session)?;
+  let reachable = data.into_inner().ty.is_reachable();
+  session
+    .user_status_callback
+    .read()
+    .await
+    .did_update_network(reachable);
+  Ok(())
 }

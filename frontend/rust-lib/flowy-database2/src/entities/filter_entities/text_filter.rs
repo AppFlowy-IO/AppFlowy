@@ -1,6 +1,7 @@
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct TextFilterPB {
@@ -13,7 +14,9 @@ pub struct TextFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum TextFilterConditionPB {
+  #[default]
   Is = 0,
   IsNot = 1,
   Contains = 2,
@@ -30,12 +33,6 @@ impl std::convert::From<TextFilterConditionPB> for u32 {
   }
 }
 
-impl std::default::Default for TextFilterConditionPB {
-  fn default() -> Self {
-    TextFilterConditionPB::Is
-  }
-}
-
 impl std::convert::TryFrom<u8> for TextFilterConditionPB {
   type Error = ErrorCode;
 
@@ -49,7 +46,7 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
       5 => Ok(TextFilterConditionPB::EndsWith),
       6 => Ok(TextFilterConditionPB::TextIsEmpty),
       7 => Ok(TextFilterConditionPB::TextIsNotEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

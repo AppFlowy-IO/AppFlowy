@@ -91,12 +91,16 @@ class ChecklistState extends State<ChecklistFilterEditor> {
             height: 20,
             child: Row(
               children: [
-                FlowyText(state.filterInfo.fieldInfo.name),
+                Expanded(
+                  child: FlowyText(
+                    state.filterInfo.fieldInfo.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 const HSpace(4),
-                ChecklistFilterConditionPBList(
+                ChecklistFilterConditionList(
                   filterInfo: state.filterInfo,
                 ),
-                const Spacer(),
                 DisclosureButton(
                   popoverMutex: widget.popoverMutex,
                   onAction: (action) {
@@ -118,9 +122,9 @@ class ChecklistState extends State<ChecklistFilterEditor> {
   }
 }
 
-class ChecklistFilterConditionPBList extends StatelessWidget {
+class ChecklistFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
-  const ChecklistFilterConditionPBList({
+  const ChecklistFilterConditionList({
     required this.filterInfo,
     Key? key,
   }) : super(key: key);

@@ -12,8 +12,10 @@ macro_rules! impl_into_field_type {
           5 => FieldType::Checkbox,
           6 => FieldType::URL,
           7 => FieldType::Checklist,
+          8 => FieldType::LastEditedTime,
+          9 => FieldType::CreatedTime,
           _ => {
-            tracing::error!("Can't parser FieldType from value: {}", ty);
+            tracing::error!("🔴Can't parser FieldType from value: {}", ty);
             FieldType::RichText
           },
         }

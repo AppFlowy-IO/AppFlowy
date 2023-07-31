@@ -1,11 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -24,18 +27,32 @@ void showLinkToPageMenu(
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
-  final linkToPageMenuEntry = FullScreenOverlayEntry(
+  keepEditorFocusNotifier.value += 1;
+  late OverlayEntry linkToPageMenuEntry;
+  linkToPageMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
+    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
     builder: (context) => Material(
       color: Colors.transparent,
       child: LinkToPageMenu(
         editorState: editorState,
         layoutType: pageType,
         hintText: pageType.toHintText(),
-        onSelected: (appPB, viewPB) {
-          editorState.insertPage(appPB, viewPB);
+        onSelected: (appPB, viewPB) async {
+          try {
+            await editorState.insertReferencePage(viewPB);
+            linkToPageMenuEntry.remove();
+          } on FlowyError catch (e) {
+            Dialogs.show(
+              child: FlowyErrorPage.message(
+                e.msg,
+                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+              ),
+              context,
+            );
+          }
         },
       ),
     ),
@@ -66,16 +83,17 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   EditorStyle get style => widget.editorState.editorStyle;
   int _selectedIndex = 0;
   int _totalItems = 0;
-  Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>? _availableLayout;
-  final Map<int, dartz.Tuple2<ViewPB, ViewPB>> _items = {};
+  Future<List<(ViewPB, List<ViewPB>)>>? _availableLayout;
+  final Map<int, (ViewPB, ViewPB)> _items = {};
 
-  Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>> fetchItems() async {
-    final items = await AppBackendService().fetchViews(widget.layoutType);
+  Future<List<(ViewPB, List<ViewPB>)>> fetchItems() async {
+    final items =
+        await ViewBackendService().fetchViewsWithLayoutType(widget.layoutType);
 
     int index = 0;
-    for (final app in items) {
-      for (final view in app.value2) {
-        _items.putIfAbsent(index, () => dartz.Tuple2(app.value1, view));
+    for (final (app, children) in items) {
+      for (final view in children) {
+        _items.putIfAbsent(index, () => (app, view));
         index += 1;
       }
     }
@@ -158,8 +176,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
-        _items[_selectedIndex]!.value1,
-        _items[_selectedIndex]!.value2,
+        _items[_selectedIndex]!.$1,
+        _items[_selectedIndex]!.$2,
       );
     }
 
@@ -173,15 +191,15 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   Widget _buildListWidget(
     BuildContext context,
     int selectedIndex,
-    Future<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>? items,
+    Future<List<(ViewPB, List<ViewPB>)>>? items,
   ) {
     int index = 0;
-    return FutureBuilder<List<dartz.Tuple2<ViewPB, List<ViewPB>>>>(
+    return FutureBuilder<List<(ViewPB, List<ViewPB>)>>(
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           final views = snapshot.data;
-          final children = <Widget>[
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: FlowyText.regular(
@@ -191,27 +209,29 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               ),
             ),
           ];
+
           if (views != null && views.isNotEmpty) {
-            for (final view in views) {
-              if (view.value2.isNotEmpty) {
+            for (final (view, viewChildren) in views) {
+              if (viewChildren.isNotEmpty) {
                 children.add(
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: FlowyText.regular(
-                      view.value1.name,
+                      view.name,
                     ),
                   ),
                 );
-                for (final value in view.value2) {
+
+                for (final value in viewChildren) {
                   children.add(
                     FlowyButton(
                       isSelected: index == _selectedIndex,
                       leftIcon: svgWidget(
-                        _iconName(value),
+                        value.iconName,
                         color: Theme.of(context).iconTheme.color,
                       ),
                       text: FlowyText.regular(value.name),
-                      onTap: () => widget.onSelected(view.value1, value),
+                      onTap: () => widget.onSelected(view, value),
                     ),
                   );
 
@@ -233,17 +253,6 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       future: items,
     );
   }
-
-  String _iconName(ViewPB viewPB) {
-    switch (viewPB.layout) {
-      case ViewLayoutPB.Grid:
-        return 'editor/grid';
-      case ViewLayoutPB.Board:
-        return 'editor/board';
-      default:
-        throw Exception('Unknown layout type');
-    }
-  }
 }
 
 extension on ViewLayoutPB {
@@ -254,6 +263,10 @@ extension on ViewLayoutPB {
 
       case ViewLayoutPB.Board:
         return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
+
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
+            .tr();
 
       default:
         throw Exception('Unknown layout type');

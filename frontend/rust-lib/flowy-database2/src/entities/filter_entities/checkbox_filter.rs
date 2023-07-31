@@ -1,6 +1,7 @@
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct CheckboxFilterPB {
@@ -10,7 +11,9 @@ pub struct CheckboxFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum CheckboxFilterConditionPB {
+  #[default]
   IsChecked = 0,
   IsUnChecked = 1,
 }
@@ -21,12 +24,6 @@ impl std::convert::From<CheckboxFilterConditionPB> for u32 {
   }
 }
 
-impl std::default::Default for CheckboxFilterConditionPB {
-  fn default() -> Self {
-    CheckboxFilterConditionPB::IsChecked
-  }
-}
-
 impl std::convert::TryFrom<u8> for CheckboxFilterConditionPB {
   type Error = ErrorCode;
 
@@ -34,7 +31,7 @@ impl std::convert::TryFrom<u8> for CheckboxFilterConditionPB {
     match value {
       0 => Ok(CheckboxFilterConditionPB::IsChecked),
       1 => Ok(CheckboxFilterConditionPB::IsUnChecked),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

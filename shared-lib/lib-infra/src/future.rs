@@ -44,9 +44,7 @@ impl<T, E> FutureResult<T, E> {
   where
     F: Future<Output = Result<T, E>> + Send + Sync + 'static,
   {
-    Self {
-      fut: Box::pin(async { f.await }),
-    }
+    Self { fut: Box::pin(f) }
   }
 }
 

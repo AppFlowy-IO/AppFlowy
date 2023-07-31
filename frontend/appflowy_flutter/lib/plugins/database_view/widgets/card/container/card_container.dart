@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 import 'accessory.dart';
 
@@ -45,12 +44,9 @@ class RowCardContainer extends StatelessWidget {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => openCard(context),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 30),
-                child: container,
-              ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 30),
+              child: container,
             ),
           );
         },
@@ -75,13 +71,17 @@ class _CardEnterRegion extends StatelessWidget {
     return Selector<_CardContainerNotifier, bool>(
       selector: (context, notifier) => notifier.onEnter,
       builder: (context, onEnter, _) {
-        List<Widget> children = [child];
+        final List<Widget> children = [child];
         if (onEnter) {
           children.add(
-            CardAccessoryContainer(
-              accessories: accessories,
-              onTapAccessory: onTapAccessory,
-            ).positioned(right: 0),
+            Positioned(
+              top: 8.0,
+              right: 8.0,
+              child: CardAccessoryContainer(
+                accessories: accessories,
+                onTapAccessory: onTapAccessory,
+              ),
+            ),
           );
         }
 

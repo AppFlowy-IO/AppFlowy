@@ -11,7 +11,7 @@ export const ErrorModal = ({ message, onClose }: { message: string; onClose: () 
       >
         <button
           onClick={() => onClose()}
-          className={'absolute right-0 top-0 z-10 px-2 py-2 text-shade-5 hover:text-black'}
+          className={'absolute right-0 top-0 z-10 px-2 py-2 text-text-caption hover:text-text-title'}
         >
           <i className={'block h-8 w-8'}>
             <CloseSvg></CloseSvg>

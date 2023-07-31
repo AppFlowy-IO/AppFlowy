@@ -59,17 +59,17 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
             final cells = state.creatableFields.map((fieldInfo) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
-                child: _SortPropertyCell(
+                child: GridSortPropertyCell(
                   fieldInfo: fieldInfo,
                   onTap: (fieldInfo) => createSort(fieldInfo),
                 ),
               );
             }).toList();
 
-            List<Widget> slivers = [
+            final List<Widget> slivers = [
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _FilterTextFieldDelegate(),
+                delegate: _SortTextFieldDelegate(),
               ),
               SliverToBoxAdapter(
                 child: ListView.separated(
@@ -109,8 +109,8 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
   }
 }
 
-class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
-  _FilterTextFieldDelegate();
+class _SortTextFieldDelegate extends SliverPersistentHeaderDelegate {
+  _SortTextFieldDelegate();
 
   double fixHeight = 46;
 
@@ -146,10 +146,10 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _SortPropertyCell extends StatelessWidget {
+class GridSortPropertyCell extends StatelessWidget {
   final FieldInfo fieldInfo;
   final Function(FieldInfo) onTap;
-  const _SortPropertyCell({
+  const GridSortPropertyCell({
     required this.fieldInfo,
     required this.onTap,
     Key? key,

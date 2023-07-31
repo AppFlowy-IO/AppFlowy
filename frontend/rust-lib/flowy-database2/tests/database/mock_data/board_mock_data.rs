@@ -2,18 +2,19 @@
 // #![allow(dead_code)]
 // #![allow(unused_imports)]
 
-use crate::database::database_editor::TestRowBuilder;
-use crate::database::mock_data::{
-  COMPLETED, FACEBOOK, FIRST_THING, GOOGLE, PAUSED, PLANNED, SECOND_THING, THIRD_THING, TWITTER,
-};
-use collab_database::database::{gen_database_id, gen_database_view_id, DatabaseData};
+use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::{
-  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
-  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat,
-};
 use strum::IntoEnumIterator;
+
+use flowy_database2::entities::FieldType;
+use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
+use flowy_database2::services::field::{
+  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, SelectOption, SelectOptionColor,
+  SingleSelectTypeOption, TimeFormat,
+};
+
+use crate::database::database_editor::TestRowBuilder;
+use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 
 // Kanban board unit test mock data
 pub fn make_test_board() -> DatabaseData {
@@ -38,14 +39,22 @@ pub fn make_test_board() -> DatabaseData {
           .build();
         fields.push(number_field);
       },
-      FieldType::DateTime => {
+      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
         // Date
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
+          timezone_id: "Etc/UTC".to_owned(),
+          field_type: field_type.clone(),
+        };
+        let name = match field_type {
+          FieldType::DateTime => "Time",
+          FieldType::LastEditedTime => "Updated At",
+          FieldType::CreatedTime => "Created At",
+          _ => "",
         };
         let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
-          .name("Time")
+          .name(name)
           .visibility(true)
           .build();
         fields.push(date_field);
@@ -95,11 +104,11 @@ pub fn make_test_board() -> DatabaseData {
         fields.push(url);
       },
       FieldType::Checklist => {
-        let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
-        let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
-        let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
-        let mut type_option = ChecklistTypeOption::default();
-        type_option.options.extend(vec![option1, option2, option3]);
+        // let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
+        // let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
+        // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
+        let type_option = ChecklistTypeOption::default();
+        // type_option.options.extend(vec![option1, option2, option3]);
         let checklist_field = FieldBuilder::new(field_type.clone(), type_option)
           .name("TODO")
           .visibility(true)
@@ -111,7 +120,7 @@ pub fn make_test_board() -> DatabaseData {
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(i.into(), fields.clone());
+    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -119,12 +128,9 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1647251762",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+            },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -142,12 +148,9 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("B"),
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1647251762",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+            },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -164,12 +167,9 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1647251762",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+            },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -189,12 +189,9 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1668704685",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+              row_builder.insert_date_cell("1668704685", None, None, &field_type)
+            },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -209,12 +206,9 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime => row_builder.insert_date_cell(
-              "1668359085",
-              None,
-              None,
-              Some(chrono_tz::Tz::Etc__GMTPlus8.to_string()),
-            ),
+            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+              row_builder.insert_date_cell("1668359085", None, None, &field_type)
+            },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(2))
             },

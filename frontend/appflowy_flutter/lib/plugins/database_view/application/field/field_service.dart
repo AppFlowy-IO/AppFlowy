@@ -29,21 +29,16 @@ class FieldBackendService {
 
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
-    FieldType? fieldType,
     bool? frozen,
     bool? visibility,
     double? width,
   }) {
-    var payload = FieldChangesetPB.create()
+    final payload = FieldChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
 
     if (name != null) {
       payload.name = name;
-    }
-
-    if (fieldType != null) {
-      payload.fieldType = fieldType;
     }
 
     if (frozen != null) {
@@ -66,7 +61,7 @@ class FieldBackendService {
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    var payload = TypeOptionChangesetPB.create()
+    final payload = TypeOptionChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
@@ -104,11 +99,19 @@ class FieldBackendService {
       );
     });
   }
+
+  /// Returns the primary field of the view.
+  static Future<Either<FieldPB, FlowyError>> getPrimaryField({
+    required String viewId,
+  }) {
+    final payload = DatabaseViewIdPB.create()..value = viewId;
+    return DatabaseEventGetPrimaryField(payload).send();
+  }
 }
 
 @freezed
-class FieldCellContext with _$FieldCellContext {
-  const factory FieldCellContext({
+class FieldContext with _$FieldContext {
+  const factory FieldContext({
     required String viewId,
     required FieldPB field,
   }) = _FieldCellContext;

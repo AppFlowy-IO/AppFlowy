@@ -38,6 +38,15 @@ mac_alias = "appflowy-macos-dev"
 windows_alias = "appflowy-windows-dev"
 linux_alias = "appflowy-linux-dev"
 
+[tasks.appflowy-ios-dev]
+dependencies = ["appflowy-core-dev-ios"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-macos-dev]
 dependencies = ["appflowy-core-dev"]
 run_task = { name = [
@@ -167,16 +176,14 @@ script = [
 [tasks.flutter-build]
 script = ["""
   cd appflowy_flutter/
-  flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
 script = ["""
   cd appflowy_flutter
-  exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
   """]
@@ -188,10 +195,10 @@ script = [
   """
   cd appflowy_flutter
   flutter clean
-  flutter packages pub get
-  flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  flutter packages pub run build_runner build --delete-conflicting-outputs
-  """,
+  flutter pub get
+  cd ../
+  sh scripts/code_generation/generate.sh
+  """
 ]
 
 [tasks.code_generation.windows]
@@ -200,9 +207,9 @@ script = [
   """
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
-  exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
+  exec cmd.exe /c flutter pub get
+  cd ../
+  exec scripts/code_generation/generate.cmd
   """,
 ]
 
@@ -211,8 +218,8 @@ script_runner = "@shell"
 script = [
   """
   cd appflowy_flutter
-  flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  flutter packages pub run build_runner build --delete-conflicting-outputs
+  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  dart run build_runner build -d
   """,
 ]
 
@@ -221,7 +228,7 @@ script_runner = "@duckscript"
 script = [
   """
   cd ./appflowy_flutter/
-  exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
+  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  exec cmd.exe /c dart run build_runner build -d
   """,
 ]

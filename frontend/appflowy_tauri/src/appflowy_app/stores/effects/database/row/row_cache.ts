@@ -4,17 +4,18 @@ import {
   UpdatedRowPB,
   RowIdPB,
   OptionalRowPB,
-  RowsChangesetPB,
-  RowsVisibilityChangesetPB,
-  ReorderSingleRowPB
-} from "@/services/backend";
-import { ChangeNotifier } from "$app/utils/change_notifier";
-import { FieldInfo } from "../field/field_controller";
-import { CellCache, CellCacheKey } from "../cell/cell_cache";
-import { CellIdentifier } from "../cell/cell_bd_svc";
-import { DatabaseEventGetRow } from "@/services/backend/events/flowy-database2";
-import { None, Option, Some } from "ts-results";
-import { Log } from "$app/utils/log";
+  RowsChangePB,
+  RowsVisibilityChangePB,
+  ReorderSingleRowPB,
+  RowMetaPB,
+} from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
+import { FieldInfo } from '../field/field_controller';
+import { CellCache, CellCacheKey } from '../cell/cell_cache';
+import { CellIdentifier } from '../cell/cell_bd_svc';
+import { DatabaseEventGetRow, DatabaseEventGetRowMeta } from '@/services/backend/events/flowy-database2';
+import { None, Option, Some } from 'ts-results';
+import { Log } from '$app/utils/log';
 
 export type CellByFieldId = Map<string, CellIdentifier>;
 
@@ -75,20 +76,20 @@ export class RowCache {
     this.notifier.withChange(RowChangedReason.FieldDidChanged);
   };
 
-  initializeRows = (rows: RowPB[]) => {
+  initializeRows = (rows: RowMetaPB[]) => {
     rows.forEach((rowPB) => {
       this.rowList.push(this._toRowInfo(rowPB));
     });
     this.notifier.withChange(RowChangedReason.ReorderRows);
   };
 
-  applyRowsChanged = (changeset: RowsChangesetPB) => {
+  applyRowsChanged = (changeset: RowsChangePB) => {
     this._deleteRows(changeset.deleted_rows);
     this._insertRows(changeset.inserted_rows);
     this._updateRows(changeset.updated_rows);
   };
 
-  applyRowsVisibility = (changeset: RowsVisibilityChangesetPB) => {
+  applyRowsVisibility = (changeset: RowsVisibilityChangePB) => {
     this._hideRows(changeset.invisible_rows);
     this._displayRows(changeset.visible_rows);
   };
@@ -106,11 +107,7 @@ export class RowCache {
     }
   };
 
-  private _refreshRow = (opRow: OptionalRowPB) => {
-    if (!opRow.has_row) {
-      return;
-    }
-    const updatedRow = opRow.row;
+  private _refreshRow = (updatedRow: RowMetaPB) => {
     const option = this.rowList.getRowWithIndex(updatedRow.id);
     if (option.some) {
       const { rowInfo, index } = option.val;
@@ -124,7 +121,7 @@ export class RowCache {
 
   private _loadRow = (rowId: string) => {
     const payload = RowIdPB.fromObject({ view_id: this.viewId, row_id: rowId });
-    return DatabaseEventGetRow(payload);
+    return DatabaseEventGetRowMeta(payload);
   };
 
   private _deleteRows = (rowIds: string[]) => {
@@ -138,7 +135,7 @@ export class RowCache {
 
   private _insertRows = (rows: InsertedRowPB[]) => {
     rows.forEach((insertedRow) => {
-      const rowInfo = this._toRowInfo(insertedRow.row);
+      const rowInfo = this._toRowInfo(insertedRow.row_meta);
       const insertedIndex = this.rowList.insert(insertedRow.index, rowInfo);
       if (insertedIndex !== undefined) {
         this.notifier.withChange(RowChangedReason.Insert, insertedIndex.rowId);
@@ -154,11 +151,11 @@ export class RowCache {
     const rowInfos: RowInfo[] = [];
     updatedRows.forEach((updatedRow) => {
       updatedRow.field_ids.forEach((fieldId) => {
-        const key = new CellCacheKey(fieldId, updatedRow.row.id);
+        const key = new CellCacheKey(fieldId, updatedRow.row_meta.id);
         this.cellCache.remove(key);
       });
 
-      rowInfos.push(this._toRowInfo(updatedRow.row));
+      rowInfos.push(this._toRowInfo(updatedRow.row_meta));
     });
 
     const updatedIndexs = this.rowList.insertRows(rowInfos);
@@ -178,7 +175,7 @@ export class RowCache {
 
   private _displayRows = (insertedRows: InsertedRowPB[]) => {
     insertedRows.forEach((insertedRow) => {
-      const insertedIndex = this.rowList.insert(insertedRow.index, this._toRowInfo(insertedRow.row));
+      const insertedIndex = this.rowList.insert(insertedRow.index, this._toRowInfo(insertedRow.row_meta));
 
       if (insertedIndex !== undefined) {
         this.notifier.withChange(RowChangedReason.Insert, insertedIndex.rowId);
@@ -190,7 +187,7 @@ export class RowCache {
     this.notifier.dispose();
   };
 
-  private _toRowInfo = (rowPB: RowPB) => {
+  private _toRowInfo = (rowPB: RowMetaPB) => {
     return new RowInfo(this.viewId, this.getFieldInfos(), rowPB);
   };
 
@@ -338,28 +335,24 @@ export class RowInfo {
   constructor(
     public readonly viewId: string,
     public readonly fieldInfos: readonly FieldInfo[],
-    public readonly row: RowPB
-  ) {
-  }
+    public readonly row: RowMetaPB
+  ) {}
 
-  copyWith = (params: { row?: RowPB; fieldInfos?: readonly FieldInfo[] }) => {
+  copyWith = (params: { row?: RowMetaPB; fieldInfos?: readonly FieldInfo[] }) => {
     return new RowInfo(this.viewId, params.fieldInfos || this.fieldInfos, params.row || this.row);
   };
 }
 
 export class DeletedRow {
-  constructor(public readonly index: number, public readonly rowInfo: RowInfo) {
-  }
+  constructor(public readonly index: number, public readonly rowInfo: RowInfo) {}
 }
 
 export class InsertedRow {
-  constructor(public readonly index: number, public readonly rowId: string) {
-  }
+  constructor(public readonly index: number, public readonly rowId: string) {}
 }
 
 export class RowChanged {
-  constructor(public readonly reason: RowChangedReason, public readonly rowId?: string) {
-  }
+  constructor(public readonly reason: RowChangedReason, public readonly rowId?: string) {}
 }
 
 // eslint-disable-next-line no-shadow

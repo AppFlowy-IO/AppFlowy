@@ -1,32 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
-
-enum SettingsPage {
-  appearance,
-  language,
-  files,
-  user,
-}
-
-extension on SettingsPage {
-  String get name {
-    switch (this) {
-      case SettingsPage.appearance:
-        return LocaleKeys.settings_menu_appearance.tr();
-      case SettingsPage.language:
-        return LocaleKeys.settings_menu_language.tr();
-      case SettingsPage.files:
-        return LocaleKeys.settings_menu_files.tr();
-      case SettingsPage.user:
-        return LocaleKeys.settings_menu_user.tr();
-    }
-  }
-}
 
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
@@ -41,7 +21,9 @@ extension AppFlowySettings on WidgetTester {
 
   /// Open the page that insides the settings page
   Future<void> openSettingsPage(SettingsPage page) async {
-    final button = find.text(page.name, findRichText: true);
+    final button = find.byWidgetPredicate(
+      (widget) => widget is SettingsMenuElement && widget.page == page,
+    );
     expect(button, findsOneWidget);
     await tapButton(button);
     return;
@@ -50,7 +32,7 @@ extension AppFlowySettings on WidgetTester {
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
     final button =
-        find.byTooltip(LocaleKeys.settings_files_restoreLocation.tr());
+        find.byTooltip(LocaleKeys.settings_files_recoverLocationTooltips.tr());
     expect(button, findsOneWidget);
     await tapButton(button);
     return;
@@ -64,8 +46,9 @@ extension AppFlowySettings on WidgetTester {
   }
 
   Future<void> tapCustomLocationButton() async {
-    final button =
-        find.byTooltip(LocaleKeys.settings_files_customizeLocation.tr());
+    final button = find.byTooltip(
+      LocaleKeys.settings_files_changeLocationTooltips.tr(),
+    );
     expect(button, findsOneWidget);
     await tapButton(button);
     return;

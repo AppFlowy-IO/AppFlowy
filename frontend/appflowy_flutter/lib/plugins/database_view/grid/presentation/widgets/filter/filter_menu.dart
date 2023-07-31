@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,37 +13,49 @@ import 'create_filter_list.dart';
 import 'filter_menu_item.dart';
 
 class FilterMenu extends StatelessWidget {
-  const FilterMenu({Key? key}) : super(key: key);
+  final FieldController fieldController;
+  const FilterMenu({
+    required this.fieldController,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
-      builder: (context, state) {
-        final List<Widget> children = [];
-        children.addAll(
-          state.filters
-              .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
-              .toList(),
-        );
+    return BlocProvider<GridFilterMenuBloc>(
+      create: (context) => GridFilterMenuBloc(
+        viewId: fieldController.viewId,
+        fieldController: fieldController,
+      )..add(
+          const GridFilterMenuEvent.initial(),
+        ),
+      child: BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
+        builder: (context, state) {
+          final List<Widget> children = [];
+          children.addAll(
+            state.filters
+                .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+                .toList(),
+          );
 
-        if (state.creatableFields.isNotEmpty) {
-          children.add(AddFilterButton(viewId: state.viewId));
-        }
+          if (state.creatableFields.isNotEmpty) {
+            children.add(AddFilterButton(viewId: state.viewId));
+          }
 
-        return Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: children,
+          return Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: children,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

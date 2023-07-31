@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowId};
+use collab_database::rows::{Cell, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -13,7 +13,7 @@ use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
 
 use crate::entities::filter_entities::*;
-use crate::entities::{FieldType, InsertedRowPB, RowPB};
+use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
 use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
@@ -23,8 +23,8 @@ pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
   fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>>;
-  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<Row>)>>;
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
+  fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
 }
 
 pub trait FromFilterString {
@@ -98,14 +98,14 @@ impl FilterController {
     self.task_scheduler.write().await.add_task(task);
   }
 
-  pub async fn filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn filter_rows(&self, rows: &mut Vec<Arc<RowDetail>>) {
     if self.cell_filter_cache.read().is_empty() {
       return;
     }
     let field_by_field_id = self.get_field_map().await;
-    rows.iter().for_each(|row| {
+    rows.iter().for_each(|row_detail| {
       let _ = filter_row(
-        row,
+        &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
@@ -113,10 +113,10 @@ impl FilterController {
       );
     });
 
-    rows.retain(|row| {
+    rows.retain(|row_detail| {
       self
         .result_by_row_id
-        .get(&row.id)
+        .get(&row_detail.row.id)
         .map(|result| result.is_visible())
         .unwrap_or(false)
     });
@@ -149,22 +149,21 @@ impl FilterController {
   }
 
   async fn filter_row(&self, row_id: RowId) -> FlowyResult<()> {
-    if let Some((_, row)) = self.delegate.get_row(&self.view_id, &row_id).await {
+    if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
       if let Some((row_id, is_visible)) = filter_row(
-        &row,
+        &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &self.cell_filter_cache,
       ) {
         if is_visible {
-          if let Some((index, row)) = self.delegate.get_row(&self.view_id, &row_id).await {
-            let row_pb = RowPB::from(row.as_ref());
+          if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
             notification
               .visible_rows
-              .push(InsertedRowPB::with_index(row_pb, index as i32))
+              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32))
           }
         } else {
           notification.invisible_rows.push(row_id);
@@ -183,7 +182,7 @@ impl FilterController {
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
 
-    for (index, row) in self
+    for (index, row_detail) in self
       .delegate
       .get_rows(&self.view_id)
       .await
@@ -191,15 +190,15 @@ impl FilterController {
       .enumerate()
     {
       if let Some((row_id, is_visible)) = filter_row(
-        &row,
+        &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &self.cell_filter_cache,
       ) {
         if is_visible {
-          let row_pb = RowPB::from(row.as_ref());
-          visible_rows.push(InsertedRowPB::with_index(row_pb, index as i32))
+          let row_meta = RowMetaPB::from(&row_detail.meta);
+          visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
           invisible_rows.push(row_id);
         }
@@ -219,12 +218,14 @@ impl FilterController {
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    self
-      .gen_task(
-        FilterEvent::RowDidChanged(row_id),
-        QualityOfService::UserInteractive,
-      )
-      .await
+    if !self.cell_filter_cache.read().is_empty() {
+      self
+        .gen_task(
+          FilterEvent::RowDidChanged(row_id),
+          QualityOfService::UserInteractive,
+        )
+        .await
+    }
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -323,7 +324,7 @@ impl FilterController {
             .write()
             .insert(field_id, NumberFilterPB::from_filter(filter.as_ref()));
         },
-        FieldType::DateTime => {
+        FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
           self
             .cell_filter_cache
             .write()

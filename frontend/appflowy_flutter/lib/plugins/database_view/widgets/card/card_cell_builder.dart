@@ -14,31 +14,33 @@ import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
 class CardCellBuilder<CustomCardData> {
-  final CellCache cellCache;
+  final CellMemCache cellCache;
   final Map<FieldType, CardCellStyle>? styles;
 
   CardCellBuilder(this.cellCache, {this.styles});
 
   Widget buildCell({
     CustomCardData? cardData,
-    required CellIdentifier cellId,
+    required DatabaseCellContext cellContext,
     EditableCardNotifier? cellNotifier,
     RowCardRenderHook<CustomCardData>? renderHook,
   }) {
     final cellControllerBuilder = CellControllerBuilder(
-      cellId: cellId,
+      cellContext: cellContext,
       cellCache: cellCache,
     );
 
-    final key = cellId.key();
-    final style = styles?[cellId.fieldType];
-    switch (cellId.fieldType) {
+    final key = cellContext.key();
+    final style = styles?[cellContext.fieldType];
+    switch (cellContext.fieldType) {
       case FieldType.Checkbox:
         return CheckboxCardCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.DateTime:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
         return DateCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.DateTime],
           cellControllerBuilder: cellControllerBuilder,

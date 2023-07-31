@@ -1,6 +1,11 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::convert::TryFrom;
+
+use serde::{Deserialize, Serialize};
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::FlowyError;
+use flowy_server_config::supabase_config::SupabaseConfiguration;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -49,17 +54,12 @@ pub struct AppearanceSettingsPB {
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
 
-#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug)]
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
 pub enum ThemeModePB {
   Light = 0,
   Dark = 1,
+  #[default]
   System = 2,
-}
-
-impl std::default::Default for ThemeModePB {
-  fn default() -> Self {
-    ThemeModePB::System
-  }
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
@@ -101,4 +101,71 @@ impl std::default::Default for AppearanceSettingsPB {
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct SupabaseConfigPB {
+  #[pb(index = 1)]
+  supabase_url: String,
+
+  #[pb(index = 2)]
+  key: String,
+
+  #[pb(index = 3)]
+  jwt_secret: String,
+
+  #[pb(index = 4)]
+  enable_sync: bool,
+}
+
+impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
+  type Error = FlowyError;
+
+  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
+    Ok(SupabaseConfiguration {
+      url: config.supabase_url,
+      anon_key: config.key,
+      jwt_secret: config.jwt_secret,
+      enable_sync: config.enable_sync,
+    })
+  }
+}
+
+impl From<SupabaseConfiguration> for SupabaseConfigPB {
+  fn from(value: SupabaseConfiguration) -> Self {
+    Self {
+      supabase_url: value.url,
+      key: value.anon_key,
+      jwt_secret: value.jwt_secret,
+      enable_sync: value.enable_sync,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum NetworkTypePB {
+  #[default]
+  NetworkUnknown = 0,
+  Wifi = 1,
+  Cell = 2,
+  Ethernet = 3,
+  Bluetooth = 4,
+  VPN = 5,
+}
+
+impl NetworkTypePB {
+  pub fn is_reachable(&self) -> bool {
+    match self {
+      NetworkTypePB::NetworkUnknown | NetworkTypePB::Bluetooth => false,
+      NetworkTypePB::Wifi | NetworkTypePB::Cell | NetworkTypePB::Ethernet | NetworkTypePB::VPN => {
+        true
+      },
+    }
+  }
+}
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct NetworkStatePB {
+  #[pb(index = 1)]
+  pub ty: NetworkTypePB,
 }

@@ -1,8 +1,8 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellIdPB, CellIdParams};
+use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  ChecklistTypeOption, MultiSelectTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption,
+  MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -57,7 +57,9 @@ pub struct RepeatedSelectOptionPayload {
 
 #[derive(ProtoBuf_Enum, PartialEq, Eq, Debug, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum SelectOptionColorPB {
+  #[default]
   Purple = 0,
   Pink = 1,
   LightPink = 2,
@@ -67,12 +69,6 @@ pub enum SelectOptionColorPB {
   Green = 6,
   Aqua = 7,
   Blue = 8,
-}
-
-impl std::default::Default for SelectOptionColorPB {
-  fn default() -> Self {
-    SelectOptionColorPB::Purple
-  }
 }
 
 impl From<SelectOptionColor> for SelectOptionColorPB {
@@ -287,34 +283,19 @@ impl From<MultiSelectTypeOptionPB> for MultiSelectTypeOption {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct ChecklistTypeOptionPB {
   #[pb(index = 1)]
-  pub options: Vec<SelectOptionPB>,
-
-  #[pb(index = 2)]
-  pub disable_color: bool,
+  pub config: String,
 }
 
 impl From<ChecklistTypeOption> for ChecklistTypeOptionPB {
-  fn from(data: ChecklistTypeOption) -> Self {
+  fn from(_data: ChecklistTypeOption) -> Self {
     Self {
-      options: data
-        .options
-        .into_iter()
-        .map(|option| option.into())
-        .collect(),
-      disable_color: data.disable_color,
+      config: "".to_string(),
     }
   }
 }
 
 impl From<ChecklistTypeOptionPB> for ChecklistTypeOption {
-  fn from(data: ChecklistTypeOptionPB) -> Self {
-    Self {
-      options: data
-        .options
-        .into_iter()
-        .map(|option| option.into())
-        .collect(),
-      disable_color: data.disable_color,
-    }
+  fn from(_data: ChecklistTypeOptionPB) -> Self {
+    Self
   }
 }

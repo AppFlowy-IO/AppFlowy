@@ -12,29 +12,40 @@ export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class NavigatorTextFieldDialog extends StatefulWidget {
+  const NavigatorTextFieldDialog({
+    super.key,
+    required this.title,
+    this.autoSelectAllText = false,
+    required this.value,
+    required this.confirm,
+    this.cancel,
+  });
+
   final String value;
   final String title;
   final void Function()? cancel;
   final void Function(String) confirm;
-
-  const NavigatorTextFieldDialog({
-    required this.title,
-    required this.value,
-    required this.confirm,
-    this.cancel,
-    Key? key,
-  }) : super(key: key);
+  final bool autoSelectAllText;
 
   @override
-  State<NavigatorTextFieldDialog> createState() => _CreateTextFieldDialog();
+  State<NavigatorTextFieldDialog> createState() =>
+      _NavigatorTextFieldDialogState();
 }
 
-class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
+class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
   String newValue = "";
+  final controller = TextEditingController();
 
   @override
   void initState() {
     newValue = widget.value;
+    controller.text = newValue;
+    if (widget.autoSelectAllText) {
+      controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: newValue.length,
+      );
+    }
     super.initState();
   }
 
@@ -52,7 +63,7 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
           FlowyFormTextInput(
             textAlign: TextAlign.center,
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
-            initialValue: widget.value,
+            controller: controller,
             textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontSize: FontSizes.s16,
                 ),
@@ -227,7 +238,7 @@ class OkCancelButton extends StatelessWidget {
             SecondaryTextButton(
               cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: onCancelPressed,
-              bigMode: true,
+              mode: SecondaryTextButtonMode.big,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)

@@ -9,21 +9,21 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  final ViewService service;
+  final ViewBackendService viewBackendSvc;
   final ViewListener listener;
   final ViewPB view;
 
   ViewBloc({
     required this.view,
-  })  : service = ViewService(),
-        listener = ViewListener(view: view),
+  })  : viewBackendSvc = ViewBackendService(),
+        listener = ViewListener(viewId: view.id),
         super(ViewState.init(view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
           listener.start(
             onViewUpdated: (result) {
-              add(ViewEvent.viewDidUpdate(result));
+              add(ViewEvent.viewDidUpdate(left(result)));
             },
           );
           emit(state);
@@ -42,7 +42,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         rename: (e) async {
-          final result = await service.updateView(
+          final result = await ViewBackendService.updateView(
             viewId: view.id,
             name: e.newName,
           );
@@ -54,7 +54,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         delete: (e) async {
-          final result = await service.delete(viewId: view.id);
+          final result = await ViewBackendService.delete(viewId: view.id);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
@@ -63,7 +63,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         duplicate: (e) async {
-          final result = await service.duplicate(view: view);
+          final result = await ViewBackendService.duplicate(view: view);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),

@@ -1,8 +1,11 @@
-use crate::services::filter::{Filter, FromFilterString};
+use std::str::FromStr;
+
+use serde::{Deserialize, Serialize};
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DateFilterPB {
@@ -42,7 +45,9 @@ impl FromStr for DateFilterContentPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum DateFilterConditionPB {
+  #[default]
   DateIs = 0,
   DateBefore = 1,
   DateAfter = 2,
@@ -58,11 +63,6 @@ impl std::convert::From<DateFilterConditionPB> for u32 {
     value as u32
   }
 }
-impl std::default::Default for DateFilterConditionPB {
-  fn default() -> Self {
-    DateFilterConditionPB::DateIs
-  }
-}
 
 impl std::convert::TryFrom<u8> for DateFilterConditionPB {
   type Error = ErrorCode;
@@ -76,7 +76,7 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
       4 => Ok(DateFilterConditionPB::DateOnOrAfter),
       5 => Ok(DateFilterConditionPB::DateWithIn),
       6 => Ok(DateFilterConditionPB::DateIsEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

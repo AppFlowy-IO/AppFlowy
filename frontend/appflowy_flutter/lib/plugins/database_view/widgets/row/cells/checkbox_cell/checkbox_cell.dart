@@ -40,8 +40,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
       child: BlocBuilder<CheckboxCellBloc, CheckboxCellState>(
         builder: (context, state) {
           final icon = state.isSelected
-              ? svgWidget('editor/editor_check')
-              : svgWidget('editor/editor_uncheck');
+              ? const CheckboxCellCheck()
+              : const CheckboxCellUncheck();
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -80,5 +80,23 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
     } else {
       return "No";
     }
+  }
+}
+
+class CheckboxCellCheck extends StatelessWidget {
+  const CheckboxCellCheck({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return svgWidget('editor/editor_check');
+  }
+}
+
+class CheckboxCellUncheck extends StatelessWidget {
+  const CheckboxCellUncheck({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return svgWidget('editor/editor_uncheck');
   }
 }

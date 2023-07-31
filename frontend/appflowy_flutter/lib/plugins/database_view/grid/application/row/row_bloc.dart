@@ -1,4 +1,6 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database_view/application/row/row_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -7,7 +9,7 @@ import 'dart:async';
 import '../../../application/cell/cell_service.dart';
 import '../../../application/field/field_controller.dart';
 import '../../../application/row/row_cache.dart';
-import '../../../application/row/row_data_controller.dart';
+import '../../../application/row/row_controller.dart';
 import '../../../application/row/row_service.dart';
 
 part 'row_bloc.freezed.dart';
@@ -15,13 +17,18 @@ part 'row_bloc.freezed.dart';
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowBackendService _rowBackendSvc;
   final RowController _dataController;
+  final RowListener _rowListener;
+  final String viewId;
+  final String rowId;
 
   RowBloc({
-    required RowInfo rowInfo,
+    required this.rowId,
+    required this.viewId,
     required RowController dataController,
-  })  : _rowBackendSvc = RowBackendService(viewId: rowInfo.viewId),
+  })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _dataController = dataController,
-        super(RowState.initial(rowInfo, dataController.loadData())) {
+        _rowListener = RowListener(rowId),
+        super(RowState.initial(dataController.loadData())) {
     on<RowEvent>(
       (event, emit) async {
         await event.when(
@@ -29,7 +36,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _startListening();
           },
           createRow: () {
-            _rowBackendSvc.createRow(rowInfo.rowPB.id);
+            _rowBackendSvc.createRowAfterRow(rowId);
           },
           didReceiveCells: (cellByFieldId, reason) async {
             final cells = cellByFieldId.values
@@ -43,6 +50,9 @@ class RowBloc extends Bloc<RowEvent, RowState> {
               ),
             );
           },
+          reloadRow: (DidFetchRowPB row) {
+            emit(state.copyWith(rowSource: RowSourece.remote(row)));
+          },
         );
       },
     );
@@ -51,6 +61,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   @override
   Future<void> close() async {
     _dataController.dispose();
+    await _rowListener.stop();
     return super.close();
   }
 
@@ -62,6 +73,14 @@ class RowBloc extends Bloc<RowEvent, RowState> {
         }
       },
     );
+
+    _rowListener.start(
+      onRowFetched: (fetchRow) {
+        if (!isClosed) {
+          add(RowEvent.reloadRow(fetchRow));
+        }
+      },
+    );
   }
 }
 
@@ -69,30 +88,33 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
+  const factory RowEvent.reloadRow(DidFetchRowPB row) = _ReloadRow;
   const factory RowEvent.didReceiveCells(
-    CellByFieldId cellsByFieldId,
-    RowsChangedReason reason,
+    CellContextByFieldId cellsByFieldId,
+    ChangedReason reason,
   ) = _DidReceiveCells;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required RowInfo rowInfo,
-    required CellByFieldId cellByFieldId,
+    required CellContextByFieldId cellByFieldId,
     required UnmodifiableListView<GridCellEquatable> cells,
-    RowsChangedReason? changeReason,
+    required RowSourece rowSource,
+    ChangedReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(RowInfo rowInfo, CellByFieldId cellByFieldId) =>
+  factory RowState.initial(
+    CellContextByFieldId cellByFieldId,
+  ) =>
       RowState(
-        rowInfo: rowInfo,
         cellByFieldId: cellByFieldId,
         cells: UnmodifiableListView(
           cellByFieldId.values
               .map((e) => GridCellEquatable(e.fieldInfo))
               .toList(),
         ),
+        rowSource: const RowSourece.disk(),
       );
 }
 
@@ -108,4 +130,12 @@ class GridCellEquatable extends Equatable {
         _fieldContext.visibility,
         _fieldContext.width,
       ];
+}
+
+@freezed
+class RowSourece with _$RowSourece {
+  const factory RowSourece.disk() = _Disk;
+  const factory RowSourece.remote(
+    DidFetchRowPB row,
+  ) = _Remote;
 }

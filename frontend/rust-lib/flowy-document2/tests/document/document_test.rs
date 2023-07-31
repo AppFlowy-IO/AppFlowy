@@ -1,75 +1,70 @@
-use std::{collections::HashMap, sync::Arc, vec};
+use std::{collections::HashMap, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-use nanoid::nanoid;
 use serde_json::{json, to_value, Value};
 
-use crate::document::util::default_collab_builder;
-use flowy_document2::{document_data::DocumentDataWrapper, manager::DocumentManager};
+use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
-use super::util::FakeUser;
+use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 
-#[test]
-fn restore_document() {
-  let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
+#[tokio::test]
+async fn restore_document() {
+  let test = DocumentTest::new();
 
   // create a document
-  let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
-  let document_a = manager
-    .create_document(doc_id.clone(), data.clone())
-    .unwrap();
-  let data_a = document_a.lock().get_document().unwrap();
-  assert_eq!(data_a, data.0);
+  let doc_id: String = gen_document_id();
+  let data = default_document_data();
+  let document_a = test.create_document(&doc_id, Some(data.clone())).unwrap();
+  let data_a = document_a.lock().get_document_data().unwrap();
+  assert_eq!(data_a, data);
 
   // open a document
-  let data_b = manager
-    .open_document(doc_id.clone())
+  let data_b = test
+    .get_document(&doc_id)
+    .await
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
-  _ = manager.close_document(doc_id.clone());
-  assert_eq!(data_b, data.0);
+  _ = test.close_document(&doc_id);
+  assert_eq!(data_b, data);
 
   // restore
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = test.create_document(&doc_id, Some(data.clone()));
   // open a document
-  let data_b = manager
-    .open_document(doc_id.clone())
+  let data_b = test
+    .get_document(&doc_id)
+    .await
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
-  _ = manager.close_document(doc_id);
+  _ = test.close_document(&doc_id);
 
-  assert_eq!(data_b, data.0);
+  assert_eq!(data_b, data);
 }
 
-#[test]
-fn document_apply_insert_action() {
-  let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
-
-  let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+#[tokio::test]
+async fn document_apply_insert_action() {
+  let test = DocumentTest::new();
+  let doc_id: String = gen_document_id();
+  let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
   let text_block = Block {
-    id: nanoid!(10),
-    ty: "text".to_string(),
+    id: gen_id(),
+    ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
-    children: nanoid!(10),
+    children: gen_id(),
     external_id: None,
     external_type: None,
     data: HashMap::new(),
@@ -83,37 +78,36 @@ fn document_apply_insert_action() {
     },
   };
   document.lock().apply_action(vec![insert_text_action]);
-  let data_a = document.lock().get_document().unwrap();
+  let data_a = document.lock().get_document_data().unwrap();
   // close the original document
-  _ = manager.close_document(doc_id.clone());
+  _ = test.close_document(&doc_id);
 
   // re-open the document
-  let data_b = manager
-    .open_document(doc_id.clone())
+  let data_b = test
+    .get_document(&doc_id)
+    .await
     .unwrap()
     .lock()
-    .get_document()
+    .get_document_data()
     .unwrap();
   // close a document
-  _ = manager.close_document(doc_id);
+  _ = test.close_document(&doc_id);
 
   assert_eq!(data_b, data_a);
 }
 
-#[test]
-fn document_apply_update_page_action() {
-  let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
-
-  let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+#[tokio::test]
+async fn document_apply_update_page_action() {
+  let test = DocumentTest::new();
+  let doc_id: String = gen_document_id();
+  let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   let mut page_block_clone = page_block;
   page_block_clone.data = HashMap::new();
@@ -132,38 +126,36 @@ fn document_apply_update_page_action() {
   let actions = vec![action];
   tracing::trace!("{:?}", &actions);
   document.lock().apply_action(actions);
-  let page_block_old = document.lock().get_block(&data.0.page_id).unwrap();
-  _ = manager.close_document(doc_id.clone());
+  let page_block_old = document.lock().get_block(&data.page_id).unwrap();
+  _ = test.close_document(&doc_id);
 
   // re-open the document
-  let document = manager.open_document(doc_id).unwrap();
-  let page_block_new = document.lock().get_block(&data.0.page_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
+  let page_block_new = document.lock().get_block(&data.page_id).unwrap();
   assert_eq!(page_block_old, page_block_new);
   assert!(page_block_new.data.contains_key("delta"));
 }
 
-#[test]
-fn document_apply_update_action() {
-  let user = FakeUser::new();
-  let manager = DocumentManager::new(Arc::new(user), default_collab_builder());
-
-  let doc_id: String = nanoid!(10);
-  let data = DocumentDataWrapper::default();
+#[tokio::test]
+async fn document_apply_update_action() {
+  let test = DocumentTest::new();
+  let doc_id: String = gen_document_id();
+  let data = default_document_data();
 
   // create a document
-  _ = manager.create_document(doc_id.clone(), data.clone());
+  _ = test.create_document(&doc_id, Some(data.clone()));
 
   // open a document
-  let document = manager.open_document(doc_id.clone()).unwrap();
-  let page_block = document.lock().get_block(&data.0.page_id).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
+  let page_block = document.lock().get_block(&data.page_id).unwrap();
 
   // insert a text block
-  let text_block_id = nanoid!(10);
+  let text_block_id = gen_id();
   let text_block = Block {
     id: text_block_id.clone(),
-    ty: "text".to_string(),
+    ty: PARAGRAPH_BLOCK_TYPE.to_string(),
     parent: page_block.id,
-    children: nanoid!(10),
+    children: gen_id(),
     external_id: None,
     external_type: None,
     data: HashMap::new(),
@@ -201,12 +193,12 @@ fn document_apply_update_action() {
   };
   document.lock().apply_action(vec![update_text_action]);
   // close the original document
-  _ = manager.close_document(doc_id.clone());
+  _ = test.close_document(&doc_id);
 
   // re-open the document
-  let document = manager.open_document(doc_id.clone()).unwrap();
+  let document = test.get_document(&doc_id).await.unwrap();
   let block = document.lock().get_block(&text_block_id).unwrap();
   assert_eq!(block.data, updated_text_block_data);
   // close a document
-  _ = manager.close_document(doc_id);
+  _ = test.close_document(&doc_id);
 }

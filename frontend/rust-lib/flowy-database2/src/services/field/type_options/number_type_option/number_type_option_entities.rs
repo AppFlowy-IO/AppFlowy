@@ -1,6 +1,6 @@
 use crate::services::cell::{CellBytesCustomParser, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::number_currency::Currency;
-use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
+use crate::services::field::{NumberFormat, EXTRACT_NUM_REGEX, START_WITH_DOT_NUM_REGEX};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use rust_decimal::Decimal;
@@ -21,29 +21,28 @@ impl NumberCellFormat {
     }
   }
 
-  pub fn from_format_str(s: &str, sign_positive: bool, format: &NumberFormat) -> FlowyResult<Self> {
-    let mut num_str = strip_currency_symbol(s);
-    let currency = format.currency();
+  /// The num_str might contain currency symbol, e.g. $1,000.00
+  pub fn from_format_str(num_str: &str, format: &NumberFormat) -> FlowyResult<Self> {
     if num_str.is_empty() {
       return Ok(Self::default());
     }
+    // If the first char is not '-', then it is a sign.
+    let sign_positive = match num_str.find('-') {
+      None => true,
+      Some(offset) => offset != 0,
+    };
+
+    let num_str = auto_fill_zero_at_start_if_need(num_str);
+    let num_str = extract_number(&num_str);
     match Decimal::from_str(&num_str) {
       Ok(mut decimal) => {
         decimal.set_sign_positive(sign_positive);
-        let money = Money::from_decimal(decimal, currency);
+        let money = Money::from_decimal(decimal, format.currency());
         Ok(Self::from_money(money))
       },
-      Err(_) => match Money::from_str(&num_str, currency) {
-        Ok(money) => Ok(NumberCellFormat::from_money(money)),
-        Err(_) => {
-          num_str.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
-          if num_str.chars().all(char::is_numeric) {
-            Self::from_format_str(&num_str, sign_positive, format)
-          } else {
-            // returns empty string if it can be formatted
-            Ok(Self::default())
-          }
-        },
+      Err(_) => match Money::from_str(&num_str, format.currency()) {
+        Ok(money) => Ok(Self::from_money(money)),
+        Err(_) => Ok(Self::default()),
       },
     }
   }
@@ -71,17 +70,24 @@ impl NumberCellFormat {
   }
 }
 
-// impl FromStr for NumberCellData {
-//     type Err = FlowyError;
-//
-//     fn from_str(s: &str) -> Result<Self, Self::Err> {
-//         if s.is_empty() {
-//             return Ok(Self::default());
-//         }
-//         let decimal = Decimal::from_str(s).map_err(internal_error)?;
-//         Ok(Self::from_decimal(decimal))
-//     }
-// }
+fn auto_fill_zero_at_start_if_need(num_str: &str) -> String {
+  match START_WITH_DOT_NUM_REGEX.captures(num_str) {
+    Ok(Some(captures)) => match captures.get(0).map(|m| m.as_str().to_string()) {
+      Some(s) => format!("0{}", s),
+      None => num_str.to_string(),
+    },
+    _ => num_str.to_string(),
+  }
+}
+
+fn extract_number(num_str: &str) -> String {
+  let mut matches = EXTRACT_NUM_REGEX.find_iter(num_str);
+  let mut values = vec![];
+  while let Some(Ok(m)) = matches.next() {
+    values.push(m.as_str().to_string());
+  }
+  values.join("")
+}
 
 impl ToString for NumberCellFormat {
   fn to_string(&self) -> String {
@@ -108,7 +114,7 @@ impl CellProtobufBlobParser for NumberCellDataParser {
   type Object = NumberCellFormat;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellFormat::from_format_str(&s, true, &NumberFormat::Num),
+      Ok(s) => NumberCellFormat::from_format_str(&s, &NumberFormat::Num),
       Err(_) => Ok(NumberCellFormat::default()),
     }
   }
@@ -119,7 +125,7 @@ impl CellBytesCustomParser for NumberCellCustomDataParser {
   type Object = NumberCellFormat;
   fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => NumberCellFormat::from_format_str(&s, true, &self.0),
+      Ok(s) => NumberCellFormat::from_format_str(&s, &self.0),
       Err(_) => Ok(NumberCellFormat::default()),
     }
   }

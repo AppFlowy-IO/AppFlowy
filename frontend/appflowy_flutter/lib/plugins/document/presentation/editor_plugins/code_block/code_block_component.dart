@@ -59,13 +59,18 @@ class CodeBlockComponentBuilder extends BlockComponentBuilder {
   final EdgeInsets padding;
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return CodeBlockComponentWidget(
       key: node.key,
       node: node,
       configuration: configuration,
       padding: padding,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -73,16 +78,16 @@ class CodeBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) => node.delta != null;
 }
 
-class CodeBlockComponentWidget extends StatefulWidget {
+class CodeBlockComponentWidget extends BlockComponentStatefulWidget {
   const CodeBlockComponentWidget({
-    Key? key,
-    required this.node,
-    this.configuration = const BlockComponentConfiguration(),
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
-  }) : super(key: key);
+  });
 
-  final Node node;
-  final BlockComponentConfiguration configuration;
   final EdgeInsets padding;
 
   @override
@@ -91,10 +96,15 @@ class CodeBlockComponentWidget extends StatefulWidget {
 }
 
 class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
-    with SelectableMixin, DefaultSelectable, BlockComponentConfigurable {
+    with SelectableMixin, DefaultSelectableMixin, BlockComponentConfigurable {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
+
+  @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: CodeBlockKeys.type,
+  );
 
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -166,7 +176,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: Colors.grey.withOpacity(0.1),
@@ -181,6 +191,22 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         ],
       ),
     );
+
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
+    );
+
+    if (widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: widget.node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildCodeBlock(BuildContext context) {
@@ -201,7 +227,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     final codeTextSpans = _convert(codeNodes);
     return Padding(
       padding: widget.padding,
-      child: FlowyRichText(
+      child: AppFlowyRichText(
         key: forwardKey,
         node: widget.node,
         editorState: editorState,
@@ -267,9 +293,9 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   // Copy from flutter.highlight package.
   // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
   List<TextSpan> _convert(List<highlight.Node> nodes) {
-    List<TextSpan> spans = [];
+    final List<TextSpan> spans = [];
     var currentSpans = spans;
-    List<List<TextSpan>> stack = [];
+    final List<List<TextSpan>> stack = [];
 
     void traverse(highlight.Node node) {
       if (node.value != null) {
@@ -282,7 +308,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
                 ),
         );
       } else if (node.children != null) {
-        List<TextSpan> tmp = [];
+        final List<TextSpan> tmp = [];
         currentSpans.add(
           TextSpan(
             children: tmp,
@@ -292,7 +318,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         stack.add(currentSpans);
         currentSpans = tmp;
 
-        for (var n in node.children!) {
+        for (final n in node.children!) {
           traverse(n);
           if (n == node.children!.last) {
             currentSpans = stack.isEmpty ? spans : stack.removeLast();
@@ -301,7 +327,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       }
     }
 
-    for (var node in nodes) {
+    for (final node in nodes) {
       traverse(node);
     }
 

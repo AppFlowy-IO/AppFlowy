@@ -8,6 +8,16 @@
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command)
 {
+  HANDLE hMutexInstance = CreateMutex(NULL, TRUE, L"AppFlowyMutex");
+  HWND handle = FindWindowA(NULL, "AppFlowy");
+
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    WINDOWPLACEMENT place = { sizeof(WINDOWPLACEMENT) };
+    GetWindowPlacement(handle, &place);
+    ShowWindow(handle, SW_NORMAL);
+    return 0;
+  }
+
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent())
@@ -43,5 +53,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   }
 
   ::CoUninitialize();
+  ReleaseMutex(hMutexInstance);
   return EXIT_SUCCESS;
 }

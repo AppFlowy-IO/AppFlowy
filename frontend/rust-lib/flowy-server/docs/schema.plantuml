@@ -1,0 +1,203 @@
+@startuml
+left to right direction
+
+entity "af_roles" as roles {
+  id : SERIAL (PK)
+  name : TEXT
+}
+
+entity "af_permissions" as permissions {
+  id : SERIAL (PK)
+  name : VARCHAR(255)
+  access_level : INTEGER
+  description : TEXT
+}
+
+entity "af_role_permissions" as role_permissions {
+  role_id : INT (FK af_roles.id)
+  permission_id : INT (FK af_permissions.id)
+  --
+  (role_id, permission_id) : PK
+}
+
+entity "af_user" as user {
+  uuid : UUID (PK)
+  email : TEXT
+  uid : BIGSERIAL
+  name : TEXT
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+entity "af_workspace" as workspace {
+  workspace_id : UUID (PK)
+  database_storage_id : UUID
+  owner_uid : BIGINT (FK af_user.uid)
+  created_at : TIMESTAMP WITH TIME ZONE
+  workspace_type : INTEGER
+  workspace_name : TEXT
+}
+
+entity "af_workspace_member" as workspace_member {
+  uid : BIGINT
+  role_id : INT (FK af_roles.id)
+  workspace_id : UUID (FK af_workspace.workspace_id)
+  created_at : TIMESTAMP WITH TIME ZONE
+  updated_at : TIMESTAMP WITH TIME ZONE
+  --
+  (uid, workspace_id) : PK
+}
+
+entity "af_collab" as collab {
+  oid : TEXT (PK)
+  owner_uid : BIGINT
+  workspace_id : UUID (FK af_workspace.workspace_id)
+  access_level : INTEGER
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+entity "af_collab_update" as collab_update {
+  oid : TEXT (FK af_collab.oid)
+  key : BIGSERIAL
+  value : BYTEA
+  value_size : INTEGER
+  partition_key : INTEGER
+  uid : BIGINT
+  md5 : TEXT
+  created_at : TIMESTAMP WITH TIME ZONE
+  workspace_id : UUID (FK af_workspace.workspace_id)
+  --
+  (oid, key, partition_key) : PK
+}
+
+
+entity "af_collab_update_document" as af_collab_update_document {
+  Inherits af_collab_update (partition_key = 0)
+}
+
+entity "af_collab_update_database" as af_collab_update_database {
+  Inherits af_collab_update (partition_key = 1)
+}
+
+entity "af_collab_update_w_database" as af_collab_update_w_database {
+  Inherits af_collab_update (partition_key = 2)
+}
+
+entity "af_collab_update_folder" as af_collab_update_folder {
+  Inherits af_collab_update (partition_key = 3)
+}
+
+af_collab_update_document -u-|> collab_update
+af_collab_update_database -u-|> collab_update
+af_collab_update_w_database -u-|> collab_update
+af_collab_update_folder -u-|> collab_update
+
+entity "af_database_row_update" as database_row_update {
+  oid : TEXT
+  key : BIGSERIAL
+  value : BYTEA
+  value_size : INTEGER
+  partition_key : INTEGER
+  uid : BIGINT
+  md5 : TEXT
+  workspace_id : UUID (FK af_workspace.workspace_id)
+  --
+  (oid, key) : PK
+}
+
+entity "af_collab_member" as collab_member {
+  uid : BIGINT (FK af_user.uid)
+  oid : TEXT (FK af_collab.oid)
+  role_id : INTEGER (FK af_roles.id)
+  --
+  (uid, oid) : PK
+}
+
+entity "af_collab_statistics" as collab_statistics {
+  oid : TEXT (PK)
+  edit_count : BIGINT
+}
+
+entity "af_collab_snapshot" as collab_snapshot {
+  sid : BIGSERIAL (PK)
+  oid : TEXT (FK af_collab.oid)
+  name : TEXT
+  blob : BYTEA
+  blob_size : INTEGER
+  edit_count : BIGINT
+  created_at : TIMESTAMP WITH TIME ZONE
+}
+
+
+roles <-- role_permissions : FK
+permissions <-u- role_permissions : FK
+user <-- collab : FK
+user <-- workspace : FK
+user <-- collab_member : FK
+roles <-- workspace_member : FK
+workspace <-- workspace_member : FK
+workspace <-- collab : FK
+workspace <-- database_row_update : FK
+collab <-- collab_update : FK
+collab <-- collab_snapshot: FK
+collab <-u- collab_member : FK
+collab <-- collab_statistics : PK
+roles <-- collab_member : FK
+
+
+@enduml
+
+@startuml
+title Triggers in Database Schema
+
+participant "af_user" as A
+participant "af_workspace" as B
+participant "af_workspace_member" as C
+participant "af_collab" as D
+participant "af_collab_update" as E
+participant "af_collab_member" as F
+participant "af_collab_statistics" as G
+participant "af_collab_snapshot" as H
+
+A -> B: create_af_workspace_trigger
+note right
+This trigger fires after an insert on af_user. It automatically creates a workspace
+with the uid of the new user as the owner_uid.
+end note
+
+B -> C: manage_af_workspace_member_role_trigger
+note right
+This trigger fires after an insert on af_workspace. It automatically
+creates a workspace member in the af_workspace_member table with the
+role 'Owner'.
+end note
+
+E -> D: insert_into_af_collab_trigger
+note right
+This trigger fires before an insert on af_collab_update.
+It checks if a corresponding collab exists in the af_collab table.
+If not, it creates one with the oid, uid, and current timestamp.
+end note
+
+D -> F: insert_into_af_collab_member_trigger
+note right
+This trigger fires after an insert on af_collab.
+It automatically adds the collab's owner to the af_collab_member
+table with the role 'Owner'.
+end note
+
+E -> G: af_collab_update_edit_count_trigger
+note right
+ This trigger fires after an insert on af_collab_update.
+ It increments the edit_count of the corresponding collab in
+ the af_collab_statistics table.
+end note
+
+H -> G: af_collab_snapshot_update_edit_count_trigger
+note right
+ This trigger fires after an insert on af_collab_snapshot.
+ It sets the edit_count of the new snapshot to the current
+ edit_count of the collab in the af_collab_statistics table.
+end note
+
+@enduml
+

@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -78,6 +79,11 @@ class BubbleActionList extends StatelessWidget {
                 "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
               );
               break;
+            case BubbleAction.github:
+              _launchURL(
+                'https://github.com/AppFlowy-IO/AppFlowy/issues/new/choose',
+              );
+              break;
           }
         }
 
@@ -108,19 +114,14 @@ class _DebugToast {
 
   Future<String> _getDeviceInfo() async {
     final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = deviceInfoPlugin.deviceInfo;
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
-    return deviceInfo.then((info) {
-      var debugText = "";
-      info.toMap().forEach((key, value) {
-        debugText = "$debugText$key: $value\n";
-      });
-      return debugText;
-    });
+    return deviceInfo.data.entries
+        .fold('', (prev, el) => "$prev${el.key}: ${el.value}\n");
   }
 
   Future<String> _getDocumentPath() async {
-    return appFlowyDocumentDirectory().then((directory) {
+    return appFlowyApplicationDataDirectory().then((directory) {
       final path = directory.path.toString();
       return "Document: $path\n";
     });
@@ -141,9 +142,9 @@ class FlowyVersionDescription extends CustomActionCell {
             );
           }
 
-          PackageInfo packageInfo = snapshot.data;
-          String appName = packageInfo.appName;
-          String version = packageInfo.version;
+          final PackageInfo packageInfo = snapshot.data;
+          final String appName = packageInfo.appName;
+          final String version = packageInfo.version;
 
           return SizedBox(
             height: 30,
@@ -174,14 +175,14 @@ class FlowyVersionDescription extends CustomActionCell {
   }
 }
 
-enum BubbleAction { whatsNews, help, debug, shortcuts, markdown }
+enum BubbleAction { whatsNews, help, debug, shortcuts, markdown, github }
 
 class BubbleActionWrapper extends ActionCell {
   final BubbleAction inner;
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? leftIcon(Color iconColor) => FlowyText.regular(inner.emoji);
+  Widget? leftIcon(Color iconColor) => inner.emoji;
 
   @override
   String get name => inner.name;
@@ -200,21 +201,31 @@ extension QuestionBubbleExtension on BubbleAction {
         return LocaleKeys.questionBubble_shortcuts.tr();
       case BubbleAction.markdown:
         return LocaleKeys.questionBubble_markdown.tr();
+      case BubbleAction.github:
+        return LocaleKeys.questionBubble_feedback.tr();
     }
   }
 
-  String get emoji {
+  Widget get emoji {
     switch (this) {
       case BubbleAction.whatsNews:
-        return '🆕';
+        return const FlowyText.regular('🆕');
       case BubbleAction.help:
-        return '👥';
+        return const FlowyText.regular('👥');
       case BubbleAction.debug:
-        return '🐛';
+        return const FlowyText.regular('🐛');
       case BubbleAction.shortcuts:
-        return '📋';
+        return const FlowyText.regular('📋');
       case BubbleAction.markdown:
-        return '✨';
+        return const FlowyText.regular('✨');
+      case BubbleAction.github:
+        return Padding(
+          padding: const EdgeInsets.all(3.0),
+          child: svgWidget(
+            'login/github-light',
+            size: const Size.square(12),
+          ),
+        );
     }
   }
 }

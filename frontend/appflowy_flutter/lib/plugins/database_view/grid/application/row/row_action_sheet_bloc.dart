@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../application/row/row_cache.dart';
 import '../../../application/row/row_service.dart';
 
 part 'row_action_sheet_bloc.freezed.dart';
@@ -13,19 +12,20 @@ class RowActionSheetBloc
     extends Bloc<RowActionSheetEvent, RowActionSheetState> {
   final RowBackendService _rowService;
 
-  RowActionSheetBloc({required RowInfo rowInfo})
-      : _rowService = RowBackendService(viewId: rowInfo.viewId),
-        super(RowActionSheetState.initial(rowInfo)) {
+  RowActionSheetBloc({
+    required String viewId,
+    required RowId rowId,
+  })  : _rowService = RowBackendService(viewId: viewId),
+        super(RowActionSheetState.initial(rowId)) {
     on<RowActionSheetEvent>(
       (event, emit) async {
-        await event.map(
-          deleteRow: (_DeleteRow value) async {
-            final result = await _rowService.deleteRow(state.rowData.rowPB.id);
+        await event.when(
+          deleteRow: () async {
+            final result = await _rowService.deleteRow(state.rowId);
             logResult(result);
           },
-          duplicateRow: (_DuplicateRow value) async {
-            final result =
-                await _rowService.duplicateRow(state.rowData.rowPB.id);
+          duplicateRow: () async {
+            final result = await _rowService.duplicateRow(rowId: state.rowId);
             logResult(result);
           },
         );
@@ -47,10 +47,10 @@ class RowActionSheetEvent with _$RowActionSheetEvent {
 @freezed
 class RowActionSheetState with _$RowActionSheetState {
   const factory RowActionSheetState({
-    required RowInfo rowData,
+    required RowId rowId,
   }) = _RowActionSheetState;
 
-  factory RowActionSheetState.initial(RowInfo rowData) => RowActionSheetState(
-        rowData: rowData,
+  factory RowActionSheetState.initial(RowId rowId) => RowActionSheetState(
+        rowId: rowId,
       );
 }

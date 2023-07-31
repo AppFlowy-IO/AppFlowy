@@ -47,8 +47,8 @@ class FieldTypeOptionEditor extends StatelessWidget {
             state: state,
           );
 
-          List<Widget> children = [
-            _SwitchFieldButton(popoverMutex: popoverMutex),
+          final List<Widget> children = [
+            SwitchFieldButton(popoverMutex: popoverMutex),
             if (typeOptionWidget != null) typeOptionWidget
           ];
 
@@ -73,9 +73,9 @@ class FieldTypeOptionEditor extends StatelessWidget {
   }
 }
 
-class _SwitchFieldButton extends StatelessWidget {
+class SwitchFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _SwitchFieldButton({
+  const SwitchFieldButton({
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
@@ -115,7 +115,6 @@ class _SwitchFieldButton extends StatelessWidget {
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
       ),
-      margin: GridSize.typeOptionContentInsets,
       leftIcon: FlowySvg(name: bloc.state.field.fieldType.iconName()),
       rightIcon: const FlowySvg(name: 'grid/more'),
     );

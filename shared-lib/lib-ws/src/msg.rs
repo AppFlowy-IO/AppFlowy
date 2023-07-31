@@ -21,16 +21,12 @@ impl WebSocketRawMessage {
 // The lib-ws crate should not contain business logic.So WSChannel should be removed into another place.
 #[derive(Serialize_repr, Deserialize_repr, Debug, Clone, Eq, PartialEq, Hash)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum WSChannel {
+  #[default]
   Document = 0,
   Folder = 1,
   Database = 2,
-}
-
-impl std::default::Default for WSChannel {
-  fn default() -> Self {
-    WSChannel::Document
-  }
 }
 
 impl ToString for WSChannel {

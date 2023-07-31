@@ -1,24 +1,140 @@
 # Release Notes
 
+## Version 0.2.7 - 07/18/2023
+
+### New Features
+
+- Dynamic load themes
+- Inline math equation
+
+## Version 0.2.6 - 07/11/2023
+
+### New Features
+
+- Dynamic load themes
+- Inline math equation
+
+
+## Version 0.2.5 - 07/02/2023
+
+### New Features
+
+- Insert local images
+- Mention a page
+- Outlines (Table of contents)
+- Added support for aligning the image by image menu
+
+### Bug fixes
+
+- Some UI issues
+
+## Version 0.2.4 - 06/23/2023
+
+### Bug fixes:
+
+- Unable to copy and paste a word
+- Some UI issues
+
+## Version 0.2.3 - 06/21/2023
+
+### New Features
+
+- Added support for creating multiple database views for existing database
+
+## Version 0.2.2 - 06/15/2023
+
+### New Features
+
+- Added support for embedding a document in the database's row detail page
+- Added support for inserting an emoji in the database's row detail page
+
+### Other Updates
+
+- Added language selector on the welcome page
+- Added support for importing multiple markdown files all at once
+
+## Version 0.2.1 - 06/11/2023
+
+### New Features
+
+- Added support for creating or referencing a calendar in the document
+- Added `+` icon in grid's add field
+
+### Other Updates
+
+- Added vertical padding for progress bar
+- Hide url cell accessory when the content is empty
+
+### Bug fixes:
+
+- Fixed unable to export markdown
+- Fixed adding vertical padding for progress bar
+- Fixed database view didn't update after the database layout changed.
+
+## Version 0.2.0 - 06/08/2023
+
+### New Features
+
+- Improved checklists to support each cell having its own list
+- Drag and drop calendar events
+- Switch layouts (calendar, grid, kanban) of a database
+- New database properties: 'Updated At' and 'Created At'
+- Enabled hiding properties on the row detail page
+- Added support for reordering and saving row order in different database views.
+- Enabled each database view to have its own settings, including filter and sort options
+- Added support to convert `“` (double quote) into a block quote
+- Added support to convert `***` (three stars) into a divider
+- Added support for an 'Add' button to insert a paragraph in a document and display the slash menu
+- Added support for an 'Option' button to delete, duplicate, and customize block actions
+
+### Other Updates
+
+- Added support for importing v0.1.x documents and databases
+- Added support for database import and export to CSV
+- Optimized scroll behavior in documents.
+- Redesigned the launch page
+
+### Bug fixes
+
+- Fixed bugs related to numbers
+- Fixed issues with referenced databases in documents
+- Fixed menu overflow issues in documents
+
+### Data migration
+
+The data format of this version is not compatible with previous versions. Therefore, to migrate your data to the new version, you need to use the export and import functions. Please follow the guide to learn how to export and import your data.
+
+#### Export files in v0.1.6
+
+https://github.com/AppFlowy-IO/AppFlowy/assets/11863087/0c89bf2b-cd97-4a7b-b627-59df8d2967d9
+
+#### Import files in v0.2.0
+
+https://github.com/AppFlowy-IO/AppFlowy/assets/11863087/7b392f35-4972-497a-8a7f-f38efced32e2
+
 ## Version 0.1.5 - 11/05/2023
 
 ### Bug Fixes
+
 - Fix: calendar dates don't match with weekdays.
 - Fix: sort numbers in Grid.
 
 ## Version 0.1.4 - 04/05/2023
 
 ### New features
+
 - Use AppFlowy’s calendar views to plan and manage tasks and deadlines.
 - Writing can be improved with the help of OpenAI.
 
 ## Version 0.1.3 - 24/04/2023
 
 ### New features
+
 - Launch the official Dark Mode.
 - Customize the font color and highlight color by setting a hex color value and an opacity level.
 
 ### Bug Fixes
+
 - Fix: the slash menu can be triggered by all other keyboards than English.
 - Fix: convert the single asterisk to italic text and the double asterisks to bold text.
 

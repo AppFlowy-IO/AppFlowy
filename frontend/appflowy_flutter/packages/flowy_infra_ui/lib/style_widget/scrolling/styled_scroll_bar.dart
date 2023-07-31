@@ -46,32 +46,12 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   void initState() {
-    widget.controller.addListener(() => setState(() {}));
-    widget.controller.position.isScrollingNotifier.addListener(
-      () {
-        if (!mounted) return;
-        if (!widget.autoHideScrollbar) return;
-        _hideScrollbarOperation?.cancel();
-        if (!widget.controller.position.isScrollingNotifier.value) {
-          _hideScrollbarOperation = CancelableOperation.fromFuture(
-            Future.delayed(const Duration(seconds: 2), () {}),
-          ).then((_) {
-            hideHandler = true;
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        } else {
-          hideHandler = false;
-        }
-      },
-    );
     super.initState();
-  }
+    widget.controller.addListener(() => setState(() {}));
 
-  @override
-  void dispose() {
-    super.dispose();
+    widget.controller.position.isScrollingNotifier.addListener(
+      _hideScrollbarInTime,
+    );
   }
 
   @override
@@ -86,6 +66,7 @@ class ScrollbarState extends State<StyledScrollbar> {
       builder: (_, BoxConstraints constraints) {
         double maxExtent;
         final contentSize = widget.contentSize;
+
         switch (widget.axis) {
           case Axis.vertical:
             // Use supplied contentSize if we have it, otherwise just fallback to maxScrollExtents
@@ -122,7 +103,7 @@ class ScrollbarState extends State<StyledScrollbar> {
         handleAlignment -= 1.0;
 
         // Calculate handleSize by comparing the total content size to our viewport
-        var handleExtent = _viewExtent;
+        double handleExtent = _viewExtent;
         if (contentExtent > _viewExtent) {
           // Make sure handle is never small than the minSize
           handleExtent = max(60, _viewExtent * _viewExtent / contentExtent);
@@ -146,51 +127,74 @@ class ScrollbarState extends State<StyledScrollbar> {
                 ? AFThemeExtension.of(context).greyHover.withOpacity(.1)
                 : AFThemeExtension.of(context).greyHover.withOpacity(.3));
 
-        //Layout the stack, it just contains a child, and
-        return Stack(children: <Widget>[
-          /// TRACK, thin strip, aligned along the end of the parent
-          if (widget.showTrack)
-            Align(
-              alignment: const Alignment(1, 1),
-              child: Container(
-                color: trackColor,
-                width: widget.axis == Axis.vertical
-                    ? widget.size
-                    : double.infinity,
-                height: widget.axis == Axis.horizontal
-                    ? widget.size
-                    : double.infinity,
-              ),
-            ),
-
-          /// HANDLE - Clickable shape that changes scrollController when dragged
-          Align(
-            // Use calculated alignment to position handle from -1 to 1, let Alignment do the rest of the work
-            alignment: Alignment(
-              widget.axis == Axis.vertical ? 1 : handleAlignment,
-              widget.axis == Axis.horizontal ? 1 : handleAlignment,
-            ),
-            child: GestureDetector(
-              onVerticalDragUpdate: _handleVerticalDrag,
-              onHorizontalDragUpdate: _handleHorizontalDrag,
-              // HANDLE SHAPE
-              child: MouseHoverBuilder(
-                builder: (_, isHovered) => Container(
-                  width:
-                      widget.axis == Axis.vertical ? widget.size : handleExtent,
+        // Layout the stack, it just contains a child, and
+        return Stack(
+          children: [
+            /// TRACK, thin strip, aligned along the end of the parent
+            if (widget.showTrack)
+              Align(
+                alignment: const Alignment(1, 1),
+                child: Container(
+                  color: trackColor,
+                  width: widget.axis == Axis.vertical
+                      ? widget.size
+                      : double.infinity,
                   height: widget.axis == Axis.horizontal
                       ? widget.size
-                      : handleExtent,
-                  decoration: BoxDecoration(
-                      color: handleColor.withOpacity(isHovered ? 1 : .85),
-                      borderRadius: Corners.s3Border),
+                      : double.infinity,
                 ),
               ),
-            ),
-          )
-        ]).opacity(showHandle ? 1.0 : 0.0, animate: true);
+
+            /// HANDLE - Clickable shape that changes scrollController when dragged
+            Align(
+              // Use calculated alignment to position handle from -1 to 1, let Alignment do the rest of the work
+              alignment: Alignment(
+                widget.axis == Axis.vertical ? 1 : handleAlignment,
+                widget.axis == Axis.horizontal ? 1 : handleAlignment,
+              ),
+              child: GestureDetector(
+                onVerticalDragUpdate: _handleVerticalDrag,
+                onHorizontalDragUpdate: _handleHorizontalDrag,
+                // HANDLE SHAPE
+                child: MouseHoverBuilder(
+                  builder: (_, isHovered) => Container(
+                    width: widget.axis == Axis.vertical
+                        ? widget.size
+                        : handleExtent,
+                    height: widget.axis == Axis.horizontal
+                        ? widget.size
+                        : handleExtent,
+                    decoration: BoxDecoration(
+                      color: handleColor.withOpacity(isHovered ? 1 : .85),
+                      borderRadius: Corners.s3Border,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ).opacity(showHandle ? 1.0 : 0.0, animate: true);
       },
     );
+  }
+
+  void _hideScrollbarInTime() {
+    if (!mounted || !widget.autoHideScrollbar) return;
+
+    _hideScrollbarOperation?.cancel();
+
+    if (!widget.controller.position.isScrollingNotifier.value) {
+      _hideScrollbarOperation = CancelableOperation.fromFuture(
+        Future.delayed(const Duration(seconds: 2), () {}),
+      ).then((_) {
+        hideHandler = true;
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
+      hideHandler = false;
+    }
   }
 
   void _handleHorizontalDrag(DragUpdateDetails details) {
@@ -223,23 +227,23 @@ class ScrollbarListStack extends StatelessWidget {
   final Color? trackColor;
   final bool autoHideScrollbar;
 
-  const ScrollbarListStack(
-      {Key? key,
-      required this.barSize,
-      required this.axis,
-      required this.child,
-      required this.controller,
-      this.contentSize,
-      this.scrollbarPadding,
-      this.handleColor,
-      this.autoHideScrollbar = true,
-      this.trackColor})
-      : super(key: key);
+  const ScrollbarListStack({
+    super.key,
+    required this.barSize,
+    required this.axis,
+    required this.child,
+    required this.controller,
+    this.contentSize,
+    this.scrollbarPadding,
+    this.handleColor,
+    this.autoHideScrollbar = true,
+    this.trackColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: <Widget>[
+      children: [
         /// LIST
         /// Wrap with a bit of padding on the right
         child.padding(

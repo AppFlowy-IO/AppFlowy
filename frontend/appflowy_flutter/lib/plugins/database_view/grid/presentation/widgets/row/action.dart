@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_action_sheet_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -14,13 +14,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../layout/sizes.dart';
 
 class RowActions extends StatelessWidget {
-  final RowInfo rowData;
-  const RowActions({required this.rowData, Key? key}) : super(key: key);
+  final String viewId;
+  final RowId rowId;
+  const RowActions({
+    required this.viewId,
+    required this.rowId,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(rowInfo: rowData),
+      create: (context) => RowActionSheetBloc(viewId: viewId, rowId: rowId),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values

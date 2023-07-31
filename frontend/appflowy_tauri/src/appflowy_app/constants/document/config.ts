@@ -1,44 +1,10 @@
-import { BlockData, BlockType } from '$app/interfaces/document';
+import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
+import { randomEmoji } from '$app/utils/document/emoji';
 
-export enum SplitRelationship {
-  NextSibling,
-  FirstChild,
-}
 /**
  * If the block type is not in the config, it will be thrown an error in development env
  */
-export const blockConfig: Record<
-  string,
-  {
-    /**
-     * Whether the block can have children
-     */
-    canAddChild: boolean;
-    /**
-     * The regexps that will be used to match the markdown flag
-     */
-    markdownRegexps?: RegExp[];
-
-    /**
-     * The default data of the block
-     */
-    defaultData?: BlockData<any>;
-
-    /**
-     * The props that will be passed to the text split function
-     */
-    splitProps?: {
-      /**
-       * The relationship between the next line block and the current block
-       */
-      nextLineRelationShip: SplitRelationship;
-      /**
-       * The type of the next line block
-       */
-      nextLineBlockType: BlockType;
-    };
-  }
-> = {
+export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.TextBlock]: {
     canAddChild: true,
     defaultData: {
@@ -55,10 +21,6 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * # or ## or ###
-     */
-    markdownRegexps: [/^(#{1,3})(\s)+$/],
   },
   [BlockType.TodoListBlock]: {
     canAddChild: true,
@@ -70,10 +32,6 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TodoListBlock,
     },
-    /**
-     * -[] or -[x] or -[ ] or [] or [x] or [ ]
-     */
-    markdownRegexps: [/^((-)?\[(x|\s)?\])(\s)+$/],
   },
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
@@ -85,10 +43,6 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.BulletedListBlock,
     },
-    /**
-     * - or + or *
-     */
-    markdownRegexps: [/^(\s*[-+*])(\s)+$/],
   },
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
@@ -100,11 +54,6 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.NumberedListBlock,
     },
-    /**
-     * 1. or 2. or 3.
-     * a. or b. or c.
-     */
-    markdownRegexps: [/^(\s*[\d|a-zA-Z]+\.)(\s)+$/],
   },
   [BlockType.QuoteBlock]: {
     canAddChild: true,
@@ -116,25 +65,17 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * " or “ or ”
-     */
-    markdownRegexps: [/^("|“|”)(\s)+$/],
   },
   [BlockType.CalloutBlock]: {
     canAddChild: true,
     defaultData: {
       delta: [],
-      icon: 'bulb',
+      icon: randomEmoji(),
     },
     splitProps: {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
-     */
-    markdownRegexps: [/^(\[!)(TIP|INFO|WARNING|DANGER)(\])(\s)+$/],
   },
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
@@ -146,17 +87,6 @@ export const blockConfig: Record<
       nextLineRelationShip: SplitRelationship.FirstChild,
       nextLineBlockType: BlockType.TextBlock,
     },
-    /**
-     * >
-     */
-    markdownRegexps: [/^(>)(\s)+$/],
-  },
-  [BlockType.DividerBlock]: {
-    canAddChild: false,
-    /**
-     * ---
-     */
-    markdownRegexps: [/^(-{3,})$/],
   },
 
   [BlockType.CodeBlock]: {
@@ -165,9 +95,24 @@ export const blockConfig: Record<
       delta: [],
       language: 'javascript',
     },
-    /**
-     * ```
-     */
-    markdownRegexps: [/^(```)$/],
+  },
+  [BlockType.DividerBlock]: {
+    canAddChild: false,
+  },
+  [BlockType.EquationBlock]: {
+    canAddChild: false,
+    defaultData: {
+      formula: '',
+    },
+  },
+  [BlockType.ImageBlock]: {
+    canAddChild: false,
+    defaultData: {
+      url: '',
+      align: Align.Center,
+      width: 0,
+      height: 0,
+      caption: [],
+    },
   },
 };

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
   static EdgeInsets kDefaultTextInputPadding =
@@ -221,7 +220,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
               hintStyle: Theme.of(context)
                   .textTheme
                   .bodyMedium!
-                  .textColor(Theme.of(context).hintColor),
+                  .copyWith(color: Theme.of(context).hintColor),
               labelText: widget.label,
             ),
       ),

@@ -1,14 +1,17 @@
+use std::sync::Arc;
+
+use collab_database::fields::Field;
+use collab_database::rows::RowDetail;
+use tokio::sync::RwLock;
+
+use lib_infra::future::{to_fut, Fut};
+
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
   gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
 };
 use crate::services::filter::FilterController;
 use crate::services::sort::{Sort, SortController, SortDelegate, SortTaskHandler};
-use collab_database::fields::Field;
-use collab_database::rows::Row;
-use lib_infra::future::{to_fut, Fut};
-use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub(crate) async fn make_sort_controller(
   view_id: &str,
@@ -56,14 +59,14 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     to_fut(async move { sort })
   }
 
-  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<Row>>> {
+  fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>> {
     let view_id = view_id.to_string();
     let delegate = self.delegate.clone();
     let filter_controller = self.filter_controller.clone();
     to_fut(async move {
-      let mut rows = delegate.get_rows(&view_id).await;
-      filter_controller.filter_rows(&mut rows).await;
-      rows
+      let mut row_details = delegate.get_rows(&view_id).await;
+      filter_controller.filter_rows(&mut row_details).await;
+      row_details
     })
   }
 

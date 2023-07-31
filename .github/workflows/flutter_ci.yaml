@@ -7,6 +7,7 @@ on:
       - "develop"
       - "release/*"
     paths:
+      - ".github/workflows/flutter_ci.yaml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
 
@@ -16,15 +17,21 @@ on:
       - "develop"
       - "release/*"
     paths:
+      - ".github/workflows/flutter_ci.yaml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.7.5"
-  RUST_TOOLCHAIN: "1.65"
+  FLUTTER_VERSION: "3.10.1"
+  RUST_TOOLCHAIN: "1.70"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
@@ -64,12 +71,17 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: ${{ matrix.job.os }}
+          prefix-key: ${{ matrix.os }}
+          workspaces: |
+            frontend/rust-lib
+
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: '0.36.6'
 
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
           cargo install --force duckscript_cli
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
@@ -92,6 +104,7 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             flutter config --enable-macos-desktop
           elif [ "$RUNNER_OS" == "Windows" ]; then
+            git config --system core.longpaths true
             flutter config --enable-windows-desktop
           fi
         shell: bash
@@ -110,3 +123,17 @@ jobs:
         working-directory: frontend
         run: |
           cargo make dart_unit_test
+
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@v1.0.36
+        with:
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_unit_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+          attempt_limit: 20
+          attempt_delay: 10000
+

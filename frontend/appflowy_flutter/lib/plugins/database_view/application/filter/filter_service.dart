@@ -84,11 +84,20 @@ class FilterBackendService {
     required String fieldId,
     String? filterId,
     required DateFilterConditionPB condition,
+    required FieldType fieldType,
     int? start,
     int? end,
     int? timestamp,
   }) {
-    var filter = DateFilterPB();
+    assert(
+      [
+        FieldType.DateTime,
+        FieldType.LastEditedTime,
+        FieldType.CreatedTime,
+      ].contains(fieldType),
+    );
+
+    final filter = DateFilterPB();
     if (timestamp != null) {
       filter.timestamp = $fixnum.Int64(timestamp);
     } else {
@@ -105,7 +114,7 @@ class FilterBackendService {
     return insertFilter(
       fieldId: fieldId,
       filterId: filterId,
-      fieldType: FieldType.DateTime,
+      fieldType: fieldType,
       data: filter.writeToBuffer(),
     );
   }
@@ -169,7 +178,7 @@ class FilterBackendService {
     required FieldType fieldType,
     required List<int> data,
   }) {
-    var insertFilterPayload = AlterFilterPayloadPB.create()
+    final insertFilterPayload = UpdateFilterPayloadPB.create()
       ..fieldId = fieldId
       ..fieldType = fieldType
       ..viewId = viewId
@@ -181,7 +190,7 @@ class FilterBackendService {
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
-      ..alterFilter = insertFilterPayload;
+      ..updateFilter = insertFilterPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
         (l) => left(l),

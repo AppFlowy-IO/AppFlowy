@@ -7,9 +7,10 @@ import 'emoji_picker.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   name: 'Emoji',
-  icon: (editorState, onSelected) => SelectableIconWidget(
+  icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,
+    style: style,
   ),
   keywords: ['emoji'],
   handler: (editorState, menuService, context) {
@@ -34,10 +35,12 @@ void showEmojiPickerMenu(
   final top = alignment == Alignment.bottomLeft ? offset.dy : null;
   final bottom = alignment == Alignment.topLeft ? offset.dy : null;
 
+  keepEditorFocusNotifier.value += 1;
   final emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
+    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
     builder: (context) => Material(
       child: Container(
         width: 300,

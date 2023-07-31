@@ -68,3 +68,12 @@ windows/flutter/dart_ffi/
 **/**/Brewfile.lock.json
 **/.sandbox
 **/.vscode/
+
+*.env
+*.env.*
+
+coverage/
+
+**/failures/*.png
+
+assets/translations/

@@ -8,6 +8,8 @@ extension FieldTypeListExtension on FieldType {
       case FieldType.Checkbox:
         return "grid/field/checkbox";
       case FieldType.DateTime:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
         return "grid/field/date";
       case FieldType.MultiSelect:
         return "grid/field/multi_select";
@@ -31,6 +33,10 @@ extension FieldTypeListExtension on FieldType {
         return LocaleKeys.grid_field_checkboxFieldName.tr();
       case FieldType.DateTime:
         return LocaleKeys.grid_field_dateFieldName.tr();
+      case FieldType.LastEditedTime:
+        return LocaleKeys.grid_field_updatedAtFieldName.tr();
+      case FieldType.CreatedTime:
+        return LocaleKeys.grid_field_createdAtFieldName.tr();
       case FieldType.MultiSelect:
         return LocaleKeys.grid_field_multiSelectFieldName.tr();
       case FieldType.Number:

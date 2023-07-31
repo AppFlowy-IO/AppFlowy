@@ -89,11 +89,19 @@ export class DatabaseController {
     return this.backendService.createRow();
   };
 
-  moveRow = (rowId: string, groupId: string) => {
+  duplicateRow = async (rowId: string) => {
+    return this.backendService.duplicateRow(rowId);
+  };
+
+  deleteRow = async (rowId: string) => {
+    return this.backendService.deleteRow(rowId);
+  };
+
+  moveGroupRow = (rowId: string, groupId: string) => {
     return this.backendService.moveGroupRow(rowId, groupId);
   };
 
-  exchangeRow = async (fromRowId: string, toGroupId: string, toRowId?: string) => {
+  exchangeGroupRow = async (fromRowId: string, toGroupId: string, toRowId?: string) => {
     await this.backendService.moveGroupRow(fromRowId, toGroupId, toRowId);
     await this.loadGroup();
   };

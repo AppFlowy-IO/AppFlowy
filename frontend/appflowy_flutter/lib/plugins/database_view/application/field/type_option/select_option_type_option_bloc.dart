@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 part 'select_option_type_option_bloc.freezed.dart';
 
-abstract class ISelectOptionAction {
+abstract mixin class ISelectOptionAction {
   Future<List<SelectOptionPB>> Function(String) get insertOption;
 
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption;

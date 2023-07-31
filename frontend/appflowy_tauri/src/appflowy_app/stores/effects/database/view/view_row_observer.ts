@@ -1,17 +1,17 @@
-import { Ok, Result } from "ts-results";
+import { Ok, Result } from 'ts-results';
 import {
   DatabaseNotification,
   FlowyError,
   ReorderAllRowsPB,
   ReorderSingleRowPB,
-  RowsChangesetPB,
-  RowsVisibilityChangesetPB
-} from "@/services/backend";
-import { ChangeNotifier } from "$app/utils/change_notifier";
-import { DatabaseNotificationObserver } from "../notifications/observer";
+  RowsChangePB,
+  RowsVisibilityChangePB,
+} from '@/services/backend';
+import { ChangeNotifier } from '$app/utils/change_notifier';
+import { DatabaseNotificationObserver } from '../notifications/observer';
 
-export type RowsVisibilityNotifyValue = Result<RowsVisibilityChangesetPB, FlowyError>;
-export type RowsNotifyValue = Result<RowsChangesetPB, FlowyError>;
+export type RowsVisibilityNotifyValue = Result<RowsVisibilityChangePB, FlowyError>;
+export type RowsNotifyValue = Result<RowsChangePB, FlowyError>;
 export type ReorderRowsNotifyValue = Result<string[], FlowyError>;
 export type ReorderSingleRowNotifyValue = Result<ReorderSingleRowPB, FlowyError>;
 
@@ -23,8 +23,7 @@ export class DatabaseViewRowsObserver {
 
   private _listener?: DatabaseNotificationObserver;
 
-  constructor(public readonly viewId: string) {
-  }
+  constructor(public readonly viewId: string) {}
 
   subscribe = async (callbacks: {
     onRowsVisibilityChanged?: (value: RowsVisibilityNotifyValue) => void;
@@ -44,14 +43,14 @@ export class DatabaseViewRowsObserver {
         switch (notification) {
           case DatabaseNotification.DidUpdateViewRowsVisibility:
             if (result.ok) {
-              this.rowsVisibilityNotifier.notify(Ok(RowsVisibilityChangesetPB.deserializeBinary(result.val)));
+              this.rowsVisibilityNotifier.notify(Ok(RowsVisibilityChangePB.deserializeBinary(result.val)));
             } else {
               this.rowsVisibilityNotifier.notify(result);
             }
             break;
           case DatabaseNotification.DidUpdateViewRows:
             if (result.ok) {
-              this.rowsNotifier.notify(Ok(RowsChangesetPB.deserializeBinary(result.val)));
+              this.rowsNotifier.notify(Ok(RowsChangePB.deserializeBinary(result.val)));
             } else {
               this.rowsNotifier.notify(result);
             }
@@ -73,7 +72,7 @@ export class DatabaseViewRowsObserver {
           default:
             break;
         }
-      }
+      },
     });
     await this._listener.start();
   };

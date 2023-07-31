@@ -1,76 +1,110 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::ops::Deref;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
-
+use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
+use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab_state::SyncState;
 use collab_folder::core::{
-  Folder as InnerFolder, FolderContext, TrashChange, TrashChangeReceiver, TrashInfo, TrashRecord,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+  Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
+  ViewChangeReceiver, ViewLayout, Workspace,
 };
 use parking_lot::Mutex;
+use tokio_stream::wrappers::WatchStream;
+use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
-use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::util::timestamp;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_deps::cloud::FolderCloudService;
 
 use crate::entities::{
-  view_pb_with_child_views, CreateViewParams, CreateWorkspaceParams, RepeatedTrashPB,
-  RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB,
+  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
+  CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
+  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, ViewPB, WorkspacePB,
 };
 use crate::notification::{
   send_notification, send_workspace_notification, send_workspace_setting_notification,
   FolderNotification,
 };
-use crate::user_default::{gen_workspace_id, DefaultFolderBuilder};
-use crate::view_ext::{
-  gen_view_id, view_from_create_view_params, ViewDataProcessor, ViewDataProcessorMap,
+use crate::share::ImportParams;
+use crate::user_default::DefaultFolderBuilder;
+use crate::view_operation::{
+  create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
 };
 
+/// [FolderUser] represents the user for folder.
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<String, FlowyError>;
-  fn collab_db(&self) -> Result<Arc<RocksCollabDB>, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
 
-pub struct Folder2Manager {
-  folder: Folder,
+pub struct FolderManager {
+  mutex_folder: Arc<MutexFolder>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   user: Arc<dyn FolderUser>,
-  view_processors: ViewDataProcessorMap,
+  operation_handlers: FolderOperationHandlers,
+  cloud_service: Arc<dyn FolderCloudService>,
 }
 
-unsafe impl Send for Folder2Manager {}
-unsafe impl Sync for Folder2Manager {}
+unsafe impl Send for FolderManager {}
+unsafe impl Sync for FolderManager {}
 
-impl Folder2Manager {
+impl FolderManager {
   pub async fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    view_processors: ViewDataProcessorMap,
+    operation_handlers: FolderOperationHandlers,
+    cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
-    let folder = Folder::default();
+    let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
       user,
-      folder,
+      mutex_folder,
       collab_builder,
-      view_processors,
+      operation_handlers,
+      cloud_service,
     };
 
     Ok(manager)
   }
 
-  pub async fn get_current_workspace(&self) -> FlowyResult<Workspace> {
-    match self.with_folder(None, |folder| folder.get_current_workspace()) {
-      None => Err(FlowyError::record_not_found().context("Can not find the workspace")),
-      Some(workspace) => Ok(workspace),
-    }
+  pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
+    self.with_folder(
+      Err(FlowyError::internal().context("Folder is not initialized".to_string())),
+      |folder| {
+        let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
+          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let workspace: WorkspacePB = (workspace, views).into();
+          Ok::<WorkspacePB, FlowyError>(workspace)
+        };
+
+        match folder.get_current_workspace() {
+          None => {
+            // The current workspace should always exist. If not, try to find the first workspace.
+            // from the folder. Otherwise, return an error.
+            let mut workspaces = folder.workspaces.get_all_workspaces();
+            if workspaces.is_empty() {
+              Err(FlowyError::record_not_found().context("Can not find the workspace"))
+            } else {
+              tracing::error!("Can't find the current workspace, use the first workspace");
+              let workspace = workspaces.remove(0);
+              folder.set_current_workspace(&workspace.id);
+              workspace_pb_from_workspace(workspace, folder)
+            }
+          },
+          Some(workspace) => workspace_pb_from_workspace(workspace, folder),
+        }
+      },
+    )
   }
 
+  /// Return a list of views of the current workspace.
+  /// Only the first level of child views are included.
   pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
-      .folder
+      .mutex_folder
       .lock()
       .as_ref()
       .map(|folder| folder.get_current_workspace_id());
@@ -78,6 +112,7 @@ impl Folder2Manager {
     if let Some(Some(workspace_id)) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
+      tracing::warn!("Can't get current workspace views");
       Ok(vec![])
     }
   }
@@ -91,42 +126,156 @@ impl Folder2Manager {
   }
 
   /// Called immediately after the application launched fi the user already sign in/sign up.
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn initialize(&self, user_id: i64) -> FlowyResult<()> {
-    if let Ok(uid) = self.user.user_id() {
-      let folder_id = FolderId::new(uid);
+  #[tracing::instrument(level = "info", skip(self, initial_data), err)]
+  pub async fn initialize(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    initial_data: FolderInitializeData,
+  ) -> FlowyResult<()> {
+    let workspace_id = workspace_id.to_string();
+    if let Ok(collab_db) = self.user.collab_db(uid) {
+      let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
+      let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
+      let folder_notifier = FolderNotify {
+        view_change_tx: view_tx,
+        trash_change_tx: trash_tx,
+      };
 
-      if let Ok(kv_db) = self.user.collab_db() {
-        let collab = self.collab_builder.build(uid, folder_id.as_ref(), kv_db);
-        let (view_tx, view_rx) = tokio::sync::broadcast::channel(100);
-        let (trash_tx, trash_rx) = tokio::sync::broadcast::channel(100);
-        let folder_context = FolderContext {
-          view_change_tx: Some(view_tx),
-          trash_change_tx: Some(trash_tx),
-        };
-        *self.folder.lock() = Some(InnerFolder::get_or_create(collab, folder_context));
-        listen_on_trash_change(trash_rx, self.folder.clone());
-        listen_on_view_change(view_rx, self.folder.clone());
-      }
+      let folder = match initial_data {
+        FolderInitializeData::Empty => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::open(collab, Some(folder_notifier))
+        },
+        FolderInitializeData::Raw(raw_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
+          Folder::open(collab, Some(folder_notifier))
+        },
+        FolderInitializeData::Data(folder_data) => {
+          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          Folder::create(collab, Some(folder_notifier), Some(folder_data))
+        },
+      };
+
+      tracing::debug!("Current workspace_id: {}", workspace_id);
+      let folder_state_rx = folder.subscribe_sync_state();
+      *self.mutex_folder.lock() = Some(folder);
+
+      let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
+      subscribe_folder_sync_state_changed(
+        workspace_id.clone(),
+        folder_state_rx,
+        &weak_mutex_folder,
+      );
+      subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
+      subscribe_folder_trash_changed(trash_rx, &weak_mutex_folder);
+      subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     }
 
     Ok(())
   }
 
-  /// Called after the user sign up / sign in
-  pub async fn initialize_with_new_user(&self, user_id: i64, token: &str) -> FlowyResult<()> {
-    self.initialize(user_id).await?;
-    let (folder_data, workspace_pb) =
-      DefaultFolderBuilder::build(self.user.user_id()?, &self.view_processors).await;
-    self.with_folder((), |folder| {
-      folder.create_with_data(folder_data);
-    });
+  fn collab_for_folder(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    collab_db: Weak<RocksCollabDB>,
+    raw_data: CollabRawData,
+  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      CollabType::Folder,
+      collab_db,
+      raw_data,
+      &CollabPersistenceConfig::new().enable_snapshot(true),
+    )?;
+    Ok(collab)
+  }
 
-    send_notification(token, FolderNotification::DidCreateWorkspace)
-      .payload(RepeatedWorkspacePB {
-        items: vec![workspace_pb],
-      })
-      .send();
+  /// Initialize the folder with the given workspace id.
+  /// Fetch the folder updates from the cloud service and initialize the folder.
+  #[tracing::instrument(level = "debug", skip(self, user_id), err)]
+  pub async fn initialize_with_workspace_id(
+    &self,
+    user_id: i64,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
+    let folder_updates = self
+      .cloud_service
+      .get_folder_updates(workspace_id, user_id)
+      .await?;
+
+    tracing::trace!(
+      "Get folder updates via {}, number of updates: {}",
+      self.cloud_service.service_name(),
+      folder_updates.len()
+    );
+
+    self
+      .initialize(
+        user_id,
+        workspace_id,
+        FolderInitializeData::Raw(folder_updates),
+      )
+      .await?;
+    Ok(())
+  }
+
+  /// Initialize the folder for the new user.
+  /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
+  pub async fn initialize_with_new_user(
+    &self,
+    user_id: i64,
+    _token: &str,
+    is_new: bool,
+    folder_data: Option<FolderData>,
+    workspace_id: &str,
+  ) -> FlowyResult<()> {
+    // Create the default workspace if the user is new
+    tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
+    if is_new {
+      let folder_data = match folder_data {
+        None => {
+          DefaultFolderBuilder::build(
+            self.user.user_id()?,
+            workspace_id.to_string(),
+            &self.operation_handlers,
+          )
+          .await
+        },
+        Some(folder_data) => folder_data,
+      };
+
+      self
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Data(folder_data),
+        )
+        .await?;
+    } else {
+      // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
+      // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
+      // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
+      let folder_updates = self
+        .cloud_service
+        .get_folder_updates(workspace_id, user_id)
+        .await?;
+      if !folder_updates.is_empty() {
+        tracing::trace!(
+          "Get folder updates via {}",
+          self.cloud_service.service_name()
+        );
+      }
+      self
+        .initialize(
+          user_id,
+          workspace_id,
+          FolderInitializeData::Raw(folder_updates),
+        )
+        .await?;
+    }
     Ok(())
   }
 
@@ -134,13 +283,12 @@ impl Folder2Manager {
   ///
   pub async fn clear(&self, _user_id: i64) {}
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let workspace = Workspace {
-      id: gen_workspace_id(),
-      name: params.name,
-      belongings: Default::default(),
-      created_at: timestamp(),
-    };
+    let workspace = self
+      .cloud_service
+      .create_workspace(self.user.user_id()?, &params.name)
+      .await?;
 
     self.with_folder((), |folder| {
       folder.workspaces.create_workspace(workspace.clone());
@@ -154,6 +302,7 @@ impl Folder2Manager {
     Ok(workspace)
   }
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
     self.with_folder(Err(FlowyError::internal()), |folder| {
       let workspace = folder
@@ -162,7 +311,7 @@ impl Folder2Manager {
         .ok_or_else(|| {
           FlowyError::record_not_found().context("Can't open not existing workspace")
         })?;
-      folder.set_current_workspace(workspace_id);
+      folder.set_current_workspace(&workspace.id);
       Ok::<Workspace, FlowyError>(workspace)
     })
   }
@@ -171,11 +320,20 @@ impl Folder2Manager {
     self.with_folder(None, |folder| folder.workspaces.get_workspace(workspace_id))
   }
 
+  async fn get_current_workspace_id(&self) -> FlowyResult<String> {
+    self
+      .mutex_folder
+      .lock()
+      .as_ref()
+      .and_then(|folder| folder.get_current_workspace_id())
+      .ok_or(FlowyError::internal().context("Unexpected empty workspace id"))
+  }
+
   fn with_folder<F, Output>(&self, default_value: Output, f: F) -> Output
   where
-    F: FnOnce(&InnerFolder) -> Output,
+    F: FnOnce(&Folder) -> Output,
   {
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     match &*folder {
       None => default_value,
       Some(folder) => f(folder),
@@ -188,86 +346,76 @@ impl Folder2Manager {
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
     let view_layout: ViewLayout = params.layout.clone().into();
-    let processor = self.get_data_processor(&view_layout)?;
+    let _workspace_id = self.get_current_workspace_id().await?;
+    let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
-    let ext = params.ext.clone();
-    match params.initial_data.is_empty() {
-      true => {
-        tracing::trace!("Create view with build-in data");
-        processor
-          .create_view_with_built_in_data(
-            user_id,
-            &params.view_id,
-            &params.name,
-            view_layout.clone(),
-            ext,
-          )
-          .await?;
-      },
-      false => {
-        tracing::trace!("Create view with view data");
-        processor
-          .create_view_with_custom_data(
-            user_id,
-            &params.view_id,
-            &params.name,
-            params.initial_data.clone(),
-            view_layout.clone(),
-            ext,
-          )
-          .await?;
-      },
+    let meta = params.meta.clone();
+
+    if meta.is_empty() && params.initial_data.is_empty() {
+      tracing::trace!("Create view with build-in data");
+      handler
+        .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+        .await?;
+    } else {
+      tracing::trace!("Create view with view data");
+      handler
+        .create_view_with_view_data(
+          user_id,
+          &params.view_id,
+          &params.name,
+          params.initial_data.clone(),
+          view_layout.clone(),
+          meta,
+        )
+        .await?;
     }
-    let view = view_from_create_view_params(params, view_layout);
+
+    let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
       folder.insert_view(view.clone());
     });
 
-    notify_parent_view_did_change(self.folder.clone(), vec![view.bid.clone()]);
+    Ok(view)
+  }
+
+  /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
+  /// view will not be shown in the view list unless it is attached to a parent view that is shown in
+  /// the view list.
+  pub async fn create_orphan_view_with_params(
+    &self,
+    params: CreateViewParams,
+  ) -> FlowyResult<View> {
+    let view_layout: ViewLayout = params.layout.clone().into();
+    let handler = self.get_handler(&view_layout)?;
+    let user_id = self.user.user_id()?;
+    handler
+      .create_built_in_view(user_id, &params.view_id, &params.name, view_layout.clone())
+      .await?;
+    let view = create_view(params, view_layout);
+    self.with_folder((), |folder| {
+      folder.insert_view(view.clone());
+    });
     Ok(view)
   }
 
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let view = self
-      .with_folder(None, |folder| folder.views.get_view(view_id))
-      .ok_or_else(|| {
-        FlowyError::record_not_found().context("Can't find the view when closing the view")
-      })?;
-    let processor = self.get_data_processor(&view.layout)?;
-    processor.close_view(view_id).await?;
+    if let Some(view) = self.with_folder(None, |folder| folder.views.get_view(view_id)) {
+      let handler = self.get_handler(&view.layout)?;
+      handler.close_view(view_id).await?;
+    }
     Ok(())
   }
 
-  pub async fn create_view_data(
-    &self,
-    view_id: &str,
-    name: &str,
-    view_layout: ViewLayout,
-    data: Vec<u8>,
-  ) -> FlowyResult<()> {
-    let user_id = self.user.user_id()?;
-    let processor = self.get_data_processor(&view_layout)?;
-    processor
-      .create_view_with_custom_data(
-        user_id,
-        view_id,
-        name,
-        data,
-        view_layout,
-        HashMap::default(),
-      )
-      .await?;
-    Ok(())
-  }
-
+  /// Returns the view with the given view id.
+  /// The child views of the view will only access the first. So if you want to get the child view's
+  /// child view, you need to call this method again.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     let trash_ids = folder
-      .trash
       .get_all_trash()
       .into_iter()
       .map(|trash| trash.id)
@@ -279,109 +427,187 @@ impl Folder2Manager {
 
     match folder.views.get_view(&view_id) {
       None => Err(FlowyError::record_not_found()),
-      Some(mut view) => {
-        view.belongings.retain(|b| !trash_ids.contains(&b.id));
+      Some(view) => {
         let child_views = folder
           .views
           .get_views_belong_to(&view.id)
           .into_iter()
           .filter(|view| !trash_ids.contains(&view.id))
-          .collect::<Vec<View>>();
+          .collect::<Vec<_>>();
         let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
       },
     }
   }
 
-  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
-  pub async fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
-    self.with_folder((), |folder| folder.views.delete_views(vec![view_id]));
-    Ok(())
-  }
-
+  /// Move the view to trash. If the view is the current view, then set the current view to empty.
+  /// When the view is moved to trash, all the child views will be moved to trash as well.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
-      folder.trash.add_trash(vec![TrashRecord {
-        id: view_id.to_string(),
-        created_at: timestamp(),
-      }]);
+      let view = folder.views.get_view(view_id);
+      folder.add_trash(vec![view_id.to_string()]);
 
-      if let Some(view) = folder.get_current_view() {
-        if view == view_id {
-          folder.set_current_view("");
-        }
+      // notify the parent view that the view is moved to trash
+      send_notification(view_id, FolderNotification::DidMoveViewToTrash)
+        .payload(DeletedViewPB {
+          view_id: view_id.to_string(),
+          index: None,
+        })
+        .send();
+
+      if let Some(view) = view {
+        notify_child_views_changed(
+          view_pb_without_child_views(view),
+          ChildViewChangeReason::DidDeleteView,
+        );
       }
     });
 
     Ok(())
   }
 
-  #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-    let view = self.with_folder(None, |folder| {
-      folder.move_view(view_id, from as u32, to as u32)
+  /// Moves a nested view to a new location in the hierarchy.
+  ///
+  /// This function takes the `view_id` of the view to be moved,
+  /// `new_parent_id` of the view under which the `view_id` should be moved,
+  /// and an optional `prev_view_id` to position the `view_id` right after
+  /// this specific view.
+  ///
+  /// If `prev_view_id` is provided, the moved view will be placed right after
+  /// the view corresponding to `prev_view_id` under the `new_parent_id`.
+  /// If `prev_view_id` is `None`, the moved view will become the first child of the new parent.
+  ///
+  /// # Arguments
+  ///
+  /// * `view_id` - A string slice that holds the id of the view to be moved.
+  /// * `new_parent_id` - A string slice that holds the id of the new parent view.
+  /// * `prev_view_id` - An `Option<String>` that holds the id of the view after which the `view_id` should be positioned.
+  ///
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn move_nested_view(
+    &self,
+    view_id: String,
+    new_parent_id: String,
+    prev_view_id: Option<String>,
+  ) -> FlowyResult<()> {
+    let view = self.get_view(&view_id).await?;
+    let old_parent_id = view.parent_view_id;
+    self.with_folder((), |folder| {
+      folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
     });
+    notify_parent_view_did_change(
+      self.mutex_folder.clone(),
+      vec![new_parent_id, old_parent_id],
+    );
+    Ok(())
+  }
 
-    match view {
-      None => tracing::error!("Couldn't find the view. It should not be empty"),
-      Some(view) => {
-        notify_parent_view_did_change(self.folder.clone(), vec![view.bid]);
-      },
+  /// Move the view with given id from one position to another position.
+  /// The view will be moved to the new position in the same parent view.
+  /// The passed in index is the index of the view that displayed in the UI.
+  /// We need to convert the index to the real index of the view in the parent view.
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+    if let Some((is_workspace, parent_view_id, child_views)) = self.get_view_relation(view_id).await
+    {
+      // The display parent view is the view that is displayed in the UI
+      let display_views = if is_workspace {
+        self
+          .get_current_workspace()
+          .await?
+          .views
+          .into_iter()
+          .map(|view| view.id)
+          .collect::<Vec<_>>()
+      } else {
+        self
+          .get_view(&parent_view_id)
+          .await?
+          .child_views
+          .into_iter()
+          .map(|view| view.id)
+          .collect::<Vec<_>>()
+      };
+
+      if display_views.len() > to {
+        let to_view_id = display_views[to].clone();
+
+        // Find the actual index of the view in the parent view
+        let actual_from_index = child_views.iter().position(|id| id == view_id);
+        let actual_to_index = child_views.iter().position(|id| id == &to_view_id);
+        if let (Some(actual_from_index), Some(actual_to_index)) =
+          (actual_from_index, actual_to_index)
+        {
+          self.with_folder((), |folder| {
+            folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
+          });
+          notify_parent_view_did_change(self.mutex_folder.clone(), vec![parent_view_id]);
+        }
+      }
     }
     Ok(())
   }
 
-  #[tracing::instrument(level = "debug", skip(self, bid), err)]
-  pub async fn get_views_belong_to(&self, bid: &str) -> FlowyResult<Vec<View>> {
-    let views = self.with_folder(vec![], |folder| folder.views.get_views_belong_to(bid));
+  /// Return a list of views that belong to the given parent view id.
+  #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
+  pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
+    let views = self.with_folder(vec![], |folder| {
+      folder.views.get_views_belong_to(parent_view_id)
+    });
     Ok(views)
   }
 
+  /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
-    let _ = self
-      .folder
-      .lock()
-      .as_ref()
-      .ok_or_else(folder_not_init_error)?
-      .views
-      .update_view(&params.view_id, |update| {
+    let value = self.with_folder(None, |folder| {
+      let old_view = folder.views.get_view(&params.view_id);
+      let new_view = folder.views.update_view(&params.view_id, |update| {
         update
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
+          .set_layout_if_not_none(params.layout)
+          .set_icon_url_if_not_none(params.icon_url)
+          .set_cover_url_if_not_none(params.cover_url)
           .done()
       });
+
+      Some((old_view, new_view))
+    });
+
+    if let Some((Some(old_view), Some(new_view))) = value {
+      if let Ok(handler) = self.get_handler(&old_view.layout) {
+        handler.did_update_view(&old_view, &new_view).await?;
+      }
+    }
 
     if let Ok(view_pb) = self.get_view(&params.view_id).await {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
     }
-
     Ok(())
   }
 
+  /// Duplicate the view with the given view id.
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
     let view = self
       .with_folder(None, |folder| folder.views.get_view(view_id))
       .ok_or_else(|| FlowyError::record_not_found().context("Can't duplicate the view"))?;
 
-    let processor = self.get_data_processor(&view.layout)?;
-    let view_data = processor.get_view_data(&view.id).await?;
-    let mut ext = HashMap::new();
-    if let Some(database_id) = view.database_id {
-      ext.insert("database_id".to_string(), database_id);
-    }
+    let handler = self.get_handler(&view.layout)?;
+    let view_data = handler.duplicate_view(&view.id).await?;
     let duplicate_params = CreateViewParams {
-      belong_to_id: view.bid.clone(),
+      parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
-      desc: view.desc,
-      layout: view.layout.into(),
+      desc: view.desc.clone(),
+      layout: view.layout.clone().into(),
       initial_data: view_data.to_vec(),
       view_id: gen_view_id(),
-      ext,
+      meta: Default::default(),
+      set_as_current: true,
     };
 
     let _ = self.create_view_with_params(duplicate_params).await?;
@@ -390,7 +616,7 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let folder = self.folder.lock();
+    let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     folder.set_current_view(view_id);
 
@@ -410,13 +636,13 @@ impl Folder2Manager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(vec![], |folder| folder.trash.get_all_trash())
+    self.with_folder(vec![], |folder| folder.get_all_trash())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_all_trash(&self) {
     self.with_folder((), |folder| {
-      folder.trash.clear();
+      folder.remote_all_trash();
     });
 
     send_notification("trash", FolderNotification::DidUpdateTrash)
@@ -427,36 +653,87 @@ impl Folder2Manager {
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn restore_trash(&self, trash_id: &str) {
     self.with_folder((), |folder| {
-      folder.trash.delete_trash(vec![trash_id]);
+      folder.delete_trash(vec![trash_id.to_string()]);
     });
   }
 
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn delete_trash(&self, trash_id: &str) {
-    self.with_folder((), |folder| {
-      folder.trash.delete_trash(vec![trash_id]);
-      folder.views.delete_views(vec![trash_id]);
-    })
-  }
-
+  /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    self.with_folder((), |folder| {
-      let trash = folder.trash.get_all_trash();
-      folder.trash.clear();
-      folder.views.delete_views(trash);
-    });
-
+    let deleted_trash = self.with_folder(vec![], |folder| folder.get_all_trash());
+    for trash in deleted_trash {
+      let _ = self.delete_trash(&trash.id).await;
+    }
     send_notification("trash", FolderNotification::DidUpdateTrash)
       .payload(RepeatedTrashPB { items: vec![] })
       .send();
   }
 
-  fn get_data_processor(
+  /// Delete the trash permanently.
+  /// Delete the view will delete all the resources that the view holds. For example, if the view
+  /// is a database view. Then the database will be deleted as well.
+  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+  pub async fn delete_trash(&self, view_id: &str) -> FlowyResult<()> {
+    let view = self.with_folder(None, |folder| folder.views.get_view(view_id));
+    self.with_folder((), |folder| {
+      folder.delete_trash(vec![view_id.to_string()]);
+      folder.views.delete_views(vec![view_id]);
+    });
+    if let Some(view) = view {
+      if let Ok(handler) = self.get_handler(&view.layout) {
+        handler.delete_view(view_id).await?;
+      }
+    }
+    Ok(())
+  }
+
+  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
+    if import_data.data.is_none() && import_data.file_path.is_none() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidParams,
+        "data or file_path is required",
+      ));
+    }
+
+    let handler = self.get_handler(&import_data.view_layout)?;
+    let view_id = gen_view_id();
+    if let Some(data) = import_data.data {
+      handler
+        .import_from_bytes(&view_id, &import_data.name, import_data.import_type, data)
+        .await?;
+    }
+
+    if let Some(file_path) = import_data.file_path {
+      handler
+        .import_from_file_path(&view_id, &import_data.name, file_path)
+        .await?;
+    }
+
+    let params = CreateViewParams {
+      parent_view_id: import_data.parent_view_id,
+      name: import_data.name,
+      desc: "".to_string(),
+      layout: import_data.view_layout.clone().into(),
+      initial_data: vec![],
+      view_id,
+      meta: Default::default(),
+      set_as_current: false,
+    };
+
+    let view = create_view(params, import_data.view_layout);
+    self.with_folder((), |folder| {
+      folder.insert_view(view.clone());
+    });
+    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
+    Ok(view)
+  }
+
+  /// Returns a handler that implements the [FolderOperationHandler] trait
+  fn get_handler(
     &self,
     view_layout: &ViewLayout,
-  ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
-    match self.view_processors.get(view_layout) {
+  ) -> FlowyResult<Arc<dyn FolderOperationHandler + Send + Sync>> {
+    match self.operation_handlers.get(view_layout) {
       None => Err(FlowyError::internal().context(format!(
         "Get data processor failed. Unknown layout type: {:?}",
         view_layout
@@ -464,57 +741,196 @@ impl Folder2Manager {
       Some(processor) => Ok(processor.clone()),
     }
   }
+
+  /// Returns the relation of the view. The relation is a tuple of (is_workspace, parent_view_id,
+  /// child_view_ids). If the view is a workspace, then the parent_view_id is the workspace id.
+  /// Otherwise, the parent_view_id is the parent view id of the view. The child_view_ids is the
+  /// child view ids of the view.
+  async fn get_view_relation(&self, view_id: &str) -> Option<(bool, String, Vec<String>)> {
+    self.with_folder(None, |folder| {
+      let view = folder.views.get_view(view_id)?;
+      match folder.views.get_view(&view.parent_view_id) {
+        None => folder.get_current_workspace().map(|workspace| {
+          (
+            true,
+            workspace.id,
+            workspace
+              .child_views
+              .items
+              .into_iter()
+              .map(|view| view.id)
+              .collect::<Vec<String>>(),
+          )
+        }),
+        Some(parent_view) => Some((
+          false,
+          parent_view.id.clone(),
+          parent_view
+            .children
+            .items
+            .clone()
+            .into_iter()
+            .map(|view| view.id)
+            .collect::<Vec<String>>(),
+        )),
+      }
+    })
+  }
+
+  pub async fn get_folder_snapshots(
+    &self,
+    workspace_id: &str,
+  ) -> FlowyResult<Vec<FolderSnapshotPB>> {
+    let mut snapshots = vec![];
+    if let Some(snapshot) = self
+      .cloud_service
+      .get_folder_latest_snapshot(workspace_id)
+      .await?
+      .map(|snapshot| FolderSnapshotPB {
+        snapshot_id: snapshot.snapshot_id,
+        snapshot_desc: "".to_string(),
+        created_at: snapshot.created_at,
+        data: snapshot.data,
+      })
+    {
+      snapshots.push(snapshot);
+    }
+
+    Ok(snapshots)
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_mutex_folder(&self) -> &Arc<MutexFolder> {
+    &self.mutex_folder
+  }
+
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
+    &self.cloud_service
+  }
 }
 
 /// Listen on the [ViewChange] after create/delete/update events happened
-fn listen_on_view_change(mut rx: ViewChangeReceiver, folder: Folder) {
+fn subscribe_folder_view_changed(
+  mut rx: ViewChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
-      match value {
-        ViewChange::DidCreateView { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
-        },
-        ViewChange::DidDeleteView { views: _ } => {},
-        ViewChange::DidUpdate { view } => {
-          notify_parent_view_did_change(folder.clone(), vec![view.bid]);
-        },
-      };
+      if let Some(folder) = weak_mutex_folder.upgrade() {
+        tracing::trace!("Did receive view change: {:?}", value);
+        match value {
+          ViewChange::DidCreateView { view } => {
+            notify_child_views_changed(
+              view_pb_without_child_views(Arc::new(view.clone())),
+              ChildViewChangeReason::DidCreateView,
+            );
+            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
+          },
+          ViewChange::DidDeleteView { views } => {
+            for view in views {
+              notify_child_views_changed(
+                view_pb_without_child_views(view),
+                ChildViewChangeReason::DidDeleteView,
+              );
+            }
+          },
+          ViewChange::DidUpdate { view } => {
+            notify_child_views_changed(
+              view_pb_without_child_views(Arc::new(view.clone())),
+              ChildViewChangeReason::DidUpdateView,
+            );
+            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
+          },
+        };
+      }
+    }
+  });
+}
+
+fn subscribe_folder_snapshot_state_changed(
+  workspace_id: String,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
+  tokio::spawn(async move {
+    if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
+      let stream = mutex_folder
+        .lock()
+        .as_ref()
+        .map(|folder| folder.subscribe_snapshot_state());
+      if let Some(mut state_stream) = stream {
+        while let Some(snapshot_state) = state_stream.next().await {
+          if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
+            tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
+            send_notification(
+              &workspace_id,
+              FolderNotification::DidUpdateFolderSnapshotState,
+            )
+            .payload(FolderSnapshotStatePB { new_snapshot_id })
+            .send();
+          }
+        }
+      }
+    }
+  });
+}
+
+fn subscribe_folder_sync_state_changed(
+  workspace_id: String,
+  mut folder_sync_state_rx: WatchStream<SyncState>,
+  _weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  tokio::spawn(async move {
+    while let Some(state) = folder_sync_state_rx.next().await {
+      send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
+        .payload(FolderSyncStatePB::from(state))
+        .send();
     }
   });
 }
 
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
-fn listen_on_trash_change(mut rx: TrashChangeReceiver, folder: Folder) {
+fn subscribe_folder_trash_changed(
+  mut rx: TrashChangeReceiver,
+  weak_mutex_folder: &Weak<MutexFolder>,
+) {
+  let weak_mutex_folder = weak_mutex_folder.clone();
   tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
-      let mut unique_ids = HashSet::new();
-      tracing::trace!("Did receive trash change: {:?}", value);
-      let ids = match value {
-        TrashChange::DidCreateTrash { ids } => ids,
-        TrashChange::DidDeleteTrash { ids } => ids,
-      };
+      if let Some(folder) = weak_mutex_folder.upgrade() {
+        let mut unique_ids = HashSet::new();
+        tracing::trace!("Did receive trash change: {:?}", value);
+        let ids = match value {
+          TrashChange::DidCreateTrash { ids } => ids,
+          TrashChange::DidDeleteTrash { ids } => ids,
+        };
 
-      if let Some(folder) = folder.lock().as_ref() {
-        let views = folder.views.get_views(&ids);
-        for view in views {
-          unique_ids.insert(view.bid);
+        if let Some(folder) = folder.lock().as_ref() {
+          let views = folder.views.get_views(&ids);
+          for view in views {
+            unique_ids.insert(view.parent_view_id.clone());
+          }
+
+          let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
+          send_notification("trash", FolderNotification::DidUpdateTrash)
+            .payload(repeated_trash)
+            .send();
         }
 
-        let repeated_trash: RepeatedTrashPB = folder.trash.get_all_trash().into();
-        send_notification("trash", FolderNotification::DidUpdateTrash)
-          .payload(repeated_trash)
-          .send();
+        let parent_view_ids = unique_ids.into_iter().collect();
+        notify_parent_view_did_change(folder.clone(), parent_view_ids);
       }
-
-      let parent_view_ids = unique_ids.into_iter().collect();
-      notify_parent_view_did_change(folder.clone(), parent_view_ids);
     }
   });
 }
 
-fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewPB> {
+/// Return the views that belong to the workspace. The views are filtered by the trash.
+fn get_workspace_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   let trash_ids = folder
-    .trash
     .get_all_trash()
     .into_iter()
     .map(|trash| trash.id)
@@ -537,16 +953,24 @@ fn get_workspace_view_pbs(workspace_id: &str, folder: &InnerFolder) -> Vec<ViewP
     .collect()
 }
 
+fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
+  let repeated_view: RepeatedViewPB = get_workspace_view_pbs(workspace_id, folder).into();
+  tracing::trace!("Did update workspace views: {:?}", repeated_view);
+  send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
+    .payload(repeated_view)
+    .send();
+}
+
+/// Notify the the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 fn notify_parent_view_did_change<T: AsRef<str>>(
-  folder: Folder,
+  folder: Arc<MutexFolder>,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
   let folder = folder.lock();
   let folder = folder.as_ref()?;
   let workspace_id = folder.get_current_workspace_id()?;
   let trash_ids = folder
-    .trash
     .get_all_trash()
     .into_iter()
     .map(|trash| trash.id)
@@ -555,13 +979,10 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   for parent_view_id in parent_view_ids {
     let parent_view_id = parent_view_id.as_ref();
 
-    // if the view's bid is equal to workspace id. Then it will fetch the current
+    // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      let repeated_view: RepeatedViewPB = get_workspace_view_pbs(&workspace_id, folder).into();
-      send_notification(&workspace_id, FolderNotification::DidUpdateWorkspaceViews)
-        .payload(repeated_view)
-        .send();
+      notify_did_update_workspace(&workspace_id, folder)
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
@@ -572,7 +993,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
 
       // Post the notification
       let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
-      send_notification(parent_view_id, FolderNotification::DidUpdateChildViews)
+      send_notification(parent_view_id, FolderNotification::DidUpdateView)
         .payload(parent_view_pb)
         .send();
     }
@@ -581,33 +1002,55 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
   None
 }
 
+pub enum ChildViewChangeReason {
+  DidCreateView,
+  DidDeleteView,
+  DidUpdateView,
+}
+
+/// Notify the the list of parent view ids that its child views were changed.
+#[tracing::instrument(level = "debug", skip_all)]
+fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChangeReason) {
+  let parent_view_id = view_pb.parent_view_id.clone();
+  let mut payload = ChildViewUpdatePB {
+    parent_view_id: view_pb.parent_view_id.clone(),
+    ..Default::default()
+  };
+
+  match reason {
+    ChildViewChangeReason::DidCreateView => {
+      payload.create_child_views.push(view_pb);
+    },
+    ChildViewChangeReason::DidDeleteView => {
+      payload.delete_child_views.push(view_pb.id);
+    },
+    ChildViewChangeReason::DidUpdateView => {
+      payload.update_child_views.push(view_pb);
+    },
+  }
+
+  send_notification(&parent_view_id, FolderNotification::DidUpdateChildViews)
+    .payload(payload)
+    .send();
+}
+
 fn folder_not_init_error() -> FlowyError {
   FlowyError::internal().context("Folder not initialized")
 }
 
-#[derive(Clone)]
-pub struct FolderId(String);
-impl FolderId {
-  pub fn new(uid: i64) -> Self {
-    Self(format!("{}:folder", uid))
-  }
-}
-
-impl AsRef<str> for FolderId {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
 #[derive(Clone, Default)]
-pub struct Folder(Arc<Mutex<Option<InnerFolder>>>);
-
-impl Deref for Folder {
-  type Target = Arc<Mutex<Option<InnerFolder>>>;
+pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
+impl Deref for MutexFolder {
+  type Target = Arc<Mutex<Option<Folder>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }
 }
+unsafe impl Sync for MutexFolder {}
+unsafe impl Send for MutexFolder {}
 
-unsafe impl Sync for Folder {}
-
-unsafe impl Send for Folder {}
+pub enum FolderInitializeData {
+  Empty,
+  Raw(CollabRawData),
+  Data(FolderData),
+}

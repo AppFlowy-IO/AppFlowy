@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -13,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
+import '../../../../application/field/type_option/type_option_service.dart';
 import '../../layout/sizes.dart';
 import 'field_editor.dart';
 import 'field_cell.dart';
@@ -21,6 +23,7 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
   final ScrollController anchorScrollController;
+
   const GridHeaderSliverAdaptor({
     required this.viewId,
     required this.fieldController,
@@ -57,12 +60,6 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
               child: _GridHeader(viewId: widget.viewId),
             ),
           );
-
-          // return SliverPersistentHeader(
-          //   delegate: SliverHeaderDelegateImplementation(gridId: gridId, fields: state.fields),
-          //   floating: true,
-          //   pinned: true,
-          // );
         },
       ),
     );
@@ -101,8 +98,10 @@ class _GridHeaderState extends State<_GridHeader> {
         final cells = state.fields
             .where((field) => field.visibility)
             .map(
-              (field) =>
-                  FieldCellContext(viewId: widget.viewId, field: field.field),
+              (field) => FieldContext(
+                viewId: widget.viewId,
+                field: field.field,
+              ),
             )
             .map(
               (ctx) => GridFieldCell(
@@ -177,28 +176,52 @@ class _CellTrailing extends StatelessWidget {
   }
 }
 
-class CreateFieldButton extends StatelessWidget {
+class CreateFieldButton extends StatefulWidget {
   final String viewId;
   const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
 
   @override
+  State<CreateFieldButton> createState() => _CreateFieldButtonState();
+}
+
+class _CreateFieldButtonState extends State<CreateFieldButton> {
+  final popoverController = PopoverController();
+  late TypeOptionPB typeOption;
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      controller: popoverController,
       direction: PopoverDirection.bottomWithRightAligned,
       asBarrier: true,
       margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(240, 600)),
+      triggerActions: PopoverTriggerFlags.none,
       child: FlowyButton(
         radius: BorderRadius.zero,
         text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
         hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () {},
+        onTap: () async {
+          final result = await TypeOptionBackendService.createFieldTypeOption(
+            viewId: widget.viewId,
+          );
+          result.fold(
+            (l) {
+              typeOption = l;
+              popoverController.show();
+            },
+            (r) => Log.error("Failed to create field type option: $r"),
+          );
+        },
         leftIcon: const FlowySvg(name: 'home/add'),
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
-          viewId: viewId,
-          typeOptionLoader: NewFieldTypeOptionLoader(viewId: viewId),
+          viewId: widget.viewId,
+          typeOptionLoader: FieldTypeOptionLoader(
+            viewId: widget.viewId,
+            field: typeOption.field_2,
+          ),
         );
       },
     );

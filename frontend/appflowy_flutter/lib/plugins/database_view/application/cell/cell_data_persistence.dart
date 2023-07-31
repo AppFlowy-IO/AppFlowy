@@ -7,16 +7,19 @@ abstract class CellDataPersistence<D> {
 }
 
 class TextCellDataPersistence implements CellDataPersistence<String> {
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
   final _cellBackendSvc = CellBackendService();
 
   TextCellDataPersistence({
-    required this.cellId,
+    required this.cellContext,
   });
 
   @override
   Future<Option<FlowyError>> save(String data) async {
-    final fut = _cellBackendSvc.updateCell(cellId: cellId, data: data);
+    final fut = _cellBackendSvc.updateCell(
+      cellContext: cellContext,
+      data: data,
+    );
     return fut.then((result) {
       return result.fold(
         (l) => none(),
@@ -32,25 +35,29 @@ class DateCellData with _$DateCellData {
     DateTime? dateTime,
     String? time,
     required bool includeTime,
+    bool? clearFlag,
   }) = _DateCellData;
 }
 
 class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
-  final CellIdentifier cellId;
+  final DatabaseCellContext cellContext;
   DateCellDataPersistence({
-    required this.cellId,
+    required this.cellContext,
   });
 
   @override
   Future<Option<FlowyError>> save(DateCellData data) {
-    var payload = DateChangesetPB.create()..cellPath = _makeCellPath(cellId);
-
+    final payload = DateChangesetPB.create()
+      ..cellId = _makeCellPath(cellContext);
     if (data.dateTime != null) {
       final date = (data.dateTime!.millisecondsSinceEpoch ~/ 1000).toString();
       payload.date = date;
     }
     if (data.time != null) {
       payload.time = data.time!;
+    }
+    if (data.clearFlag != null) {
+      payload.clearFlag = data.clearFlag!;
     }
     payload.includeTime = data.includeTime;
 
@@ -63,7 +70,7 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
   }
 }
 
-CellIdPB _makeCellPath(CellIdentifier cellId) {
+CellIdPB _makeCellPath(DatabaseCellContext cellId) {
   return CellIdPB.create()
     ..viewId = cellId.viewId
     ..fieldId = cellId.fieldId

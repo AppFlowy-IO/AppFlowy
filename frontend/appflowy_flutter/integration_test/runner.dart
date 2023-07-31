@@ -1,9 +1,19 @@
 import 'package:integration_test/integration_test.dart';
 
-import 'board_test.dart' as board_test;
+import 'database_calendar_test.dart' as database_calendar_test;
+import 'database_cell_test.dart' as database_cell_test;
+import 'database_field_test.dart' as database_field_test;
+import 'database_filter_test.dart' as database_filter_test;
+import 'database_row_page_test.dart' as database_row_page_test;
+import 'database_row_test.dart' as database_row_test;
+import 'database_setting_test.dart' as database_setting_test;
+import 'database_share_test.dart' as database_share_test;
+import 'database_sort_test.dart' as database_sort_test;
+import 'database_view_test.dart' as database_view_test;
+import 'document/document_test_runner.dart' as document_test_runner;
+import 'import_files_test.dart' as import_files_test;
+import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
-import 'empty_document_test.dart' as empty_document_test;
-import 'open_ai_smart_menu_test.dart' as smart_menu_test;
 import 'command_shortcut_tests.dart' as command_shortcut_tests;
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -16,8 +26,26 @@ import 'command_shortcut_tests.dart' as command_shortcut_tests;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   switch_folder_test.main();
-  board_test.main();
-  empty_document_test.main();
-  smart_menu_test.main();
+  share_markdown_test.main();
+  import_files_test.main();
   command_shortcut_tests.main();
+
+  // Document integration tests
+  document_test_runner.startTesting();
+
+  // Database integration tests
+  database_cell_test.main();
+  database_field_test.main();
+  database_share_test.main();
+  database_row_page_test.main();
+  database_row_test.main();
+  database_setting_test.main();
+  database_filter_test.main();
+  database_sort_test.main();
+  database_view_test.main();
+  database_calendar_test.main();
+
+  // board_test.main();
+  // empty_document_test.main();
+  // smart_menu_test.main();
 }

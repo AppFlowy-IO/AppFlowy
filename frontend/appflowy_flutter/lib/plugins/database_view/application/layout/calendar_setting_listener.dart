@@ -6,7 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:dartz/dartz.dart';
 
-typedef NewLayoutFieldValue = Either<LayoutSettingPB, FlowyError>;
+typedef NewLayoutFieldValue = Either<DatabaseLayoutSettingPB, FlowyError>;
 
 class DatabaseCalendarLayoutListener {
   final String viewId;
@@ -33,7 +33,7 @@ class DatabaseCalendarLayoutListener {
       case DatabaseNotification.DidSetNewLayoutField:
         result.fold(
           (payload) => _newLayoutFieldNotifier?.value =
-              left(LayoutSettingPB.fromBuffer(payload)),
+              left(DatabaseLayoutSettingPB.fromBuffer(payload)),
           (error) => _newLayoutFieldNotifier?.value = right(error),
         );
         break;

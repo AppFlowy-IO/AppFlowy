@@ -33,7 +33,8 @@ class _GridFieldNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<FieldInfo> get fieldInfos => _fieldInfos;
+  UnmodifiableListView<FieldInfo> get fieldInfos =>
+      UnmodifiableListView(_fieldInfos);
 }
 
 class _GridFilterNotifier extends ChangeNotifier {
@@ -85,9 +86,11 @@ class FieldController {
   final FilterBackendService _filterBackendSvc;
   final SortBackendService _sortBackendSvc;
 
+  bool _isDisposed = false;
+
   // Field callbacks
   final Map<OnReceiveFields, VoidCallback> _fieldCallbacks = {};
-  _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
+  final _GridFieldNotifier _fieldNotifier = _GridFieldNotifier();
 
   // Field updated callbacks
   final Map<OnReceiveUpdateFields, void Function(List<FieldInfo>)>
@@ -107,15 +110,15 @@ class FieldController {
   final Map<String, SortPB> _sortPBByFieldId = {};
 
   // Getters
-  List<FieldInfo> get fieldInfos => [..._fieldNotifier?.fieldInfos ?? []];
+  List<FieldInfo> get fieldInfos => [..._fieldNotifier.fieldInfos];
   List<FilterInfo> get filterInfos => [..._filterNotifier?.filters ?? []];
   List<SortInfo> get sortInfos => [..._sortNotifier?.sorts ?? []];
 
   FieldInfo? getField(String fieldId) {
-    final fields = _fieldNotifier?.fieldInfos
-            .where((element) => element.id == fieldId)
-            .toList() ??
-        [];
+    final fields = _fieldNotifier.fieldInfos
+        .where((element) => element.id == fieldId)
+        .toList();
+
     if (fields.isEmpty) {
       return null;
     }
@@ -169,6 +172,10 @@ class FieldController {
     _listenOnSortChanged();
 
     _settingBackendSvc.getSetting().then((result) {
+      if (_isDisposed) {
+        return;
+      }
+
       result.fold(
         (setting) => _updateSetting(setting),
         (err) => Log.error(err),
@@ -257,6 +264,10 @@ class FieldController {
 
     _filtersListener.start(
       onFilterChanged: (result) {
+        if (_isDisposed) {
+          return;
+        }
+
         result.fold(
           (FilterChangesetNotificationPB changeset) {
             final List<FilterInfo> filters = filterInfos;
@@ -351,6 +362,9 @@ class FieldController {
 
     _sortsListener.start(
       onSortChanged: (result) {
+        if (_isDisposed) {
+          return;
+        }
         result.fold(
           (SortChangesetNotificationPB changeset) {
             final List<SortInfo> newSortInfos = sortInfos;
@@ -371,6 +385,10 @@ class FieldController {
     //Listen on setting changes
     _settingListener.start(
       onSettingUpdated: (result) {
+        if (_isDisposed) {
+          return;
+        }
+
         result.fold(
           (setting) => _updateSetting(setting),
           (r) => Log.error(r),
@@ -385,6 +403,9 @@ class FieldController {
       onFieldsChanged: (result) {
         result.fold(
           (changeset) {
+            if (_isDisposed) {
+              return;
+            }
             _deleteFields(changeset.deletedFields);
             _insertFields(changeset.insertedFields);
 
@@ -417,27 +438,29 @@ class FieldController {
   }
 
   void _updateFieldInfos() {
-    if (_fieldNotifier != null) {
-      for (var field in _fieldNotifier!.fieldInfos) {
-        field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
-        field._hasFilter = _filterPBByFieldId[field.id] != null;
-        field._hasSort = _sortPBByFieldId[field.id] != null;
-      }
-      _fieldNotifier?.notify();
+    for (final field in _fieldNotifier.fieldInfos) {
+      field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
+      field._hasFilter = _filterPBByFieldId[field.id] != null;
+      field._hasSort = _sortPBByFieldId[field.id] != null;
     }
+    _fieldNotifier.notify();
   }
 
   Future<void> dispose() async {
+    if (_isDisposed) {
+      Log.warn('FieldController is already disposed');
+      return;
+    }
+    _isDisposed = true;
     await _fieldListener.stop();
     await _filtersListener.stop();
     await _settingListener.stop();
     await _sortsListener.stop();
 
     for (final callback in _fieldCallbacks.values) {
-      _fieldNotifier?.removeListener(callback);
+      _fieldNotifier.removeListener(callback);
     }
-    _fieldNotifier?.dispose();
-    _fieldNotifier = null;
+    _fieldNotifier.dispose();
 
     for (final callback in _filterCallbacks.values) {
       _filterNotifier?.removeListener(callback);
@@ -460,7 +483,11 @@ class FieldController {
     return Future(
       () => result.fold(
         (newFields) {
-          _fieldNotifier?.fieldInfos =
+          if (_isDisposed) {
+            return left(unit);
+          }
+
+          _fieldNotifier.fieldInfos =
               newFields.map((field) => FieldInfo(field: field)).toList();
           _loadFilters();
           _loadSorts();
@@ -551,7 +578,7 @@ class FieldController {
       }
 
       _fieldCallbacks[onReceiveFields] = callback;
-      _fieldNotifier?.addListener(callback);
+      _fieldNotifier.addListener(callback);
     }
 
     if (onFilters != null) {
@@ -588,7 +615,7 @@ class FieldController {
     if (onFieldsListener != null) {
       final callback = _fieldCallbacks.remove(onFieldsListener);
       if (callback != null) {
-        _fieldNotifier?.removeListener(callback);
+        _fieldNotifier.removeListener(callback);
       }
     }
     if (onFiltersListener != null) {
@@ -616,7 +643,7 @@ class FieldController {
     };
 
     newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
-    _fieldNotifier?.fieldInfos = newFields;
+    _fieldNotifier.fieldInfos = newFields;
   }
 
   void _insertFields(List<IndexFieldPB> insertedFields) {
@@ -632,7 +659,7 @@ class FieldController {
         newFieldInfos.add(fieldInfo);
       }
     }
-    _fieldNotifier?.fieldInfos = newFieldInfos;
+    _fieldNotifier.fieldInfos = newFieldInfos;
   }
 
   List<FieldInfo> _updateFields(List<FieldPB> updatedFieldPBs) {
@@ -654,33 +681,35 @@ class FieldController {
     }
 
     if (updatedFields.isNotEmpty) {
-      _fieldNotifier?.fieldInfos = newFields;
+      _fieldNotifier.fieldInfos = newFields;
     }
     return updatedFields;
   }
 }
 
-class RowDelegatesImpl extends RowFieldsDelegate with RowCacheDelegate {
-  final FieldController _cache;
+class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
+  final FieldController _fieldController;
   OnReceiveFields? _onFieldFn;
-  RowDelegatesImpl(FieldController cache) : _cache = cache;
+  RowCacheDependenciesImpl(FieldController cache) : _fieldController = cache;
 
   @override
   UnmodifiableListView<FieldInfo> get fields =>
-      UnmodifiableListView(_cache.fieldInfos);
+      UnmodifiableListView(_fieldController.fieldInfos);
 
   @override
   void onFieldsChanged(void Function(List<FieldInfo>) callback) {
-    _onFieldFn = (fieldInfos) {
-      callback(fieldInfos);
-    };
-    _cache.addListener(onReceiveFields: _onFieldFn);
+    if (_onFieldFn != null) {
+      _fieldController.removeListener(onFieldsListener: _onFieldFn!);
+    }
+
+    _onFieldFn = (fieldInfos) => callback(fieldInfos);
+    _fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   @override
-  void onRowDispose() {
+  void onRowDisposed() {
     if (_onFieldFn != null) {
-      _cache.removeListener(onFieldsListener: _onFieldFn!);
+      _fieldController.removeListener(onFieldsListener: _onFieldFn!);
       _onFieldFn = null;
     }
   }
@@ -761,6 +790,7 @@ class FieldInfo {
       case FieldType.RichText:
       case FieldType.Checkbox:
       case FieldType.Number:
+      case FieldType.DateTime:
         return true;
       default:
         return false;

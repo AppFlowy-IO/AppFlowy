@@ -18,8 +18,12 @@ import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({
+    super.key,
+    required this.router,
+  });
+
   final AuthRouter router;
-  const SignUpScreen({Key? key, required this.router}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +69,9 @@ class SignUpForm extends StatelessWidget {
           ),
           const VSpace(30),
           const EmailTextField(),
+          const VSpace(5),
           const PasswordTextField(),
+          const VSpace(5),
           const RepeatPasswordTextField(),
           const VSpace(30),
           const SignUpButton(),

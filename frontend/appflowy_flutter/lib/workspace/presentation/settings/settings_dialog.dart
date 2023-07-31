@@ -1,6 +1,8 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -16,8 +18,15 @@ const _dialogHorizontalPadding = EdgeInsets.symmetric(horizontal: 12);
 const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 
 class SettingsDialog extends StatelessWidget {
+  final VoidCallback dismissDialog;
+  final VoidCallback didLogout;
   final UserProfilePB user;
-  SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsDialog(
+    this.user, {
+    required this.dismissDialog,
+    required this.didLogout,
+    Key? key,
+  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +93,15 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.files:
         return const SettingsFileSystemView();
       case SettingsPage.user:
-        return SettingsUserView(user);
+        return SettingsUserView(
+          user,
+          didLogin: () => dismissDialog(),
+          didLogout: didLogout,
+        );
+      case SettingsPage.supabaseSetting:
+        return const SupabaseSettingView();
+      case SettingsPage.shortcuts:
+        return const SettingsCustomizeShortcutsWrapper();
       default:
         return Container();
     }

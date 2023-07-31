@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy/user/presentation/sign_up_screen.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
@@ -28,7 +28,7 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(
+  void pushHomeScreenWithWorkSpace(
     BuildContext context,
     UserProfilePB profile,
     WorkspaceSettingPB workspaceSetting,
@@ -43,6 +43,21 @@ class AuthRouter {
         ),
         RouteDurations.slow.inMilliseconds * .001,
       ),
+    );
+  }
+
+  Future<void> pushHomeScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) async {
+    final result = await FolderEventGetCurrentWorkspace().send();
+    result.fold(
+      (workspaceSettingPB) => pushHomeScreenWithWorkSpace(
+        context,
+        userProfile,
+        workspaceSettingPB,
+      ),
+      (r) => pushWelcomeScreen(context, userProfile),
     );
   }
 }
@@ -60,7 +75,7 @@ class SplashRoute {
       ),
     );
 
-    FolderEventReadCurrentWorkspace().send().then((result) {
+    FolderEventGetCurrentWorkspace().send().then((result) {
       result.fold(
         (workspaceSettingPB) =>
             pushHomeScreen(context, userProfile, workspaceSettingPB),

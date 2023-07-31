@@ -1,45 +1,26 @@
-use crate::FlowySDKTest;
-use flowy_user::{entities::UserProfilePB, errors::FlowyError};
-use lib_dispatch::prelude::{
-  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, StatusCode,
-  ToBytes, *,
-};
 use std::{
   convert::TryFrom,
   fmt::{Debug, Display},
   hash::Hash,
-  marker::PhantomData,
   sync::Arc,
 };
 
-pub type Folder2EventBuilder = EventBuilder<FlowyError>;
-impl Folder2EventBuilder {
-  pub fn new(sdk: FlowySDKTest) -> Self {
-    EventBuilder::test(TestContext::new(sdk))
-  }
-  pub fn user_profile(&self) -> &Option<UserProfilePB> {
-    &self.user_profile
-  }
-}
+use flowy_user::errors::{internal_error, FlowyError};
+use lib_dispatch::prelude::{
+  AFPluginDispatcher, AFPluginEventResponse, AFPluginFromBytes, AFPluginRequest, ToBytes, *,
+};
 
-pub type UserModuleEventBuilder = Folder2EventBuilder;
+use crate::FlowyCoreTest;
 
 #[derive(Clone)]
-pub struct EventBuilder<E> {
+pub struct EventBuilder {
   context: TestContext,
-  user_profile: Option<UserProfilePB>,
-  err_phantom: PhantomData<E>,
 }
 
-impl<E> EventBuilder<E>
-where
-  E: AFPluginFromBytes + Debug,
-{
-  fn test(context: TestContext) -> Self {
+impl EventBuilder {
+  pub fn new(sdk: FlowyCoreTest) -> Self {
     Self {
-      context,
-      user_profile: None,
-      err_phantom: PhantomData,
+      context: TestContext::new(sdk),
     }
   }
 
@@ -53,7 +34,7 @@ where
         self.context.request = Some(module_request.payload(bytes))
       },
       Err(e) => {
-        log::error!("Set payload failed: {:?}", e);
+        tracing::error!("Set payload failed: {:?}", e);
       },
     }
     self
@@ -86,7 +67,7 @@ where
     R: AFPluginFromBytes,
   {
     let response = self.get_response();
-    match response.clone().parse::<R, E>() {
+    match response.clone().parse::<R, FlowyError>() {
       Ok(Ok(data)) => data,
       Ok(Err(e)) => {
         panic!(
@@ -105,22 +86,19 @@ where
     }
   }
 
-  pub fn error(self) -> E {
+  pub fn try_parse<R>(self) -> Result<R, FlowyError>
+  where
+    R: AFPluginFromBytes,
+  {
     let response = self.get_response();
-    assert_eq!(response.status_code, StatusCode::Err);
-    <AFPluginData<E>>::try_from(response.payload)
-      .unwrap()
-      .into_inner()
+    response.parse::<R, FlowyError>().map_err(internal_error)?
   }
 
-  pub fn assert_error(self) -> Self {
-    // self.context.assert_error();
-    self
-  }
-
-  pub fn assert_success(self) -> Self {
-    // self.context.assert_success();
-    self
+  pub fn error(self) -> Option<FlowyError> {
+    let response = self.get_response();
+    <AFPluginData<FlowyError>>::try_from(response.payload)
+      .ok()
+      .map(|data| data.into_inner())
   }
 
   fn dispatch(&self) -> Arc<AFPluginDispatcher> {
@@ -132,7 +110,7 @@ where
       .context
       .response
       .as_ref()
-      .expect("must call sync_send first")
+      .expect("must call sync_send/async_send first")
       .clone()
   }
 
@@ -143,13 +121,13 @@ where
 
 #[derive(Clone)]
 pub struct TestContext {
-  pub sdk: FlowySDKTest,
+  pub sdk: FlowyCoreTest,
   request: Option<AFPluginRequest>,
   response: Option<AFPluginEventResponse>,
 }
 
 impl TestContext {
-  pub fn new(sdk: FlowySDKTest) -> Self {
+  pub fn new(sdk: FlowyCoreTest) -> Self {
     Self {
       sdk,
       request: None,

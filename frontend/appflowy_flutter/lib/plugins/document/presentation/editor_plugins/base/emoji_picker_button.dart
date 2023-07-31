@@ -31,10 +31,12 @@ class EmojiPickerButton extends StatelessWidget {
       popupBuilder: (context) => _buildEmojiPicker(),
       child: FlowyTextButton(
         emoji,
+        overflow: TextOverflow.visible,
         fontSize: emojiSize,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 35.0),
         fillColor: Colors.transparent,
+        mainAxisAlignment: MainAxisAlignment.center,
         onPressed: () {
           popoverController.show();
         },

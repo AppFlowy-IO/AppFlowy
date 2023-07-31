@@ -1,6 +1,8 @@
+use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
-use flowy_database2::entities::{CreateRowParams, FieldType, GroupPB, RowPB};
+use collab_database::rows::{CreateRowParams, RowId};
+
+use flowy_database2::entities::{FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -8,6 +10,7 @@ use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
   SingleSelectTypeOption,
 };
+use lib_infra::util::timestamp;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -24,7 +27,7 @@ pub enum GroupScript {
   AssertRow {
     group_index: usize,
     row_index: usize,
-    row: RowPB,
+    row: RowMetaPB,
   },
   MoveRow {
     from_group_index: usize,
@@ -126,12 +129,15 @@ impl DatabaseGroupTest {
       GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
         let params = CreateRowParams {
-          view_id: self.view_id.clone(),
-          start_row_id: None,
-          group_id: Some(group.group_id.clone()),
-          cell_data_by_field_id: None,
+          id: gen_row_id(),
+          timestamp: timestamp(),
+          ..Default::default()
         };
-        let _ = self.editor.create_row(params).await.unwrap();
+        let _ = self
+          .editor
+          .create_row(&self.view_id, Some(group.group_id.clone()), params)
+          .await
+          .unwrap();
       },
       GroupScript::DeleteRow {
         group_index,
@@ -228,7 +234,7 @@ impl DatabaseGroupTest {
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group.group_id, group_pb.group_id);
-        assert_eq!(group.desc, group_pb.desc);
+        assert_eq!(group.group_name, group_pb.group_name);
       },
       GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
         self
@@ -254,7 +260,7 @@ impl DatabaseGroupTest {
     groups.get(index).unwrap().clone()
   }
 
-  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowPB {
+  pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowMetaPB {
     let groups = self.group_at_index(group_index).await;
     groups.rows.get(row_index).unwrap().clone()
   }

@@ -1,21 +1,50 @@
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::config::AppFlowyCollabConfig;
+use anyhow::Error;
+use std::ops::Deref;
 use std::sync::Arc;
 
+use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
+use collab_document::blocks::DocumentData;
+use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-use flowy_document2::manager::DocumentUser;
+use flowy_document2::document::MutexDocument;
+use flowy_document2::document_data::default_document_data;
+use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document_deps::cloud::*;
+
+use lib_infra::future::FutureResult;
+
+pub struct DocumentTest {
+  inner: DocumentManager,
+}
+
+impl DocumentTest {
+  pub fn new() -> Self {
+    let user = FakeUser::new();
+    let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
+    let manager = DocumentManager::new(Arc::new(user), default_collab_builder(), cloud_service);
+    Self { inner: manager }
+  }
+}
+
+impl Deref for DocumentTest {
+  type Target = DocumentManager;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
+  }
+}
 
 pub struct FakeUser {
-  kv: Arc<RocksCollabDB>,
+  collab_db: Arc<RocksCollabDB>,
 }
 
 impl FakeUser {
   pub fn new() -> Self {
-    Self { kv: db() }
+    Self { collab_db: db() }
   }
 }
 
@@ -24,12 +53,15 @@ impl DocumentUser for FakeUser {
     Ok(1)
   }
 
-  fn token(&self) -> Result<String, flowy_error::FlowyError> {
-    Ok("1".to_string())
+  fn token(&self) -> Result<Option<String>, flowy_error::FlowyError> {
+    Ok(None)
   }
 
-  fn collab_db(&self) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
-    Ok(self.kv.clone())
+  fn collab_db(
+    &self,
+    _uid: i64,
+  ) -> Result<std::sync::Weak<RocksCollabDB>, flowy_error::FlowyError> {
+    Ok(Arc::downgrade(&self.collab_db))
   }
 }
 
@@ -50,6 +82,46 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(AppFlowyCollabConfig::default());
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
   Arc::new(builder)
+}
+
+pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
+  let test = DocumentTest::new();
+  let doc_id: String = gen_document_id();
+  let data = default_document_data();
+
+  // create a document
+  _ = test.create_document(&doc_id, Some(data.clone())).unwrap();
+
+  let document = test.get_document(&doc_id).await.unwrap();
+
+  (test, document, data.page_id)
+}
+
+pub fn gen_document_id() -> String {
+  let uuid = uuid::Uuid::new_v4();
+  uuid.to_string()
+}
+
+pub fn gen_id() -> String {
+  nanoid!(10)
+}
+
+pub struct LocalTestDocumentCloudServiceImpl();
+impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
+  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
+  }
+
+  fn get_document_latest_snapshot(
+    &self,
+    _document_id: &str,
+  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
+    FutureResult::new(async move { Ok(None) })
+  }
+
+  fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+    FutureResult::new(async move { Ok(None) })
+  }
 }

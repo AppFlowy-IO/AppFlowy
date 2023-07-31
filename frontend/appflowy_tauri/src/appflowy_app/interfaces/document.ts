@@ -1,25 +1,39 @@
-import { Editor } from 'slate';
-import { RegionGrid } from '$app/utils/region_grid';
-import { ReactEditor } from "slate-react";
+import Delta, { Op } from 'quill-delta';
+import { BlockActionTypePB } from '@/services/backend';
+import { Sources } from 'quill';
+import React from 'react';
+
+export interface DocumentBlockJSON {
+  type: BlockType;
+  data: BlockData<any>;
+  children: DocumentBlockJSON[];
+}
+
+export interface RangeStatic {
+  id: string;
+  length: number;
+  index: number;
+}
 
 export enum BlockType {
   PageBlock = 'page',
   HeadingBlock = 'heading',
-  TextBlock = 'text',
+  TextBlock = 'paragraph',
   TodoListBlock = 'todo_list',
   BulletedListBlock = 'bulleted_list',
   NumberedListBlock = 'numbered_list',
   ToggleListBlock = 'toggle_list',
   CodeBlock = 'code',
-  EmbedBlock = 'embed',
+  EquationBlock = 'math_equation',
   QuoteBlock = 'quote',
   CalloutBlock = 'callout',
   DividerBlock = 'divider',
-  MediaBlock = 'media',
-  TableBlock = 'table',
-  ColumnBlock = 'column',
+  ImageBlock = 'image',
 }
 
+export interface EauqtionBlockData {
+  formula: string;
+}
 export interface HeadingBlockData extends TextBlockData {
   level: number;
 }
@@ -49,12 +63,30 @@ export interface CalloutBlockData extends TextBlockData {
 }
 
 export interface TextBlockData {
-  delta: TextDelta[];
+  delta: Op[];
 }
 
 export interface DividerBlockData {}
 
-export type PageBlockData = TextBlockData;
+export enum Align {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
+
+export interface ImageBlockData {
+  width: number;
+  height: number;
+  caption: Op[];
+  url: string;
+  align: Align;
+}
+
+export interface PageBlockData extends TextBlockData {
+  cover?: string;
+  icon?: string;
+  coverType?: 'image' | 'color';
+}
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
@@ -74,6 +106,10 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? DividerBlockData
   : Type extends BlockType.CalloutBlock
   ? CalloutBlockData
+  : Type extends BlockType.EquationBlock
+  ? EauqtionBlockData
+  : Type extends BlockType.ImageBlock
+  ? ImageBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;
@@ -85,37 +121,8 @@ export interface NestedBlock<Type = any> {
   parent: string | null;
   children: string;
 }
-export interface TextDelta {
-  insert: string;
-  attributes?: Record<string, string | boolean>;
-}
-
-export enum BlockActionType {
-  Insert = 0,
-  Update = 1,
-  Delete = 2,
-  Move = 3,
-}
-
-export interface DeltaItem {
-  action: 'inserted' | 'removed' | 'updated';
-  payload: {
-    id: string;
-    value?: NestedBlock | string[];
-  };
-}
 
 export type Node = NestedBlock;
-
-export interface SelectionPoint {
-  path: [number, number];
-  offset: number;
-}
-
-export interface TextSelection {
-  anchor: SelectionPoint;
-  focus: SelectionPoint;
-}
 
 export interface DocumentData {
   rootId: string;
@@ -131,16 +138,75 @@ export interface DocumentState {
   children: Record<string, string[]>;
 }
 
-export interface RangeSelectionState {
-  isDragging?: boolean,
-  anchor?: PointState,
-  focus?: PointState,
+export interface SlashCommandState {
+  isSlashCommand: boolean;
+  blockId?: string;
+  hoverOption?: SlashCommandOption;
 }
 
+export enum SlashCommandOptionKey {
+  TEXT,
+  PAGE,
+  TODO,
+  BULLET,
+  NUMBER,
+  TOGGLE,
+  CODE,
+  EQUATION,
+  QUOTE,
+  CALLOUT,
+  DIVIDER,
+  HEADING_1,
+  HEADING_2,
+  HEADING_3,
+  IMAGE,
+}
 
-export interface PointState {
-  id: string,
-  selection: TextSelection
+export interface SlashCommandOption {
+  type: BlockType;
+  data?: BlockData<any>;
+  key: SlashCommandOptionKey;
+}
+
+export enum SlashCommandGroup {
+  BASIC = 'Basic',
+  MEDIA = 'Media',
+  ADVANCED = 'Advanced',
+}
+
+export interface RectSelectionState {
+  selection: string[];
+  isDragging: boolean;
+}
+
+export interface RangeState {
+  anchor?: {
+    id: string;
+    point: {
+      x: number;
+      y: number;
+      index?: number;
+      length?: number;
+    };
+  };
+  focus?: {
+    id: string;
+    point: {
+      x: number;
+      y: number;
+    };
+  };
+  ranges: Partial<
+    Record<
+      string,
+      {
+        index: number;
+        length: number;
+      }
+    >
+  >;
+  isDragging: boolean;
+  caret?: RangeStatic;
 }
 
 export enum ChangeType {
@@ -160,4 +226,123 @@ export interface BlockPBValue {
   data: string;
 }
 
-export type TextBlockKeyEventHandlerParams = [React.KeyboardEvent<HTMLDivElement>, ReactEditor & Editor];
+export enum SplitRelationship {
+  NextSibling,
+  FirstChild,
+}
+export enum TextAction {
+  Turn = 'turn',
+  Bold = 'bold',
+  Italic = 'italic',
+  Underline = 'underline',
+  Strikethrough = 'strikethrough',
+  Code = 'code',
+  Equation = 'formula',
+  Link = 'href',
+  TextColor = 'font_color',
+  Highlight = 'bg_color',
+}
+export interface TextActionMenuProps {
+  /**
+   * The custom items that will be covered in the default items
+   */
+  customItems?: TextAction[];
+  /**
+   * The items that will be excluded from the default items
+   */
+  excludeItems?: TextAction[];
+}
+
+export interface BlockConfig {
+  /**
+   * Whether the block can have children
+   */
+  canAddChild: boolean;
+
+  /**
+   * The default data of the block
+   */
+  defaultData?: BlockData<any>;
+
+  /**
+   * The props that will be passed to the text split function
+   */
+  splitProps?: {
+    /**
+     * The relationship between the next line block and the current block
+     */
+    nextLineRelationShip: SplitRelationship;
+    /**
+     * The type of the next line block
+     */
+    nextLineBlockType: BlockType;
+  };
+}
+
+export interface ControllerAction {
+  action: BlockActionTypePB;
+  payload: {
+    block: { id: string; parent_id: string; children_id: string; data: string; ty: BlockType };
+    parent_id: string;
+    prev_id: string;
+  };
+}
+
+export interface RangeStaticNoId {
+  index: number;
+  length: number;
+}
+
+export interface CodeEditorProps extends EditorProps {
+  language: string;
+  isDark: boolean;
+}
+export interface EditorProps {
+  isCodeBlock?: boolean;
+  placeholder?: string;
+  value?: Delta;
+  selection?: RangeStaticNoId;
+  decorateSelection?: RangeStaticNoId;
+  linkDecorateSelection?: {
+    selection?: RangeStaticNoId;
+    placeholder?: string;
+  };
+  temporarySelection?: RangeStaticNoId;
+  onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
+  onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
+}
+
+export interface BlockCopyData {
+  json: string;
+  text: string;
+  html: string;
+}
+
+export interface LinkPopoverState {
+  anchorPosition?: { top: number; left: number };
+  id?: string;
+  selection?: RangeStaticNoId;
+  open?: boolean;
+  href?: string;
+  title?: string;
+}
+
+export interface TemporaryState {
+  id: string;
+  type: TemporaryType;
+  selectedText: string;
+  data: TemporaryData;
+  selection: RangeStaticNoId;
+  popoverPosition?: { top: number; left: number } | null;
+}
+
+export enum TemporaryType {
+  Equation = 'equation',
+}
+
+export type TemporaryData = InlineEquationData;
+
+export interface InlineEquationData {
+  latex: string;
+}

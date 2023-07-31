@@ -1,6 +1,7 @@
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChecklistFilterPB {
@@ -10,20 +11,16 @@ pub struct ChecklistFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum ChecklistFilterConditionPB {
   IsComplete = 0,
+  #[default]
   IsIncomplete = 1,
 }
 
 impl std::convert::From<ChecklistFilterConditionPB> for u32 {
   fn from(value: ChecklistFilterConditionPB) -> Self {
     value as u32
-  }
-}
-
-impl std::default::Default for ChecklistFilterConditionPB {
-  fn default() -> Self {
-    ChecklistFilterConditionPB::IsIncomplete
   }
 }
 
@@ -34,7 +31,7 @@ impl std::convert::TryFrom<u8> for ChecklistFilterConditionPB {
     match value {
       0 => Ok(ChecklistFilterConditionPB::IsComplete),
       1 => Ok(ChecklistFilterConditionPB::IsIncomplete),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

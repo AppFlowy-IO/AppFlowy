@@ -1,7 +1,8 @@
-use crate::services::field::SelectOptionIds;
-use crate::services::filter::{Filter, FromFilterString};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+
+use crate::services::field::SelectOptionIds;
+use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SelectOptionFilterPB {
@@ -14,7 +15,9 @@ pub struct SelectOptionFilterPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum SelectOptionConditionPB {
+  #[default]
   OptionIs = 0,
   OptionIsNot = 1,
   OptionIsEmpty = 2,
@@ -27,12 +30,6 @@ impl std::convert::From<SelectOptionConditionPB> for u32 {
   }
 }
 
-impl std::default::Default for SelectOptionConditionPB {
-  fn default() -> Self {
-    SelectOptionConditionPB::OptionIs
-  }
-}
-
 impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
   type Error = ErrorCode;
 
@@ -42,7 +39,7 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
       1 => Ok(SelectOptionConditionPB::OptionIsNot),
       2 => Ok(SelectOptionConditionPB::OptionIsEmpty),
       3 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
-      _ => Err(ErrorCode::InvalidData),
+      _ => Err(ErrorCode::InvalidParams),
     }
   }
 }

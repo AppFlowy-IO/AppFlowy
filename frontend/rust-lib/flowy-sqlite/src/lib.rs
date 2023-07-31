@@ -1,37 +1,39 @@
+#[macro_use]
+pub extern crate diesel;
+#[macro_use]
+pub extern crate diesel_derives;
+#[macro_use]
+extern crate diesel_migrations;
+
+use std::{fmt::Debug, io, path::Path};
+
 pub use diesel::*;
 pub use diesel_derives::*;
-use diesel_migrations::*;
-use std::{fmt::Debug, io, path::Path};
-pub mod kv;
-mod sqlite;
 
 use crate::sqlite::PoolConfig;
 pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
+
+pub mod kv;
+mod sqlite;
 
 pub mod schema;
 
 #[macro_use]
 pub mod macros;
 
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate diesel_derives;
-#[macro_use]
-extern crate diesel_migrations;
-
 pub type Error = diesel::result::Error;
 pub mod prelude {
-  pub use super::UserDatabaseConnection;
-  pub use crate::*;
   pub use diesel::SqliteConnection;
   pub use diesel::{query_dsl::*, BelongingToDsl, ExpressionMethods, RunQueryDsl};
+
+  pub use crate::*;
 }
 
 embed_migrations!("../flowy-sqlite/migrations/");
 pub const DB_NAME: &str = "flowy-database.db";
 
-pub fn init(storage_path: &str) -> Result<Database, io::Error> {
+pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
+  let storage_path = storage_path.as_ref().to_str().unwrap();
   if !Path::new(storage_path).exists() {
     std::fs::create_dir_all(storage_path)?;
   }
@@ -48,8 +50,4 @@ where
 {
   let msg = format!("{:?}", e);
   io::Error::new(io::ErrorKind::NotConnected, msg)
-}
-
-pub trait UserDatabaseConnection: Send + Sync {
-  fn get_connection(&self) -> Result<DBConnection, String>;
 }

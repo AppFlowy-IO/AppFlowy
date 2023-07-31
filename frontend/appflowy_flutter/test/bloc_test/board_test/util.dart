@@ -5,12 +5,11 @@ import 'package:appflowy/plugins/database_view/application/field/field_editor_bl
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/board.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
-import 'package:appflowy/workspace/application/app/app_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
@@ -30,21 +29,17 @@ class AppFlowyBoardTest {
   Future<BoardTestContext> createTestBoard() async {
     final app = await unitTest.createTestApp();
     final builder = BoardPluginBuilder();
-    return AppBackendService()
-        .createView(
-      appId: app.id,
+    return ViewBackendService.createView(
+      parentViewId: app.id,
       name: "Test Board",
       layoutType: builder.layoutType!,
-    )
-        .then((result) {
+      openAfterCreate: true,
+    ).then((result) {
       return result.fold(
         (view) async {
           final context = BoardTestContext(
             view,
-            DatabaseController(
-              view: view,
-              layoutType: DatabaseLayoutPB.Board,
-            ),
+            DatabaseController(view: view),
           );
           final result = await context._boardDataController.open();
           result.fold((l) => null, (r) => throw Exception(r));
@@ -82,22 +77,18 @@ class BoardTestContext {
     return _boardDataController.fieldController;
   }
 
-  FieldEditorBloc createFieldEditor({
-    FieldInfo? fieldInfo,
+  FieldEditorBloc makeFieldEditor({
+    required FieldInfo fieldInfo,
   }) {
-    IFieldTypeOptionLoader loader;
-    if (fieldInfo == null) {
-      loader = NewFieldTypeOptionLoader(viewId: gridView.id);
-    } else {
-      loader =
-          FieldTypeOptionLoader(viewId: gridView.id, field: fieldInfo.field);
-    }
+    final loader = FieldTypeOptionLoader(
+      viewId: gridView.id,
+      field: fieldInfo.field,
+    );
 
     final editorBloc = FieldEditorBloc(
-      fieldName: fieldInfo?.name ?? '',
-      isGroupField: fieldInfo?.isGroupField ?? false,
+      isGroupField: fieldInfo.isGroupField,
       loader: loader,
-      viewId: gridView.id,
+      field: fieldInfo.field,
     );
     return editorBloc;
   }
@@ -115,24 +106,25 @@ class BoardTestContext {
 
     final rowDataController = RowController(
       viewId: rowInfo.viewId,
-      rowId: rowInfo.rowPB.id,
+      rowMeta: rowInfo.rowMeta,
       rowCache: rowCache,
     );
 
     final rowBloc = RowBloc(
-      rowInfo: rowInfo,
+      viewId: rowInfo.viewId,
       dataController: rowDataController,
+      rowId: rowInfo.rowMeta.id,
     )..add(const RowEvent.initial());
     await gridResponseFuture();
 
     return CellControllerBuilder(
-      cellId: rowBloc.state.cellByFieldId[fieldId]!,
+      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
       cellCache: rowCache.cellCache,
     );
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = createFieldEditor()
+    final editorBloc = await createFieldEditor(viewId: gridView.id)
       ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchToField(fieldType));
@@ -146,9 +138,9 @@ class BoardTestContext {
     return fieldInfo;
   }
 
-  FieldCellContext singleSelectFieldCellContext() {
+  FieldContext singleSelectFieldCellContext() {
     final field = singleSelectFieldContext().field;
-    return FieldCellContext(viewId: gridView.id, field: field);
+    return FieldContext(viewId: gridView.id, field: field);
   }
 
   FieldInfo textFieldContext() {

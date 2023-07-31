@@ -3,21 +3,21 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller_
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
+
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
@@ -107,7 +107,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       )..add(const DateCellCalendarEvent.initial()),
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
-          List<Widget> children = [
+          final List<Widget> children = [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: _buildCalendar(context),
@@ -124,7 +124,9 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             const TypeOptionSeparator(spacing: 12.0),
             const _IncludeTimeButton(),
             const TypeOptionSeparator(spacing: 12.0),
-            _DateTypeOptionButton(popoverMutex: popoverMutex)
+            DateTypeOptionButton(popoverMutex: popoverMutex),
+            const TypeOptionSeparator(spacing: 12.0),
+            const ClearDateButton(),
           ];
 
           return ListView.builder(
@@ -198,11 +200,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             outsideDecoration: boxDecoration,
             defaultTextStyle: textStyle,
             weekendTextStyle: textStyle,
-            selectedTextStyle:
-                textStyle.textColor(Theme.of(context).colorScheme.surface),
+            selectedTextStyle: textStyle.copyWith(
+              color: Theme.of(context).colorScheme.surface,
+            ),
             todayTextStyle: textStyle,
-            outsideTextStyle:
-                textStyle.textColor(Theme.of(context).disabledColor),
+            outsideTextStyle: textStyle.copyWith(
+              color: Theme.of(context).disabledColor,
+            ),
           ),
           selectedDayPredicate: (day) => isSameDay(state.dateTime, day),
           onDaySelected: (selectedDay, focusedDay) {
@@ -336,9 +340,10 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   }
 }
 
-class _DateTypeOptionButton extends StatelessWidget {
+@visibleForTesting
+class DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const _DateTypeOptionButton({
+  const DateTypeOptionButton({
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);
@@ -402,7 +407,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [
+    final List<Widget> children = [
       AppFlowyPopover(
         mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
@@ -452,6 +457,32 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         itemCount: children.length,
         itemBuilder: (BuildContext context, int index) => children[index],
         padding: const EdgeInsets.symmetric(vertical: 6.0),
+      ),
+    );
+  }
+}
+
+@visibleForTesting
+class ClearDateButton extends StatelessWidget {
+  const ClearDateButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FlowyButton(
+          text: FlowyText.medium(LocaleKeys.grid_field_clearDate.tr()),
+          onTap: () {
+            context
+                .read<DateCellCalendarBloc>()
+                .add(const DateCellCalendarEvent.clearDate());
+            PopoverContainer.of(context).close();
+          },
+          leftIcon: const FlowySvg(name: "grid/delete"),
+          margin: GridSize.typeOptionContentInsets,
+        ),
       ),
     );
   }

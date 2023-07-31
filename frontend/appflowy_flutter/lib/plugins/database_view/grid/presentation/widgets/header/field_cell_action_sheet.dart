@@ -19,7 +19,7 @@ import '../../layout/sizes.dart';
 import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
-  final FieldCellContext cellContext;
+  final FieldContext cellContext;
   const GridFieldCellActionSheet({required this.cellContext, Key? key})
       : super(key: key);
 
@@ -38,7 +38,6 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
         width: 400,
         child: FieldEditor(
           viewId: widget.cellContext.viewId,
-          fieldName: field.name,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.cellContext.viewId,
             field: field,
@@ -70,7 +69,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 }
 
 class _EditFieldButton extends StatelessWidget {
-  final FieldCellContext cellContext;
+  final FieldContext cellContext;
   final void Function()? onTap;
   const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
       : super(key: key);
@@ -96,7 +95,7 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final FieldCellContext fieldInfo;
+  final FieldContext fieldInfo;
   const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
 
   @override
@@ -125,13 +124,29 @@ class _FieldOperationList extends StatelessWidget {
   }
 
   Widget _actionCell(FieldAction action) {
+    bool enable = true;
+
+    // If the field is primary, delete and duplicate are disabled.
+    if (fieldInfo.field.isPrimary) {
+      switch (action) {
+        case FieldAction.hide:
+          break;
+        case FieldAction.duplicate:
+          enable = false;
+          break;
+        case FieldAction.delete:
+          enable = false;
+          break;
+      }
+    }
+
     return Flexible(
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FieldActionCell(
           fieldInfo: fieldInfo,
           action: action,
-          enable: action != FieldAction.delete || !fieldInfo.field.isPrimary,
+          enable: enable,
         ),
       ),
     );
@@ -139,7 +154,7 @@ class _FieldOperationList extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final FieldCellContext fieldInfo;
+  final FieldContext fieldInfo;
   final FieldAction action;
   final bool enable;
 
@@ -154,17 +169,14 @@ class FieldActionCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      disable: !enable,
       text: FlowyText.medium(
         action.title(),
         color: enable
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () {
-        if (enable) {
-          action.run(context, fieldInfo);
-        }
-      },
+      onTap: () => action.run(context, fieldInfo),
       leftIcon: svgWidget(
         action.iconName(),
         color: enable
@@ -204,7 +216,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, FieldCellContext fieldInfo) {
+  void run(BuildContext context, FieldContext fieldInfo) {
     switch (this) {
       case FieldAction.hide:
         context

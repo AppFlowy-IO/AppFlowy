@@ -1,11 +1,12 @@
-use crate::entities::{GroupChangesetPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
-use crate::services::cell::DecodedCellData;
-use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::GroupData;
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowDetail};
 
 use flowy_error::FlowyResult;
+
+use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
+use crate::services::cell::DecodedCellData;
+use crate::services::group::controller::MoveGroupRowContext;
+use crate::services::group::{GroupData, GroupSettingChangeset};
 
 /// Using polymorphism to provides the customs action for different group controller.
 ///
@@ -28,7 +29,7 @@ pub trait GroupCustomize: Send + Sync {
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    _row: &Row,
+    _row_detail: &RowDetail,
     _old_cell_data: Option<&Self::CellData>,
     _cell_data: &Self::CellData,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
@@ -40,7 +41,7 @@ pub trait GroupCustomize: Send + Sync {
   ///
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row: &Row,
+    row_detail: &RowDetail,
     cell_data: &Self::CellData,
   ) -> Vec<GroupRowsNotificationPB>;
 
@@ -65,7 +66,7 @@ pub trait GroupCustomize: Send + Sync {
 }
 
 /// Defines the shared actions any group controller can perform.
-pub trait GroupControllerActions: Send + Sync {
+pub trait GroupControllerOperation: Send + Sync {
   /// The field that is used for grouping the rows
   fn field_id(&self) -> &str;
 
@@ -76,7 +77,7 @@ pub trait GroupControllerActions: Send + Sync {
   fn get_group(&self, group_id: &str) -> Option<(usize, GroupData)>;
 
   /// Separates the rows into different groups
-  fn fill_groups(&mut self, rows: &[&Row], field: &Field) -> FlowyResult<()>;
+  fn fill_groups(&mut self, rows: &[&RowDetail], field: &Field) -> FlowyResult<()>;
 
   /// Remove the group with from_group_id and insert it to the index with to_group_id
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
@@ -84,8 +85,8 @@ pub trait GroupControllerActions: Send + Sync {
   /// Insert/Remove the row to the group if the corresponding cell data is changed
   fn did_update_group_row(
     &mut self,
-    old_row: &Option<Row>,
-    row: &Row,
+    old_row_detail: &Option<RowDetail>,
+    row_detail: &RowDetail,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;
 
@@ -100,7 +101,9 @@ pub trait GroupControllerActions: Send + Sync {
   fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
   /// Update the group if the corresponding field is changed
-  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesetPB>>;
+  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
+
+  fn apply_group_setting_changeset(&mut self, changeset: GroupSettingChangeset) -> FlowyResult<()>;
 }
 
 #[derive(Debug)]

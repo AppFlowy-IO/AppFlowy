@@ -5,6 +5,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
@@ -43,12 +44,14 @@ class FlowyLogoTitle extends StatelessWidget {
         children: [
           SizedBox.fromSize(
             size: logoSize,
-            child: svgWidget("flowy_logo"),
+            child: svgWidget('flowy_logo'),
           ),
-          const VSpace(30),
-          FlowyText.semibold(
+          const VSpace(40),
+          FlowyText.regular(
             title,
             fontSize: FontSizes.s24,
+            fontFamily:
+                GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ],

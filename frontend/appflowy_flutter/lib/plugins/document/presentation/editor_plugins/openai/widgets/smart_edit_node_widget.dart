@@ -15,10 +15,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-const String kSmartEditType = 'smart_edit_input';
-const String kSmartEditInstructionType = 'smart_edit_instruction';
-const String kSmartEditInputType = 'smart_edit_input';
-
 class SmartEditBlockKeys {
   const SmartEditBlockKeys._();
 
@@ -50,11 +46,16 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
   SmartEditBlockComponentBuilder();
 
   @override
-  Widget build(BlockComponentContext blockComponentContext) {
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
     return SmartEditBlockComponentWidget(
       key: node.key,
       node: node,
+      showActions: showActions(node),
+      actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -64,13 +65,14 @@ class SmartEditBlockComponentBuilder extends BlockComponentBuilder {
       node.attributes[SmartEditBlockKeys.content] is String;
 }
 
-class SmartEditBlockComponentWidget extends StatefulWidget {
+class SmartEditBlockComponentWidget extends BlockComponentStatefulWidget {
   const SmartEditBlockComponentWidget({
-    required super.key,
-    required this.node,
+    super.key,
+    required super.node,
+    super.showActions,
+    super.actionBuilder,
+    super.configuration = const BlockComponentConfiguration(),
   });
-
-  final Node node;
 
   @override
   State<SmartEditBlockComponentWidget> createState() =>
@@ -155,7 +157,7 @@ class _SmartEditBlockComponentWidgetState
     var width = double.infinity;
     final editorSize = editorState.renderBox?.size;
     final padding = editorState.editorStyle.padding;
-    if (editorSize != null && padding != null) {
+    if (editorSize != null) {
       width = editorSize.width - padding.left - padding.right;
     }
     return width;
@@ -257,15 +259,15 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
   }
 
   Widget _buildResultWidget(BuildContext context) {
-    final loading = Padding(
+    final loadingWidget = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: SizedBox.fromSize(
         size: const Size.square(14),
         child: const CircularProgressIndicator(),
       ),
     );
-    if (result.isEmpty) {
-      return loading;
+    if (result.isEmpty || loading) {
+      return loadingWidget;
     }
     return Flexible(
       child: Text(
@@ -277,6 +279,18 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
   Widget _buildInputFooterWidget(BuildContext context) {
     return Row(
       children: [
+        FlowyRichTextButton(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: LocaleKeys.document_plugins_autoGeneratorRewrite.tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+          onPressed: () => _requestCompletions(rewrite: true),
+        ),
+        const Space(10, 0),
         FlowyRichTextButton(
           TextSpan(
             children: [
@@ -402,7 +416,13 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
     );
   }
 
-  Future<void> _requestCompletions() async {
+  Future<void> _requestCompletions({bool rewrite = false}) async {
+    if (rewrite) {
+      setState(() {
+        loading = true;
+        result = "";
+      });
+    }
     final openAIRepository = await getIt.getAsync<OpenAIRepository>();
 
     var lines = content.split('\n\n');

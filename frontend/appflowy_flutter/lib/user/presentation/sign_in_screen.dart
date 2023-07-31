@@ -1,13 +1,15 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/background.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -19,21 +21,29 @@ import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
+  const SignInScreen({
+    super.key,
+    required this.router,
+  });
+
   final AuthRouter router;
-  const SignInScreen({Key? key, required this.router}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<SignInBloc>(),
-      child: BlocListener<SignInBloc, SignInState>(
+      child: BlocConsumer<SignInBloc, SignInState>(
         listener: (context, state) {
           state.successOrFail.fold(
             () => null,
             (result) => _handleSuccessOrFail(result, context),
           );
         },
-        child: Scaffold(
+        builder: (_, __) => Scaffold(
+          appBar: const PreferredSize(
+            preferredSize: Size(double.infinity, 60),
+            child: MoveWindowDetector(),
+          ),
           body: SignInForm(router: router),
         ),
       ),
@@ -45,18 +55,19 @@ class SignInScreen extends StatelessWidget {
     BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushWelcomeScreen(context, user),
+      (user) => router.pushHomeScreen(context, user),
       (error) => showSnapBar(context, error.msg),
     );
   }
 }
 
 class SignInForm extends StatelessWidget {
-  final AuthRouter router;
   const SignInForm({
-    Key? key,
+    super.key,
     required this.router,
-  }) : super(key: key);
+  });
+
+  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -64,22 +75,42 @@ class SignInForm extends StatelessWidget {
       alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
+          // Email.
           FlowyLogoTitle(
             title: LocaleKeys.signIn_loginTitle.tr(),
             logoSize: const Size(60, 60),
           ),
           const VSpace(30),
-          const EmailTextField(),
-          const PasswordTextField(),
-          ForgetPasswordButton(router: router),
-          const VSpace(30),
-          const LoginButton(),
+          // Email and password. don't support yet.
+          /*
+          ...[
+            const EmailTextField(),
+            const VSpace(5),
+            const PasswordTextField(),
+            const VSpace(20),
+            const LoginButton(),
+            const VSpace(10),
+
+            const VSpace(10),
+            SignUpPrompt(router: router),
+          ],
+          */
+
+          const SignInAsGuestButton(),
+
+          // third-party sign in.
+          const VSpace(20),
+          const OrContinueWith(),
           const VSpace(10),
-          SignUpPrompt(router: router),
+          const ThirdPartySignInButtons(),
+          const VSpace(20),
+
+          // loading status
           if (context.read<SignInBloc>().state.isSubmitting) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(value: null),
-          ]
+            const VSpace(20),
+          ],
         ],
       ),
     );
@@ -113,6 +144,7 @@ class SignUpPrompt extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
+        ForgetPasswordButton(router: router),
       ],
     );
   }
@@ -136,6 +168,25 @@ class LoginButton extends StatelessWidget {
   }
 }
 
+class SignInAsGuestButton extends StatelessWidget {
+  const SignInAsGuestButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundedTextButton(
+      title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
+      height: 48,
+      borderRadius: Corners.s6Border,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
+        context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest());
+      },
+    );
+  }
+}
+
 class ForgetPasswordButton extends StatelessWidget {
   const ForgetPasswordButton({
     Key? key,
@@ -150,7 +201,9 @@ class ForgetPasswordButton extends StatelessWidget {
       style: TextButton.styleFrom(
         textStyle: Theme.of(context).textTheme.bodyMedium,
       ),
-      onPressed: () => router.pushForgetPasswordScreen(context),
+      onPressed: () {
+        throw UnimplementedError();
+      },
       child: Text(
         LocaleKeys.signIn_forgotPassword.tr(),
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -211,6 +264,101 @@ class EmailTextField extends StatelessWidget {
               context.read<SignInBloc>().add(SignInEvent.emailChanged(value)),
         );
       },
+    );
+  }
+}
+
+class OrContinueWith extends StatelessWidget {
+  const OrContinueWith({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Flexible(
+          child: Divider(
+            color: Colors.white,
+            height: 10,
+          ),
+        ),
+        FlowyText.regular('    Or continue with    '),
+        Flexible(
+          child: Divider(
+            color: Colors.white,
+            height: 10,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ThirdPartySignInButton extends StatelessWidget {
+  const ThirdPartySignInButton({
+    Key? key,
+    required this.icon,
+    required this.onPressed,
+  }) : super(key: key);
+
+  final String icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyIconButton(
+      height: 48,
+      width: 48,
+      iconPadding: const EdgeInsets.all(8.0),
+      radius: Corners.s10Border,
+      onPressed: onPressed,
+      icon: svgWidget(
+        icon,
+      ),
+    );
+  }
+}
+
+class ThirdPartySignInButtons extends StatelessWidget {
+  const ThirdPartySignInButtons({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ThirdPartySignInButton(
+          icon: 'login/google-mark',
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('google'));
+          },
+        ),
+        const SizedBox(width: 20),
+        ThirdPartySignInButton(
+          icon: 'login/github-mark',
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('github'));
+          },
+        ),
+        const SizedBox(width: 20),
+        ThirdPartySignInButton(
+          icon: 'login/discord-mark',
+          onPressed: () {
+            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+            context
+                .read<SignInBloc>()
+                .add(const SignInEvent.signedInWithOAuth('discord'));
+          },
+        ),
+      ],
     );
   }
 }

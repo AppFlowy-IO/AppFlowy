@@ -8,10 +8,9 @@ use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  AlterFilterParams, AlterFilterPayloadPB, AlterSortParams, AlterSortPayloadPB,
-  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams,
-  DeleteGroupPayloadPB, DeleteSortParams, DeleteSortPayloadPB, InsertGroupParams,
-  InsertGroupPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteSortParams,
+  DeleteSortPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams, UpdateSortPayloadPB,
 };
 use crate::services::setting::CalendarLayoutSetting;
 
@@ -19,10 +18,10 @@ use crate::services::setting::CalendarLayoutSetting;
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DatabaseViewSettingPB {
   #[pb(index = 1)]
-  pub current_layout: DatabaseLayoutPB,
+  pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 2)]
-  pub layout_setting: LayoutSettingPB,
+  pub layout_setting: DatabaseLayoutSettingPB,
 
   #[pb(index = 3)]
   pub filters: RepeatedFilterPB,
@@ -36,16 +35,12 @@ pub struct DatabaseViewSettingPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum DatabaseLayoutPB {
+  #[default]
   Grid = 0,
   Board = 1,
   Calendar = 2,
-}
-
-impl std::default::Default for DatabaseLayoutPB {
-  fn default() -> Self {
-    DatabaseLayoutPB::Grid
-  }
 }
 
 impl std::convert::From<DatabaseLayout> for DatabaseLayoutPB {
@@ -73,25 +68,22 @@ pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub layout_type: DatabaseLayoutPB,
+  #[pb(index = 2, one_of)]
+  pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
-  pub alter_filter: Option<AlterFilterPayloadPB>,
+  pub update_filter: Option<UpdateFilterPayloadPB>,
 
   #[pb(index = 4, one_of)]
   pub delete_filter: Option<DeleteFilterPayloadPB>,
 
   #[pb(index = 5, one_of)]
-  pub insert_group: Option<InsertGroupPayloadPB>,
+  pub update_group: Option<UpdateGroupPB>,
 
   #[pb(index = 6, one_of)]
-  pub delete_group: Option<DeleteGroupPayloadPB>,
+  pub update_sort: Option<UpdateSortPayloadPB>,
 
   #[pb(index = 7, one_of)]
-  pub alter_sort: Option<AlterSortPayloadPB>,
-
-  #[pb(index = 8, one_of)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }
 
@@ -103,7 +95,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
       .map_err(|_| ErrorCode::ViewIdIsInvalid)?
       .0;
 
-    let insert_filter = match self.alter_filter {
+    let insert_filter = match self.update_filter {
       None => None,
       Some(payload) => Some(payload.try_into()?),
     };
@@ -113,17 +105,7 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
       Some(payload) => Some(payload.try_into()?),
     };
 
-    let insert_group = match self.insert_group {
-      Some(payload) => Some(payload.try_into()?),
-      None => None,
-    };
-
-    let delete_group = match self.delete_group {
-      Some(payload) => Some(payload.try_into()?),
-      None => None,
-    };
-
-    let alert_sort = match self.alter_sort {
+    let alert_sort = match self.update_sort {
       None => None,
       Some(payload) => Some(payload.try_into()?),
     };
@@ -135,11 +117,9 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
     Ok(DatabaseSettingChangesetParams {
       view_id,
-      layout_type: self.layout_type.into(),
+      layout_type: self.layout_type.map(|ty| ty.into()),
       insert_filter,
       delete_filter,
-      insert_group,
-      delete_group,
       alert_sort,
       delete_sort,
     })
@@ -148,12 +128,10 @@ impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
 
 pub struct DatabaseSettingChangesetParams {
   pub view_id: String,
-  pub layout_type: DatabaseLayout,
-  pub insert_filter: Option<AlterFilterParams>,
+  pub layout_type: Option<DatabaseLayout>,
+  pub insert_filter: Option<UpdateFilterParams>,
   pub delete_filter: Option<DeleteFilterParams>,
-  pub insert_group: Option<InsertGroupParams>,
-  pub delete_group: Option<DeleteGroupParams>,
-  pub alert_sort: Option<AlterSortParams>,
+  pub alert_sort: Option<UpdateSortParams>,
   pub delete_sort: Option<DeleteSortParams>,
 }
 
@@ -164,19 +142,24 @@ impl DatabaseSettingChangesetParams {
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
-pub struct LayoutSettingPB {
-  #[pb(index = 1, one_of)]
+pub struct DatabaseLayoutSettingPB {
+  #[pb(index = 1)]
+  pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 2, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct LayoutSettingParams {
+  pub layout_type: DatabaseLayout,
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
-impl From<LayoutSettingParams> for LayoutSettingPB {
+impl From<LayoutSettingParams> for DatabaseLayoutSettingPB {
   fn from(data: LayoutSettingParams) -> Self {
     Self {
+      layout_type: data.layout_type.into(),
       calendar: data.calendar.map(|calendar| calendar.into()),
     }
   }
@@ -187,13 +170,17 @@ pub struct LayoutSettingChangesetPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2, one_of)]
+  #[pb(index = 2)]
+  pub layout_type: DatabaseLayoutPB,
+
+  #[pb(index = 3, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
 #[derive(Debug)]
 pub struct LayoutSettingChangeset {
   pub view_id: String,
+  pub layout_type: DatabaseLayout,
   pub calendar: Option<CalendarLayoutSetting>,
 }
 
@@ -207,6 +194,7 @@ impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
 
     Ok(LayoutSettingChangeset {
       view_id,
+      layout_type: self.layout_type.into(),
       calendar: self.calendar.map(|calendar| calendar.into()),
     })
   }
