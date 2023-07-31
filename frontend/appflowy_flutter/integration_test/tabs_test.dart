@@ -29,8 +29,14 @@ void main() {
         findsNothing,
       );
 
-      await tester.createNewPageWithName(ViewLayoutPB.Calendar, _calendarName);
-      await tester.createNewPageWithName(ViewLayoutPB.Document, _documentName);
+      await tester.createNewPageWithName(
+        name: _calendarName,
+        layout: ViewLayoutPB.Calendar,
+      );
+      await tester.createNewPageWithName(
+        name: _documentName,
+        layout: ViewLayoutPB.Document,
+      );
 
       // Navigate current view to "Read me" document again
       await tester.tapButtonWithName(_readmeName);
