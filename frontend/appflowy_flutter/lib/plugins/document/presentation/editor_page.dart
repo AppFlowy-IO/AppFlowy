@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/settings/shortcuts/settings_short
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,6 +186,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // OptionAction.moveDown,
     ];
 
+    final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
+
     final configuration = BlockComponentConfiguration(
       padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
@@ -250,6 +253,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
         configuration: configuration,
+        defaultColor: calloutBGColor,
       ),
       DividerBlockKeys.type: DividerBlockComponentBuilder(
         configuration: configuration,
