@@ -27,7 +27,6 @@ import 'package:styled_widget/styled_widget.dart';
 
 import '../navigation.dart';
 import 'app/create_button.dart';
-import 'app/favorite_header.dart';
 import 'app/menu_app.dart';
 import 'app/section/item.dart';
 import 'menu_user.dart';
@@ -130,7 +129,7 @@ class HomeMenu extends StatelessWidget {
                     iconPadding: EdgeInsets.zero,
                     hasIcon: false,
                   ),
-                  header: const FavoriteHeader(),
+                  // header: const FavoriteHeader(),
                   expanded: ScrollConfiguration(
                     behavior:
                         const ScrollBehavior().copyWith(scrollbars: false),

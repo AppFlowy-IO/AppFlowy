@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/trash/menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/favorite_header.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_favorite.dart';
+
 import 'dart:ui';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
@@ -200,7 +201,7 @@ extension CommonOperations on WidgetTester {
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
     await tapButtonWithName(ViewDisclosureAction.rename.name());
-    await tapButtonWithName(ViewMoreActionType.rename.name);
+    await tapButtonWithName(ViewMoreActionType.rename.name());
   }
 
   /// Rename the page.
@@ -372,6 +373,7 @@ extension CommonOperations on WidgetTester {
     await hoverOnPageName(name);
     await tap(find.findTextInFlowyText(name), buttons: kSecondaryButton);
   }
+
   Future<void> movePageToOtherPage({
     required String name,
     required String parentName,
@@ -399,6 +401,7 @@ extension CommonOperations on WidgetTester {
     await gesture.up();
     await pumpAndSettle();
   }
+}
 
 extension ViewLayoutPBTest on ViewLayoutPB {
   String get menuName {
@@ -414,7 +417,7 @@ extension ViewLayoutPBTest on ViewLayoutPB {
       default:
         throw UnsupportedError('Unsupported layout: $this');
     }
-  }}
+  }
 
   String get referencedMenuName {
     switch (this) {

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -284,10 +285,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
+        state: context.read<ViewBloc>().state,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
           switch (action) {
+            case ViewMoreActionType.toggleFavorite:
+              context
+                  .read<FavoriteBloc>()
+                  .add(FavoriteEvent.toggle(widget.view));
+              break;
             case ViewMoreActionType.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),

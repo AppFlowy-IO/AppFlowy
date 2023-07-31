@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/image.dart';
@@ -11,16 +12,18 @@ const supportedActionTypes = [
   ViewMoreActionType.delete,
   ViewMoreActionType.duplicate,
   ViewMoreActionType.openInNewTab,
+  ViewMoreActionType.toggleFavorite,
 ];
 
 /// ··· button beside the view name
 class ViewMoreActionButton extends StatelessWidget {
   const ViewMoreActionButton({
     super.key,
+    required this.state,
     required this.onEditing,
     required this.onAction,
   });
-
+  final ViewState state;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType) onAction;
 
@@ -30,7 +33,7 @@ class ViewMoreActionButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: supportedActionTypes
-          .map((e) => ViewMoreActionTypeWrapper(e))
+          .map((e) => ViewMoreActionTypeWrapper(e, state))
           .toList(),
       buildChild: (popover) {
         return FlowyIconButton(
@@ -55,13 +58,14 @@ class ViewMoreActionButton extends StatelessWidget {
 }
 
 class ViewMoreActionTypeWrapper extends ActionCell {
-  ViewMoreActionTypeWrapper(this.inner);
+  ViewMoreActionTypeWrapper(this.inner, this.state);
 
   final ViewMoreActionType inner;
+  final ViewState? state;
 
   @override
-  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor, state: state);
 
   @override
-  String get name => inner.name;
+  String get name => inner.name(state: state);
 }

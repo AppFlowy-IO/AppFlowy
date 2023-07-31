@@ -1,11 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 enum ViewMoreActionType {
   delete,
-  addToFavorites, // not supported yet.
+  toggleFavorite, // not supported yet.
   duplicate,
   copyLink, // not supported yet.
   rename,
@@ -14,12 +15,16 @@ enum ViewMoreActionType {
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
-  String get name {
+  String name({ViewState? state}) {
     switch (this) {
       case ViewMoreActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
-      case ViewMoreActionType.addToFavorites:
-        return LocaleKeys.disclosureAction_addToFavorites.tr();
+      case ViewMoreActionType.toggleFavorite:
+        if (!state!.view.isFavorite) {
+          return LocaleKeys.disclosureAction_favorite.tr();
+        } else {
+          return LocaleKeys.disclosureAction_unfavorite.tr();
+        }
       case ViewMoreActionType.duplicate:
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewMoreActionType.copyLink:
@@ -33,12 +38,16 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     }
   }
 
-  Widget icon(Color iconColor) {
+  Widget icon(Color iconColor, {ViewState? state}) {
     switch (this) {
       case ViewMoreActionType.delete:
         return const FlowySvg(name: 'editor/delete');
-      case ViewMoreActionType.addToFavorites:
-        return const Icon(Icons.favorite);
+      case ViewMoreActionType.toggleFavorite:
+        if (state!.view.isFavorite) {
+          return const FlowySvg(name: 'home/favorite');
+        } else {
+          return const FlowySvg(name: 'home/unfavorite');
+        }
       case ViewMoreActionType.duplicate:
         return const FlowySvg(name: 'editor/copy');
       case ViewMoreActionType.copyLink:
