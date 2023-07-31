@@ -18,7 +18,8 @@ class InitSupabaseTask extends LaunchTask {
     await Supabase.initialize(
       url: Env.supabaseUrl,
       anonKey: Env.supabaseAnonKey,
-      debug: false,
+      debug: true,
+      // authFlowType: AuthFlowType.pkce,
     );
 
     isSupabaseInitialized = true;

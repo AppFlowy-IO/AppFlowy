@@ -42,6 +42,11 @@ abstract class AuthService {
     Map<String, String> map,
   });
 
+  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+    required String email,
+    Map<String, String> map,
+  });
+
   ///
   Future<void> signOut();
 
