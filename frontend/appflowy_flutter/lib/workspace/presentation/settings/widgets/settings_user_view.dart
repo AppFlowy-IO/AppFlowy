@@ -3,11 +3,11 @@ import 'dart:async';
 
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -22,8 +22,15 @@ const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
+  final VoidCallback didLogin;
+  final VoidCallback didLogout;
   final UserProfilePB user;
-  SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
+  SettingsUserView(
+    this.user, {
+    required this.didLogin,
+    required this.didLogout,
+    Key? key,
+  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +65,9 @@ class SettingsUserView extends StatelessWidget {
     }
 
     if (state.userProfile.authType == AuthTypePB.Local) {
-      return const SettingThirdPartyLogin();
+      return SettingThirdPartyLogin(
+        didLogin: didLogin,
+      );
     } else {
       return _renderLogoutButton(context);
     }
@@ -88,15 +97,17 @@ class SettingsUserView extends StatelessWidget {
   Widget _renderLogoutButton(BuildContext context) {
     return FlowyButton(
       useIntrinsicWidth: true,
-      text: const FlowyText(
-        'Logout',
+      text: FlowyText(
+        LocaleKeys.settings_menu_logout.tr(),
       ),
       onTap: () async {
-        await getIt<AuthService>().signOut();
-        await FlowyRunner.run(
-          FlowyApp(),
-          integrationEnv(),
-        );
+        NavigatorAlertDialog(
+          title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+          confirm: () async {
+            await getIt<AuthService>().signOut();
+            didLogout();
+          },
+        ).show(context);
       },
     );
   }

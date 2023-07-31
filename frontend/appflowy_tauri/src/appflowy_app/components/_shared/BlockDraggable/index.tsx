@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { HTMLAttributes, useEffect } from 'react';
 import { useDraggableState } from '$app/components/_shared/BlockDraggable/BlockDraggable.hooks';
 import { BlockDraggableType } from '$app_reducers/block-draggable/slice';
 
-function BlockDraggable({
-  id,
-  type,
-  children,
-  getAnchorEl,
-}: {
-  id: string;
-  type: BlockDraggableType;
-  children: React.ReactNode;
-  getAnchorEl?: () => HTMLElement | null;
-}) {
-  const { onDragStart, ref, beforeDropping, afterDropping, childDropping, isDragging } = useDraggableState(id, type);
+function BlockDraggable(
+  {
+    id,
+    type,
+    children,
+    getAnchorEl,
+    className,
+    ...props
+  }: {
+    id: string;
+    type: BlockDraggableType;
+    children: React.ReactNode;
+    getAnchorEl?: () => HTMLElement | null;
+  } & HTMLAttributes<HTMLDivElement>,
+  ref: React.Ref<HTMLDivElement>
+) {
+  const { onDragStart, beforeDropping, afterDropping, childDropping, isDragging } = useDraggableState(id, type);
 
   const commonCls = 'pointer-events-none absolute z-10 w-[100%] bg-fill-hover transition-all duration-200';
 
@@ -34,15 +39,13 @@ function BlockDraggable({
         data-draggable-id={id}
         data-draggable-type={type}
         onMouseDown={getAnchorEl ? undefined : onDragStart}
-        className={'relative'}
-        style={{
-          opacity: isDragging ? 0.7 : 1,
-        }}
+        className={`relative ${className || ''}`}
+        {...props}
       >
         {
           <div
             style={{
-              display: beforeDropping ? 'block' : 'none',
+              visibility: beforeDropping ? 'visible' : 'hidden',
             }}
             className={`${commonCls} left-0 top-[-2px] h-[4px]`}
           />
@@ -52,7 +55,7 @@ function BlockDraggable({
         {
           <div
             style={{
-              display: childDropping ? 'block' : 'none',
+              visibility: childDropping ? 'visible' : 'hidden',
             }}
             className={`${commonCls} left-0 top-0 h-[100%] opacity-[0.3]`}
           />
@@ -60,7 +63,7 @@ function BlockDraggable({
         {
           <div
             style={{
-              display: afterDropping ? 'block' : 'none',
+              visibility: afterDropping ? 'visible' : 'hidden',
             }}
             className={`${commonCls} bottom-[-2px] left-0 h-[4px]`}
           />
@@ -70,4 +73,4 @@ function BlockDraggable({
   );
 }
 
-export default React.memo(BlockDraggable);
+export default React.memo(React.forwardRef(BlockDraggable));

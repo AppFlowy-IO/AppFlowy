@@ -1,5 +1,6 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
+
 const USER_OBSERVABLE_SOURCE: &str = "User";
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
@@ -8,6 +9,7 @@ pub(crate) enum UserNotification {
   Unknown = 0,
   DidUserSignIn = 1,
   DidUpdateUserProfile = 2,
+  DidUpdateUserWorkspaces = 3,
 }
 
 impl std::convert::From<UserNotification> for i32 {

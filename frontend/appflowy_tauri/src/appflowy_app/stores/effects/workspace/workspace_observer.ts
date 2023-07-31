@@ -59,6 +59,7 @@ export class WorkspaceObserver {
     viewId: string,
     callbacks: {
       didUpdateChildViews: (payload: Uint8Array) => void;
+      didUpdateView: (payload: Uint8Array) => void;
     }
   ) => {
     this.listener = new WorkspaceNotificationObserver({
@@ -68,6 +69,10 @@ export class WorkspaceObserver {
           case FolderNotification.DidUpdateChildViews:
             if (!result.ok) break;
             callbacks.didUpdateChildViews(result.val);
+            break;
+          case FolderNotification.DidUpdateView:
+            if (!result.ok) break;
+            callbacks.didUpdateView(result.val);
             break;
           default:
             break;

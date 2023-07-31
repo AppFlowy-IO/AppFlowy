@@ -260,6 +260,10 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
       (Err(_), Err(_)) => Ordering::Equal,
     }
   }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.0.is_empty()
+  }
 }
 impl std::default::Default for NumberTypeOption {
   fn default() -> Self {

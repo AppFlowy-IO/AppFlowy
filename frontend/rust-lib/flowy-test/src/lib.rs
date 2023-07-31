@@ -19,8 +19,9 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
-use flowy_user::errors::FlowyError;
+use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
 use crate::event_builder::EventBuilder;
@@ -42,8 +43,10 @@ pub struct FlowyCoreTest {
 impl Default for FlowyCoreTest {
   fn default() -> Self {
     let temp_dir = temp_dir();
-    let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6))
-      .log_filter("debug", vec!["flowy_test".to_string()]);
+    let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter(
+      "info",
+      vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
+    );
 
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
@@ -108,9 +111,17 @@ impl FlowyCoreTest {
     self.sign_up_as_guest().await.user_profile
   }
 
-  pub async fn sign_up_with_uuid(&self, uuid: &str) -> UserProfilePB {
+  pub async fn third_party_sign_up_with_uuid(
+    &self,
+    uuid: &str,
+    email: Option<String>,
+  ) -> FlowyResult<UserProfilePB> {
     let mut map = HashMap::new();
-    map.insert("uuid".to_string(), uuid.to_string());
+    map.insert(USER_UUID.to_string(), uuid.to_string());
+    map.insert(
+      USER_EMAIL.to_string(),
+      email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(10))),
+    );
     let payload = ThirdPartyAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
@@ -121,11 +132,11 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<UserProfilePB>();
+      .try_parse::<UserProfilePB>()?;
 
     let user_path = PathBuf::from(&self.config.storage_path).join(user_profile.id.to_string());
     *self.cleaner.write() = Some(Cleaner::new(user_path));
-    user_profile
+    Ok(user_profile)
   }
 
   // Must sign up/ sign in first
@@ -702,16 +713,18 @@ impl TestNotificationSender {
     Self::default()
   }
 
-  pub fn subscribe<T>(&self, id: &str) -> tokio::sync::mpsc::Receiver<T>
+  pub fn subscribe<T>(&self, id: &str, ty: impl Into<i32> + Send) -> tokio::sync::mpsc::Receiver<T>
   where
     T: TryFrom<Bytes, Error = ProtobufError> + Send + 'static,
   {
     let id = id.to_string();
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
+    let ty = ty.into();
     tokio::spawn(async move {
+      // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
-        if value.id == id {
+        if value.id == id && value.ty == ty {
           if let Some(payload) = value.payload {
             if let Ok(object) = T::try_from(Bytes::from(payload)) {
               let _ = tx.send(object).await;

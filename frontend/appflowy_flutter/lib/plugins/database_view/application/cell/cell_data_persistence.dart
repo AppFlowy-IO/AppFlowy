@@ -35,6 +35,7 @@ class DateCellData with _$DateCellData {
     DateTime? dateTime,
     String? time,
     required bool includeTime,
+    bool? clearFlag,
   }) = _DateCellData;
 }
 
@@ -54,6 +55,9 @@ class DateCellDataPersistence implements CellDataPersistence<DateCellData> {
     }
     if (data.time != null) {
       payload.time = data.time!;
+    }
+    if (data.clearFlag != null) {
+      payload.clearFlag = data.clearFlag!;
     }
     payload.includeTime = data.includeTime;
 
