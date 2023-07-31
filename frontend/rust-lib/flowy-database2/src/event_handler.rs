@@ -640,6 +640,7 @@ pub(crate) async fn update_date_cell_handler(
     date: data.date,
     time: data.time,
     include_time: data.include_time,
+    clear_flag: data.clear_flag,
   };
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
   database_editor
