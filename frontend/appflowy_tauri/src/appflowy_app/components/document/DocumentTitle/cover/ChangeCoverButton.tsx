@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { DeleteOutlineRounded } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { ButtonGroup } from '@mui/material';
-import Button from '@mui/material/Button';
 import ChangeCoverPopover from '$app/components/document/DocumentTitle/cover/ChangeCoverPopover';
+import { CoverType } from '$app/interfaces/document';
 
 function ChangeCoverButton({
   visible,
@@ -13,8 +12,8 @@ function ChangeCoverButton({
 }: {
   visible: boolean;
   cover: string;
-  coverType: 'image' | 'color';
-  onUpdateCover: (coverType: 'image' | 'color' | '', cover: string) => void;
+  coverType: CoverType;
+  onUpdateCover: (coverType: CoverType | null, cover: string | null) => void;
 }) {
   const { t } = useTranslation();
   const [anchorPosition, setAnchorPosition] = useState<undefined | { top: number; left: number }>(undefined);
@@ -32,7 +31,7 @@ function ChangeCoverButton({
   }, []);
 
   const onDeleteCover = useCallback(() => {
-    onUpdateCover('', '');
+    onUpdateCover(null, null);
   }, [onUpdateCover]);
 
   return (

@@ -1,5 +1,6 @@
 use crate::script::{FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
+use flowy_folder2::entities::{ViewIconPB, ViewIconTypePB};
 
 #[tokio::test]
 async fn read_all_workspace_test() {
@@ -150,6 +151,32 @@ async fn view_update() {
     ])
     .await;
   assert_eq!(test.child_view.name, new_name);
+}
+
+#[tokio::test]
+async fn view_icon_update_test() {
+  let mut test = FolderTest::new().await;
+  let view = test.child_view.clone();
+  let new_icon = ViewIconPB {
+    ty: ViewIconTypePB::Emoji,
+    value: "👍".to_owned(),
+  };
+  assert!(view.icon.is_none());
+  test
+    .run_scripts(vec![
+      UpdateViewIcon {
+        icon: Some(new_icon.clone()),
+      },
+      ReadView(view.id.clone()),
+    ])
+    .await;
+
+  assert_eq!(test.child_view.icon, Some(new_icon));
+
+  test
+    .run_scripts(vec![UpdateViewIcon { icon: None }, ReadView(view.id)])
+    .await;
+  assert_eq!(test.child_view.icon, None);
 }
 
 #[tokio::test]

@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
 import { DragInsertType } from '$app_reducers/block-draggable/slice';
 import { PageController } from '$app/stores/effects/workspace/page/page_controller';
+import { PageIcon } from '$app_reducers/pages/slice';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -54,5 +55,38 @@ export const movePageThunk = createAsyncThunk(
     const controller = new PageController(sourceId);
 
     await controller.movePage({ parentId, prevId });
+  }
+);
+
+export const updatePageName = createAsyncThunk(
+  'pages/updateName',
+  async (
+    payload: {
+      id: string;
+      name: string;
+    },
+    thunkAPI
+  ) => {
+    const controller = new PageController(payload.id);
+
+    await controller.updatePage({
+      id: payload.id,
+      name: payload.name,
+    });
+  }
+);
+
+export const updatePageIcon = createAsyncThunk(
+  'pages/updateIcon',
+  async (
+    payload: {
+      id: string;
+      icon?: PageIcon;
+    },
+    thunkAPI
+  ) => {
+    const controller = new PageController(payload.id);
+
+    await controller.updatePageIcon(payload.icon);
   }
 );

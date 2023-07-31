@@ -20,6 +20,7 @@ import {
   TEXT_LINK_NAME,
 } from '$app/constants/document/name';
 import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
+import { Op } from "quill-delta";
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -67,6 +68,21 @@ export const documentSlice = createSlice({
         nodes,
         children,
       };
+    },
+
+    updateRootNodeDelta: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        rootId: string;
+        delta: Op[];
+      }>) => {
+        const { docId, delta, rootId } = action.payload;
+        const documentState = state[docId];
+        if (!documentState) return;
+        const rootNode = documentState.nodes[rootId];
+        if (!rootNode) return;
+        rootNode.data.delta = delta;
     },
     /**
      This function listens for changes in the data layer triggered by the data API,

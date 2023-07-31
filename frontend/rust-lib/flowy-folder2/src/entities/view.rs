@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-use collab_folder::core::{View, ViewLayout};
+use collab_folder::core::{IconType, View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -50,16 +50,11 @@ pub struct ViewPB {
   #[pb(index = 6)]
   pub layout: ViewLayoutPB,
 
-  /// The icon url of the view.
-  /// It can be used to save the emoji icon of the view.
+  /// The icon of the view.
   #[pb(index = 7, one_of)]
-  pub icon_url: Option<String>,
+  pub icon: Option<ViewIconPB>,
 
-  /// The cover url of the view.
-  #[pb(index = 8, one_of)]
-  pub cover_url: Option<String>,
-
-  #[pb(index = 9)]
+  #[pb(index = 8)]
   pub is_favorite: bool,
 }
 
@@ -71,8 +66,7 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     create_time: view.created_at,
     child_views: Default::default(),
     layout: view.layout.clone().into(),
-    icon_url: view.icon_url.clone(),
-    cover_url: view.cover_url.clone(),
+    icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite.clone(),
   }
 }
@@ -89,8 +83,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
       .map(view_pb_without_child_views)
       .collect(),
     layout: view.layout.clone().into(),
-    icon_url: view.icon_url.clone(),
-    cover_url: view.cover_url.clone(),
+    icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite.clone(),
   }
 }
@@ -120,6 +113,60 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
       ViewLayout::Board => ViewLayoutPB::Board,
       ViewLayout::Document => ViewLayoutPB::Document,
       ViewLayout::Calendar => ViewLayoutPB::Calendar,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Clone, Debug, PartialEq, Eq, Default)]
+pub enum ViewIconTypePB {
+  #[default]
+  Emoji = 0,
+  Url = 1,
+  Icon = 2,
+}
+
+impl std::convert::From<IconType> for ViewIconTypePB {
+  fn from(rev: IconType) -> Self {
+    match rev {
+      IconType::Emoji => ViewIconTypePB::Emoji,
+      IconType::Url => ViewIconTypePB::Url,
+      IconType::Icon => ViewIconTypePB::Icon,
+    }
+  }
+}
+
+impl std::convert::From<ViewIconTypePB> for IconType {
+  fn from(rev: ViewIconTypePB) -> Self {
+    match rev {
+      ViewIconTypePB::Emoji => IconType::Emoji,
+      ViewIconTypePB::Url => IconType::Url,
+      ViewIconTypePB::Icon => IconType::Icon,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Debug, Clone, PartialEq, Eq)]
+pub struct ViewIconPB {
+  #[pb(index = 1)]
+  pub ty: ViewIconTypePB,
+  #[pb(index = 2)]
+  pub value: String,
+}
+
+impl std::convert::From<ViewIcon> for ViewIconPB {
+  fn from(rev: ViewIcon) -> Self {
+    ViewIconPB {
+      ty: rev.ty.into(),
+      value: rev.value,
+    }
+  }
+}
+
+impl std::convert::From<ViewIconPB> for ViewIcon {
+  fn from(rev: ViewIconPB) -> Self {
+    ViewIcon {
+      ty: rev.ty.into(),
+      value: rev.value,
     }
   }
 }
@@ -318,13 +365,16 @@ pub struct UpdateViewPayloadPB {
   pub layout: Option<ViewLayoutPB>,
 
   #[pb(index = 6, one_of)]
-  pub icon_url: Option<String>,
-
-  #[pb(index = 7, one_of)]
-  pub cover_url: Option<String>,
-
-  #[pb(index = 8, one_of)]
   pub is_favorite: Option<bool>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateViewIconPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub icon: Option<ViewIconPB>,
 }
 
 #[derive(Clone, Debug)]
@@ -333,10 +383,14 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
-  pub icon_url: Option<String>,
-  pub cover_url: Option<String>,
-  pub is_favorite: Option<bool>,
   pub layout: Option<ViewLayout>,
+  pub is_favorite: Option<bool>,
+}
+
+#[derive(Clone, Debug)]
+pub struct UpdateViewIconParams {
+  pub view_id: String,
+  pub icon: Option<ViewIcon>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -360,8 +414,6 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       Some(thumbnail) => Some(ViewThumbnail::parse(thumbnail)?.0),
     };
 
-    let cover_url = self.cover_url;
-    let icon_url = self.icon_url;
     let is_favorite = self.is_favorite;
 
     Ok(UpdateViewParams {
@@ -369,11 +421,21 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       name,
       desc,
       thumbnail,
-      cover_url,
-      icon_url,
       is_favorite,
       layout: self.layout.map(|ty| ty.into()),
     })
+  }
+}
+
+impl TryInto<UpdateViewIconParams> for UpdateViewIconPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateViewIconParams, Self::Error> {
+    let view_id = ViewIdentify::parse(self.view_id)?.0;
+
+    let icon = self.icon.map(|icon| icon.into());
+
+    Ok(UpdateViewIconParams { view_id, icon })
   }
 }
 

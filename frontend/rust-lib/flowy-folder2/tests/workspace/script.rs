@@ -42,6 +42,9 @@ pub enum FolderScript {
     desc: Option<String>,
     is_favorite: Option<bool>,
   },
+  UpdateViewIcon {
+    icon: Option<ViewIconPB>,
+  },
   DeleteView,
   DeleteViews(Vec<String>),
   MoveView {
@@ -163,6 +166,9 @@ impl FolderTest {
         is_favorite,
       } => {
         update_view(sdk, &self.child_view.id, name, desc, is_favorite).await;
+      },
+      FolderScript::UpdateViewIcon { icon } => {
+        update_view_icon(sdk, &self.child_view.id, icon).await;
       },
       FolderScript::DeleteView => {
         delete_view(sdk, vec![self.child_view.id.clone()]).await;
@@ -328,6 +334,18 @@ pub async fn update_view(
   };
   EventBuilder::new(sdk.clone())
     .event(UpdateView)
+    .payload(request)
+    .async_send()
+    .await;
+}
+
+pub async fn update_view_icon(sdk: &FlowyCoreTest, view_id: &str, icon: Option<ViewIconPB>) {
+  let request = UpdateViewIconPayloadPB {
+    view_id: view_id.to_string(),
+    icon,
+  };
+  EventBuilder::new(sdk.clone())
+    .event(UpdateViewIcon)
     .payload(request)
     .async_send()
     .await;

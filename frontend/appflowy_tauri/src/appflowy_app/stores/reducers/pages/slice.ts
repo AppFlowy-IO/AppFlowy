@@ -1,4 +1,4 @@
-import { ViewLayoutPB, ViewPB } from '@/services/backend';
+import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Page {
@@ -6,18 +6,28 @@ export interface Page {
   parentId: string;
   name: string;
   layout: ViewLayoutPB;
-  icon?: string;
-  cover?: string;
+  icon?: PageIcon;
 }
 
-export function parserViewPBToPage(view: ViewPB) {
+export interface PageIcon {
+  ty: ViewIconTypePB;
+  value: string;
+}
+
+export function parserViewPBToPage(view: ViewPB): Page {
+  const icon = view.icon;
+
   return {
     id: view.id,
     name: view.name,
     parentId: view.parent_view_id,
     layout: view.layout,
-    cover: view.cover_url,
-    icon: view.icon_url,
+    icon: icon
+      ? {
+          ty: icon.ty,
+          value: icon.value,
+        }
+      : undefined,
   };
 }
 

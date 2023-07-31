@@ -184,6 +184,15 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn update_view_icon(&self, payload: UpdateViewIconPayloadPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateViewIcon)
+      .payload(payload)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),

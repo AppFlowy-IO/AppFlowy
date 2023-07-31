@@ -38,6 +38,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
       .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
+      .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
@@ -144,9 +145,12 @@ pub enum FolderEvent {
   #[event(input = "MoveNestedViewPayloadPB")]
   MoveNestedView = 32,
 
+  #[event(input = "UpdateViewIconPayloadPB")]
+  UpdateViewIcon = 33,
+
   #[event(output = "RepeatedViewPB")]
-  ReadFavorites = 33,
+  ReadFavorites = 34,
 
   #[event(input = "RepeatedViewIdPB")]
-  ToggleFavorite = 34,
+  ToggleFavorite = 35,
 }

@@ -6,6 +6,7 @@ import { ViewLayoutPB } from '@/services/backend';
 import { useNavigate, useParams } from 'react-router-dom';
 import { pageTypeMap } from '$app/constants';
 import { useTranslation } from 'react-i18next';
+import { updatePageName } from '$app_reducers/pages/async_actions';
 
 export function useLoadChildPages(pageId: string) {
   const dispatch = useAppDispatch();
@@ -44,9 +45,8 @@ export function useLoadChildPages(pageId: string) {
   );
 
   const onPageCollapsed = useCallback(async () => {
-    dispatch(pagesActions.removeChildPages(pageId));
     await controller.unsubscribe();
-  }, [dispatch, pageId, controller]);
+  }, [controller]);
 
   const onPageExpanded = useCallback(async () => {
     const childPages = await controller.getChildPages();
@@ -124,12 +124,9 @@ export function usePageActions(pageId: string) {
 
   const onRenamePage = useCallback(
     async (name: string) => {
-      await controller.updatePage({
-        id: pageId,
-        name,
-      });
+      await dispatch(updatePageName({ id: pageId, name }));
     },
-    [controller, pageId]
+    [dispatch, pageId]
   );
 
   useEffect(() => {

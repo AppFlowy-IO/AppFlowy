@@ -651,7 +651,8 @@
       "objects": "Objects",
       "symbols": "Symbols",
       "flags": "Flags",
-      "nature": "Nature"
+      "nature": "Nature",
+      "frequentlyUsed": "Frequently Used"
     }
   }
 }

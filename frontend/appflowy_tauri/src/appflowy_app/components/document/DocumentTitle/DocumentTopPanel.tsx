@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
-import { BlockType, NestedBlock } from '$app/interfaces/document';
+import React, { useMemo } from 'react';
+import { BlockType, CoverType, NestedBlock } from '$app/interfaces/document';
 import DocumentCover from '$app/components/document/DocumentTitle/cover/DocumentCover';
 import DocumentIcon from '$app/components/document/DocumentTitle/DocumentIcon';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useAppSelector } from '$app/stores/store';
 
 const heightCls = {
   cover: 'h-[220px]',
@@ -16,10 +18,12 @@ function DocumentTopPanel({
   onUpdateIcon,
 }: {
   node: NestedBlock<BlockType.PageBlock>;
-  onUpdateCover: (coverType: 'image' | 'color' | '', cover: string) => void;
+  onUpdateCover: (coverType: CoverType | null, cover: string | null) => void;
   onUpdateIcon: (icon: string) => void;
 }) {
-  const { cover, coverType, icon } = node.data;
+  const { docId } = useSubscribeDocument();
+  const icon = useAppSelector((state) => state.pages.pageMap[docId]?.icon);
+  const { cover, coverType } = node.data;
 
   const className = useMemo(() => {
     if (cover && icon) return heightCls.coverAndIcon;

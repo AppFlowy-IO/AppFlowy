@@ -139,6 +139,17 @@ pub(crate) async fn update_view_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_icon_handler(
+  data: AFPluginData<UpdateViewIconPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params: UpdateViewIconParams = data.into_inner().try_into()?;
+  folder.update_view_icon_with_params(params).await?;
+  Ok(())
+}
+
 pub(crate) async fn delete_view_handler(
   data: AFPluginData<RepeatedViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,

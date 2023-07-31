@@ -82,10 +82,13 @@ export interface ImageBlockData {
   align: Align;
 }
 
+export enum CoverType {
+  Image = 'image',
+  Color = 'color',
+}
 export interface PageBlockData extends TextBlockData {
   cover?: string;
-  icon?: string;
-  coverType?: 'image' | 'color';
+  coverType?: CoverType;
 }
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
