@@ -183,6 +183,7 @@ class _CalloutBlockComponentWidgetState
               child: buildCalloutBlockComponent(context),
             ),
           ),
+          const HSpace(8.0),
         ],
       ),
     );
