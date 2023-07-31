@@ -301,6 +301,7 @@ async fn delete_favorites() {
   assert!(test.favorites.len() == 0);
 }
 
+#[tokio::test]
 async fn move_view_event_test() {
   let mut test = FolderTest::new().await;
   let parent_view = test.parent_view.clone();
