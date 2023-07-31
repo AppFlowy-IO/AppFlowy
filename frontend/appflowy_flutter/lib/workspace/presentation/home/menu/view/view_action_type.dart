@@ -15,12 +15,12 @@ enum ViewMoreActionType {
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
-  String name({ViewState? state}) {
+  String name({bool? state}) {
     switch (this) {
       case ViewMoreActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
       case ViewMoreActionType.toggleFavorite:
-        if (!state!.view.isFavorite) {
+        if (state!) {
           return LocaleKeys.disclosureAction_favorite.tr();
         } else {
           return LocaleKeys.disclosureAction_unfavorite.tr();
@@ -38,12 +38,12 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     }
   }
 
-  Widget icon(Color iconColor, {ViewState? state}) {
+  Widget icon(Color iconColor, {bool? state}) {
     switch (this) {
       case ViewMoreActionType.delete:
         return const FlowySvg(name: 'editor/delete');
       case ViewMoreActionType.toggleFavorite:
-        if (state!.view.isFavorite) {
+        if (state!) {
           return const FlowySvg(name: 'home/favorite');
         } else {
           return const FlowySvg(name: 'home/unfavorite');

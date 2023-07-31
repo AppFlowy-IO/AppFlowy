@@ -19,11 +19,11 @@ const supportedActionTypes = [
 class ViewMoreActionButton extends StatelessWidget {
   const ViewMoreActionButton({
     super.key,
-    required this.state,
+    required this.favoriteStatus,
     required this.onEditing,
     required this.onAction,
   });
-  final ViewState state;
+  final bool favoriteStatus;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType) onAction;
 
@@ -33,7 +33,7 @@ class ViewMoreActionButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: supportedActionTypes
-          .map((e) => ViewMoreActionTypeWrapper(e, state))
+          .map((e) => ViewMoreActionTypeWrapper(e, favoriteStatus))
           .toList(),
       buildChild: (popover) {
         return FlowyIconButton(
@@ -61,7 +61,7 @@ class ViewMoreActionTypeWrapper extends ActionCell {
   ViewMoreActionTypeWrapper(this.inner, this.state);
 
   final ViewMoreActionType inner;
-  final ViewState? state;
+  final bool? state;
 
   @override
   Widget? leftIcon(Color iconColor) => inner.icon(iconColor, state: state);

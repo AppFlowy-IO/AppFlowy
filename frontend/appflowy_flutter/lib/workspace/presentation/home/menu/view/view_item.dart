@@ -285,7 +285,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
-        state: context.read<ViewBloc>().state,
+        favoriteStatus: widget.view.isFavorite,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
