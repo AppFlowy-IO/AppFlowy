@@ -51,6 +51,7 @@ class SidebarTopMenu extends StatelessWidget {
         : 'flowy_logo_with_text';
     return svgWidget(
       name,
+      size: const Size(92, 17),
     );
   }
 
