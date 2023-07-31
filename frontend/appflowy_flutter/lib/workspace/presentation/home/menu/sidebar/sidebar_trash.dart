@@ -54,7 +54,9 @@ class SidebarTrashButton extends StatelessWidget {
           name: 'home/trash',
         ),
         const HSpace(6),
-        FlowyText.medium(LocaleKeys.trash_text.tr()),
+        FlowyText.medium(
+          LocaleKeys.trash_text.tr(),
+        ),
       ],
     );
   }

@@ -68,7 +68,7 @@ class HomeSideBar extends StatelessWidget {
             // user, setting
             SidebarUser(user: user),
             // Favorite, Not supported yet
-            const VSpace(30),
+            const VSpace(20),
             // scrollable document list
             Expanded(
               child: SingleChildScrollView(
