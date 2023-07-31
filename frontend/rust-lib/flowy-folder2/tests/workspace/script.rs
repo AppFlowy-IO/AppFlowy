@@ -2,7 +2,6 @@ use collab_folder::core::ViewLayout;
 
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent::*;
-use flowy_folder2::protobuf::FavoritesPB;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 
