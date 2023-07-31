@@ -69,11 +69,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.os }}
-          workspaces: |
-            frontend/rust-lib
+      # - uses: Swatinem/rust-cache@v2
+      #   with:
+      #     prefix-key: ${{ matrix.os }}
+      #     workspaces: |
+      #       frontend/rust-lib
+      #     cache-all-crates: true
 
       - uses: davidB/rust-cargo-make@v1
         with:
