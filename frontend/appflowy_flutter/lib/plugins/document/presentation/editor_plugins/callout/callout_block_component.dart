@@ -136,14 +136,9 @@ class _CalloutBlockComponentWidgetState
     final brightness = Theme.of(context).brightness;
     final bool isDarkMode = brightness == Brightness.dark;
 
-    Color bgColor = colorString.toColor();
+    final Color bgColor = colorString.toColor();
 
-    // In dark mode reduce intensity for better readability
-    if (isDarkMode) {
-      bgColor = bgColor.withOpacity(0.3);
-    }
-
-    return bgColor;
+    return isDarkMode ? bgColor.withOpacity(0.3) : bgColor;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
