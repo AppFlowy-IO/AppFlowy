@@ -5,9 +5,11 @@ import { currentUserActions } from '$app_reducers/current-user/slice';
 import { Theme as ThemeType, Theme, ThemeMode } from '$app/interfaces';
 import { createTheme } from '@mui/material/styles';
 import { getDesignTokens } from '$app/utils/mui';
+import { useTranslation } from 'react-i18next';
 
 export function useUserSetting() {
   const dispatch = useAppDispatch();
+  const { i18n } = useTranslation();
   const currentUser = useAppSelector((state) => state.currentUser);
   const userSettingController = useMemo(() => {
     if (!currentUser?.id) return;
@@ -35,8 +37,9 @@ export function useUserSetting() {
           language: language,
         })
       );
+      i18n.changeLanguage(language);
     });
-  }, [dispatch, userSettingController]);
+  }, [i18n, dispatch, userSettingController]);
 
   const { themeMode = ThemeMode.Light, theme: themeType = ThemeType.Default } = useAppSelector((state) => {
     return state.currentUser.userSetting || {};

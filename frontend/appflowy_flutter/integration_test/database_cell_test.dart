@@ -265,6 +265,18 @@ void main() {
         content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
 
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Clear the date and time
+      await tester.clearDate();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: '',
+      );
+
       await tester.pumpAndSettle();
     });
 
