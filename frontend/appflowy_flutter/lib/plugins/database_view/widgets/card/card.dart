@@ -139,7 +139,7 @@ class _RowCardState<T> extends State<RowCard<T>> {
                 } else {
                   return [
                     _CardEditOption(rowNotifier: rowNotifier),
-                    _CardMoreOption(),
+                    CardMoreOption(),
                   ];
                 }
               },
@@ -272,8 +272,8 @@ class _CardContent<CustomCardData> extends StatelessWidget {
   }
 }
 
-class _CardMoreOption extends StatelessWidget with CardAccessory {
-  _CardMoreOption({Key? key}) : super(key: key);
+class CardMoreOption extends StatelessWidget with CardAccessory {
+  CardMoreOption({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
