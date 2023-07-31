@@ -171,23 +171,19 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
         const VSpace(4.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              _buildTextButton(
-                context,
-                LocaleKeys.settings_files_create.tr(),
-                () async {
-                  if (_path.isEmpty) {
-                    _showToast(
-                      LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
-                    );
-                  } else {
-                    await getIt<ApplicationDataStorage>().setCustomPath(_path);
-                    await widget.onPressedCreate();
-                  }
-                },
-              ),
-            ],
+          child: _buildTextButton(
+            context,
+            LocaleKeys.settings_files_create.tr(),
+            () async {
+              if (_path.isEmpty) {
+                _showToast(
+                  LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
+                );
+              } else {
+                await getIt<ApplicationDataStorage>().setCustomPath(_path);
+                await widget.onPressedCreate();
+              }
+            },
           ),
         )
       ],
@@ -218,13 +214,10 @@ Widget _buildTextButton(
   String title,
   VoidCallback onPressed,
 ) {
-  return SizedBox(
-    width: 60,
-    child: SecondaryTextButton(
-      title,
-      mode: SecondaryTextButtonMode.small,
-      onPressed: onPressed,
-    ),
+  return SecondaryTextButton(
+    title,
+    mode: SecondaryTextButtonMode.small,
+    onPressed: onPressed,
   );
 }
 
@@ -243,17 +236,18 @@ class _FolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const cardSpacing = 16.0;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          vertical: 16.0,
-          horizontal: 16.0,
+          vertical: cardSpacing,
+          horizontal: cardSpacing,
         ),
         child: Row(
           children: [
             if (icon != null)
               Padding(
-                padding: const EdgeInsets.only(right: 20),
+                padding: const EdgeInsets.only(right: cardSpacing),
                 child: icon!,
               ),
             Expanded(
@@ -280,7 +274,7 @@ class _FolderCard extends StatelessWidget {
               ),
             ),
             if (trailing != null) ...[
-              const HSpace(40),
+              const HSpace(cardSpacing),
               trailing!,
             ],
           ],
