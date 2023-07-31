@@ -624,5 +624,23 @@
     "pink": "Pink",
     "brown": "Brown",
     "gray": "Gray"
+  },
+  "emoji": {
+    "filter": "Filter",
+    "random": "Random",
+    "selectSkinTone": "Select skin tone",
+    "remove": "Remove emoji",
+    "categories": {
+      "smileys": "Smileys & Emotion",
+      "people": "People & Body",
+      "animals": "Animals & Nature",
+      "food": "Food & Drink",
+      "activities": "Activities",
+      "places": "Travel & Places",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags",
+      "nature": "Nature"
+    }
   }
 }

@@ -27,6 +27,15 @@ div[role="textbox"] ::selection {
   @apply bg-transparent;
 }
 
+:root[data-dark-mode=true] body {
+    scrollbar-color: #fff var(--bg-body);
+}
+
+body {
+    scrollbar-track-color: var(--bg-body);
+    scrollbar-shadow-color: var(--bg-body);
+}
+
 .btn {
   @apply rounded-xl border border-line-divider px-4 py-3;
 }
