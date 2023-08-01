@@ -166,14 +166,18 @@ class _CalendarPageState extends State<CalendarPage> {
                     return const Center(
                       child: CircularProgressIndicator.adaptive(),
                     );
-                  } else {
-                    return _buildCalendar(
-                      context,
-                      _eventController,
-                      state.settings
-                          .foldLeft(0, (previous, a) => a.firstDayOfWeek),
-                    );
                   }
+                  return Column(
+                    children: [
+                      const VSpace(12.0),
+                      _buildCalendar(
+                        context,
+                        _eventController,
+                        state.settings
+                            .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                      ),
+                    ],
+                  );
                 },
               );
             },

@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.da
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -82,9 +83,14 @@ class _UnscheduleEventsButtonState extends State<UnscheduleEventsButton> {
           builder: (context, state) {
             return FlowyTextButton(
               "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
+              fontSize: FontSizes.s11,
+              fontColor: AFThemeExtension.of(context).textColor,
+              fontWeight: FontWeight.w400,
               fillColor: Colors.transparent,
               hoverColor: AFThemeExtension.of(context).lightGreyHover,
-              padding: GridSize.typeOptionContentInsets,
+              padding: GridSize.toolbarSettingButtonInsets,
+              radius: Corners.s4Border,
+              onPressed: () => _popoverController.show(),
             );
           },
         ),
