@@ -15,6 +15,7 @@ import 'import_files_test.dart' as import_files_test;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
+import 'board/board_test_runner.dart' as board_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -34,6 +35,9 @@ void main() {
 
   // Sidebar integration tests
   sidebar_test_runner.startTesting();
+
+  // Board integration test
+  board_test_runner.startTesting();
 
   // Database integration tests
   database_cell_test.main();
