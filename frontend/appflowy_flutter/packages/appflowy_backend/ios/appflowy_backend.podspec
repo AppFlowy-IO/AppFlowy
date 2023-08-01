@@ -22,4 +22,5 @@ A new flutter plugin project.
   s.swift_version = '5.0'
   s.static_framework = true
   s.vendored_libraries = "libdart_ffi.a"
+  s.library = "c++"
 end
