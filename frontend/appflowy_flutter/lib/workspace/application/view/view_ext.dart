@@ -118,7 +118,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Board:
         return 'editor/board';
       case ViewLayoutPB.Calendar:
-        return 'editor/calendar';
+        return 'editor/date';
       case ViewLayoutPB.Document:
         return 'editor/documents';
       default:
