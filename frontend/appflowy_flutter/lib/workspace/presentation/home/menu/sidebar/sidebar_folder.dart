@@ -7,9 +7,11 @@ class SidebarFolder extends StatelessWidget {
   const SidebarFolder({
     super.key,
     required this.views,
+    required this.favoriteViews,
   });
 
   final List<ViewPB> views;
+  final List<ViewPB> favoriteViews;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,9 @@ class SidebarFolder extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // favorite
-        const FavoriteFolder(),
+        FavoriteFolder(
+          views: favoriteViews,
+        ),
         // personal
         PersonalFolder(views: views),
       ],

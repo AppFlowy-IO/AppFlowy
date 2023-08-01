@@ -46,17 +46,32 @@ class HomeSideBar extends StatelessWidget {
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         )
       ],
-      child: BlocConsumer<MenuBloc, MenuState>(
-        builder: (context, state) => _buildSidebar(context, state),
+      child: BlocListener<MenuBloc, MenuState>(
         listenWhen: (p, c) => p.plugin.id != c.plugin.id,
         listener: (context, state) => getIt<TabsBloc>().add(
           TabsEvent.openPlugin(plugin: state.plugin),
+        ),
+        child: Builder(
+          builder: (context) {
+            // FIXME: rename doesn't work
+            final menuState = context.watch<MenuBloc>().state;
+            final favoriteState = context.watch<FavoriteBloc>().state;
+            return _buildSidebar(
+              context,
+              menuState,
+              favoriteState,
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildSidebar(BuildContext context, MenuState state) {
+  Widget _buildSidebar(
+    BuildContext context,
+    MenuState state,
+    FavoriteState favoriteState,
+  ) {
     final views = state.views;
     return Container(
       decoration: BoxDecoration(
@@ -81,6 +96,7 @@ class HomeSideBar extends StatelessWidget {
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
+                  favoriteViews: favoriteState.views,
                 ),
               ),
             ),

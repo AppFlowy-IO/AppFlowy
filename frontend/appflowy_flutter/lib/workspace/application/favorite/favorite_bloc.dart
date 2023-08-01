@@ -57,6 +57,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
       },
     );
   }
+
   void _onFavoritesUpdated(
     Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
     bool didFavorite,
