@@ -2,7 +2,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_favorite.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -44,8 +43,7 @@ class HomeSideBar extends StatelessWidget {
           )..add(const MenuEvent.initial()),
         ),
         BlocProvider(
-          create: (_) =>
-              getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
+          create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         )
       ],
       child: BlocConsumer<MenuBloc, MenuState>(
@@ -77,11 +75,7 @@ class HomeSideBar extends StatelessWidget {
             const SidebarTopMenu(),
             // user, setting
             SidebarUser(user: user),
-            // Favorite, Not supported yet
             const VSpace(20),
-            const SingleChildScrollView(
-              child: SidebarFavorite(),
-            ),
             // scrollable document list
             Expanded(
               child: SingleChildScrollView(

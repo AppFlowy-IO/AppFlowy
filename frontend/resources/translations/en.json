@@ -156,6 +156,7 @@
     "personal": "Personal",
     "favorites": "Favorites",
     "clickToHidePersonal": "Click to hide personal section",
+    "clickToHideFavorites": "Click to hide favorite section",
     "addAPage": "Add a page"
   },
   "notifications": {

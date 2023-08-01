@@ -11,61 +11,53 @@ import 'favorite_listener.dart';
 part 'favorite_bloc.freezed.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
-  final FavoriteService _service;
-  final FavoriteListener _listener;
-  FavoriteBloc()
-      : _service = FavoriteService(),
-        _listener = FavoriteListener(),
-        super(FavoriteState.initial()) {
+  final _service = FavoriteService();
+  final _listener = FavoriteListener();
+
+  FavoriteBloc() : super(FavoriteState.initial()) {
     on<FavoriteEvent>(
       (event, emit) async {
         await event.map(
           initial: (e) async {
             _listener.start(
-              favoritesUpdated: _listenFavoritesUpdated,
+              favoritesUpdated: _onFavoritesUpdated,
             );
             final result = await _service.readFavorites();
             emit(
               result.fold(
-                (object) => state.copyWith(
-                  objects: object.items,
-                  successOrFailure: right(unit),
+                (view) => state.copyWith(
+                  views: view.items,
                 ),
                 (error) => state.copyWith(
-                  successOrFailure: left(error),
+                  views: [],
                 ),
               ),
             );
           },
           didFavorite: (e) {
             emit(
-              state.copyWith(objects: [...state.objects, ...e.favorite.items]),
+              state.copyWith(views: [...state.views, ...e.favorite.items]),
             );
           },
           didUnfavorite: (e) {
-            final list = List<ViewPB>.from(state.objects);
-            for (final item in e.favorite.items) {
-              list.removeWhere((element) => element.id == item.id);
-            }
+            final views = [...state.views]..removeWhere(
+                (view) => e.favorite.items.any((item) => item.id == view.id),
+              );
             emit(
-              state.copyWith(objects: list),
+              state.copyWith(views: views),
             );
           },
           toggle: (e) async {
-            final result =
-                await _service.toggleFavorite(e.view.id, !e.view.isFavorite);
-            emit(
-              result.fold(
-                (l) => state.copyWith(successOrFailure: right(unit)),
-                (error) => state.copyWith(successOrFailure: left(error)),
-              ),
+            await _service.toggleFavorite(
+              e.view.id,
+              !e.view.isFavorite,
             );
           },
         );
       },
     );
   }
-  void _listenFavoritesUpdated(
+  void _onFavoritesUpdated(
     Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
     bool didFavorite,
   ) {
@@ -91,12 +83,10 @@ class FavoriteEvent with _$FavoriteEvent {
 @freezed
 class FavoriteState with _$FavoriteState {
   const factory FavoriteState({
-    required List<ViewPB> objects,
-    required Either<FlowyError, Unit> successOrFailure,
+    required List<ViewPB> views,
   }) = _FavoriteState;
 
-  factory FavoriteState.initial() => FavoriteState(
-        objects: [],
-        successOrFailure: right(unit),
+  factory FavoriteState.initial() => const FavoriteState(
+        views: [],
       );
 }

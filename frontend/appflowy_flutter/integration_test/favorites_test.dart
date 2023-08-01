@@ -1,6 +1,6 @@
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_favorite.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,9 @@ void main() {
       );
 
       await tester.createNewPageWithName(
-          name: _calendarName, layout: ViewLayoutPB.Calendar);
+        name: _calendarName,
+        layout: ViewLayoutPB.Calendar,
+      );
       await tester.favoriteViewByName(_calendarName);
 
       expect(

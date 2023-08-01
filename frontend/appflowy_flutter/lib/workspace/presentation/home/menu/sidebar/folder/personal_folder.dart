@@ -39,7 +39,10 @@ class _PersonalFolderState extends State<PersonalFolder> {
         if (isExpanded)
           ...widget.views.map(
             (view) => ViewItem(
-              key: ValueKey(view.id),
+              key: ValueKey(
+                '${ViewItemCategoryType.personal.name} ${view.id}',
+              ),
+              categoryType: ViewItemCategoryType.personal,
               isFirstChild: view.id == widget.views.first.id,
               view: view,
               level: 0,

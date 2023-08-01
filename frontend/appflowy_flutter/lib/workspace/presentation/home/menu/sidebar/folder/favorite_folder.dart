@@ -10,48 +10,55 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SidebarFavorite extends StatefulWidget {
-  const SidebarFavorite({super.key});
+class FavoriteFolder extends StatefulWidget {
+  const FavoriteFolder({
+    super.key,
+  });
 
   @override
-  State<SidebarFavorite> createState() => _SidebarFavoriteState();
+  State<FavoriteFolder> createState() => _FavoriteFolderState();
 }
 
-class _SidebarFavoriteState extends State<SidebarFavorite> {
+class _FavoriteFolderState extends State<FavoriteFolder> {
   bool isExpanded = true;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
-        if (state.objects.isNotEmpty) {
-          return Column(
-            children: [
-              FavoriteHeader(
-                onPressed: () => setState(
-                  () => isExpanded = !isExpanded,
-                ),
-                onAdded: () => setState(() => isExpanded = true),
-              ),
-              if (isExpanded)
-                ...state.objects.map(
-                  (view) => ViewItem(
-                    key: ValueKey(view.id),
-                    isFirstChild: view.id == state.objects.first.id,
-                    view: view,
-                    level: 0,
-                    onSelected: (view) {
-                      getIt<MenuSharedState>().latestOpenView = view;
-                      context
-                          .read<MenuBloc>()
-                          .add(MenuEvent.openPage(view.plugin()));
-                    },
-                  ),
-                )
-            ],
-          );
-        } else {
+        final views = state.views;
+        if (views.isEmpty) {
           return const SizedBox.shrink();
         }
+        return Column(
+          children: [
+            FavoriteHeader(
+              onPressed: () => setState(
+                () => isExpanded = !isExpanded,
+              ),
+              onAdded: () => setState(() => isExpanded = true),
+            ),
+            if (isExpanded)
+              ...state.views.map(
+                (view) => ViewItem(
+                  key: ValueKey(
+                    '${ViewItemCategoryType.favorite.name} ${view.id}',
+                  ),
+                  categoryType: ViewItemCategoryType.favorite,
+                  isDraggable: false,
+                  isFirstChild: view.id == state.views.first.id,
+                  view: view,
+                  level: 0,
+                  onSelected: (view) {
+                    getIt<MenuSharedState>().latestOpenView = view;
+                    context
+                        .read<MenuBloc>()
+                        .add(MenuEvent.openPage(view.plugin()));
+                  },
+                ),
+              )
+          ],
+        );
       },
     );
   }
@@ -85,7 +92,7 @@ class _FavoriteHeaderState extends State<FavoriteHeader> {
         children: [
           FlowyTextButton(
             LocaleKeys.sideBar_favorites.tr(),
-            tooltip: LocaleKeys.sideBar_favorites.tr(),
+            tooltip: LocaleKeys.sideBar_clickToHideFavorites.tr(),
             constraints: const BoxConstraints(maxHeight: iconSize),
             padding: const EdgeInsets.all(4),
             fillColor: Colors.transparent,

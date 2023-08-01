@@ -114,7 +114,7 @@ class HomeMenu extends StatelessWidget {
   Widget _renderFavorites(BuildContext context) {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
-        return state.objects.isNotEmpty
+        return state.views.isNotEmpty
             ? ExpandableTheme(
                 data: ExpandableThemeData(
                   useInkWell: true,
@@ -134,7 +134,7 @@ class HomeMenu extends StatelessWidget {
                     behavior:
                         const ScrollBehavior().copyWith(scrollbars: false),
                     child: Column(
-                      children: state.objects
+                      children: state.views
                           .map(
                             (e) => ViewSectionItem(
                               key: ValueKey(e.id),

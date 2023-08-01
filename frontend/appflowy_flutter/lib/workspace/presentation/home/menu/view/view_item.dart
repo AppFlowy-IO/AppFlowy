@@ -18,10 +18,16 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+enum ViewItemCategoryType {
+  favorite,
+  personal,
+}
+
 class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
     required this.view,
+    required this.categoryType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
@@ -30,6 +36,8 @@ class ViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
+
+  final ViewItemCategoryType categoryType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -59,6 +67,7 @@ class ViewItem extends StatelessWidget {
             ..addAll(state.childViews);
           return InnerViewItem(
             view: view,
+            categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
@@ -77,6 +86,7 @@ class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
     required this.view,
+    required this.categoryType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
@@ -87,6 +97,8 @@ class InnerViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
+
+  final ViewItemCategoryType categoryType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -113,7 +125,8 @@ class InnerViewItem extends StatelessWidget {
     if (isExpanded && childViews.isNotEmpty) {
       final children = childViews.map((childView) {
         return ViewItem(
-          key: ValueKey(childView.id),
+          key: ValueKey('${categoryType.name} ${childView.id}'),
+          categoryType: categoryType,
           isFirstChild: childView.id == childViews.first.id,
           view: childView,
           level: level + 1,
@@ -140,6 +153,7 @@ class InnerViewItem extends StatelessWidget {
         feedback: (context) {
           return ViewItem(
             view: view,
+            categoryType: categoryType,
             level: level,
             onSelected: onSelected,
             isDraggable: false,
@@ -285,12 +299,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
-        favoriteStatus: widget.view.isFavorite,
+        view: widget.view,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
           switch (action) {
-            case ViewMoreActionType.toggleFavorite:
+            case ViewMoreActionType.favorite:
+            case ViewMoreActionType.unFavorite:
               context
                   .read<FavoriteBloc>()
                   .add(FavoriteEvent.toggle(widget.view));

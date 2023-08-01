@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 enum ViewMoreActionType {
   delete,
-  toggleFavorite, // not supported yet.
+  favorite,
+  unFavorite,
   duplicate,
   copyLink, // not supported yet.
   rename,
@@ -15,16 +15,14 @@ enum ViewMoreActionType {
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
-  String name({bool? state}) {
+  String name() {
     switch (this) {
       case ViewMoreActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
-      case ViewMoreActionType.toggleFavorite:
-        if (state!) {
-          return LocaleKeys.disclosureAction_favorite.tr();
-        } else {
-          return LocaleKeys.disclosureAction_unfavorite.tr();
-        }
+      case ViewMoreActionType.favorite:
+        return LocaleKeys.disclosureAction_favorite.tr();
+      case ViewMoreActionType.unFavorite:
+        return LocaleKeys.disclosureAction_unfavorite.tr();
       case ViewMoreActionType.duplicate:
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewMoreActionType.copyLink:
@@ -38,16 +36,14 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     }
   }
 
-  Widget icon(Color iconColor, {bool? state}) {
+  Widget icon(Color iconColor) {
     switch (this) {
       case ViewMoreActionType.delete:
         return const FlowySvg(name: 'editor/delete');
-      case ViewMoreActionType.toggleFavorite:
-        if (state!) {
-          return const FlowySvg(name: 'home/favorite');
-        } else {
-          return const FlowySvg(name: 'home/unfavorite');
-        }
+      case ViewMoreActionType.favorite:
+        return const FlowySvg(name: 'home/unfavorite');
+      case ViewMoreActionType.unFavorite:
+        return const FlowySvg(name: 'home/favorite');
       case ViewMoreActionType.duplicate:
         return const FlowySvg(name: 'editor/copy');
       case ViewMoreActionType.copyLink:

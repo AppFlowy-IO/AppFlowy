@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/personal_folder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,8 @@ class SidebarFolder extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        // favorite
+        const FavoriteFolder(),
         // personal
         PersonalFolder(views: views),
       ],

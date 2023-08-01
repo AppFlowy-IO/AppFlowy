@@ -1,5 +1,5 @@
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/image.dart';
 
@@ -7,33 +7,35 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
-const supportedActionTypes = [
-  ViewMoreActionType.rename,
-  ViewMoreActionType.delete,
-  ViewMoreActionType.duplicate,
-  ViewMoreActionType.openInNewTab,
-  ViewMoreActionType.toggleFavorite,
-];
-
 /// ··· button beside the view name
 class ViewMoreActionButton extends StatelessWidget {
   const ViewMoreActionButton({
     super.key,
-    required this.favoriteStatus,
+    required this.view,
     required this.onEditing,
     required this.onAction,
   });
-  final bool favoriteStatus;
+
+  final ViewPB view;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType) onAction;
 
   @override
   Widget build(BuildContext context) {
+    final supportedActionTypes = [
+      ViewMoreActionType.rename,
+      ViewMoreActionType.delete,
+      ViewMoreActionType.duplicate,
+      ViewMoreActionType.openInNewTab,
+      view.isFavorite
+          ? ViewMoreActionType.unFavorite
+          : ViewMoreActionType.favorite,
+    ];
     return PopoverActionList<ViewMoreActionTypeWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: supportedActionTypes
-          .map((e) => ViewMoreActionTypeWrapper(e, favoriteStatus))
+          .map((e) => ViewMoreActionTypeWrapper(e))
           .toList(),
       buildChild: (popover) {
         return FlowyIconButton(
@@ -58,14 +60,13 @@ class ViewMoreActionButton extends StatelessWidget {
 }
 
 class ViewMoreActionTypeWrapper extends ActionCell {
-  ViewMoreActionTypeWrapper(this.inner, this.state);
+  ViewMoreActionTypeWrapper(this.inner);
 
   final ViewMoreActionType inner;
-  final bool? state;
 
   @override
-  Widget? leftIcon(Color iconColor) => inner.icon(iconColor, state: state);
+  Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
 
   @override
-  String get name => inner.name(state: state);
+  String get name => inner.name();
 }

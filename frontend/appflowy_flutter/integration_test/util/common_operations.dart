@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/trash/menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_favorite.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 
-import 'dart:ui';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
