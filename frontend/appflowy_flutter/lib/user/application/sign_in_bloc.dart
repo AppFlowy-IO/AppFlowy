@@ -125,7 +125,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   SignInState stateFromCode(FlowyError error) {
-    switch (ErrorCode.valueOf(error.code)!) {
+    switch (ErrorCode.valueOf(error.code)) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,

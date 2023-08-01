@@ -29,4 +29,10 @@ class KVKeys {
       'kDocumentAppearanceFontSize';
   static const String kDocumentAppearanceFontFamily =
       'kDocumentAppearanceFontFamily';
+
+  /// The key for saving the expanded views
+  ///
+  /// The value is a json string with the following format:
+  ///  {'viewId': true, 'viewId2': false}
+  static const String expandedViews = 'expandedViews';
 }

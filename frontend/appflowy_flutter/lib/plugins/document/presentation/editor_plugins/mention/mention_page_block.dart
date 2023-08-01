@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
@@ -109,6 +110,11 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       return;
     }
     getIt<MenuSharedState>().latestOpenView = view;
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(),
+      ),
+    );
   }
 
   Future<ViewPB?> fetchView(String pageId) async {

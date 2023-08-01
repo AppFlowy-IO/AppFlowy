@@ -16,8 +16,8 @@ void main() {
       await tester.tapGoButton();
 
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        'outline_test',
+        name: 'outline_test',
+        layout: ViewLayoutPB.Document,
       );
 
       await tester.editor.tapLineOfEditorAt(0);
@@ -33,8 +33,8 @@ void main() {
       await tester.tapGoButton();
 
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        'outline_test',
+        name: 'outline_test',
+        layout: ViewLayoutPB.Document,
       );
       await tester.editor.tapLineOfEditorAt(0);
 

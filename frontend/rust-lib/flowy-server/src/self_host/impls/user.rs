@@ -1,8 +1,7 @@
+use anyhow::Error;
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user::entities::{
-  SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
-};
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -19,8 +18,8 @@ impl SelfHostedUserAuthServiceImpl {
   }
 }
 
-impl UserAuthService for SelfHostedUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError> {
+impl UserService for SelfHostedUserAuthServiceImpl {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
@@ -29,7 +28,7 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
     let url = self.config.sign_in_url();
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignInParams>()?;
@@ -38,13 +37,10 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError> {
+  fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error> {
     match token {
       None => FutureResult::new(async {
-        Err(FlowyError::new(
-          ErrorCode::InvalidParams,
-          "Token should not be empty",
-        ))
+        Err(FlowyError::new(ErrorCode::InvalidParams, "Token should not be empty").into())
       }),
       Some(token) => {
         let token = token;
@@ -61,13 +57,10 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     &self,
     credential: UserCredentials,
     params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError> {
+  ) -> FutureResult<(), Error> {
     match credential.token {
       None => FutureResult::new(async {
-        Err(FlowyError::new(
-          ErrorCode::InvalidParams,
-          "Token should not be empty",
-        ))
+        Err(FlowyError::new(ErrorCode::InvalidParams, "Token should not be empty").into())
       }),
       Some(token) => {
         let token = token;
@@ -83,14 +76,13 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
   fn get_user_profile(
     &self,
     credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<Option<UserProfile>, Error> {
     let url = self.config.user_profile_url();
     FutureResult::new(async move {
       match credential.token {
-        None => Err(FlowyError::new(
-          ErrorCode::UnexpectedEmpty,
-          "Token should not be empty",
-        )),
+        None => {
+          Err(FlowyError::new(ErrorCode::UnexpectedEmpty, "Token should not be empty").into())
+        },
         Some(token) => {
           let profile = get_user_profile_request(&token, &url).await?;
           Ok(Some(profile))
@@ -99,8 +91,34 @@ impl UserAuthService for SelfHostedUserAuthServiceImpl {
     })
   }
 
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), FlowyError> {
-    // TODO(nathan): implement the OpenAPI for this
+  fn get_user_workspaces(
+    &self,
+    _uid: i64,
+  ) -> FutureResult<std::vec::Vec<flowy_user_deps::entities::UserWorkspace>, Error> {
+    // TODO(nathan): implement the RESTful API for this
+    todo!()
+  }
+
+  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn add_workspace_member(
+    &self,
+    _user_email: String,
+    _workspace_id: String,
+  ) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn remove_workspace_member(
+    &self,
+    _user_email: String,
+    _workspace_id: String,
+  ) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
   }
 }

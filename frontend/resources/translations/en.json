@@ -13,7 +13,8 @@
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "to add above",
-    "dragAndOpenTooltip": "Drag to reorder, click to open"
+    "dragTooltip": "Drag to move",
+    "openMenuTooltip": "Click to open menu"
   },
   "signUp": {
     "buttonText": "Sign Up",
@@ -71,7 +72,10 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "openNewTab": "Open in a new tab"
+    "openNewTab": "Open in a new tab",
+    "moveTo": "Move to",
+    "addToFavorites": "Add to Favorites",
+    "copyLink": "Copy Link"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -112,6 +116,7 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
@@ -147,7 +152,11 @@
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar"
+    "openSidebar": "Open side bar",
+    "personal": "Personal",
+    "favorites": "Favorites",
+    "clickToHidePersonal": "Click to hide personal section",
+    "addAPage": "Add a page"
   },
   "notifications": {
     "export": {
@@ -211,6 +220,8 @@
       "user": "User",
       "files": "Files",
       "open": "Open Settings",
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure to logout?",
       "supabaseSetting": "Supabase Setting"
     },
     "appearance": {
@@ -377,6 +388,7 @@
       "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",
+      "clearDate": "Clear date",
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option",
@@ -609,5 +621,36 @@
   "views": {
     "deleteContentTitle": "Are you sure want to delete the {pageType}?",
     "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
+  },
+  "emoji": {
+    "filter": "Filter",
+    "random": "Random",
+    "selectSkinTone": "Select skin tone",
+    "remove": "Remove emoji",
+    "categories": {
+      "smileys": "Smileys & Emotion",
+      "people": "People & Body",
+      "animals": "Animals & Nature",
+      "food": "Food & Drink",
+      "activities": "Activities",
+      "places": "Travel & Places",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags",
+      "nature": "Nature"
+    }
   }
 }

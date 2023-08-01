@@ -28,53 +28,13 @@ abstract class Env {
     defaultValue: '',
   )
   static final String supabaseAnonKey = _Env.supabaseAnonKey;
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_KEY',
-    defaultValue: '',
-  )
-  static final String supabaseKey = _Env.supabaseKey;
+
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_JWT_SECRET',
     defaultValue: '',
   )
   static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB',
-    defaultValue: '',
-  )
-  static final String supabaseDb = _Env.supabaseDb;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_USER',
-    defaultValue: '',
-  )
-  static final String supabaseDbUser = _Env.supabaseDbUser;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_PASSWORD',
-    defaultValue: '',
-  )
-  static final String supabaseDbPassword = _Env.supabaseDbPassword;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_PORT',
-    defaultValue: '5432',
-  )
-  static final String supabaseDbPort = _Env.supabaseDbPort;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'ENABLE_SUPABASE_SYNC',
-    defaultValue: true,
-  )
-  static final bool enableSupabaseSync = _Env.enableSupabaseSync;
 }
 
 bool get isSupabaseEnable => false;

@@ -1,17 +1,25 @@
+use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
+use appflowy_integrate::{CollabType, RocksCollabDB};
 use collab::core::collab::MutexCollab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
+use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 
-use crate::deps::{DocumentCloudService, DocumentUser};
 use crate::entities::DocumentSnapshotPB;
 use crate::{document::MutexDocument, document_data::default_document_data};
+
+pub trait DocumentUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+}
 
 pub struct DocumentManager {
   user: Arc<dyn DocumentUser>,
@@ -35,6 +43,15 @@ impl DocumentManager {
     }
   }
 
+  pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
+    self.documents.write().clear();
+    Ok(())
+  }
+
+  pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
+    self.initialize(uid, workspace_id).await?;
+    Ok(())
+  }
   /// Create a new document.
   ///
   /// if the document already exists, return the existing document.
@@ -73,7 +90,7 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, "document", updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -110,12 +127,13 @@ impl DocumentManager {
 
   pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let _ = db.with_write_txn(|txn| {
-      txn.delete_doc(uid, &doc_id)?;
-      Ok(())
-    });
-    self.documents.write().remove(doc_id);
+    if let Some(db) = self.user.collab_db(uid)?.upgrade() {
+      let _ = db.with_write_txn(|txn| {
+        txn.delete_doc(uid, &doc_id)?;
+        Ok(())
+      });
+      self.documents.write().remove(doc_id);
+    }
     Ok(())
   }
 
@@ -151,15 +169,18 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, "document", updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)?;
     Ok(collab)
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let read_txn = db.read_txn();
-    Ok(read_txn.is_exist(uid, doc_id))
+    if let Some(collab_db) = self.user.collab_db(uid)?.upgrade() {
+      let read_txn = collab_db.read_txn();
+      Ok(read_txn.is_exist(uid, doc_id))
+    } else {
+      Ok(false)
+    }
   }
 
   /// Only expose this method for testing

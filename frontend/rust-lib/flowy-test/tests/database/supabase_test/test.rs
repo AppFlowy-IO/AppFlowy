@@ -3,6 +3,7 @@ use std::time::Duration;
 use flowy_database2::entities::{
   DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };
+use flowy_database2::notification::DatabaseNotification::DidUpdateDatabaseSnapshotState;
 
 use crate::database::supabase_test::helper::{
   assert_database_collab_content, FlowySupabaseDatabaseTest,
@@ -10,12 +11,12 @@ use crate::database::supabase_test::helper::{
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn cloud_test_supabase_initial_database_snapshot_test() {
+async fn supabase_initial_database_snapshot_test() {
   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let mut rx = test
       .notification_sender
-      .subscribe::<DatabaseSnapshotStatePB>(&database.id);
+      .subscribe::<DatabaseSnapshotStatePB>(&database.id, DidUpdateDatabaseSnapshotState);
 
     receive_with_timeout(&mut rx, Duration::from_secs(30))
       .await
@@ -29,7 +30,7 @@ async fn cloud_test_supabase_initial_database_snapshot_test() {
 }
 
 #[tokio::test]
-async fn cloud_test_supabase_edit_database_test() {
+async fn supabase_edit_database_test() {
   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
     let existing_fields = test.get_all_database_fields(&view.id).await;
@@ -59,7 +60,7 @@ async fn cloud_test_supabase_edit_database_test() {
 
     assert_eq!(test.get_all_database_fields(&view.id).await.items.len(), 2);
     let expected = test.get_collab_json(&database.id).await;
-    let update = test.get_collab_update(&database.id).await;
+    let update = test.get_database_collab_update(&database.id).await;
     assert_database_collab_content(&database.id, &update, expected);
   }
 }

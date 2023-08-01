@@ -23,7 +23,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
     this.handleColor,
     this.controller,
     this.scrollbarPadding,
-    this.barSize = 12,
+    this.barSize = 8,
   }) : super(key: key);
 
   @override
@@ -90,7 +90,7 @@ class StyledCustomScrollView extends StatefulWidget {
     this.handleColor,
     this.verticalController,
     this.slivers = const <Widget>[],
-    this.barSize = 12,
+    this.barSize = 8,
   }) : super(key: key);
 
   @override

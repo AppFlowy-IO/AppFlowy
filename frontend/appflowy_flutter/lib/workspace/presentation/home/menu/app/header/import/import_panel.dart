@@ -179,6 +179,8 @@ class ImportPanel extends StatelessWidget {
           assert(false, 'Unsupported Type $importType');
       }
     }
+
+    importCallback(importType, '', null);
   }
 }
 

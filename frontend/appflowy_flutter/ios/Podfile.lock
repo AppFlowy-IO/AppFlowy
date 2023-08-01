@@ -136,7 +136,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   app_links: 5ef33d0d295a89d9d16bb81b0e3b0d5f70d6c875
-  appflowy_backend: 652da8c7a089ffe165cb119a68eb168a6ed2c9d0
+  appflowy_backend: 144c20d8bfb298c4e10fa3fa6701a9f41bf98b88
   connectivity_plus: 07c49e96d7fc92bc9920617b83238c4d178b446a
   device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
