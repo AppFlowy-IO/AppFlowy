@@ -26,6 +26,7 @@ class InlineActionsResult {
   InlineActionsResult({
     required this.title,
     required this.results,
+    this.startsWithKeywords,
   });
 
   /// Localized title to be displayed above the results
@@ -37,4 +38,10 @@ class InlineActionsResult {
   /// made up of [SelectionMenuItem]s.
   ///
   final List<InlineActionsMenuItem> results;
+
+  /// If the search term start with one of these keyword,
+  /// the results will be reordered such that these results
+  /// will be above.
+  ///
+  final List<String>? startsWithKeywords;
 }

@@ -11,7 +11,35 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const _invalidSearchesAmount = 10;
+extension _StartWithsSort on List<InlineActionsResult> {
+  void sortByStartsWithKeyword(String search) => sort(
+        (a, b) {
+          final aCount = a.startsWithKeywords
+                  ?.where(
+                    (key) => search.toLowerCase().startsWith(key),
+                  )
+                  .length ??
+              0;
+
+          final bCount = b.startsWithKeywords
+                  ?.where(
+                    (key) => search.toLowerCase().startsWith(key),
+                  )
+                  .length ??
+              0;
+
+          if (aCount > bCount) {
+            return -1;
+          } else if (bCount > aCount) {
+            return 1;
+          }
+
+          return 0;
+        },
+      );
+}
+
+const _invalidSearchesAmount = 15;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -68,6 +96,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
     _resetSelection();
 
+    newResults.sortByStartsWithKeyword(_search);
+
     setState(() {
       results = newResults;
     });
@@ -77,8 +107,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     _selectedGroup = 0;
     _selectedIndex = 0;
   }
-
-  int _searchLength = 0;
 
   int _selectedGroup = 0;
   int _selectedIndex = 0;
@@ -183,14 +211,14 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       if (_search.isEmpty) {
         widget.onDismiss();
       } else {
-        search = _search.substring(0, _search.length - 1);
+        widget.onSelectionUpdate();
+        widget.editorState.deleteBackward();
+        _deleteCharacterAtSelection();
       }
 
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.
-      widget.onSelectionUpdate();
 
-      widget.editorState.deleteBackward();
       return KeyEventResult.handled;
     } else if (event.character != null &&
         ![
@@ -247,9 +275,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    // Increase length of search term
-    _searchLength += 1;
-
     /// Grab index of the first character in command (right after @)
     final startIndex =
         delta.toPlainText().lastIndexOf(inlineActionCharacter) + 1;
@@ -258,7 +283,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         .getTextInSelection(
           selection.copyWith(
             start: selection.start.copyWith(offset: startIndex),
-            end: selection.start.copyWith(offset: startIndex + _searchLength),
+            end: selection.start
+                .copyWith(offset: startIndex + _search.length + 1),
           ),
         )
         .join();
@@ -283,5 +309,26 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _deleteCharacterAtSelection() {
+    final selection = widget.editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final node = widget.editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+
+    final start = delta
+            .toPlainText()
+            .substring(0, _search.length - 1)
+            .lastIndexOf(inlineActionCharacter) +
+        1;
+
+    search = delta.toPlainText().substring(start, _search.length - 1);
   }
 }

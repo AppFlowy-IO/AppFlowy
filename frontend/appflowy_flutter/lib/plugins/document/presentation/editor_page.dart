@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_pag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
@@ -51,6 +52,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     handlers: [
       InlinePageReferenceService().inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
+      ReminderReferenceService(context).reminderReferenceDelegate,
     ],
   );
 
@@ -193,6 +195,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final configuration = BlockComponentConfiguration(
       padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
+
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: TextBlockComponentBuilder(

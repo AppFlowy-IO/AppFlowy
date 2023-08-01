@@ -708,6 +708,10 @@
   "inlineActions": {
     "noResults": "No results",
     "pageReference": "Page reference",
-    "date": "Date"
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Reminder",
+      "shortKeyword": "remind"
+    }
   }
 }

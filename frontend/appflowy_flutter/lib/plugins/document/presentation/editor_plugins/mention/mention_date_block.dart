@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
@@ -36,9 +34,7 @@ class MentionDateBlock extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: MouseRegion(
-        cursor: Platform.isWindows
-            ? SystemMouseCursors.click
-            : SystemMouseCursors.grab,
+        cursor: SystemMouseCursors.click,
         child: AppFlowyPopover(
           direction: PopoverDirection.bottomWithLeftAligned,
           constraints: BoxConstraints.loose(const Size(260, 300)),
