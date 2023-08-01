@@ -52,13 +52,13 @@ class DateCellCalendarBloc
             emit(state.copyWith(timeFormatError: timeFormatError));
           },
           selectDay: (date) async {
-            await _updateDateData(emit, date: date);
+            await _updateDateData(date: date);
           },
           setIncludeTime: (includeTime) async {
-            await _updateDateData(emit, includeTime: includeTime);
+            await _updateDateData(includeTime: includeTime);
           },
           setTime: (time) async {
-            await _updateDateData(emit, time: time);
+            await _updateDateData(time: time);
           },
           setDateFormat: (dateFormat) async {
             await _updateTypeOption(emit, dateFormat: dateFormat);
@@ -73,15 +73,14 @@ class DateCellCalendarBloc
             emit(state.copyWith(focusedDay: focusedDay));
           },
           clearDate: () async {
-            await _clearDate(emit);
+            await _clearDate();
           },
         );
       },
     );
   }
 
-  Future<void> _updateDateData(
-    Emitter<DateCellCalendarState> emit, {
+  Future<void> _updateDateData({
     DateTime? date,
     String? time,
     bool? includeTime,
@@ -127,7 +126,7 @@ class DateCellCalendarBloc
     );
   }
 
-  Future<void> _clearDate(Emitter<DateCellCalendarState> emit) async {
+  Future<void> _clearDate() async {
     final result = await _dateCellBackendService.clear();
     result.fold(
       (_) {
