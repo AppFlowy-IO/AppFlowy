@@ -38,6 +38,7 @@ class _TabBarHeaderState extends State<TabBarHeader> {
           ),
         ),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             BlocBuilder<GridTabBarBloc, GridTabBarState>(
               builder: (context, state) {
@@ -50,7 +51,12 @@ class _TabBarHeaderState extends State<TabBarHeader> {
               builder: (context, state) {
                 return SizedBox(
                   width: 200,
-                  child: pageSettingBarFromState(state),
+                  child: Column(
+                    children: [
+                      const VSpace(3),
+                      pageSettingBarFromState(state),
+                    ],
+                  ),
                 );
               },
             ),

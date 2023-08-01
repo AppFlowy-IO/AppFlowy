@@ -29,6 +29,7 @@ class CalendarSettingBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           UnscheduleEventsButton(databaseController: databaseController),
+          const HSpace(2),
           SettingButton(
             databaseController: databaseController,
           ),

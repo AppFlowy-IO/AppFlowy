@@ -39,6 +39,7 @@ class _FilterButtonState extends State<FilterButton> {
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.toolbarSettingButtonInsets,
+            radius: Corners.s4Border,
             onPressed: () {
               final bloc = context.read<GridFilterMenuBloc>();
               if (bloc.state.filters.isEmpty) {

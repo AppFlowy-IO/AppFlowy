@@ -39,6 +39,7 @@ class _SortButtonState extends State<SortButton> {
             fillColor: Colors.transparent,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             padding: GridSize.toolbarSettingButtonInsets,
+            radius: Corners.s4Border,
             onPressed: () {
               final bloc = context.read<SortMenuBloc>();
               if (bloc.state.sortInfos.isEmpty) {

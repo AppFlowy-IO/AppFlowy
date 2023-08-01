@@ -143,19 +143,6 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
     }).toList();
   }
 
-  Widget pageSettingBarFromState(GridTabBarState state) {
-    if (state.tabBars.length < state.selectedIndex) {
-      return const SizedBox.shrink();
-    }
-    final tarBar = state.tabBars[state.selectedIndex];
-    final controller =
-        state.tabBarControllerByViewId[tarBar.viewId]!.controller;
-    return tarBar.builder.settingBar(
-      context,
-      controller,
-    );
-  }
-
   Widget pageSettingBarExtensionFromState(GridTabBarState state) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();

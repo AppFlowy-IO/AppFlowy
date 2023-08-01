@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database_view/grid/application/filter/filter_me
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,10 +57,11 @@ class GridSettingBar extends StatelessWidget {
               height: 20,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   const FilterButton(),
+                  const HSpace(2),
                   const SortButton(),
+                  const HSpace(2),
                   SettingButton(
                     databaseController: controller,
                   ),
