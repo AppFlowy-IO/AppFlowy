@@ -20,7 +20,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:path/path.dart' as p;
 
 typedef ImportCallback = void Function(
-  ImportType type,
+  ImportType? type,
+  ImportFromNotionType? notionType,
   String name,
   List<int>? document,
 );
@@ -112,6 +113,7 @@ class ImportPanel extends StatelessWidget {
                 parentViewId: parentViewId,
               );
               await notionImporter.importFromNotion(type, path);
+              importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },
         ),
@@ -180,7 +182,7 @@ class ImportPanel extends StatelessWidget {
       }
     }
 
-    importCallback(importType, '', null);
+    importCallback(importType, null, '', null);
   }
 }
 

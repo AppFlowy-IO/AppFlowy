@@ -19,9 +19,9 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(readme);
+      tester.expectToSeePageName(gettingStated);
 
-      await tester.tapAddButton();
+      await tester.tapAddViewButton();
       await tester.tapImportButton();
 
       final paths = <String>[];
