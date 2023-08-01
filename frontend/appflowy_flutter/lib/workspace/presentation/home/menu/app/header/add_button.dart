@@ -81,30 +81,44 @@ class AddButton extends StatelessWidget {
           showImportPanel(
             parentViewId,
             context,
-            (type, name, initialDataBytes) {
+            (type, notionType, name, initialDataBytes) {
               if (initialDataBytes == null) {
                 return;
               }
-              switch (type) {
-                case ImportType.historyDocument:
-                case ImportType.historyDatabase:
-                case ImportType.databaseCSV:
-                case ImportType.databaseRawData:
-                  onSelected(
-                    action.pluginBuilder,
-                    name,
-                    initialDataBytes,
-                    false,
-                  );
-                  break;
-                case ImportType.markdownOrText:
-                  onSelected(
-                    action.pluginBuilder,
-                    name,
-                    initialDataBytes,
-                    true,
-                  );
-                  break;
+              if (type != null) {
+                switch (type) {
+                  case ImportType.historyDocument:
+                  case ImportType.historyDatabase:
+                  case ImportType.databaseCSV:
+                  case ImportType.databaseRawData:
+                    onSelected(
+                      action.pluginBuilder,
+                      name,
+                      initialDataBytes,
+                      false,
+                    );
+                    break;
+                  case ImportType.markdownOrText:
+                    onSelected(
+                      action.pluginBuilder,
+                      name,
+                      initialDataBytes,
+                      true,
+                    );
+                    break;
+                }
+              }
+              if (notionType != null) {
+                switch (notionType) {
+                  case ImportFromNotionType.markdownZip:
+                    onSelected(
+                      action.pluginBuilder,
+                      name,
+                      initialDataBytes,
+                      true,
+                    );
+                    break;
+                }
               }
             },
           );

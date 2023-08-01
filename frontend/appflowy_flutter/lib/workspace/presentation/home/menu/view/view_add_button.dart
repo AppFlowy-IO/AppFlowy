@@ -92,7 +92,7 @@ class ViewAddButton extends StatelessWidget {
     showImportPanel(
       parentViewId,
       context,
-      (type, name, initialDataBytes) {
+      (type, notioType, name, initialDataBytes) {
         onSelected(action.pluginBuilder, null, null, true, false);
       },
     );
