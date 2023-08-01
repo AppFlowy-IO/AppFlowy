@@ -531,6 +531,7 @@ async fn update_date_cell_event_test() {
       date: Some(timestamp_str.clone()),
       time: None,
       include_time: None,
+      clear_flag: None,
     })
     .await;
   assert!(error.is_none());
@@ -895,6 +896,7 @@ async fn create_calendar_event_test() {
       date: Some(timestamp_str.clone()),
       time: None,
       include_time: None,
+      clear_flag: None,
     })
     .await;
   assert!(error.is_none());

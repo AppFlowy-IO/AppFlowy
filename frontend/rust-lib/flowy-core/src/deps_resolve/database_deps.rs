@@ -4,23 +4,23 @@ use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
-use flowy_database2::deps::{DatabaseCloudService, DatabaseUser2};
-use flowy_database2::DatabaseManager2;
+use flowy_database2::{DatabaseManager, DatabaseUser};
+use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
 use flowy_user::services::UserSession;
 
-pub struct Database2DepsResolver();
+pub struct DatabaseDepsResolver();
 
-impl Database2DepsResolver {
+impl DatabaseDepsResolver {
   pub async fn resolve(
     user_session: Weak<UserSession>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
-  ) -> Arc<DatabaseManager2> {
+  ) -> Arc<DatabaseManager> {
     let user = Arc::new(DatabaseUserImpl(user_session));
-    Arc::new(DatabaseManager2::new(
+    Arc::new(DatabaseManager::new(
       user,
       task_scheduler,
       collab_builder,
@@ -30,7 +30,7 @@ impl Database2DepsResolver {
 }
 
 struct DatabaseUserImpl(Weak<UserSession>);
-impl DatabaseUser2 for DatabaseUserImpl {
+impl DatabaseUser for DatabaseUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
       .0
@@ -47,7 +47,7 @@ impl DatabaseUser2 for DatabaseUserImpl {
       .token()
   }
 
-  fn collab_db(&self, uid: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError> {
     self
       .0
       .upgrade()

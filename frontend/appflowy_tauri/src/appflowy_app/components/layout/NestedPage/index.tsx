@@ -11,7 +11,7 @@ function NestedPage({ pageId }: { pageId: string }) {
   const { onAddPage, onPageClick, onDeletePage, onDuplicatePage, onRenamePage } = usePageActions(pageId);
 
   return (
-    <BlockDraggable id={pageId} type={BlockDraggableType.PAGE}>
+    <BlockDraggable id={pageId} type={BlockDraggableType.PAGE} data-page-id={pageId}>
       <NestedPageTitle
         onClick={() => {
           onPageClick();
