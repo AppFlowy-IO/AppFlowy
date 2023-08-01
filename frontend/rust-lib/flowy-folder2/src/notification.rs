@@ -36,7 +36,7 @@ pub enum FolderNotification {
   DidUpdateFolderSyncUpdate = 17,
 
   DidFavoriteView = 36,
-  DidUnFavoriteView = 37,
+  DidUnfavoriteView = 37,
 }
 
 impl std::convert::From<FolderNotification> for i32 {
@@ -61,7 +61,7 @@ impl std::convert::From<i32> for FolderNotification {
       16 => FolderNotification::DidUpdateFolderSnapshotState,
       17 => FolderNotification::DidUpdateFolderSyncUpdate,
       36 => FolderNotification::DidFavoriteView,
-      37 => FolderNotification::DidUnFavoriteView,
+      37 => FolderNotification::DidUnfavoriteView,
       _ => FolderNotification::Unknown,
     }
   }
