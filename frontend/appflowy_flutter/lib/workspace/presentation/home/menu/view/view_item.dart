@@ -62,11 +62,9 @@ class ViewItem extends StatelessWidget {
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerViewItem(
-            view: view,
+            view: state.view,
+            childViews: state.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -86,6 +84,7 @@ class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
     required this.view,
+    required this.childViews,
     required this.categoryType,
     this.isDraggable = true,
     this.isExpanded = true,
@@ -97,7 +96,7 @@ class InnerViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
-
+  final List<ViewPB> childViews;
   final ViewItemCategoryType categoryType;
 
   final bool isDraggable;
@@ -121,7 +120,6 @@ class InnerViewItem extends StatelessWidget {
     );
 
     // if the view is expanded and has child views, render its child views
-    final childViews = view.childViews;
     if (isExpanded && childViews.isNotEmpty) {
       final children = childViews.map((childView) {
         return ViewItem(

@@ -53,7 +53,6 @@ class HomeSideBar extends StatelessWidget {
         ),
         child: Builder(
           builder: (context) {
-            // FIXME: rename doesn't work
             final menuState = context.watch<MenuBloc>().state;
             final favoriteState = context.watch<FavoriteBloc>().state;
             return _buildSidebar(
