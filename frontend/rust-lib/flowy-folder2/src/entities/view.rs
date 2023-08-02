@@ -58,6 +58,9 @@ pub struct ViewPB {
   /// The cover url of the view.
   #[pb(index = 8, one_of)]
   pub cover_url: Option<String>,
+
+  #[pb(index = 9)]
+  pub is_favorite: bool,
 }
 
 pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
@@ -70,6 +73,7 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
+    is_favorite: view.is_favorite.clone(),
   }
 }
 
@@ -87,6 +91,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     layout: view.layout.clone().into(),
     icon_url: view.icon_url.clone(),
     cover_url: view.cover_url.clone(),
+    is_favorite: view.is_favorite.clone(),
   }
 }
 
@@ -174,9 +179,14 @@ pub struct CreateViewPayloadPB {
   #[pb(index = 7)]
   pub meta: HashMap<String, String>,
 
-  /// Mark the view as current view after creation.
+  // Mark the view as current view after creation.
   #[pb(index = 8)]
   pub set_as_current: bool,
+
+  // The index of the view in the parent view.
+  // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
+  #[pb(index = 9, one_of)]
+  pub index: Option<u32>,
 }
 
 /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -209,8 +219,11 @@ pub struct CreateViewParams {
   pub view_id: String,
   pub initial_data: Vec<u8>,
   pub meta: HashMap<String, String>,
-  /// Mark the view as current view after creation.
+  // Mark the view as current view after creation.
   pub set_as_current: bool,
+  // The index of the view in the parent view.
+  // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
+  pub index: Option<u32>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -230,6 +243,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       initial_data: self.initial_data,
       meta: self.meta,
       set_as_current: self.set_as_current,
+      index: self.index,
     })
   }
 }
@@ -250,6 +264,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       initial_data: self.initial_data,
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     })
   }
 }
@@ -307,6 +322,9 @@ pub struct UpdateViewPayloadPB {
 
   #[pb(index = 7, one_of)]
   pub cover_url: Option<String>,
+
+  #[pb(index = 8, one_of)]
+  pub is_favorite: Option<bool>,
 }
 
 #[derive(Clone, Debug)]
@@ -315,13 +333,10 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
-  pub layout: Option<ViewLayout>,
-
-  /// The icon url can be empty, which means the view has no icon.
   pub icon_url: Option<String>,
-
-  /// The cover url can be empty, which means the view has no icon.
   pub cover_url: Option<String>,
+  pub is_favorite: Option<bool>,
+  pub layout: Option<ViewLayout>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -345,14 +360,19 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       Some(thumbnail) => Some(ViewThumbnail::parse(thumbnail)?.0),
     };
 
+    let cover_url = self.cover_url;
+    let icon_url = self.icon_url;
+    let is_favorite = self.is_favorite;
+
     Ok(UpdateViewParams {
       view_id,
       name,
       desc,
       thumbnail,
+      cover_url,
+      icon_url,
+      is_favorite,
       layout: self.layout.map(|ty| ty.into()),
-      icon_url: self.icon_url,
-      cover_url: self.cover_url,
     })
   }
 }

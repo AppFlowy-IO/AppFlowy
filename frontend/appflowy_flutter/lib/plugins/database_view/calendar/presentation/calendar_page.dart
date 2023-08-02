@@ -27,11 +27,13 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return CalendarPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      shrinkWrap: shrinkWrap,
     );
   }
 
@@ -59,9 +61,11 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 class CalendarPage extends StatefulWidget {
   final ViewPB view;
   final DatabaseController databaseController;
+  final bool shrinkWrap;
   const CalendarPage({
     required this.view,
     required this.databaseController,
+    this.shrinkWrap = false,
     super.key,
   });
 
@@ -95,12 +99,8 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return CalendarControllerProvider(
       controller: _eventController,
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<CalendarBloc>.value(
-            value: _calendarBloc,
-          )
-        ],
+      child: BlocProvider<CalendarBloc>.value(
+        value: _calendarBloc,
         child: MultiBlocListener(
           listeners: [
             BlocListener<CalendarBloc, CalendarState>(
@@ -159,14 +159,10 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
           child: BlocBuilder<CalendarBloc, CalendarState>(
             builder: (context, state) {
-              return Column(
-                children: [
-                  _buildCalendar(
-                    _eventController,
-                    state.settings
-                        .foldLeft(0, (previous, a) => a.firstDayOfWeek),
-                  ),
-                ],
+              return _buildCalendar(
+                context,
+                _eventController,
+                state.settings.foldLeft(0, (previous, a) => a.firstDayOfWeek),
               );
             },
           ),
@@ -175,19 +171,26 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _buildCalendar(EventController eventController, int firstDayOfWeek) {
-    return Expanded(
-      child: Padding(
-        padding: GridSize.contentInsets,
-        child: MonthView(
+  Widget _buildCalendar(
+    BuildContext context,
+    EventController eventController,
+    int firstDayOfWeek,
+  ) {
+    return Padding(
+      padding: GridSize.contentInsets,
+      child: LayoutBuilder(
+        // must specify MonthView width for useAvailableVerticalSpace to work properly
+        builder: (context, constraints) => MonthView(
           key: _calendarState,
           controller: _eventController,
-          cellAspectRatio: .6,
+          width: constraints.maxWidth,
+          cellAspectRatio: 0.6,
           startDay: _weekdayFromInt(firstDayOfWeek),
           borderColor: Theme.of(context).dividerColor,
           headerBuilder: _headerNavigatorBuilder,
           weekDayBuilder: _headerWeekDayBuilder,
           cellBuilder: _calendarDayBuilder,
+          useAvailableVerticalSpace: widget.shrinkWrap,
         ),
       ),
     );
