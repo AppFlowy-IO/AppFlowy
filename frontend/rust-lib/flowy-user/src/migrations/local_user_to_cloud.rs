@@ -6,68 +6,59 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
 use collab_folder::core::{Folder, FolderData};
 
+use crate::migrations::UserMigrationContext;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_deps::entities::UserProfile;
 
-use crate::services::session_serde::Session;
-
-pub struct UserDataMigration();
-
-pub struct UserMigrationContext {
-  pub user_profile: UserProfile,
-  pub session: Session,
-}
-
-impl UserDataMigration {
-  pub fn migration(
-    old_user: &UserMigrationContext,
-    old_collab_db: &Arc<RocksCollabDB>,
-    new_user: &UserMigrationContext,
-    new_collab_db: &Arc<RocksCollabDB>,
-  ) -> FlowyResult<Option<FolderData>> {
-    let mut folder_data = None;
-    new_collab_db
-      .with_write_txn(|w_txn| {
-        let read_txn = old_collab_db.read_txn();
-        if let Ok(object_ids) = read_txn.get_all_docs() {
-          // Migration of all objects
-          for object_id in object_ids {
-            tracing::debug!("migrate object: {:?}", object_id);
-            if let Ok(updates) = read_txn.get_all_updates(old_user.session.user_id, &object_id) {
-              // If the object is a folder, migrate the folder data
-              if object_id == old_user.session.user_workspace.id {
-                folder_data = migrate_folder(
-                  old_user.session.user_id,
-                  &object_id,
-                  &new_user.session.user_workspace.id,
-                  updates,
-                );
-              } else if object_id == old_user.session.user_workspace.database_storage_id {
-                migrate_database_storage(
-                  old_user.session.user_id,
-                  &object_id,
-                  new_user.session.user_id,
-                  &new_user.session.user_workspace.database_storage_id,
-                  updates,
-                  w_txn,
-                );
-              } else {
-                migrate_object(
-                  old_user.session.user_id,
-                  new_user.session.user_id,
-                  &object_id,
-                  updates,
-                  w_txn,
-                );
-              }
+/// Migration the collab objects of the old user to new user. Currently, it only happens when
+/// the user is a local user and try to use AppFlowy cloud service.
+pub fn migration_user_to_cloud(
+  old_user: &UserMigrationContext,
+  old_collab_db: &Arc<RocksCollabDB>,
+  new_user: &UserMigrationContext,
+  new_collab_db: &Arc<RocksCollabDB>,
+) -> FlowyResult<Option<FolderData>> {
+  let mut folder_data = None;
+  new_collab_db
+    .with_write_txn(|w_txn| {
+      let read_txn = old_collab_db.read_txn();
+      if let Ok(object_ids) = read_txn.get_all_docs() {
+        // Migration of all objects
+        for object_id in object_ids {
+          tracing::debug!("migrate object: {:?}", object_id);
+          if let Ok(updates) = read_txn.get_all_updates(old_user.session.user_id, &object_id) {
+            // If the object is a folder, migrate the folder data
+            if object_id == old_user.session.user_workspace.id {
+              folder_data = migrate_folder(
+                old_user.session.user_id,
+                &object_id,
+                &new_user.session.user_workspace.id,
+                updates,
+              );
+            } else if object_id == old_user.session.user_workspace.database_storage_id {
+              migrate_database_storage(
+                old_user.session.user_id,
+                &object_id,
+                new_user.session.user_id,
+                &new_user.session.user_workspace.database_storage_id,
+                updates,
+                w_txn,
+              );
+            } else {
+              migrate_object(
+                old_user.session.user_id,
+                new_user.session.user_id,
+                &object_id,
+                updates,
+                w_txn,
+              );
             }
           }
         }
-        Ok(())
-      })
-      .map_err(|err| FlowyError::new(ErrorCode::Internal, err))?;
-    Ok(folder_data)
-  }
+      }
+      Ok(())
+    })
+    .map_err(|err| FlowyError::new(ErrorCode::Internal, err))?;
+  Ok(folder_data)
 }
 
 fn migrate_database_storage<'a, W>(

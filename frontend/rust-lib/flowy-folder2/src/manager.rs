@@ -372,7 +372,7 @@ impl FolderManager {
 
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
 
     Ok(view)
@@ -393,7 +393,7 @@ impl FolderManager {
       .await?;
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     Ok(view)
   }
@@ -722,7 +722,7 @@ impl FolderManager {
 
     let view = create_view(params, import_data.view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)

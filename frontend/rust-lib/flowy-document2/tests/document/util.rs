@@ -5,13 +5,13 @@ use std::sync::Arc;
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
+use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
 use flowy_document2::document::MutexDocument;
-use flowy_document2::document_data::default_document_data;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
 
