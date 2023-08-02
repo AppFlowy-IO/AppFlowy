@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -28,11 +27,13 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return CalendarPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      shrinkWrap: shrinkWrap,
     );
   }
 
@@ -60,9 +61,11 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 class CalendarPage extends StatefulWidget {
   final ViewPB view;
   final DatabaseController databaseController;
+  final bool shrinkWrap;
   const CalendarPage({
     required this.view,
     required this.databaseController,
+    this.shrinkWrap = false,
     super.key,
   });
 
@@ -173,7 +176,6 @@ class _CalendarPageState extends State<CalendarPage> {
     EventController eventController,
     int firstDayOfWeek,
   ) {
-    final isInDocument = context.read<DocumentBloc?>() != null;
     return Padding(
       padding: GridSize.contentInsets,
       child: LayoutBuilder(
@@ -188,7 +190,7 @@ class _CalendarPageState extends State<CalendarPage> {
           headerBuilder: _headerNavigatorBuilder,
           weekDayBuilder: _headerWeekDayBuilder,
           cellBuilder: _calendarDayBuilder,
-          useAvailableVerticalSpace: isInDocument,
+          useAvailableVerticalSpace: widget.shrinkWrap,
         ),
       ),
     );
