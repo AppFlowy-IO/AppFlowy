@@ -236,7 +236,7 @@ class MenuSharedState {
   ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
   set latestOpenView(ViewPB? view) {
-    if (_latestOpenView.value != view) {
+    if (_latestOpenView.value?.id != view?.id) {
       _latestOpenView.value = view;
     }
   }

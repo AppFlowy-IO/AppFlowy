@@ -1,3 +1,5 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/personal_folder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -16,17 +18,22 @@ class SidebarFolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        // favorite
-        FavoriteFolder(
-          views: favoriteViews,
-        ),
-        const VSpace(10),
-        // personal
-        PersonalFolder(views: views),
-      ],
+    return ValueListenableBuilder(
+      valueListenable: getIt<MenuSharedState>().notifier,
+      builder: (context, value, child) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // favorite
+            FavoriteFolder(
+              views: favoriteViews,
+            ),
+            const VSpace(10),
+            // personal
+            PersonalFolder(views: views),
+          ],
+        );
+      },
     );
   }
 }

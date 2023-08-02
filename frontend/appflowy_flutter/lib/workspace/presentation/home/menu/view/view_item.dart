@@ -233,7 +233,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       children.add(_buildViewAddButton(context));
     }
 
-    return GestureDetector(
+    // Don't use GestureDetector here, because it doesn't response to the tap event sometimes.
+    return InkWell(
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: 26,

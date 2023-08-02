@@ -355,8 +355,10 @@ extension CommonOperations on WidgetTester {
     );
   }
 
-  Future<void> unfavoriteViewsByName(String name,
-      [ViewLayoutPB? layout]) async {
+  Future<void> unfavoriteViewsByName(
+    String name, [
+    ViewLayoutPB? layout,
+  ]) async {
     await hoverOnPageName(
       name,
       layout: layout ?? ViewLayoutPB.Document,

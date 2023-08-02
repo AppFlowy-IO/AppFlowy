@@ -2,8 +2,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -50,10 +50,12 @@ class PersonalFolder extends StatelessWidget {
                     view: view,
                     level: 0,
                     onSelected: (view) {
-                      getIt<MenuSharedState>().latestOpenView = view;
-                      context
-                          .read<MenuBloc>()
-                          .add(MenuEvent.openPage(view.plugin()));
+                      getIt<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: view.plugin(),
+                          view: view,
+                        ),
+                      );
                     },
                   ),
                 )
