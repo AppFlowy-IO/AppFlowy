@@ -202,11 +202,11 @@ extension Expectation on WidgetTester {
       of: find.byWidgetPredicate(
         (widget) =>
             widget is ViewItem &&
-            widget.view.name == name &&
-            widget.view.layout == layout,
+            widget.view.name == parentName &&
+            widget.view.layout == parentLayout,
         skipOffstage: false,
       ),
-      matching: findPageName(name),
+      matching: findPageName(name, layout: layout),
     );
   }
 }
