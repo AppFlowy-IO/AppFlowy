@@ -66,7 +66,7 @@ abstract class PluginWidgetBuilder with NavigationItem {
   EdgeInsets get contentPadding =>
       const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
-  Widget buildWidget({PluginContext? context});
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap});
 }
 
 class PluginContext {

@@ -28,11 +28,13 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return CalendarPage(
       key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
+      shrinkWrap: shrinkWrap,
     );
   }
 
@@ -60,9 +62,11 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 class CalendarPage extends StatefulWidget {
   final ViewPB view;
   final DatabaseController databaseController;
+  final bool shrinkWrap;
   const CalendarPage({
     required this.view,
     required this.databaseController,
+    this.shrinkWrap = false,
     super.key,
   });
 
@@ -173,26 +177,23 @@ class _CalendarPageState extends State<CalendarPage> {
     EventController eventController,
     int firstDayOfWeek,
   ) {
-    final isInDocument = context.read<DocumentBloc?>() != null;
     return Padding(
       padding: GridSize.contentInsets,
       child: LayoutBuilder(
+        // must specify MonthView width for useAvailableVerticalSpace to work properly
         builder: (context, constraints) => ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            scrollbars: false,
-          ), // workaround to hide overlapped scrollbars, can restore when a scrollcontroller can be exposed in MonthView
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: MonthView(
             key: _calendarState,
             controller: _eventController,
-            width: constraints
-                .maxWidth, // must specify MonthView width for useAvailableVerticalSpace to work properly
+            width: constraints.maxWidth,
             cellAspectRatio: 0.6,
             startDay: _weekdayFromInt(firstDayOfWeek),
             borderColor: Theme.of(context).dividerColor,
             headerBuilder: _headerNavigatorBuilder,
             weekDayBuilder: _headerWeekDayBuilder,
             cellBuilder: _calendarDayBuilder,
-            useAvailableVerticalSpace: isInDocument,
+            useAvailableVerticalSpace: widget.shrinkWrap,
           ),
         ),
       ),
