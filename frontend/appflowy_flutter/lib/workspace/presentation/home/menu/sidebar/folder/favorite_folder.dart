@@ -3,6 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,9 +44,9 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
           ...views.map(
             (view) => ViewItem(
               key: ValueKey(
-                '${ViewItemCategoryType.favorite.name} ${view.id}',
+                '${SidebarFolderCategoryType.favorite.name} ${view.id}',
               ),
-              categoryType: ViewItemCategoryType.favorite,
+              categoryType: SidebarFolderCategoryType.favorite,
               isDraggable: false,
               isFirstChild: view.id == views.first.id,
               view: view,

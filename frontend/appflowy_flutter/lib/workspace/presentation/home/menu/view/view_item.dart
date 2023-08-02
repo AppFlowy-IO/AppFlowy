@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -17,11 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-enum ViewItemCategoryType {
-  favorite,
-  personal,
-}
 
 class ViewItem extends StatelessWidget {
   const ViewItem({
@@ -37,7 +33,7 @@ class ViewItem extends StatelessWidget {
 
   final ViewPB view;
 
-  final ViewItemCategoryType categoryType;
+  final SidebarFolderCategoryType categoryType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -98,7 +94,7 @@ class InnerViewItem extends StatelessWidget {
 
   final ViewPB view;
 
-  final ViewItemCategoryType categoryType;
+  final SidebarFolderCategoryType categoryType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -159,6 +155,12 @@ class InnerViewItem extends StatelessWidget {
             isDraggable: false,
           );
         },
+      );
+    } else {
+      // keep the same height of the DraggableItem
+      child = Padding(
+        padding: const EdgeInsets.only(top: 2.0),
+        child: child,
       );
     }
 
