@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -33,7 +33,7 @@ class ViewItem extends StatelessWidget {
 
   final ViewPB view;
 
-  final SidebarFolderCategoryType categoryType;
+  final FolderCategoryType categoryType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -94,7 +94,7 @@ class InnerViewItem extends StatelessWidget {
 
   final ViewPB view;
 
-  final SidebarFolderCategoryType categoryType;
+  final FolderCategoryType categoryType;
 
   final bool isDraggable;
   final bool isExpanded;

@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PersonalFolder extends StatefulWidget {
+class PersonalFolder extends StatelessWidget {
   const PersonalFolder({
     super.key,
     required this.views,
@@ -21,39 +21,46 @@ class PersonalFolder extends StatefulWidget {
   final List<ViewPB> views;
 
   @override
-  State<PersonalFolder> createState() => _PersonalFolderState();
-}
-
-class _PersonalFolderState extends State<PersonalFolder> {
-  bool isExpanded = true;
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        PersonalFolderHeader(
-          onPressed: () => setState(
-            () => isExpanded = !isExpanded,
-          ),
-          onAdded: () => setState(() => isExpanded = true),
+    return BlocProvider<FolderBloc>(
+      create: (context) => FolderBloc(type: FolderCategoryType.personal)
+        ..add(
+          const FolderEvent.initial(),
         ),
-        if (isExpanded)
-          ...widget.views.map(
-            (view) => ViewItem(
-              key: ValueKey(
-                '${SidebarFolderCategoryType.personal.name} ${view.id}',
+      child: BlocBuilder<FolderBloc, FolderState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              PersonalFolderHeader(
+                onPressed: () => context
+                    .read<FolderBloc>()
+                    .add(const FolderEvent.expandOrUnExpand()),
+                onAdded: () => context
+                    .read<FolderBloc>()
+                    .add(const FolderEvent.expandOrUnExpand(isExpanded: true)),
               ),
-              categoryType: SidebarFolderCategoryType.personal,
-              isFirstChild: view.id == widget.views.first.id,
-              view: view,
-              level: 0,
-              onSelected: (view) {
-                getIt<MenuSharedState>().latestOpenView = view;
-                context.read<MenuBloc>().add(MenuEvent.openPage(view.plugin()));
-              },
-            ),
-          )
-      ],
+              if (state.isExpanded)
+                ...views.map(
+                  (view) => ViewItem(
+                    key: ValueKey(
+                      '${FolderCategoryType.personal.name} ${view.id}',
+                    ),
+                    categoryType: FolderCategoryType.personal,
+                    isFirstChild: view.id == views.first.id,
+                    view: view,
+                    level: 0,
+                    onSelected: (view) {
+                      getIt<MenuSharedState>().latestOpenView = view;
+                      context
+                          .read<MenuBloc>()
+                          .add(MenuEvent.openPage(view.plugin()));
+                    },
+                  ),
+                )
+            ],
+          );
+        },
+      ),
     );
   }
 }
