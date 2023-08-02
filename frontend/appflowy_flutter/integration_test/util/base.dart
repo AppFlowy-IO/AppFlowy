@@ -91,7 +91,6 @@ extension AppFlowyTestBase on WidgetTester {
       warnIfMissed: warnIfMissed,
     );
     await pumpAndSettle(Duration(milliseconds: milliseconds));
-    return;
   }
 
   Future<void> tapButtonWithName(

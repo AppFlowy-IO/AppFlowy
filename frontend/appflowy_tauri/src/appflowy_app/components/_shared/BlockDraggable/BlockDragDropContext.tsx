@@ -94,8 +94,12 @@ function BlockDragDropContext({ children }: { children: React.ReactNode }) {
     const draggingNode = document.querySelector(`[data-draggable-id="${draggingId}"]`);
 
     if (!draggingNode) return;
+    const nodeWidth = draggingNode.clientWidth;
+    const nodeHeight = draggingNode.clientHeight;
     const clone = draggingNode.cloneNode(true);
 
+    shadow.style.width = `${nodeWidth}px`;
+    shadow.style.height = `${nodeHeight}px`;
     shadow.appendChild(clone);
   }, [dragShadowVisible, draggingId]);
 
@@ -111,7 +115,6 @@ function BlockDragDropContext({ children }: { children: React.ReactNode }) {
           pointerEvents: 'none',
           opacity: dragShadowVisible ? 1 : 0,
           zIndex: 1000,
-          width: '100%',
         }}
       />
     </>

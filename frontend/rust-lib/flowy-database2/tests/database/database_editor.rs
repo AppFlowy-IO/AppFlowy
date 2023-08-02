@@ -331,6 +331,7 @@ impl<'a> TestRowBuilder<'a> {
       date: Some(data.to_string()),
       time,
       include_time,
+      clear_flag: None,
     })
     .unwrap();
     let date_field = self.field_with_type(field_type);

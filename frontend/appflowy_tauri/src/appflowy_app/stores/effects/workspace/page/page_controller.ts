@@ -72,16 +72,22 @@ export class PageController {
     return this.getPage(parentPageId);
   };
 
-  subscribe = async (callbacks: { onChildPagesChanged?: (childPages: Page[]) => void }) => {
-    const onChildPagesChanged = async () => {
+  subscribe = async (callbacks: {
+    onChildPagesChanged?: (childPages: Page[]) => void;
+    onPageChanged?: (page: Page) => void;
+  }) => {
+    const onChanged = async () => {
+      const page = await this.getPage();
       const childPages = await this.getChildPages();
 
+      callbacks.onPageChanged?.(page);
       callbacks.onChildPagesChanged?.(childPages);
     };
 
-    this.onChangeQueue = new AsyncQueue(onChildPagesChanged);
+    this.onChangeQueue = new AsyncQueue(onChanged);
     await this.observer.subscribeView(this.id, {
       didUpdateChildViews: this.didUpdateChildPages,
+      didUpdateView: this.didUpdateView,
     });
   };
 
@@ -121,6 +127,10 @@ export class PageController {
   };
 
   private didUpdateChildPages = (payload: Uint8Array) => {
+    this.onChangeQueue?.enqueue(Math.random());
+  };
+
+  private didUpdateView = (payload: Uint8Array) => {
     this.onChangeQueue?.enqueue(Math.random());
   };
 }

@@ -21,6 +21,8 @@ interface Attributes {
   link_placeholder?: string;
   temporary?: boolean;
   formula?: string;
+  font_color?: string;
+  bg_color?: string;
 }
 interface TextLeafProps extends RenderLeafProps {
   leaf: BaseText & Attributes;
@@ -122,7 +124,15 @@ const TextLeaf = (props: TextLeafProps) => {
   }
 
   return (
-    <span ref={ref} {...customAttributes} className={className.join(' ')}>
+    <span
+      style={{
+        backgroundColor: leaf.bg_color,
+        color: leaf.font_color,
+      }}
+      ref={ref}
+      {...customAttributes}
+      className={className.join(' ')}
+    >
       {newChildren}
     </span>
   );

@@ -9,7 +9,7 @@ import 'util/database_test_op.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid', () {
+  group('database filter', () {
     testWidgets('add text filter', (tester) async {
       await tester.openV020database();
 

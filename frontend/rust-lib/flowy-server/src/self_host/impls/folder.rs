@@ -1,17 +1,18 @@
-use flowy_error::FlowyError;
-use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
-use flowy_folder2::gen_workspace_id;
+use anyhow::Error;
+use flowy_folder_deps::cloud::{
+  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+};
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
 pub(crate) struct SelfHostedServerFolderCloudServiceImpl();
 
 impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
-  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
+  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let name = name.to_string();
     FutureResult::new(async move {
       Ok(Workspace {
-        id: gen_workspace_id(),
+        id: gen_workspace_id().to_string(),
         name: name.to_string(),
         child_views: Default::default(),
         created_at: timestamp(),
@@ -19,14 +20,14 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     })
   }
 
-  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 
   fn get_folder_latest_snapshot(
     &self,
     _workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<FolderSnapshot>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 
@@ -34,7 +35,7 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     &self,
     _workspace_id: &str,
     _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

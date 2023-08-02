@@ -13,29 +13,8 @@ use flowy_user::entities::{
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
-use flowy_user::services::AuthType;
+use flowy_user_deps::entities::AuthType;
 
-/// In order to run this test, you need to create a .env.test file in the root directory of this project
-/// and add the following environment variables:
-/// - SUPABASE_URL
-/// - SUPABASE_ANON_KEY
-/// - SUPABASE_KEY
-/// - SUPABASE_JWT_SECRET
-/// - SUPABASE_DB
-/// - SUPABASE_DB_USER
-/// - SUPABASE_DB_PORT
-/// - SUPABASE_DB_PASSWORD
-///
-/// the .env.test file should look like this:
-/// SUPABASE_URL=https://<your-supabase-url>.supabase.co
-/// SUPABASE_ANON_KEY=<your-supabase-anon-key>
-/// SUPABASE_KEY=<your-supabase-key>
-/// SUPABASE_JWT_SECRET=<your-supabase-jwt-secret>
-/// SUPABASE_DB=db.xxx.supabase.co
-/// SUPABASE_DB_USER=<your-supabase-db-user>
-/// SUPABASE_DB_PORT=<your-supabase-db-port>
-/// SUPABASE_DB_PASSWORD=<your-supabase-db-password>
-///
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
   dotenv::from_path(".env.test").ok()?;
   SupabaseConfiguration::from_env().ok()
@@ -76,12 +55,16 @@ impl FlowySupabaseTest {
       .try_parse::<UserProfilePB>()
   }
 
-  pub async fn update_user_profile(&self, payload: UpdateUserProfilePayloadPB) {
+  pub async fn update_user_profile(
+    &self,
+    payload: UpdateUserProfilePayloadPB,
+  ) -> Option<FlowyError> {
     EventBuilder::new(self.inner.clone())
       .event(UpdateUserProfile)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
   }
 }
 

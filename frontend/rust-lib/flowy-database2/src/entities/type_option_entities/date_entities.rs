@@ -35,6 +35,9 @@ pub struct DateChangesetPB {
 
   #[pb(index = 4, one_of)]
   pub include_time: Option<bool>,
+
+  #[pb(index = 5, one_of)]
+  pub clear_flag: Option<bool>,
 }
 
 // Date

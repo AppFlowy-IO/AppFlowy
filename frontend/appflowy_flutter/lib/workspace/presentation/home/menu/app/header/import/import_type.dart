@@ -43,6 +43,7 @@ enum ImportType {
         }
         return FlowySvg(
           name: name,
+          color: Theme.of(context).colorScheme.tertiary,
         );
       };
 

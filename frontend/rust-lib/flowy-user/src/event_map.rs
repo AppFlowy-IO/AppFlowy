@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
 use strum_macros::Display;
@@ -6,16 +6,15 @@ use strum_macros::Display;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
-use lib_infra::box_any::BoxAny;
-use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::future::{to_fut, Fut};
 
-use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
 use crate::event_handler::*;
-use crate::services::AuthType;
 use crate::{errors::FlowyError, services::UserSession};
 
-pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
+pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
   AFPlugin::new()
     .name("Flowy-User")
     .state(user_session)
@@ -32,6 +31,17 @@ pub fn init(user_session: Arc<UserSession>) -> AFPlugin {
     .event(UserEvent::SetSupabaseConfig, set_supabase_config_handler)
     .event(UserEvent::GetSupabaseConfig, get_supabase_config_handler)
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
+    .event(
+      UserEvent::GetAllUserWorkspaces,
+      get_all_user_workspace_handler,
+    )
+    .event(UserEvent::OpenWorkspace, open_workspace_handler)
+    .event(UserEvent::AddUserToWorkspace, add_user_to_workspace_handler)
+    .event(
+      UserEvent::RemoveUserToWorkspace,
+      remove_user_from_workspace_handler,
+    )
+    .event(UserEvent::UpdateNetworkState, update_network_state_handler)
 }
 
 pub struct SignUpContext {
@@ -48,13 +58,20 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn auth_type_did_changed(&self, auth_type: AuthType);
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
-  fn did_init(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed in.
-  fn did_sign_in(&self, user_id: i64, workspace_id: &str) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed up.
-  fn did_sign_up(&self, context: SignUpContext, user_profile: &UserProfile)
-    -> Fut<FlowyResult<()>>;
+  fn did_sign_up(
+    &self,
+    context: SignUpContext,
+    user_profile: &UserProfile,
+    user_workspace: &UserWorkspace,
+  ) -> Fut<FlowyResult<()>>;
+
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  fn did_update_network(&self, reachable: bool);
 }
 
 /// The user cloud service provider.
@@ -62,7 +79,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration);
   fn set_auth_type(&self, auth_type: AuthType);
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError>;
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -77,75 +94,9 @@ where
     (**self).set_auth_type(auth_type)
   }
 
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
-    (**self).get_auth_service()
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+    (**self).get_user_service()
   }
-}
-
-#[derive(Clone, Debug)]
-pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is SelfHosted
-  pub token: Option<String>,
-
-  /// The user id
-  pub uid: Option<i64>,
-
-  /// The user id
-  pub uuid: Option<String>,
-}
-
-impl UserCredentials {
-  pub fn from_uid(uid: i64) -> Self {
-    Self {
-      token: None,
-      uid: Some(uid),
-      uuid: None,
-    }
-  }
-
-  pub fn from_uuid(uuid: String) -> Self {
-    Self {
-      token: None,
-      uid: None,
-      uuid: Some(uuid),
-    }
-  }
-
-  pub fn new(token: Option<String>, uid: Option<i64>, uuid: Option<String>) -> Self {
-    Self { token, uid, uuid }
-  }
-}
-
-/// Provide the generic interface for the user cloud service
-/// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserAuthService: Send + Sync {
-  /// Sign up a new account.
-  /// The type of the params is defined the this trait's implementation.
-  /// Use the `unbox_or_error` of the [BoxAny] to get the params.
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, FlowyError>;
-
-  /// Sign in an account
-  /// The type of the params is defined the this trait's implementation.
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, FlowyError>;
-
-  /// Sign out an account
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), FlowyError>;
-
-  /// Using the user's token to update the user information
-  fn update_user(
-    &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
-  ) -> FutureResult<(), FlowyError>;
-
-  /// Get the user information using the user's token or uid
-  /// return None if the user is not found
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError>;
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), FlowyError>;
 }
 
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
@@ -153,11 +104,11 @@ pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
-  fn did_init(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_init(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
-  fn did_sign_in(&self, _user_id: i64, _workspace_id: &str) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
@@ -165,6 +116,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     &self,
     _context: SignUpContext,
     _user_profile: &UserProfile,
+    _user_workspace: &UserWorkspace,
   ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
@@ -172,6 +124,12 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
+
+  fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_update_network(&self, _reachable: bool) {}
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -229,4 +187,20 @@ pub enum UserEvent {
 
   #[event(output = "SupabaseConfigPB")]
   GetSupabaseConfig = 14,
+
+  /// Return the all the workspaces of the user
+  #[event()]
+  GetAllUserWorkspaces = 20,
+
+  #[event(input = "UserWorkspacePB")]
+  OpenWorkspace = 21,
+
+  #[event(input = "AddWorkspaceUserPB")]
+  AddUserToWorkspace = 22,
+
+  #[event(input = "RemoveWorkspaceUserPB")]
+  RemoveUserToWorkspace = 23,
+
+  #[event(input = "NetworkStatePB")]
+  UpdateNetworkState = 24,
 }
