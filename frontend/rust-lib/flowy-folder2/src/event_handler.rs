@@ -150,6 +150,7 @@ pub(crate) async fn delete_view_handler(
   }
   Ok(())
 }
+
 pub(crate) async fn toggle_favorites_handler(
   data: AFPluginData<RepeatedViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -161,6 +162,7 @@ pub(crate) async fn toggle_favorites_handler(
   }
   Ok(())
 }
+
 pub(crate) async fn set_latest_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,

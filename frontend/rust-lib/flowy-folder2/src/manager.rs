@@ -370,9 +370,10 @@ impl FolderManager {
         .await?;
     }
 
+    let index = params.index;
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), index);
     });
 
     Ok(view)
@@ -393,7 +394,7 @@ impl FolderManager {
       .await?;
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     Ok(view)
   }
@@ -625,6 +626,14 @@ impl FolderManager {
 
     let handler = self.get_handler(&view.layout)?;
     let view_data = handler.duplicate_view(&view.id).await?;
+
+    // get the current view index in the parent view, because we need to insert the duplicated view below the current view.
+    let index = if let Some((_, __, views)) = self.get_view_relation(&view.parent_view_id).await {
+      views.iter().position(|id| id == view_id).map(|i| i as u32)
+    } else {
+      None
+    };
+
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
@@ -634,9 +643,10 @@ impl FolderManager {
       view_id: gen_view_id(),
       meta: Default::default(),
       set_as_current: true,
+      index,
     };
 
-    let _ = self.create_view_with_params(duplicate_params).await?;
+    self.create_view_with_params(duplicate_params).await?;
     Ok(())
   }
 
@@ -794,11 +804,12 @@ impl FolderManager {
       view_id,
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     };
 
     let view = create_view(params, import_data.view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)

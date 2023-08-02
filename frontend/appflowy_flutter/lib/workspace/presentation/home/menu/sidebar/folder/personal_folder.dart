@@ -3,6 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -40,9 +41,9 @@ class _PersonalFolderState extends State<PersonalFolder> {
           ...widget.views.map(
             (view) => ViewItem(
               key: ValueKey(
-                '${ViewItemCategoryType.personal.name} ${view.id}',
+                '${SidebarFolderCategoryType.personal.name} ${view.id}',
               ),
-              categoryType: ViewItemCategoryType.personal,
+              categoryType: SidebarFolderCategoryType.personal,
               isFirstChild: view.id == widget.views.first.id,
               view: view,
               level: 0,

@@ -34,6 +34,10 @@ class ViewBackendService {
     /// the database id. For example: "database_id": "xxx"
     ///
     Map<String, String> ext = const {},
+
+    /// The [index] is the index of the view in the parent view.
+    /// If the index is null, the view will be added to the end of the list.
+    int? index,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -45,6 +49,14 @@ class ViewBackendService {
 
     if (ext.isNotEmpty) {
       payload.meta.addAll(ext);
+    }
+
+    if (desc != null) {
+      payload.desc = desc;
+    }
+
+    if (index != null) {
+      payload.index = index;
     }
 
     return FolderEventCreateView(payload).send();
@@ -182,39 +194,49 @@ class ViewBackendService {
     return FolderEventMoveNestedView(payload).send();
   }
 
-  Future<List<(ViewPB, List<ViewPB>)>> fetchViewsWithLayoutType(
+  Future<List<ViewPB>> fetchViewsWithLayoutType(
     ViewLayoutPB? layoutType,
   ) async {
-    return fetchViews((workspace, view) {
-      if (layoutType != null) {
-        return view.layout == layoutType;
-      }
-      return true;
-    });
+    final views = await fetchViews();
+    if (layoutType == null) {
+      return views;
+    }
+    return views
+        .where(
+          (element) => layoutType == element.layout,
+        )
+        .toList();
   }
 
-  Future<List<(ViewPB, List<ViewPB>)>> fetchViews(
-    bool Function(WorkspaceSettingPB workspace, ViewPB view) filter,
-  ) async {
-    final result = <(ViewPB, List<ViewPB>)>[];
+  Future<List<ViewPB>> fetchViews() async {
+    final result = <ViewPB>[];
     return FolderEventGetCurrentWorkspace().send().then((value) async {
       final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
       if (workspaces != null) {
         final views = workspaces.workspace.views;
         for (final view in views) {
-          final childViews = await getChildViews(viewId: view.id).then(
-            (value) => value
-                .getLeftOrNull<List<ViewPB>>()
-                ?.where((e) => filter(workspaces, e))
-                .toList(),
-          );
-          if (childViews != null && childViews.isNotEmpty) {
-            result.add((view, childViews));
-          }
+          result.add(view);
+          final childViews = await getAllViews(view);
+          result.addAll(childViews);
         }
       }
       return result;
     });
+  }
+
+  Future<List<ViewPB>> getAllViews(ViewPB view) async {
+    final result = <ViewPB>[];
+    final childViews = await getChildViews(viewId: view.id).then(
+      (value) => value.getLeftOrNull<List<ViewPB>>()?.toList(),
+    );
+    if (childViews != null && childViews.isNotEmpty) {
+      result.addAll(childViews);
+      final views = await Future.wait(
+        childViews.map((e) async => await getAllViews(e)),
+      );
+      result.addAll(views.expand((element) => element));
+    }
+    return result;
   }
 
   static Future<Either<ViewPB, FlowyError>> getView(

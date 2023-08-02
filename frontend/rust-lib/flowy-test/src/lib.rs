@@ -190,6 +190,7 @@ impl FlowyCoreTest {
       initial_data: vec![],
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -214,6 +215,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     let view = EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -246,6 +248,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -275,6 +278,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -299,6 +303,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)

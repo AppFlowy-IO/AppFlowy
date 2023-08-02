@@ -41,7 +41,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         createApp: (_CreateApp event) async {
           final result = await _workspaceService.createApp(
             name: event.name,
-            desc: event.desc ?? "",
+            desc: event.desc,
+            index: 0, // default to the first index
           );
           result.fold(
             (app) => emit(state.copyWith(plugin: app.plugin())),

@@ -82,23 +82,16 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   final _focusNode = FocusNode(debugLabel: 'reference_list_widget');
   EditorStyle get style => widget.editorState.editorStyle;
   int _selectedIndex = 0;
-  int _totalItems = 0;
-  Future<List<(ViewPB, List<ViewPB>)>>? _availableLayout;
-  final Map<int, (ViewPB, ViewPB)> _items = {};
+  final int _totalItems = 0;
+  Future<List<ViewPB>>? _availableLayout;
+  final List<ViewPB> _items = [];
 
-  Future<List<(ViewPB, List<ViewPB>)>> fetchItems() async {
+  Future<List<ViewPB>> fetchItems() async {
     final items =
         await ViewBackendService().fetchViewsWithLayoutType(widget.layoutType);
-
-    int index = 0;
-    for (final (app, children) in items) {
-      for (final view in children) {
-        _items.putIfAbsent(index, () => (app, view));
-        index += 1;
-      }
-    }
-
-    _totalItems = _items.length;
+    _items
+      ..clear()
+      ..addAll(items);
     return items;
   }
 
@@ -176,8 +169,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       newSelectedIndex %= _totalItems;
     } else if (event.logicalKey == LogicalKeyboardKey.enter) {
       widget.onSelected(
-        _items[_selectedIndex]!.$1,
-        _items[_selectedIndex]!.$2,
+        _items[_selectedIndex],
+        _items[_selectedIndex],
       );
     }
 
@@ -191,10 +184,10 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   Widget _buildListWidget(
     BuildContext context,
     int selectedIndex,
-    Future<List<(ViewPB, List<ViewPB>)>>? items,
+    Future<List<ViewPB>>? items,
   ) {
     int index = 0;
-    return FutureBuilder<List<(ViewPB, List<ViewPB>)>>(
+    return FutureBuilder<List<ViewPB>>(
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
@@ -211,35 +204,23 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
           ];
 
           if (views != null && views.isNotEmpty) {
-            for (final (view, viewChildren) in views) {
-              if (viewChildren.isNotEmpty) {
-                children.add(
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: FlowyText.regular(
-                      view.name,
-                    ),
+            for (final view in views) {
+              children.add(
+                FlowyButton(
+                  isSelected: index == _selectedIndex,
+                  leftIcon: svgWidget(
+                    view.iconName,
+                    color: Theme.of(context).iconTheme.color,
                   ),
-                );
+                  text: FlowyText.regular(view.name),
+                  onTap: () => widget.onSelected(view, view),
+                ),
+              );
 
-                for (final value in viewChildren) {
-                  children.add(
-                    FlowyButton(
-                      isSelected: index == _selectedIndex,
-                      leftIcon: svgWidget(
-                        value.iconName,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
-                      text: FlowyText.regular(value.name),
-                      onTap: () => widget.onSelected(view, value),
-                    ),
-                  );
-
-                  index += 1;
-                }
-              }
+              index += 1;
             }
           }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: children,
