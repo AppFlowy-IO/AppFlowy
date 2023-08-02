@@ -15,7 +15,7 @@ enum ViewMoreActionType {
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
-  String name() {
+  String get name {
     switch (this) {
       case ViewMoreActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();

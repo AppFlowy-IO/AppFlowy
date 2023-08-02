@@ -1,6 +1,3 @@
-import 'package:appflowy/plugins/trash/menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
-
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -193,14 +190,25 @@ extension CommonOperations on WidgetTester {
   /// Tap the delete page button.
   Future<void> tapDeletePageButton() async {
     await tapPageOptionButton();
-    await tapButtonWithName(ViewDisclosureAction.delete.name());
+    await tapButtonWithName(ViewMoreActionType.delete.name);
   }
 
   /// Tap the rename page button.
   Future<void> tapRenamePageButton() async {
     await tapPageOptionButton();
-    await tapButtonWithName(ViewDisclosureAction.rename.name());
-    await tapButtonWithName(ViewMoreActionType.rename.name());
+    await tapButtonWithName(ViewMoreActionType.rename.name);
+  }
+
+  /// Tap the favorite page button
+  Future<void> tapFavoritePageButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewMoreActionType.favorite.name);
+  }
+
+  /// Tap the unfavorite page button
+  Future<void> tapUnfavoritePageButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewMoreActionType.unFavorite.name);
   }
 
   /// Rename the page.
@@ -336,41 +344,27 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> favoriteViewByName(String name) async {
-    await hoverOnPageName(name);
-    await tap(find.byType(ViewDisclosureButton));
-    await pumpAndSettle();
-    await tap(find.text(LocaleKeys.disclosureAction_favorite.tr()));
-    await pumpAndSettle();
-  }
-
-  Future<void> unfavoriteViewsByName(String name) async {
-    await hoverOnPageName(name);
-    await tap(find.byType(ViewDisclosureButton));
-    await pumpAndSettle();
-    await tap(find.text(LocaleKeys.disclosureAction_unfavorite.tr()));
-    await pumpAndSettle();
-  }
-
-  Future<void> expandFavorites() async {
-    final target = find.byType(FavoriteHeader, skipOffstage: false);
-    await tapButton(target);
-    await pumpAndSettle();
-  }
-
-  Future<void> openTrashAndRestoreAll() async {
-    final target = find.byType(MenuTrash, skipOffstage: false);
-    await tapButton(target);
-    await pumpAndSettle();
-    final restoreButton = find.textContaining(
-      "Restore All",
+  Future<void> favoriteViewByName(String name, [ViewLayoutPB? layout]) async {
+    await hoverOnPageName(
+      name,
+      layout: layout ?? ViewLayoutPB.Document,
+      onHover: () async {
+        await tapFavoritePageButton();
+        await pumpAndSettle();
+      },
     );
-    await tapButton(restoreButton);
   }
 
-  Future<void> openContextMenuOnRootView(String name) async {
-    await hoverOnPageName(name);
-    await tap(find.findTextInFlowyText(name), buttons: kSecondaryButton);
+  Future<void> unfavoriteViewsByName(String name,
+      [ViewLayoutPB? layout]) async {
+    await hoverOnPageName(
+      name,
+      layout: layout ?? ViewLayoutPB.Document,
+      onHover: () async {
+        await tapUnfavoritePageButton();
+        await pumpAndSettle();
+      },
+    );
   }
 
   Future<void> movePageToOtherPage({

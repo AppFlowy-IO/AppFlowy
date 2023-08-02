@@ -1,17 +1,13 @@
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/base.dart';
 import 'util/common_operations.dart';
+import 'util/expectation.dart';
 
-const _readmeName = 'Read me';
-const _calendarName = 'Calendar';
-
+const String gettingStated = '⭐️ Getting started';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -23,63 +19,65 @@ void main() {
       await tester.tapGoButton();
 
       expect(
-        find.byType(
-          FavoriteHeader,
-          skipOffstage: false,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ViewItem &&
+              widget.view.isFavorite &&
+              widget.key.toString().contains('favorite'),
         ),
         findsNothing,
       );
+      await tester.pumpAndSettle();
 
-      await tester.createNewPageWithName(
-        name: _calendarName,
-        layout: ViewLayoutPB.Calendar,
-      );
-      await tester.favoriteViewByName(_calendarName);
+      final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
+      for (var i = 0; i < names.length; i++) {
+        final parentName = i == 0 ? gettingStated : names[i - 1];
+        await tester.createNewPageWithName(
+          name: names[i],
+          parentName: parentName,
+          layout: ViewLayoutPB.Document,
+        );
+        tester.expectToSeePageName(names[i], parentName: parentName);
+      }
+
+      await tester.pumpAndSettle();
+      await tester.favoriteViewByName(gettingStated);
 
       expect(
-        find.byType(
-          FavoriteHeader,
-          skipOffstage: false,
+        tester.findFavoritePageName(
+          gettingStated,
         ),
         findsOneWidget,
       );
 
-      await tester.expandFavorites();
+      await tester.favoriteViewByName(names[3]);
 
       expect(
-        find.descendant(
-          of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-          matching: find.text(_calendarName),
-          skipOffstage: false,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ViewItem &&
+              widget.view.isFavorite &&
+              widget.key.toString().contains('favorite'),
+        ),
+        findsNWidgets(3),
+      );
+      await tester.unfavoriteViewsByName(gettingStated);
+
+      expect(
+        tester.findFavoritePageName(
+          names[3],
         ),
         findsOneWidget,
       );
 
-      await tester.favoriteViewByName(_readmeName);
+      await tester.unfavoriteViewsByName(names[3]);
 
       expect(
-        find.descendant(
-          of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-          matching: find.text(_readmeName),
-          skipOffstage: false,
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-          matching: find.byType(ViewSectionItem),
-          skipOffstage: false,
-        ),
-        findsNWidgets(2),
-      );
-      await tester.unfavoriteViewsByName(_readmeName);
-      await tester.unfavoriteViewsByName(_calendarName);
-
-      expect(
-        find.byType(
-          FavoriteHeader,
-          skipOffstage: false,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ViewItem &&
+              widget.view.isFavorite &&
+              widget.key.toString().contains('favorite'),
         ),
         findsNothing,
       );
@@ -91,33 +89,69 @@ void main() {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
+        final names = [1, 2].map((e) => 'document_$e').toList();
+        for (var i = 0; i < names.length; i++) {
+          final parentName = i == 0 ? gettingStated : names[i - 1];
+          await tester.createNewPageWithName(
+            name: names[i],
+            parentName: parentName,
+            layout: ViewLayoutPB.Document,
+          );
+          tester.expectToSeePageName(names[i], parentName: parentName);
+        }
         expect(
-          find.byType(
-            FavoriteHeader,
-            skipOffstage: false,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ViewItem &&
+                widget.view.isFavorite &&
+                widget.key.toString().contains('favorite'),
           ),
           findsNothing,
         );
 
-        await tester.favoriteViewByName(_readmeName);
+        await tester.pumpAndSettle();
+        await tester.favoriteViewByName(gettingStated);
 
         expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.findTextInFlowyText(_readmeName),
-            skipOffstage: false,
+          tester.findFavoritePageName(
+            gettingStated,
           ),
           findsOneWidget,
         );
-        await tester.hoverOnPageName(_readmeName);
-        await tester.renamePage("Test1");
+        await tester.hoverOnPageName(
+          gettingStated,
+          layout: ViewLayoutPB.Document,
+          onHover: () async {
+            await tester.renamePage("test");
+            await tester.pumpAndSettle();
+          },
+        );
+        await tester.pumpAndSettle();
         expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.text("Test1"),
-            skipOffstage: false,
+          tester.findPageName(
+            "test",
           ),
-          findsOneWidget,
+          findsNWidgets(2),
+        );
+
+        await tester.pumpAndSettle();
+        await tester.favoriteViewByName(names[1]);
+
+        await tester.hoverOnPageName(
+          names[1],
+          layout: ViewLayoutPB.Document,
+          onHover: () async {
+            await tester.renamePage("test2");
+            await tester.pumpAndSettle();
+          },
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.findPageName(
+            "test2",
+          ),
+          findsNWidgets(3),
         );
       },
     );
@@ -129,70 +163,73 @@ void main() {
         await tester.tapGoButton();
 
         expect(
-          find.byType(
-            FavoriteHeader,
-            skipOffstage: false,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ViewItem &&
+                widget.view.isFavorite &&
+                widget.key.toString().contains('favorite'),
           ),
           findsNothing,
         );
 
-        await tester.createNewPageWithName(
-          layout: ViewLayoutPB.Calendar,
-          name: _calendarName,
-        );
-        await tester.favoriteViewByName(_calendarName);
-        await tester.favoriteViewByName(_readmeName);
+        final names = [1, 2].map((e) => 'document_$e').toList();
+        for (var i = 0; i < names.length; i++) {
+          final parentName = i == 0 ? gettingStated : names[i - 1];
+          await tester.createNewPageWithName(
+            name: names[i],
+            parentName: parentName,
+            layout: ViewLayoutPB.Document,
+          );
+          tester.expectToSeePageName(names[i], parentName: parentName);
+        }
+        await tester.favoriteViewByName(gettingStated);
+        await tester.favoriteViewByName(names[0]);
+        await tester.favoriteViewByName(names[1]);
 
         expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.byType(ViewSectionItem),
-            skipOffstage: false,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ViewItem &&
+                widget.view.isFavorite &&
+                widget.key.toString().contains('favorite'),
           ),
-          findsNWidgets(2),
+          findsNWidgets(6),
         );
-        await tester.hoverOnPageName(_readmeName);
-        await tester.tapDeletePageButton();
+
+        await tester.hoverOnPageName(
+          names[1],
+          layout: ViewLayoutPB.Document,
+          onHover: () async {
+            await tester.tapDeletePageButton();
+            await tester.pumpAndSettle();
+          },
+        );
 
         expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.byType(ViewSectionItem),
-            skipOffstage: false,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ViewItem &&
+                widget.view.isFavorite &&
+                widget.key.toString().contains('favorite'),
           ),
-          findsOneWidget,
+          findsNWidgets(3),
         );
 
-        await tester.openTrashAndRestoreAll();
-
-        expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.byType(ViewSectionItem),
-            skipOffstage: false,
-          ),
-          findsOneWidget,
+        await tester.hoverOnPageName(
+          gettingStated,
+          layout: ViewLayoutPB.Document,
+          onHover: () async {
+            await tester.tapDeletePageButton();
+            await tester.pumpAndSettle();
+          },
         );
 
-        await tester.openContextMenuOnRootView('⭐️ Getting started');
-        await tester.tapButtonWithName(ViewDisclosureAction.delete.name());
-        await tester.pumpAndSettle();
-
         expect(
-          find.byType(
-            FavoriteHeader,
-            skipOffstage: false,
-          ),
-          findsNothing,
-        );
-
-        await tester.openTrashAndRestoreAll();
-
-        expect(
-          find.descendant(
-            of: find.byType(BlocBuilder<FavoriteBloc, FavoriteState>),
-            matching: find.byType(ViewSectionItem),
-            skipOffstage: false,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ViewItem &&
+                widget.view.isFavorite &&
+                widget.key.toString().contains('favorite'),
           ),
           findsNothing,
         );

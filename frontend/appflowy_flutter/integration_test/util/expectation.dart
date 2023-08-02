@@ -148,6 +148,39 @@ extension Expectation on WidgetTester {
   }
 
   /// Find the page name on the home page.
+
+  Finder findFavoritePageName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    String? parentName,
+    ViewLayoutPB parentLayout = ViewLayoutPB.Document,
+  }) {
+    if (parentName == null) {
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewItem &&
+            widget.view.isFavorite &&
+            widget.key.toString().contains('favorite') &&
+            widget.view.name == name &&
+            widget.view.layout == layout,
+        skipOffstage: false,
+      );
+    }
+
+    return find.descendant(
+      of: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewItem &&
+            widget.view.isFavorite &&
+            widget.key.toString().contains('favorite') &&
+            widget.view.name == name &&
+            widget.view.layout == layout,
+        skipOffstage: false,
+      ),
+      matching: findPageName(name),
+    );
+  }
+
   Finder findPageName(
     String name, {
     ViewLayoutPB layout = ViewLayoutPB.Document,

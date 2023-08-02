@@ -68,5 +68,5 @@ class ViewMoreActionTypeWrapper extends ActionCell {
   Widget? leftIcon(Color iconColor) => inner.icon(iconColor);
 
   @override
-  String get name => inner.name();
+  String get name => inner.name;
 }
