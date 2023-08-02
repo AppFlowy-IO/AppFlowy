@@ -70,6 +70,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
+    "unfavorite": "Remove from favorites",
+    "favorite": "Add to favorites",
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
@@ -154,6 +156,7 @@
     "personal": "Personal",
     "favorites": "Favorites",
     "clickToHidePersonal": "Click to hide personal section",
+    "clickToHideFavorites": "Click to hide favorite section",
     "addAPage": "Add a page"
   },
   "notifications": {

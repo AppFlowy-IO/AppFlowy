@@ -15,7 +15,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
@@ -155,11 +154,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           onSelected: (action, controller) async {
             switch (action.inner) {
               case _ActionType.viewDatabase:
-                getIt<MenuSharedState>().latestOpenView = viewPB;
-
                 getIt<TabsBloc>().add(
                   TabsEvent.openPlugin(
                     plugin: viewPB.plugin(),
+                    view: viewPB,
                   ),
                 );
                 break;

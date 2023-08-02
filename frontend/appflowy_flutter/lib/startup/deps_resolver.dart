@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -156,6 +157,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }
 
 void _resolveDocDeps(GetIt getIt) {

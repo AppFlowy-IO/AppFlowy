@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -21,6 +23,7 @@ class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
     required this.view,
+    required this.categoryType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
@@ -29,6 +32,8 @@ class ViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
+
+  final FolderCategoryType categoryType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -53,11 +58,10 @@ class ViewItem extends StatelessWidget {
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerViewItem(
-            view: view,
+            view: state.view,
+            childViews: state.childViews,
+            categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
@@ -76,6 +80,8 @@ class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
     required this.view,
+    required this.childViews,
+    required this.categoryType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
@@ -86,6 +92,8 @@ class InnerViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
+  final List<ViewPB> childViews;
+  final FolderCategoryType categoryType;
 
   final bool isDraggable;
   final bool isExpanded;
@@ -108,11 +116,11 @@ class InnerViewItem extends StatelessWidget {
     );
 
     // if the view is expanded and has child views, render its child views
-    final childViews = view.childViews;
     if (isExpanded && childViews.isNotEmpty) {
       final children = childViews.map((childView) {
         return ViewItem(
-          key: ValueKey(childView.id),
+          key: ValueKey('${categoryType.name} ${childView.id}'),
+          categoryType: categoryType,
           isFirstChild: childView.id == childViews.first.id,
           view: childView,
           level: level + 1,
@@ -139,11 +147,18 @@ class InnerViewItem extends StatelessWidget {
         feedback: (context) {
           return ViewItem(
             view: view,
+            categoryType: categoryType,
             level: level,
             onSelected: onSelected,
             isDraggable: false,
           );
         },
+      );
+    } else {
+      // keep the same height of the DraggableItem
+      child = Padding(
+        padding: const EdgeInsets.only(top: 2.0),
+        child: child,
       );
     }
 
@@ -218,7 +233,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       children.add(_buildViewAddButton(context));
     }
 
-    return GestureDetector(
+    // Don't use GestureDetector here, because it doesn't response to the tap event sometimes.
+    return InkWell(
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: 26,
@@ -284,10 +300,17 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
+        view: widget.view,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
           switch (action) {
+            case ViewMoreActionType.favorite:
+            case ViewMoreActionType.unFavorite:
+              context
+                  .read<FavoriteBloc>()
+                  .add(FavoriteEvent.toggle(widget.view));
+              break;
             case ViewMoreActionType.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),

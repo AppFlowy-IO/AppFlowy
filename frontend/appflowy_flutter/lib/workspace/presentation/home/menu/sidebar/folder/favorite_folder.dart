@@ -2,18 +2,17 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PersonalFolder extends StatelessWidget {
-  const PersonalFolder({
+class FavoriteFolder extends StatelessWidget {
+  const FavoriteFolder({
     super.key,
     required this.views,
   });
@@ -22,8 +21,11 @@ class PersonalFolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (views.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.personal)
+      create: (context) => FolderBloc(type: FolderCategoryType.favorite)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -31,7 +33,7 @@ class PersonalFolder extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
-              PersonalFolderHeader(
+              FavoriteHeader(
                 onPressed: () => context
                     .read<FolderBloc>()
                     .add(const FolderEvent.expandOrUnExpand()),
@@ -43,19 +45,18 @@ class PersonalFolder extends StatelessWidget {
                 ...views.map(
                   (view) => ViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.personal.name} ${view.id}',
+                      '${FolderCategoryType.favorite.name} ${view.id}',
                     ),
-                    categoryType: FolderCategoryType.personal,
+                    categoryType: FolderCategoryType.favorite,
+                    isDraggable: false,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,
                     onSelected: (view) {
-                      getIt<TabsBloc>().add(
-                        TabsEvent.openPlugin(
-                          plugin: view.plugin(),
-                          view: view,
-                        ),
-                      );
+                      getIt<MenuSharedState>().latestOpenView = view;
+                      context
+                          .read<MenuBloc>()
+                          .add(MenuEvent.openPage(view.plugin()));
                     },
                   ),
                 )
@@ -67,8 +68,8 @@ class PersonalFolder extends StatelessWidget {
   }
 }
 
-class PersonalFolderHeader extends StatefulWidget {
-  const PersonalFolderHeader({
+class FavoriteHeader extends StatefulWidget {
+  const FavoriteHeader({
     super.key,
     required this.onPressed,
     required this.onAdded,
@@ -78,10 +79,10 @@ class PersonalFolderHeader extends StatefulWidget {
   final VoidCallback onAdded;
 
   @override
-  State<PersonalFolderHeader> createState() => _PersonalFolderHeaderState();
+  State<FavoriteHeader> createState() => _FavoriteHeaderState();
 }
 
-class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
+class _FavoriteHeaderState extends State<FavoriteHeader> {
   bool onHover = false;
 
   @override
@@ -94,32 +95,13 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FlowyTextButton(
-            LocaleKeys.sideBar_personal.tr(),
-            tooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
+            LocaleKeys.sideBar_favorites.tr(),
+            tooltip: LocaleKeys.sideBar_clickToHideFavorites.tr(),
             constraints: const BoxConstraints(maxHeight: iconSize),
             padding: const EdgeInsets.all(4),
             fillColor: Colors.transparent,
             onPressed: widget.onPressed,
           ),
-          if (onHover) ...[
-            const Spacer(),
-            FlowyIconButton(
-              tooltipText: LocaleKeys.sideBar_addAPage.tr(),
-              hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-              iconPadding: const EdgeInsets.all(2),
-              height: iconSize,
-              width: iconSize,
-              icon: const FlowySvg(name: 'editor/add'),
-              onPressed: () {
-                context.read<MenuBloc>().add(
-                      MenuEvent.createApp(
-                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                      ),
-                    );
-                widget.onAdded();
-              },
-            ),
-          ]
         ],
       ),
     );

@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 
 enum ViewMoreActionType {
   delete,
-  addToFavorites, // not supported yet.
+  favorite,
+  unFavorite,
   duplicate,
   copyLink, // not supported yet.
   rename,
@@ -18,8 +19,10 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     switch (this) {
       case ViewMoreActionType.delete:
         return LocaleKeys.disclosureAction_delete.tr();
-      case ViewMoreActionType.addToFavorites:
-        return LocaleKeys.disclosureAction_addToFavorites.tr();
+      case ViewMoreActionType.favorite:
+        return LocaleKeys.disclosureAction_favorite.tr();
+      case ViewMoreActionType.unFavorite:
+        return LocaleKeys.disclosureAction_unfavorite.tr();
       case ViewMoreActionType.duplicate:
         return LocaleKeys.disclosureAction_duplicate.tr();
       case ViewMoreActionType.copyLink:
@@ -37,8 +40,10 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
     switch (this) {
       case ViewMoreActionType.delete:
         return const FlowySvg(name: 'editor/delete');
-      case ViewMoreActionType.addToFavorites:
-        return const Icon(Icons.favorite);
+      case ViewMoreActionType.favorite:
+        return const FlowySvg(name: 'home/unfavorite');
+      case ViewMoreActionType.unFavorite:
+        return const FlowySvg(name: 'home/favorite');
       case ViewMoreActionType.duplicate:
         return const FlowySvg(name: 'editor/copy');
       case ViewMoreActionType.copyLink:
