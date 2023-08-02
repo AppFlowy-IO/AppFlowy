@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,18 @@ class HomeHotKeys extends StatelessWidget {
         context.read<AppearanceSettingsCubit>().toggleThemeMode();
       },
     );
+
+    final HotKey closeCurrentTab = HotKey(
+      KeyCode.keyW,
+      modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+      scope: HotKeyScope.inapp,
+    );
+    hotKeyManager.register(
+      closeCurrentTab,
+      keyDownHandler: (_) =>
+          context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
+    );
+
     return child;
   }
 }
