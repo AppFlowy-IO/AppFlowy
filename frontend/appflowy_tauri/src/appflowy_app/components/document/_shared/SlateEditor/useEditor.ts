@@ -25,7 +25,6 @@ export function useEditor({
   decorateSelection,
   onKeyDown,
   isCodeBlock,
-  linkDecorateSelection,
   temporarySelection,
 }: EditorProps) {
   const { editor } = useSlateYjs({ delta });
@@ -97,10 +96,6 @@ export function useEditor({
         getDecorateRange(path, decorateSelection, {
           selection_high_lighted: true,
         }),
-        getDecorateRange(path, linkDecorateSelection?.selection, {
-          link_selection_lighted: true,
-          link_placeholder: linkDecorateSelection?.placeholder,
-        }),
         getDecorateRange(path, temporarySelection, {
           temporary: true,
         }),
@@ -108,7 +103,7 @@ export function useEditor({
 
       return ranges;
     },
-    [temporarySelection, decorateSelection, linkDecorateSelection, getDecorateRange]
+    [temporarySelection, decorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(

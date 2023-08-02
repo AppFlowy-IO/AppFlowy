@@ -22,7 +22,6 @@ function InlineContainer({
 }: {
   getSelection: (node: Element) => RangeStaticNoId | null;
   children: React.ReactNode;
-  formula: string;
   selectedText: string;
   isLast: boolean;
   isFirst: boolean;
@@ -52,7 +51,7 @@ function InlineContainer({
             selection,
             selectedText,
             type: temporaryType,
-            data: temporaryData as { latex: string },
+            data: temporaryData
           },
         })
       );

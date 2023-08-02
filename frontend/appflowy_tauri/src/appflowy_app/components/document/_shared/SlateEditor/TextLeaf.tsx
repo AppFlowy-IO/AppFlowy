@@ -1,12 +1,11 @@
 import { ReactEditor, RenderLeafProps } from 'slate-react';
 import { BaseText } from 'slate';
 import { useCallback, useRef } from 'react';
-import TextLink from '../TextLink';
 import { converToIndexLength } from '$app/utils/document/slate_editor';
-import LinkHighLight from '$app/components/document/_shared/TextLink/LinkHighLight';
 import TemporaryInput from '$app/components/document/_shared/TemporaryInput';
 import InlineContainer from '$app/components/document/_shared/InlineBlock/InlineContainer';
 import { TemporaryType } from '$app/interfaces/document';
+import LinkInline from '$app/components/document/_shared/InlineBlock/LinkInline';
 
 interface Attributes {
   bold?: boolean;
@@ -17,8 +16,6 @@ interface Attributes {
   selection_high_lighted?: boolean;
   href?: string;
   prism_token?: string;
-  link_selection_lighted?: boolean;
-  link_placeholder?: string;
   temporary?: boolean;
   formula?: string;
   font_color?: string;
@@ -69,9 +66,16 @@ const TextLeaf = (props: TextLeafProps) => {
 
   if (leaf.href) {
     newChildren = (
-      <TextLink getSelection={getSelection} title={leaf.text} href={leaf.href}>
+      <LinkInline
+        temporaryType={TemporaryType.Link}
+        getSelection={getSelection}
+        selectedText={leaf.text}
+        data={{
+          href: leaf.href,
+        }}
+      >
         {newChildren}
-      </TextLink>
+      </LinkInline>
     );
   }
 
@@ -85,7 +89,6 @@ const TextLeaf = (props: TextLeafProps) => {
         isLast={isLast}
         isFirst={text === parent.children[0]}
         getSelection={getSelection}
-        formula={leaf.formula}
         data={data}
         temporaryType={temporaryType}
         selectedText={leaf.text}
@@ -100,20 +103,11 @@ const TextLeaf = (props: TextLeafProps) => {
     leaf.prism_token && leaf.prism_token,
     leaf.strikethrough && 'line-through',
     leaf.selection_high_lighted && 'bg-content-blue-100',
-    leaf.link_selection_lighted && 'text-text-link-selector bg-content-blue-100',
     leaf.code && !leaf.temporary && 'inline-code',
     leaf.bold && 'font-bold',
     leaf.italic && 'italic',
     leaf.underline && 'underline',
   ].filter(Boolean);
-
-  if (leaf.link_placeholder && leaf.text) {
-    newChildren = (
-      <LinkHighLight leaf={leaf} title={leaf.link_placeholder}>
-        {newChildren}
-      </LinkHighLight>
-    );
-  }
 
   if (leaf.temporary) {
     newChildren = (

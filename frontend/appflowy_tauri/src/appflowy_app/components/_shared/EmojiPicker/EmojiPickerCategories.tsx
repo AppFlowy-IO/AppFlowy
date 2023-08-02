@@ -82,7 +82,11 @@ function EmojiPickerCategories({
                       return (
                         <div
                           key={emoji.id}
-                          className={`flex h-[${EMOJI_SIZE}px] w-[${EMOJI_SIZE}px] items-center justify-center`}
+                          style={{
+                            width: EMOJI_SIZE,
+                            height: EMOJI_SIZE,
+                          }}
+                          className={`flex items-center justify-center`}
                         >
                           <IconButton
                             size={'small'}
