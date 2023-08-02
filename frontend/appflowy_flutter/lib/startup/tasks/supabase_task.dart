@@ -8,7 +8,7 @@ bool isSupabaseInitialized = false;
 class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return;
     }
 

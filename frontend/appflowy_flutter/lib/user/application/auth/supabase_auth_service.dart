@@ -32,7 +32,7 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return _appFlowyAuthService.signUp(
         name: name,
         email: email,
@@ -69,7 +69,7 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return _appFlowyAuthService.signIn(
         email: email,
         password: password,
@@ -105,7 +105,7 @@ class SupabaseAuthService implements AuthService {
     AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> map = const {},
   }) async {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return _appFlowyAuthService.signUpWithOAuth(platform: platform);
     }
     final provider = platform.toProvider();
@@ -135,7 +135,7 @@ class SupabaseAuthService implements AuthService {
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Supabase,
   }) async {
-    if (isSupabaseEnable) {
+    if (isSupabaseEnabled) {
       await _auth.signOut();
     }
     await _appFlowyAuthService.signOut(

@@ -82,7 +82,7 @@ void _resolveCommonService(
 }
 
 void _resolveUserDeps(GetIt getIt) {
-  if (isSupabaseEnable) {
+  if (isSupabaseEnabled) {
     getIt.registerFactory<AuthService>(() => SupabaseAuthService());
   } else {
     getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
