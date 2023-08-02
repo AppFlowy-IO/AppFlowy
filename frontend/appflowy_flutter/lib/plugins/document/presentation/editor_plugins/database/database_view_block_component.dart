@@ -82,6 +82,11 @@ class _DatabaseBlockComponentWidgetState
       },
     );
 
+    child = Padding(
+      padding: padding,
+      child: child,
+    );
+
     if (widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
