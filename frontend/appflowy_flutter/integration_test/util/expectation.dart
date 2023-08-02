@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -160,7 +161,7 @@ extension Expectation on WidgetTester {
         (widget) =>
             widget is ViewItem &&
             widget.view.isFavorite &&
-            widget.key.toString().contains('favorite') &&
+            widget.categoryType == FolderCategoryType.favorite &&
             widget.view.name == name &&
             widget.view.layout == layout,
         skipOffstage: false,
@@ -172,7 +173,7 @@ extension Expectation on WidgetTester {
         (widget) =>
             widget is ViewItem &&
             widget.view.isFavorite &&
-            widget.key.toString().contains('favorite') &&
+            widget.categoryType == FolderCategoryType.favorite &&
             widget.view.name == name &&
             widget.view.layout == layout,
         skipOffstage: false,
