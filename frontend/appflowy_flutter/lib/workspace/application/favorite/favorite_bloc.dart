@@ -58,6 +58,12 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     );
   }
 
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
   void _onFavoritesUpdated(
     Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
     bool didFavorite,
