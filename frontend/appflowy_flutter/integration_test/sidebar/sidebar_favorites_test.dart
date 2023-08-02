@@ -1,3 +1,5 @@
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +9,6 @@ import '../util/base.dart';
 import '../util/common_operations.dart';
 import '../util/expectation.dart';
 
-const String gettingStated = '⭐️ Getting started';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -18,18 +19,14 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is ViewItem &&
-              widget.view.isFavorite &&
-              widget.key.toString().contains('favorite'),
-        ),
-        findsNothing,
-      );
-      await tester.pumpAndSettle();
+      // no favorite folder
+      expect(find.byType(FavoriteFolder), findsNothing);
 
-      final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
+      // create the nested views
+      final names = [
+        1,
+        2,
+      ].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
         final parentName = i == 0 ? gettingStated : names[i - 1];
         await tester.createNewPageWithName(
@@ -37,47 +34,42 @@ void main() {
           parentName: parentName,
           layout: ViewLayoutPB.Document,
         );
-        tester.expectToSeePageName(names[i], parentName: parentName);
+        tester.expectToSeePageName(
+          names[i],
+          parentName: parentName,
+          layout: ViewLayoutPB.Document,
+          parentLayout: ViewLayoutPB.Document,
+        );
       }
 
-      await tester.pumpAndSettle();
       await tester.favoriteViewByName(gettingStated);
+      expect(
+        tester.findFavoritePageName(gettingStated),
+        findsOneWidget,
+      );
 
+      await tester.favoriteViewByName(names[1]);
+      expect(
+        tester.findFavoritePageName(names[1]),
+        findsNWidgets(2),
+      );
+
+      await tester.unfavoriteViewByName(gettingStated);
+      expect(
+        tester.findFavoritePageName(gettingStated),
+        findsNothing,
+      );
       expect(
         tester.findFavoritePageName(
-          gettingStated,
+          names[1],
         ),
         findsOneWidget,
       );
 
-      await tester.favoriteViewByName(names[3]);
-
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is ViewItem &&
-              widget.view.isFavorite &&
-              widget.key.toString().contains('favorite'),
-        ),
-        findsNWidgets(3),
-      );
-      await tester.unfavoriteViewsByName(gettingStated);
-
+      await tester.unfavoriteViewByName(names[1]);
       expect(
         tester.findFavoritePageName(
-          names[3],
-        ),
-        findsOneWidget,
-      );
-
-      await tester.unfavoriteViewsByName(names[3]);
-
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is ViewItem &&
-              widget.view.isFavorite &&
-              widget.key.toString().contains('favorite'),
+          names[1],
         ),
         findsNothing,
       );
@@ -89,69 +81,23 @@ void main() {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
-        final names = [1, 2].map((e) => 'document_$e').toList();
-        for (var i = 0; i < names.length; i++) {
-          final parentName = i == 0 ? gettingStated : names[i - 1];
-          await tester.createNewPageWithName(
-            name: names[i],
-            parentName: parentName,
-            layout: ViewLayoutPB.Document,
-          );
-          tester.expectToSeePageName(names[i], parentName: parentName);
-        }
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.key.toString().contains('favorite'),
-          ),
-          findsNothing,
-        );
-
-        await tester.pumpAndSettle();
+        const name = 'test';
         await tester.favoriteViewByName(gettingStated);
-
-        expect(
-          tester.findFavoritePageName(
-            gettingStated,
-          ),
-          findsOneWidget,
-        );
         await tester.hoverOnPageName(
           gettingStated,
           layout: ViewLayoutPB.Document,
           onHover: () async {
-            await tester.renamePage("test");
+            await tester.renamePage(name);
             await tester.pumpAndSettle();
           },
         );
-        await tester.pumpAndSettle();
         expect(
-          tester.findPageName(
-            "test",
-          ),
+          tester.findPageName(name),
           findsNWidgets(2),
         );
-
-        await tester.pumpAndSettle();
-        await tester.favoriteViewByName(names[1]);
-
-        await tester.hoverOnPageName(
-          names[1],
-          layout: ViewLayoutPB.Document,
-          onHover: () async {
-            await tester.renamePage("test2");
-            await tester.pumpAndSettle();
-          },
-        );
-        await tester.pumpAndSettle();
-
         expect(
-          tester.findPageName(
-            "test2",
-          ),
-          findsNWidgets(3),
+          tester.findFavoritePageName(name),
+          findsNothing,
         );
       },
     );
@@ -161,16 +107,6 @@ void main() {
       (tester) async {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
-
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.key.toString().contains('favorite'),
-          ),
-          findsNothing,
-        );
 
         final names = [1, 2].map((e) => 'document_$e').toList();
         for (var i = 0; i < names.length; i++) {
@@ -191,7 +127,7 @@ void main() {
             (widget) =>
                 widget is ViewItem &&
                 widget.view.isFavorite &&
-                widget.key.toString().contains('favorite'),
+                widget.categoryType == FolderCategoryType.favorite,
           ),
           findsNWidgets(6),
         );
@@ -210,7 +146,7 @@ void main() {
             (widget) =>
                 widget is ViewItem &&
                 widget.view.isFavorite &&
-                widget.key.toString().contains('favorite'),
+                widget.categoryType == FolderCategoryType.favorite,
           ),
           findsNWidgets(3),
         );
@@ -229,7 +165,7 @@ void main() {
             (widget) =>
                 widget is ViewItem &&
                 widget.view.isFavorite &&
-                widget.key.toString().contains('favorite'),
+                widget.categoryType == FolderCategoryType.favorite,
           ),
           findsNothing,
         );

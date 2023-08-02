@@ -344,10 +344,14 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> favoriteViewByName(String name, [ViewLayoutPB? layout]) async {
+  Future<void> favoriteViewByName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+  }) async {
     await hoverOnPageName(
       name,
-      layout: layout ?? ViewLayoutPB.Document,
+      layout: layout,
+      useLast: false,
       onHover: () async {
         await tapFavoritePageButton();
         await pumpAndSettle();
@@ -355,13 +359,14 @@ extension CommonOperations on WidgetTester {
     );
   }
 
-  Future<void> unfavoriteViewsByName(
-    String name, [
-    ViewLayoutPB? layout,
-  ]) async {
+  Future<void> unfavoriteViewByName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+  }) async {
     await hoverOnPageName(
       name,
-      layout: layout ?? ViewLayoutPB.Document,
+      layout: layout,
+      useLast: false,
       onHover: () async {
         await tapUnfavoritePageButton();
         await pumpAndSettle();

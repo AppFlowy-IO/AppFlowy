@@ -148,37 +148,21 @@ extension Expectation on WidgetTester {
     expect(textWidget, findsOneWidget);
   }
 
-  /// Find the page name on the home page.
-
+  /// Find if the page is favorite
   Finder findFavoritePageName(
     String name, {
     ViewLayoutPB layout = ViewLayoutPB.Document,
     String? parentName,
     ViewLayoutPB parentLayout = ViewLayoutPB.Document,
   }) {
-    if (parentName == null) {
-      return find.byWidgetPredicate(
-        (widget) =>
-            widget is ViewItem &&
-            widget.view.isFavorite &&
-            widget.categoryType == FolderCategoryType.favorite &&
-            widget.view.name == name &&
-            widget.view.layout == layout,
-        skipOffstage: false,
-      );
-    }
-
-    return find.descendant(
-      of: find.byWidgetPredicate(
-        (widget) =>
-            widget is ViewItem &&
-            widget.view.isFavorite &&
-            widget.categoryType == FolderCategoryType.favorite &&
-            widget.view.name == name &&
-            widget.view.layout == layout,
-        skipOffstage: false,
-      ),
-      matching: findPageName(name),
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is ViewItem &&
+          widget.view.isFavorite &&
+          widget.categoryType == FolderCategoryType.favorite &&
+          widget.view.name == name &&
+          widget.view.layout == layout,
+      skipOffstage: false,
     );
   }
 

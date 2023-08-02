@@ -35,6 +35,7 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return BoardPage(
       key: _makeValueKey(controller),
