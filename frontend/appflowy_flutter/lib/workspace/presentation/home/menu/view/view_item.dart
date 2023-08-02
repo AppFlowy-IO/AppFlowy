@@ -255,6 +255,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
+      onTertiaryTapDown: (_) {
+        context.read<TabsBloc>().add(
+              TabsEvent.openTab(
+                plugin: widget.view.plugin(),
+                view: widget.view,
+              ),
+            );
+        widget.onSelected(widget.view);
+      },
       child: SizedBox(
         height: 26,
         child: Padding(
