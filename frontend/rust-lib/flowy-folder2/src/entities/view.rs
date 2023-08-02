@@ -361,7 +361,6 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
     };
 
     let cover_url = self.cover_url;
-
     let icon_url = self.icon_url;
     let is_favorite = self.is_favorite;
 
