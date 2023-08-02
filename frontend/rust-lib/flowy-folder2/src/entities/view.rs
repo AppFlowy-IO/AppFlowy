@@ -179,9 +179,14 @@ pub struct CreateViewPayloadPB {
   #[pb(index = 7)]
   pub meta: HashMap<String, String>,
 
-  /// Mark the view as current view after creation.
+  // Mark the view as current view after creation.
   #[pb(index = 8)]
   pub set_as_current: bool,
+
+  // The index of the view in the parent view.
+  // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
+  #[pb(index = 9, one_of)]
+  pub index: Option<u32>,
 }
 
 /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -214,8 +219,11 @@ pub struct CreateViewParams {
   pub view_id: String,
   pub initial_data: Vec<u8>,
   pub meta: HashMap<String, String>,
-  /// Mark the view as current view after creation.
+  // Mark the view as current view after creation.
   pub set_as_current: bool,
+  // The index of the view in the parent view.
+  // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
+  pub index: Option<u32>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -235,6 +243,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       initial_data: self.initial_data,
       meta: self.meta,
       set_as_current: self.set_as_current,
+      index: self.index,
     })
   }
 }
@@ -255,6 +264,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       initial_data: self.initial_data,
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     })
   }
 }

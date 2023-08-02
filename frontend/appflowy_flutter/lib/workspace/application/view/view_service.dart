@@ -34,6 +34,10 @@ class ViewBackendService {
     /// the database id. For example: "database_id": "xxx"
     ///
     Map<String, String> ext = const {},
+
+    /// The [index] is the index of the view in the parent view.
+    /// If the index is null, the view will be added to the end of the list.
+    int? index,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -45,6 +49,14 @@ class ViewBackendService {
 
     if (ext.isNotEmpty) {
       payload.meta.addAll(ext);
+    }
+
+    if (desc != null) {
+      payload.desc = desc;
+    }
+
+    if (index != null) {
+      payload.index = index;
     }
 
     return FolderEventCreateView(payload).send();
