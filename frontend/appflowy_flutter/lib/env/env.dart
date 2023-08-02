@@ -38,7 +38,7 @@ abstract class Env {
   static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
 }
 
-bool get isSupabaseEnable {
+bool get isSupabaseEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationEnv().isRelease || integrationEnv().isDevelop) {
     return Env.supabaseUrl.isNotEmpty &&
