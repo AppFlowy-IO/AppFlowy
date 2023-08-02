@@ -26,19 +26,39 @@ impl UserLocalDataMigration {
     }
   }
 
+  /// Executes a series of migrations.
+  ///
+  /// This function applies each migration in the `migrations` vector that hasn't already been executed.
+  /// It retrieves the current migration records from the database, and for each migration in the `migrations` vector,
+  /// checks whether it has already been run. If it hasn't, the function runs the migration and adds it to the list of applied migrations.
+  ///
+  /// The function does not apply a migration if its name is already in the list of applied migrations.
+  /// If a migration name is duplicated, the function logs an error message and continues with the next migration.
+  ///
+  /// # Arguments
+  ///
+  /// * `migrations` - A vector of boxed dynamic `UserDataMigration` objects representing the migrations to be applied.
+  ///
   pub fn run(self, migrations: Vec<Box<dyn UserDataMigration>>) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let conn = self.sqlite_pool.get()?;
     let record = get_all_records(&*conn)?;
+    let mut duplicated_names = vec![];
     for migration in migrations {
       if record
         .iter()
         .find(|record| record.migration_name == migration.name())
         .is_none()
       {
-        migration.run(&self.session, &self.collab_db)?;
-        applied_migrations.push(migration.name().to_string());
-        save_record(&*conn, migration.name());
+        let migration_name = migration.name().to_string();
+        if !duplicated_names.contains(&migration_name) {
+          migration.run(&self.session, &self.collab_db)?;
+          applied_migrations.push(migration.name().to_string());
+          save_record(&*conn, &migration_name);
+          duplicated_names.push(migration_name);
+        } else {
+          tracing::error!("Duplicated migration name: {}", migration_name);
+        }
       }
     }
     Ok(applied_migrations)
