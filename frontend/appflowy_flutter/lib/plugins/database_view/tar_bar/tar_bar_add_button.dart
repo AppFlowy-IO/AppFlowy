@@ -34,7 +34,7 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
       margin: EdgeInsets.zero,
       triggerActions: PopoverTriggerFlags.none,
       child: SizedBox(
-        height: 20,
+        height: 26,
         child: Row(
           children: [
             VerticalDivider(
@@ -45,8 +45,8 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
               color: Theme.of(context).dividerColor,
             ),
             FlowyIconButton(
-              width: 20,
-              iconPadding: const EdgeInsets.all(2),
+              width: 26,
+              iconPadding: const EdgeInsets.all(5),
               hoverColor: AFThemeExtension.of(context).greyHover,
               onPressed: () => popoverController.show(),
               radius: Corners.s4Border,

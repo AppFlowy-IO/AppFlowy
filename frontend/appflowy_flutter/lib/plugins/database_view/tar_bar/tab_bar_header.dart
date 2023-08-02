@@ -110,6 +110,7 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
         }).toList();
 
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Flexible(
               child: ListView(
