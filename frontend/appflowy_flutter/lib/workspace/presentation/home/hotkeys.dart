@@ -7,52 +7,61 @@ import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
+typedef KeyDownHandler = void Function(HotKey hotKey)?;
+
+class HotKeyItem {
+  final HotKey hotKey;
+  final KeyDownHandler keyDownHandler;
+
+  HotKeyItem({
+    required this.hotKey,
+    this.keyDownHandler,
+  });
+
+  void register() =>
+      hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
+}
+
 class HomeHotKeys extends StatelessWidget {
   final Widget child;
   const HomeHotKeys({required this.child, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final HotKey hotKey = HotKey(
-      KeyCode.backslash,
-      modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-      // Set hotkey scope (default is HotKeyScope.system)
-      scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
-    );
-    hotKeyManager.register(
-      hotKey,
-      keyDownHandler: (hotKey) {
-        context
-            .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.collapseMenu());
-      },
-    );
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.backslash,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        // Set hotkey scope (default is HotKeyScope.system)
+        scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
+      ),
+      keyDownHandler: (_) => context
+          .read<HomeSettingBloc>()
+          .add(const HomeSettingEvent.collapseMenu()),
+    ).register();
 
-    final HotKey hotKeyForToggleThemeMode = HotKey(
-      KeyCode.keyL,
-      modifiers: [
-        Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
-        KeyModifier.shift,
-      ],
-      scope: HotKeyScope.inapp,
-    );
-    hotKeyManager.register(
-      hotKeyForToggleThemeMode,
-      keyDownHandler: (_) {
-        context.read<AppearanceSettingsCubit>().toggleThemeMode();
-      },
-    );
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.keyL,
+        modifiers: [
+          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
+          KeyModifier.shift,
+        ],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) =>
+          context.read<AppearanceSettingsCubit>().toggleThemeMode(),
+    ).register();
 
-    final HotKey closeCurrentTab = HotKey(
-      KeyCode.keyW,
-      modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-      scope: HotKeyScope.inapp,
-    );
-    hotKeyManager.register(
-      closeCurrentTab,
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.keyW,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
       keyDownHandler: (_) =>
           context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
-    );
+    ).register();
 
     return child;
   }
