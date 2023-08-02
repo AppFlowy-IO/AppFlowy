@@ -31,6 +31,7 @@ abstract class DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   );
 
   /// Returns the setting bar of the tab bar item. The setting bar is shown on the
@@ -48,8 +49,10 @@ abstract class DatabaseTabBarItemBuilder {
 
 class DatabaseTabBarView extends StatefulWidget {
   final ViewPB view;
+  final bool shrinkWrap;
   const DatabaseTabBarView({
     required this.view,
+    required this.shrinkWrap,
     super.key,
   });
 
@@ -146,6 +149,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         context,
         tabBar.view,
         controller,
+        widget.shrinkWrap,
       );
     }).toList();
   }
@@ -215,7 +219,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
 
   @override
-  Widget buildWidget({PluginContext? context}) {
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -226,6 +230,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
     return DatabaseTabBarView(
       key: ValueKey(notifier.view.id),
       view: notifier.view,
+      shrinkWrap: shrinkWrap,
     );
   }
 

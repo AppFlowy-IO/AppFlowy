@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -90,7 +91,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       onEnter: (_) => widget.editorState.service.scrollService?.disable(),
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: SizedBox(
-        height: 400,
+        height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -46,7 +46,8 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget tabBarItem(String pluginId) => leftBarItem;
 
   @override
-  Widget buildWidget({PluginContext? context}) => const BlankPage();
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
+      const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];
