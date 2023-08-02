@@ -1,4 +1,4 @@
-import {  ViewLayoutPB } from '@/services/backend';
+import { ViewLayoutPB, ViewPB } from "@/services/backend";
 import { PageBackendService } from '$app/stores/effects/workspace/page/page_bd_svc';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
 import { Page, PageIcon, parserViewPBToPage } from '$app_reducers/pages/slice';
@@ -8,7 +8,6 @@ export class PageController {
   private readonly backendService: PageBackendService = new PageBackendService();
 
   private readonly observer: WorkspaceObserver = new WorkspaceObserver();
-  private onPageChangeQueue?: AsyncQueue;
   constructor(private readonly id: string) {
     //
   }
@@ -46,6 +45,7 @@ export class PageController {
   };
 
   getChildPages = async (): Promise<Page[]> => {
+
     const result = await this.backendService.getPage(this.id);
 
     if (result.ok) {
@@ -73,20 +73,16 @@ export class PageController {
   };
 
   subscribe = async (callbacks: {
-    onChildPagesChanged?: (childPages: Page[]) => void;
-    onPageChanged?: (page: Page) => void;
+    onPageChanged?: (page: Page, children: Page[]) => void;
   }) => {
-    const onPageChanged = async () => {
-      const childPages = await this.getChildPages();
-      callbacks.onChildPagesChanged?.(childPages);
-      const page = await this.getPage();
-      callbacks.onPageChanged?.(page);
+    const didUpdateView = (payload: Uint8Array) => {
+      const res = ViewPB.deserializeBinary(payload);
+      const page = parserViewPBToPage(ViewPB.deserializeBinary(payload));
+      const childPages = res.child_views.map(parserViewPBToPage);
+      callbacks.onPageChanged?.(page, childPages);
     }
-
-    this.onPageChangeQueue = new AsyncQueue(onPageChanged);
     await this.observer.subscribeView(this.id, {
-      didUpdateChildViews: this.didUpdateChildPages,
-      didUpdateView: this.didUpdateView,
+      didUpdateView,
     });
   };
 
@@ -135,11 +131,4 @@ export class PageController {
     return Promise.reject(result.err);
   };
 
-  private didUpdateChildPages = (payload: Uint8Array) => {
-    this.onPageChangeQueue?.enqueue(Math.random());
-  };
-
-  private didUpdateView = (payload: Uint8Array) => {
-    this.onPageChangeQueue?.enqueue(Math.random());
-  };
 }

@@ -49,6 +49,8 @@ function DocumentIcon({
         open={open}
         anchorReference='anchorPosition'
         anchorPosition={anchorPosition}
+        disableAutoFocus
+        disableRestoreFocus
         onClose={() => setAnchorPosition(undefined)}
       >
         <EmojiPicker onEmojiSelect={onEmojiSelect} />

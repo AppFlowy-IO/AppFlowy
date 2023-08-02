@@ -40,7 +40,10 @@ export interface PageState {
 export const initialState: PageState = {
   pageMap: {},
   relationMap: {},
-  expandedIdMap: {},
+  expandedIdMap: getExpandedPageIds().reduce((acc, id) => {
+    acc[id] = true;
+    return acc;
+  }, {} as Record<string, boolean>),
 };
 
 export const pagesSlice = createSlice({
@@ -85,16 +88,29 @@ export const pagesSlice = createSlice({
 
     expandPage(state, action: PayloadAction<string>) {
       const id = action.payload;
-
       state.expandedIdMap[id] = true;
+      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      storeExpandedPageIds(ids);
     },
 
     collapsePage(state, action: PayloadAction<string>) {
       const id = action.payload;
 
       state.expandedIdMap[id] = false;
+      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      storeExpandedPageIds(ids);
     },
   },
 });
 
 export const pagesActions = pagesSlice.actions;
+
+function storeExpandedPageIds(expandedPageIds: string[]) {
+  localStorage.setItem('expandedPageIds', JSON.stringify(expandedPageIds));
+}
+
+function getExpandedPageIds(): string[] {
+  const expandedPageIds = localStorage.getItem('expandedPageIds');
+
+  return expandedPageIds ? JSON.parse(expandedPageIds) : [];
+}

@@ -23,6 +23,8 @@ function ChangeCoverPopover({
   return (
     <Popover
       open={open}
+      disableAutoFocus
+      disableRestoreFocus
       anchorReference={'anchorPosition'}
       anchorPosition={anchorPosition}
       onClose={onClose}
