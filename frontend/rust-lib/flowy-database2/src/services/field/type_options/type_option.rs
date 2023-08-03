@@ -20,6 +20,7 @@ use crate::services::field::{
   RichTextTypeOption, SingleSelectTypeOption, TimeFormat, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
+use crate::services::sort::SortCondition;
 
 pub trait TypeOption {
   /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -131,9 +132,10 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_conditon: SortCondition,
   ) -> Ordering;
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool;
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool;
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(

@@ -246,54 +246,20 @@ fn cmp_row(
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
-    Some(field_rev) => match (
+    Some(field_rev) => cmp_cell(
       left.cells.get(&sort.field_id),
       right.cells.get(&sort.field_id),
-    ) {
-      (Some(left_cell), Some(right_cell)) => cmp_cell(
-        left_cell,
-        right_cell,
-        field_rev,
-        field_type,
-        cell_data_cache,
-        sort.condition,
-      ),
-      (Some(cell), None) => {
-        if field_type.is_checkbox() {
-          cmp_option_checkbox_cell(
-            Some(cell.as_ref()),
-            None,
-            field_rev,
-            field_type,
-            cell_data_cache,
-            sort.condition,
-          )
-        } else {
-          Ordering::Less
-        }
-      },
-      (None, Some(cell)) => {
-        if field_type.is_checkbox() {
-          cmp_option_checkbox_cell(
-            None,
-            Some(cell.as_ref()),
-            field_rev,
-            field_type,
-            cell_data_cache,
-            sort.condition,
-          )
-        } else {
-          Ordering::Greater
-        }
-      },
-      _ => default_order(),
-    },
+      field_rev,
+      field_type,
+      cell_data_cache,
+      sort.condition,
+    ),
   }
 }
 
 fn cmp_cell(
-  left_cell: &Cell,
-  right_cell: &Cell,
+  left_cell: Option<&Cell>,
+  right_cell: Option<&Cell>,
   field: &Arc<Field>,
   field_type: FieldType,
   cell_data_cache: &CellCache,
@@ -312,47 +278,6 @@ fn cmp_cell(
 
       cal_order().unwrap_or_else(default_order)
     },
-  }
-}
-
-fn cmp_option_checkbox_cell(
-  left_cell: Option<&Cell>,
-  right_cell: Option<&Cell>,
-  field: &Arc<Field>,
-  field_type: FieldType,
-  cell_data_cache: &CellCache,
-  sort_condition: SortCondition,
-) -> Ordering {
-  let order = match TypeOptionCellExt::new_with_cell_data_cache(
-    field.as_ref(),
-    Some(cell_data_cache.clone()),
-  )
-  .get_type_option_cell_data_handler(&field_type)
-  {
-    None => default_order(),
-    Some(handler) => match (left_cell, right_cell) {
-      (None, Some(cell)) => {
-        let right = handler.stringify_cell_str(cell, &field_type, field);
-        if right == "No" {
-          default_order()
-        } else {
-          Ordering::Less
-        }
-      },
-      (Some(cell), None) => {
-        let left = handler.stringify_cell_str(cell, &field_type, field);
-        if left == "No" {
-          default_order()
-        } else {
-          Ordering::Greater
-        }
-      },
-      _ => default_order(),
-    },
-  };
-  match sort_condition {
-    SortCondition::Ascending => order,
-    SortCondition::Descending => order.reverse(),
   }
 }
 

@@ -18,6 +18,7 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform, CELL_DATA,
 };
+use crate::services::sort::SortCondition;
 
 /// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
 /// used yet.
@@ -152,12 +153,26 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    cell_data.0.cmp(&other_cell_data.0)
+    let is_left_empty = self.is_same_as_empty(cell_data);
+    let is_right_empty = self.is_same_as_empty(other_cell_data);
+    match (is_left_empty, is_right_empty) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let order = cell_data.0.cmp(&other_cell_data.0);
+        match sort_condition {
+          SortCondition::Ascending => order,
+          SortCondition::Descending => order.reverse(),
+        }
+      },
+    }
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.0.trim().is_empty()
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.0.is_empty()
   }
 }
 

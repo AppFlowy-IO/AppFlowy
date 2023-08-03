@@ -20,6 +20,7 @@ use crate::services::field::{
   NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
 };
+use crate::services::sort::SortCondition;
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -248,20 +249,34 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
-    let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
-    match (left, right) {
-      (Ok(left), Ok(right)) => {
-        return left.decimal().cmp(right.decimal());
+    let is_left_empty = self.is_same_as_empty(cell_data);
+    let is_right_empty = self.is_same_as_empty(other_cell_data);
+    match (is_left_empty, is_right_empty) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
+        let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
+        match (left, right) {
+          (Ok(left), Ok(right)) => {
+            let order = left.decimal().cmp(right.decimal());
+            match sort_condition {
+              SortCondition::Ascending => order,
+              SortCondition::Descending => order.reverse(),
+            }
+          },
+          (Ok(_), Err(_)) => Ordering::Greater,
+          (Err(_), Ok(_)) => Ordering::Less,
+          (Err(_), Err(_)) => Ordering::Equal,
+        }
       },
-      (Ok(_), Err(_)) => Ordering::Greater,
-      (Err(_), Ok(_)) => Ordering::Less,
-      (Err(_), Err(_)) => Ordering::Equal,
     }
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
     cell_data.0.is_empty()
   }
 }

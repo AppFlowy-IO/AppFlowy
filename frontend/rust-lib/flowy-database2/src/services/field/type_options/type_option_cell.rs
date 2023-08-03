@@ -21,6 +21,8 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
+use super::checkbox_type_option::CheckboxCellData;
+
 pub const CELL_DATA: &str = "data";
 
 /// Each [FieldType] has its own [TypeOptionCellDataHandler].
@@ -48,8 +50,8 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_compare(
     &self,
-    left_cell: &Cell,
-    right_cell: &Cell,
+    left_cell: Option<&Cell>,
+    right_cell: Option<&Cell>,
     field: &Field,
     sort_condition: SortCondition,
   ) -> Ordering;
@@ -243,30 +245,66 @@ where
 
   fn handle_cell_compare(
     &self,
-    left_cell: &Cell,
-    right_cell: &Cell,
+    left_cell: Option<&Cell>,
+    right_cell: Option<&Cell>,
     field: &Field,
     sort_condition: SortCondition,
   ) -> Ordering {
     let field_type = FieldType::from(field.field_type);
-    let left = self
-      .get_decoded_cell_data(left_cell, &field_type, field)
-      .unwrap_or_default();
-    let right = self
-      .get_decoded_cell_data(right_cell, &field_type, field)
-      .unwrap_or_default();
 
-    match (self.exempt_from_cmp(&left), self.exempt_from_cmp(&right)) {
-      (true, true) => Ordering::Equal,
-      (true, false) => Ordering::Greater,
-      (false, true) => Ordering::Less,
-      (false, false) => {
-        let order = self.apply_cmp(&left, &right);
-        // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
-        match sort_condition {
-          SortCondition::Ascending => order,
-          SortCondition::Descending => order.reverse(),
+    match (left_cell, right_cell) {
+      (None, None) => Ordering::Equal,
+      (None, Some(right_cell)) => {
+        let right_cell_data = self
+          .get_decoded_cell_data(right_cell, &field_type, field)
+          .unwrap_or_default();
+
+        if self.is_same_as_empty(&right_cell_data) {
+          Ordering::Equal
+        } else if field_type == FieldType::Checkbox {
+          let cell_data = CheckboxCellData::from(right_cell);
+          if cell_data.is_check() {
+            match sort_condition {
+              SortCondition::Ascending => Ordering::Less,
+              SortCondition::Descending => Ordering::Greater,
+            }
+          } else {
+            Ordering::Equal
+          }
+        } else {
+          Ordering::Greater
         }
+      },
+      (Some(left_cell), None) => {
+        let left_cell_data = self
+          .get_decoded_cell_data(left_cell, &field_type, field)
+          .unwrap_or_default();
+
+        if self.is_same_as_empty(&left_cell_data) {
+          Ordering::Equal
+        } else if field_type == FieldType::Checkbox {
+          let cell_data = CheckboxCellData::from(left_cell);
+          if cell_data.is_check() {
+            match sort_condition {
+              SortCondition::Ascending => Ordering::Greater,
+              SortCondition::Descending => Ordering::Less,
+            }
+          } else {
+            Ordering::Equal
+          }
+        } else {
+          Ordering::Less
+        }
+      },
+      (Some(left_cell), Some(right_cell)) => {
+        let left_cell_data: <T as TypeOption>::CellData = self
+          .get_decoded_cell_data(left_cell, &field_type, field)
+          .unwrap_or_default();
+        let right_cell_data = self
+          .get_decoded_cell_data(right_cell, &field_type, field)
+          .unwrap_or_default();
+
+        self.apply_cmp(&left_cell_data, &right_cell_data, sort_condition)
       },
     }
   }

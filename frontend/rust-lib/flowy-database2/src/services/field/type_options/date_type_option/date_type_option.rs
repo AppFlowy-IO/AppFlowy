@@ -5,6 +5,7 @@ use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
+use crate::services::sort::SortCondition;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
@@ -306,16 +307,23 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data.timestamp, other_cell_data.timestamp) {
-      (Some(left), Some(right)) => left.cmp(&right),
+      (Some(left), Some(right)) => {
+        let order = left.cmp(&right);
+        match sort_condition {
+          SortCondition::Ascending => order,
+          SortCondition::Descending => order.reverse(),
+        }
+      },
       (Some(_), None) => Ordering::Greater,
       (None, Some(_)) => Ordering::Less,
       (None, None) => default_order(),
     }
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
     cell_data.timestamp.is_none()
   }
 }

@@ -14,6 +14,7 @@ use crate::services::field::{
   SelectTypeOptionSharedAction, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter,
 };
+use crate::services::sort::SortCondition;
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -140,6 +141,7 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     for i in 0..min(cell_data.len(), other_cell_data.len()) {
       let order = match (
@@ -163,7 +165,7 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
     default_order()
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
     cell_data.is_empty()
   }
 }

@@ -7,6 +7,7 @@ use crate::services::field::{
 use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
 };
+use crate::services::sort::SortCondition;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -131,6 +132,7 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (
       cell_data
@@ -147,7 +149,7 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
     }
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
     cell_data.is_empty()
   }
 }

@@ -14,6 +14,7 @@ use crate::services::field::{
   default_order, CheckboxCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
+use crate::services::sort::SortCondition;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CheckboxTypeOption {
@@ -135,16 +136,21 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_check(), other_cell_data.is_check()) {
+    let order = match (cell_data.is_check(), other_cell_data.is_check()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,
       (false, false) => default_order(),
+    };
+    match sort_condition {
+      SortCondition::Ascending => order,
+      SortCondition::Descending => order.reverse(),
     }
   }
 
-  fn exempt_from_cmp(&self, _: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, _cell: &<Self as TypeOption>::CellData) -> bool {
     false
   }
 }

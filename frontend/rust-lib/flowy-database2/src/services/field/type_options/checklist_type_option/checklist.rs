@@ -5,6 +5,7 @@ use crate::services::field::{
   SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
+use crate::services::sort::SortCondition;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -191,6 +192,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     let left = cell_data.percentage_complete();
     let right = other_cell_data.percentage_complete();
@@ -203,7 +205,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     }
   }
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
     cell_data.selected_option_ids.is_empty()
   }
 }
