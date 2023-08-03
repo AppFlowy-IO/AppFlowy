@@ -8,7 +8,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,7 +28,7 @@ extension CommonOperations on WidgetTester {
 
   /// Tap the + button on the home page.
   Future<void> tapAddViewButton({
-    String name = gettingStated,
+    String name = gettingStarted,
   }) async {
     await hoverOnPageName(
       name,
@@ -211,6 +210,12 @@ extension CommonOperations on WidgetTester {
     await tapButtonWithName(ViewMoreActionType.unFavorite.name);
   }
 
+  /// Tap the Open in a new tab button
+  Future<void> tapOpenInTabButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewMoreActionType.openInNewTab.name);
+  }
+
   /// Rename the page.
   Future<void> renamePage(String name) async {
     await tapRenamePageButton();
@@ -272,7 +277,7 @@ extension CommonOperations on WidgetTester {
     bool openAfterCreated = true,
   }) async {
     // create a new page
-    await tapAddViewButton(name: parentName ?? gettingStated);
+    await tapAddViewButton(name: parentName ?? gettingStarted);
     await tapButtonWithName(layout.menuName);
     await pumpAndSettle();
 
@@ -336,11 +341,14 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> openAppInNewTab(String name) async {
-    await hoverOnPageName(name);
-    await tap(find.byType(ViewDisclosureButton));
-    await pumpAndSettle();
-    await tap(find.text(LocaleKeys.disclosureAction_openNewTab.tr()));
+  Future<void> openAppInNewTab(String name, ViewLayoutPB layout) async {
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        await tapOpenInTabButton();
+        await pumpAndSettle();
+      },
+    );
     await pumpAndSettle();
   }
 

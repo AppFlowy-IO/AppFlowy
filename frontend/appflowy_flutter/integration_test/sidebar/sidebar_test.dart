@@ -70,7 +70,7 @@ void main() {
             break;
         }
 
-        await tester.openPage(gettingStated);
+        await tester.openPage(gettingStarted);
       }
     });
 
@@ -80,7 +80,7 @@ void main() {
 
       final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
-        final parentName = i == 0 ? gettingStated : names[i - 1];
+        final parentName = i == 0 ? gettingStarted : names[i - 1];
         await tester.createNewPageWithName(
           name: names[i],
           parentName: parentName,
@@ -92,7 +92,7 @@ void main() {
       // move the document_3 to the getting started page
       await tester.movePageToOtherPage(
         name: names[3],
-        parentName: gettingStated,
+        parentName: gettingStarted,
         layout: ViewLayoutPB.Document,
         parentLayout: ViewLayoutPB.Document,
       );
@@ -101,7 +101,7 @@ void main() {
           .view
           .parentViewId;
       final toId = tester
-          .widget<SingleInnerViewItem>(tester.findPageName(gettingStated))
+          .widget<SingleInnerViewItem>(tester.findPageName(gettingStarted))
           .view
           .id;
       expect(fromId, toId);
@@ -109,13 +109,13 @@ void main() {
       // move the document_2 before document_1
       await tester.movePageToOtherPage(
         name: names[2],
-        parentName: gettingStated,
+        parentName: gettingStarted,
         layout: ViewLayoutPB.Document,
         parentLayout: ViewLayoutPB.Document,
         position: DraggableHoverPosition.bottom,
       );
       final childViews = tester
-          .widget<SingleInnerViewItem>(tester.findPageName(gettingStated))
+          .widget<SingleInnerViewItem>(tester.findPageName(gettingStarted))
           .view
           .childViews;
       expect(

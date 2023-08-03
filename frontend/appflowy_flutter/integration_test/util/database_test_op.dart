@@ -76,7 +76,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapGoButton();
 
     // expect to see a readme page
-    expectToSeePageName(gettingStated);
+    expectToSeePageName(gettingStarted);
 
     await tapAddViewButton();
     await tapImportButton();

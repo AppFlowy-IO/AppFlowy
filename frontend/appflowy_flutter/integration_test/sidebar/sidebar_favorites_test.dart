@@ -28,7 +28,7 @@ void main() {
         2,
       ].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
-        final parentName = i == 0 ? gettingStated : names[i - 1];
+        final parentName = i == 0 ? gettingStarted : names[i - 1];
         await tester.createNewPageWithName(
           name: names[i],
           parentName: parentName,
@@ -42,9 +42,9 @@ void main() {
         );
       }
 
-      await tester.favoriteViewByName(gettingStated);
+      await tester.favoriteViewByName(gettingStarted);
       expect(
-        tester.findFavoritePageName(gettingStated),
+        tester.findFavoritePageName(gettingStarted),
         findsOneWidget,
       );
 
@@ -54,9 +54,9 @@ void main() {
         findsNWidgets(2),
       );
 
-      await tester.unfavoriteViewByName(gettingStated);
+      await tester.unfavoriteViewByName(gettingStarted);
       expect(
-        tester.findFavoritePageName(gettingStated),
+        tester.findFavoritePageName(gettingStarted),
         findsNothing,
       );
       expect(
@@ -82,9 +82,9 @@ void main() {
         await tester.tapGoButton();
 
         const name = 'test';
-        await tester.favoriteViewByName(gettingStated);
+        await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
-          gettingStated,
+          gettingStarted,
           layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.renamePage(name);
@@ -110,7 +110,7 @@ void main() {
 
         final names = [1, 2].map((e) => 'document_$e').toList();
         for (var i = 0; i < names.length; i++) {
-          final parentName = i == 0 ? gettingStated : names[i - 1];
+          final parentName = i == 0 ? gettingStarted : names[i - 1];
           await tester.createNewPageWithName(
             name: names[i],
             parentName: parentName,
@@ -118,7 +118,7 @@ void main() {
           );
           tester.expectToSeePageName(names[i], parentName: parentName);
         }
-        await tester.favoriteViewByName(gettingStated);
+        await tester.favoriteViewByName(gettingStarted);
         await tester.favoriteViewByName(names[0]);
         await tester.favoriteViewByName(names[1]);
 
@@ -152,7 +152,7 @@ void main() {
         );
 
         await tester.hoverOnPageName(
-          gettingStated,
+          gettingStarted,
           layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.tapDeletePageButton();

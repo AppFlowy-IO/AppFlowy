@@ -84,6 +84,10 @@ class TabsState {
       return null;
     }
 
+    if (index == currentIndex) {
+      return this;
+    }
+
     return copyWith(newIndex: index);
   }
 

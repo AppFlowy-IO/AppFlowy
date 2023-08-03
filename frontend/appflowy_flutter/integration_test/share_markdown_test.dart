@@ -16,7 +16,7 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(gettingStated);
+      tester.expectToSeePageName(gettingStarted);
 
       // mock the file picker
       final path = await mockSaveFilePath(
@@ -43,11 +43,11 @@ void main() {
         await tester.tapGoButton();
 
         // expect to see a getting started page
-        tester.expectToSeePageName(gettingStated);
+        tester.expectToSeePageName(gettingStarted);
 
         // rename the document
         await tester.hoverOnPageName(
-          gettingStated,
+          gettingStarted,
           onHover: () async {
             await tester.renamePage('example');
           },

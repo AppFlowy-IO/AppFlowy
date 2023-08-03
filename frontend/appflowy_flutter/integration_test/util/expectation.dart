@@ -11,13 +11,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // const String readme = 'Read me';
-const String gettingStated = '⭐️ Getting started';
+const String gettingStarted = '⭐️ Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
   void expectToSeeHomePage() {
     expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(gettingStated), findsWidgets);
+    expect(find.textContaining(gettingStarted), findsWidgets);
   }
 
   /// Expect to see the page name on the home page.
