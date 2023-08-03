@@ -135,7 +135,12 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     sort_conditon: SortCondition,
   ) -> Ordering;
 
-  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool;
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    sort_conditon: SortCondition,
+  ) -> Ordering;
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(

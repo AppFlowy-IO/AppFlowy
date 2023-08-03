@@ -155,8 +155,8 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let is_left_empty = self.is_same_as_empty(cell_data);
-    let is_right_empty = self.is_same_as_empty(other_cell_data);
+    let is_left_empty = cell_data.0.is_empty();
+    let is_right_empty = other_cell_data.0.is_empty();
     match (is_left_empty, is_right_empty) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
@@ -171,8 +171,17 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     }
   }
 
-  fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.0.is_empty()
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    _sort_conditon: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(cell_data)) if !cell_data.0.is_empty() => Ordering::Greater,
+      (Some(cell_data), None) if !cell_data.0.is_empty() => Ordering::Less,
+      _ => Ordering::Equal,
+    }
   }
 }
 

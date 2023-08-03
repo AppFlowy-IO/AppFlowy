@@ -259,42 +259,14 @@ where
           .get_decoded_cell_data(right_cell, &field_type, field)
           .unwrap_or_default();
 
-        if self.is_same_as_empty(&right_cell_data) {
-          Ordering::Equal
-        } else if field_type == FieldType::Checkbox {
-          let cell_data = CheckboxCellData::from(right_cell);
-          if cell_data.is_check() {
-            match sort_condition {
-              SortCondition::Ascending => Ordering::Less,
-              SortCondition::Descending => Ordering::Greater,
-            }
-          } else {
-            Ordering::Equal
-          }
-        } else {
-          Ordering::Greater
-        }
+        self.apply_cmp_with_uninitialized(None, Some(right_cell_data).as_ref(), sort_condition)
       },
       (Some(left_cell), None) => {
         let left_cell_data = self
           .get_decoded_cell_data(left_cell, &field_type, field)
           .unwrap_or_default();
 
-        if self.is_same_as_empty(&left_cell_data) {
-          Ordering::Equal
-        } else if field_type == FieldType::Checkbox {
-          let cell_data = CheckboxCellData::from(left_cell);
-          if cell_data.is_check() {
-            match sort_condition {
-              SortCondition::Ascending => Ordering::Greater,
-              SortCondition::Descending => Ordering::Less,
-            }
-          } else {
-            Ordering::Equal
-          }
-        } else {
-          Ordering::Less
-        }
+        self.apply_cmp_with_uninitialized(Some(left_cell_data).as_ref(), None, sort_condition)
       },
       (Some(left_cell), Some(right_cell)) => {
         let left_cell_data: <T as TypeOption>::CellData = self

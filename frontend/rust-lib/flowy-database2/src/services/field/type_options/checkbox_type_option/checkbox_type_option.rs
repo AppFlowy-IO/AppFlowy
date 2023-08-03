@@ -150,7 +150,22 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     }
   }
 
-  fn is_same_as_empty(&self, _cell: &<Self as TypeOption>::CellData) -> bool {
-    false
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    sort_condition: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(right_cell_data)) if right_cell_data.is_check() => match sort_condition {
+        SortCondition::Ascending => Ordering::Less,
+        SortCondition::Descending => Ordering::Greater,
+      },
+      (Some(left_cell_data), None) if left_cell_data.is_check() => match sort_condition {
+        SortCondition::Ascending => Ordering::Greater,
+        SortCondition::Descending => Ordering::Less,
+      },
+      _ => Ordering::Equal,
+    }
   }
 }
