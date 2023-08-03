@@ -208,7 +208,6 @@ export function getInsertEnterNodeAction(
 ) {
   const insertNodeFields = getInsertEnterNodeFields(sourceNode);
 
-  console.log('insertNodeFields', insertNodeFields);
   if (!insertNodeFields) return;
   const { type, data, parentId, prevId } = insertNodeFields;
   const insertNode = newBlock<any>(type, parentId, {

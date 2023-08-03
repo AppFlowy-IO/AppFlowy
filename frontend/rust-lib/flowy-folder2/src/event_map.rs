@@ -145,12 +145,12 @@ pub enum FolderEvent {
   #[event(input = "MoveNestedViewPayloadPB")]
   MoveNestedView = 32,
 
-  #[event(input = "UpdateViewIconPayloadPB")]
-  UpdateViewIcon = 33,
-
   #[event(output = "RepeatedViewPB")]
-  ReadFavorites = 34,
+  ReadFavorites = 33,
 
   #[event(input = "RepeatedViewIdPB")]
-  ToggleFavorite = 35,
+  ToggleFavorite = 34,
+
+  #[event(input = "UpdateViewIconPayloadPB")]
+  UpdateViewIcon = 35,
 }
