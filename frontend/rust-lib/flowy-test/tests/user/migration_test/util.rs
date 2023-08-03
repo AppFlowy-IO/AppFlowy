@@ -1,3 +1,4 @@
+use flowy_test::Cleaner;
 use nanoid::nanoid;
 use std::fs::{create_dir_all, File};
 use std::io::copy;
@@ -43,22 +44,4 @@ pub fn unzip_history_user_db(folder_name: &str) -> std::io::Result<(Cleaner, Pat
     Cleaner::new(PathBuf::from(output_folder_path)),
     PathBuf::from(path),
   ))
-}
-
-pub struct Cleaner(PathBuf);
-
-impl Cleaner {
-  pub fn new(dir: PathBuf) -> Self {
-    Cleaner(dir)
-  }
-
-  fn cleanup(dir: &PathBuf) {
-    let _ = std::fs::remove_dir_all(dir);
-  }
-}
-
-impl Drop for Cleaner {
-  fn drop(&mut self) {
-    Self::cleanup(&self.0)
-  }
 }
