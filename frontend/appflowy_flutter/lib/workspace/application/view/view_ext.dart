@@ -125,4 +125,17 @@ extension ViewLayoutExtension on ViewLayoutPB {
         throw Exception('Unknown layout type');
     }
   }
+
+  bool get isDatabaseView {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+      case ViewLayoutPB.Board:
+      case ViewLayoutPB.Calendar:
+        return true;
+      case ViewLayoutPB.Document:
+        return false;
+      default:
+        throw Exception('Unknown layout type');
+    }
+  }
 }
