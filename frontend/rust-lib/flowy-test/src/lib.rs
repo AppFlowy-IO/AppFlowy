@@ -10,6 +10,7 @@ use parking_lot::RwLock;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
 
+use crate::document::document_event::OpenDocumentData;
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
@@ -43,7 +44,17 @@ pub struct FlowyCoreTest {
 impl Default for FlowyCoreTest {
   fn default() -> Self {
     let temp_dir = temp_dir();
-    let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter(
+    Self::new_with_user_data_path(temp_dir.to_str().unwrap(), nanoid!(6))
+  }
+}
+
+impl FlowyCoreTest {
+  pub fn new() -> Self {
+    Self::default()
+  }
+
+  pub fn new_with_user_data_path(path: &str, name: String) -> Self {
+    let config = AppFlowyCoreConfig::new(path, name).log_filter(
       "info",
       vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
     );
@@ -51,10 +62,9 @@ impl Default for FlowyCoreTest {
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
-    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     let notification_sender = TestNotificationSender::new();
+    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     register_notification_sender(notification_sender.clone());
-
     std::mem::forget(inner.dispatcher());
     Self {
       inner,
@@ -62,12 +72,6 @@ impl Default for FlowyCoreTest {
       notification_sender,
       cleaner: Arc::new(RwLock::new(None)),
     }
-  }
-}
-
-impl FlowyCoreTest {
-  pub fn new() -> Self {
-    Self::default()
   }
 
   pub async fn new_with_guest_user() -> Self {
@@ -266,6 +270,19 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await;
+  }
+
+  pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
+    let payload = OpenDocumentPayloadPB {
+      document_id: doc_id.clone(),
+    };
+    let data = EventBuilder::new(self.clone())
+      .event(DocumentEvent::OpenDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+    OpenDocumentData { id: doc_id, data }
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
