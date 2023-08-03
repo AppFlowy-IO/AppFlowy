@@ -67,17 +67,13 @@ class HomeHotKeys extends StatelessWidget {
     ).register();
 
     // Go to previous tab
-
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.pageUp,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) {
-        final bloc = context.read<TabsBloc>();
-        bloc.add(TabsEvent.selectTab(bloc.state.currentIndex - 1));
-      },
+      keyDownHandler: (_) => _selectTab(context, -1),
     ).register();
 
     // Go to next tab
@@ -87,12 +83,14 @@ class HomeHotKeys extends StatelessWidget {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) {
-        final bloc = context.read<TabsBloc>();
-        bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + 1));
-      },
+      keyDownHandler: (_) => _selectTab(context, 1),
     ).register();
 
     return child;
+  }
+
+  void _selectTab(BuildContext context, int change) {
+    final bloc = context.read<TabsBloc>();
+    bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + change));
   }
 }

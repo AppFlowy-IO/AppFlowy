@@ -258,22 +258,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       behavior: HitTestBehavior.translucent,
       onTap: () {
         if (RawKeyboard.instance.isControlPressed) {
-          context.read<TabsBloc>().add(
-                TabsEvent.openTab(
-                  plugin: widget.view.plugin(),
-                  view: widget.view,
-                ),
-              );
+          context.read<TabsBloc>().openTab(widget.view);
         }
         widget.onSelected(widget.view);
       },
       onTertiaryTapDown: (_) {
-        context.read<TabsBloc>().add(
-              TabsEvent.openTab(
-                plugin: widget.view.plugin(),
-                view: widget.view,
-              ),
-            );
+        context.read<TabsBloc>().openTab(widget.view);
         widget.onSelected(widget.view);
       },
       child: SizedBox(
@@ -374,12 +364,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().add(
-                    TabsEvent.openTab(
-                      plugin: widget.view.plugin(),
-                      view: widget.view,
-                    ),
-                  );
+              context.read<TabsBloc>().openTab(widget.view);
               break;
             default:
               throw UnsupportedError('$action is not supported');

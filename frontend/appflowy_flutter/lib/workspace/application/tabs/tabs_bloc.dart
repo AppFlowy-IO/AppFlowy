@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -60,4 +61,8 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       }
     }
   }
+
+  /// Adds a [TabsEvent.openTab] event for the provided [ViewPB]
+  void openTab(ViewPB view) =>
+      add(TabsEvent.openTab(plugin: view.plugin(), view: view));
 }

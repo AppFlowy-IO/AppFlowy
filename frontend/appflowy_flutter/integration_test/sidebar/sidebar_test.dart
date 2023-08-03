@@ -170,7 +170,7 @@ void main() {
 
       // it should not be moved
       final childViews = tester
-          .widget<SingleInnerViewItem>(tester.findPageName(gettingStated))
+          .widget<SingleInnerViewItem>(tester.findPageName(gettingStarted))
           .view
           .childViews;
       expect(

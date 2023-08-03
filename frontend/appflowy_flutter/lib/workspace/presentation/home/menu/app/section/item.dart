@@ -123,12 +123,7 @@ class ViewSectionItem extends StatelessWidget {
                     .add(FavoriteEvent.toggle(view));
                 break;
               case ViewDisclosureAction.openInNewTab:
-                blocContext.read<TabsBloc>().add(
-                      TabsEvent.openTab(
-                        plugin: state.view.plugin(),
-                        view: blocContext.read<ViewBloc>().state.view,
-                      ),
-                    );
+                blocContext.read<TabsBloc>().openTab(state.view);
                 break;
             }
           },
