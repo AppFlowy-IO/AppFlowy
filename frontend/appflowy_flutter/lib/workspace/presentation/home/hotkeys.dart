@@ -28,6 +28,7 @@ class HomeHotKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Collapse sidebar menu
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.backslash,
@@ -40,6 +41,7 @@ class HomeHotKeys extends StatelessWidget {
           .add(const HomeSettingEvent.collapseMenu()),
     ).register();
 
+    // Toggle theme mode light/dark
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.keyL,
@@ -53,6 +55,7 @@ class HomeHotKeys extends StatelessWidget {
           context.read<AppearanceSettingsCubit>().toggleThemeMode(),
     ).register();
 
+    // Close current tab
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.keyW,
@@ -61,6 +64,33 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
+    ).register();
+
+    // Go to previous tab
+
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.pageUp,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) {
+        final bloc = context.read<TabsBloc>();
+        bloc.add(TabsEvent.selectTab(bloc.state.currentIndex - 1));
+      },
+    ).register();
+
+    // Go to next tab
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.pageDown,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) {
+        final bloc = context.read<TabsBloc>();
+        bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + 1));
+      },
     ).register();
 
     return child;

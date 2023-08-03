@@ -21,7 +21,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     on<TabsEvent>((event, emit) async {
       event.when(
         selectTab: (int index) {
-          if (index != state.currentIndex && index > 0 && index < state.pages) {
+          if (index != state.currentIndex &&
+              index >= 0 &&
+              index < state.pages) {
             emit(state.copyWith(newIndex: index));
             _setLatestOpenView();
           }
