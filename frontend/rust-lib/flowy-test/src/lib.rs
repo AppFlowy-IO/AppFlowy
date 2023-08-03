@@ -790,15 +790,15 @@ impl NotificationSender for TestNotificationSender {
   }
 }
 
-struct Cleaner(PathBuf);
+pub struct Cleaner(PathBuf);
 
 impl Cleaner {
-  fn new(dir: PathBuf) -> Self {
+  pub fn new(dir: PathBuf) -> Self {
     Cleaner(dir)
   }
 
   fn cleanup(dir: &PathBuf) {
-    let _ = std::fs::remove_dir_all(dir);
+    // let _ = std::fs::remove_dir_all(dir);
   }
 }
 
