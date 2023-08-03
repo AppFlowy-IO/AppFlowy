@@ -142,7 +142,13 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
         .first()
         .and_then(|id| self.options.iter().find(|option| &option.id == id)),
     ) {
-      (Some(left), Some(right)) => left.name.cmp(&right.name),
+      (Some(left), Some(right)) => {
+        let order = left.name.cmp(&right.name);
+        match sort_condition {
+          SortCondition::Ascending => order,
+          SortCondition::Descending => order.reverse(),
+        }
+      },
       (Some(_), None) => Ordering::Greater,
       (None, Some(_)) => Ordering::Less,
       (None, None) => default_order(),

@@ -1,4 +1,4 @@
-use std::cmp::{min, Ordering};
+use std::cmp::Ordering;
 
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
@@ -143,26 +143,44 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    for i in 0..min(cell_data.len(), other_cell_data.len()) {
-      let order = match (
-        cell_data
-          .get(i)
-          .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-        other_cell_data
-          .get(i)
-          .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-      ) {
-        (Some(left), Some(right)) => left.name.cmp(&right.name),
-        (Some(_), None) => Ordering::Greater,
-        (None, Some(_)) => Ordering::Less,
-        (None, None) => default_order(),
-      };
+    match cell_data.len().cmp(&other_cell_data.len()) {
+      Ordering::Less => match sort_condition {
+        SortCondition::Ascending => Ordering::Less,
+        SortCondition::Descending => Ordering::Greater,
+      },
+      Ordering::Greater => match sort_condition {
+        SortCondition::Ascending => Ordering::Greater,
+        SortCondition::Descending => Ordering::Less,
+      },
+      Ordering::Equal => {
+        for i in 0..cell_data.len() {
+          let order = match (
+            cell_data
+              .get(i)
+              .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+            other_cell_data
+              .get(i)
+              .and_then(|id| self.options.iter().find(|option| &option.id == id)),
+          ) {
+            (Some(left), Some(right)) => {
+              let order = left.name.cmp(&right.name);
+              match sort_condition {
+                SortCondition::Ascending => order,
+                SortCondition::Descending => order.reverse(),
+              }
+            },
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            (None, None) => default_order(),
+          };
 
-      if order.is_ne() {
-        return order;
-      }
+          if order.is_ne() {
+            return order;
+          }
+        }
+        default_order()
+      },
     }
-    default_order()
   }
 
   fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {

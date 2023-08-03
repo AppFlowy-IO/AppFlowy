@@ -791,6 +791,7 @@ class FieldInfo {
       case FieldType.Checkbox:
       case FieldType.Number:
       case FieldType.DateTime:
+      case FieldType.MultiSelect:
         return true;
       default:
         return false;
