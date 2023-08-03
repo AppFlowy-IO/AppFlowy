@@ -23,6 +23,7 @@ class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
     required this.view,
+    this.parentView,
     required this.categoryType,
     required this.level,
     this.leftPadding = 10,
@@ -32,6 +33,7 @@ class ViewItem extends StatelessWidget {
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
 
   final FolderCategoryType categoryType;
 
@@ -60,6 +62,7 @@ class ViewItem extends StatelessWidget {
         builder: (context, state) {
           return InnerViewItem(
             view: state.view,
+            parentView: parentView,
             childViews: state.childViews,
             categoryType: categoryType,
             level: level,
@@ -80,18 +83,20 @@ class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
     required this.view,
+    required this.parentView,
     required this.childViews,
     required this.categoryType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
-    this.leftPadding = 10,
+    required this.leftPadding,
     required this.showActions,
     required this.onSelected,
     this.isFirstChild = false,
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
   final List<ViewPB> childViews;
   final FolderCategoryType categoryType;
 
@@ -109,10 +114,13 @@ class InnerViewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child = SingleInnerViewItem(
       view: view,
+      parentView: parentView,
       level: level,
       showActions: showActions,
       onSelected: onSelected,
       isExpanded: isExpanded,
+      isDraggable: isDraggable,
+      leftPadding: leftPadding,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -120,12 +128,14 @@ class InnerViewItem extends StatelessWidget {
       final children = childViews.map((childView) {
         return ViewItem(
           key: ValueKey('${categoryType.name} ${childView.id}'),
+          parentView: view,
           categoryType: categoryType,
           isFirstChild: childView.id == childViews.first.id,
           view: childView,
           level: level + 1,
           onSelected: onSelected,
           isDraggable: isDraggable,
+          leftPadding: leftPadding,
         );
       }).toList();
 
@@ -139,7 +149,7 @@ class InnerViewItem extends StatelessWidget {
     }
 
     // wrap the child with DraggableItem if isDraggable is true
-    if (isDraggable) {
+    if (isDraggable && !isReferencedDatabaseView(view, parentView)) {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
@@ -147,10 +157,12 @@ class InnerViewItem extends StatelessWidget {
         feedback: (context) {
           return ViewItem(
             view: view,
+            parentView: parentView,
             categoryType: categoryType,
             level: level,
             onSelected: onSelected,
             isDraggable: false,
+            leftPadding: leftPadding,
           );
         },
       );
@@ -170,19 +182,23 @@ class SingleInnerViewItem extends StatefulWidget {
   const SingleInnerViewItem({
     super.key,
     required this.view,
+    required this.parentView,
     required this.isExpanded,
     required this.level,
-    this.leftPadding = 10,
+    required this.leftPadding,
+    this.isDraggable = true,
     required this.showActions,
     required this.onSelected,
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
   final bool isExpanded;
 
   final int level;
   final double leftPadding;
 
+  final bool isDraggable;
   final bool showActions;
   final void Function(ViewPB) onSelected;
 
@@ -200,16 +216,16 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       buildWhenOnHover: () => !widget.showActions,
       builder: (_, onHover) => _buildViewItem(onHover),
       isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+          widget.isDraggable &&
+          (widget.showActions ||
+              getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
     );
   }
 
   Widget _buildViewItem(bool onHover) {
     final children = [
       // expand icon
-      _buildExpandedIcon(),
-      const HSpace(7),
+      _buildLeftIcon(),
       // icon
       SizedBox.square(
         dimension: 16,
@@ -229,12 +245,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     if (widget.showActions || onHover) {
       // ··· more action button
       children.add(_buildViewMoreActionButton(context));
-      // + button
-      children.add(_buildViewAddButton(context));
+      // only support add button for document layout
+      if (widget.view.layout == ViewLayoutPB.Document) {
+        // + button
+        children.add(_buildViewAddButton(context));
+      }
     }
 
-    // Don't use GestureDetector here, because it doesn't response to the tap event sometimes.
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: 26,
@@ -248,8 +267,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     );
   }
 
-  // > button
-  Widget _buildExpandedIcon() {
+  // > button or · button
+  // show > if the view is expandable.
+  // show · if the view can't contain child views.
+  Widget _buildLeftIcon() {
+    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
+      return const _DotIconWidget();
+    }
+
     final name =
         widget.isExpanded ? 'home/drop_down_show' : 'home/drop_down_hide';
     return GestureDetector(
@@ -342,4 +367,31 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
     );
   }
+}
+
+class _DotIconWidget extends StatelessWidget {
+  const _DotIconWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: Container(
+        width: 4,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Theme.of(context).iconTheme.color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+  }
+}
+
+// workaround: we should use view.isEndPoint or something to check if the view can contain child views. But currently, we don't have that field.
+bool isReferencedDatabaseView(ViewPB view, ViewPB? parentView) {
+  if (parentView == null) {
+    return false;
+  }
+  return view.layout.isDatabaseView && parentView.layout.isDatabaseView;
 }

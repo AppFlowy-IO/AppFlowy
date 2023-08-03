@@ -49,6 +49,7 @@ class PersonalFolder extends StatelessWidget {
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,
+                    leftPadding: 16,
                     onSelected: (view) {
                       getIt<TabsBloc>().add(
                         TabsEvent.openPlugin(
@@ -114,6 +115,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                 context.read<MenuBloc>().add(
                       MenuEvent.createApp(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        index: 0,
                       ),
                     );
                 widget.onAdded();

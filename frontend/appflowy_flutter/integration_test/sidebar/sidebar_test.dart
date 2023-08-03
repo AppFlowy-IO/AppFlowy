@@ -2,7 +2,9 @@ import 'package:appflowy/plugins/database_view/board/presentation/board_page.dar
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -136,6 +138,71 @@ void main() {
             .widget<SingleInnerViewItem>(tester.findPageName(names[3]))
             .view
             .id,
+      );
+    });
+
+    testWidgets('unable to move a document into a database', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      const document = 'document';
+      await tester.createNewPageWithName(
+        name: document,
+        openAfterCreated: false,
+      );
+      tester.expectToSeePageName(document, layout: ViewLayoutPB.Document);
+
+      const grid = 'grid';
+      await tester.createNewPageWithName(
+        name: grid,
+        layout: ViewLayoutPB.Grid,
+        openAfterCreated: false,
+      );
+      tester.expectToSeePageName(grid, layout: ViewLayoutPB.Grid);
+
+      // move the document to the grid page
+      await tester.movePageToOtherPage(
+        name: document,
+        parentName: grid,
+        layout: ViewLayoutPB.Document,
+        parentLayout: ViewLayoutPB.Grid,
+      );
+
+      // it should not be moved
+      final childViews = tester
+          .widget<SingleInnerViewItem>(tester.findPageName(gettingStated))
+          .view
+          .childViews;
+      expect(
+        childViews[0].name,
+        document,
+      );
+      expect(
+        childViews[1].name,
+        grid,
+      );
+    });
+
+    testWidgets('unable to create a new database inside the existing one',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      const grid = 'grid';
+      await tester.createNewPageWithName(
+        name: grid,
+        layout: ViewLayoutPB.Grid,
+        openAfterCreated: true,
+      );
+      tester.expectToSeePageName(grid, layout: ViewLayoutPB.Grid);
+
+      await tester.hoverOnPageName(
+        grid,
+        layout: ViewLayoutPB.Grid,
+        onHover: () async {
+          expect(find.byType(ViewAddButton), findsNothing);
+          expect(find.byType(ViewMoreActionButton), findsOneWidget);
+        },
       );
     });
   });

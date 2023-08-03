@@ -42,7 +42,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           final result = await _workspaceService.createApp(
             name: event.name,
             desc: event.desc,
-            index: 0, // default to the first index
+            index: event.index,
           );
           result.fold(
             (app) => emit(state.copyWith(plugin: app.plugin())),
@@ -111,7 +111,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
   const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
-  const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
+  const factory MenuEvent.createApp(String name, {String? desc, int? index}) =
+      _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
   const factory MenuEvent.didReceiveApps(
     Either<List<ViewPB>, FlowyError> appsOrFail,
