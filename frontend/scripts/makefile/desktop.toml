@@ -15,15 +15,6 @@ mac_alias = "appflowy-core-dev-macos"
 windows_alias = "appflowy-core-dev-windows"
 linux_alias = "appflowy-core-dev-linux"
 
-[tasks.appflowy-core-dev-android]
-category = "Build"
-dependencies = ["env_check"]
-run_task = { name = [
-  "setup-crate-type",
-  "sdk-build-android",
-  "restore-crate-type",
-] }
-
 [tasks.appflowy-core-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
