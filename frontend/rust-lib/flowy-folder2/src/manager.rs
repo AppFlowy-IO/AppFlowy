@@ -449,7 +449,7 @@ impl FolderManager {
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
       if let Some(view) = folder.views.get_view(view_id) {
-        self.unfavorite_view_and_decendants(view.clone(), &folder);
+        self.unfavorite_view_and_decendants(view.clone(), folder);
         folder.add_trash(vec![view_id.to_string()]);
         // notify the parent view that the view is moved to trash
         send_notification(view_id, FolderNotification::DidMoveViewToTrash)

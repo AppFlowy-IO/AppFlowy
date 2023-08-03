@@ -86,7 +86,7 @@ impl UserSession {
             .run(vec![Box::new(HistoricalEmptyDocumentMigration)])
           {
             Ok(applied_migrations) => {
-              if applied_migrations.len() > 0 {
+              if !applied_migrations.is_empty() {
                 tracing::info!("Did apply migrations: {:?}", applied_migrations);
               }
             },

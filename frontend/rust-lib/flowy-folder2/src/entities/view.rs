@@ -67,7 +67,7 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     child_views: Default::default(),
     layout: view.layout.clone().into(),
     icon: view.icon.clone().map(|icon| icon.into()),
-    is_favorite: view.is_favorite.clone(),
+    is_favorite: view.is_favorite,
   }
 }
 
@@ -84,7 +84,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
       .collect(),
     layout: view.layout.clone().into(),
     icon: view.icon.clone().map(|icon| icon.into()),
-    is_favorite: view.is_favorite.clone(),
+    is_favorite: view.is_favorite,
   }
 }
 

@@ -290,8 +290,8 @@ async fn toggle_favorites() {
       ReadView(view.id.clone()),
     ])
     .await;
-  assert_eq!(test.child_view.is_favorite, true);
-  assert!(test.favorites.len() != 0);
+  assert!(test.child_view.is_favorite);
+  assert_ne!(test.favorites.len(), 0);
   assert_eq!(test.favorites[0].id, view.id);
 
   let view = test.child_view.clone();
@@ -320,12 +320,12 @@ async fn delete_favorites() {
       ReadView(view.id.clone()),
     ])
     .await;
-  assert_eq!(test.child_view.is_favorite, true);
-  assert!(test.favorites.len() != 0);
+  assert!(test.child_view.is_favorite);
+  assert_ne!(test.favorites.len(), 0);
   assert_eq!(test.favorites[0].id, view.id);
 
   test.run_scripts(vec![DeleteView, ReadFavorites]).await;
-  assert!(test.favorites.len() == 0);
+  assert_eq!(test.favorites.len(), 0);
 }
 
 #[tokio::test]

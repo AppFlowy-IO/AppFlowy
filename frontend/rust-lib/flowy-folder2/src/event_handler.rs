@@ -244,7 +244,7 @@ pub(crate) async fn read_favorites_handler(
         views.push(view);
       },
       Err(err) => {
-        return Err(err.into());
+        return Err(err);
       },
     }
   }
