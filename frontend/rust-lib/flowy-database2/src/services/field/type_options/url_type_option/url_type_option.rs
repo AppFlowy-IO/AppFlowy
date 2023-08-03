@@ -126,7 +126,20 @@ impl TypeOptionCellDataCompare for URLTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    cell_data.data.cmp(&other_cell_data.data)
+    let is_left_empty = self.is_same_as_empty(cell_data);
+    let is_right_empty = self.is_same_as_empty(other_cell_data);
+    match (is_left_empty, is_right_empty) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let order = cell_data.data.cmp(&other_cell_data.data);
+        match sort_condition {
+          SortCondition::Ascending => order,
+          SortCondition::Descending => order.reverse(),
+        }
+      },
+    }
   }
 
   fn is_same_as_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {

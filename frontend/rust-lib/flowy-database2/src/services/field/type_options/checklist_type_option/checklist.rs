@@ -192,7 +192,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
-    sort_condition: SortCondition,
+    _sort_condition: SortCondition,
   ) -> Ordering {
     let left = cell_data.percentage_complete();
     let right = other_cell_data.percentage_complete();
