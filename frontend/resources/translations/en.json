@@ -713,5 +713,14 @@
       "groupTitle": "Reminder",
       "shortKeyword": "remind"
     }
+  },
+  "relativeDates": {
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Notifications"
   }
 }

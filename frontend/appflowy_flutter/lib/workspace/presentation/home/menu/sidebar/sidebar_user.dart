@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/more/cubit/document_appea
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/presentation/notifications/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/size.dart';
@@ -39,7 +40,9 @@ class SidebarUser extends StatelessWidget {
             Expanded(
               child: _buildUserName(context, state),
             ),
-            _buildSettingsButton(context, state),
+            _buildSettingsButton(context),
+            const HSpace(4),
+            const NotificationButton(),
           ],
         ),
       ),

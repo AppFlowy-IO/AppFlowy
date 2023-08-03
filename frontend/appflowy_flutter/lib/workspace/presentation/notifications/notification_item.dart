@@ -46,7 +46,7 @@ class _NotificationItemState extends State<NotificationItem> {
               children: [
                 const FlowySvg(
                   name: 'editor/time',
-                  size: Size(20, 20),
+                  size: Size.square(20),
                   alignment: Alignment.topCenter,
                 ),
                 const HSpace(10),

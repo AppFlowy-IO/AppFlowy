@@ -301,6 +301,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     } else if (key == LogicalKeyboardKey.arrowUp) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
+        _selectedIndex = lengthOfGroup(_selectedGroup) - 1;
       } else if (_selectedIndex > 0) {
         _selectedIndex -= 1;
       }

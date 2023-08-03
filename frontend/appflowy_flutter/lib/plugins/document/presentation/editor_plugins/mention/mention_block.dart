@@ -54,7 +54,7 @@ class MentionBlock extends StatelessWidget {
           key: ValueKey(pageId),
           pageId: pageId,
         );
-
+      case MentionType.reminder:
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];
         return MentionDateBlock(
@@ -62,6 +62,7 @@ class MentionBlock extends StatelessWidget {
           date: date,
           node: node,
           index: index,
+          isReminder: type == MentionType.reminder,
         );
       default:
         return const SizedBox.shrink();

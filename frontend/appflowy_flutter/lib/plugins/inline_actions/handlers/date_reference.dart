@@ -146,17 +146,17 @@ class DateReferenceService {
     _allOptions = [
       _itemFromDate(
         today,
-        'Today',
+        LocaleKeys.relativeDates_today.tr(),
         [DateFormat.yMd(_locale).format(today)],
       ),
       _itemFromDate(
         tomorrow,
-        'Tomorrow',
+        LocaleKeys.relativeDates_tomorrow.tr(),
         [DateFormat.yMd(_locale).format(tomorrow)],
       ),
       _itemFromDate(
         yesterday,
-        'Yesterday',
+        LocaleKeys.relativeDates_yesterday.tr(),
         [DateFormat.yMd(_locale).format(yesterday)],
       ),
     ];

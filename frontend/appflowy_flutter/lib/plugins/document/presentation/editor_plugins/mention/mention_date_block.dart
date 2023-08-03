@@ -16,11 +16,13 @@ class MentionDateBlock extends StatelessWidget {
     required this.date,
     required this.index,
     required this.node,
+    this.isReminder = false,
   });
 
   final String date;
   final int index;
   final Node node;
+  final bool isReminder;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class MentionDateBlock extends StatelessWidget {
           popupBuilder: (popoverContext) {
             return AppFlowyCalendar(
               format: CalendarFormat.month,
+              firstDay: isReminder ? DateTime.now() : null,
               selectedDate: parsedDate,
               focusedDay: parsedDate,
               onDaySelected: (selectedDay, focusedDay) {
@@ -49,7 +52,9 @@ class MentionDateBlock extends StatelessWidget {
                 final transaction = editorState.transaction
                   ..formatText(node, index, 1, {
                     MentionBlockKeys.mention: {
-                      MentionBlockKeys.type: MentionType.date.name,
+                      MentionBlockKeys.type: isReminder
+                          ? MentionType.reminder.name
+                          : MentionType.date.name,
                       MentionBlockKeys.date: selectedDay.toIso8601String(),
                     },
                   });
@@ -63,9 +68,9 @@ class MentionDateBlock extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const FlowySvg(
-                  name: 'editor/date',
-                  size: Size.square(18.0),
+                FlowySvg(
+                  name: isReminder ? 'grid/clock' : 'editor/date',
+                  size: const Size.square(18.0),
                 ),
                 const HSpace(2),
                 FlowyText(

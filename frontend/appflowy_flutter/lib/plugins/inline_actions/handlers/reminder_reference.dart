@@ -38,11 +38,6 @@ class ReminderReferenceService {
     // Checks if Locale has changed since last
     _setLocale();
 
-    final reminderLabel = LocaleKeys.inlineActions_reminder_groupTitle.tr();
-    if (search != null && !search.startsWith(reminderLabel.toLowerCase())) {
-      return _groupFromResults();
-    }
-
     // Filters static options
     _filterOptions(search);
 
@@ -107,7 +102,12 @@ class ReminderReferenceService {
 
     result.fold(
       (l) {},
-      (date) => options.insert(0, _itemFromDate(date)),
+      (date) {
+        // Only insert dates in the future
+        if (DateTime.now().isBefore(date)) {
+          options.insert(0, _itemFromDate(date));
+        }
+      },
     );
   }
 
@@ -152,23 +152,18 @@ class ReminderReferenceService {
   void _setOptions() {
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));
-    final yesterday = today.subtract(const Duration(days: 1));
+    final oneWeek = today.add(const Duration(days: 7));
 
     _allOptions = [
       _itemFromDate(
-        today,
-        'Today',
-        [DateFormat.yMd(_locale).format(today)],
-      ),
-      _itemFromDate(
         tomorrow,
-        'Tomorrow',
+        LocaleKeys.relativeDates_tomorrow.tr(),
         [DateFormat.yMd(_locale).format(tomorrow)],
       ),
       _itemFromDate(
-        yesterday,
-        'Yesterday',
-        [DateFormat.yMd(_locale).format(yesterday)],
+        oneWeek,
+        LocaleKeys.relativeDates_oneWeek.tr(),
+        [DateFormat.yMd(_locale).format(oneWeek)],
       ),
     ];
   }

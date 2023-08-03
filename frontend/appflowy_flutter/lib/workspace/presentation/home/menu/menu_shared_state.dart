@@ -1,6 +1,9 @@
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
+export './app/header/header.dart';
+export './app/menu_app.dart';
+
 class MenuSharedState {
   final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
 

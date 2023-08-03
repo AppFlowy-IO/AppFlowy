@@ -12,6 +12,7 @@ final kLastDay = DateTime.utc(2100, 1, 1);
 class AppFlowyCalendar extends StatelessWidget {
   const AppFlowyCalendar({
     super.key,
+    this.firstDay,
     this.selectedDate,
     required this.focusedDay,
     required this.format,
@@ -19,6 +20,9 @@ class AppFlowyCalendar extends StatelessWidget {
     this.onFormatChanged,
     this.onPageChanged,
   });
+
+  /// Disallows choosing dates before this date
+  final DateTime? firstDay;
 
   final DateTime? selectedDate;
   final DateTime focusedDay;
@@ -34,7 +38,7 @@ class AppFlowyCalendar extends StatelessWidget {
     final defaultDecoration = _defaultDecoration(context);
 
     return TableCalendar(
-      firstDay: kFirstDay,
+      firstDay: firstDay ?? kFirstDay,
       lastDay: kLastDay,
       focusedDay: focusedDay,
       rowHeight: GridSize.popoverItemHeight,
