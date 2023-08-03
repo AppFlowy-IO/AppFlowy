@@ -21,8 +21,6 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-use super::checkbox_type_option::CheckboxCellData;
-
 pub const CELL_DATA: &str = "data";
 
 /// Each [FieldType] has its own [TypeOptionCellDataHandler].
