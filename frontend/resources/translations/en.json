@@ -574,6 +574,13 @@
         "label": "Link Title",
         "placeholder": "Enter link title"
       }
+    },
+    "mention": {
+      "placeholder": "Mention a person or a page or date...",
+      "page": {
+        "label": "Link to page",
+        "tooltip": "Click to open page"
+      }
     }
   },
   "board": {

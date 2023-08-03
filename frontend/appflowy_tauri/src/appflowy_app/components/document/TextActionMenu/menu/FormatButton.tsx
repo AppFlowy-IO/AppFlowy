@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { TemporaryType, TextAction } from '$app/interfaces/document';
-import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import { getFormatActiveThunk, toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
@@ -17,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import LinkIcon from '@mui/icons-material/AddLink';
 import { useTranslation } from 'react-i18next';
+import Tooltip from '@mui/material/Tooltip';
 
 export const iconSize = { width: 18, height: 18 };
 
@@ -130,11 +130,11 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   }, [icon]);
 
   return (
-    <ToolbarTooltip title={formatTooltips[format]}>
+    <Tooltip disableInteractive placement={'top'} title={formatTooltips[format]}>
       <div className={`${color} cursor-pointer px-1 hover:text-fill-default`} onClick={() => formatClick(format)}>
         {formatIcon}
       </div>
-    </ToolbarTooltip>
+    </Tooltip>
   );
 };
 
