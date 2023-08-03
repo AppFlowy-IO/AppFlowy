@@ -22,6 +22,13 @@ cd freezed
 REM Allow execution permissions on CI
 chmod +x generate_freezed.cmd
 call generate_freezed.cmd %*
+cd ..
+
+echo Generating env files using build_runner
+cd env
+REM Allow execution permissions on CI
+chmod +x generate_env.cmd
+call generate_env.cmd %*
 
 REM Return to the original directory
 cd /d "%original_dir%"

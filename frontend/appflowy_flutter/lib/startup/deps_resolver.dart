@@ -1,5 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
@@ -82,8 +83,11 @@ void _resolveCommonService(
 }
 
 void _resolveUserDeps(GetIt getIt) {
-  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
-  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+  if (isSupabaseEnabled) {
+    getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+  } else {
+    getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  }
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 

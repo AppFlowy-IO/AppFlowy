@@ -181,7 +181,7 @@ async fn send_update(
 
   let params = builder.build();
   postgrest
-    .from(&table_name(&object.ty))
+    .from(AF_COLLAB_UPDATE_TABLE)
     .insert(params)
     .execute()
     .await?

@@ -333,31 +333,31 @@ class ThirdPartySignInButtons extends StatelessWidget {
           icon: 'login/google-mark',
           onPressed: () {
             getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context
-                .read<SignInBloc>()
-                .add(const SignInEvent.signedInWithOAuth('google'));
+            context.read<SignInBloc>().add(
+                  const SignInEvent.signedInWithOAuth('google'),
+                );
           },
         ),
-        const SizedBox(width: 20),
-        ThirdPartySignInButton(
-          icon: 'login/github-mark',
-          onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context
-                .read<SignInBloc>()
-                .add(const SignInEvent.signedInWithOAuth('github'));
-          },
-        ),
-        const SizedBox(width: 20),
-        ThirdPartySignInButton(
-          icon: 'login/discord-mark',
-          onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context
-                .read<SignInBloc>()
-                .add(const SignInEvent.signedInWithOAuth('discord'));
-          },
-        ),
+        // const SizedBox(width: 20),
+        // ThirdPartySignInButton(
+        //   icon: 'login/github-mark',
+        //   onPressed: () {
+        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        //     context
+        //         .read<SignInBloc>()
+        //         .add(const SignInEvent.signedInWithOAuth('github'));
+        //   },
+        // ),
+        // const SizedBox(width: 20),
+        // ThirdPartySignInButton(
+        //   icon: 'login/discord-mark',
+        //   onPressed: () {
+        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        //     context
+        //         .read<SignInBloc>()
+        //         .add(const SignInEvent.signedInWithOAuth('discord'));
+        //   },
+        // ),
       ],
     );
   }
