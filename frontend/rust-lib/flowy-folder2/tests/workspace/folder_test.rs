@@ -1,6 +1,6 @@
 use crate::script::{FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
-use flowy_folder2::entities::{ViewIconPB, ViewIconTypePB};
+use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
 
 #[tokio::test]
 async fn read_all_workspace_test() {

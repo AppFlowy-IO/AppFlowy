@@ -1,3 +1,4 @@
+use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
 use flowy_folder2::entities::*;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;

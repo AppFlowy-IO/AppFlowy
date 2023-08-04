@@ -16,6 +16,7 @@ use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
+use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
