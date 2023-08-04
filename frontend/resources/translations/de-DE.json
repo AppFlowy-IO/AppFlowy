@@ -149,7 +149,7 @@
       "addNewCommand": "Neuen Befehl hinzufügen",
       "updateShortcutStep": "Drücken Sie die gewünschte Tastenkombination und drücken Sie ENTER",
       "shortcutIsAlreadyUsed": "Diese Verknüpfung wird bereits verwendet für: {conflict}",
-      "resetToDefault": "Zurücksetzen keybindings"
+      "resetToDefault": "Zurücksetzen"
     }
   },
   "sideBar": {
