@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/application/settings/share/import_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
 import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -12,6 +12,13 @@ import 'package:collection/collection.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
+
+class Pair<F, S> {
+  F first;
+  S second;
+
+  Pair(this.first, this.second);
+}
 
 class NotionImporter {
   NotionImporter({
@@ -35,44 +42,138 @@ class NotionImporter {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
     final unzipFiles = ZipDecoder().decodeBytes(bytes);
-    final markdownFile = unzipFiles.firstWhereOrNull(
-      (element) =>
-          element.isFile &&
+    final List<Pair<List<Pair<String, ArchiveFile>>, List<ArchiveFile>>>
+        markdownFiles = [];
+    ArchiveFile? mainpage;
+    final List<ArchiveFile> mainpageAssets = [];
+    for (final element in unzipFiles) {
+      if (element.isFile &&
           element.name.endsWith('.md') &&
-          !element.name.contains("/"),
-    );
-    if (markdownFile == null) {
+          !element.name.contains("/")) {
+        mainpage = element;
+        unzipFiles.files.remove(element);
+        break;
+      }
+    }
+    if (mainpage == null) {
       return;
     }
+    for (final element in unzipFiles) {
+      if (element.isFile &&
+          ['.png', '.jpg', '.jpeg'].contains(p.extension(element.name)) &&
+          element.name.split('/').length - 1 == 1) {
+        mainpageAssets.add(element);
+      } else if (element.isFile &&
+          ['.png', '.jpg', '.jpeg'].contains(p.extension(element.name))) {
+        final List<String> segments = element.name.split('/');
+        segments.removeAt(0);
+        element.name = segments.join('/');
+      }
+    }
+    for (final element in mainpageAssets) {
+      unzipFiles.files.remove(element);
+    }
 
-    final name = p.basenameWithoutExtension(markdownFile.name);
-
-    // save the images
-    final images = unzipFiles.where(
-      (element) {
-        final extension = p.extension(element.name);
-        return element.isFile &&
-            ['.png', '.jpg', '.jpeg'].contains(extension) &&
-            element.name.split('/').length - 1 == 1;
-      },
-    );
-
-    final markdownContents = utf8.decode(markdownFile.content as Uint8List);
+    //first we are importing the main page
+    final mainPageName = p.basenameWithoutExtension(mainpage.name);
+    final markdownContents = utf8.decode(mainpage.content as Uint8List);
     final processedMarkdownFile = await _preProcessMarkdownFile(
       markdownContents,
-      images,
+      mainpageAssets,
     );
     final data = documentDataFrom(
       ImportType.markdownOrText,
       processedMarkdownFile,
     );
-    if (data != null) {
-      await ImportBackendService.importData(
-        data,
-        name,
-        parentViewId,
-        ImportTypePB.HistoryDocument,
-      );
+    final result = await ViewBackendService.createView(
+      layoutType: ViewLayoutPB.Document,
+      name: mainPageName,
+      parentViewId: parentViewId,
+      initialDataBytes: data,
+    );
+    final Map<String, String> parentNameToId = {};
+    String mainPageId;
+    if (result.isLeft()) {
+      mainPageId = result.getLeftOrNull()!.id;
+    } else {
+      return;
+    }
+    parentNameToId[mainPageName] = mainPageId;
+    //now we will import the sub pages
+    while (unzipFiles.isNotEmpty) {
+      final List<Pair<String, ArchiveFile>> files = [];
+      final List<ArchiveFile> images = [];
+      for (int i = 0; i < unzipFiles.length; i++) {
+        if (unzipFiles[i].isFile &&
+            unzipFiles[i].name.endsWith('.md') &&
+            unzipFiles[i].name.split('/').length - 1 == 1) {
+          final String parentName = unzipFiles[i].name.split('/')[0];
+          files.add(Pair(parentName, unzipFiles[i]));
+        } else if (unzipFiles[i].isFile && unzipFiles[i].name.endsWith('.md')) {
+          final List<String> segments = unzipFiles[i].name.split('/');
+          segments.removeAt(0);
+          unzipFiles[i].name = segments.join('/');
+        }
+      }
+      if (files.isEmpty) {
+        return;
+      }
+      for (final element in files) {
+        unzipFiles.files.remove(element.second);
+      }
+
+      for (int i = 0; i < unzipFiles.length; i++) {
+        if (unzipFiles[i].isFile &&
+            ['.png', '.jpg', '.jpeg']
+                .contains(p.extension(unzipFiles[i].name)) &&
+            unzipFiles[i].name.split('/').length - 1 == 1) {
+          images.add(unzipFiles[i]);
+        } else if (unzipFiles[i].isFile &&
+            ['.png', '.jpg', '.jpeg']
+                .contains(p.extension(unzipFiles[i].name))) {
+          final List<String> segments = unzipFiles[i].name.split('/');
+          segments.removeAt(0);
+          unzipFiles[i].name = segments.join('/');
+        }
+      }
+      for (final element in images) {
+        unzipFiles.files.remove(element);
+      }
+      markdownFiles.add(Pair(files, images));
+    }
+    while (markdownFiles.isNotEmpty) {
+      final file = markdownFiles.removeAt(0);
+      final markdownFileList = file.first;
+      final images = file.second;
+      for (final element in markdownFileList) {
+        final String parentName = element.first;
+        final String? parentID = parentNameToId[parentName];
+        if (parentID == null) {
+          return;
+        }
+        final name = p.basenameWithoutExtension(element.second.name);
+        final markdownContents =
+            utf8.decode(element.second.content as Uint8List);
+        final processedMarkdownFile = await _preProcessMarkdownFile(
+          markdownContents,
+          images,
+        );
+        final data = documentDataFrom(
+          ImportType.markdownOrText,
+          processedMarkdownFile,
+        );
+        final result = await ViewBackendService.createView(
+          layoutType: ViewLayoutPB.Document,
+          name: name,
+          parentViewId: parentID,
+          initialDataBytes: data,
+        );
+        if (result.isLeft()) {
+          parentNameToId[name] = result.getLeftOrNull()!.id;
+        } else {
+          return;
+        }
+      }
     }
   }
 
