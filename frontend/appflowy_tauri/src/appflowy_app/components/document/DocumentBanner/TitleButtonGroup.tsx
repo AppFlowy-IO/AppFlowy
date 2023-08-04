@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import { EmojiEmotionsOutlined, ImageOutlined } from '@mui/icons-material';
 import { BlockType, CoverType, NestedBlock } from '$app/interfaces/document';
-import { randomColor } from '$app/components/document/DocumentTitle/cover/config';
+import { randomColor } from '$app/components/document/DocumentBanner/cover/config';
 import { randomEmoji } from '$app/utils/document/emoji';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useAppSelector } from '$app/stores/store';

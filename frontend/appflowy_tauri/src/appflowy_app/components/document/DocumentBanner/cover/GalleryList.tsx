@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import ImageEdit from '$app/components/document/_shared/UploadImage/ImageEdit';
-import GalleryItem, { Image } from '$app/components/document/DocumentTitle/cover/GalleryItem';
+import GalleryItem, { Image } from '$app/components/document/DocumentBanner/cover/GalleryItem';
 
 interface Props {
   onSelected: (image: Image) => void;

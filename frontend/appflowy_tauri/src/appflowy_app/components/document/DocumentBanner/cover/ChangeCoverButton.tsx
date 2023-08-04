@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { DeleteOutlineRounded } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import ChangeCoverPopover from '$app/components/document/DocumentTitle/cover/ChangeCoverPopover';
+import ChangeCoverPopover from '$app/components/document/DocumentBanner/cover/ChangeCoverPopover';
 import { CoverType } from '$app/interfaces/document';
 
 function ChangeCoverButton({

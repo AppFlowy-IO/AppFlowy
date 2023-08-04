@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import Popover from '@mui/material/Popover';
-import ChangeColors from '$app/components/document/DocumentTitle/cover/ChangeColors';
-import ChangeImages from '$app/components/document/DocumentTitle/cover/ChangeImages';
+import ChangeColors from '$app/components/document/DocumentBanner/cover/ChangeColors';
+import ChangeImages from '$app/components/document/DocumentBanner/cover/ChangeImages';
 import { CoverType } from '$app/interfaces/document';
 
 function ChangeCoverPopover({

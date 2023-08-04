@@ -1,8 +1,7 @@
-import { ViewLayoutPB, ViewPB } from "@/services/backend";
+import { ViewLayoutPB, ViewPB } from '@/services/backend';
 import { PageBackendService } from '$app/stores/effects/workspace/page/page_bd_svc';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
 import { Page, PageIcon, parserViewPBToPage } from '$app_reducers/pages/slice';
-import { AsyncQueue } from '$app/utils/async_queue';
 
 export class PageController {
   private readonly backendService: PageBackendService = new PageBackendService();
@@ -45,7 +44,6 @@ export class PageController {
   };
 
   getChildPages = async (): Promise<Page[]> => {
-
     const result = await this.backendService.getPage(this.id);
 
     if (result.ok) {
@@ -72,15 +70,13 @@ export class PageController {
     return this.getPage(parentPageId);
   };
 
-  subscribe = async (callbacks: {
-    onPageChanged?: (page: Page, children: Page[]) => void;
-  }) => {
+  subscribe = async (callbacks: { onPageChanged?: (page: Page, children: Page[]) => void }) => {
     const didUpdateView = (payload: Uint8Array) => {
       const res = ViewPB.deserializeBinary(payload);
       const page = parserViewPBToPage(ViewPB.deserializeBinary(payload));
       const childPages = res.child_views.map(parserViewPBToPage);
       callbacks.onPageChanged?.(page, childPages);
-    }
+    };
     await this.observer.subscribeView(this.id, {
       didUpdateView,
     });
@@ -130,5 +126,4 @@ export class PageController {
 
     return Promise.reject(result.err);
   };
-
 }

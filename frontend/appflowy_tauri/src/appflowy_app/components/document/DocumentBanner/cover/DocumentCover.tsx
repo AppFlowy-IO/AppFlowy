@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import ChangeCoverButton from '$app/components/document/DocumentTitle/cover/ChangeCoverButton';
+import ChangeCoverButton from '$app/components/document/DocumentBanner/cover/ChangeCoverButton';
 import { readImage } from '$app/utils/document/image';
 import { CoverType } from '$app/interfaces/document';
 
