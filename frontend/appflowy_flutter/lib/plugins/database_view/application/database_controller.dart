@@ -13,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 import 'database_view_service.dart';
 import 'defines.dart';
 import 'layout/layout_service.dart';
@@ -92,6 +93,8 @@ class DatabaseController {
   final DatabaseGroupListener _groupListener;
   final DatabaseLayoutSettingListener _layoutListener;
 
+  final ValueNotifier<bool> _isLoading = ValueNotifier(true);
+
   DatabaseController({required ViewPB view})
       : viewId = view.id,
         _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
@@ -108,6 +111,12 @@ class DatabaseController {
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
   }
+
+  void setIsLoading(bool isLoading) {
+    _isLoading.value = isLoading;
+  }
+
+  ValueNotifier<bool> get isLoading => _isLoading;
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,

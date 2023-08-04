@@ -11,14 +11,14 @@ use lib_infra::future::FutureResult;
 use crate::supabase::api::request::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
 use crate::supabase::api::SupabaseServerService;
 
-pub struct RESTfulSupabaseDocumentServiceImpl<T>(T);
-impl<T> RESTfulSupabaseDocumentServiceImpl<T> {
+pub struct SupabaseDocumentServiceImpl<T>(T);
+impl<T> SupabaseDocumentServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self(server)
   }
 }
 
-impl<T> DocumentCloudService for RESTfulSupabaseDocumentServiceImpl<T>
+impl<T> DocumentCloudService for SupabaseDocumentServiceImpl<T>
 where
   T: SupabaseServerService,
 {
