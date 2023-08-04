@@ -215,10 +215,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
       buildWhenOnHover: () => !widget.showActions,
       builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.isDraggable &&
-          (widget.showActions ||
-              getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
+      isSelected: () => (widget.showActions ||
+          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
     );
   }
 
