@@ -1,7 +1,8 @@
 import { t } from 'i18next';
 import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
-import { Button } from '../../_shared/Button';
+
 import { useLogin } from '../Login/Login.hooks';
+import Button from '@mui/material/Button';
 
 export const GetStarted = () => {
   const { onAutoSignInClick } = useLogin();
@@ -20,8 +21,8 @@ export const GetStarted = () => {
             </span>
           </div>
 
-          <div id='Get-Started' className='flex w-full max-w-[340px] flex-col gap-6 ' aria-label='Get-Started'>
-            <Button size={'primary'} onClick={() => onAutoSignInClick()}>
+          <div id='Get-Started' className='flex w-full max-w-[340px] flex-col ' aria-label='Get-Started'>
+            <Button size={'large'} variant={'contained'} onClick={() => onAutoSignInClick()}>
               {t('signUp.getStartedText')}
             </Button>
           </div>

@@ -42,19 +42,18 @@ impl UserLocalDataMigration {
   pub fn run(self, migrations: Vec<Box<dyn UserDataMigration>>) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let conn = self.sqlite_pool.get()?;
-    let record = get_all_records(&*conn)?;
+    let record = get_all_records(&conn)?;
     let mut duplicated_names = vec![];
     for migration in migrations {
-      if record
+      if !record
         .iter()
-        .find(|record| record.migration_name == migration.name())
-        .is_none()
+        .any(|record| record.migration_name == migration.name())
       {
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
           migration.run(&self.session, &self.collab_db)?;
           applied_migrations.push(migration.name().to_string());
-          save_record(&*conn, &migration_name);
+          save_record(&conn, &migration_name);
           duplicated_names.push(migration_name);
         } else {
           tracing::error!("Duplicated migration name: {}", migration_name);

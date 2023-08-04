@@ -63,17 +63,6 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     return new WorkspaceController(id);
   }, [id]);
 
-  const onWorkspaceChanged = useCallback(
-    (data: WorkspaceItem) => {
-      dispatch(workspaceActions.onWorkspaceChanged(data));
-    },
-    [dispatch]
-  );
-
-  const onWorkspaceDeleted = useCallback(() => {
-    dispatch(workspaceActions.onWorkspaceDeleted(id));
-  }, [dispatch, id]);
-
   const openWorkspace = useCallback(async () => {
     await controller.open();
   }, [controller]);
@@ -96,7 +85,6 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
 
   const initializeWorkspace = useCallback(async () => {
     const childPages = await controller.getChildPages();
-
     dispatch(
       pagesActions.addChildPages({
         id,
@@ -107,11 +95,9 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
 
   const subscribeToWorkspace = useCallback(async () => {
     await controller.subscribe({
-      onWorkspaceChanged,
-      onWorkspaceDeleted,
       onChildPagesChanged,
     });
-  }, [controller, onChildPagesChanged, onWorkspaceChanged, onWorkspaceDeleted]);
+  }, [controller, onChildPagesChanged]);
 
   useEffect(() => {
     void (async () => {

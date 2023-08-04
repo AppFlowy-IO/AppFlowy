@@ -563,6 +563,9 @@
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",
+      "openInNewTab": "Open in new tab",
+      "copyLink": "Copy link",
+      "removeLink": "Remove link",
       "url": {
         "label": "Link URL",
         "placeholder": "Enter link URL"
@@ -651,7 +654,8 @@
       "objects": "Objects",
       "symbols": "Symbols",
       "flags": "Flags",
-      "nature": "Nature"
+      "nature": "Nature",
+      "frequentlyUsed": "Frequently Used"
     }
   }
 }

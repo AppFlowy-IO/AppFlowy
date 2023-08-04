@@ -16,6 +16,7 @@ use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
+use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
@@ -179,6 +180,15 @@ impl FlowyCoreTest {
     EventBuilder::new(self.clone())
       .event(FolderEvent::UpdateView)
       .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_view_icon(&self, payload: UpdateViewIconPayloadPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateViewIcon)
+      .payload(payload)
       .async_send()
       .await
       .error()
@@ -797,7 +807,7 @@ impl Cleaner {
     Cleaner(dir)
   }
 
-  fn cleanup(dir: &PathBuf) {
+  fn cleanup(_dir: &PathBuf) {
     // let _ = std::fs::remove_dir_all(dir);
   }
 }

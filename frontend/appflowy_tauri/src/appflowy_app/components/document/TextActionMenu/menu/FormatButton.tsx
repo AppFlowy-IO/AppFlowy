@@ -4,7 +4,6 @@ import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import { getFormatActiveThunk, toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { newLinkThunk } from '$app_reducers/document/async-actions/link';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { RANGE_NAME } from '$app/constants/document/name';
 import { createTemporary } from '$app_reducers/document/async-actions/temporary';
@@ -57,14 +56,6 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
     [controller, dispatch, isActive]
   );
 
-  const addLink = useCallback(() => {
-    dispatch(
-      newLinkThunk({
-        docId,
-      })
-    );
-  }, [dispatch, docId]);
-
   const addTemporaryInput = useCallback(
     (type: TemporaryType) => {
       dispatch(createTemporary({ type, docId }));
@@ -103,12 +94,12 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
         case TextAction.Code:
           return toggleFormat(format);
         case TextAction.Link:
-          return addLink();
+          return addTemporaryInput(TemporaryType.Link);
         case TextAction.Equation:
           return addTemporaryInput(TemporaryType.Equation);
       }
     },
-    [addLink, addTemporaryInput, toggleFormat]
+    [addTemporaryInput, toggleFormat]
   );
 
   const formatIcon = useMemo(() => {

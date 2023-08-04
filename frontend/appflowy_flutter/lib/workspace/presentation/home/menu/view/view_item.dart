@@ -229,7 +229,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // icon
       SizedBox.square(
         dimension: 16,
-        child: widget.view.icon(),
+        child: widget.view.defaultIcon(),
       ),
       const HSpace(5),
       // title

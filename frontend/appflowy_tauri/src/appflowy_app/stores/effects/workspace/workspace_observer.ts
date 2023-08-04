@@ -26,22 +26,22 @@ export class WorkspaceObserver {
   subscribeWorkspace = async (
     workspaceId: string,
     callbacks: {
-      didUpdateChildViews: (payload: Uint8Array) => void;
-      didUpdateWorkspace: (payload: Uint8Array) => void;
-      didDeleteWorkspace: (payload: Uint8Array) => void;
+      didUpdateChildViews?: (payload: Uint8Array) => void;
+      didUpdateWorkspace?: (payload: Uint8Array) => void;
+      didDeleteWorkspace?: (payload: Uint8Array) => void;
     }
   ) => {
     this.listener = new WorkspaceNotificationObserver({
       id: workspaceId,
       parserHandler: (notification, result) => {
         switch (notification) {
-          case FolderNotification.DidUpdateWorkspace:
+          case FolderNotification.DidUpdateWorkspaceViews:
             if (!result.ok) break;
-            callbacks.didUpdateWorkspace(result.val);
+            callbacks.didUpdateWorkspace?.(result.val);
             break;
           case FolderNotification.DidUpdateChildViews:
             if (!result.ok) break;
-            callbacks.didUpdateChildViews(result.val);
+            callbacks.didUpdateChildViews?.(result.val);
             break;
           // case FolderNotification.DidDeleteWorkspace:
           //   if (!result.ok) break;
@@ -58,8 +58,8 @@ export class WorkspaceObserver {
   subscribeView = async (
     viewId: string,
     callbacks: {
-      didUpdateChildViews: (payload: Uint8Array) => void;
-      didUpdateView: (payload: Uint8Array) => void;
+      didUpdateChildViews?: (payload: Uint8Array) => void;
+      didUpdateView?: (payload: Uint8Array) => void;
     }
   ) => {
     this.listener = new WorkspaceNotificationObserver({
@@ -68,11 +68,11 @@ export class WorkspaceObserver {
         switch (notification) {
           case FolderNotification.DidUpdateChildViews:
             if (!result.ok) break;
-            callbacks.didUpdateChildViews(result.val);
+            callbacks.didUpdateChildViews?.(result.val);
             break;
           case FolderNotification.DidUpdateView:
             if (!result.ok) break;
-            callbacks.didUpdateView(result.val);
+            callbacks.didUpdateView?.(result.val);
             break;
           default:
             break;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, IconButton } from '@mui/material';
-import { DeleteOutlineRounded, SearchOutlined } from '@mui/icons-material';
+import { Circle, DeleteOutlineRounded, SearchOutlined } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { randomEmoji } from '$app/utils/document/emoji';
@@ -12,26 +12,26 @@ import { useTranslation } from 'react-i18next';
 const skinTones = [
   {
     value: 0,
-    label: '✋',
+    color: '#ffc93a',
   },
   {
-    label: '✋🏻',
+    color: '#ffdab7',
     value: 1,
   },
   {
-    label: '✋🏼',
+    color: '#e7b98f',
     value: 2,
   },
   {
-    label: '✋🏽',
+    color: '#c88c61',
     value: 3,
   },
   {
-    label: '✋🏾',
+    color: '#a46134',
     value: 4,
   },
   {
-    label: '✋🏿',
+    color: '#5d4437',
     value: 5,
   },
 ];
@@ -78,7 +78,11 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
         <Tooltip title={t('emoji.selectSkinTone')}>
           <div className={'random-emoji-btn mr-2 rounded border border-line-divider'}>
             <IconButton size={'small'} className={'h-[25px] w-[25px]'} onClick={onOpen}>
-              {skinTones[skin].label}
+              <Circle
+                style={{
+                  fill: skinTones[skin].color,
+                }}
+              />
             </IconButton>
           </div>
         </Tooltip>
@@ -100,7 +104,7 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
             <div className={'mx-0.5'} key={skinTone.value}>
               <IconButton
                 style={{
-                  backgroundColor: skinTone.value === skin ? 'var(--fill-list-hover)' : 'transparent',
+                  backgroundColor: skinTone.value === skin ? 'var(--fill-list-hover)' : undefined,
                 }}
                 size={'small'}
                 onClick={() => {
@@ -108,7 +112,11 @@ function EmojiPickerHeader({ onEmojiSelect, onSkinSelect, searchValue, onSearchC
                   popoverProps.onClose?.();
                 }}
               >
-                {skinTone.label}
+                <Circle
+                  style={{
+                    fill: skinTone.color,
+                  }}
+                />
               </IconButton>
             </div>
           ))}

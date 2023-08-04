@@ -2,18 +2,23 @@ import React, { useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import { EmojiEmotionsOutlined, ImageOutlined } from '@mui/icons-material';
-import { BlockType, NestedBlock } from '$app/interfaces/document';
-import { randomColor } from '$app/components/document/DocumentTitle/cover/config';
+import { BlockType, CoverType, NestedBlock } from '$app/interfaces/document';
+import { randomColor } from '$app/components/document/DocumentBanner/cover/config';
 import { randomEmoji } from '$app/utils/document/emoji';
+import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { useAppSelector } from '$app/stores/store';
 
 interface Props {
   node: NestedBlock<BlockType.PageBlock>;
-  onUpdateCover: (coverType: 'image' | 'color', cover: string) => void;
+  onUpdateCover: (coverType: CoverType, cover: string) => void;
   onUpdateIcon: (icon: string) => void;
 }
 function TitleButtonGroup({ onUpdateIcon, onUpdateCover, node }: Props) {
   const { t } = useTranslation();
-  const showAddIcon = !node.data.icon;
+  const { docId } = useSubscribeDocument();
+  const icon = useAppSelector((state) => state.pages.pageMap[docId]?.icon);
+
+  const showAddIcon = !icon;
   const showAddCover = !node.data.cover;
 
   const onAddIcon = useCallback(() => {
@@ -25,7 +30,7 @@ function TitleButtonGroup({ onUpdateIcon, onUpdateCover, node }: Props) {
   const onAddCover = useCallback(() => {
     const color = randomColor();
 
-    onUpdateCover('color', color);
+    onUpdateCover(CoverType.Color, color);
   }, [onUpdateCover]);
 
   return (

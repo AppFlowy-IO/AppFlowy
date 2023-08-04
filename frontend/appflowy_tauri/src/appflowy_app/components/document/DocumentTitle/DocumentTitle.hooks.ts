@@ -1,47 +1,28 @@
 import { useSubscribeNode } from '../_shared/SubscribeNode.hooks';
-import { useCallback } from 'react';
-import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
+import { useEffect } from 'react';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { useAppDispatch } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { documentActions } from '$app_reducers/document/slice';
 
 export function useDocumentTitle(id: string) {
   const { node } = useSubscribeNode(id);
-  const { controller } = useSubscribeDocument();
   const dispatch = useAppDispatch();
-  const onUpdateIcon = useCallback(
-    (icon: string) => {
-      dispatch(
-        updateNodeDataThunk({
-          id,
-          data: {
-            icon,
-          },
-          controller,
-        })
-      );
-    },
-    [controller, dispatch, id]
-  );
+  const { docId } = useSubscribeDocument();
+  const page = useAppSelector((state) => state.pages.pageMap[docId]);
 
-  const onUpdateCover = useCallback(
-    (coverType: 'image' | 'color' | '', cover: string) => {
+  useEffect(() => {
+    if (page) {
       dispatch(
-        updateNodeDataThunk({
-          id,
-          data: {
-            cover,
-            coverType,
-          },
-          controller,
+        documentActions.updateRootNodeDelta({
+          docId,
+          delta: [{ insert: page.name }],
+          rootId: id,
         })
       );
-    },
-    [controller, dispatch, id]
-  );
+    }
+  }, [dispatch, docId, id, page]);
 
   return {
     node,
-    onUpdateCover,
-    onUpdateIcon,
   };
 }
