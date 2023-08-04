@@ -116,17 +116,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
       );
     });
 
-    // Set the icon and cover of the view
-    ViewBackendService.updateView(
-      viewId: viewId,
-      iconURL: iconURL,
-      coverURL: coverURL,
-    ).then((result) {
-      result.fold(
-        (l) => null,
-        (err) => Log.error(err),
-      );
-    });
   }
 }
 

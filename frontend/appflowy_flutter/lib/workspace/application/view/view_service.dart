@@ -138,22 +138,12 @@ class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> updateView({
     required String viewId,
     String? name,
-    String? iconURL,
-    String? coverURL,
     bool? isFavorite,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
     if (name != null) {
       payload.name = name;
-    }
-
-    if (iconURL != null) {
-      payload.iconUrl = iconURL;
-    }
-
-    if (coverURL != null) {
-      payload.coverUrl = coverURL;
     }
 
     if (isFavorite != null) {
