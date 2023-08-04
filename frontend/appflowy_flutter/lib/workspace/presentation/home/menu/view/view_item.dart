@@ -117,6 +117,7 @@ class InnerViewItem extends StatelessWidget {
       parentView: parentView,
       level: level,
       showActions: showActions,
+      categoryType: categoryType,
       onSelected: onSelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
@@ -187,6 +188,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     this.isDraggable = true,
+    required this.categoryType,
     required this.showActions,
     required this.onSelected,
   });
@@ -201,6 +203,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool showActions;
   final void Function(ViewPB) onSelected;
+  final FolderCategoryType categoryType;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -215,8 +218,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
       buildWhenOnHover: () => !widget.showActions,
       builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () => (widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
+      isSelected: () =>
+          (widget.isDraggable ||
+              widget.categoryType == FolderCategoryType.favorite) &&
+          (widget.showActions ||
+              getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
     );
   }
 
