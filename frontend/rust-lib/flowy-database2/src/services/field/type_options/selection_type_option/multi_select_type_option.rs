@@ -144,34 +144,22 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
     sort_condition: SortCondition,
   ) -> Ordering {
     match cell_data.len().cmp(&other_cell_data.len()) {
-      Ordering::Less => match sort_condition {
-        SortCondition::Ascending => Ordering::Less,
-        SortCondition::Descending => Ordering::Greater,
-      },
-      Ordering::Greater => match sort_condition {
-        SortCondition::Ascending => Ordering::Greater,
-        SortCondition::Descending => Ordering::Less,
-      },
       Ordering::Equal => {
-        for i in 0..cell_data.len() {
-          let order = match (
-            cell_data
-              .get(i)
-              .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-            other_cell_data
-              .get(i)
-              .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-          ) {
-            (Some(left), Some(right)) => {
-              let order = left.name.cmp(&right.name);
+        for (left_id, right_id) in cell_data.iter().zip(other_cell_data.iter()) {
+          let left = self.options.iter().find(|option| &option.id == left_id);
+          let right = self.options.iter().find(|option| &option.id == right_id);
+
+          let order = match (left, right) {
+            (None, None) => Ordering::Equal,
+            (None, Some(_)) => Ordering::Greater,
+            (Some(_), None) => Ordering::Less,
+            (Some(left_option), Some(right_option)) => {
+              let name_order = left_option.name.cmp(&right_option.name);
               match sort_condition {
-                SortCondition::Ascending => order,
-                SortCondition::Descending => order.reverse(),
+                SortCondition::Ascending => name_order,
+                SortCondition::Descending => name_order.reverse(),
               }
             },
-            (Some(_), None) => Ordering::Less,
-            (None, Some(_)) => Ordering::Greater,
-            (None, None) => default_order(),
           };
 
           if order.is_ne() {
@@ -179,6 +167,10 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
           }
         }
         default_order()
+      },
+      order => match sort_condition {
+        SortCondition::Ascending => order,
+        SortCondition::Descending => order.reverse(),
       },
     }
   }

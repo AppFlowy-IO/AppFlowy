@@ -11,7 +11,7 @@ use flowy_error::FlowyResult;
 use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, CheckboxCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  CheckboxCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
   TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -138,12 +138,7 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let order = match (cell_data.is_check(), other_cell_data.is_check()) {
-      (true, true) => Ordering::Equal,
-      (true, false) => Ordering::Greater,
-      (false, true) => Ordering::Less,
-      (false, false) => default_order(),
-    };
+    let order = cell_data.is_check().cmp(&other_cell_data.is_check());
     match sort_condition {
       SortCondition::Ascending => order,
       SortCondition::Descending => order.reverse(),
