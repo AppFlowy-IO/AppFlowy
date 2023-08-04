@@ -31,7 +31,7 @@ where
         async move {
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
-          action.run_with_fix_interval(5, 5).await
+          action.run_with_fix_interval(5, 10).await
         }
         .await,
       )

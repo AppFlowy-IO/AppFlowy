@@ -53,7 +53,7 @@ script = [
     cd rust-lib/
     rustup show
     echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

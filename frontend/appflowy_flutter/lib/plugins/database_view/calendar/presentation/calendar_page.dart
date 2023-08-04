@@ -164,7 +164,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 builder: (_, value, ___) {
                   if (value) {
                     return const Center(
-                        child: CircularProgressIndicator.adaptive());
+                      child: CircularProgressIndicator.adaptive(),
+                    );
                   } else {
                     return _buildCalendar(
                       context,

@@ -20,14 +20,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-#      - name: Create .env file
-#        working-directory: frontend/appflowy_flutter
-#        run: |
-#          touch .env
-#          echo SUPABASE_URL=${{ secrets.HOST_URL }} >> .env
-#          echo SUPABASE_ANON_KEY=${{ secrets.HOST_ANON_KEY }} >> .env
-#          echo SUPABASE_JWT_SECRET=${{ secrets.HOST_JWT_SECRET }} >> .env
-
       - name: Build release notes
         run: |
           touch ${{ env.RELEASE_NOTES_PATH }}

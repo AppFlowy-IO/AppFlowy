@@ -37,40 +37,41 @@ class GridSettingBar extends StatelessWidget {
         ),
       ],
       child: MultiBlocListener(
-          listeners: [
-            BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
-              listenWhen: (p, c) => p.isVisible != c.isVisible,
-              listener: (context, state) => toggleExtension.toggle(),
-            ),
-            BlocListener<SortMenuBloc, SortMenuState>(
-              listenWhen: (p, c) => p.isVisible != c.isVisible,
-              listener: (context, state) => toggleExtension.toggle(),
-            ),
-          ],
-          child: ValueListenableBuilder<bool>(
-            valueListenable: controller.isLoading,
-            builder: (context, value, child) {
-              if (value) {
-                return const SizedBox.shrink();
-              } else {
-                return SizedBox(
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(width: GridSize.leadingHeaderPadding),
-                      const Spacer(),
-                      const FilterButton(),
-                      const SortButton(),
-                      SettingButton(
-                        databaseController: controller,
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-          )),
+        listeners: [
+          BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
+            listenWhen: (p, c) => p.isVisible != c.isVisible,
+            listener: (context, state) => toggleExtension.toggle(),
+          ),
+          BlocListener<SortMenuBloc, SortMenuState>(
+            listenWhen: (p, c) => p.isVisible != c.isVisible,
+            listener: (context, state) => toggleExtension.toggle(),
+          ),
+        ],
+        child: ValueListenableBuilder<bool>(
+          valueListenable: controller.isLoading,
+          builder: (context, value, child) {
+            if (value) {
+              return const SizedBox.shrink();
+            } else {
+              return SizedBox(
+                height: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width: GridSize.leadingHeaderPadding),
+                    const Spacer(),
+                    const FilterButton(),
+                    const SortButton(),
+                    SettingButton(
+                      databaseController: controller,
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 }
