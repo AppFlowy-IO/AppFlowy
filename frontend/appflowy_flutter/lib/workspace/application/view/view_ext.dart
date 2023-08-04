@@ -44,7 +44,7 @@ extension ViewExtension on ViewPB {
     return widget;
   }
 
-  Widget icon() {
+  Widget defaultIcon() {
     final iconName = switch (layout) {
       ViewLayoutPB.Board => 'editor/board',
       ViewLayoutPB.Calendar => 'editor/calendar',
