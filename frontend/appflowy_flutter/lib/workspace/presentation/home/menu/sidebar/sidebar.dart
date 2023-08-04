@@ -1,12 +1,11 @@
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -46,33 +45,27 @@ class HomeSideBar extends StatelessWidget {
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         )
       ],
-      child: BlocListener<MenuBloc, MenuState>(
-        listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-        listener: (context, state) => getIt<TabsBloc>().add(
-          TabsEvent.openPlugin(plugin: state.plugin),
-        ),
-        child: Builder(
-          builder: (context) {
-            final menuState = context.watch<MenuBloc>().state;
-            final favoriteState = context.watch<FavoriteBloc>().state;
-            return _buildSidebar(
-              context,
-              menuState,
-              favoriteState,
-            );
-          },
-        ),
+      child: Builder(
+        builder: (context) {
+          final menuState = context.watch<MenuBloc>().state;
+          final favoriteState = context.watch<FavoriteBloc>().state;
+
+          return _buildSidebar(
+            context,
+            menuState.views,
+            favoriteState.views,
+          );
+        },
       ),
     );
   }
 
   Widget _buildSidebar(
     BuildContext context,
-    MenuState state,
-    FavoriteState favoriteState,
+    List<ViewPB> views,
+    List<ViewPB> favoriteViews,
   ) {
-    final views = state.views;
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
         border: Border(
@@ -95,7 +88,7 @@ class HomeSideBar extends StatelessWidget {
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
-                  favoriteViews: favoriteState.views,
+                  favoriteViews: favoriteViews,
                 ),
               ),
             ),

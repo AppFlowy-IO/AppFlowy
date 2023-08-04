@@ -1,4 +1,3 @@
-import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -18,7 +17,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewItem extends StatelessWidget {
@@ -30,6 +28,7 @@ class ViewItem extends StatelessWidget {
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
     this.isDraggable = true,
   });
@@ -47,7 +46,11 @@ class ViewItem extends StatelessWidget {
   // the left padding of the each level = level * leftPadding
   final double leftPadding;
 
+  // Selected by normal conventions
   final void Function(ViewPB) onSelected;
+
+  // Selected by middle mouse button
+  final void Function(ViewPB)? onTertiarySelected;
 
   // used for indicating the first child of the parent view, so that we can
   // add top border to the first child
@@ -72,6 +75,7 @@ class ViewItem extends StatelessWidget {
             showActions: state.isEditing,
             isExpanded: state.isExpanded,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
           );
@@ -94,6 +98,7 @@ class InnerViewItem extends StatelessWidget {
     required this.leftPadding,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
   });
 
@@ -111,6 +116,7 @@ class InnerViewItem extends StatelessWidget {
 
   final bool showActions;
   final void Function(ViewPB) onSelected;
+  final void Function(ViewPB)? onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +126,7 @@ class InnerViewItem extends StatelessWidget {
       level: level,
       showActions: showActions,
       onSelected: onSelected,
+      onTertiarySelected: onTertiarySelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
       leftPadding: leftPadding,
@@ -136,6 +143,7 @@ class InnerViewItem extends StatelessWidget {
           view: childView,
           level: level + 1,
           onSelected: onSelected,
+          onTertiarySelected: onTertiarySelected,
           isDraggable: isDraggable,
           leftPadding: leftPadding,
         );
@@ -163,6 +171,7 @@ class InnerViewItem extends StatelessWidget {
             categoryType: categoryType,
             level: level,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isDraggable: false,
             leftPadding: leftPadding,
           );
@@ -191,6 +200,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.isDraggable = true,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
   });
 
   final ViewPB view;
@@ -203,6 +213,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool showActions;
   final void Function(ViewPB) onSelected;
+  final void Function(ViewPB)? onTertiarySelected;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -256,16 +267,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
-        if (RawKeyboard.instance.isControlPressed) {
-          context.read<TabsBloc>().openTab(widget.view);
-        }
-        widget.onSelected(widget.view);
-      },
-      onTertiaryTapDown: (_) {
-        context.read<TabsBloc>().openTab(widget.view);
-        widget.onSelected(widget.view);
-      },
+      onTap: () => widget.onSelected(widget.view),
+      onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
       child: SizedBox(
         height: 26,
         child: Padding(

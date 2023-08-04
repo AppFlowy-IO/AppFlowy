@@ -7,7 +7,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
@@ -49,34 +48,18 @@ class HomeMenu extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-          create: (context) {
-            final menuBloc = MenuBloc(
-              user: user,
-              workspace: workspaceSetting.workspace,
-            );
-            menuBloc.add(const MenuEvent.initial());
-            return menuBloc;
-          },
+          create: (context) => MenuBloc(
+            user: user,
+            workspace: workspaceSetting.workspace,
+          )..add(const MenuEvent.initial()),
         ),
         BlocProvider(
-          create: (ctx) =>
+          create: (context) =>
               getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
         )
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-            listener: (context, state) {
-              getIt<TabsBloc>().add(
-                TabsEvent.openPlugin(plugin: state.plugin),
-              );
-            },
-          ),
-        ],
-        child: BlocBuilder<MenuBloc, MenuState>(
-          builder: (context, state) => _renderBody(context),
-        ),
+      child: BlocBuilder<MenuBloc, MenuState>(
+        builder: (context, state) => _renderBody(context),
       ),
     );
   }

@@ -7,11 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
-typedef KeyDownHandler = void Function(HotKey hotKey)?;
+typedef KeyDownHandler = void Function(HotKey hotKey);
 
+/// Helper class that utilizes the global [HotKeyManager] to easily
+/// add a [HotKey] with different handlers.
+///
+/// Makes registration of a [HotKey] simple and easy to read, and makes
+/// sure the [KeyDownHandler], and other handlers, are grouped with the
+/// relevant [HotKey].
+///
 class HotKeyItem {
   final HotKey hotKey;
-  final KeyDownHandler keyDownHandler;
+  final KeyDownHandler? keyDownHandler;
 
   HotKeyItem({
     required this.hotKey,

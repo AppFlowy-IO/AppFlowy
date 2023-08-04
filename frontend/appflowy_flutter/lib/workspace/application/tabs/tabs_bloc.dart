@@ -65,4 +65,8 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
   /// Adds a [TabsEvent.openTab] event for the provided [ViewPB]
   void openTab(ViewPB view) =>
       add(TabsEvent.openTab(plugin: view.plugin(), view: view));
+
+  /// Adds a [TabsEvent.openPlugin] event for the provided [ViewPB]
+  void openPlugin(ViewPB view) =>
+      add(TabsEvent.openPlugin(plugin: view.plugin(), view: view));
 }
