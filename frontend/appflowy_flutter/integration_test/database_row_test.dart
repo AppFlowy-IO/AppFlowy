@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -12,8 +13,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
       await tester.tapCreateRowButtonInGrid();
 
       // The initial number of rows is 3
@@ -25,8 +25,8 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
       await tester.hoverOnFirstRowOfGrid();
 
       await tester.tapCreateRowButtonInRowMenuOfGrid();
@@ -41,8 +41,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
       await tester.hoverOnFirstRowOfGrid();
 
       // Open the row menu and then click the delete
@@ -60,8 +59,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
       await tester.assertRowCountInGridPage(3);
 
       await tester.pumpAndSettle();

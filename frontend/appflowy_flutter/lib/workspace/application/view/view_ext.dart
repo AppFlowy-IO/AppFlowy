@@ -40,9 +40,21 @@ extension FlowyPluginExtension on FlowyPlugin {
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     const String thumbnail = "file_icon";
-
     const Widget widget = FlowySvg(name: thumbnail);
     return widget;
+  }
+
+  Widget defaultIcon() {
+    final iconName = switch (layout) {
+      ViewLayoutPB.Board => 'editor/board',
+      ViewLayoutPB.Calendar => 'editor/calendar',
+      ViewLayoutPB.Grid => 'editor/grid',
+      ViewLayoutPB.Document => 'editor/documents',
+      _ => 'file_icon',
+    };
+    return FlowySvg(
+      name: iconName,
+    );
   }
 
   PluginType get pluginType {
@@ -109,6 +121,19 @@ extension ViewLayoutExtension on ViewLayoutPB {
         return 'editor/calendar';
       case ViewLayoutPB.Document:
         return 'editor/documents';
+      default:
+        throw Exception('Unknown layout type');
+    }
+  }
+
+  bool get isDatabaseView {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+      case ViewLayoutPB.Board:
+      case ViewLayoutPB.Calendar:
+        return true;
+      case ViewLayoutPB.Document:
+        return false;
       default:
         throw Exception('Unknown layout type');
     }

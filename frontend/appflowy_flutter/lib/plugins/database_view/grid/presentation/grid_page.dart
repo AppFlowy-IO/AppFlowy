@@ -50,6 +50,7 @@ class GridPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return GridPage(
       key: _makeValueKey(controller),

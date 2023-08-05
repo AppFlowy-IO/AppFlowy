@@ -100,23 +100,18 @@ impl FolderOperationHandler for DocumentFolderOperation {
     FutureResult::new(async move {
       let mut write_guard = workspace_view_builder.write().await;
 
-      // Create a parent view named "⭐️ Getting started". and a child view named "Read me".
+      // Create a view named "⭐️ Getting started" with built-in README data.
       // Don't modify this code unless you know what you are doing.
       write_guard
         .with_view_builder(|view_builder| async {
-          view_builder
-            .with_name("⭐️ Getting started")
-            .with_child_view_builder(|child_view_builder| async {
-              let view = child_view_builder.with_name("Read me").build();
-              let json_str = include_str!("../../assets/read_me.json");
-              let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
-              manager
-                .create_document(&view.parent_view.id, Some(document_pb.into()))
-                .unwrap();
-              view
-            })
-            .await
-            .build()
+          let view = view_builder.with_name("⭐️ Getting started").build();
+          // create a empty document
+          let json_str = include_str!("../../assets/read_me.json");
+          let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
+          manager
+            .create_document(&view.parent_view.id, Some(document_pb.into()))
+            .unwrap();
+          view
         })
         .await;
       Ok(())

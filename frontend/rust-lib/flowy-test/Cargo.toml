@@ -43,6 +43,7 @@ collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
+zip = "0.6.6"
 
 [features]
 default = ["cloud_test"]

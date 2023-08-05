@@ -32,7 +32,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -78,7 +78,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -118,7 +118,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -156,7 +156,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -191,7 +191,7 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document

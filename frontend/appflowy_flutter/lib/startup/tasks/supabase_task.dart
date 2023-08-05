@@ -8,7 +8,7 @@ bool isSupabaseInitialized = false;
 class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return;
     }
 
@@ -18,7 +18,8 @@ class InitSupabaseTask extends LaunchTask {
     await Supabase.initialize(
       url: Env.supabaseUrl,
       anonKey: Env.supabaseAnonKey,
-      debug: false,
+      debug: true,
+      // authFlowType: AuthFlowType.pkce,
     );
 
     isSupabaseInitialized = true;

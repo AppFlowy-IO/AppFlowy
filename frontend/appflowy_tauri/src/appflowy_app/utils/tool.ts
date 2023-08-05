@@ -114,3 +114,15 @@ export function clone<T>(value: T): T {
 
   return result;
 }
+
+export function chunkArray<T>(array: T[], chunkSize: number) {
+  const chunks = [];
+  let i = 0;
+
+  while (i < array.length) {
+    chunks.push(array.slice(i, i + chunkSize));
+    i += chunkSize;
+  }
+
+  return chunks;
+}

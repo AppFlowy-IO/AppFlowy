@@ -234,13 +234,19 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ),
       DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
-        configuration: configuration,
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+        ),
       ),
       DatabaseBlockKeys.boardType: DatabaseViewBlockComponentBuilder(
-        configuration: configuration,
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+        ),
       ),
       DatabaseBlockKeys.calendarType: DatabaseViewBlockComponentBuilder(
-        configuration: configuration,
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+        ),
       ),
       CalloutBlockKeys.type: CalloutBlockComponentBuilder(
         configuration: configuration,

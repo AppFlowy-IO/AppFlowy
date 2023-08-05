@@ -21,16 +21,16 @@ use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 
-pub struct RESTfulSupabaseCollabStorageImpl<T>(T);
+pub struct SupabaseCollabStorageImpl<T>(T);
 
-impl<T> RESTfulSupabaseCollabStorageImpl<T> {
+impl<T> SupabaseCollabStorageImpl<T> {
   pub fn new(server: T) -> Self {
     Self(server)
   }
 }
 
 #[async_trait]
-impl<T> RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl<T>
+impl<T> RemoteCollabStorage for SupabaseCollabStorageImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -181,7 +181,7 @@ async fn send_update(
 
   let params = builder.build();
   postgrest
-    .from(&table_name(&object.ty))
+    .from(AF_COLLAB_UPDATE_TABLE)
     .insert(params)
     .execute()
     .await?

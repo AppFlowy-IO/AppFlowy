@@ -20,9 +20,12 @@ use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
 };
+use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
+use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
+use crate::migrations::migration::UserLocalDataMigration;
+use crate::migrations::UserMigrationContext;
 use crate::services::database::UserDB;
 use crate::services::session_serde::Session;
-use crate::services::user_data_migration::{UserDataMigration, UserMigrationContext};
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 use crate::{errors::FlowyError, notification::*};
@@ -74,6 +77,25 @@ impl UserSession {
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
+      match (
+        self.database.get_collab_db(session.user_id),
+        self.database.get_pool(session.user_id),
+      ) {
+        (Ok(collab_db), Ok(sqlite_pool)) => {
+          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
+            .run(vec![Box::new(HistoricalEmptyDocumentMigration)])
+          {
+            Ok(applied_migrations) => {
+              if !applied_migrations.is_empty() {
+                tracing::info!("Did apply migrations: {:?}", applied_migrations);
+              }
+            },
+            Err(e) => tracing::error!("User data migration failed: {:?}", e),
+          }
+        },
+        _ => tracing::error!("Failed to get collab db or sqlite pool"),
+      }
+
       if let Err(e) = user_status_callback
         .did_init(session.user_id, &session.user_workspace)
         .await
@@ -105,15 +127,14 @@ impl UserSession {
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
-  pub async fn migrate_old_user_data(
+  async fn migrate_local_user_to_cloud(
     &self,
     old_user: &UserMigrationContext,
     new_user: &UserMigrationContext,
   ) -> Result<Option<FolderData>, FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    let folder_data =
-      UserDataMigration::migration(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
     Ok(folder_data)
   }
 
@@ -232,7 +253,7 @@ impl UserSession {
             old_user.user_profile.id,
             new_user.user_profile.id
           );
-          match self.migrate_old_user_data(&old_user, &new_user).await {
+          match self.migrate_local_user_to_cloud(&old_user, &new_user).await {
             Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
@@ -563,7 +584,7 @@ impl UserSession {
     match KV::get_object::<Session>(&self.session_config.session_cache_key) {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        "User is not logged in".to_string(),
+        "User is not logged in",
       )),
       Some(session) => Ok(session),
     }

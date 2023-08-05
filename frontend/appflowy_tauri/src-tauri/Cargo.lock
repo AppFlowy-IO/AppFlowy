@@ -105,7 +105,7 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "collab",
@@ -1021,7 +1021,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1039,7 +1039,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -1057,7 +1057,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1084,7 +1084,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1096,7 +1096,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "collab",
@@ -1115,7 +1115,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1135,7 +1135,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "bincode",
  "chrono",
@@ -1155,7 +1155,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1185,7 +1185,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=12811d#12811d26a96330f6c1acaa8815f1d8d61ca3aa61"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=aac4e56#aac4e56bdb6a61598697283582d369a7af85d9c8"
 dependencies = [
  "bytes",
  "collab",
@@ -1507,6 +1507,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b28135ecf6b7d446b43e27e225622a038cc4e2930a1022f51cdb97ada19b8e4d"
 dependencies = [
  "byteorder",
+ "chrono",
  "diesel_derives",
  "libsqlite3-sys",
 ]
@@ -2119,6 +2120,7 @@ dependencies = [
  "bytes",
  "chrono",
  "collab",
+ "collab-document",
  "collab-folder",
  "diesel",
  "diesel_derives",

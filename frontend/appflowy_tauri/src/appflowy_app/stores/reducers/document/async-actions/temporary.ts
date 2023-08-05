@@ -33,14 +33,13 @@ export const createTemporary = createAsyncThunk(
       const rangeDelta = getDeltaByRange(nodeDelta, selection);
       const text = getDeltaText(rangeDelta);
 
+      const data = newDataWithTemporaryType(type, text);
       temporaryState = {
         id,
         selection,
         selectedText: text,
         type,
-        data: {
-          latex: text,
-        },
+        data,
       };
     }
 
@@ -50,6 +49,22 @@ export const createTemporary = createAsyncThunk(
     dispatch(temporaryActions.setTemporaryState({ id: docId, state: temporaryState }));
   }
 );
+
+function newDataWithTemporaryType(type: TemporaryType, text: string) {
+  switch (type) {
+    case TemporaryType.Equation:
+      return {
+        latex: text,
+      };
+    case TemporaryType.Link:
+      return {
+        href: '',
+        text: text,
+      };
+    default:
+      return {};
+  }
+}
 
 export const formatTemporary = createAsyncThunk(
   'document/temporary/format',
@@ -69,7 +84,7 @@ export const formatTemporary = createAsyncThunk(
     const nodeDelta = new Delta(node.data?.delta);
     const { index, length } = selection;
     const diffDelta: Delta = new Delta();
-    let newSelection;
+    let newSelection = selection;
 
     switch (type) {
       case TemporaryType.Equation: {
@@ -89,6 +104,21 @@ export const formatTemporary = createAsyncThunk(
           diffDelta.retain(index).delete(length);
         }
 
+        break;
+      }
+      case TemporaryType.Link: {
+        if (!data.text) return;
+        if (!data.href) {
+          diffDelta.retain(index).delete(length).insert(data.text);
+        } else {
+          diffDelta.retain(index).delete(length).insert(data.text, {
+            href: data.href,
+          });
+        }
+        newSelection = {
+          index: selection.index,
+          length: data.text.length,
+        };
         break;
       }
 

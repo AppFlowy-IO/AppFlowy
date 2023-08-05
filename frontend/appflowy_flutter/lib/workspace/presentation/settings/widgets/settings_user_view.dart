@@ -60,7 +60,7 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (!isSupabaseEnable) {
+    if (!isSupabaseEnabled) {
       return _renderLogoutButton(context);
     }
 

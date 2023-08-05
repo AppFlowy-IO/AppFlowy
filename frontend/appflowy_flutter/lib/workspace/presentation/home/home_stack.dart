@@ -233,6 +233,7 @@ class PageManager {
                   final builder = notifier.plugin.widgetBuilder;
                   final pluginWidget = builder.buildWidget(
                     context: PluginContext(onDeleted: onDeleted),
+                    shrinkWrap: false,
                   );
 
                   return Padding(
