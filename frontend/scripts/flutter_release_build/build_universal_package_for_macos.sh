@@ -24,4 +24,4 @@ cp -rf rust-lib/target/libdart_ffi.a \
 
 echo '🚀 ---------------------------------------------------'
 echo '🚀 building the flutter application for macOS'
-flutter build macos --release
+cargo make --profile production-mac-universal appflowy-macos-unviersal
