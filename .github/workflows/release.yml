@@ -220,19 +220,19 @@ jobs:
           asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
           asset_content_type: application/octet-stream
 
-  build-for-macOS-aarch64:
+  build-for-macOS-universal:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-args }}]
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
       MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/macos/Release
-      MACOS_AARCH64_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-aarch64.zip
-      MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-aarch64
+      MACOS_AARCH64_ZIP_NAME: AppFlowy_${{ github.ref_name }}_macos-universal.zip
+      MACOS_DMG_NAME: AppFlowy_${{ github.ref_name }}_macos-universal
     strategy:
       fail-fast: false
       matrix:
         job:
-          - { target: aarch64-apple-darwin, os: macos-11, extra-build-args: "" }
+          - { targets: 'aarch64-apple-darwin,x86_64-apple-darwin', os: macos-11, extra-build-args: "" }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -245,13 +245,11 @@ jobs:
           cache: true
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.job.target }}
-          override: true
+          targets: ${{ matrix.job.targets }}
           components: rustfmt
-          profile: minimal
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -268,7 +266,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          cargo make --profile production-mac-arm64 appflowy
+          sh scripts/flutter_release_build/build_universal_package_for_macos.sh
 
       - name: Create macOS dmg
         run: |
@@ -456,7 +454,7 @@ jobs:
 
   notify-discord:
     runs-on: ubuntu-latest
-    needs: [build-for-linux, build-for-windows, build-for-macOS-x86_64, build-for-macOS-aarch64]
+    needs: [build-for-linux, build-for-windows, build-for-macOS-x86_64, build-for-macOS-universal]
     steps:
       - name: Notify Discord
         run: |
