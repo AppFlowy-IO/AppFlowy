@@ -159,10 +159,22 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
           child: BlocBuilder<CalendarBloc, CalendarState>(
             builder: (context, state) {
-              return _buildCalendar(
-                context,
-                _eventController,
-                state.settings.foldLeft(0, (previous, a) => a.firstDayOfWeek),
+              return ValueListenableBuilder<bool>(
+                valueListenable: widget.databaseController.isLoading,
+                builder: (_, value, ___) {
+                  if (value) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                  } else {
+                    return _buildCalendar(
+                      context,
+                      _eventController,
+                      state.settings
+                          .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                    );
+                  }
+                },
               );
             },
           ),

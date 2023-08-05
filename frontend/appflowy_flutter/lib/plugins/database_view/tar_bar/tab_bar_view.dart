@@ -93,30 +93,46 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
         ],
         child: Column(
           children: [
-            Row(
-              children: [
-                BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                  builder: (context, state) {
-                    return const Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 50),
-                        child: DatabaseTabBar(),
-                      ),
-                    );
+            BlocBuilder<GridTabBarBloc, GridTabBarState>(
+              builder: (context, state) {
+                return ValueListenableBuilder<bool>(
+                  valueListenable: state
+                      .tabBarControllerByViewId[state.parentView.id]!
+                      .controller
+                      .isLoading,
+                  builder: (_, value, ___) {
+                    if (value) {
+                      return const SizedBox.shrink();
+                    } else {
+                      return Row(
+                        children: [
+                          BlocBuilder<GridTabBarBloc, GridTabBarState>(
+                            builder: (context, state) {
+                              return const Flexible(
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 50),
+                                  child: DatabaseTabBar(),
+                                ),
+                              );
+                            },
+                          ),
+                          BlocBuilder<GridTabBarBloc, GridTabBarState>(
+                            builder: (context, state) {
+                              return SizedBox(
+                                width: 300,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 50),
+                                  child: pageSettingBarFromState(state),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }
                   },
-                ),
-                BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                  builder: (context, state) {
-                    return SizedBox(
-                      width: 300,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 50),
-                        child: pageSettingBarFromState(state),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                );
+              },
             ),
             BlocBuilder<GridTabBarBloc, GridTabBarState>(
               builder: (context, state) {

@@ -584,10 +584,7 @@ impl UserSession {
     match KV::get_object::<Session>(&self.session_config.session_cache_key) {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!(
-          "Can't find the value of {}, User is not logged in",
-          self.session_config.session_cache_key
-        ),
+        "User is not logged in",
       )),
       Some(session) => Ok(session),
     }
