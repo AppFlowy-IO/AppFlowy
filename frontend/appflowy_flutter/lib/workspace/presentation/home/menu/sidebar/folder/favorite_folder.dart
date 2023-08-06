@@ -50,6 +50,7 @@ class FavoriteFolder extends StatelessWidget {
                     categoryType: FolderCategoryType.favorite,
                     isDraggable: false,
                     isFirstChild: view.id == views.first.id,
+                    isFeedback: false,
                     view: view,
                     level: 0,
                     onSelected: (view) {
