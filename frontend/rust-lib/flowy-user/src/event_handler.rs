@@ -260,3 +260,23 @@ pub async fn update_network_state_handler(
     .did_update_network(reachable);
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_historical_users_handler(
+  session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<RepeatedHistoricalUserPB, FlowyError> {
+  let session = upgrade_session(session)?;
+  let users = RepeatedHistoricalUserPB::from(session.get_historical_users());
+  data_result_ok(users)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn open_historical_users_handler(
+  user: AFPluginData<HistoricalUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let user = user.into_inner();
+  let session = upgrade_session(session)?;
+  session.open_historical_user(user.user_id)?;
+  Ok(())
+}

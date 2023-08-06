@@ -1,3 +1,4 @@
+use std::string::ToString;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::RocksCollabDB;
@@ -161,7 +162,13 @@ impl UserSession {
     let session: Session = resp.clone().into();
     let uid = session.user_id;
     self.set_session(Some(session))?;
-    self.log_user(uid, self.user_dir(uid));
+
+    self.log_user(
+      uid,
+      resp.name.clone(),
+      self.cloud_services.service_name(),
+      self.user_dir(uid),
+    );
 
     let user_workspace = resp.latest_workspace.clone();
     save_user_workspaces(
@@ -232,7 +239,12 @@ impl UserSession {
     };
     let uid = new_session.user_id;
     self.set_session(Some(new_session.clone()))?;
-    self.log_user(uid, self.user_dir(uid));
+    self.log_user(
+      uid,
+      response.name.clone(),
+      self.cloud_services.service_name(),
+      self.user_dir(uid),
+    );
     save_user_workspaces(
       self.db_pool(uid)?,
       response
@@ -577,13 +589,21 @@ impl UserSession {
     Ok(())
   }
 
-  fn log_user(&self, uid: i64, storage_path: String) {
+  fn log_user(
+    &self,
+    uid: i64,
+    user_name: String,
+    cloud_service_name: String,
+    storage_path: String,
+  ) {
     let mut logger_users = self
       .store_preferences
       .get_object::<HistoricalUsers>(HISTORICAL_USER)
       .unwrap_or_default();
     logger_users.add_user(HistoricalUser {
       user_id: uid,
+      user_name,
+      cloud_service_name,
       sign_in_timestamp: timestamp(),
       storage_path,
     });
@@ -598,6 +618,20 @@ impl UserSession {
       .get_object::<HistoricalUsers>(HISTORICAL_USER)
       .unwrap_or_default()
       .users
+  }
+
+  pub fn open_historical_user(&self, uid: i64) -> FlowyResult<()> {
+    let conn = self.db_connection(uid)?;
+    let row = user_workspace_table::dsl::user_workspace_table
+      .filter(user_workspace_table::uid.eq(uid))
+      .first::<UserWorkspaceTable>(&*conn)?;
+    let user_workspace = UserWorkspace::from(row);
+    let session = Session {
+      user_id: uid,
+      user_workspace,
+    };
+    self.set_session(Some(session))?;
+    Ok(())
   }
 
   /// Returns the current user session.
@@ -691,6 +725,13 @@ impl HistoricalUsers {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct HistoricalUser {
   pub user_id: i64,
+  #[serde(default = "DEFAULT_USER_NAME")]
+  pub user_name: String,
+  #[serde(default = "DEFAULT_CLOUD_SERVICE_NAME")]
+  pub cloud_service_name: String,
   pub sign_in_timestamp: i64,
   pub storage_path: String,
 }
+
+const DEFAULT_CLOUD_SERVICE_NAME: fn() -> String = || "Local".to_string();
+const DEFAULT_USER_NAME: fn() -> String = || "Me".to_string();

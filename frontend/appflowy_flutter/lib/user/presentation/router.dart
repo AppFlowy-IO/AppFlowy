@@ -13,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 
+const routerNameRoot = '/';
 const routerNameSignUp = '/signUp';
 const routerNameSignIn = '/signIn';
 const routerNameSkipLogIn = '/skipLogIn';
