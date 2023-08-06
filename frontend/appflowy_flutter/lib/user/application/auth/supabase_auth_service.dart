@@ -217,6 +217,22 @@ extension on String {
   }
 }
 
+/// Creates a completer that listens to Supabase authentication state changes and
+/// completes when a user signs in.
+///
+/// This function sets up a listener on Supabase's authentication state. When a user
+/// signs in, it triggers the provided [onSuccess] callback with the user's `id` and
+/// `email`. Once the [onSuccess] callback is executed and a response is received,
+/// the completer completes with the response, and the listener is canceled.
+///
+/// Parameters:
+/// - [onSuccess]: A callback function that's executed when a user signs in. It
+///   should take in a user's `id` and `email` and return a `Future` containing either
+///   a `FlowyError` or a `UserProfilePB`.
+///
+/// Returns:
+/// A completer of type `Either<FlowyError, UserProfilePB>`. This completer completes
+/// with the response from the [onSuccess] callback when a user signs in.
 Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
   required Future<Either<FlowyError, UserProfilePB>> Function(
     String userId,
@@ -229,16 +245,15 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
 
   subscription = auth.onAuthStateChange.listen((event) async {
     final user = event.session?.user;
-    if (event.event != AuthChangeEvent.signedIn || user == null) {
-      completer.complete(left(AuthError.supabaseSignInWithOauthError));
-    } else {
+    if (event.event == AuthChangeEvent.signedIn && user != null) {
       final response = await onSuccess(
         user.id,
         user.email ?? user.newEmail ?? '',
       );
+      // Only cancle the subscription if the Event is signedIn.
+      subscription.cancel();
       completer.complete(response);
     }
-    subscription.cancel();
   });
   return completer;
 }

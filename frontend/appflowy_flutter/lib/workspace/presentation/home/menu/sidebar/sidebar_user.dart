@@ -1,13 +1,17 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -109,13 +113,26 @@ class SidebarUser extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) {
+            builder: (dialogContext) {
               return BlocProvider<DocumentAppearanceCubit>.value(
                 value: BlocProvider.of<DocumentAppearanceCubit>(context),
                 child: SettingsDialog(
                   userProfile,
                   didLogout: () async {
-                    Navigator.of(context).pop();
+                    // Pop the dialog using the dialog context
+                    Navigator.of(dialogContext).pop();
+
+                    // Push the SignInScreen
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        PageRoutes.fade(
+                          () => SignInScreen(router: getIt<AuthRouter>()),
+                          const RouteSettings(name: routerNameSignIn),
+                          RouteDurations.slow.inMilliseconds * .001,
+                        ),
+                        (route) => route.settings.name == routerNameRoot,
+                      );
+                    }
                     await FlowyRunner.run(
                       FlowyApp(),
                       integrationEnv(),
