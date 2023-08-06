@@ -1,13 +1,16 @@
-use crate::migrations::migration::UserDataMigration;
-use crate::services::session_serde::Session;
+use std::sync::Arc;
+
 use appflowy_integrate::{RocksCollabDB, YrsDocAction};
 use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::core::Folder;
+
 use flowy_error::{internal_error, FlowyResult};
-use std::sync::Arc;
+
+use crate::migrations::migration::UserDataMigration;
+use crate::services::session_serde::Session;
 
 /// Migrate the first level documents of the workspace by inserting documents
 pub struct HistoricalEmptyDocumentMigration;
@@ -30,7 +33,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
       for view in migration_views {
         // Read all updates of the view
         if let Ok(view_updates) = write_txn.get_all_updates(session.user_id, &view.id) {
-          if let Err(_) = Document::from_updates(origin.clone(), view_updates, &view.id, vec![]) {
+          if Document::from_updates(origin.clone(), view_updates, &view.id, vec![]).is_err() {
             // Create a document with default data
             let document_data = default_document_data();
             let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![]));
