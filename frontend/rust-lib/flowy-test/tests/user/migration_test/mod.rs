@@ -1,2 +1,2 @@
-// mod document_test;
+mod document_test;
 mod util;
