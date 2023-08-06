@@ -98,6 +98,8 @@ dependencies:
   supabase_flutter: ^1.10.4
   envied: ^0.3.0+3
   dotted_border: ^2.0.0+3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
