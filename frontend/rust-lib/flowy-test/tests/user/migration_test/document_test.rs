@@ -13,8 +13,10 @@ async fn migrate_historical_empty_document_test() {
   assert_eq!(views.len(), 3);
   for view in views {
     assert_eq!(view.layout, ViewLayoutPB::Document);
-    let doc = test.open_document(view.id).await;
-    println!("doc: {:?}", doc.data);
+    let data = test.open_document(view.id).await.data;
+    assert!(!data.page_id.is_empty());
+    assert_eq!(data.blocks.len(), 2);
+    assert!(!data.meta.children_map.is_empty());
   }
 
   drop(cleaner);
