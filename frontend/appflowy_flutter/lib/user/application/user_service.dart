@@ -18,7 +18,7 @@ class UserBackendService {
   static Future<Either<FlowyError, UserProfilePB>>
       getCurrentUserProfile() async {
     final result = await UserEventGetUserProfile().send().then((value) {
-      value.fold((l) => null, (r) => Log.error(r));
+      value.fold((l) => null, (r) => Log.info(r));
       return value;
     });
     return result.swap();

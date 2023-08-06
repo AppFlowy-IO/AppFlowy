@@ -1,4 +1,3 @@
-import React from 'react';
 import { useVirtualizedList } from './VirtualizedList.hooks';
 import DocumentTitle from '../DocumentTitle';
 import Overlay from '../Overlay';
@@ -15,9 +14,8 @@ export default function VirtualizedList({
   node: Node;
   renderNode: (nodeId: string) => JSX.Element;
 }) {
-  const { virtualize, parentRef } = useVirtualizedList(childIds.length);
+  const { virtualize, parentRef } = useVirtualizedList(childIds.length + 1);
   const virtualItems = virtualize.getVirtualItems();
-
   const { docId } = useSubscribeDocument();
 
   return (
@@ -46,12 +44,14 @@ export default function VirtualizedList({
               }}
             >
               {virtualItems.map((virtualRow) => {
-                const id = childIds[virtualRow.index];
+                const isDocumentTitle = virtualRow.index === 0;
+                const id = isDocumentTitle ? node.id : childIds[virtualRow.index - 1];
 
                 return (
-                  <div className={'pt-[0.5px]'} key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
-                    {virtualRow.index === 0 ? <DocumentTitle id={node.id} /> : null}
-                    {renderNode(id)}
+                  <div className={isDocumentTitle ? '' : 'pt-[0.5px]'} key={id} data-index={virtualRow.index} ref={virtualize.measureElement}>
+                    {
+                      isDocumentTitle ? <DocumentTitle id={node.id} /> : renderNode(id)
+                    }
                   </div>
                 );
               })}

@@ -1,3 +1,4 @@
+use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
 use flowy_folder2::entities::*;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -83,45 +84,27 @@ async fn update_view_event_with_name_test() {
 }
 
 #[tokio::test]
-async fn update_view_event_with_icon_url_test() {
+async fn update_view_icon_event_test() {
   let test = FlowyCoreTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
     .await;
 
+  let new_icon = ViewIconPB {
+    ty: ViewIconTypePB::Emoji,
+    value: "👍".to_owned(),
+  };
   let error = test
-    .update_view(UpdateViewPayloadPB {
+    .update_view_icon(UpdateViewIconPayloadPB {
       view_id: view.id.clone(),
-      icon_url: Some("appflowy.io".to_string()),
-      ..Default::default()
+      icon: Some(new_icon.clone()),
     })
     .await;
   assert!(error.is_none());
 
   let view = test.get_view(&view.id).await;
-  assert_eq!(view.icon_url.unwrap(), "appflowy.io");
-}
-
-#[tokio::test]
-async fn update_view_event_with_cover_url_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await.workspace;
-  let view = test
-    .create_view(&current_workspace.id, "My first view".to_string())
-    .await;
-
-  let error = test
-    .update_view(UpdateViewPayloadPB {
-      view_id: view.id.clone(),
-      cover_url: Some("appflowy.io".to_string()),
-      ..Default::default()
-    })
-    .await;
-  assert!(error.is_none());
-
-  let view = test.get_view(&view.id).await;
-  assert_eq!(view.cover_url.unwrap(), "appflowy.io");
+  assert_eq!(view.icon, Some(new_icon));
 }
 
 #[tokio::test]

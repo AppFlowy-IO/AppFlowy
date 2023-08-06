@@ -10,12 +10,12 @@ use parking_lot::RwLock;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
 
-use crate::document::document_event::OpenDocumentData;
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
+use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
@@ -25,6 +25,7 @@ use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
+use crate::document::document_event::OpenDocumentData;
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, SignUpContext};
 
@@ -37,14 +38,16 @@ pub mod user_event;
 pub struct FlowyCoreTest {
   auth_type: Arc<RwLock<AuthTypePB>>,
   inner: AppFlowyCore,
-  cleaner: Arc<RwLock<Option<Cleaner>>>,
+  #[allow(dead_code)]
+  cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
 }
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
-    let temp_dir = temp_dir();
-    Self::new_with_user_data_path(temp_dir.to_str().unwrap(), nanoid!(6))
+    let temp_dir = PathBuf::from(temp_dir()).join(nanoid!(6));
+    std::fs::create_dir_all(&temp_dir).unwrap();
+    Self::new_with_user_data_path(temp_dir, nanoid!(6))
   }
 }
 
@@ -53,8 +56,8 @@ impl FlowyCoreTest {
     Self::default()
   }
 
-  pub fn new_with_user_data_path(path: &str, name: String) -> Self {
-    let config = AppFlowyCoreConfig::new(path, name).log_filter(
+  pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
+    let config = AppFlowyCoreConfig::new(path.clone().to_str().unwrap(), name).log_filter(
       "info",
       vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
     );
@@ -70,7 +73,7 @@ impl FlowyCoreTest {
       inner,
       auth_type,
       notification_sender,
-      cleaner: Arc::new(RwLock::new(None)),
+      cleaner: Arc::new(Cleaner(path)),
     }
   }
 
@@ -138,8 +141,6 @@ impl FlowyCoreTest {
       .await
       .try_parse::<UserProfilePB>()?;
 
-    let user_path = PathBuf::from(&self.config.storage_path).join(user_profile.id.to_string());
-    *self.cleaner.write() = Some(Cleaner::new(user_path));
     Ok(user_profile)
   }
 
@@ -179,6 +180,15 @@ impl FlowyCoreTest {
     EventBuilder::new(self.clone())
       .event(FolderEvent::UpdateView)
       .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_view_icon(&self, payload: UpdateViewIconPayloadPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateViewIcon)
+      .payload(payload)
       .async_send()
       .await
       .error()
@@ -798,7 +808,7 @@ impl Cleaner {
   }
 
   fn cleanup(dir: &PathBuf) {
-    // let _ = std::fs::remove_dir_all(dir);
+    let _ = std::fs::remove_dir_all(dir);
   }
 }
 

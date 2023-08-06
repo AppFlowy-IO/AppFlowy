@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import Popover from '@mui/material/Popover';
 import EmojiPicker from '$app/components/_shared/EmojiPicker';
+import { PageIcon } from '$app_reducers/pages/slice';
 
 function DocumentIcon({
   icon,
   className,
   onUpdateIcon,
 }: {
-  icon?: string;
+  icon?: PageIcon;
   className?: string;
   onUpdateIcon: (icon: string) => void;
 }) {
@@ -41,13 +42,15 @@ function DocumentIcon({
     <>
       <div className={`absolute bottom-0 left-0 pt-[20px] ${className}`}>
         <div onClick={onOpen} className={'h-full w-full cursor-pointer rounded text-6xl hover:text-7xl'}>
-          {icon}
+          {icon.value}
         </div>
       </div>
       <Popover
         open={open}
         anchorReference='anchorPosition'
         anchorPosition={anchorPosition}
+        disableAutoFocus
+        disableRestoreFocus
         onClose={() => setAnchorPosition(undefined)}
       >
         <EmojiPicker onEmojiSelect={onEmojiSelect} />

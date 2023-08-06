@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use collab_folder::core::{View, ViewLayout};
 
+use crate::entities::icon::ViewIconPB;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -50,16 +51,11 @@ pub struct ViewPB {
   #[pb(index = 6)]
   pub layout: ViewLayoutPB,
 
-  /// The icon url of the view.
-  /// It can be used to save the emoji icon of the view.
+  /// The icon of the view.
   #[pb(index = 7, one_of)]
-  pub icon_url: Option<String>,
+  pub icon: Option<ViewIconPB>,
 
-  /// The cover url of the view.
-  #[pb(index = 8, one_of)]
-  pub cover_url: Option<String>,
-
-  #[pb(index = 9)]
+  #[pb(index = 8)]
   pub is_favorite: bool,
 }
 
@@ -71,9 +67,8 @@ pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
     create_time: view.created_at,
     child_views: Default::default(),
     layout: view.layout.clone().into(),
-    icon_url: view.icon_url.clone(),
-    cover_url: view.cover_url.clone(),
-    is_favorite: view.is_favorite.clone(),
+    icon: view.icon.clone().map(|icon| icon.into()),
+    is_favorite: view.is_favorite,
   }
 }
 
@@ -89,9 +84,8 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
       .map(view_pb_without_child_views)
       .collect(),
     layout: view.layout.clone().into(),
-    icon_url: view.icon_url.clone(),
-    cover_url: view.cover_url.clone(),
-    is_favorite: view.is_favorite.clone(),
+    icon: view.icon.clone().map(|icon| icon.into()),
+    is_favorite: view.is_favorite,
   }
 }
 
@@ -318,12 +312,6 @@ pub struct UpdateViewPayloadPB {
   pub layout: Option<ViewLayoutPB>,
 
   #[pb(index = 6, one_of)]
-  pub icon_url: Option<String>,
-
-  #[pb(index = 7, one_of)]
-  pub cover_url: Option<String>,
-
-  #[pb(index = 8, one_of)]
   pub is_favorite: Option<bool>,
 }
 
@@ -333,10 +321,8 @@ pub struct UpdateViewParams {
   pub name: Option<String>,
   pub desc: Option<String>,
   pub thumbnail: Option<String>,
-  pub icon_url: Option<String>,
-  pub cover_url: Option<String>,
-  pub is_favorite: Option<bool>,
   pub layout: Option<ViewLayout>,
+  pub is_favorite: Option<bool>,
 }
 
 impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
@@ -360,8 +346,6 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       Some(thumbnail) => Some(ViewThumbnail::parse(thumbnail)?.0),
     };
 
-    let cover_url = self.cover_url;
-    let icon_url = self.icon_url;
     let is_favorite = self.is_favorite;
 
     Ok(UpdateViewParams {
@@ -369,8 +353,6 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       name,
       desc,
       thumbnail,
-      cover_url,
-      icon_url,
       is_favorite,
       layout: self.layout.map(|ty| ty.into()),
     })

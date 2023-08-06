@@ -47,20 +47,29 @@ class GridSettingBar extends StatelessWidget {
             listener: (context, state) => toggleExtension.toggle(),
           ),
         ],
-        child: SizedBox(
-          height: 40,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(width: GridSize.leadingHeaderPadding),
-              const Spacer(),
-              const FilterButton(),
-              const SortButton(),
-              SettingButton(
-                databaseController: controller,
-              ),
-            ],
-          ),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: controller.isLoading,
+          builder: (context, value, child) {
+            if (value) {
+              return const SizedBox.shrink();
+            } else {
+              return SizedBox(
+                height: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width: GridSize.leadingHeaderPadding),
+                    const Spacer(),
+                    const FilterButton(),
+                    const SortButton(),
+                    SettingButton(
+                      databaseController: controller,
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
         ),
       ),
     );

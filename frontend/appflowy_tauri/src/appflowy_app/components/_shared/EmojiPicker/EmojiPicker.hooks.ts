@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import emojiData, { EmojiMartData } from '@emoji-mart/data';
+import { init, FrequentlyUsed, getEmojiDataFromNative, Store } from 'emoji-mart';
+
 import { PopoverProps } from '@mui/material/Popover';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { chunkArray } from '$app/utils/tool';
+
+export const EMOJI_SIZE = 32;
+
+export const PER_ROW_EMOJI_COUNT = 13;
+
+export const MAX_FREQUENTLY_ROW_COUNT = 2;
 
 export interface EmojiCategory {
   id: string;
@@ -15,48 +23,87 @@ interface Emoji {
   name: string;
   native: string;
 }
-export function useLoadEmojiData({ skin }: { skin: number }) {
+
+export function useLoadEmojiData({ onEmojiSelect }: { onEmojiSelect: (emoji: string) => void }) {
   const [searchValue, setSearchValue] = useState('');
   const [emojiCategories, setEmojiCategories] = useState<EmojiCategory[]>([]);
+  const [skin, setSkin] = useState<number>(() => {
+    return Number(Store.get('skin')) || 0;
+  });
+
+  const onSkinChange = useCallback((val: number) => {
+    setSkin(val);
+    Store.set('skin', String(val));
+  }, []);
+
+  const loadEmojiData = useCallback(
+    async (searchVal?: string) => {
+      const { emojis, categories } = emojiData as EmojiMartData;
+
+      const filteredCategories = categories
+        .map((category) => {
+          const { id, emojis: categoryEmojis } = category;
+
+          return {
+            id,
+            emojis: categoryEmojis
+              .filter((emojiId) => {
+                const emoji = emojis[emojiId];
+
+                if (!searchVal) return true;
+                return filterSearchValue(emoji, searchVal);
+              })
+              .map((emojiId) => {
+                const emoji = emojis[emojiId];
+                const { name, skins } = emoji;
+
+                return {
+                  id: emojiId,
+                  name,
+                  native: skins[skin] ? skins[skin].native : skins[0].native,
+                };
+              }),
+          };
+        })
+        .filter((category) => category.emojis.length > 0);
+
+      setEmojiCategories(filteredCategories);
+    },
+    [skin]
+  );
 
   useEffect(() => {
-    const { emojis, categories } = emojiData as EmojiMartData;
+    void (async () => {
+      await init({ data: emojiData, maxFrequentRows: MAX_FREQUENTLY_ROW_COUNT, perLine: PER_ROW_EMOJI_COUNT });
+      await loadEmojiData();
+    })();
+  }, [loadEmojiData]);
 
-    const emojiCategories = categories
-      .map((category) => {
-        const { id, emojis: categoryEmojis } = category;
+  useEffect(() => {
+    void loadEmojiData(searchValue);
+  }, [loadEmojiData, searchValue]);
 
-        return {
-          id,
-          emojis: categoryEmojis
-            .filter((emojiId) => {
-              const emoji = emojis[emojiId];
+  const onSelect = useCallback(
+    async (native: string) => {
+      onEmojiSelect(native);
+      if (!native) {
+        return;
+      }
 
-              if (!searchValue) return true;
-              return filterSearchValue(emoji, searchValue);
-            })
-            .map((emojiId) => {
-              const emoji = emojis[emojiId];
-              const { id, name, skins } = emoji;
+      const data = await getEmojiDataFromNative(native);
 
-              return {
-                id,
-                name,
-                native: skins[skin] ? skins[skin].native : skins[0].native,
-              };
-            }),
-        };
-      })
-      .filter((category) => category.emojis.length > 0);
-
-    setEmojiCategories(emojiCategories);
-  }, [skin, searchValue]);
+      FrequentlyUsed.add(data);
+    },
+    [onEmojiSelect]
+  );
 
   return {
     emojiCategories,
-    skin,
     setSearchValue,
     searchValue,
+    onSelect,
+    onSkinChange,
+    skin,
   };
 }
 
@@ -124,9 +171,8 @@ export function useVirtualizedCategories({ count }: { count: number }) {
     count,
     getScrollElement: () => ref.current,
     estimateSize: () => {
-      return 60;
+      return EMOJI_SIZE;
     },
-    overscan: 3,
   });
 
   return { virtualize, ref };

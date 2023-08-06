@@ -21,7 +21,7 @@ function NewPageButton({ workspaceId }: { workspaceId: string }) {
       <button
         onClick={async () => {
           const { id } = await controller.createView({
-            name: t('document.title.placeholder'),
+            name: "",
             layout: ViewLayoutPB.Document,
             parent_view_id: workspaceId,
           });

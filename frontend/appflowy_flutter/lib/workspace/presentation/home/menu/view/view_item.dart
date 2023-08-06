@@ -19,6 +19,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef ViewItemOnSelected = void Function(ViewPB);
+
 class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
@@ -31,6 +33,7 @@ class ViewItem extends StatelessWidget {
     this.onTertiarySelected,
     this.isFirstChild = false,
     this.isDraggable = true,
+    required this.isFeedback,
   });
 
   final ViewPB view;
@@ -47,10 +50,10 @@ class ViewItem extends StatelessWidget {
   final double leftPadding;
 
   // Selected by normal conventions
-  final void Function(ViewPB) onSelected;
+  final ViewItemOnSelected onSelected;
 
   // Selected by middle mouse button
-  final void Function(ViewPB)? onTertiarySelected;
+  final ViewItemOnSelected? onTertiarySelected;
 
   // used for indicating the first child of the parent view, so that we can
   // add top border to the first child
@@ -59,12 +62,19 @@ class ViewItem extends StatelessWidget {
   // it should be false when it's rendered as feedback widget inside DraggableItem
   final bool isDraggable;
 
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
+          // don't remove this code. it's related to the backend service.
+          view.childViews
+            ..clear()
+            ..addAll(state.childViews);
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
@@ -78,6 +88,7 @@ class ViewItem extends StatelessWidget {
             onTertiarySelected: onTertiarySelected,
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
+            isFeedback: isFeedback,
           );
         },
       ),
@@ -100,6 +111,7 @@ class InnerViewItem extends StatelessWidget {
     required this.onSelected,
     this.onTertiarySelected,
     this.isFirstChild = false,
+    required this.isFeedback,
   });
 
   final ViewPB view;
@@ -110,13 +122,15 @@ class InnerViewItem extends StatelessWidget {
   final bool isDraggable;
   final bool isExpanded;
   final bool isFirstChild;
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
 
   final int level;
   final double leftPadding;
 
   final bool showActions;
-  final void Function(ViewPB) onSelected;
-  final void Function(ViewPB)? onTertiarySelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +139,13 @@ class InnerViewItem extends StatelessWidget {
       parentView: parentView,
       level: level,
       showActions: showActions,
+      categoryType: categoryType,
       onSelected: onSelected,
       onTertiarySelected: onTertiarySelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
       leftPadding: leftPadding,
+      isFeedback: isFeedback,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -146,6 +162,7 @@ class InnerViewItem extends StatelessWidget {
           onTertiarySelected: onTertiarySelected,
           isDraggable: isDraggable,
           leftPadding: leftPadding,
+          isFeedback: isFeedback,
         );
       }).toList();
 
@@ -174,6 +191,7 @@ class InnerViewItem extends StatelessWidget {
             onTertiarySelected: onTertiarySelected,
             isDraggable: false,
             leftPadding: leftPadding,
+            isFeedback: true,
           );
         },
       );
@@ -198,22 +216,27 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.level,
     required this.leftPadding,
     this.isDraggable = true,
+    required this.categoryType,
     required this.showActions,
     required this.onSelected,
     this.onTertiarySelected,
+    required this.isFeedback,
   });
 
   final ViewPB view;
   final ViewPB? parentView;
   final bool isExpanded;
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
 
   final int level;
   final double leftPadding;
 
   final bool isDraggable;
   final bool showActions;
-  final void Function(ViewPB) onSelected;
-  final void Function(ViewPB)? onTertiarySelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
+  final FolderCategoryType categoryType;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -222,6 +245,10 @@ class SingleInnerViewItem extends StatefulWidget {
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   @override
   Widget build(BuildContext context) {
+    if (widget.isFeedback) {
+      return _buildViewItem(false);
+    }
+
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
@@ -229,9 +256,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       buildWhenOnHover: () => !widget.showActions,
       builder: (_, onHover) => _buildViewItem(onHover),
       isSelected: () =>
-          widget.isDraggable &&
-          (widget.showActions ||
-              getIt<MenuSharedState>().latestOpenView?.id == widget.view.id),
+          widget.showActions ||
+          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
@@ -242,7 +268,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       // icon
       SizedBox.square(
         dimension: 16,
-        child: widget.view.icon(),
+        child: widget.view.defaultIcon(),
       ),
       const HSpace(5),
       // title

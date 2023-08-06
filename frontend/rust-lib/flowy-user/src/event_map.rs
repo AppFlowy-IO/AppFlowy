@@ -15,9 +15,14 @@ use crate::event_handler::*;
 use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
+  let store_preferences = user_session
+    .upgrade()
+    .and_then(|session| Some(session.get_store_preferences()))
+    .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
     .state(user_session)
+    .state(store_preferences)
     .event(UserEvent::SignIn, sign_in)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)

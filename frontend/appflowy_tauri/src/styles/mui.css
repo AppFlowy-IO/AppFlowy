@@ -15,6 +15,10 @@
     background-color: var(--fill-list-active);
 }
 
+.MuiList-root .Mui-focusVisible.MuiMenuItem-root:not(:hover, .Mui-selected) {
+    background-color: unset;
+}
+
 .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
     background-image: none;
 }

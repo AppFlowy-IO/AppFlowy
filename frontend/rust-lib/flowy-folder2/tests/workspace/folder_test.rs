@@ -1,5 +1,6 @@
 use crate::script::{FolderScript::*, FolderTest};
 use collab_folder::core::ViewLayout;
+use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
 
 #[tokio::test]
 async fn read_all_workspace_test() {
@@ -153,6 +154,32 @@ async fn view_update() {
 }
 
 #[tokio::test]
+async fn view_icon_update_test() {
+  let mut test = FolderTest::new().await;
+  let view = test.child_view.clone();
+  let new_icon = ViewIconPB {
+    ty: ViewIconTypePB::Emoji,
+    value: "👍".to_owned(),
+  };
+  assert!(view.icon.is_none());
+  test
+    .run_scripts(vec![
+      UpdateViewIcon {
+        icon: Some(new_icon.clone()),
+      },
+      ReadView(view.id.clone()),
+    ])
+    .await;
+
+  assert_eq!(test.child_view.icon, Some(new_icon));
+
+  test
+    .run_scripts(vec![UpdateViewIcon { icon: None }, ReadView(view.id)])
+    .await;
+  assert_eq!(test.child_view.icon, None);
+}
+
+#[tokio::test]
 #[should_panic]
 async fn view_delete() {
   let mut test = FolderTest::new().await;
@@ -263,8 +290,8 @@ async fn toggle_favorites() {
       ReadView(view.id.clone()),
     ])
     .await;
-  assert_eq!(test.child_view.is_favorite, true);
-  assert!(test.favorites.len() != 0);
+  assert!(test.child_view.is_favorite);
+  assert_ne!(test.favorites.len(), 0);
   assert_eq!(test.favorites[0].id, view.id);
 
   let view = test.child_view.clone();
@@ -293,12 +320,12 @@ async fn delete_favorites() {
       ReadView(view.id.clone()),
     ])
     .await;
-  assert_eq!(test.child_view.is_favorite, true);
-  assert!(test.favorites.len() != 0);
+  assert!(test.child_view.is_favorite);
+  assert_ne!(test.favorites.len(), 0);
   assert_eq!(test.favorites[0].id, view.id);
 
   test.run_scripts(vec![DeleteView, ReadFavorites]).await;
-  assert!(test.favorites.len() == 0);
+  assert_eq!(test.favorites.len(), 0);
 }
 
 #[tokio::test]

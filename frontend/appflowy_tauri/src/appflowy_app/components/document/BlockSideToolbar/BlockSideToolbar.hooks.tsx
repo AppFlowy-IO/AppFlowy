@@ -10,7 +10,7 @@ import { get } from '$app/utils/tool';
 
 const headingBlockTopOffset: Record<number, string> = {
   1: '0.4rem',
-  2: '0.2rem',
+  2: '0.35rem',
   3: '0.15rem',
 };
 

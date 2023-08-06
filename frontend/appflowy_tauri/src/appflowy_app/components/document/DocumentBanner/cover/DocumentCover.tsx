@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import ChangeCoverButton from '$app/components/document/DocumentTitle/cover/ChangeCoverButton';
+import ChangeCoverButton from '$app/components/document/DocumentBanner/cover/ChangeCoverButton';
 import { readImage } from '$app/utils/document/image';
+import { CoverType } from '$app/interfaces/document';
 
 function DocumentCover({
   cover,
@@ -9,9 +10,9 @@ function DocumentCover({
   onUpdateCover,
 }: {
   cover?: string;
-  coverType?: 'image' | 'color';
+  coverType?: CoverType;
   className?: string;
-  onUpdateCover: (coverType: 'image' | 'color' | '', cover: string) => void;
+  onUpdateCover: (coverType: CoverType | null, cover: string | null) => void;
 }) {
   const [hover, setHover] = useState(false);
   const [leftOffset, setLeftOffset] = useState(0);
@@ -55,7 +56,7 @@ function DocumentCover({
   }, [handleWidthChange]);
 
   useEffect(() => {
-    if (coverType === 'image' && cover) {
+    if (coverType === CoverType.Image && cover) {
       void (async () => {
         const src = await readImage(cover);
 
@@ -75,8 +76,11 @@ function DocumentCover({
       }}
       className={`absolute top-0 w-full overflow-hidden ${className}`}
     >
-      {coverType === 'image' && <img src={coverSrc} className={'h-full w-full object-cover'} />}
-      {coverType === 'color' && <div className={'h-full w-full'} style={{ backgroundColor: cover }} />}
+      {coverType === CoverType.Image ? (
+        <img src={coverSrc} className={'h-full w-full object-cover'} />
+      ) : (
+        <div className={'h-full w-full'} style={{ backgroundColor: cover }} />
+      )}
       <ChangeCoverButton onUpdateCover={onUpdateCover} visible={hover} cover={cover} coverType={coverType} />
     </div>
   );

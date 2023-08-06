@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import { useLoadEmojiData } from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
-
-import EmojiPickerHeader from '$app/components/_shared/EmojiPicker/EmojiPickerHeader';
-import EmojiPickerCategories from '$app/components/_shared/EmojiPicker/EmojiPickerCategories';
+import { useLoadEmojiData } from './EmojiPicker.hooks';
+import EmojiPickerHeader from './EmojiPickerHeader';
+import EmojiPickerCategories from './EmojiPickerCategories';
 
 interface Props {
   onEmojiSelect: (emoji: string) => void;
 }
 
-function EmojiPickerComponent({ onEmojiSelect }: Props) {
-  const [skin, setSkin] = useState(0);
-
-  const { emojiCategories, setSearchValue, searchValue } = useLoadEmojiData({
-    skin,
-  });
+function EmojiPicker(props: Props) {
+  const { skin, onSkinChange, emojiCategories, setSearchValue, searchValue, onSelect } = useLoadEmojiData(props);
 
   return (
     <div className={'emoji-picker flex h-[360px] max-h-[70vh] flex-col p-4 pt-2'}>
       <EmojiPickerHeader
-        onEmojiSelect={onEmojiSelect}
+        onEmojiSelect={onSelect}
         skin={skin}
-        onSkinSelect={setSkin}
+        onSkinSelect={onSkinChange}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
       />
-      <EmojiPickerCategories onEmojiSelect={onEmojiSelect} emojiCategories={emojiCategories} />
+      <EmojiPickerCategories onEmojiSelect={onSelect} emojiCategories={emojiCategories} />
     </div>
   );
 }
 
-export default EmojiPickerComponent;
+export default EmojiPicker;

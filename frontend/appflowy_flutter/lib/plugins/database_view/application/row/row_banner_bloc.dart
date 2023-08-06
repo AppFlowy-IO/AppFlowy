@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/field/field_listener.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -115,18 +114,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
         (err) => Log.error(err),
       );
     });
-
-    // Set the icon and cover of the view
-    ViewBackendService.updateView(
-      viewId: viewId,
-      iconURL: iconURL,
-      coverURL: coverURL,
-    ).then((result) {
-      result.fold(
-        (l) => null,
-        (err) => Log.error(err),
-      );
-    });
   }
 }
 
@@ -136,7 +123,7 @@ class RowBannerEvent with _$RowBannerEvent {
   const factory RowBannerEvent.didReceiveRowMeta(RowMetaPB rowMeta) =
       _DidReceiveRowMeta;
   const factory RowBannerEvent.didReceiveFieldUpdate(FieldPB field) =
-      _DidReceiveFieldUdate;
+      _DidReceiveFieldUpdate;
   const factory RowBannerEvent.setIcon(String iconURL) = _SetIcon;
   const factory RowBannerEvent.setCover(String coverURL) = _SetCover;
 }

@@ -8,9 +8,10 @@ use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::{user_table, user_workspace_table};
 use flowy_sqlite::ConnectionPool;
-use flowy_sqlite::{kv::KV, query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
@@ -56,6 +57,7 @@ pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
   cloud_services: Arc<dyn UserCloudServiceProvider>,
+  store_preferences: Arc<StorePreferences>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
@@ -63,6 +65,7 @@ impl UserSession {
   pub fn new(
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
+    store_preferences: Arc<StorePreferences>,
   ) -> Self {
     let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
@@ -71,8 +74,13 @@ impl UserSession {
       database,
       session_config,
       cloud_services,
+      store_preferences,
       user_status_callback,
     }
+  }
+
+  pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
+    Arc::downgrade(&self.store_preferences)
   }
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
@@ -86,7 +94,7 @@ impl UserSession {
             .run(vec![Box::new(HistoricalEmptyDocumentMigration)])
           {
             Ok(applied_migrations) => {
-              if applied_migrations.len() > 0 {
+              if !applied_migrations.is_empty() {
                 tracing::info!("Did apply migrations: {:?}", applied_migrations);
               }
             },
@@ -443,7 +451,9 @@ impl UserSession {
 
   pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
     self.cloud_services.update_supabase_config(&config);
-    let _ = KV::set_object(SUPABASE_CONFIG_CACHE_KEY, config);
+    let _ = self
+      .store_preferences
+      .set_object(SUPABASE_CONFIG_CACHE_KEY, config);
   }
 
   async fn update_user(
@@ -554,9 +564,13 @@ impl UserSession {
   fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     tracing::debug!("Set user session: {:?}", session);
     match &session {
-      None => KV::remove(&self.session_config.session_cache_key),
+      None => self
+        .store_preferences
+        .remove(&self.session_config.session_cache_key),
       Some(session) => {
-        KV::set_object(&self.session_config.session_cache_key, session.clone())
+        self
+          .store_preferences
+          .set_object(&self.session_config.session_cache_key, session.clone())
           .map_err(internal_error)?;
       },
     }
@@ -564,38 +578,48 @@ impl UserSession {
   }
 
   fn log_user(&self, uid: i64, storage_path: String) {
-    let mut logger_users = KV::get_object::<HistoricalUsers>(HISTORICAL_USER).unwrap_or_default();
+    let mut logger_users = self
+      .store_preferences
+      .get_object::<HistoricalUsers>(HISTORICAL_USER)
+      .unwrap_or_default();
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       sign_in_timestamp: timestamp(),
       storage_path,
     });
-    let _ = KV::set_object(HISTORICAL_USER, logger_users);
+    let _ = self
+      .store_preferences
+      .set_object(HISTORICAL_USER, logger_users);
   }
 
   pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    KV::get_object::<HistoricalUsers>(HISTORICAL_USER)
+    self
+      .store_preferences
+      .get_object::<HistoricalUsers>(HISTORICAL_USER)
       .unwrap_or_default()
       .users
   }
 
   /// Returns the current user session.
   pub fn get_session(&self) -> Result<Session, FlowyError> {
-    match KV::get_object::<Session>(&self.session_config.session_cache_key) {
+    match self
+      .store_preferences
+      .get_object::<Session>(&self.session_config.session_cache_key)
+    {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!(
-          "Can't find the value of {}, User is not logged in",
-          self.session_config.session_cache_key
-        ),
+        "User is not logged in",
       )),
       Some(session) => Ok(session),
     }
   }
 }
 
-pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
-  KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
+pub fn get_supabase_config(
+  store_preference: &Arc<StorePreferences>,
+) -> Option<SupabaseConfiguration> {
+  store_preference
+    .get_str(SUPABASE_CONFIG_CACHE_KEY)
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }

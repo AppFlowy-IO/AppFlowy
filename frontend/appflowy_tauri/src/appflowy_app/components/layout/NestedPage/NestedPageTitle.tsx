@@ -6,6 +6,7 @@ import AddButton from './AddButton';
 import MoreButton from './MoreButton';
 import { ViewLayoutPB } from '@/services/backend';
 import { useSelectedPage } from '$app/components/layout/NestedPage/NestedPage.hooks';
+import { useTranslation } from 'react-i18next';
 
 function NestedPageTitle({
   pageId,
@@ -26,6 +27,7 @@ function NestedPageTitle({
   onDuplicate: () => Promise<void>;
   onRename: (newName: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const page = useAppSelector((state) => {
     return state.pages.pageMap[pageId];
   });
@@ -47,7 +49,7 @@ function NestedPageTitle({
               toggleCollapsed();
             }}
             style={{
-              transform: collapsed ? 'rotate(0deg)' : 'rotate(-90deg)',
+              transform: collapsed ? 'rotate(0deg)' : 'rotate(90deg)',
             }}
             className={'flex h-[100%] w-8 items-center justify-center p-2'}
           >
@@ -55,7 +57,11 @@ function NestedPageTitle({
               <ArrowRightSvg />
             </div>
           </button>
-          <div className={'flex-1 overflow-hidden text-ellipsis whitespace-nowrap'}>{page.name}</div>
+          {page.icon ? <div className={'mr-1 h-5 w-5'}>{page.icon.value}</div> : null}
+
+          <div className={'flex-1 overflow-hidden text-ellipsis whitespace-nowrap'}>
+            {page.name || t('menuAppHeader.defaultNewPageName')}
+          </div>
         </div>
         <div onClick={(e) => e.stopPropagation()} className={'min:w-14 flex items-center justify-end'}>
           <AddButton isVisible={isHovering} onAddPage={onAddPage} />

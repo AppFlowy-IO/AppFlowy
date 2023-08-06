@@ -16,6 +16,7 @@ function AppearanceSetting({
   const { t } = useTranslation();
 
   useEffect(() => {
+
     const html = document.documentElement;
 
     html?.setAttribute('data-dark-mode', String(themeMode === ThemeMode.Dark));

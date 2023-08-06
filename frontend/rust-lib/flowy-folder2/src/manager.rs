@@ -8,7 +8,7 @@ use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
   FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, Workspace,
+  View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::Mutex;
 use tokio_stream::wrappers::WatchStream;
@@ -18,6 +18,7 @@ use tracing::{event, Level};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::FolderCloudService;
 
+use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
@@ -448,7 +449,7 @@ impl FolderManager {
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
       if let Some(view) = folder.views.get_view(view_id) {
-        self.unfavorite_view_and_decendants(view.clone(), &folder);
+        self.unfavorite_view_and_decendants(view.clone(), folder);
         folder.add_trash(vec![view_id.to_string()]);
         // notify the parent view that the view is moved to trash
         send_notification(view_id, FolderNotification::DidMoveViewToTrash)
@@ -587,34 +588,29 @@ impl FolderManager {
   /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
-    let value = self.with_folder(None, |folder| {
-      let old_view = folder.views.get_view(&params.view_id);
-      let new_view = folder.views.update_view(&params.view_id, |update| {
+    self
+      .update_view(&params.view_id, |update| {
         update
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
           .set_layout_if_not_none(params.layout)
-          .set_icon_url_if_not_none(params.icon_url)
-          .set_cover_url_if_not_none(params.cover_url)
           .set_favorite_if_not_none(params.is_favorite)
           .done()
-      });
+      })
+      .await
+  }
 
-      Some((old_view, new_view))
-    });
-
-    if let Some((Some(old_view), Some(new_view))) = value {
-      if let Ok(handler) = self.get_handler(&old_view.layout) {
-        handler.did_update_view(&old_view, &new_view).await?;
-      }
-    }
-
-    if let Ok(view_pb) = self.get_view(&params.view_id).await {
-      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
-        .payload(view_pb)
-        .send();
-    }
-    Ok(())
+  /// Update the icon of the view with the given params.
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn update_view_icon_with_params(
+    &self,
+    params: UpdateViewIconParams,
+  ) -> FlowyResult<()> {
+    self
+      .update_view(&params.view_id, |update| {
+        update.set_icon(params.icon).done()
+      })
+      .await
   }
 
   /// Duplicate the view with the given view id.
@@ -813,6 +809,32 @@ impl FolderManager {
     });
     notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)
+  }
+
+  /// Update the view with the provided view_id using the specified function.
+  async fn update_view<F>(&self, view_id: &str, f: F) -> FlowyResult<()>
+  where
+    F: FnOnce(ViewUpdate) -> Option<View>,
+  {
+    let value = self.with_folder(None, |folder| {
+      let old_view = folder.views.get_view(view_id);
+      let new_view = folder.views.update_view(view_id, f);
+
+      Some((old_view, new_view))
+    });
+
+    if let Some((Some(old_view), Some(new_view))) = value {
+      if let Ok(handler) = self.get_handler(&old_view.layout) {
+        handler.did_update_view(&old_view, &new_view).await?;
+      }
+    }
+
+    if let Ok(view_pb) = self.get_view(view_id).await {
+      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
+        .payload(view_pb)
+        .send();
+    }
+    Ok(())
   }
 
   /// Returns a handler that implements the [FolderOperationHandler] trait

@@ -7,8 +7,8 @@ use uuid::Uuid;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server::supabase::api::{
-  RESTfulPostgresServer, RESTfulSupabaseCollabStorageImpl, RESTfulSupabaseDatabaseServiceImpl,
-  RESTfulSupabaseFolderServiceImpl, RESTfulSupabaseUserAuthServiceImpl, SupabaseServerServiceImpl,
+  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl, SupabaseCollabStorageImpl,
+  SupabaseDatabaseServiceImpl, SupabaseFolderServiceImpl, SupabaseServerServiceImpl,
 };
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
@@ -25,7 +25,7 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
 pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
   let config = SupabaseConfiguration::from_env().unwrap();
   let server = Arc::new(RESTfulPostgresServer::new(config));
-  Arc::new(RESTfulSupabaseCollabStorageImpl::new(
+  Arc::new(SupabaseCollabStorageImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))
 }
@@ -33,7 +33,7 @@ pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
 pub fn database_service() -> Arc<dyn DatabaseCloudService> {
   let config = SupabaseConfiguration::from_env().unwrap();
   let server = Arc::new(RESTfulPostgresServer::new(config));
-  Arc::new(RESTfulSupabaseDatabaseServiceImpl::new(
+  Arc::new(SupabaseDatabaseServiceImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))
 }
@@ -49,7 +49,7 @@ pub fn user_auth_service() -> Arc<dyn UserService> {
 pub fn folder_service() -> Arc<dyn FolderCloudService> {
   let config = SupabaseConfiguration::from_env().unwrap();
   let server = Arc::new(RESTfulPostgresServer::new(config));
-  Arc::new(RESTfulSupabaseFolderServiceImpl::new(
+  Arc::new(SupabaseFolderServiceImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))
 }
