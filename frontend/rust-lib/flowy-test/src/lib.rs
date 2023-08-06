@@ -162,6 +162,17 @@ impl FlowyCoreTest {
       .items
   }
 
+  pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadView)
+      .payload(ViewIdPB {
+        value: parent_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
+  }
+
   pub async fn delete_view(&self, view_id: &str) {
     let payload = RepeatedViewIdPB {
       items: vec![view_id.to_string()],
@@ -758,8 +769,17 @@ impl TestNotificationSender {
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
           if let Some(payload) = value.payload {
-            if let Ok(object) = T::try_from(Bytes::from(payload)) {
-              let _ = tx.send(object).await;
+            match T::try_from(Bytes::from(payload)) {
+              Ok(object) => {
+                let _ = tx.send(object).await;
+              },
+              Err(e) => {
+                panic!(
+                  "Failed to parse notification payload to type: {:?} with error: {}",
+                  std::any::type_name::<T>(),
+                  e
+                );
+              },
             }
           }
         }
