@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabType, RemoteCollabStorage, YrsDocAction};
@@ -17,7 +17,7 @@ use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_sqlite::kv::KV;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
@@ -54,15 +54,22 @@ pub struct AppFlowyServerProvider {
   provider_type: RwLock<ServerProviderType>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
   supabase_config: RwLock<Option<SupabaseConfiguration>>,
+  store_preferences: Weak<StorePreferences>,
 }
 
 impl AppFlowyServerProvider {
-  pub fn new(config: AppFlowyCoreConfig, supabase_config: Option<SupabaseConfiguration>) -> Self {
+  pub fn new(
+    config: AppFlowyCoreConfig,
+    provider_type: ServerProviderType,
+    supabase_config: Option<SupabaseConfiguration>,
+    store_preferences: Weak<StorePreferences>,
+  ) -> Self {
     Self {
       config,
-      provider_type: RwLock::new(current_server_provider()),
+      provider_type: RwLock::new(provider_type),
       providers: RwLock::new(HashMap::new()),
       supabase_config: RwLock::new(supabase_config),
+      store_preferences,
     }
   }
 
@@ -141,10 +148,15 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
     let provider_type: ServerProviderType = auth_type.into();
     *self.provider_type.write() = provider_type.clone();
 
-    match KV::set_object(SERVER_PROVIDER_TYPE_KEY, provider_type.clone()) {
-      Ok(_) => tracing::trace!("Update server provider type to: {:?}", provider_type),
-      Err(e) => {
-        tracing::error!("🔴Failed to update server provider type: {:?}", e);
+    match self.store_preferences.upgrade() {
+      None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
+      Some(store_preferences) => {
+        match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, provider_type.clone()) {
+          Ok(_) => tracing::trace!("Update server provider type to: {:?}", provider_type),
+          Err(e) => {
+            tracing::error!("🔴Failed to update server provider type: {:?}", e);
+          },
+        }
       },
     }
   }
@@ -336,8 +348,8 @@ impl From<&AuthType> for ServerProviderType {
   }
 }
 
-fn current_server_provider() -> ServerProviderType {
-  match KV::get_object::<ServerProviderType>(SERVER_PROVIDER_TYPE_KEY) {
+pub fn current_server_provider(store_preferences: &Arc<StorePreferences>) -> ServerProviderType {
+  match store_preferences.get_object::<ServerProviderType>(SERVER_PROVIDER_TYPE_KEY) {
     None => ServerProviderType::Local,
     Some(provider_type) => provider_type,
   }
