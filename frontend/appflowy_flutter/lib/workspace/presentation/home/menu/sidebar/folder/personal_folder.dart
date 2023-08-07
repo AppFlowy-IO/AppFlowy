@@ -50,6 +50,7 @@ class PersonalFolder extends StatelessWidget {
                     view: view,
                     level: 0,
                     leftPadding: 16,
+                    isFeedback: false,
                     onSelected: (view) {
                       getIt<TabsBloc>().add(
                         TabsEvent.openPlugin(

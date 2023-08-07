@@ -219,7 +219,7 @@ impl CellDataChangeset for NumberTypeOption {
         NumberCellData::from(formatter.to_string()),
       )),
       _ => Ok((
-        NumberCellData::from(formatter.to_string()).into(),
+        NumberCellData::from(formatter.to_unformatted_string()).into(),
         NumberCellData::from(formatter.to_string()),
       )),
     }
