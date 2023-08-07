@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,46 @@ void main() {
       await tester.openSettingsPage(SettingsPage.appearance);
 
       expect(find.textContaining('Abel'), findsOneWidget);
+    });
+
+    testWidgets('reset the font family', (tester) async {
+      await tester.initializeAppFlowy();
+
+      await tester.tapGoButton();
+      tester.expectToSeeHomePage();
+      await tester.openSettings();
+
+      await tester.openSettingsPage(SettingsPage.appearance);
+
+      final dropDown = find.byKey(ThemeFontFamilySetting.popoverKey);
+      await tester.tap(dropDown);
+      await tester.pumpAndSettle();
+
+      final textField = find.byKey(ThemeFontFamilySetting.textFieldKey);
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(textField, 'Abel');
+      await tester.pumpAndSettle();
+      final fontFamilyButton = find.byKey(const Key('Abel'));
+
+      expect(fontFamilyButton, findsOneWidget);
+      await tester.tap(fontFamilyButton);
+      await tester.pumpAndSettle();
+
+      // just switch the page and verify that the font family was set after that
+      await tester.openSettingsPage(SettingsPage.files);
+      await tester.openSettingsPage(SettingsPage.appearance);
+
+      final resetButton = find.byKey(ThemeFontFamilySetting.resetButtonkey);
+      await tester.tap(resetButton);
+      await tester.pumpAndSettle();
+
+      // just switch the page and verify that the font family was set after that
+      await tester.openSettingsPage(SettingsPage.files);
+      await tester.openSettingsPage(SettingsPage.appearance);
+
+      expect(find.textContaining(kDefaultFontFamily), findsOneWidget);
     });
   });
 }
