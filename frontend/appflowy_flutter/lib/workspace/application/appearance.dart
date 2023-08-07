@@ -15,6 +15,10 @@ import 'package:google_fonts/google_fonts.dart';
 part 'appearance.freezed.dart';
 
 const _white = Color(0xFFFFFFFF);
+const kDefaultFontFamily = 'Poppins';
+const kDefaultThemeMode = ThemeMode.system;
+const kDefaultThemeName = "Default";
+const kDefaultTheme = BuiltInTheme.defaultTheme;
 
 /// [AppearanceSettingsCubit] is used to modify the appearance of AppFlowy.
 /// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
@@ -43,12 +47,18 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
 
+  /// Reset the current user selected theme back to the default
+  Future<void> resetTheme() => setTheme(kDefaultTheme);
+
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
     _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
     emit(state.copyWith(themeMode: themeMode));
   }
+
+  /// Resets the current brightness setting
+  void resetThemeMode() => setThemeMode(kDefaultThemeMode);
 
   /// Toggle the theme mode
   void toggleThemeMode() {
@@ -65,6 +75,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveAppearanceSettings();
     emit(state.copyWith(font: fontFamilyName));
   }
+
+  /// Resets the current font family for the user preferences
+  void resetFontFamily() => setFontFamily(kDefaultFontFamily);
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
