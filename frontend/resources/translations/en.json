@@ -311,7 +311,7 @@
       "filter": "Filter",
       "sort": "Sort",
       "sortBy": "Sort by",
-      "properties": "Properties",
+      "properties": " ",
       "reorderPropertiesTooltip": "Drag to reorder properties",
       "group": "Group",
       "addFilter": "Add Filter",
