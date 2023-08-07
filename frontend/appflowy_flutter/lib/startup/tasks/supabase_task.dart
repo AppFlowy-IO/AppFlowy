@@ -21,6 +21,9 @@ const supabaseLoginCallback = '$appflowyDeepLinkSchema://login-callback';
 bool isSupabaseInitialized = false;
 const hiveBoxName = 'appflowy_supabase_authentication';
 
+// Used to store the session of the supabase in case of the user switch the different folder.
+Supabase? supabase;
+
 class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
@@ -37,7 +40,9 @@ class InitSupabaseTask extends LaunchTask {
       registerProtocolHandler(appflowyDeepLinkSchema);
     }
 
-    await Supabase.initialize(
+    supabase?.dispose();
+    supabase = null;
+    supabase = await Supabase.initialize(
       url: Env.supabaseUrl,
       anonKey: Env.supabaseAnonKey,
       debug: kDebugMode,
