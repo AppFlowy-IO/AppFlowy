@@ -103,6 +103,7 @@ class NotionImporter {
     while (unzipFiles.isNotEmpty) {
       final List<Pair<String, ArchiveFile>> files = [];
       final List<ArchiveFile> images = [];
+      final List<ArchiveFile> folders = [];
       for (int i = 0; i < unzipFiles.length; i++) {
         if (unzipFiles[i].isFile &&
             unzipFiles[i].name.endsWith('.md') &&
@@ -113,10 +114,15 @@ class NotionImporter {
           final List<String> segments = unzipFiles[i].name.split('/');
           segments.removeAt(0);
           unzipFiles[i].name = segments.join('/');
+        } else if(!unzipFiles[i].isFile){
+          folders.add(unzipFiles[i]);
         }
       }
       if (files.isEmpty) {
         return;
+      }
+      for(final element in folders){
+        unzipFiles.files.remove(element);
       }
       for (final element in files) {
         unzipFiles.files.remove(element.second);
