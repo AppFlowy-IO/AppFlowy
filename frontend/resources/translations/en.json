@@ -311,7 +311,7 @@
       "filter": "Filter",
       "sort": "Sort",
       "sortBy": "Sort by",
-      "properties": " ",
+      "properties": "Properties",
       "reorderPropertiesTooltip": "Drag to reorder properties",
       "group": "Group",
       "addFilter": "Add Filter",
@@ -657,6 +657,5 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
-  },
-  "grid.settings.Properties": "Properties"
+  }
 }
