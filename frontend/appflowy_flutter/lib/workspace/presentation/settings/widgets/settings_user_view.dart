@@ -47,6 +47,8 @@ class SettingsUserView extends StatelessWidget {
             _renderCurrentIcon(context),
             const VSpace(20),
             _renderCurrentOpenaiKey(context),
+            const VSpace(20),
+            _renderHistoricalUser(context),
             const Spacer(),
             _renderLoginOrLogoutButton(context, state),
             const VSpace(20),
@@ -56,21 +58,25 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
+  /// Renders either a login or logout button based on the user's authentication status.
+  ///
+  /// This function checks the current user's authentication type and Supabase
+  /// configuration to determine whether to render a third-party login button
+  /// or a logout button.
   Widget _renderLoginOrLogoutButton(
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (!isSupabaseEnabled) {
-      return _renderLogoutButton(context);
+    if (isSupabaseEnabled) {
+      // If the user is logged in locally, render a third-party login button.
+      if (state.userProfile.authType == AuthTypePB.Local) {
+        return SettingThirdPartyLogin(
+          didLogin: didLogin,
+        );
+      }
     }
 
-    if (state.userProfile.authType == AuthTypePB.Local) {
-      return SettingThirdPartyLogin(
-        didLogin: didLogin,
-      );
-    } else {
-      return _renderLogoutButton(context);
-    }
+    return _renderLogoutButton(context);
   }
 
   Widget _renderUserNameInput(BuildContext context) {
@@ -108,6 +114,18 @@ class SettingsUserView extends StatelessWidget {
             didLogout();
           },
         ).show(context);
+      },
+    );
+  }
+
+  Widget _renderHistoricalUser(BuildContext context) {
+    return BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
+      builder: (context, state) {
+        if (state.historicalUsers.isEmpty) {
+          return const SizedBox.shrink();
+        } else {
+          return const SizedBox.shrink();
+        }
       },
     );
   }
