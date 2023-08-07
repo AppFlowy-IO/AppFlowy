@@ -14,7 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_error.dart';
 
 // can't use underscore here.
-const loginCallback = 'io.appflowy.appflowy-flutter://login-callback';
+const loginCallback = 'appflowy-flutter://login-callback';
 
 class SupabaseAuthService implements AuthService {
   SupabaseAuthService();

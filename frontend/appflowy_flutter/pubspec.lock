@@ -26,7 +26,7 @@ packages:
     source: hosted
     version: "2.0.7"
   app_links:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: app_links
       sha256: "16725e716afd0634a5441654b1dda2b6c5557aa230884b5e1f41a5aa546a4cb6"
@@ -1589,6 +1589,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  url_protocol:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "77a84201ed8ca50082f4248f3a373d053b1c0462"
+      url: "https://github.com/LucasXu0/flutter_url_protocol.git"
+    source: git
+    version: "1.0.0"
   uuid:
     dependency: transitive
     description:
