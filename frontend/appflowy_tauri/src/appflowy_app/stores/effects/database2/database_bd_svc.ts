@@ -1,3 +1,4 @@
+import { Database } from '$app/interfaces/database';
 import {
   DatabaseDescriptionPB,
   DatabasePB,
@@ -6,7 +7,6 @@ import {
   DatabaseLayoutPB,
   CreateDatabaseViewPayloadPB,
   DatabaseLayoutMetaPB,
-  CalendarLayoutPB,
   LayoutSettingChangesetPB,
   GroupPB,
   DatabaseGroupIdPB,
@@ -28,7 +28,6 @@ import {
   TypeOptionChangesetPB,
   SelectOptionPB,
   CreateSelectOptionPayloadPB,
-  SelectOptionColorPB,
   RepeatedSelectOptionPayload,
   RowIdPB,
   RowMetaPB,
@@ -148,13 +147,7 @@ export async function getLayoutSetting(viewId: string, layout: DatabaseLayoutPB)
 
 export async function setLayoutSetting(viewId: string, setting: {
   layoutType?: DatabaseLayoutPB;
-  calendar?: {
-      fieldId?: string;
-      layoutTy?: CalendarLayoutPB;
-      firstDayOfWeek?: number;
-      showWeekends?: boolean;
-      showWeekNumbers?: boolean;
-  };
+  calendar?: Database.CalendarLayoutSetting;
 }): Promise<void> {
   const payload = LayoutSettingChangesetPB.fromObject({
     view_id: viewId,
@@ -384,11 +377,7 @@ export async function createSelectOption(viewId: string, fieldId: string, option
 export async function insertOrUpdateSelectOption(
   viewId: string,
   fieldId: string,
-  items: {
-    id?: string;
-    name?: string;
-    color?: SelectOptionColorPB;
-  }[],
+  items: Partial<Database.SelectOption>[],
   rowId?: string,
 ): Promise<void> {
   const payload = RepeatedSelectOptionPayload.fromObject({
@@ -406,11 +395,7 @@ export async function insertOrUpdateSelectOption(
 export async function deleteSelectOption(
   viewId: string,
   fieldId: string,
-  items: {
-    id?: string;
-    name?: string;
-    color?: SelectOptionColorPB;
-  }[],
+  items: Partial<Database.SelectOption>[],
   rowId?: string,
 ): Promise<void> {
   const payload = RepeatedSelectOptionPayload.fromObject({
@@ -615,11 +600,7 @@ export async function updateChecklistCell(
     insertOptions?: string[];
     selectedOptionIds?: string[];
     deleteOptionIds?: string[];
-    updateOptions?: {
-      id?: string;
-      name?: string;
-      color?: SelectOptionColorPB;
-    }[];
+    updateOptions?: Partial<Database.SelectOption>[];
   },
 ): Promise<void> {
   const payload = ChecklistCellDataChangesetPB.fromObject({
