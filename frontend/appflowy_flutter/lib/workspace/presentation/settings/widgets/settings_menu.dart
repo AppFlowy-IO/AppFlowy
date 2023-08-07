@@ -64,9 +64,9 @@ class SettingsMenu extends StatelessWidget {
             context.read<SettingsDialogBloc>().state.userProfile.authType !=
                 AuthTypePB.Local)
           SettingsMenuElement(
-            page: SettingsPage.supabaseSetting,
+            page: SettingsPage.syncSetting,
             selectedPage: currentPage,
-            label: LocaleKeys.settings_menu_supabaseSetting.tr(),
+            label: LocaleKeys.settings_menu_syncSetting.tr(),
             icon: Icons.sync,
             changeSelectedPage: changeSelectedPage,
           ),

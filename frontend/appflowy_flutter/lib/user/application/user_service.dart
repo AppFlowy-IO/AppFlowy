@@ -70,6 +70,24 @@ class UserBackendService {
     return UserEventInitUser().send();
   }
 
+  Future<Either<List<HistoricalUserPB>, FlowyError>>
+      loadHistoricalUsers() async {
+    return UserEventGetHistoricalUsers().send().then(
+      (result) {
+        return result.fold(
+          (historicalUsers) => left(historicalUsers.items),
+          (error) => right(error),
+        );
+      },
+    );
+  }
+
+  Future<Either<Unit, FlowyError>> openHistoricalUser(
+    HistoricalUserPB user,
+  ) async {
+    return UserEventOpenHistoricalUser(user).send();
+  }
+
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {
     final request = WorkspaceIdPB.create();
 

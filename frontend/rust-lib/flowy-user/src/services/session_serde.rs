@@ -8,7 +8,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
-use flowy_user_deps::entities::{SignInResponse, UserWorkspace};
+use flowy_user_deps::entities::{SignInResponse, SignUpResponse, UserWorkspace};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
@@ -98,6 +98,15 @@ impl std::convert::From<Session> for String {
         tracing::error!("Serialize session to string failed: {:?}", e);
         "".to_string()
       },
+    }
+  }
+}
+
+impl From<&SignUpResponse> for Session {
+  fn from(value: &SignUpResponse) -> Self {
+    Session {
+      user_id: value.user_id,
+      user_workspace: value.latest_workspace.clone(),
     }
   }
 }

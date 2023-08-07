@@ -415,7 +415,7 @@ impl From<ServerProviderType> for CollabStorageType {
   fn from(server_provider: ServerProviderType) -> Self {
     match server_provider {
       ServerProviderType::Local => CollabStorageType::Local,
-      ServerProviderType::SelfHosted => CollabStorageType::Local,
+      ServerProviderType::AppFlowyCloud => CollabStorageType::Local,
       ServerProviderType::Supabase => CollabStorageType::Supabase,
     }
   }

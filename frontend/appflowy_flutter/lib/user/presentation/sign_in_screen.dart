@@ -320,14 +320,16 @@ class ThirdPartySignInButton extends StatelessWidget {
 }
 
 class ThirdPartySignInButtons extends StatelessWidget {
+  final MainAxisAlignment mainAxisAlignment;
   const ThirdPartySignInButtons({
+    this.mainAxisAlignment = MainAxisAlignment.center,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
       children: [
         ThirdPartySignInButton(
           icon: 'login/google-mark',

@@ -109,19 +109,30 @@ class SidebarUser extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) {
+            builder: (dialogContext) {
               return BlocProvider<DocumentAppearanceCubit>.value(
                 value: BlocProvider.of<DocumentAppearanceCubit>(context),
                 child: SettingsDialog(
                   userProfile,
                   didLogout: () async {
-                    Navigator.of(context).pop();
+                    // Pop the dialog using the dialog context
+                    Navigator.of(dialogContext).pop();
+
                     await FlowyRunner.run(
                       FlowyApp(),
                       integrationEnv(),
                     );
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
+                  didOpenUser: () async {
+                    // Pop the dialog using the dialog context
+                    Navigator.of(dialogContext).pop();
+
+                    await FlowyRunner.run(
+                      FlowyApp(),
+                      integrationEnv(),
+                    );
+                  },
                 ),
               );
             },

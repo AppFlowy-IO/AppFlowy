@@ -26,7 +26,8 @@
     "alreadyHaveAnAccount": "Already have an account?",
     "emailHint": "Email",
     "passwordHint": "Password",
-    "repeatPasswordHint": "Repeat password"
+    "repeatPasswordHint": "Repeat password",
+    "signUpWith": "Sign up with:"
   },
   "signIn": {
     "loginTitle": "Login to @:appName",
@@ -38,7 +39,8 @@
     "passwordHint": "Password",
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
-    "unmatchedPasswordError": "Repeat password is not the same as password"
+    "unmatchedPasswordError": "Repeat password is not the same as password",
+    "signInWith": "Sign in with:"
   },
   "workspace": {
     "create": "Create workspace",
@@ -223,7 +225,11 @@
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
-      "supabaseSetting": "Supabase Setting"
+      "syncSetting": "Sync Setting",
+      "enableSync": "Enable sync",
+      "historicalUserList": "User history",
+      "historicalUserListTooltip": "This list shows your login history. You can click to login if it's a local user",
+      "openHistoricalUser": "Click to open user"
     },
     "appearance": {
       "fontFamily": {

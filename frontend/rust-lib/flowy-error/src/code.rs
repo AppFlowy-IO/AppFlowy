@@ -215,8 +215,8 @@ pub enum ErrorCode {
   #[error("Postgres transaction error")]
   PgTransactionError = 71,
 
-  #[error("Enable supabase sync")]
-  SupabaseSyncRequired = 72,
+  #[error("Enable data sync")]
+  DataSyncRequired = 72,
 
   #[error("Conflict")]
   Conflict = 73,
