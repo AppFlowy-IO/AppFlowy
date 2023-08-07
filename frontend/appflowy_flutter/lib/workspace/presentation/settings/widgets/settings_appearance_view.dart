@@ -32,7 +32,9 @@ class SettingsAppearanceView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BrightnessSetting(currentThemeMode: state.themeMode),
+                BrightnessSetting(
+                  currentThemeMode: state.themeMode,
+                ),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
@@ -61,14 +63,10 @@ class ColorSchemeSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: FlowyText.medium(
-            LocaleKeys.settings_appearance_theme.tr(),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+    return ThemeSettingEntry(
+      label: LocaleKeys.settings_appearance_theme.tr(),
+      onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
+      trailing: [
         ThemeUploadOverlayButton(bloc: bloc),
         const SizedBox(width: 4),
         ThemeSelectionPopover(currentTheme: currentTheme, bloc: bloc),
@@ -222,17 +220,23 @@ class BrightnessSetting extends StatelessWidget {
           context,
           LocaleKeys.settings_appearance_themeMode_label.tr(),
         ),
-        child: ThemeSettingDropDown(
+        child: ThemeSettingEntry(
           label: LocaleKeys.settings_appearance_themeMode_label.tr(),
-          currentValue: _themeModeLabelText(currentThemeMode),
-          popupBuilder: (_) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _themeModeItemButton(context, ThemeMode.light),
-              _themeModeItemButton(context, ThemeMode.dark),
-              _themeModeItemButton(context, ThemeMode.system),
-            ],
-          ),
+          onResetRequested:
+              context.read<AppearanceSettingsCubit>().resetThemeMode,
+          trailing: [
+            ThemeSettingDropDown(
+              currentValue: _themeModeLabelText(currentThemeMode),
+              popupBuilder: (_) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _themeModeItemButton(context, ThemeMode.light),
+                  _themeModeItemButton(context, ThemeMode.dark),
+                  _themeModeItemButton(context, ThemeMode.system),
+                ],
+              ),
+            ),
+          ],
         ),
       );
 
@@ -299,59 +303,70 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingDropDown(
-      popoverKey: ThemeFontFamilySetting.popoverKey,
+    return ThemeSettingEntry(
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
-      currentValue: parseFontFamilyName(widget.currentFontFamily),
-      onClose: () {
-        query.value = '';
+      onResetRequested: () {
+        context.read<AppearanceSettingsCubit>().resetFontFamily();
+        context
+            .read<DocumentAppearanceCubit>()
+            .syncFontFamily(kDefaultFontFamily);
       },
-      popupBuilder: (_) => CustomScrollView(
-        shrinkWrap: true,
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.only(right: 8),
-            sliver: SliverToBoxAdapter(
-              child: FlowyTextField(
-                key: ThemeFontFamilySetting.textFieldKey,
-                hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
-                autoFocus: false,
-                debounceDuration: const Duration(milliseconds: 300),
-                onChanged: (value) {
-                  query.value = value;
+      trailing: [
+        ThemeSettingDropDown(
+          popoverKey: ThemeFontFamilySetting.popoverKey,
+          currentValue: parseFontFamilyName(widget.currentFontFamily),
+          onClose: () {
+            query.value = '';
+          },
+          popupBuilder: (_) => CustomScrollView(
+            shrinkWrap: true,
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.only(right: 8),
+                sliver: SliverToBoxAdapter(
+                  child: FlowyTextField(
+                    key: ThemeFontFamilySetting.textFieldKey,
+                    hintText:
+                        LocaleKeys.settings_appearance_fontFamily_search.tr(),
+                    autoFocus: false,
+                    debounceDuration: const Duration(milliseconds: 300),
+                    onChanged: (value) {
+                      query.value = value;
+                    },
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 4),
+              ),
+              ValueListenableBuilder(
+                valueListenable: query,
+                builder: (context, value, child) {
+                  var displayed = availableFonts;
+                  if (value.isNotEmpty) {
+                    displayed = availableFonts
+                        .where(
+                          (font) => font
+                              .toLowerCase()
+                              .contains(value.toLowerCase().toString()),
+                        )
+                        .sorted((a, b) => levenshtein(a, b))
+                        .toList();
+                  }
+                  return SliverFixedExtentList.builder(
+                    itemBuilder: (context, index) => _fontFamilyItemButton(
+                      context,
+                      GoogleFonts.getFont(displayed[index]),
+                    ),
+                    itemCount: displayed.length,
+                    itemExtent: 32,
+                  );
                 },
               ),
-            ),
+            ],
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 4),
-          ),
-          ValueListenableBuilder(
-            valueListenable: query,
-            builder: (context, value, child) {
-              var displayed = availableFonts;
-              if (value.isNotEmpty) {
-                displayed = availableFonts
-                    .where(
-                      (font) => font
-                          .toLowerCase()
-                          .contains(value.toLowerCase().toString()),
-                    )
-                    .sorted((a, b) => levenshtein(a, b))
-                    .toList();
-              }
-              return SliverFixedExtentList.builder(
-                itemBuilder: (context, index) => _fontFamilyItemButton(
-                  context,
-                  GoogleFonts.getFont(displayed[index]),
-                ),
-                itemCount: displayed.length,
-                itemExtent: 32,
-              );
-            },
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -394,17 +409,55 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   }
 }
 
+class ThemeSettingEntry extends StatelessWidget {
+  const ThemeSettingEntry({
+    super.key,
+    required this.label,
+    this.trailing,
+    this.onResetRequested,
+  });
+
+  final String label;
+  final List<Widget>? trailing;
+  final void Function()? onResetRequested;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText.medium(
+            label,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (trailing != null) ...trailing!,
+        if (onResetRequested != null)
+          FlowyIconButton(
+            width: 24,
+            icon: FlowySvg(
+              name: 'common/recover',
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            tooltipText: LocaleKeys.settings_appearance_resetSetting.tr(),
+
+            // fontColor: Theme.of(context).colorScheme.onBackground,
+            onPressed: onResetRequested,
+          ),
+      ],
+    );
+  }
+}
+
 class ThemeSettingDropDown extends StatefulWidget {
   const ThemeSettingDropDown({
     super.key,
-    required this.label,
     required this.currentValue,
     required this.popupBuilder,
     this.popoverKey,
     this.onClose,
   });
 
-  final String label;
   final String currentValue;
   final Key? popoverKey;
   final Widget Function(BuildContext) popupBuilder;
@@ -417,31 +470,21 @@ class ThemeSettingDropDown extends StatefulWidget {
 class _ThemeSettingDropDownState extends State<ThemeSettingDropDown> {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: FlowyText.medium(
-            widget.label,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        AppFlowyPopover(
-          key: widget.popoverKey,
-          direction: PopoverDirection.bottomWithRightAligned,
-          popupBuilder: widget.popupBuilder,
-          constraints: const BoxConstraints(
-            minWidth: 80,
-            maxWidth: 160,
-            maxHeight: 400,
-          ),
-          onClose: widget.onClose,
-          child: FlowyTextButton(
-            widget.currentValue,
-            fontColor: Theme.of(context).colorScheme.onBackground,
-            fillColor: Colors.transparent,
-          ),
-        ),
-      ],
+    return AppFlowyPopover(
+      key: widget.popoverKey,
+      direction: PopoverDirection.bottomWithRightAligned,
+      popupBuilder: widget.popupBuilder,
+      constraints: const BoxConstraints(
+        minWidth: 80,
+        maxWidth: 160,
+        maxHeight: 400,
+      ),
+      onClose: widget.onClose,
+      child: FlowyTextButton(
+        widget.currentValue,
+        fontColor: Theme.of(context).colorScheme.onBackground,
+        fillColor: Colors.transparent,
+      ),
     );
   }
 }
