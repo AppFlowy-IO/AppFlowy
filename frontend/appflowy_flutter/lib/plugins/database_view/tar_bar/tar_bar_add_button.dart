@@ -51,6 +51,7 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
               onPressed: () => popoverController.show(),
               radius: Corners.s4Border,
               icon: const FlowySvg(name: 'home/add'),
+              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),

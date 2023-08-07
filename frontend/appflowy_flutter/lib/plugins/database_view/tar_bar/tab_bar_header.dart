@@ -193,6 +193,13 @@ class TabBarItemButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: TabBarViewAction.values,
       buildChild: (controller) {
+        Color? color;
+        if (isSelected) {
+          color = Theme.of(context).hintColor;
+        }
+        if (Theme.of(context).brightness == Brightness.dark) {
+          color = null;
+        }
         return IntrinsicWidth(
           child: FlowyButton(
             radius: Corners.s6Border,
@@ -201,18 +208,18 @@ class TabBarItemButton extends StatelessWidget {
             onSecondaryTap: () {
               controller.show();
             },
+            leftIcon: FlowySvg(
+              name: view.iconName,
+              size: const Size(14, 14),
+              color: color,
+            ),
             text: FlowyText(
               view.name,
               fontSize: FontSizes.s11,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-              color: isSelected ? null : Theme.of(context).hintColor,
+              color: color,
               fontWeight: isSelected ? null : FontWeight.w400,
-            ),
-            leftIcon: FlowySvg(
-              name: view.iconName,
-              size: const Size(14, 14),
-              color: isSelected ? null : Theme.of(context).hintColor,
             ),
           ),
         );
