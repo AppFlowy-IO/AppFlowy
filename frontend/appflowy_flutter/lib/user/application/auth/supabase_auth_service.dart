@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
@@ -12,9 +13,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_error.dart';
-
-// can't use underscore here.
-const loginCallback = 'appflowy-flutter://login-callback';
 
 class SupabaseAuthService implements AuthService {
   SupabaseAuthService();
@@ -123,7 +121,7 @@ class SupabaseAuthService implements AuthService {
     final response = await _auth.signInWithOAuth(
       provider,
       queryParams: queryParamsForProvider(provider),
-      redirectTo: loginCallback,
+      redirectTo: supabaseLoginCallback,
     );
     if (!response) {
       completer.complete(left(AuthError.supabaseSignInWithOauthError));
@@ -171,7 +169,7 @@ class SupabaseAuthService implements AuthService {
 
     await _auth.signInWithOtp(
       email: email,
-      emailRedirectTo: kIsWeb ? null : loginCallback,
+      emailRedirectTo: kIsWeb ? null : supabaseLoginCallback,
     );
     return completer.future;
   }

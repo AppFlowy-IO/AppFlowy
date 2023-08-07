@@ -26,7 +26,7 @@ packages:
     source: hosted
     version: "2.0.7"
   app_links:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: app_links
       sha256: "16725e716afd0634a5441654b1dda2b6c5557aa230884b5e1f41a5aa546a4cb6"

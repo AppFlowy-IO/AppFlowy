@@ -98,7 +98,6 @@ dependencies:
   supabase_flutter: ^1.10.4
   envied: ^0.3.0+3
   dotted_border: ^2.0.0+3
-  app_links: ^3.4.3
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
