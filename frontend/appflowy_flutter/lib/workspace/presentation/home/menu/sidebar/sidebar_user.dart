@@ -139,6 +139,15 @@ class SidebarUser extends StatelessWidget {
                     );
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
+                  didOpenUser: () async {
+                    // Pop the dialog using the dialog context
+                    Navigator.of(dialogContext).pop();
+
+                    await FlowyRunner.run(
+                      FlowyApp(),
+                      integrationEnv(),
+                    );
+                  },
                 ),
               );
             },

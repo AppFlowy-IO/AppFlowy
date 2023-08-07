@@ -16,19 +16,25 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'historical_user.dart';
 import 'setting_third_party_login.dart';
 
 const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
+  // Called when the user login in the setting dialog
   final VoidCallback didLogin;
+  // Called when the user logout in the setting dialog
   final VoidCallback didLogout;
+  // Called when the user open a historical user in the setting dialog
+  final VoidCallback didOpenUser;
   final UserProfilePB user;
   SettingsUserView(
     this.user, {
     required this.didLogin,
     required this.didLogout,
+    required this.didOpenUser,
     Key? key,
   }) : super(key: ValueKey(user.id));
 
@@ -121,11 +127,9 @@ class SettingsUserView extends StatelessWidget {
   Widget _renderHistoricalUser(BuildContext context) {
     return BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
       builder: (context, state) {
-        if (state.historicalUsers.isEmpty) {
-          return const SizedBox.shrink();
-        } else {
-          return const SizedBox.shrink();
-        }
+        return HistoricalUserList(
+          didOpenUser: didOpenUser,
+        );
       },
     );
   }

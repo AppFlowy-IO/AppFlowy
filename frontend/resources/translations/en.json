@@ -225,7 +225,10 @@
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
-      "supabaseSetting": "Supabase Setting"
+      "syncSetting": "Sync Setting",
+      "enableSync": "Enable sync",
+      "historicalUserList": "User history",
+      "openHistoricalUser": "Click to open user"
     },
     "appearance": {
       "fontFamily": {

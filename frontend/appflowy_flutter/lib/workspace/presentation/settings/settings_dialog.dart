@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_supabase_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/sync_setting_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
@@ -20,11 +20,13 @@ const _contentInsetPadding = EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0);
 class SettingsDialog extends StatelessWidget {
   final VoidCallback dismissDialog;
   final VoidCallback didLogout;
+  final VoidCallback didOpenUser;
   final UserProfilePB user;
   SettingsDialog(
     this.user, {
     required this.dismissDialog,
     required this.didLogout,
+    required this.didOpenUser,
     Key? key,
   }) : super(key: ValueKey(user.id));
 
@@ -97,9 +99,10 @@ class SettingsDialog extends StatelessWidget {
           user,
           didLogin: () => dismissDialog(),
           didLogout: didLogout,
+          didOpenUser: didOpenUser,
         );
-      case SettingsPage.supabaseSetting:
-        return const SupabaseSettingView();
+      case SettingsPage.syncSetting:
+        return const SyncSettingView();
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();
       default:

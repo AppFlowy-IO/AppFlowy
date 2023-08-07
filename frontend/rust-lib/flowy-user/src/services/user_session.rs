@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::string::ToString;
 use std::sync::{Arc, Weak};
 
@@ -153,33 +154,35 @@ impl UserSession {
     params: BoxAny,
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
-    let resp: SignInResponse = self
+    let response: SignInResponse = self
       .cloud_services
       .get_user_service()?
       .sign_in(params)
       .await?;
-
-    let session: Session = resp.clone().into();
+    let session: Session = response.clone().into();
     let uid = session.user_id;
-    self.set_session(Some(session))?;
+    self.set_current_session(Some(session))?;
 
     self.log_user(
       uid,
-      resp.name.clone(),
+      response.name.clone(),
       self.cloud_services.service_name(),
       self.user_dir(uid),
     );
 
-    let user_workspace = resp.latest_workspace.clone();
+    let user_workspace = response.latest_workspace.clone();
     save_user_workspaces(
       self.db_pool(uid)?,
-      resp
+      response
         .user_workspaces
         .iter()
-        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
         .collect(),
     )?;
-    let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
+    let user_profile: UserProfile = self
+      .save_user(uid, (response, auth_type).into())
+      .await?
+      .into();
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -233,12 +236,9 @@ impl UserSession {
       is_new: response.is_new,
       local_folder: None,
     };
-    let new_session = Session {
-      user_id: response.user_id,
-      user_workspace: response.latest_workspace.clone(),
-    };
-    let uid = new_session.user_id;
-    self.set_session(Some(new_session.clone()))?;
+    let new_session = Session::from(&response);
+    self.set_current_session(Some(new_session.clone()))?;
+    let uid = response.user_id;
     self.log_user(
       uid,
       response.name.clone(),
@@ -250,7 +250,7 @@ impl UserSession {
       response
         .user_workspaces
         .iter()
-        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
         .collect(),
     )?;
     let user_table = self
@@ -301,7 +301,7 @@ impl UserSession {
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
-    self.set_session(None)?;
+    self.set_current_session(None)?;
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {
@@ -525,7 +525,7 @@ impl UserSession {
               pool,
               new_user_workspaces
                 .iter()
-                .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+                .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
                 .collect(),
             );
 
@@ -573,8 +573,8 @@ impl UserSession {
     })
   }
 
-  fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    tracing::debug!("Set user session: {:?}", session);
+  fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
+    tracing::debug!("Set current user: {:?}", session);
     match &session {
       None => self
         .store_preferences
@@ -613,11 +613,13 @@ impl UserSession {
   }
 
   pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    self
+    let mut users = self
       .store_preferences
       .get_object::<HistoricalUsers>(HISTORICAL_USER)
       .unwrap_or_default()
-      .users
+      .users;
+    users.sort_by(|a, b| b.sign_in_timestamp.cmp(&a.sign_in_timestamp));
+    users
   }
 
   pub fn open_historical_user(&self, uid: i64) -> FlowyResult<()> {
@@ -630,7 +632,7 @@ impl UserSession {
       user_id: uid,
       user_workspace,
     };
-    self.set_session(Some(session))?;
+    self.set_current_session(Some(session))?;
     Ok(())
   }
 
@@ -725,7 +727,7 @@ impl HistoricalUsers {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct HistoricalUser {
   pub user_id: i64,
-  #[serde(default = "DEFAULT_USER_NAME")]
+  #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
   pub user_name: String,
   #[serde(default = "DEFAULT_CLOUD_SERVICE_NAME")]
   pub cloud_service_name: String,
@@ -734,4 +736,3 @@ pub struct HistoricalUser {
 }
 
 const DEFAULT_CLOUD_SERVICE_NAME: fn() -> String = || "Local".to_string();
-const DEFAULT_USER_NAME: fn() -> String = || "Me".to_string();

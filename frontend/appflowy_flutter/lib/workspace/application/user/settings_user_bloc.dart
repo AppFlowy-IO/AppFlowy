@@ -77,9 +77,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     final result = await _userService.loadHistoricalUsers();
     result.fold(
       (historicalUsers) {
-        if (historicalUsers.length > 1) {
-          add(SettingsUserEvent.didLoadHistoricalUsers(historicalUsers));
-        }
+        add(SettingsUserEvent.didLoadHistoricalUsers(historicalUsers));
       },
       (error) => Log.error(error),
     );
@@ -87,8 +85,10 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
-          add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) {
+        add(SettingsUserEvent.didReceiveUserProfile(newUserProfile));
+        _loadHistoricalUsers();
+      },
       (err) => Log.error(err),
     );
   }

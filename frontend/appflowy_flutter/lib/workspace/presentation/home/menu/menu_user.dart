@@ -119,6 +119,7 @@ class MenuUser extends StatelessWidget {
                     );
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
+                  didOpenUser: () {},
                 ),
               );
             },
