@@ -20,9 +20,22 @@ class HistoricalUserList extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FlowyText.medium(
-                LocaleKeys.settings_menu_historicalUserList.tr(),
-                fontSize: 13,
+              Row(
+                children: [
+                  FlowyText.medium(
+                    LocaleKeys.settings_menu_historicalUserList.tr(),
+                    fontSize: 13,
+                  ),
+                  const Spacer(),
+                  Tooltip(
+                    message:
+                        LocaleKeys.settings_menu_historicalUserListTooltip.tr(),
+                    child: const Icon(
+                      Icons.question_mark_rounded,
+                      size: 16,
+                    ),
+                  ),
+                ],
               ),
               Expanded(
                 child: ListView.builder(

@@ -228,6 +228,7 @@
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
       "historicalUserList": "User history",
+      "historicalUserListTooltip": "This list shows your login history. You can click to login if it's a local user",
       "openHistoricalUser": "Click to open user"
     },
     "appearance": {
