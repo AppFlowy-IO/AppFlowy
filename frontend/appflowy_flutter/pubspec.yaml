@@ -102,6 +102,8 @@ dependencies:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
