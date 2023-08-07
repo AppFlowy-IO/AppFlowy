@@ -181,7 +181,7 @@ void main() {
         await tester.tapGoButton();
 
         await tester.createNewPageWithName();
-        await tester.favoriteViewByName(gettingStated);
+        await tester.favoriteViewByName(gettingStarted);
         expect(
           find.byWidgetPredicate(
             (widget) =>
@@ -201,9 +201,9 @@ void main() {
         await tester.tapGoButton();
 
         await tester.createNewPageWithName();
-        await tester.favoriteViewByName(gettingStated);
+        await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
-          gettingStated,
+          gettingStarted,
           layout: ViewLayoutPB.Document,
           useLast: false,
           onHover: () async {
