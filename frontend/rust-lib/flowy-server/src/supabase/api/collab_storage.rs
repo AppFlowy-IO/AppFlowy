@@ -102,11 +102,14 @@ where
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    let postgrest = self.0.try_get_postgrest()?;
-    let workspace_id = object
-      .get_workspace_id()
-      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    send_update(workspace_id, object, update, &postgrest).await
+    if let Some(postgrest) = self.0.get_postgrest() {
+      let workspace_id = object
+        .get_workspace_id()
+        .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+      send_update(workspace_id, object, update, &postgrest).await?;
+    }
+
+    Ok(())
   }
 
   async fn send_init_sync(

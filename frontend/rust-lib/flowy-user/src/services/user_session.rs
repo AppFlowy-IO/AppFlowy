@@ -163,12 +163,7 @@ impl UserSession {
     let uid = session.user_id;
     self.set_current_session(Some(session))?;
 
-    self.log_user(
-      uid,
-      response.name.clone(),
-      self.cloud_services.service_name(),
-      self.user_dir(uid),
-    );
+    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
 
     let user_workspace = response.latest_workspace.clone();
     save_user_workspaces(
@@ -239,12 +234,7 @@ impl UserSession {
     let new_session = Session::from(&response);
     self.set_current_session(Some(new_session.clone()))?;
     let uid = response.user_id;
-    self.log_user(
-      uid,
-      response.name.clone(),
-      self.cloud_services.service_name(),
-      self.user_dir(uid),
-    );
+    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
     save_user_workspaces(
       self.db_pool(uid)?,
       response
@@ -589,13 +579,7 @@ impl UserSession {
     Ok(())
   }
 
-  fn log_user(
-    &self,
-    uid: i64,
-    user_name: String,
-    cloud_service_name: String,
-    storage_path: String,
-  ) {
+  fn log_user(&self, uid: i64, user_name: String, auth_type: &AuthType, storage_path: String) {
     let mut logger_users = self
       .store_preferences
       .get_object::<HistoricalUsers>(HISTORICAL_USER)
@@ -603,7 +587,7 @@ impl UserSession {
     logger_users.add_user(HistoricalUser {
       user_id: uid,
       user_name,
-      cloud_service_name,
+      auth_type: auth_type.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
     });
@@ -729,10 +713,10 @@ pub struct HistoricalUser {
   pub user_id: i64,
   #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
   pub user_name: String,
-  #[serde(default = "DEFAULT_CLOUD_SERVICE_NAME")]
-  pub cloud_service_name: String,
+  #[serde(default = "DEFAULT_AUTH_TYPE")]
+  pub auth_type: AuthType,
   pub sign_in_timestamp: i64,
   pub storage_path: String,
 }
 
-const DEFAULT_CLOUD_SERVICE_NAME: fn() -> String = || "Local".to_string();
+const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

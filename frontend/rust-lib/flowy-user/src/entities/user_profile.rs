@@ -225,7 +225,7 @@ pub struct HistoricalUserPB {
   pub last_time: i64,
 
   #[pb(index = 4)]
-  pub cloud_service_type: String,
+  pub auth_type: AuthTypePB,
 }
 
 impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
@@ -245,7 +245,7 @@ impl From<HistoricalUser> for HistoricalUserPB {
       user_id: historical_user.user_id,
       user_name: historical_user.user_name,
       last_time: historical_user.sign_in_timestamp,
-      cloud_service_type: historical_user.cloud_service_name,
+      auth_type: historical_user.auth_type.into(),
     }
   }
 }

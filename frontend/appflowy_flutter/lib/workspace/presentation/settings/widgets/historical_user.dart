@@ -60,15 +60,16 @@ class HistoricalUserItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = isSelected ? const FlowySvg(name: "grid/checkmark") : null;
+    final isDisabled = isSelected || user.authType != AuthTypePB.Local;
     final outputFormat = DateFormat('MM/dd/yyyy');
     final date =
         DateTime.fromMillisecondsSinceEpoch(user.lastTime.toInt() * 1000);
     final lastTime = outputFormat.format(date);
-    final desc = "${user.userName}  ${user.cloudServiceType}  $lastTime";
+    final desc = "${user.userName}  ${user.authType}  $lastTime";
     final child = SizedBox(
       height: 30,
       child: FlowyButton(
-        disable: isSelected,
+        disable: isDisabled,
         text: FlowyText.medium(desc),
         rightIcon: icon,
         onTap: () {

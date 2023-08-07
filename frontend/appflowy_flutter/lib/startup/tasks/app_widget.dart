@@ -89,6 +89,7 @@ class ApplicationWidget extends StatelessWidget {
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
         builder: (context, state) => MaterialApp(
+          key: UniqueKey(),
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
