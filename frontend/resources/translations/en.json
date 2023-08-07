@@ -233,6 +233,7 @@
       "openHistoricalUser": "Click to open the anonymous account"
     },
     "appearance": {
+      "resetSetting": "Reset this setting",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
