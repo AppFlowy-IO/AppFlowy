@@ -69,7 +69,12 @@ class ViewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
+      child: BlocConsumer<ViewBloc, ViewState>(
+        listenWhen: (p, c) =>
+            c.lastCreatedView != null &&
+            p.lastCreatedView?.id != c.lastCreatedView!.id,
+        listener: (context, state) =>
+            context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
           // don't remove this code. it's related to the backend service.
           view.childViews

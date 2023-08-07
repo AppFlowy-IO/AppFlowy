@@ -1,5 +1,7 @@
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -45,17 +47,23 @@ class HomeSideBar extends StatelessWidget {
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         )
       ],
-      child: Builder(
-        builder: (context) {
-          final menuState = context.watch<MenuBloc>().state;
-          final favoriteState = context.watch<FavoriteBloc>().state;
+      child: BlocListener<MenuBloc, MenuState>(
+        listenWhen: (p, c) => p.plugin.id != c.plugin.id,
+        listener: (context, state) => context
+            .read<TabsBloc>()
+            .add(TabsEvent.openPlugin(plugin: state.plugin)),
+        child: Builder(
+          builder: (context) {
+            final menuState = context.watch<MenuBloc>().state;
+            final favoriteState = context.watch<FavoriteBloc>().state;
 
-          return _buildSidebar(
-            context,
-            menuState.views,
-            favoriteState.views,
-          );
-        },
+            return _buildSidebar(
+              context,
+              menuState.views,
+              favoriteState.views,
+            );
+          },
+        ),
       ),
     );
   }
