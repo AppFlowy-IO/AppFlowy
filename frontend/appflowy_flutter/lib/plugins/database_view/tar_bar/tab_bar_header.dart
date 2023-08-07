@@ -194,7 +194,7 @@ class TabBarItemButton extends StatelessWidget {
       actions: TabBarViewAction.values,
       buildChild: (controller) {
         Color? color;
-        if (isSelected) {
+        if (!isSelected) {
           color = Theme.of(context).hintColor;
         }
         if (Theme.of(context).brightness == Brightness.dark) {
