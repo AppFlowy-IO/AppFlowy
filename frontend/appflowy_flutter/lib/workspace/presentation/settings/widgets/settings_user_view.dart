@@ -30,6 +30,7 @@ class SettingsUserView extends StatelessWidget {
   // Called when the user open a historical user in the setting dialog
   final VoidCallback didOpenUser;
   final UserProfilePB user;
+
   SettingsUserView(
     this.user, {
     required this.didLogin,
@@ -44,21 +45,22 @@ class SettingsUserView extends StatelessWidget {
       create: (context) => getIt<SettingsUserViewBloc>(param1: user)
         ..add(const SettingsUserEvent.initial()),
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
-        builder: (context, state) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _renderUserNameInput(context),
-            const VSpace(20),
-            _renderCurrentIcon(context),
-            const VSpace(20),
-            _renderCurrentOpenaiKey(context),
-            const VSpace(20),
-            _renderHistoricalUser(context),
-            const Spacer(),
-            _renderLoginOrLogoutButton(context, state),
-            const VSpace(20),
-          ],
+        builder: (context, state) => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _renderUserNameInput(context),
+              const VSpace(20),
+              _renderCurrentIcon(context),
+              const VSpace(20),
+              _renderCurrentOpenaiKey(context),
+              const VSpace(20),
+              _renderHistoricalUser(context),
+              _renderLoginOrLogoutButton(context, state),
+              const VSpace(20),
+            ],
+          ),
         ),
       ),
     );
@@ -107,20 +109,24 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderLogoutButton(BuildContext context) {
-    return FlowyButton(
-      useIntrinsicWidth: true,
-      text: FlowyText(
-        LocaleKeys.settings_menu_logout.tr(),
+    return Tooltip(
+      message: LocaleKeys.settings_user_clickToLogout.tr(),
+      child: FlowyButton(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+        text: FlowyText.medium(
+          LocaleKeys.settings_menu_logout.tr(),
+          fontSize: 13,
+        ),
+        onTap: () async {
+          NavigatorAlertDialog(
+            title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+            confirm: () async {
+              await getIt<AuthService>().signOut();
+              didLogout();
+            },
+          ).show(context);
+        },
       ),
-      onTap: () async {
-        NavigatorAlertDialog(
-          title: LocaleKeys.settings_menu_logoutPrompt.tr(),
-          confirm: () async {
-            await getIt<AuthService>().signOut();
-            didLogout();
-          },
-        ).show(context);
-      },
     );
   }
 
