@@ -190,17 +190,20 @@ class _CalendarPageState extends State<CalendarPage> {
       padding: CalendarSize.contentInsets,
       child: LayoutBuilder(
         // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => MonthView(
-          key: _calendarState,
-          controller: _eventController,
-          width: constraints.maxWidth,
-          cellAspectRatio: 0.6,
-          startDay: _weekdayFromInt(firstDayOfWeek),
-          borderColor: Theme.of(context).dividerColor,
-          headerBuilder: _headerNavigatorBuilder,
-          weekDayBuilder: _headerWeekDayBuilder,
-          cellBuilder: _calendarDayBuilder,
-          useAvailableVerticalSpace: widget.shrinkWrap,
+        builder: (context, constraints) => ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: MonthView(
+            key: _calendarState,
+            controller: _eventController,
+            width: constraints.maxWidth,
+            cellAspectRatio: 0.6,
+            startDay: _weekdayFromInt(firstDayOfWeek),
+            borderColor: Theme.of(context).dividerColor,
+            headerBuilder: _headerNavigatorBuilder,
+            weekDayBuilder: _headerWeekDayBuilder,
+            cellBuilder: _calendarDayBuilder,
+            useAvailableVerticalSpace: widget.shrinkWrap,
+          ),
         ),
       ),
     );
