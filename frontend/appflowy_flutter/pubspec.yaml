@@ -37,6 +37,8 @@ dependencies:
     path: packages/flowy_infra_ui
   flowy_infra:
     path: packages/flowy_infra
+  flowy_svg:
+    path: packages/flowy_svg
   appflowy_board:
     # path: packages/appflowy_board
     git:
@@ -97,7 +99,6 @@ dependencies:
   path: ^1.8.3
   mocktail: ^0.3.0
   archive: ^3.3.7
-  flutter_svg: ^2.0.6
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.4
   envied: ^0.3.0+3
