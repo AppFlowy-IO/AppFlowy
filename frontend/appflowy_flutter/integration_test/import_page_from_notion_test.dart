@@ -22,7 +22,7 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(gettingStarted);
+      tester.expectToSeePageName(gettingStated);
 
       await tester.tapAddViewButton();
       await tester.tapImportButton();
