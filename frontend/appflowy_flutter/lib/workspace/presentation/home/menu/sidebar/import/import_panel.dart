@@ -17,9 +17,12 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:path/path.dart' as p;
+import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_from_notion_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/app/header/import/importer/notion_importer.dart';
 
 typedef ImportCallback = void Function(
-  ImportType type,
+  ImportType? type,
+  ImportFromNotionType? notionType,
   String name,
   List<int>? document,
 );
@@ -64,6 +67,7 @@ class ImportPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final importCards = _buildImportCards(context);
     final width = MediaQuery.of(context).size.width * 0.7;
     final height = width * 0.5;
     return FlowyContainer(
@@ -73,31 +77,50 @@ class ImportPanel extends StatelessWidget {
       child: GridView.count(
         childAspectRatio: 1 / .2,
         crossAxisCount: 2,
-        children: ImportType.values
-            .where((element) => element.enableOnRelease)
-            .map(
-              (e) => Card(
-                child: FlowyButton(
-                  leftIcon: e.icon(context),
-                  leftIconSize: const Size.square(20),
-                  text: FlowyText.medium(
-                    e.toString(),
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  onTap: () async {
-                    await _importFile(parentViewId, e);
-                    if (context.mounted) {
-                      FlowyOverlay.pop(context);
-                    }
-                  },
-                ),
-              ),
-            )
-            .toList(),
+        children: importCards,
       ),
     );
+  }
+
+  List<Widget> _buildImportCards(BuildContext context) {
+    final importCards = ImportType.values
+        .where((element) => element.enableOnRelease)
+        .map(
+          (e) => Card(
+            child: FlowyButton(
+              leftIcon: e.icon(context),
+              leftIconSize: const Size.square(20),
+              text: FlowyText.medium(
+                e.toString(),
+                fontSize: 15,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () async {
+                await _importFile(parentViewId, e);
+                if (context.mounted) {
+                  FlowyOverlay.pop(context);
+                }
+              },
+            ),
+          ),
+        )
+        .toList();
+    importCards.add(
+      Card(
+        child: ImportFromNotionWidget(
+          callback: (type, path) async {
+            if (path != null) {
+              final notionImporter = NotionImporter(
+                parentViewId: parentViewId,
+              );
+              await notionImporter.importFromNotion(type, path);
+              importCallback(null, ImportFromNotionType.markdownZip, '', null);
+            }
+          },
+        ),
+      ),
+    );
+    return importCards;
   }
 
   Future<void> _importFile(String parentViewId, ImportType importType) async {
@@ -121,7 +144,7 @@ class ImportPanel extends StatelessWidget {
       switch (importType) {
         case ImportType.markdownOrText:
         case ImportType.historyDocument:
-          final bytes = _documentDataFrom(importType, data);
+          final bytes = documentDataFrom(importType, data);
           if (bytes != null) {
             await ImportBackendService.importData(
               bytes,
@@ -160,11 +183,11 @@ class ImportPanel extends StatelessWidget {
       }
     }
 
-    importCallback(importType, '', null);
+    importCallback(importType, null, '', null);
   }
 }
 
-Uint8List? _documentDataFrom(ImportType importType, String data) {
+Uint8List? documentDataFrom(ImportType importType, String data) {
   switch (importType) {
     case ImportType.markdownOrText:
       final document = markdownToDocument(data);
