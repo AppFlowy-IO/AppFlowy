@@ -18,21 +18,19 @@ class FlowySvg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final svg = SvgPicture.asset(
+      'assets/images/$name.svg',
+      colorFilter:
+          color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+    );
+
     if (size != null) {
       return SizedBox.fromSize(
         size: size,
-        child: SvgPicture.asset(
-          'assets/images/$name.svg',
-          colorFilter:
-              color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-        ),
+        child: svg,
       );
     } else {
-      return SvgPicture.asset(
-        'assets/images/$name.svg',
-        colorFilter:
-            color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-      );
+      return svg;
     }
   }
 }
