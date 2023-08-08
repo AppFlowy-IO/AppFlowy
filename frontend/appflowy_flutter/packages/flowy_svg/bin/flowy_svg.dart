@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
 import 'options.dart';
@@ -207,7 +206,6 @@ String lineFor(File file) =>
 
 String pathFor(File file) {
   final relative = path.relative(file.path, from: Directory.current.path);
-  debugPrint(relative);
   return relative;
 }
 
