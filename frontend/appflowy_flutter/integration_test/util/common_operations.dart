@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart'
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,6 +39,17 @@ extension CommonOperations on WidgetTester {
         await tapButton(addButton);
       },
     );
+  }
+
+  Future<void> expandPage(String name) async {
+    final pageToggleButton = find.descendant(
+      of: findPageName(name),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.name == 'home/drop_down_hide',
+      ),
+    );
+    await tap(pageToggleButton);
+    await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
   /// Tap the 'New Page' Button on the sidebar.
