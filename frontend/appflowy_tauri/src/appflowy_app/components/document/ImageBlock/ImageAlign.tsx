@@ -4,9 +4,9 @@ import { useSubscribeDocument } from '$app/components/document/_shared/Subscribe
 import { Align } from '$app/interfaces/document';
 import { FormatAlignCenter, FormatAlignLeft, FormatAlignRight } from '@mui/icons-material';
 import { updateNodeDataThunk } from '$app_reducers/document/async-actions';
-import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import Popover from '@mui/material/Popover';
 import { useTranslation } from 'react-i18next';
+import { Tooltip } from '@mui/material';
 
 function ImageAlign({
   id,
@@ -63,7 +63,7 @@ function ImageAlign({
 
   return (
     <>
-      <ToolbarTooltip title={t('document.plugins.optionAction.align')}>
+      <Tooltip disableInteractive placement={'top'} title={t('document.plugins.optionAction.align')}>
         <div
           ref={ref}
           className='flex items-center justify-center p-1'
@@ -73,7 +73,7 @@ function ImageAlign({
         >
           {renderAlign(align)}
         </div>
-      </ToolbarTooltip>
+      </Tooltip>
       <Popover
         open={popoverOpen}
         anchorOrigin={{
