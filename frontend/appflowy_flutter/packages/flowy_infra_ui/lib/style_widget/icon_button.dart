@@ -1,8 +1,9 @@
 import 'dart:math';
 
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -106,7 +107,7 @@ class FlowyDropdownButton extends StatelessWidget {
     return FlowyIconButton(
       width: 16,
       onPressed: onPressed,
-      icon: const FlowySvg(name: "home/drop_down_show"),
+      icon: const FlowySvg(FlowySvgData("home/drop_down_show")),
     );
   }
 }
