@@ -115,8 +115,8 @@ class TarBarAddButtonActionCell extends StatelessWidget {
           '${LocaleKeys.grid_createView.tr()} ${action.title}',
           color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
-          action.iconName,
+        leftIcon: FlowySvg(
+          name: action.iconName,
           color: Theme.of(context).iconTheme.color,
         ),
         onTap: () => onTap(action),

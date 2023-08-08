@@ -112,9 +112,9 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
         },
         children: [
           if (widget.isSelected)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: svgWidget("grid/checkmark"),
+            const Padding(
+              padding: EdgeInsets.only(right: 6),
+              child: FlowySvg(name: "grid/checkmark"),
             ),
         ],
       ),

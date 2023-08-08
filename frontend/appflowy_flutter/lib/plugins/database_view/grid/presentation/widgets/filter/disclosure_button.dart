@@ -34,7 +34,8 @@ class _DisclosureButtonState extends State<DisclosureButton> {
         return FlowyIconButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           width: 20,
-          icon: svgWidget(
+          icon: FlowySvg(
+            name:
             "editor/details",
             color: Theme.of(context).iconTheme.color,
           ),

@@ -118,7 +118,8 @@ class SelectOptionTag extends StatelessWidget {
               onPressed: () => onRemove?.call(name),
               fillColor: Colors.transparent,
               hoverColor: Colors.transparent,
-              icon: svgWidget(
+              icon: FlowySvg(
+                name:
                 'home/close',
                 color: Theme.of(context).colorScheme.onSurface,
               ),

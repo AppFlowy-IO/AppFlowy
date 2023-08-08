@@ -128,7 +128,8 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           width: 24,
           height: 24,
           iconPadding: const EdgeInsets.all(3),
-          icon: svgWidget(
+          icon: FlowySvg(
+            name:
             'common/information',
             color: Theme.of(context).iconTheme.color,
           ),
@@ -145,7 +146,8 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: svgWidget(
+            icon: FlowySvg(
+              name:
               'common/settings',
               color: Theme.of(context).iconTheme.color,
             ),

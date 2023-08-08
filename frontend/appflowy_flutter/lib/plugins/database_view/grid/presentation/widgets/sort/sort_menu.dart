@@ -66,14 +66,16 @@ class SortChoiceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget(
+      child: FlowySvg(
+        name:
         "home/arrow_left",
         color: Theme.of(context).iconTheme.color,
       ),
     );
 
     final text = LocaleKeys.grid_settings_sort.tr();
-    final leftIcon = svgWidget(
+    final leftIcon = FlowySvg(
+      name:
       "grid/setting/sort",
       color: Theme.of(context).iconTheme.color,
     );

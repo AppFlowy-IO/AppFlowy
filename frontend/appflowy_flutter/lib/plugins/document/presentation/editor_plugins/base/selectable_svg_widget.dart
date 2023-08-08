@@ -16,7 +16,8 @@ class SelectableSvgWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget(
+    return FlowySvg(
+      name:
       name,
       size: const Size.square(18.0),
       color: isSelected

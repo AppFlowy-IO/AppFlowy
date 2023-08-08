@@ -221,7 +221,8 @@ class _BoardContentState extends State<BoardContent> {
       addIcon: SizedBox(
         height: 20,
         width: 20,
-        child: svgWidget(
+        child: FlowySvg(
+          name:
           "home/add",
           color: Theme.of(context).iconTheme.color,
         ),
@@ -244,7 +245,8 @@ class _BoardContentState extends State<BoardContent> {
       icon: SizedBox(
         height: 20,
         width: 20,
-        child: svgWidget(
+        child: FlowySvg(
+          name:
           "home/add",
           color: Theme.of(context).iconTheme.color,
         ),
@@ -381,9 +383,9 @@ Widget? _buildHeaderIcon(GroupData customData) {
     case FieldType.Checkbox:
       final group = customData.asCheckboxGroup()!;
       if (group.isCheck) {
-        widget = svgWidget('editor/editor_check');
+        widget = const FlowySvg(name: 'editor/editor_check');
       } else {
-        widget = svgWidget('editor/editor_uncheck');
+        widget = const FlowySvg(name: 'editor/editor_uncheck');
       }
       break;
     case FieldType.DateTime:

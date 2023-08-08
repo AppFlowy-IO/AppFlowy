@@ -125,7 +125,8 @@ class DatabaseSortItem extends StatelessWidget {
       },
       iconPadding: const EdgeInsets.all(5),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         "home/close",
         color: Theme.of(context).iconTheme.color,
       ),
@@ -252,7 +253,7 @@ class _DatabaseSortItemOrderButtonState
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget("home/arrow_left"),
+      child: const FlowySvg(name: "home/arrow_left"),
     );
 
     return AppFlowyPopover(

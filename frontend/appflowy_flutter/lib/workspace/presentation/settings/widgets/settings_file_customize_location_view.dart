@@ -203,7 +203,8 @@ class _OpenStorageButton extends StatelessWidget {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_openCurrentDataFolder.tr(),
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         'common/open_folder',
         color: Theme.of(context).iconTheme.color,
       ),
@@ -236,7 +237,8 @@ class _RecoverDefaultStorageButtonState
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_recoverLocationTooltips.tr(),
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         'common/recover',
         color: Theme.of(context).iconTheme.color,
       ),

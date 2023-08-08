@@ -65,7 +65,8 @@ class _OpenExportedDirectoryButton extends StatelessWidget {
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_export.tr(),
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         'common/open_folder',
         color: Theme.of(context).iconTheme.color,
       ),

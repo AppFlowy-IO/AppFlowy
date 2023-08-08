@@ -31,7 +31,8 @@ class BlockActionButton extends StatelessWidget {
             child: GestureDetector(
               onTap: onTap,
               behavior: HitTestBehavior.deferToChild,
-              child: svgWidget(
+              child: FlowySvg(
+                name:
                 svgName,
                 size: const Size.square(18.0),
                 color: Theme.of(context).iconTheme.color,

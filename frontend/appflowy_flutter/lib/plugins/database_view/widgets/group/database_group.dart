@@ -73,9 +73,9 @@ class _GridGroupCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? rightIcon;
     if (fieldInfo.isGroupField) {
-      rightIcon = Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: svgWidget("grid/checkmark"),
+      rightIcon = const Padding(
+        padding: EdgeInsets.all(2.0),
+        child: FlowySvg(name: "grid/checkmark"),
       );
     }
 
@@ -87,7 +87,8 @@ class _GridGroupCell extends StatelessWidget {
           fieldInfo.name,
           color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
+        leftIcon: FlowySvg(
+          name:
           fieldInfo.fieldType.iconName(),
           color: Theme.of(context).iconTheme.color,
         ),

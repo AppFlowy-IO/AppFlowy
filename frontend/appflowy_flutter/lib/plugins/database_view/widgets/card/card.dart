@@ -279,7 +279,8 @@ class CardMoreOption extends StatelessWidget with CardAccessory {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
-      child: svgWidget(
+      child: FlowySvg(
+        name:
         'grid/details',
         color: Theme.of(context).iconTheme.color,
       ),
@@ -301,7 +302,8 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
-      child: svgWidget(
+      child: FlowySvg(
+        name:
         'editor/edit',
         color: Theme.of(context).iconTheme.color,
       ),

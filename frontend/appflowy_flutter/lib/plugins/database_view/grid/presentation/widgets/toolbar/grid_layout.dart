@@ -81,7 +81,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(name: "grid/checkmark");
     }
 
     return SizedBox(
@@ -92,7 +92,8 @@ class DatabaseViewLayoutCell extends StatelessWidget {
           databaseLayout.layoutName(),
           color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
+        leftIcon: FlowySvg(
+          name:
           databaseLayout.iconName(),
           color: Theme.of(context).iconTheme.color,
         ),

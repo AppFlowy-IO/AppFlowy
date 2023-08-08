@@ -190,7 +190,7 @@ class ConditionWrapper extends ActionCell {
   @override
   Widget? rightIcon(Color iconColor) {
     if (isSelected) {
-      return svgWidget("grid/checkmark");
+      return const FlowySvg(name: "grid/checkmark");
     } else {
       return null;
     }

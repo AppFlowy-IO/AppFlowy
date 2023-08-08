@@ -219,11 +219,11 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.markdown:
         return const FlowyText.regular('✨');
       case BubbleAction.github:
-        return Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: svgWidget(
-            'login/github-light',
-            size: const Size.square(12),
+        return const Padding(
+          padding: EdgeInsets.all(3.0),
+          child: FlowySvg(
+            name: 'login/github-light',
+            size: Size.square(12),
           ),
         );
     }

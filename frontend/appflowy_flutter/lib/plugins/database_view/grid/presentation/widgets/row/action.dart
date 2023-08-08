@@ -80,7 +80,8 @@ class _ActionCell extends StatelessWidget {
             action.performAction(context);
           }
         },
-        leftIcon: svgWidget(
+        leftIcon: FlowySvg(
+          name:
           action.iconName(),
           color: Theme.of(context).iconTheme.color,
         ),

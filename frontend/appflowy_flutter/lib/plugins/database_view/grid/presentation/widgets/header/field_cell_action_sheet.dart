@@ -177,7 +177,8 @@ class FieldActionCell extends StatelessWidget {
             : Theme.of(context).disabledColor,
       ),
       onTap: () => action.run(context, fieldInfo),
-      leftIcon: svgWidget(
+      leftIcon: FlowySvg(
+        name:
         action.iconName(),
         color: enable
             ? AFThemeExtension.of(context).textColor

@@ -28,7 +28,7 @@ class SidebarNewPageButton extends StatelessWidget {
           shape: BoxShape.circle,
           color: Theme.of(context).colorScheme.surface,
         ),
-        child: svgWidget('home/new_app'),
+        child: const FlowySvg(name: 'home/new_app'),
       ),
       padding: const EdgeInsets.all(0),
     );

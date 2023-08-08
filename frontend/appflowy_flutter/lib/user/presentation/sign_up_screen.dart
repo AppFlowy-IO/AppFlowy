@@ -148,8 +148,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(name: "home/hide"),
+          obscureHideIcon: const FlowySvg(name: "home/show"),
           hintText: LocaleKeys.signUp_passwordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
@@ -181,8 +181,8 @@ class RepeatPasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(name: "home/hide"),
+          obscureHideIcon: const FlowySvg(name: "home/show"),
           hintText: LocaleKeys.signUp_repeatPasswordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,

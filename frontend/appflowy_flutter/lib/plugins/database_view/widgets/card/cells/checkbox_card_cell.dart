@@ -40,8 +40,8 @@ class _CheckboxCardCellState extends State<CheckboxCardCell> {
             previous.isSelected != current.isSelected,
         builder: (context, state) {
           final icon = state.isSelected
-              ? svgWidget('editor/editor_check')
-              : svgWidget('editor/editor_uncheck');
+              ? const FlowySvg(name: 'editor/editor_check')
+              : const FlowySvg(name: 'editor/editor_uncheck');
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(

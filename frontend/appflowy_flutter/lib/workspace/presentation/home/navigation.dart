@@ -79,7 +79,8 @@ class FlowyNavigation extends StatelessWidget {
                       .add(const HomeSettingEvent.collapseMenu());
                 },
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: svgWidget(
+                icon: FlowySvg(
+                  name:
                   "home/hide_menu",
                   color: Theme.of(context).iconTheme.color,
                 ),

@@ -143,7 +143,8 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
               (r) => Log.error("Failed to create field type option: $r"),
             );
           },
-          leftIcon: svgWidget(
+          leftIcon: FlowySvg(
+            name:
             "home/add",
             color: AFThemeExtension.of(context).textColor,
           ),

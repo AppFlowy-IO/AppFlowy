@@ -434,7 +434,8 @@ class DeleteCoverButton extends StatelessWidget {
       fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
       iconPadding: const EdgeInsets.all(5),
       width: 28,
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         'editor/delete',
         color: Theme.of(context).colorScheme.tertiary,
       ),

@@ -90,7 +90,8 @@ class _AddFilterButtonState extends State<AddFilterButton> {
           ),
           useIntrinsicWidth: true,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          leftIcon: svgWidget(
+          leftIcon: FlowySvg(
+            name:
             "home/add",
             color: Theme.of(context).iconTheme.color,
           ),

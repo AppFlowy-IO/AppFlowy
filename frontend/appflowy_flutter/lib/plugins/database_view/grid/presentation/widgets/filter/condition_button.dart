@@ -18,7 +18,8 @@ class ConditionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget(
+      child: FlowySvg(
+        name:
         "home/arrow_left",
         color: AFThemeExtension.of(context).textColor,
       ),

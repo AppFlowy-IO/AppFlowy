@@ -65,7 +65,8 @@ class DatabaseSettingItem extends StatelessWidget {
           color: AFThemeExtension.of(context).textColor,
         ),
         onTap: () => onAction(action),
-        leftIcon: svgWidget(
+        leftIcon: FlowySvg(
+          name:
           action.iconName(),
           color: Theme.of(context).iconTheme.color,
         ),

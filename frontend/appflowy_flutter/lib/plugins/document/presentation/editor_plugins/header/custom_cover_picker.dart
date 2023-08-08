@@ -268,9 +268,10 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             shape: BoxShape.circle,
             color: Theme.of(context).colorScheme.onPrimary,
           ),
-          child: svgWidget(
+          child: const FlowySvg(
+            name:
             "editor/close",
-            size: const Size(20, 20),
+            size: Size(20, 20),
           ),
         ),
       ),

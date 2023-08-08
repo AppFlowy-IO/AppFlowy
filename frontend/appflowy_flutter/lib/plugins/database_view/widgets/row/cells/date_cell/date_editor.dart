@@ -169,13 +169,15 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             titleTextStyle: textStyle,
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
-            leftChevronIcon: svgWidget(
+            leftChevronIcon: FlowySvg(
+              name:
               "home/arrow_left",
               color: Theme.of(context).iconTheme.color,
             ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
-            rightChevronIcon: svgWidget(
+            rightChevronIcon: FlowySvg(
+              name:
               "home/arrow_right",
               color: Theme.of(context).iconTheme.color,
             ),
@@ -246,7 +248,8 @@ class _IncludeTimeButton extends StatelessWidget {
               padding: GridSize.typeOptionContentInsets,
               child: Row(
                 children: [
-                  svgWidget(
+                  FlowySvg(
+                    name:
                     "grid/clock",
                     color: Theme.of(context).iconTheme.color,
                   ),

@@ -54,7 +54,7 @@ class FlowyColorPicker extends StatelessWidget {
   ) {
     Widget? checkmark;
     if (selected == option.color) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(name: "grid/checkmark");
     }
 
     final colorIcon = SizedBox.square(

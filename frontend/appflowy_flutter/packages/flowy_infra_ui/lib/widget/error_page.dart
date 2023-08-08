@@ -190,9 +190,9 @@ class GitHubRedirectButton extends StatelessWidget {
         "AppFlowy",
       ),
       useIntrinsicWidth: true,
-      leftIcon: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: svgWidget('login/github-mark'),
+      leftIcon: const Padding(
+        padding: EdgeInsets.all(4.0),
+        child: FlowySvg(name: 'login/github-mark'),
       ),
       onTap: () async {
         if (await canLaunchUrl(_gitHubNewBugUri)) {

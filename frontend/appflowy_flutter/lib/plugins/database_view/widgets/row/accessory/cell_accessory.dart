@@ -72,7 +72,8 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
         height: 26,
         child: Padding(
           padding: const EdgeInsets.all(3.0),
-          child: svgWidget(
+          child: FlowySvg(
+            name:
             "grid/expander",
             color: Theme.of(context).colorScheme.primary,
           ),

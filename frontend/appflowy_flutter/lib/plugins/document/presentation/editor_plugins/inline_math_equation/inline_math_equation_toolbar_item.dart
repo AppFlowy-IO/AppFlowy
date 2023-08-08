@@ -18,7 +18,8 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
       );
     });
     return SVGIconItemWidget(
-      iconBuilder: (_) => svgWidget(
+      iconBuilder: (_) => FlowySvg(
+        name:
         'editor/math',
         size: const Size.square(16),
         color: isHighlight ? highlightColor : Colors.white,

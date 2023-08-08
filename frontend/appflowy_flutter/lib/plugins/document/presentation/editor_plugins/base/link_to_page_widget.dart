@@ -208,7 +208,8 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               children.add(
                 FlowyButton(
                   isSelected: index == _selectedIndex,
-                  leftIcon: svgWidget(
+                  leftIcon: FlowySvg(
+                    name:
                     view.iconName,
                     color: Theme.of(context).iconTheme.color,
                   ),

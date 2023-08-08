@@ -281,8 +281,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(name: "home/hide"),
+          obscureHideIcon: const FlowySvg(name: "home/show"),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
           errorText: context
               .read<SignInBloc>()
@@ -368,7 +368,8 @@ class ThirdPartySignInButton extends StatelessWidget {
       iconPadding: const EdgeInsets.all(8.0),
       radius: Corners.s10Border,
       onPressed: onPressed,
-      icon: svgWidget(
+      icon: FlowySvg(
+        name:
         icon,
       ),
     );

@@ -21,7 +21,8 @@ class GridAddRowButton extends StatelessWidget {
       ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
-      leftIcon: svgWidget(
+      leftIcon: FlowySvg(
+        name:
         "home/add",
         color: Theme.of(context).colorScheme.tertiary,
       ),

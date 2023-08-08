@@ -155,7 +155,8 @@ class OptionActionButton extends StatelessWidget {
           child: GestureDetector(
             onTap: onTap,
             behavior: HitTestBehavior.deferToChild,
-            child: svgWidget(
+            child: FlowySvg(
+              name:
               'editor/option',
               size: const Size.square(24.0),
               color: Theme.of(context).iconTheme.color,

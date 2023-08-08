@@ -29,7 +29,8 @@ class DocumentMoreButton extends StatelessWidget {
           ),
         ];
       },
-      child: svgWidget(
+      child: FlowySvg(
+        name:
         'editor/details',
         size: const Size(18, 18),
         color: Theme.of(context).iconTheme.color,
