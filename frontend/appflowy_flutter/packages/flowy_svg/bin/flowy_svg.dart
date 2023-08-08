@@ -133,7 +133,12 @@ Future<void> generateSvgData(Options options) async {
   final source = Directory(
     [
       Directory.current.path,
-      options.sourceDir!,
+      Directory.fromUri(
+        Uri.file(
+          options.sourceDir!,
+          windows: Platform.isWindows,
+        ),
+      ),
     ].join(
       Platform.pathSeparator,
     ),
