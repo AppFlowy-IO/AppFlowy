@@ -155,8 +155,8 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let is_left_empty = cell_data.0.is_empty();
-    let is_right_empty = other_cell_data.0.is_empty();
+    let is_left_empty = self.is_empty(cell_data);
+    let is_right_empty = self.is_empty(other_cell_data);
     match (is_left_empty, is_right_empty) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,

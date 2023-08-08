@@ -314,8 +314,8 @@ impl TypeOptionCellDataCompare for DateTypeOption {
         let order = left.cmp(&right);
         sort_condition.evaluate_order(order)
       },
-      (Some(_), None) => Ordering::Greater,
-      (None, Some(_)) => Ordering::Less,
+      (Some(_), None) => Ordering::Less,
+      (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
   }

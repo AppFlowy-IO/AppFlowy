@@ -251,8 +251,8 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let is_left_empty = cell_data.0.is_empty();
-    let is_right_empty = other_cell_data.0.is_empty();
+    let is_left_empty = self.is_empty(cell_data);
+    let is_right_empty = self.is_empty(other_cell_data);
     match (is_left_empty, is_right_empty) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
@@ -265,8 +265,8 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
             let order = left.decimal().cmp(right.decimal());
             sort_condition.evaluate_order(order)
           },
-          (Ok(_), Err(_)) => Ordering::Greater,
-          (Err(_), Ok(_)) => Ordering::Less,
+          (Ok(_), Err(_)) => Ordering::Less,
+          (Err(_), Ok(_)) => Ordering::Greater,
           (Err(_), Err(_)) => Ordering::Equal,
         }
       },
