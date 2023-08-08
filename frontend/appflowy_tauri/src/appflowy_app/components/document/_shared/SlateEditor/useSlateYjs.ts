@@ -35,7 +35,6 @@ export function useSlateYjs({ delta }: { delta?: Delta }) {
     if (!yText) return;
     const oldContents = new Delta(yText.toDelta());
     const diffDelta = oldContents.diff(delta || new Delta());
-
     if (diffDelta.ops.length === 0) return;
     yText.applyDelta(diffDelta.ops);
   }, [delta, editor, yText]);

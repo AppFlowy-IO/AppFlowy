@@ -13,6 +13,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    user_data_migration_records (id) {
+        id -> Integer,
+        migration_name -> Text,
+        executed_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     user_table (id) {
         id -> Text,
         name -> Text,
@@ -25,4 +33,19 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(collab_snapshot, user_table,);
+diesel::table! {
+    user_workspace_table (id) {
+        id -> Text,
+        name -> Text,
+        uid -> BigInt,
+        created_at -> BigInt,
+        database_storage_id -> Text,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(
+  collab_snapshot,
+  user_data_migration_records,
+  user_table,
+  user_workspace_table,
+);

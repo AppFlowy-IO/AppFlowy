@@ -219,7 +219,7 @@ impl CellDataChangeset for NumberTypeOption {
         NumberCellData::from(formatter.to_string()),
       )),
       _ => Ok((
-        NumberCellData::from(formatter.to_string()).into(),
+        NumberCellData::from(formatter.to_unformatted_string()).into(),
         NumberCellData::from(formatter.to_string()),
       )),
     }
@@ -259,6 +259,10 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
       (Err(_), Ok(_)) => Ordering::Less,
       (Err(_), Err(_)) => Ordering::Equal,
     }
+  }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.0.is_empty()
   }
 }
 impl std::default::Default for NumberTypeOption {

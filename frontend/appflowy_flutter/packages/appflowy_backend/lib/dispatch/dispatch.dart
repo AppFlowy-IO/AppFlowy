@@ -4,7 +4,6 @@ import 'package:appflowy_backend/log.dart';
 // ignore: unnecessary_import
 import 'package:appflowy_backend/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-net/network_state.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
@@ -23,11 +22,9 @@ import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
 import '../protobuf/flowy-config/entities.pb.dart';
 import '../protobuf/flowy-config/event_map.pb.dart';
-import '../protobuf/flowy-net/event_map.pb.dart';
 import 'error.dart';
 
 part 'dart_event/flowy-folder2/dart_event.dart';
-part 'dart_event/flowy-net/dart_event.dart';
 part 'dart_event/flowy-user/dart_event.dart';
 part 'dart_event/flowy-database2/dart_event.dart';
 part 'dart_event/flowy-document2/dart_event.dart';

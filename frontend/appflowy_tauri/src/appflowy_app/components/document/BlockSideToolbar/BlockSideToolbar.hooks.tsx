@@ -8,10 +8,10 @@ import { RANGE_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 import { getNode } from '$app/utils/document/node';
 import { get } from '$app/utils/tool';
 
-const headingBlockTopOffset: Record<number, number> = {
-  1: 6,
-  2: 4,
-  3: 3,
+const headingBlockTopOffset: Record<number, string> = {
+  1: '0.4rem',
+  2: '0.35rem',
+  3: '0.15rem',
 };
 
 export function useBlockSideToolbar(id: string) {
@@ -85,35 +85,6 @@ export function useBlockSideToolbar(id: string) {
     opacity,
     topOffset,
   };
-}
-
-function getNodeIdByPoint(x: number, y: number) {
-  const viewportNodes = document.querySelectorAll('[data-block-id]');
-  let node: {
-    el: Element;
-    rect: DOMRect;
-  } | null = null;
-
-  viewportNodes.forEach((el) => {
-    const rect = el.getBoundingClientRect();
-
-    if (rect.x + rect.width - 1 >= x && rect.y + rect.height - 1 >= y && rect.y <= y) {
-      if (!node || rect.y > node.rect.y) {
-        node = {
-          el,
-          rect,
-        };
-      }
-    }
-  });
-  return node
-    ? (
-        node as {
-          el: Element;
-          rect: DOMRect;
-        }
-      ).el.getAttribute('data-block-id')
-    : null;
 }
 
 const transformOrigin: PopoverOrigin = {

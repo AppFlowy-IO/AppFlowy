@@ -7,7 +7,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 
 class WindowSizeManager {
-  static const double minWindowHeight = 400.0;
+  static const double minWindowHeight = 600.0;
   static const double minWindowWidth = 800.0;
 
   static const width = 'width';

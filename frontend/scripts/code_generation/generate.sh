@@ -22,6 +22,13 @@ cd freezed
 # Allow execution permissions on CI
 chmod +x ./generate_freezed.sh
 ./generate_freezed.sh "$@"
+cd ..
+
+echo "Generating env files using build_runner"
+cd env
+# Allow execution permissions on CI
+chmod +x ./generate_env.sh
+./generate_env.sh "$@"
 
 # Return to the original directory
 cd "$original_dir"

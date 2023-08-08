@@ -19,14 +19,14 @@ export function useCalloutBlock(nodeId: string) {
   }, []);
 
   const onEmojiSelect = useCallback(
-    (emoji: { native: string }) => {
+    (emoji: string) => {
       if (!controller) return;
       void dispatch(
         updateNodeDataThunk({
           id: nodeId,
           controller,
           data: {
-            icon: emoji.native,
+            icon: emoji,
           },
         })
       );

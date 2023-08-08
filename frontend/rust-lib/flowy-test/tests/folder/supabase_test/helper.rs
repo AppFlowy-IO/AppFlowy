@@ -20,7 +20,7 @@ impl FlowySupabaseFolderTest {
   pub async fn new() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
-    let _ = inner.sign_up_with_uuid(&uuid).await;
+    let _ = inner.third_party_sign_up_with_uuid(&uuid, None).await;
     Some(Self { inner })
   }
 

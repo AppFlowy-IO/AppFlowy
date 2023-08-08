@@ -8,10 +8,9 @@ import 'package:protobuf/protobuf.dart';
 
 part 'setting_supabase_bloc.freezed.dart';
 
-class SettingSupabaseBloc
-    extends Bloc<SettingSupabaseEvent, SettingSupabaseState> {
-  SettingSupabaseBloc() : super(SettingSupabaseState.initial()) {
-    on<SettingSupabaseEvent>((event, emit) async {
+class SyncSettingBloc extends Bloc<SyncSettingEvent, SyncSettingState> {
+  SyncSettingBloc() : super(SyncSettingState.initial()) {
+    on<SyncSettingEvent>((event, emit) async {
       await event.when(
         initial: () async {
           await getSupabaseConfig();
@@ -27,7 +26,7 @@ class SettingSupabaseBloc
             emit(state.copyWith(config: newConfig));
           }
         },
-        didReceiveSupabseConfig: (SupabaseConfigPB config) {
+        didReceiveSyncConfig: (SupabaseConfigPB config) {
           emit(state.copyWith(config: config));
         },
       );
@@ -43,7 +42,7 @@ class SettingSupabaseBloc
     result.fold(
       (config) {
         if (!isClosed) {
-          add(SettingSupabaseEvent.didReceiveSupabseConfig(config));
+          add(SyncSettingEvent.didReceiveSyncConfig(config));
         }
       },
       (r) => Log.error(r),
@@ -52,22 +51,22 @@ class SettingSupabaseBloc
 }
 
 @freezed
-class SettingSupabaseEvent with _$SettingSupabaseEvent {
-  const factory SettingSupabaseEvent.initial() = _Initial;
-  const factory SettingSupabaseEvent.didReceiveSupabseConfig(
+class SyncSettingEvent with _$SyncSettingEvent {
+  const factory SyncSettingEvent.initial() = _Initial;
+  const factory SyncSettingEvent.didReceiveSyncConfig(
     SupabaseConfigPB config,
-  ) = _DidReceiveSupabaseConfig;
-  const factory SettingSupabaseEvent.enableSync(bool enable) = _EnableSync;
+  ) = _DidSyncSupabaseConfig;
+  const factory SyncSettingEvent.enableSync(bool enable) = _EnableSync;
 }
 
 @freezed
-class SettingSupabaseState with _$SettingSupabaseState {
-  const factory SettingSupabaseState({
+class SyncSettingState with _$SyncSettingState {
+  const factory SyncSettingState({
     SupabaseConfigPB? config,
     required Either<Unit, String> successOrFailure,
-  }) = _SettingSupabaseState;
+  }) = _SyncSettingState;
 
-  factory SettingSupabaseState.initial() => SettingSupabaseState(
+  factory SyncSettingState.initial() => SyncSettingState(
         successOrFailure: left(unit),
       );
 }

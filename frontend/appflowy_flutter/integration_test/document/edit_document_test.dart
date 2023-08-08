@@ -18,7 +18,10 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(ViewLayoutPB.Document, pageName);
+      await tester.createNewPageWithName(
+        name: pageName,
+        layout: ViewLayoutPB.Document,
+      );
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -56,7 +59,7 @@ void main() {
       );
 
       // switch to other page and switch back
-      await tester.openPage(readme);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // the numbered list should be kept
@@ -72,7 +75,10 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(ViewLayoutPB.Document, pageName);
+      await tester.createNewPageWithName(
+        name: pageName,
+        layout: ViewLayoutPB.Document,
+      );
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -85,7 +91,7 @@ void main() {
       }
 
       // switch to other page and switch back
-      await tester.openPage(readme);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // this screenshots are different on different platform, so comment it out temporarily.

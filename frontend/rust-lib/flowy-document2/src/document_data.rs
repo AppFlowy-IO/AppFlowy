@@ -1,12 +1,6 @@
-use std::{collections::HashMap, vec};
-
 use collab_document::blocks::{Block, DocumentData, DocumentMeta};
-use nanoid::nanoid;
 
 use crate::entities::{BlockPB, ChildrenPB, DocumentDataPB, MetaPB};
-
-pub const PAGE: &str = "page";
-pub const PARAGRAPH_BLOCK_TYPE: &str = "paragraph";
 
 impl From<DocumentData> for DocumentDataPB {
   fn from(data: DocumentData) -> Self {
@@ -55,54 +49,6 @@ impl From<DocumentDataPB> for DocumentData {
       blocks,
       meta: DocumentMeta { children_map },
     }
-  }
-}
-
-/// The default document data.
-/// The default document data is a document with a page block and a text block.
-pub fn default_document_data() -> DocumentData {
-  let page_type = PAGE.to_string();
-  let text_type = PARAGRAPH_BLOCK_TYPE.to_string();
-
-  let mut blocks: HashMap<String, Block> = HashMap::new();
-  let mut meta: HashMap<String, Vec<String>> = HashMap::new();
-
-  // page block
-  let page_id = nanoid!(10);
-  let children_id = nanoid!(10);
-  let root = Block {
-    id: page_id.clone(),
-    ty: page_type,
-    parent: "".to_string(),
-    children: children_id.clone(),
-    external_id: None,
-    external_type: None,
-    data: HashMap::new(),
-  };
-  blocks.insert(page_id.clone(), root);
-
-  // text block
-  let text_block_id = nanoid!(10);
-  let text_block_children_id = nanoid!(10);
-  let text_block = Block {
-    id: text_block_id.clone(),
-    ty: text_type,
-    parent: page_id.clone(),
-    children: text_block_children_id.clone(),
-    external_id: None,
-    external_type: None,
-    data: HashMap::new(),
-  };
-  blocks.insert(text_block_id.clone(), text_block);
-
-  // meta
-  meta.insert(children_id, vec![text_block_id]);
-  meta.insert(text_block_children_id, vec![]);
-
-  DocumentData {
-    page_id,
-    blocks,
-    meta: DocumentMeta { children_map: meta },
   }
 }
 

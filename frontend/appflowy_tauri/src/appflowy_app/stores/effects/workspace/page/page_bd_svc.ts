@@ -6,16 +6,19 @@ import {
   FolderEventDuplicateView,
   FolderEventCloseView,
   FolderEventImportData,
-  FolderEventMoveView,
   ViewIdPB,
   CreateViewPayloadPB,
   UpdateViewPayloadPB,
   RepeatedViewIdPB,
   ViewPB,
   ImportPB,
-  MoveViewPayloadPB,
+  MoveNestedViewPayloadPB,
+  FolderEventMoveNestedView,
+  ViewIconPB,
+  UpdateViewIconPayloadPB,
+  FolderEventUpdateViewIcon,
 } from '@/services/backend/events/flowy-folder2';
-import { Page } from '$app_reducers/pages/slice';
+import { Page, PageIcon } from '$app_reducers/pages/slice';
 
 export class PageBackendService {
   constructor() {
@@ -31,16 +34,13 @@ export class PageBackendService {
   };
 
   movePage = async (params: { viewId: string; parentId: string; prevId?: string }) => {
-    console.log('movePage', params);
-    const payload = new MoveViewPayloadPB({
+    const payload = new MoveNestedViewPayloadPB({
       view_id: params.viewId,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      parent_view_id: params.parentId,
+      new_parent_id: params.parentId,
       prev_view_id: params.prevId,
     });
 
-    return FolderEventMoveView(payload);
+    return FolderEventMoveNestedView(payload);
   };
 
   createPage = async (params: ReturnType<typeof CreateViewPayloadPB.prototype.toObject>) => {
@@ -57,15 +57,21 @@ export class PageBackendService {
       payload.name = page.name;
     }
 
-    if (page.cover !== undefined) {
-      payload.cover_url = page.cover;
-    }
-
-    if (page.icon !== undefined) {
-      payload.icon_url = page.icon;
-    }
-
     return FolderEventUpdateView(payload);
+  };
+
+  updatePageIcon = async (viewId: string, icon?: PageIcon) => {
+    const payload = new UpdateViewIconPayloadPB({
+      view_id: viewId,
+      icon: icon
+        ? new ViewIconPB({
+            ty: icon.ty,
+            value: icon.value,
+          })
+        : undefined,
+    });
+
+    return FolderEventUpdateViewIcon(payload);
   };
 
   deletePage = async (viewId: string) => {

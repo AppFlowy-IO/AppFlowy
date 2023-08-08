@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 import Collapse from '@mui/material/Collapse';
 import { TransitionGroup } from 'react-transition-group';
 import NestedPageTitle from '$app/components/layout/NestedPage/NestedPageTitle';
@@ -10,8 +10,12 @@ function NestedPage({ pageId }: { pageId: string }) {
   const { toggleCollapsed, collapsed, childPages } = useLoadChildPages(pageId);
   const { onAddPage, onPageClick, onDeletePage, onDuplicatePage, onRenamePage } = usePageActions(pageId);
 
+  const children = useMemo(() => {
+    return collapsed ? [] : childPages;
+  }, [collapsed, childPages]);
+
   return (
-    <BlockDraggable id={pageId} type={BlockDraggableType.PAGE}>
+    <BlockDraggable id={pageId} type={BlockDraggableType.PAGE} data-page-id={pageId}>
       <NestedPageTitle
         onClick={() => {
           onPageClick();
@@ -27,7 +31,7 @@ function NestedPage({ pageId }: { pageId: string }) {
 
       <div className={'pl-4 pt-[2px]'}>
         <TransitionGroup>
-          {childPages?.map((pageId) => (
+          {children?.map((pageId) => (
             <Collapse key={pageId}>
               <NestedPage key={pageId} pageId={pageId} />
             </Collapse>

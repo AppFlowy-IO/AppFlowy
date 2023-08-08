@@ -1,67 +1,51 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use parking_lot::RwLock;
 use uuid::Uuid;
 
-use flowy_server::supabase::impls::{SupabaseUserAuthServiceImpl, USER_UUID};
-use flowy_server::supabase::{PostgresServer, SupabaseServerServiceImpl};
-use flowy_server_config::supabase_config::PostgresConfiguration;
-use flowy_user::entities::{SignUpResponse, UpdateUserProfileParams};
-use flowy_user::event_map::{UserAuthService, UserCredentials};
+use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::setup_log;
+use crate::supabase_test::util::{get_supabase_config, sign_up_param, user_auth_service};
 
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
-async fn user_sign_up_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_user_sign_up_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
-  let mut params = HashMap::new();
-  params.insert(USER_UUID.to_string(), Uuid::new_v4().to_string());
+  let user_service = user_auth_service();
+  let uuid = Uuid::new_v4().to_string();
+  let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-  assert!(!user.workspace_id.is_empty());
-}
-
-fn user_auth_service_impl() -> SupabaseUserAuthServiceImpl<SupabaseServerServiceImpl> {
-  let server = Arc::new(PostgresServer::new(
-    PostgresConfiguration::from_env().unwrap(),
-  ));
-  let weak_server = SupabaseServerServiceImpl(Arc::new(RwLock::new(Some(server))));
-  SupabaseUserAuthServiceImpl::new(weak_server)
+  assert!(!user.latest_workspace.id.is_empty());
+  assert!(!user.user_workspaces.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
 }
 
 #[tokio::test]
-async fn user_sign_up_with_existing_uuid_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_user_sign_up_with_existing_uuid_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
-  let uuid = Uuid::new_v4();
-
-  let mut params = HashMap::new();
-  params.insert(USER_UUID.to_string(), uuid.to_string());
+  let user_service = user_auth_service();
+  let uuid = Uuid::new_v4().to_string();
+  let params = sign_up_param(uuid);
   let _user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
     .unwrap();
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
-  assert!(!user.workspace_id.is_empty());
+  assert!(!user.latest_workspace.id.is_empty());
+  assert!(!user.latest_workspace.database_storage_id.is_empty());
+  assert!(!user.user_workspaces.is_empty());
 }
 
 #[tokio::test]
-async fn update_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_update_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  let user_service = user_auth_service_impl();
-  let uuid = Uuid::new_v4();
-
-  let mut params = HashMap::new();
-  params.insert(USER_UUID.to_string(), uuid.to_string());
+  let user_service = user_auth_service();
+  let uuid = Uuid::new_v4().to_string();
+  let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
@@ -74,7 +58,7 @@ async fn update_user_profile_test() {
         id: user.user_id,
         auth_type: Default::default(),
         name: Some("123".to_string()),
-        email: Some("123@appflowy.io".to_string()),
+        email: Some(format!("{}@test.com", Uuid::new_v4())),
         password: None,
         icon_url: None,
         openai_key: None,
@@ -93,57 +77,33 @@ async fn update_user_profile_test() {
 }
 
 #[tokio::test]
-async fn get_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_get_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  setup_log();
-  let user_service = user_auth_service_impl();
-  let uuid = Uuid::new_v4();
-
-  let mut params = HashMap::new();
-  params.insert(USER_UUID.to_string(), uuid.to_string());
+  let user_service = user_auth_service();
+  let uuid = Uuid::new_v4().to_string();
+  let params = sign_up_param(uuid);
   let user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
     .unwrap();
 
   let credential = UserCredentials::from_uid(user.user_id);
-
   user_service
     .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential.clone())
-    .await
-    .unwrap()
-    .unwrap();
-  user_service
-    .get_user_profile(credential)
     .await
     .unwrap()
     .unwrap();
 }
 
 #[tokio::test]
-async fn get_not_exist_user_profile_test() {
-  if dotenv::from_filename("./.env.test").is_err() {
+async fn supabase_get_not_exist_user_profile_test() {
+  if get_supabase_config().is_none() {
     return;
   }
-  setup_log();
-  let user_service = user_auth_service_impl();
+
+  let user_service = user_auth_service();
   let result = user_service
     .get_user_profile(UserCredentials::from_uid(i64::MAX))
     .await

@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use appflowy_integrate::RemoteCollabStorage;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 
-use flowy_database2::deps::DatabaseCloudService;
-use flowy_document2::deps::DocumentCloudService;
-use flowy_folder2::deps::FolderCloudService;
-use flowy_user::event_map::UserAuthService;
+use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_user_deps::cloud::UserService;
 
 pub mod local_server;
 mod request;
@@ -14,23 +14,9 @@ pub mod self_host;
 pub mod supabase;
 pub mod util;
 
-/// In order to run this the supabase test, you need to create a .env file in the root directory of this project
-/// and add the following environment variables:
-/// - SUPABASE_URL
-/// - SUPABASE_ANON_KEY
-/// - SUPABASE_KEY
-/// - SUPABASE_JWT_SECRET
-///
-/// the .env file should look like this:
-/// SUPABASE_URL=https://<your-supabase-url>.supabase.co
-/// SUPABASE_ANON_KEY=<your-supabase-anon-key>
-/// SUPABASE_KEY=<your-supabase-key>
-/// SUPABASE_JWT_SECRET=<your-supabase-jwt-secret>
-///
-
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn enable_sync(&self, _enable: bool) {}
-  fn user_service(&self) -> Arc<dyn UserAuthService>;
+  fn user_service(&self) -> Arc<dyn UserService>;
   fn folder_service(&self) -> Arc<dyn FolderCloudService>;
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;

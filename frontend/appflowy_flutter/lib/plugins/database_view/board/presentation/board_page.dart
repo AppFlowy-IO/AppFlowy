@@ -35,6 +35,7 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return BoardPage(
       key: _makeValueKey(controller),
@@ -298,6 +299,7 @@ class _BoardContentState extends State<BoardContent> {
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
+        groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,

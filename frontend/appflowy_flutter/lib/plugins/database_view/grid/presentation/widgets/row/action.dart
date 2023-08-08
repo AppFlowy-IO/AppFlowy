@@ -16,16 +16,22 @@ import '../../layout/sizes.dart';
 class RowActions extends StatelessWidget {
   final String viewId;
   final RowId rowId;
+  final String? groupId;
   const RowActions({
     required this.viewId,
     required this.rowId,
+    this.groupId,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(viewId: viewId, rowId: rowId),
+      create: (context) => RowActionSheetBloc(
+        viewId: viewId,
+        rowId: rowId,
+        groupId: groupId,
+      ),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values
@@ -110,7 +116,6 @@ extension _RowActionExtension on _RowAction {
   bool enable() {
     switch (this) {
       case _RowAction.duplicate:
-        return false;
       case _RowAction.delete:
         return true;
     }

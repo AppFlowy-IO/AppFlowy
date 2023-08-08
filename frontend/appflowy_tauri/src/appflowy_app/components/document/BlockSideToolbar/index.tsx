@@ -29,7 +29,7 @@ export default function BlockSideToolbar({ id }: { id: string }) {
           opacity: show ? 1 : 0,
           top: topOffset,
         }}
-        className='absolute left-[-50px] inline-flex h-[calc(1.5em_+_3px)] transition-opacity duration-100'
+        className='absolute left-[-50px] inline-flex'
       >
         {/** Add Block below */}
         <Tooltip disableInteractive={true} title={t('blockActions.addBelowTooltip')} placement={'top-start'}>
@@ -59,7 +59,16 @@ export default function BlockSideToolbar({ id }: { id: string }) {
         </Tooltip>
 
         {/** Open menu or drag */}
-        <Tooltip disableInteractive={true} title={t('blockActions.dragAndOpenTooltip')} placement={'top-start'}>
+        <Tooltip
+          disableInteractive={true}
+          title={
+            <div className={'flex flex-col items-center justify-center'}>
+              <div>{t('blockActions.dragTooltip')}</div>
+              <div>{t('blockActions.openMenuTooltip')}</div>
+            </div>
+          }
+          placement={'top-start'}
+        >
           <IconButton
             style={{
               pointerEvents: show ? 'auto' : 'none',

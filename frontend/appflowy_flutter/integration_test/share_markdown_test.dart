@@ -16,7 +16,7 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(readme);
+      tester.expectToSeePageName(gettingStarted);
 
       // mock the file picker
       final path = await mockSaveFilePath(
@@ -42,12 +42,16 @@ void main() {
         final context = await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
-        // expect to see a readme page
-        tester.expectToSeePageName(readme);
+        // expect to see a getting started page
+        tester.expectToSeePageName(gettingStarted);
 
         // rename the document
-        await tester.hoverOnPageName(readme);
-        await tester.renamePage('example');
+        await tester.hoverOnPageName(
+          gettingStarted,
+          onHover: () async {
+            await tester.renamePage('example');
+          },
+        );
 
         final shareButton = find.byType(ShareActionList);
         final shareButtonState =

@@ -232,6 +232,18 @@ impl CellDataChangeset for DateTypeOption {
       None => (None, false),
     };
 
+    if changeset.clear_flag == Some(true) {
+      let (timestamp, include_time) = (None, include_time);
+
+      let cell_data = DateCellData {
+        timestamp,
+        include_time,
+      };
+
+      let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
+      return Ok((Cell::from(cell_wrapper), cell_data));
+    }
+
     // update include_time if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
 
@@ -301,5 +313,9 @@ impl TypeOptionCellDataCompare for DateTypeOption {
       (None, Some(_)) => Ordering::Less,
       (None, None) => default_order(),
     }
+  }
+
+  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.timestamp.is_none()
   }
 }

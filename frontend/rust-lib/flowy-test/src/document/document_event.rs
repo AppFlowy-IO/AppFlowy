@@ -41,6 +41,7 @@ impl DocumentEventTest {
       initial_data: vec![],
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(core.clone())
       .event(FolderEvent::CreateView)

@@ -13,7 +13,8 @@
     "addAboveCmd": "Alt+click",
     "addAboveMacCmd": "Option+click",
     "addAboveTooltip": "to add above",
-    "dragAndOpenTooltip": "Drag to reorder, click to open"
+    "dragTooltip": "Drag to move",
+    "openMenuTooltip": "Click to open menu"
   },
   "signUp": {
     "buttonText": "Sign Up",
@@ -25,7 +26,8 @@
     "alreadyHaveAnAccount": "Already have an account?",
     "emailHint": "Email",
     "passwordHint": "Password",
-    "repeatPasswordHint": "Repeat password"
+    "repeatPasswordHint": "Repeat password",
+    "signUpWith": "Sign up with:"
   },
   "signIn": {
     "loginTitle": "Login to @:appName",
@@ -37,7 +39,8 @@
     "passwordHint": "Password",
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
-    "unmatchedPasswordError": "Repeat password is not the same as password"
+    "unmatchedPasswordError": "Repeat password is not the same as password",
+    "signInWith": "Sign in with:"
   },
   "workspace": {
     "create": "Create workspace",
@@ -69,7 +72,12 @@
     "rename": "Rename",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "openNewTab": "Open in a new tab"
+    "unfavorite": "Remove from favorites",
+    "favorite": "Add to favorites",
+    "openNewTab": "Open in a new tab",
+    "moveTo": "Move to",
+    "addToFavorites": "Add to Favorites",
+    "copyLink": "Copy Link"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -110,6 +118,7 @@
     "feedback": "Feedback"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
@@ -145,7 +154,12 @@
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
-    "openSidebar": "Open side bar"
+    "openSidebar": "Open side bar",
+    "personal": "Personal",
+    "favorites": "Favorites",
+    "clickToHidePersonal": "Click to hide personal section",
+    "clickToHideFavorites": "Click to hide favorite section",
+    "addAPage": "Add a page"
   },
   "notifications": {
     "export": {
@@ -209,7 +223,13 @@
       "user": "User",
       "files": "Files",
       "open": "Open Settings",
-      "supabaseSetting": "Supabase Setting"
+      "logout": "Logout",
+      "logoutPrompt": "Are you sure to logout?",
+      "syncSetting": "Sync Setting",
+      "enableSync": "Enable sync",
+      "historicalUserList": "User history",
+      "historicalUserListTooltip": "This list shows your login history. You can click to login if it's a local user",
+      "openHistoricalUser": "Click to open user"
     },
     "appearance": {
       "fontFamily": {
@@ -276,7 +296,19 @@
       "name": "Name",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "clickToLogout": "Click to logout the current user"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Shortcuts",
+      "command": "Command",
+      "keyBinding": "Keybinding",
+      "addNewCommand": "Add New Command",
+      "updateShortcutStep": "Press desired key combination and press ENTER",
+      "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
+      "resetToDefault": "Reset to default keybindings",
+      "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
     }
   },
   "grid": {
@@ -364,6 +396,7 @@
       "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",
       "timeFormatTwentyFourHour": "24 hour",
+      "clearDate": "Clear date",
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option",
@@ -537,6 +570,9 @@
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",
+      "openInNewTab": "Open in new tab",
+      "copyLink": "Copy link",
+      "removeLink": "Remove link",
       "url": {
         "label": "Link URL",
         "placeholder": "Enter link URL"
@@ -544,6 +580,13 @@
       "title": {
         "label": "Link Title",
         "placeholder": "Enter link title"
+      }
+    },
+    "mention": {
+      "placeholder": "Mention a person or a page or date...",
+      "page": {
+        "label": "Link to page",
+        "tooltip": "Click to open page"
       }
     }
   },
@@ -596,5 +639,37 @@
   "views": {
     "deleteContentTitle": "Are you sure want to delete the {pageType}?",
     "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
+  },
+  "emoji": {
+    "filter": "Filter",
+    "random": "Random",
+    "selectSkinTone": "Select skin tone",
+    "remove": "Remove emoji",
+    "categories": {
+      "smileys": "Smileys & Emotion",
+      "people": "People & Body",
+      "animals": "Animals & Nature",
+      "food": "Food & Drink",
+      "activities": "Activities",
+      "places": "Travel & Places",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags",
+      "nature": "Nature",
+      "frequentlyUsed": "Frequently Used"
+    }
   }
 }
