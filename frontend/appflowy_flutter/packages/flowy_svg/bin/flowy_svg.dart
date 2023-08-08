@@ -138,21 +138,25 @@ Future<void> generateSvgData(Options options) async {
           options.sourceDir!,
           windows: Platform.isWindows,
         ),
-      ),
-    ].join(
-      Platform.pathSeparator,
-    ),
+      ).path,
+    ].join(),
   );
 
   // the output directory that this is targeting
   final output = File(
     [
       Directory.current.path,
-      options.outputDir!,
-      options.outputFile!,
-    ].join(
+      Directory.fromUri(
+        Uri.file(options.outputDir!, windows: Platform.isWindows),
+      ).path,
       Platform.pathSeparator,
-    ),
+      File.fromUri(
+        Uri.file(
+          options.outputFile!,
+          windows: Platform.isWindows,
+        ),
+      ).path,
+    ].join(),
   );
 
   var files = await dirContents(source);
@@ -207,11 +211,12 @@ String varNameFor(File file) {
 }
 
 String lineFor(File file) =>
-    "  static const ${varNameFor(file)} = FlowySvgData('${file.path}')";
+    "  static const ${varNameFor(file)} = FlowySvgData('${pathFor(file)}')";
 
 String pathFor(File file) {
   final relative = path.relative(file.path, from: Directory.current.path);
-  return relative;
+  final uri = Uri.file(relative);
+  return uri.toFilePath(windows: false);
 }
 
 /// The prelude for the generated file
@@ -225,8 +230,7 @@ import 'package:flowy_svg/flowy_svg.dart';
 export 'package:flowy_svg/flowy_svg.dart';
 
 /// A class to easily list all the svgs in the app
-class FlowySvgs {
-''';
+class FlowySvgs {''';
 
 /// The postlude for the generated file
 const postlude = '''
