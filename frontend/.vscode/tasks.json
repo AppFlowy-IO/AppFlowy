@@ -20,7 +20,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -38,7 +39,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files",
       ],
       "presentation": {
         "reveal": "always",
@@ -56,7 +58,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files",
       ],
       "presentation": {
         "reveal": "always",
@@ -107,7 +110,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files",
       ],
       "group": {
         "kind": "build",
@@ -175,6 +179,27 @@
               "/d",
               "/c",
               ".\\scripts\\code_generation\\language_files\\generate_language_files.cmd"
+            ]
+          }
+        }
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Generate Svg Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/svg/generate_svgs.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\svg\\generate_svgs.cmd"
             ]
           }
         }
