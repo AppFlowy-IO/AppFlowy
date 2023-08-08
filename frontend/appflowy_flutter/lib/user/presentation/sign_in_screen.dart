@@ -281,8 +281,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: const FlowySvg(FlowySvgs.hide_),
-          obscureHideIcon: const FlowySvg(FlowySvgs.show_),
+          obscureIcon: const FlowySvg(FlowySvgs.hide_home),
+          obscureHideIcon: const FlowySvg(FlowySvgs.show_home),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
           errorText: context
               .read<SignInBloc>()
@@ -388,7 +388,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: [
         ThirdPartySignInButton(
-          icon: FlowySvgs.google_mark,
+          icon: FlowySvgs.google_mark_login,
           onPressed: () {
             getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
             context.read<SignInBloc>().add(

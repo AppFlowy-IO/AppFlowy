@@ -74,7 +74,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
         child: Padding(
           padding: const EdgeInsets.all(3.0),
           child: FlowySvg(
-            FlowySvgs.expander,
+            FlowySvgs.expander_grid,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),

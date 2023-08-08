@@ -19,7 +19,7 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.board_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.board;
+  FlowySvgData get icon => FlowySvgs.board_editor;
 
   @override
   PluginType get pluginType => PluginType.board;

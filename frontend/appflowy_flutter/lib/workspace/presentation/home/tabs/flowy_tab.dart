@@ -53,7 +53,7 @@ class _FlowyTabState extends State<FlowyTab> {
                       child: FlowyIconButton(
                         onPressed: _closeTab,
                         icon: const FlowySvg(
-                          FlowySvgs.close,
+                          FlowySvgs.close_editor,
                           size: Size.fromWidth(16),
                         ),
                       ),

@@ -101,7 +101,7 @@ class LanguageItem extends StatelessWidget {
         ),
         rightIcon: currentLocale == locale
             ? const FlowySvg(
-                FlowySvgs.checkmark,
+                FlowySvgs.checkmark_grid,
               )
             : null,
         onTap: () {

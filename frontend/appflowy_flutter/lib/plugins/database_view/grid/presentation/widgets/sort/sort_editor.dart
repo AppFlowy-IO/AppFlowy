@@ -127,7 +127,7 @@ class DatabaseSortItem extends StatelessWidget {
       iconPadding: const EdgeInsets.all(5),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       icon: FlowySvg(
-        FlowySvgs.close,
+        FlowySvgs.close_home,
         color: Theme.of(context).iconTheme.color,
       ),
     );
@@ -191,7 +191,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
           disable: getCreatableSorts(widget.fieldController.fieldInfos).isEmpty,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
-          leftIcon: const FlowySvg(FlowySvgs.add),
+          leftIcon: const FlowySvg(FlowySvgs.add_home),
         ),
       ),
       popupBuilder: (BuildContext context) {
@@ -223,7 +223,7 @@ class DatabaseDeleteSortButton extends StatelessWidget {
                   .read<SortEditorBloc>()
                   .add(const SortEditorEvent.deleteAllSorts());
             },
-            leftIcon: const FlowySvg(FlowySvgs.delete),
+            leftIcon: const FlowySvg(FlowySvgs.delete_editor),
           ),
         );
       },
@@ -253,7 +253,7 @@ class _DatabaseSortItemOrderButtonState
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: const FlowySvg(FlowySvgs.arrow_left),
+      child: const FlowySvg(FlowySvgs.arrow_left_home),
     );
 
     return AppFlowyPopover(

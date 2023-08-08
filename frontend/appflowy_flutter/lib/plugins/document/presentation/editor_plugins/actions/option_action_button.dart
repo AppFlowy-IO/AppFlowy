@@ -157,7 +157,7 @@ class OptionActionButton extends StatelessWidget {
             onTap: onTap,
             behavior: HitTestBehavior.deferToChild,
             child: FlowySvg(
-              FlowySvgs.option,
+              FlowySvgs.option_editor,
               size: const Size.square(24.0),
               color: Theme.of(context).iconTheme.color,
             ),

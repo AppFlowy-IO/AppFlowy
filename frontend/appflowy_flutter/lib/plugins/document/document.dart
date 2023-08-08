@@ -30,7 +30,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.documents;
+  FlowySvgData get icon => FlowySvgs.documents_editor;
 
   @override
   PluginType get pluginType => PluginType.editor;

@@ -98,7 +98,7 @@ class _ImageCopyLinkButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: const FlowySvg(
-        FlowySvgs.copy,
+        FlowySvgs.copy_editor,
         size: Size.square(16),
       ),
     );
@@ -194,19 +194,16 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   FlowySvgData iconFor(String alignment) {
     switch (alignment) {
       case 'right':
-        return FlowySvgs.right;
+        return FlowySvgs.right_align_editor;
       case 'center':
-        return FlowySvgs.center;
+        return FlowySvgs.center_align_editor;
       case 'left':
       default:
-        return FlowySvgs.left;
+        return FlowySvgs.left_align_editor;
     }
   }
 
   Widget buildAlignIcon() {
-    FlowySvgs.left;
-    FlowySvgs.right;
-    FlowySvgs.center;
     return FlowySvg(
       iconFor(align),
       size: const Size.square(16),
@@ -230,17 +227,17 @@ class _AlignButtons extends StatelessWidget {
         children: [
           const HSpace(4),
           _AlignButton(
-            icon: FlowySvgs.left,
+            icon: FlowySvgs.left_align_editor,
             onTap: () => onAlignChanged('left'),
           ),
           const _Divider(),
           _AlignButton(
-            icon: FlowySvgs.left,
+            icon: FlowySvgs.left_align_editor,
             onTap: () => onAlignChanged('center'),
           ),
           const _Divider(),
           _AlignButton(
-            icon: FlowySvgs.left,
+            icon: FlowySvgs.left_align_editor,
             onTap: () => onAlignChanged('right'),
           ),
           const HSpace(4),
@@ -283,7 +280,7 @@ class _ImageDeleteButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: const FlowySvg(
-        FlowySvgs.delete,
+        FlowySvgs.delete_editor,
         size: Size.square(16),
       ),
     );

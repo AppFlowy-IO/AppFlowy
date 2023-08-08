@@ -31,15 +31,15 @@ enum ImportType {
         final FlowySvgData svg;
         switch (this) {
           case ImportType.historyDocument:
-            svg = FlowySvgs.board;
+            svg = FlowySvgs.board_editor;
           case ImportType.historyDatabase:
-            svg = FlowySvgs.documents;
+            svg = FlowySvgs.documents_editor;
           case ImportType.databaseCSV:
-            svg = FlowySvgs.board;
+            svg = FlowySvgs.board_editor;
           case ImportType.databaseRawData:
-            svg = FlowySvgs.board;
+            svg = FlowySvgs.board_editor;
           case ImportType.markdownOrText:
-            svg = FlowySvgs.text;
+            svg = FlowySvgs.text_editor;
         }
         return FlowySvg(
           svg,

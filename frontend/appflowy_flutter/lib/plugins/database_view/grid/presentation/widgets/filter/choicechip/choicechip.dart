@@ -67,7 +67,7 @@ class _ChoicechipFilterDesc extends StatelessWidget {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: FlowySvg(
-        FlowySvgs.arrow_left,
+        FlowySvgs.arrow_left_home,
         color: AFThemeExtension.of(context).textColor,
       ),
     );

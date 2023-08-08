@@ -171,13 +171,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: FlowySvg(
-              FlowySvgs.arrow_left,
+              FlowySvgs.arrow_left_home,
               color: Theme.of(context).iconTheme.color,
             ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: FlowySvg(
-              FlowySvgs.arrow_right,
+              FlowySvgs.arrow_right_home,
               color: Theme.of(context).iconTheme.color,
             ),
             headerMargin: const EdgeInsets.only(bottom: 8.0),
@@ -248,7 +248,7 @@ class _IncludeTimeButton extends StatelessWidget {
               child: Row(
                 children: [
                   FlowySvg(
-                    FlowySvgs.clock,
+                    FlowySvgs.clock_grid,
                     color: Theme.of(context).iconTheme.color,
                   ),
                   const HSpace(6),
@@ -370,7 +370,7 @@ class DateTypeOptionButton extends StatelessWidget {
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,
-                rightIcon: const FlowySvg(FlowySvgs.more),
+                rightIcon: const FlowySvg(FlowySvgs.more_grid),
               ),
             ),
           ),
@@ -481,7 +481,7 @@ class ClearDateButton extends StatelessWidget {
                 .add(const DateCellCalendarEvent.clearDate());
             PopoverContainer.of(context).close();
           },
-          leftIcon: const FlowySvg(FlowySvgs.delete),
+          leftIcon: const FlowySvg(FlowySvgs.delete_grid),
           margin: GridSize.typeOptionContentInsets,
         ),
       ),

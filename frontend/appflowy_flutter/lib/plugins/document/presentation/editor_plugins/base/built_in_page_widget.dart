@@ -130,7 +130,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           height: 24,
           iconPadding: const EdgeInsets.all(3),
           icon: FlowySvg(
-            FlowySvgs.information,
+            FlowySvgs.information_common,
             color: Theme.of(context).iconTheme.color,
           ),
         ),
@@ -147,7 +147,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             height: 24,
             iconPadding: const EdgeInsets.all(3),
             icon: FlowySvg(
-              FlowySvgs.settings,
+              FlowySvgs.settings_common,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () => controller.show(),

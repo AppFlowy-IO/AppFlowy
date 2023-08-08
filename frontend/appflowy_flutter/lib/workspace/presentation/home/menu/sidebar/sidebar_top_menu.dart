@@ -77,7 +77,7 @@ class SidebarTopMenu extends StatelessWidget {
             .add(const HomeSettingEvent.collapseMenu()),
         iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
         icon: const FlowySvg(
-          FlowySvgs.hide_menu,
+          FlowySvgs.hide_menu_home,
         ),
       ),
     );

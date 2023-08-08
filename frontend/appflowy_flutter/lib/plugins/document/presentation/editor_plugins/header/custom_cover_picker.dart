@@ -220,7 +220,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const FlowySvg(
-                FlowySvgs.add,
+                FlowySvgs.add_editor,
                 size: Size(20, 20),
               ),
               const SizedBox(
@@ -270,7 +270,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             color: Theme.of(context).colorScheme.onPrimary,
           ),
           child: const FlowySvg(
-            FlowySvgs.close,
+            FlowySvgs.close_editor,
             size: Size(20, 20),
           ),
         ),

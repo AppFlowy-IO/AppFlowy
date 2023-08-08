@@ -141,7 +141,7 @@ class SidebarUser extends StatelessWidget {
         icon: SizedBox.square(
           dimension: 20,
           child: FlowySvg(
-            FlowySvgs.settings,
+            FlowySvgs.settings_home,
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ),

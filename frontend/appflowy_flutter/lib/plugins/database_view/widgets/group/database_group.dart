@@ -76,7 +76,7 @@ class _GridGroupCell extends StatelessWidget {
     if (fieldInfo.isGroupField) {
       rightIcon = const Padding(
         padding: EdgeInsets.all(2.0),
-        child: FlowySvg(FlowySvgs.checkmark),
+        child: FlowySvg(FlowySvgs.checkmark_grid),
       );
     }
 

@@ -192,7 +192,7 @@ class ThemeSelectionPopover extends StatelessWidget {
             child: FlowyButton(
               text: FlowyText.medium(theme),
               rightIcon: currentTheme == theme
-                  ? const FlowySvg(FlowySvgs.checkmark)
+                  ? const FlowySvg(FlowySvgs.checkmark_grid)
                   : null,
               onTap: () {
                 if (currentTheme != theme) {
@@ -203,7 +203,7 @@ class ThemeSelectionPopover extends StatelessWidget {
           ),
           if (!isBuiltin)
             FlowyIconButton(
-              icon: const FlowySvg(FlowySvgs.close),
+              icon: const FlowySvg(FlowySvgs.close_home),
               width: 20,
               onPressed: () =>
                   bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
@@ -256,7 +256,7 @@ class BrightnessSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(_themeModeLabelText(themeMode)),
         rightIcon: currentThemeMode == themeMode
-            ? const FlowySvg(FlowySvgs.checkmark)
+            ? const FlowySvg(FlowySvgs.checkmark_grid)
             : null,
         onTap: () {
           if (currentThemeMode != themeMode) {
@@ -378,7 +378,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         ),
         rightIcon:
             buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(FlowySvgs.checkmark)
+                ? const FlowySvg(FlowySvgs.checkmark_grid)
                 : null,
         onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=

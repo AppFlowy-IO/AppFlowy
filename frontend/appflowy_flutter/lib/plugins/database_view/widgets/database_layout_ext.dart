@@ -20,11 +20,11 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
   FlowySvgData get icon {
     switch (this) {
       case DatabaseLayoutPB.Board:
-        return FlowySvgs.board;
+        return FlowySvgs.board_editor;
       case DatabaseLayoutPB.Calendar:
-        return FlowySvgs.grid;
+        return FlowySvgs.grid_editor;
       case DatabaseLayoutPB.Grid:
-        return FlowySvgs.grid;
+        return FlowySvgs.grid_editor;
       default:
         return const FlowySvgData('');
     }

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedGrid.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.grid,
+    data: FlowySvgs.grid_editor,
     isSelected: onSelected,
     style: style,
   ),
@@ -29,7 +29,7 @@ SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
 SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedBoard.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.board,
+    data: FlowySvgs.board_editor,
     isSelected: onSelected,
     style: style,
   ),
@@ -48,7 +48,7 @@ SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
 SelectionMenuItem referencedCalendarMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedCalendar.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.calendar,
+    data: FlowySvgs.calendar_editor,
     isSelected: onSelected,
     style: style,
   ),

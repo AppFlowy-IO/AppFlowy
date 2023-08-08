@@ -80,7 +80,7 @@ class FlowyNavigation extends StatelessWidget {
                 },
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
-                  FlowySvgs.hide_menu,
+                  FlowySvgs.hide_menu_home,
                   color: Theme.of(context).iconTheme.color,
                 ),
               ),

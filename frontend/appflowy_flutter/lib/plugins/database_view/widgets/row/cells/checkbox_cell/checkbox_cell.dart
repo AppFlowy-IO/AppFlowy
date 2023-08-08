@@ -89,7 +89,7 @@ class CheckboxCellCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(FlowySvgs.editor_check);
+    return const FlowySvg(FlowySvgs.editor_check_editor);
   }
 }
 
@@ -98,6 +98,6 @@ class CheckboxCellUncheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(FlowySvgs.editor_uncheck);
+    return const FlowySvg(FlowySvgs.editor_uncheck_editor);
   }
 }

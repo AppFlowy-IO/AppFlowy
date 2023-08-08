@@ -114,7 +114,7 @@ class _DeleteTag extends StatelessWidget {
         text: FlowyText.medium(
           LocaleKeys.grid_selectOption_deleteTag.tr(),
         ),
-        leftIcon: const FlowySvg(FlowySvgs.delete),
+        leftIcon: const FlowySvg(FlowySvgs.delete_grid),
         onTap: () {
           context
               .read<EditSelectOptionBloc>()
@@ -219,7 +219,7 @@ class _SelectOptionColorCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(FlowySvgs.checkmark);
+      checkmark = const FlowySvg(FlowySvgs.checkmark_grid);
     }
 
     final colorIcon = SizedBox.square(

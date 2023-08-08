@@ -272,9 +272,9 @@ enum TabBarViewAction implements ActionCell {
   Widget icon(Color iconColor) {
     switch (this) {
       case TabBarViewAction.rename:
-        return const FlowySvg(FlowySvgs.edit);
+        return const FlowySvg(FlowySvgs.edit_editor);
       case TabBarViewAction.delete:
-        return const FlowySvg(FlowySvgs.delete);
+        return const FlowySvg(FlowySvgs.delete_editor);
     }
   }
 

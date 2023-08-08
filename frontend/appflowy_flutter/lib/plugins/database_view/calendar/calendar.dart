@@ -19,7 +19,7 @@ class CalendarPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.calendar_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.date;
+  FlowySvgData get icon => FlowySvgs.date_editor;
 
   @override
   PluginType get pluginType => PluginType.calendar;

@@ -42,7 +42,7 @@ class TrashCell extends StatelessWidget {
           width: TrashSizes.actionIconWidth,
           onPressed: onRestore,
           iconPadding: const EdgeInsets.all(5),
-          icon: const FlowySvg(FlowySvgs.restore),
+          icon: const FlowySvg(FlowySvgs.restore_editor),
         ),
         const HSpace(20),
         FlowyIconButton(
@@ -50,7 +50,7 @@ class TrashCell extends StatelessWidget {
           width: TrashSizes.actionIconWidth,
           onPressed: onDelete,
           iconPadding: const EdgeInsets.all(5),
-          icon: const FlowySvg(FlowySvgs.delete),
+          icon: const FlowySvg(FlowySvgs.delete_editor),
         ),
       ],
     );

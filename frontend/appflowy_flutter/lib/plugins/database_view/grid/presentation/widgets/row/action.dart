@@ -99,9 +99,9 @@ extension _RowActionExtension on _RowAction {
   FlowySvgData icon() {
     switch (this) {
       case _RowAction.duplicate:
-        return FlowySvgs.duplicate;
+        return FlowySvgs.duplicate_grid;
       case _RowAction.delete:
-        return FlowySvgs.delete;
+        return FlowySvgs.delete_grid;
     }
   }
 

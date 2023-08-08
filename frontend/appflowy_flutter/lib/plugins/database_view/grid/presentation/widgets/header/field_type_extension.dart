@@ -7,23 +7,23 @@ extension FieldTypeListExtension on FieldType {
   FlowySvgData icon() {
     switch (this) {
       case FieldType.Checkbox:
-        return FlowySvgs.checkbox;
+        return FlowySvgs.checkbox_field_grid;
       case FieldType.DateTime:
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
-        return FlowySvgs.date;
+        return FlowySvgs.date_field_grid;
       case FieldType.MultiSelect:
-        return FlowySvgs.multi_select;
+        return FlowySvgs.multi_select_field_grid;
       case FieldType.Number:
-        return FlowySvgs.number;
+        return FlowySvgs.number_field_grid;
       case FieldType.RichText:
-        return FlowySvgs.text;
+        return FlowySvgs.text_field_grid;
       case FieldType.SingleSelect:
-        return FlowySvgs.single_select;
+        return FlowySvgs.single_select_field_grid;
       case FieldType.URL:
-        return FlowySvgs.url;
+        return FlowySvgs.url_field_grid;
       case FieldType.Checklist:
-        return FlowySvgs.checklist;
+        return FlowySvgs.checklist_field_grid;
     }
     throw UnimplementedError;
   }

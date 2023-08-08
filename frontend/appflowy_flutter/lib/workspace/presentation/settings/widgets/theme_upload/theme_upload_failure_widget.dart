@@ -24,7 +24,7 @@ class ThemeUploadFailureWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FlowySvg(
-            FlowySvgs.close,
+            FlowySvgs.close_home,
             size: ThemeUploadWidget.iconSize,
             color: Theme.of(context).colorScheme.onBackground,
           ),

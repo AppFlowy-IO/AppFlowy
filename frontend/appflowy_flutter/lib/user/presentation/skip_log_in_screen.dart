@@ -245,7 +245,7 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const FlowySvg(
-              FlowySvgs.language,
+              FlowySvgs.language_login,
               size: Size.square(20),
             ),
             const HSpace(4),
@@ -259,7 +259,7 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
               },
             ),
             const FlowySvg(
-              FlowySvgs.drop_down_hide,
+              FlowySvgs.drop_down_hide_home,
               size: Size.square(20),
             ),
           ],

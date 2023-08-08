@@ -447,7 +447,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
                 iconPadding: const EdgeInsets.all(5),
                 width: 28,
                 icon: FlowySvg(
-                  FlowySvgs.delete,
+                  FlowySvgs.delete_editor,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
                 onPressed: widget.onImageDelete,
