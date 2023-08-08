@@ -109,20 +109,24 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderLogoutButton(BuildContext context) {
-    return FlowyButton(
-      useIntrinsicWidth: true,
-      text: FlowyText(
-        LocaleKeys.settings_menu_logout.tr(),
+    return Tooltip(
+      message: LocaleKeys.settings_user_clickToLogout.tr(),
+      child: FlowyButton(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+        text: FlowyText.medium(
+          LocaleKeys.settings_menu_logout.tr(),
+          fontSize: 13,
+        ),
+        onTap: () async {
+          NavigatorAlertDialog(
+            title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+            confirm: () async {
+              await getIt<AuthService>().signOut();
+              didLogout();
+            },
+          ).show(context);
+        },
       ),
-      onTap: () async {
-        NavigatorAlertDialog(
-          title: LocaleKeys.settings_menu_logoutPrompt.tr(),
-          confirm: () async {
-            await getIt<AuthService>().signOut();
-            didLogout();
-          },
-        ).show(context);
-      },
     );
   }
 

@@ -296,7 +296,8 @@
       "name": "Name",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
-      "pleaseInputYourOpenAIKey": "please input your OpenAI key"
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "clickToLogout": "Click to logout the current user"
     },
     "shortcuts": {
       "shortcutsLabel": "Shortcuts",
