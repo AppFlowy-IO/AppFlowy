@@ -127,42 +127,46 @@ ArgParser _generateArgParser(Options? generateOptions) {
   return parser;
 }
 
+Directory source(Options options) => Directory(
+      [
+        Directory.current.path,
+        Directory.fromUri(
+          Uri.file(
+            options.sourceDir!,
+            windows: Platform.isWindows,
+          ),
+        ).path,
+      ].join(),
+    );
+
+File output(Options options) => File(
+      [
+        Directory.current.path,
+        Directory.fromUri(
+          Uri.file(options.outputDir!, windows: Platform.isWindows),
+        ).path,
+        Platform.pathSeparator,
+        File.fromUri(
+          Uri.file(
+            options.outputFile!,
+            windows: Platform.isWindows,
+          ),
+        ).path,
+      ].join(),
+    );
+
 /// generates the svg data
 Future<void> generateSvgData(Options options) async {
   // the source directory that this is targeting
-  final source = Directory(
-    [
-      Directory.current.path,
-      Directory.fromUri(
-        Uri.file(
-          options.sourceDir!,
-          windows: Platform.isWindows,
-        ),
-      ).path,
-    ].join(),
-  );
+  final src = source(options);
 
   // the output directory that this is targeting
-  final output = File(
-    [
-      Directory.current.path,
-      Directory.fromUri(
-        Uri.file(options.outputDir!, windows: Platform.isWindows),
-      ).path,
-      Platform.pathSeparator,
-      File.fromUri(
-        Uri.file(
-          options.outputFile!,
-          windows: Platform.isWindows,
-        ),
-      ).path,
-    ].join(),
-  );
+  final out = output(options);
 
-  var files = await dirContents(source);
+  var files = await dirContents(src);
   files = files.where((f) => f.path.contains('.svg')).toList();
 
-  await generate(files, output, options);
+  await generate(files, out, options);
 }
 
 /// List the contents of the directory
@@ -193,30 +197,58 @@ Future<void> generate(
   // content of the generated file
   final builder = StringBuffer()..writeln(prelude);
   files.whereType<File>().forEach(
-        (element) => builder.writeln(lineFor(element)),
+        (element) => builder.writeln(lineFor(element, options)),
       );
   builder.writeln(postlude);
 
   generated.writeAsStringSync(builder.toString());
 }
 
-String varNameFor(File file) {
-  var name = path.basename(file.path).split('.').first.replaceAll('-', '_');
-  if (languageKeywords.contains(name)) {
-    name = '${name}_';
-  } else if (name.startsWith(RegExp('[0-9]'))) {
-    name = '\$$name';
-  }
-  return name;
-}
-
-String lineFor(File file) =>
-    "  static const ${varNameFor(file)} = FlowySvgData('${pathFor(file)}');";
+String lineFor(File file, Options options) =>
+    "  static const ${varNameFor(file, options)} = FlowySvgData('${pathFor(file)}');";
 
 String pathFor(File file) {
   final relative = path.relative(file.path, from: Directory.current.path);
   final uri = Uri.file(relative);
   return uri.toFilePath(windows: false);
+}
+
+String varNameFor(File file, Options options) {
+  String from = source(options).path;
+
+  final relative = Uri.file(path.relative(file.path, from: from));
+
+  final parts = relative.pathSegments;
+
+  final cleaned = parts.map((segment) => clean(segment)).toList();
+
+  return cleaned.reversed
+      // join all cleaned path segments with an underscore
+      .join('_')
+      // there are some cases where the segment contained a dart reserved keyword
+      // in this case, the path will be suffixed with an underscore which means
+      // there will be a double underscore, so we have to replace the double
+      // underscore with one underscore
+      .replaceAll(RegExp(r'_+'), '_');
+}
+
+/// cleans the path segment before rejoining the path into a variable name
+String clean(String segment) {
+  final cleaned = segment
+      // replace all dashes with underscores (dash is invalid in
+      // a variable name)
+      .replaceAll('-', '_')
+      // replace all file extensions with an empty string
+      .replaceAll(RegExp(r'\.[^.]*$'), '')
+      // convert everything to lower case
+      .toLowerCase();
+
+  if (languageKeywords.contains(cleaned)) {
+    return '${cleaned}_';
+  } else if (cleaned.startsWith(RegExp('[0-9]'))) {
+    return '\$$cleaned';
+  }
+  return cleaned;
 }
 
 /// The prelude for the generated file
