@@ -4,7 +4,7 @@ use std::{convert::TryInto, sync::Arc};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_sqlite::kv::KV;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
@@ -17,6 +17,15 @@ fn upgrade_session(session: AFPluginState<Weak<UserSession>>) -> FlowyResult<Arc
     .upgrade()
     .ok_or(FlowyError::internal().context("The user session is already drop"))?;
   Ok(session)
+}
+
+fn upgrade_store_preferences(
+  store: AFPluginState<Weak<StorePreferences>>,
+) -> FlowyResult<Arc<StorePreferences>> {
+  let store = store
+    .upgrade()
+    .ok_or(FlowyError::internal().context("The store preferences is already drop"))?;
+  Ok(store)
 }
 
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
@@ -107,22 +116,27 @@ pub async fn update_user_profile_handler(
 
 const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
 
-#[tracing::instrument(level = "debug", skip(data), err)]
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn set_appearance_setting(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
   data: AFPluginData<AppearanceSettingsPB>,
 ) -> Result<(), FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
   let mut setting = data.into_inner();
   if setting.theme.is_empty() {
     setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
   }
 
-  KV::set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
+  store_preferences.set_object(APPEARANCE_SETTING_CACHE_KEY, setting)?;
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", err)]
-pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyError> {
-  match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_appearance_setting(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<AppearanceSettingsPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  match store_preferences.get_str(APPEARANCE_SETTING_CACHE_KEY) {
     None => data_result_ok(AppearanceSettingsPB::default()),
     Some(s) => {
       let setting = match serde_json::from_str(&s) {
@@ -177,9 +191,11 @@ pub async fn set_supabase_config_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_supabase_config_handler(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
   _session: AFPluginState<Weak<UserSession>>,
 ) -> DataResult<SupabaseConfigPB, FlowyError> {
-  let config = get_supabase_config().unwrap_or_default();
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let config = get_supabase_config(&store_preferences).unwrap_or_default();
   data_result_ok(config.into())
 }
 
@@ -242,5 +258,25 @@ pub async fn update_network_state_handler(
     .read()
     .await
     .did_update_network(reachable);
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_historical_users_handler(
+  session: AFPluginState<Weak<UserSession>>,
+) -> DataResult<RepeatedHistoricalUserPB, FlowyError> {
+  let session = upgrade_session(session)?;
+  let users = RepeatedHistoricalUserPB::from(session.get_historical_users());
+  data_result_ok(users)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn open_historical_users_handler(
+  user: AFPluginData<HistoricalUserPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  let user = user.into_inner();
+  let session = upgrade_session(session)?;
+  session.open_historical_user(user.user_id)?;
   Ok(())
 }

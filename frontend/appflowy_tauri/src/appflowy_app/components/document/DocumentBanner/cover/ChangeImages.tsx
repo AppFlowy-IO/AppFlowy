@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import GalleryList from '$app/components/document/DocumentTitle/cover/GalleryList';
+import GalleryList from '$app/components/document/DocumentBanner/cover/GalleryList';
 import Button from '@mui/material/Button';
 import { readCoverImageUrls, readImage, writeCoverImageUrls } from '$app/utils/document/image';
 import { Log } from '$app/utils/log';
-import { Image } from '$app/components/document/DocumentTitle/cover/GalleryItem';
+import { Image } from '$app/components/document/DocumentBanner/cover/GalleryItem';
 
 function ChangeImages({ cover, onChange }: { onChange: (url: string) => void; cover: string }) {
   const { t } = useTranslation();

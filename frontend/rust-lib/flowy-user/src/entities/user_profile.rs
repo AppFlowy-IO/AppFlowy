@@ -6,6 +6,7 @@ use flowy_user_deps::entities::*;
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
+use crate::services::HistoricalUser;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -204,4 +205,47 @@ pub struct RemoveWorkspaceUserPB {
 
   #[pb(index = 2)]
   pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct RepeatedHistoricalUserPB {
+  #[pb(index = 1)]
+  pub items: Vec<HistoricalUserPB>,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct HistoricalUserPB {
+  #[pb(index = 1)]
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub user_name: String,
+
+  #[pb(index = 3)]
+  pub last_time: i64,
+
+  #[pb(index = 4)]
+  pub auth_type: AuthTypePB,
+}
+
+impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
+  fn from(historical_users: Vec<HistoricalUser>) -> Self {
+    Self {
+      items: historical_users
+        .into_iter()
+        .map(HistoricalUserPB::from)
+        .collect(),
+    }
+  }
+}
+
+impl From<HistoricalUser> for HistoricalUserPB {
+  fn from(historical_user: HistoricalUser) -> Self {
+    Self {
+      user_id: historical_user.user_id,
+      user_name: historical_user.user_name,
+      last_time: historical_user.sign_in_timestamp,
+      auth_type: historical_user.auth_type.into(),
+    }
+  }
 }

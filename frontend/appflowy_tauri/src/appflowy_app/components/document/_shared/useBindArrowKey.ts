@@ -16,6 +16,7 @@ export const useBindArrowKey = ({
   onChange?: (key: string) => void;
   selectOption?: string | null;
 }) => {
+  const [isRun, setIsRun] = useState(false);
   const onUp = useCallback(() => {
     const getSelected = () => {
       const index = options.findIndex((item) => item === selectOption);
@@ -68,10 +69,27 @@ export const useBindArrowKey = ({
     [onDown, onEnter, onLeft, onRight, onUp]
   );
 
+  const run = useCallback(() => {
+    setIsRun(true);
+  }, []);
+
+  const stop = useCallback(() => {
+    setIsRun(false);
+  }, []);
+
   useEffect(() => {
-    document.addEventListener('keydown', handleArrowKey, true);
+    if (isRun) {
+      document.addEventListener('keydown', handleArrowKey, true);
+    } else {
+      document.removeEventListener('keydown', handleArrowKey, true);
+    }
     return () => {
       document.removeEventListener('keydown', handleArrowKey, true);
     };
-  }, [handleArrowKey]);
+  }, [handleArrowKey, isRun]);
+
+  return {
+    run,
+    stop,
+  };
 };

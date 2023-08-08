@@ -12,17 +12,17 @@ use crate::supabase::api::request::{
 };
 use crate::supabase::api::SupabaseServerService;
 
-pub struct RESTfulSupabaseDatabaseServiceImpl<T> {
+pub struct SupabaseDatabaseServiceImpl<T> {
   server: T,
 }
 
-impl<T> RESTfulSupabaseDatabaseServiceImpl<T> {
+impl<T> SupabaseDatabaseServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self { server }
   }
 }
 
-impl<T> DatabaseCloudService for RESTfulSupabaseDatabaseServiceImpl<T>
+impl<T> DatabaseCloudService for SupabaseDatabaseServiceImpl<T>
 where
   T: SupabaseServerService,
 {

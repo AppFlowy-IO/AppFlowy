@@ -1,14 +1,12 @@
-import { ViewLayoutPB } from '@/services/backend';
+import { ViewLayoutPB, ViewPB } from '@/services/backend';
 import { PageBackendService } from '$app/stores/effects/workspace/page/page_bd_svc';
 import { WorkspaceObserver } from '$app/stores/effects/workspace/workspace_observer';
-import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
-import { AsyncQueue } from '$app/utils/async_queue';
+import { Page, PageIcon, parserViewPBToPage } from '$app_reducers/pages/slice';
 
 export class PageController {
   private readonly backendService: PageBackendService = new PageBackendService();
 
   private readonly observer: WorkspaceObserver = new WorkspaceObserver();
-  private onChangeQueue?: AsyncQueue;
   constructor(private readonly id: string) {
     //
   }
@@ -72,22 +70,15 @@ export class PageController {
     return this.getPage(parentPageId);
   };
 
-  subscribe = async (callbacks: {
-    onChildPagesChanged?: (childPages: Page[]) => void;
-    onPageChanged?: (page: Page) => void;
-  }) => {
-    const onChanged = async () => {
-      const page = await this.getPage();
-      const childPages = await this.getChildPages();
-
-      callbacks.onPageChanged?.(page);
-      callbacks.onChildPagesChanged?.(childPages);
+  subscribe = async (callbacks: { onPageChanged?: (page: Page, children: Page[]) => void }) => {
+    const didUpdateView = (payload: Uint8Array) => {
+      const res = ViewPB.deserializeBinary(payload);
+      const page = parserViewPBToPage(ViewPB.deserializeBinary(payload));
+      const childPages = res.child_views.map(parserViewPBToPage);
+      callbacks.onPageChanged?.(page, childPages);
     };
-
-    this.onChangeQueue = new AsyncQueue(onChanged);
     await this.observer.subscribeView(this.id, {
-      didUpdateChildViews: this.didUpdateChildPages,
-      didUpdateView: this.didUpdateView,
+      didUpdateView,
     });
   };
 
@@ -100,6 +91,16 @@ export class PageController {
 
     if (result.ok) {
       return result.val.toObject();
+    }
+
+    return Promise.reject(result.err);
+  };
+
+  updatePageIcon = async (icon?: PageIcon) => {
+    const result = await this.backendService.updatePageIcon(this.id, icon);
+
+    if (result.ok) {
+      return result.val;
     }
 
     return Promise.reject(result.err);
@@ -124,13 +125,5 @@ export class PageController {
     }
 
     return Promise.reject(result.err);
-  };
-
-  private didUpdateChildPages = (payload: Uint8Array) => {
-    this.onChangeQueue?.enqueue(Math.random());
-  };
-
-  private didUpdateView = (payload: Uint8Array) => {
-    this.onChangeQueue?.enqueue(Math.random());
   };
 }

@@ -7,7 +7,7 @@ use rust_decimal::Decimal;
 use rusty_money::Money;
 use std::str::FromStr;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct NumberCellFormat {
   decimal: Option<Decimal>,
   money: Option<String>,
@@ -67,6 +67,13 @@ impl NumberCellFormat {
 
   pub fn is_empty(&self) -> bool {
     self.decimal.is_none()
+  }
+
+  pub fn to_unformatted_string(&self) -> String {
+    match self.decimal {
+      None => String::default(),
+      Some(decimal) => decimal.to_string(),
+    }
   }
 }
 

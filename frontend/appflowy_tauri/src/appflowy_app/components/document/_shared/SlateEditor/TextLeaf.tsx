@@ -1,12 +1,15 @@
 import { ReactEditor, RenderLeafProps } from 'slate-react';
 import { BaseText } from 'slate';
 import { useCallback, useRef } from 'react';
-import TextLink from '../TextLink';
 import { converToIndexLength } from '$app/utils/document/slate_editor';
-import LinkHighLight from '$app/components/document/_shared/TextLink/LinkHighLight';
 import TemporaryInput from '$app/components/document/_shared/TemporaryInput';
-import InlineContainer from '$app/components/document/_shared/InlineBlock/InlineContainer';
+import FormulaInline from '$app/components/document/_shared/InlineBlock/FormulaInline';
 import { TemporaryType } from '$app/interfaces/document';
+import LinkInline from '$app/components/document/_shared/InlineBlock/LinkInline';
+import { MentionType } from '$app_reducers/document/async-actions/mention';
+import PageInline from '$app/components/document/_shared/InlineBlock/PageInline';
+import { FakeCursorContainer } from '$app/components/document/_shared/InlineBlock/FakeCursorContainer';
+import CodeInline from '$app/components/document/_shared/InlineBlock/CodeInline';
 
 interface Attributes {
   bold?: boolean;
@@ -17,12 +20,11 @@ interface Attributes {
   selection_high_lighted?: boolean;
   href?: string;
   prism_token?: string;
-  link_selection_lighted?: boolean;
-  link_placeholder?: string;
   temporary?: boolean;
   formula?: string;
   font_color?: string;
   bg_color?: string;
+  mention?: Record<string, string>;
 }
 interface TextLeafProps extends RenderLeafProps {
   leaf: BaseText & Attributes;
@@ -33,7 +35,10 @@ interface TextLeafProps extends RenderLeafProps {
 const TextLeaf = (props: TextLeafProps) => {
   const { attributes, children, leaf, isCodeBlock, editor } = props;
   const ref = useRef<HTMLSpanElement>(null);
+  const { isLast, text, parent } = children.props;
+  const isSelected = Boolean(leaf.selection_high_lighted);
 
+  const isFirst = text === parent?.children?.[0];
   const customAttributes = {
     ...attributes,
   };
@@ -41,15 +46,9 @@ const TextLeaf = (props: TextLeafProps) => {
 
   if (leaf.code && !leaf.temporary) {
     newChildren = (
-      <span
-        className={`bg-content-blue-50 text-text-title`}
-        style={{
-          fontSize: '85%',
-          lineHeight: 'normal',
-        }}
-      >
+      <CodeInline selected={isSelected} text={text}>
         {newChildren}
-      </span>
+      </CodeInline>
     );
   }
 
@@ -69,51 +68,52 @@ const TextLeaf = (props: TextLeafProps) => {
 
   if (leaf.href) {
     newChildren = (
-      <TextLink getSelection={getSelection} title={leaf.text} href={leaf.href}>
+      <LinkInline
+        temporaryType={TemporaryType.Link}
+        getSelection={getSelection}
+        selectedText={leaf.text}
+        data={{
+          href: leaf.href,
+        }}
+      >
         {newChildren}
-      </TextLink>
+      </LinkInline>
     );
   }
 
-  if (leaf.formula) {
-    const { isLast, text, parent } = children.props;
-    const temporaryType = TemporaryType.Equation;
+  if (leaf.formula && leaf.text) {
     const data = { latex: leaf.formula };
 
     newChildren = (
-      <InlineContainer
-        isLast={isLast}
-        isFirst={text === parent.children[0]}
+      <FormulaInline isLast={isLast} isFirst={isFirst} getSelection={getSelection} data={data} selectedText={leaf.text}>
+        {newChildren}
+      </FormulaInline>
+    );
+  }
+
+  const mention = leaf.mention;
+  if (mention && mention.type === MentionType.PAGE && leaf.text) {
+    newChildren = (
+      <FakeCursorContainer
         getSelection={getSelection}
-        formula={leaf.formula}
-        data={data}
-        temporaryType={temporaryType}
-        selectedText={leaf.text}
+        isFirst={isFirst}
+        isLast={isLast}
+        renderNode={() => <PageInline pageId={mention.page} />}
       >
         {newChildren}
-      </InlineContainer>
+      </FakeCursorContainer>
     );
   }
 
   const className = [
     isCodeBlock && 'token',
     leaf.prism_token && leaf.prism_token,
-    leaf.strikethrough && 'line-through',
-    leaf.selection_high_lighted && 'bg-content-blue-100',
-    leaf.link_selection_lighted && 'text-text-link-selector bg-content-blue-100',
-    leaf.code && !leaf.temporary && 'inline-code',
+    isSelected && 'bg-content-blue-100',
     leaf.bold && 'font-bold',
     leaf.italic && 'italic',
     leaf.underline && 'underline',
+    leaf.strikethrough && 'line-through',
   ].filter(Boolean);
-
-  if (leaf.link_placeholder && leaf.text) {
-    newChildren = (
-      <LinkHighLight leaf={leaf} title={leaf.link_placeholder}>
-        {newChildren}
-      </LinkHighLight>
-    );
-  }
 
   if (leaf.temporary) {
     newChildren = (

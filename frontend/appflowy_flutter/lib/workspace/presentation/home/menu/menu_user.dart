@@ -105,12 +105,13 @@ class MenuUser extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) {
+            builder: (dialogContext) {
               return BlocProvider<DocumentAppearanceCubit>.value(
                 value: BlocProvider.of<DocumentAppearanceCubit>(context),
                 child: SettingsDialog(
                   userProfile,
                   didLogout: () async {
+                    Navigator.of(dialogContext).pop();
                     Navigator.of(context).pop();
                     await FlowyRunner.run(
                       FlowyApp(),
@@ -118,6 +119,7 @@ class MenuUser extends StatelessWidget {
                     );
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
+                  didOpenUser: () {},
                 ),
               );
             },

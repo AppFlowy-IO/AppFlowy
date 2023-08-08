@@ -1,5 +1,6 @@
 import { UserBackendService } from '$app/stores/effects/user/user_bd_svc';
-import { AppearanceSettingsPB, ThemeModePB } from '@/services/backend';
+import { AppearanceSettingsPB } from '@/services/backend';
+import { Theme, ThemeMode, UserSetting } from '$app/interfaces';
 
 export class UserSettingController {
   private readonly backendService: UserBackendService;
@@ -17,11 +18,25 @@ export class UserSettingController {
     return {};
   };
 
-  getAppearanceSetting = async (): Promise<AppearanceSettingsPB | undefined> => {
+  getAppearanceSetting = async (): Promise<Partial<UserSetting> | undefined> => {
     const appearanceSetting = await this.backendService.getAppearanceSettings();
 
     if (appearanceSetting.ok) {
-      return appearanceSetting.val;
+      const res = appearanceSetting.val;
+      const { locale, theme = Theme.Default, theme_mode = ThemeMode.Light } = res;
+      let language = 'en';
+
+      if (locale.language_code && locale.country_code) {
+        language = `${locale.language_code}-${locale.country_code}`;
+      } else if (locale.language_code) {
+        language = locale.language_code;
+      }
+
+      return {
+        themeMode: theme_mode,
+        theme: theme as Theme,
+        language: language,
+      };
     }
 
     return;

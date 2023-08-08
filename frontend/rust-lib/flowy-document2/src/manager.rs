@@ -10,10 +10,10 @@ use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
-use crate::document::MutexDocument;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 
+use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
 
 pub trait DocumentUser: Send + Sync {
@@ -77,13 +77,13 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
-        updates = document_updates;
-      } else {
-        return Err(
-          FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
-        );
-      };
+      match self.cloud_service.get_document_updates(doc_id).await {
+        Ok(document_updates) => updates = document_updates,
+        Err(e) => {
+          tracing::error!("Get document data failed: {:?}", e);
+          return Err(FlowyError::internal().context("Can't not read the document data"));
+        },
+      }
     }
 
     tracing::debug!("open_document: {:?}", doc_id);

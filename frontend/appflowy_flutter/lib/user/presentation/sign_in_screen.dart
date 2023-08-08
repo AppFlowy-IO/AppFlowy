@@ -71,6 +71,8 @@ class SignInForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSubmitting = context.read<SignInBloc>().state.isSubmitting;
+    const indicatorMinHeight = 4.0;
     return Align(
       alignment: Alignment.center,
       child: AuthFormContainer(
@@ -104,13 +106,19 @@ class SignInForm extends StatelessWidget {
           const VSpace(10),
           const ThirdPartySignInButtons(),
           const VSpace(20),
-
           // loading status
-          if (context.read<SignInBloc>().state.isSubmitting) ...[
-            const SizedBox(height: 8),
-            const LinearProgressIndicator(value: null),
-            const VSpace(20),
-          ],
+          ...isSubmitting
+              ? [
+                  const VSpace(indicatorMinHeight),
+                  const LinearProgressIndicator(
+                    value: null,
+                    minHeight: indicatorMinHeight,
+                  ),
+                ]
+              : [
+                  const VSpace(indicatorMinHeight * 2.0)
+                ], // add the same space when there's no loading status.
+          const VSpace(20)
         ],
       ),
     );
@@ -320,14 +328,16 @@ class ThirdPartySignInButton extends StatelessWidget {
 }
 
 class ThirdPartySignInButtons extends StatelessWidget {
+  final MainAxisAlignment mainAxisAlignment;
   const ThirdPartySignInButtons({
+    this.mainAxisAlignment = MainAxisAlignment.center,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
       children: [
         ThirdPartySignInButton(
           icon: 'login/google-mark',

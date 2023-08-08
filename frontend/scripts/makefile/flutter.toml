@@ -13,6 +13,15 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-macos-universal]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-windows]
 dependencies = ["appflowy-core-release"]
 run_task = { name = [

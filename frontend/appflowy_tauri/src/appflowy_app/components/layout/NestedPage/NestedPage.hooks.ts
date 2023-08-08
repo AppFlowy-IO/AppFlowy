@@ -5,12 +5,11 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { ViewLayoutPB } from '@/services/backend';
 import { useNavigate, useParams } from 'react-router-dom';
 import { pageTypeMap } from '$app/constants';
-import { useTranslation } from 'react-i18next';
+import { updatePageName } from '$app_reducers/pages/async_actions';
 
 export function useLoadChildPages(pageId: string) {
   const dispatch = useAppDispatch();
   const childPages = useAppSelector((state) => state.pages.relationMap[pageId]);
-
   const collapsed = useAppSelector((state) => !state.pages.expandedIdMap[pageId]);
   const toggleCollapsed = useCallback(() => {
     if (collapsed) {
@@ -24,31 +23,21 @@ export function useLoadChildPages(pageId: string) {
     return new PageController(pageId);
   }, [pageId]);
 
-  const onChildPagesChanged = useCallback(
-    (childPages: Page[]) => {
+  const onPageChanged = useCallback(
+    (page: Page, children: Page[]) => {
+      dispatch(pagesActions.onPageChanged(page));
       dispatch(
         pagesActions.addChildPages({
-          id: pageId,
-          childPages,
+          id: page.id,
+          childPages: children,
         })
       );
-    },
-    [dispatch, pageId]
-  );
-
-  const onPageChanged = useCallback(
-    (page: Page) => {
-      dispatch(pagesActions.onPageChanged(page));
     },
     [dispatch]
   );
 
-  const onPageCollapsed = useCallback(async () => {
-    dispatch(pagesActions.removeChildPages(pageId));
-    await controller.unsubscribe();
-  }, [dispatch, pageId, controller]);
 
-  const onPageExpanded = useCallback(async () => {
+  const loadPageChildren = useCallback(async (pageId: string) => {
     const childPages = await controller.getChildPages();
 
     dispatch(
@@ -57,25 +46,22 @@ export function useLoadChildPages(pageId: string) {
         childPages,
       })
     );
-    await controller.subscribe({
-      onChildPagesChanged,
+
+  }, [controller, dispatch]);
+
+
+  useEffect(() => {
+    void loadPageChildren(pageId);
+  }, [loadPageChildren, pageId]);
+
+  useEffect(() => {
+    controller.subscribe({
       onPageChanged,
     });
-  }, [controller, dispatch, onChildPagesChanged, onPageChanged, pageId]);
-
-  useEffect(() => {
-    if (collapsed) {
-      onPageCollapsed();
-    } else {
-      onPageExpanded();
-    }
-  }, [collapsed, onPageCollapsed, onPageExpanded]);
-
-  useEffect(() => {
     return () => {
       controller.dispose();
     };
-  }, [controller]);
+  }, [controller, onPageChanged]);
 
   return {
     toggleCollapsed,
@@ -86,7 +72,6 @@ export function useLoadChildPages(pageId: string) {
 
 export function usePageActions(pageId: string) {
   const page = useAppSelector((state) => state.pages.pageMap[pageId]);
-  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const controller = useMemo(() => {
@@ -103,7 +88,7 @@ export function usePageActions(pageId: string) {
     async (layout: ViewLayoutPB) => {
       const newViewId = await controller.createPage({
         layout,
-        name: t('document.title.placeholder'),
+        name: ""
       });
 
       dispatch(pagesActions.expandPage(pageId));
@@ -111,7 +96,7 @@ export function usePageActions(pageId: string) {
 
       navigate(`/page/${pageType}/${newViewId}`);
     },
-    [t, controller, dispatch, navigate, pageId]
+    [controller, dispatch, navigate, pageId]
   );
 
   const onDeletePage = useCallback(async () => {
@@ -124,12 +109,9 @@ export function usePageActions(pageId: string) {
 
   const onRenamePage = useCallback(
     async (name: string) => {
-      await controller.updatePage({
-        id: pageId,
-        name,
-      });
+      await dispatch(updatePageName({ id: pageId, name }));
     },
-    [controller, pageId]
+    [dispatch, pageId]
   );
 
   useEffect(() => {
@@ -152,3 +134,4 @@ export function useSelectedPage(pageId: string) {
 
   return id === pageId;
 }
+

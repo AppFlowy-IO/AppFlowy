@@ -1,7 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  EMOJI_SIZE,
   EmojiCategory,
   getRowsWithCategories,
+  PER_ROW_EMOJI_COUNT,
   useVirtualizedCategories,
 } from '$app/components/_shared/EmojiPicker/EmojiPicker.hooks';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +18,7 @@ function EmojiPickerCategories({
 }) {
   const { t } = useTranslation();
   const rows = useMemo(() => {
-    return getRowsWithCategories(emojiCategories, 13);
+    return getRowsWithCategories(emojiCategories, PER_ROW_EMOJI_COUNT);
   }, [emojiCategories]);
 
   const { ref, virtualize } = useVirtualizedCategories({
@@ -27,6 +29,7 @@ function EmojiPickerCategories({
   const getCategoryName = useCallback(
     (id: string) => {
       const i18nName: Record<string, string> = {
+        frequent: t('emoji.categories.frequentlyUsed'),
         people: t('emoji.categories.people'),
         nature: t('emoji.categories.nature'),
         foods: t('emoji.categories.food'),
@@ -43,7 +46,12 @@ function EmojiPickerCategories({
   );
 
   return (
-    <div ref={ref} className={'mt-2 w-[416px] flex-1 items-center justify-center overflow-y-auto overflow-x-hidden'}>
+    <div
+      ref={ref}
+      className={`mt-2 w-[${
+        EMOJI_SIZE * PER_ROW_EMOJI_COUNT
+      }px] flex-1 items-center justify-center overflow-y-auto overflow-x-hidden`}
+    >
       <div
         style={{
           height: virtualize.getTotalSize(),
@@ -72,7 +80,14 @@ function EmojiPickerCategories({
                   <div className={'flex'}>
                     {item.emojis?.map((emoji) => {
                       return (
-                        <div key={emoji.id} className={'flex h-[32px] w-[32px] items-center justify-center'}>
+                        <div
+                          key={emoji.id}
+                          style={{
+                            width: EMOJI_SIZE,
+                            height: EMOJI_SIZE,
+                          }}
+                          className={`flex items-center justify-center`}
+                        >
                           <IconButton
                             size={'small'}
                             onClick={() => {

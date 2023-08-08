@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+use std::string::ToString;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::RocksCollabDB;
@@ -8,9 +10,10 @@ use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::{user_table, user_workspace_table};
 use flowy_sqlite::ConnectionPool;
-use flowy_sqlite::{kv::KV, query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::util::timestamp;
@@ -56,6 +59,7 @@ pub struct UserSession {
   database: UserDB,
   session_config: UserSessionConfig,
   cloud_services: Arc<dyn UserCloudServiceProvider>,
+  store_preferences: Arc<StorePreferences>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
@@ -63,6 +67,7 @@ impl UserSession {
   pub fn new(
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
+    store_preferences: Arc<StorePreferences>,
   ) -> Self {
     let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
@@ -71,8 +76,13 @@ impl UserSession {
       database,
       session_config,
       cloud_services,
+      store_preferences,
       user_status_callback,
     }
+  }
+
+  pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
+    Arc::downgrade(&self.store_preferences)
   }
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
@@ -86,7 +96,7 @@ impl UserSession {
             .run(vec![Box::new(HistoricalEmptyDocumentMigration)])
           {
             Ok(applied_migrations) => {
-              if applied_migrations.len() > 0 {
+              if !applied_migrations.is_empty() {
                 tracing::info!("Did apply migrations: {:?}", applied_migrations);
               }
             },
@@ -144,27 +154,30 @@ impl UserSession {
     params: BoxAny,
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
-    let resp: SignInResponse = self
+    let response: SignInResponse = self
       .cloud_services
       .get_user_service()?
       .sign_in(params)
       .await?;
-
-    let session: Session = resp.clone().into();
+    let session: Session = response.clone().into();
     let uid = session.user_id;
-    self.set_session(Some(session))?;
-    self.log_user(uid, self.user_dir(uid));
+    self.set_current_session(Some(session))?;
 
-    let user_workspace = resp.latest_workspace.clone();
+    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
+
+    let user_workspace = response.latest_workspace.clone();
     save_user_workspaces(
       self.db_pool(uid)?,
-      resp
+      response
         .user_workspaces
         .iter()
-        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
         .collect(),
     )?;
-    let user_profile: UserProfile = self.save_user(uid, (resp, auth_type).into()).await?.into();
+    let user_profile: UserProfile = self
+      .save_user(uid, (response, auth_type).into())
+      .await?
+      .into();
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -218,19 +231,16 @@ impl UserSession {
       is_new: response.is_new,
       local_folder: None,
     };
-    let new_session = Session {
-      user_id: response.user_id,
-      user_workspace: response.latest_workspace.clone(),
-    };
-    let uid = new_session.user_id;
-    self.set_session(Some(new_session.clone()))?;
-    self.log_user(uid, self.user_dir(uid));
+    let new_session = Session::from(&response);
+    self.set_current_session(Some(new_session.clone()))?;
+    let uid = response.user_id;
+    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
     save_user_workspaces(
       self.db_pool(uid)?,
       response
         .user_workspaces
         .iter()
-        .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
         .collect(),
     )?;
     let user_table = self
@@ -281,7 +291,7 @@ impl UserSession {
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
-    self.set_session(None)?;
+    self.set_current_session(None)?;
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {
@@ -443,7 +453,9 @@ impl UserSession {
 
   pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
     self.cloud_services.update_supabase_config(&config);
-    let _ = KV::set_object(SUPABASE_CONFIG_CACHE_KEY, config);
+    let _ = self
+      .store_preferences
+      .set_object(SUPABASE_CONFIG_CACHE_KEY, config);
   }
 
   async fn update_user(
@@ -503,7 +515,7 @@ impl UserSession {
               pool,
               new_user_workspaces
                 .iter()
-                .map(|user_workspace| UserWorkspaceTable::from((uid, user_workspace)))
+                .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
                 .collect(),
             );
 
@@ -551,51 +563,83 @@ impl UserSession {
     })
   }
 
-  fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    tracing::debug!("Set user session: {:?}", session);
+  fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
+    tracing::debug!("Set current user: {:?}", session);
     match &session {
-      None => KV::remove(&self.session_config.session_cache_key),
+      None => self
+        .store_preferences
+        .remove(&self.session_config.session_cache_key),
       Some(session) => {
-        KV::set_object(&self.session_config.session_cache_key, session.clone())
+        self
+          .store_preferences
+          .set_object(&self.session_config.session_cache_key, session.clone())
           .map_err(internal_error)?;
       },
     }
     Ok(())
   }
 
-  fn log_user(&self, uid: i64, storage_path: String) {
-    let mut logger_users = KV::get_object::<HistoricalUsers>(HISTORICAL_USER).unwrap_or_default();
+  fn log_user(&self, uid: i64, user_name: String, auth_type: &AuthType, storage_path: String) {
+    let mut logger_users = self
+      .store_preferences
+      .get_object::<HistoricalUsers>(HISTORICAL_USER)
+      .unwrap_or_default();
     logger_users.add_user(HistoricalUser {
       user_id: uid,
+      user_name,
+      auth_type: auth_type.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
     });
-    let _ = KV::set_object(HISTORICAL_USER, logger_users);
+    let _ = self
+      .store_preferences
+      .set_object(HISTORICAL_USER, logger_users);
   }
 
   pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    KV::get_object::<HistoricalUsers>(HISTORICAL_USER)
+    let mut users = self
+      .store_preferences
+      .get_object::<HistoricalUsers>(HISTORICAL_USER)
       .unwrap_or_default()
-      .users
+      .users;
+    users.sort_by(|a, b| b.sign_in_timestamp.cmp(&a.sign_in_timestamp));
+    users
+  }
+
+  pub fn open_historical_user(&self, uid: i64) -> FlowyResult<()> {
+    let conn = self.db_connection(uid)?;
+    let row = user_workspace_table::dsl::user_workspace_table
+      .filter(user_workspace_table::uid.eq(uid))
+      .first::<UserWorkspaceTable>(&*conn)?;
+    let user_workspace = UserWorkspace::from(row);
+    let session = Session {
+      user_id: uid,
+      user_workspace,
+    };
+    self.set_current_session(Some(session))?;
+    Ok(())
   }
 
   /// Returns the current user session.
   pub fn get_session(&self) -> Result<Session, FlowyError> {
-    match KV::get_object::<Session>(&self.session_config.session_cache_key) {
+    match self
+      .store_preferences
+      .get_object::<Session>(&self.session_config.session_cache_key)
+    {
       None => Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!(
-          "Can't find the value of {}, User is not logged in",
-          self.session_config.session_cache_key
-        ),
+        "User is not logged in",
       )),
       Some(session) => Ok(session),
     }
   }
 }
 
-pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
-  KV::get_str(SUPABASE_CONFIG_CACHE_KEY)
+pub fn get_supabase_config(
+  store_preference: &Arc<StorePreferences>,
+) -> Option<SupabaseConfiguration> {
+  store_preference
+    .get_str(SUPABASE_CONFIG_CACHE_KEY)
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
@@ -667,6 +711,12 @@ impl HistoricalUsers {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct HistoricalUser {
   pub user_id: i64,
+  #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
+  pub user_name: String,
+  #[serde(default = "DEFAULT_AUTH_TYPE")]
+  pub auth_type: AuthType,
   pub sign_in_timestamp: i64,
   pub storage_path: String,
 }
+
+const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

@@ -48,12 +48,7 @@ class SidebarNewPageButton extends StatelessWidget {
       value: '',
       confirm: (value) {
         if (value.isNotEmpty) {
-          context.read<MenuBloc>().add(
-                MenuEvent.createApp(
-                  value,
-                  desc: '',
-                ),
-              );
+          context.read<MenuBloc>().add(MenuEvent.createApp(value));
         }
       },
     ).show(context);

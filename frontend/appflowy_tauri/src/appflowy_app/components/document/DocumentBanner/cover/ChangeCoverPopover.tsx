@@ -1,30 +1,30 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Popover, { PopoverActions } from '@mui/material/Popover';
-import ChangeColors from '$app/components/document/DocumentTitle/cover/ChangeColors';
-import ChangeImages from '$app/components/document/DocumentTitle/cover/ChangeImages';
-import { useAppDispatch } from '$app/stores/store';
-import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import React, { useRef } from 'react';
+import Popover from '@mui/material/Popover';
+import ChangeColors from '$app/components/document/DocumentBanner/cover/ChangeColors';
+import ChangeImages from '$app/components/document/DocumentBanner/cover/ChangeImages';
+import { CoverType } from '$app/interfaces/document';
 
 function ChangeCoverPopover({
   open,
   anchorPosition,
   onClose,
-  coverType,
   cover,
   onUpdateCover,
 }: {
   open: boolean;
   anchorPosition?: { top: number; left: number };
   onClose: () => void;
-  coverType: 'image' | 'color';
+  coverType: CoverType;
   cover: string;
-  onUpdateCover: (coverType: 'image' | 'color', cover: string) => void;
+  onUpdateCover: (coverType: CoverType, cover: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
   return (
     <Popover
       open={open}
+      disableAutoFocus
+      disableRestoreFocus
       anchorReference={'anchorPosition'}
       anchorPosition={anchorPosition}
       onClose={onClose}
@@ -43,18 +43,18 @@ function ChangeCoverPopover({
       <div
         style={{
           boxShadow:
-            '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)',
+            "var(--shadow-resize-popover)",
         }}
         className={'flex flex-col rounded-md bg-bg-body p-4 '}
         ref={ref}
       >
         <ChangeColors
           onChange={(color) => {
-            onUpdateCover('color', color);
+            onUpdateCover(CoverType.Color, color);
           }}
           cover={cover}
         />
-        <ChangeImages cover={cover} onChange={(url) => onUpdateCover('image', url)} />
+        <ChangeImages cover={cover} onChange={(url) => onUpdateCover(CoverType.Image, url)} />
       </div>
     </Popover>
   );
