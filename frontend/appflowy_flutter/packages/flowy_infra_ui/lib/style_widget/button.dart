@@ -148,7 +148,7 @@ class FlowyTextButton extends StatelessWidget {
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
-    this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
+    this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
     this.decoration,
     this.fontFamily,
   }) : super(key: key);
@@ -173,17 +173,13 @@ class FlowyTextButton extends StatelessWidget {
       ),
     );
 
-    Widget child = Padding(
-      padding: padding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: mainAxisAlignment,
-        children: children,
-      ),
+    Widget child = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
+      children: children,
     );
 
     child = RawMaterialButton(
-      visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
@@ -196,12 +192,8 @@ class FlowyTextButton extends StatelessWidget {
       elevation: 0,
       constraints: constraints,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      onPressed: () {},
-      child: child,
-    );
-
-    child = IgnoreParentGestureWidget(
-      onPress: onPressed,
+      padding: padding,
+      onPressed: onPressed,
       child: child,
     );
 

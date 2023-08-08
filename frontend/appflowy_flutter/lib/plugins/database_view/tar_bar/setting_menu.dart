@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_accessory_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +37,7 @@ class DatabaseViewSettingExtension extends StatelessWidget {
               ),
             );
           } else {
-            return const SizedBox();
+            return const SizedBox.shrink();
           }
         },
       ),
@@ -58,29 +57,18 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return BlocBuilder<DatabaseViewSettingExtensionBloc,
         DatabaseViewSettingExtensionState>(
       builder: (context, state) {
-        final children = <Widget>[
-          Divider(
-            height: 1.0,
-            color: AFThemeExtension.of(context).toggleOffFill,
-          ),
-          const VSpace(6),
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                SortMenu(
-                  fieldController: fieldController,
-                ),
-                const HSpace(6),
-                FilterMenu(
-                  fieldController: fieldController,
-                ),
-              ],
-            ),
-          )
-        ];
-
         return _wrapPadding(
-          Column(children: children),
+          Row(
+            children: [
+              SortMenu(
+                fieldController: fieldController,
+              ),
+              const HSpace(6),
+              FilterMenu(
+                fieldController: fieldController,
+              ),
+            ],
+          ),
         );
       },
     );
@@ -90,7 +78,7 @@ class _DatabaseViewSettingContent extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: GridSize.leadingHeaderPadding,
-        vertical: 6,
+        vertical: 8,
       ),
       child: child,
     );

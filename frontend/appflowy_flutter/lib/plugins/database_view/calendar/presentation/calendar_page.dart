@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -166,14 +165,13 @@ class _CalendarPageState extends State<CalendarPage> {
                     return const Center(
                       child: CircularProgressIndicator.adaptive(),
                     );
-                  } else {
-                    return _buildCalendar(
-                      context,
-                      _eventController,
-                      state.settings
-                          .foldLeft(0, (previous, a) => a.firstDayOfWeek),
-                    );
                   }
+                  return _buildCalendar(
+                    context,
+                    _eventController,
+                    state.settings
+                        .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                  );
                 },
               );
             },
@@ -189,7 +187,7 @@ class _CalendarPageState extends State<CalendarPage> {
     int firstDayOfWeek,
   ) {
     return Padding(
-      padding: GridSize.contentInsets,
+      padding: CalendarSize.contentInsets,
       child: LayoutBuilder(
         // must specify MonthView width for useAvailableVerticalSpace to work properly
         builder: (context, constraints) => MonthView(
