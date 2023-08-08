@@ -89,6 +89,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
   @override
   Widget build(BuildContext context) {
     const iconSize = 26.0;
+    const textPadding = 4.0;
     return MouseRegion(
       onEnter: (event) => setState(() => onHover = true),
       onExit: (event) => setState(() => onHover = false),
@@ -98,8 +99,10 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
           FlowyTextButton(
             LocaleKeys.sideBar_personal.tr(),
             tooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
-            constraints: const BoxConstraints(maxHeight: iconSize),
-            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(
+              minHeight: iconSize + textPadding * 2,
+            ),
+            padding: const EdgeInsets.all(textPadding),
             fillColor: Colors.transparent,
             onPressed: widget.onPressed,
           ),
