@@ -211,7 +211,7 @@ String varNameFor(File file) {
 }
 
 String lineFor(File file) =>
-    "  static const ${varNameFor(file)} = FlowySvgData('${pathFor(file)}')";
+    "  static const ${varNameFor(file)} = FlowySvgData('${pathFor(file)}');";
 
 String pathFor(File file) {
   final relative = path.relative(file.path, from: Directory.current.path);
