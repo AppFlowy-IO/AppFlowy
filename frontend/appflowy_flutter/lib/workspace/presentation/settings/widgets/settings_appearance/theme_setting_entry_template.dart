@@ -34,10 +34,10 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
           FlowyIconButton(
             key: resetButtonKey,
             width: 24,
-            icon: FlowySvg(
+            icon: const FlowySvg(
               name: 'common/recover',
-              color: Theme.of(context).colorScheme.onBackground,
             ),
+            iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
             tooltipText: LocaleKeys.settings_appearance_resetSetting.tr(),
             onPressed: onResetRequested,
           ),
