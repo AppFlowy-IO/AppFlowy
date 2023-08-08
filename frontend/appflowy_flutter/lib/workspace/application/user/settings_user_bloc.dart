@@ -56,7 +56,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
           emit(state.copyWith(historicalUsers: historicalUsers));
         },
         openHistoricalUser: (HistoricalUserPB historicalUser) async {
-          await _userService.openHistoricalUser(historicalUser);
+          await UserBackendService.openHistoricalUser(historicalUser);
         },
       );
     });
@@ -74,7 +74,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
   }
 
   Future<void> _loadHistoricalUsers() async {
-    final result = await _userService.loadHistoricalUsers();
+    final result = await UserBackendService.loadHistoricalUsers();
     result.fold(
       (historicalUsers) {
         add(SettingsUserEvent.didLoadHistoricalUsers(historicalUsers));

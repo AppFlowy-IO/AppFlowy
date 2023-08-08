@@ -70,7 +70,7 @@ class UserBackendService {
     return UserEventInitUser().send();
   }
 
-  Future<Either<List<HistoricalUserPB>, FlowyError>>
+  static Future<Either<List<HistoricalUserPB>, FlowyError>>
       loadHistoricalUsers() async {
     return UserEventGetHistoricalUsers().send().then(
       (result) {
@@ -82,7 +82,7 @@ class UserBackendService {
     );
   }
 
-  Future<Either<Unit, FlowyError>> openHistoricalUser(
+  static Future<Either<Unit, FlowyError>> openHistoricalUser(
     HistoricalUserPB user,
   ) async {
     return UserEventOpenHistoricalUser(user).send();
