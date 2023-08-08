@@ -84,7 +84,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-windows-desktop
-          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
+          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
 
       - name: Archive Asset
         uses: vimtor/action-zip@v1
@@ -224,7 +224,11 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { targets: 'aarch64-apple-darwin,x86_64-apple-darwin', os: macos-11, extra-build-args: "" }
+          - {
+              targets: "aarch64-apple-darwin,x86_64-apple-darwin",
+              os: macos-11,
+              extra-build-args: "",
+            }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -446,7 +450,13 @@ jobs:
 
   notify-discord:
     runs-on: ubuntu-latest
-    needs: [build-for-linux, build-for-windows, build-for-macOS-x86_64, build-for-macOS-universal]
+    needs:
+      [
+        build-for-linux,
+        build-for-windows,
+        build-for-macOS-x86_64,
+        build-for-macOS-universal,
+      ]
     steps:
       - name: Notify Discord
         run: |
