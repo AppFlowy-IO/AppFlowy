@@ -23,15 +23,8 @@ class InitAppWidgetTask extends LaunchTask {
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
 
-    // If the passed-in context is not the same as the context of the
-    // application widget, the application widget will be rebuilt.
-    final app = ApplicationWidget(
-      key: ValueKey(context),
-      appearanceSetting: appearanceSetting,
-      child: widget,
-    );
-
     Bloc.observer = ApplicationBlocObserver();
+
     runApp(
       EasyLocalization(
         supportedLocales: const [
@@ -61,11 +54,13 @@ class InitAppWidgetTask extends LaunchTask {
         fallbackLocale: const Locale('en'),
         useFallbackTranslations: true,
         saveLocale: false,
-        child: app,
+        child: ApplicationWidget(
+          key: ValueKey(context),
+          appearanceSetting: appearanceSetting,
+          child: widget,
+        ),
       ),
     );
-
-    return Future(() => {});
   }
 }
 
@@ -81,12 +76,12 @@ class ApplicationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting)
-      ..readLocaleWhenAppLaunch(context);
-
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: cubit),
+        BlocProvider<AppearanceSettingsCubit>.value(
+          value: AppearanceSettingsCubit(appearanceSetting)
+            ..readLocaleWhenAppLaunch(context),
+        ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
