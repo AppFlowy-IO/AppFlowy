@@ -22,6 +22,7 @@ pub fn make_plugins(
   let database_plugin = flowy_database2::event_map::init(database_manager);
   let document_plugin2 = flowy_document2::event_map::init(document_manager2);
   let config_plugin = flowy_config::event_map::init(store_preferences);
+  let flowy_plugins = flowy_plugins::event_map::init();
   vec![
     user_plugin,
     folder_plugin,
@@ -29,5 +30,6 @@ pub fn make_plugins(
     database_plugin,
     document_plugin2,
     config_plugin,
+    flowy_plugins,
   ]
 }

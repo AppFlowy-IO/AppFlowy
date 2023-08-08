@@ -21,6 +21,7 @@ members = [
   "flowy-server",
   "flowy-server-config",
   "flowy-config",
+  "flowy-plugins",
 ]
 
 [profile.dev]

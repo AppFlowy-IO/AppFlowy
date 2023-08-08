@@ -3,6 +3,7 @@ import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/application/open_ai/open_ai_service.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/image.dart';
@@ -84,7 +85,9 @@ class SidebarUser extends StatelessWidget {
         borderRadius: Corners.s5Border,
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          child: svgWidget('emoji/$iconUrl'),
+          child: svgWidget(
+            'emoji/$iconUrl',
+          ),
         ),
       ),
     );
@@ -94,10 +97,22 @@ class SidebarUser extends StatelessWidget {
     final String name = _userName(
       context.read<MenuUserBloc>().state.userProfile,
     );
-    return FlowyText.medium(
-      name,
-      overflow: TextOverflow.ellipsis,
-      color: Theme.of(context).colorScheme.tertiary,
+    return GestureDetector(
+      onTap: () async {
+        // FIXME: just a sample to test the open ai service
+        final result = await OpenAIService.requestTextCompletion(
+          prompt: 'tell a story',
+        );
+        result.fold(
+          (value) => debugPrint(value.model),
+          (error) => debugPrint(error.toString()),
+        );
+      },
+      child: FlowyText.medium(
+        name,
+        overflow: TextOverflow.ellipsis,
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
     );
   }
 

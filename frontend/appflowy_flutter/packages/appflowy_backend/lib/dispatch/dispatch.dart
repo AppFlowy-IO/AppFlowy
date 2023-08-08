@@ -16,6 +16,7 @@ import 'package:appflowy_backend/protobuf/dart-ffi/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-plugins/protobuf.dart';
 
 // ignore: unused_import
 import 'package:protobuf/protobuf.dart';
@@ -29,6 +30,7 @@ part 'dart_event/flowy-user/dart_event.dart';
 part 'dart_event/flowy-database2/dart_event.dart';
 part 'dart_event/flowy-document2/dart_event.dart';
 part 'dart_event/flowy-config/dart_event.dart';
+part 'dart_event/flowy-plugins/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,
