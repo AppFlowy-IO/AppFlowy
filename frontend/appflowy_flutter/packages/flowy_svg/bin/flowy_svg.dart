@@ -238,6 +238,8 @@ String clean(String segment) {
       // replace all dashes with underscores (dash is invalid in
       // a variable name)
       .replaceAll('-', '_')
+      // replace all spaces with an underscore
+      .replaceAll(RegExp(r'\s+'), '_')
       // replace all file extensions with an empty string
       .replaceAll(RegExp(r'\.[^.]*$'), '')
       // convert everything to lower case
