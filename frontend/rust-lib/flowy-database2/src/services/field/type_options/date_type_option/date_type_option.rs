@@ -312,10 +312,7 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     match (cell_data.timestamp, other_cell_data.timestamp) {
       (Some(left), Some(right)) => {
         let order = left.cmp(&right);
-        match sort_condition {
-          SortCondition::Ascending => order,
-          SortCondition::Descending => order.reverse(),
-        }
+        sort_condition.evaluate_order(order)
       },
       (Some(_), None) => Ordering::Greater,
       (None, Some(_)) => Ordering::Less,

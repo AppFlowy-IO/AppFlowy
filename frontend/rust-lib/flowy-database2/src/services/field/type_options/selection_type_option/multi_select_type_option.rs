@@ -155,10 +155,7 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
             (Some(_), None) => Ordering::Less,
             (Some(left_option), Some(right_option)) => {
               let name_order = left_option.name.cmp(&right_option.name);
-              match sort_condition {
-                SortCondition::Ascending => name_order,
-                SortCondition::Descending => name_order.reverse(),
-              }
+              sort_condition.evaluate_order(name_order)
             },
           };
 
@@ -168,10 +165,7 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
         }
         default_order()
       },
-      order => match sort_condition {
-        SortCondition::Ascending => order,
-        SortCondition::Descending => order.reverse(),
-      },
+      order => sort_condition.evaluate_order(order),
     }
   }
 

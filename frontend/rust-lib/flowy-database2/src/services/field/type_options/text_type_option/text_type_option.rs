@@ -163,10 +163,7 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
       (false, true) => Ordering::Less,
       (false, false) => {
         let order = cell_data.0.cmp(&other_cell_data.0);
-        match sort_condition {
-          SortCondition::Ascending => order,
-          SortCondition::Descending => order.reverse(),
-        }
+        sort_condition.evaluate_order(order)
       },
     }
   }

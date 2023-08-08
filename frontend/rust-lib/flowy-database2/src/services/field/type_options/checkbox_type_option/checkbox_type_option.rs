@@ -139,10 +139,7 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     sort_condition: SortCondition,
   ) -> Ordering {
     let order = cell_data.is_check().cmp(&other_cell_data.is_check());
-    match sort_condition {
-      SortCondition::Ascending => order,
-      SortCondition::Descending => order.reverse(),
-    }
+    sort_condition.evaluate_order(order)
   }
 
   fn apply_cmp_with_uninitialized(

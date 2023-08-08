@@ -263,10 +263,7 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
         match (left, right) {
           (Ok(left), Ok(right)) => {
             let order = left.decimal().cmp(right.decimal());
-            match sort_condition {
-              SortCondition::Ascending => order,
-              SortCondition::Descending => order.reverse(),
-            }
+            sort_condition.evaluate_order(order)
           },
           (Ok(_), Err(_)) => Ordering::Greater,
           (Err(_), Ok(_)) => Ordering::Less,

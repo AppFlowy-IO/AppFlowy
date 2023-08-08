@@ -144,10 +144,7 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
     ) {
       (Some(left), Some(right)) => {
         let order = left.name.cmp(&right.name);
-        match sort_condition {
-          SortCondition::Ascending => order,
-          SortCondition::Descending => order.reverse(),
-        }
+        sort_condition.evaluate_order(order)
       },
       (Some(_), None) => Ordering::Greater,
       (None, Some(_)) => Ordering::Less,
