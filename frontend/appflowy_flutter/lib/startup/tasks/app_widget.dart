@@ -22,7 +22,11 @@ class InitAppWidgetTask extends LaunchTask {
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
+
+    // If the passed-in context is not the same as the context of the
+    // application widget, the application widget will be rebuilt.
     final app = ApplicationWidget(
+      key: ValueKey(context),
       appearanceSetting: appearanceSetting,
       child: widget,
     );
@@ -89,7 +93,6 @@ class ApplicationWidget extends StatelessWidget {
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
         builder: (context, state) => MaterialApp(
-          key: UniqueKey(),
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
