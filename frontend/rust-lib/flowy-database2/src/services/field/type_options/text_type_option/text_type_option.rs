@@ -175,7 +175,7 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     &self,
     cell_data: Option<&<Self as TypeOption>::CellData>,
     other_cell_data: Option<&<Self as TypeOption>::CellData>,
-    _sort_conditon: SortCondition,
+    _sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
       (None, Some(cell_data)) if !cell_data.0.is_empty() => Ordering::Greater,
