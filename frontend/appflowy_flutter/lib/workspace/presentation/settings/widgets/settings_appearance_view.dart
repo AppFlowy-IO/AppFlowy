@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -311,7 +312,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         context.read<AppearanceSettingsCubit>().resetFontFamily();
         context
             .read<DocumentAppearanceCubit>()
-            .syncFontFamily(kDefaultFontFamily);
+            .syncFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
       },
       trailing: [
         ThemeSettingDropDown(
@@ -445,8 +446,6 @@ class ThemeSettingEntry extends StatelessWidget {
               color: Theme.of(context).colorScheme.onBackground,
             ),
             tooltipText: LocaleKeys.settings_appearance_resetSetting.tr(),
-
-            // fontColor: Theme.of(context).colorScheme.onBackground,
             onPressed: onResetRequested,
           ),
       ],
