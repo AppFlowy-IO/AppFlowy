@@ -62,6 +62,7 @@
     "slate-react": "^0.94.2",
     "ts-results": "^3.3.0",
     "utf8": "^3.0.0",
+    "valtio": "^1.11.1",
     "yjs": "^13.5.51"
   },
   "devDependencies": {

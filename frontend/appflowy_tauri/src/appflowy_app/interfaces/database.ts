@@ -116,7 +116,7 @@ export namespace Database {
     id: string;
     fieldId: string;
     fieldType: FieldType;
-    condition: unknown;
+    data: unknown;
   }
 
   export interface TextFilter extends Filter {
@@ -152,7 +152,7 @@ export namespace Database {
     modifiedAt?: number;  
     height?: number;
     visibility?: boolean;
-    cells: Record<string, UndeterminedCell>;
+    cells?: Record<string, UndeterminedCell>;
   }
   
   export interface Cell {

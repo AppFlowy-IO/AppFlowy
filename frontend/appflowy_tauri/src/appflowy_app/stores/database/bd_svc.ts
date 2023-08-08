@@ -46,6 +46,8 @@ import {
   RowPB,
   DatabaseExportDataPB,
   DatabaseSnapshotPB,
+  FilterPB,
+  SortPB,
 } from '@/services/backend';
 import {
   DatabaseEventGetDatabases,
@@ -88,6 +90,8 @@ import {
   DatabaseEventUpdateDateCell,
   DatabaseEventExportCSV,
   DatabaseEventGetDatabaseSnapshots,
+  DatabaseEventGetAllFilters,
+  DatabaseEventGetAllSorts,
 } from "@/services/backend/events/flowy-database2";
 
 export async function getDatabases(): Promise<DatabaseDescriptionPB[]> {
@@ -228,6 +232,28 @@ export async function moveGroup(viewId: string, fromGroupId: string, toGroupId: 
   const result = await DatabaseEventMoveGroup(payload);
 
   return result.unwrap();
+}
+
+
+export async function getFilters(viewId: string): Promise<FilterPB[]> {
+  const payload = DatabaseViewIdPB.fromObject({
+    value: viewId,
+  });
+
+  const result = await DatabaseEventGetAllFilters(payload);
+
+  return result.map(value => value.items).unwrap();
+}
+
+
+export async function getSorts(viewId: string): Promise<SortPB[]> {
+  const payload = DatabaseViewIdPB.fromObject({
+    value: viewId,
+  });
+
+  const result = await DatabaseEventGetAllSorts(payload);
+
+  return result.map(value => value.items).unwrap();
 }
 
 
