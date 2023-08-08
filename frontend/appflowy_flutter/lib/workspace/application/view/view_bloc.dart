@@ -112,9 +112,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             ext: {},
             openAfterCreate: e.openAfterCreated,
           );
+
           emit(
             result.fold(
-              (l) => state.copyWith(successOrFailure: left(unit)),
+              (view) => state.copyWith(
+                lastCreatedView: view,
+                successOrFailure: left(unit),
+              ),
               (error) => state.copyWith(successOrFailure: right(error)),
             ),
           );
@@ -218,6 +222,7 @@ class ViewState with _$ViewState {
     required bool isEditing,
     required bool isExpanded,
     required Either<Unit, FlowyError> successOrFailure,
+    @Default(null) ViewPB? lastCreatedView,
   }) = _ViewState;
 
   factory ViewState.init(ViewPB view) => ViewState(
@@ -226,5 +231,6 @@ class ViewState with _$ViewState {
         isExpanded: false,
         isEditing: false,
         successOrFailure: left(unit),
+        lastCreatedView: null,
       );
 }

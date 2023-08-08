@@ -16,6 +16,7 @@ import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
+import 'tabs_test.dart' as tabs_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -50,6 +51,9 @@ void main() {
   database_sort_test.main();
   database_view_test.main();
   database_calendar_test.main();
+
+  // Tabs
+  tabs_test.main();
 
   // board_test.main();
   // empty_document_test.main();
