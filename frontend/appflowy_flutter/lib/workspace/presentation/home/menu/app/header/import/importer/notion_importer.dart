@@ -114,14 +114,14 @@ class NotionImporter {
           final List<String> segments = unzipFiles[i].name.split('/');
           segments.removeAt(0);
           unzipFiles[i].name = segments.join('/');
-        } else if(!unzipFiles[i].isFile){
+        } else if (!unzipFiles[i].isFile) {
           folders.add(unzipFiles[i]);
         }
       }
       if (files.isEmpty) {
         return;
       }
-      for(final element in folders){
+      for (final element in folders) {
         unzipFiles.files.remove(element);
       }
       for (final element in files) {
