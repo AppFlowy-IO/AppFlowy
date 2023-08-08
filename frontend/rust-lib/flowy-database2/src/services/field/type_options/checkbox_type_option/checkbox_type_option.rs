@@ -149,13 +149,11 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
-      (None, Some(right_cell_data)) if right_cell_data.is_check() => match sort_condition {
-        SortCondition::Ascending => Ordering::Less,
-        SortCondition::Descending => Ordering::Greater,
+      (None, Some(right_cell_data)) if right_cell_data.is_check() => {
+        sort_condition.evaluate_order(Ordering::Less)
       },
-      (Some(left_cell_data), None) if left_cell_data.is_check() => match sort_condition {
-        SortCondition::Ascending => Ordering::Greater,
-        SortCondition::Descending => Ordering::Less,
+      (Some(left_cell_data), None) if left_cell_data.is_check() => {
+        sort_condition.evaluate_order(Ordering::Greater)
       },
       _ => Ordering::Equal,
     }

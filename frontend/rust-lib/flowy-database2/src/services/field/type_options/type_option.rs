@@ -128,6 +128,7 @@ pub fn default_order() -> Ordering {
 }
 
 pub trait TypeOptionCellDataCompare: TypeOption {
+  /// Compares the cell contents of two cells that not empty
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
@@ -135,12 +136,26 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     sort_conditon: SortCondition,
   ) -> Ordering;
 
+  /// Compares the cell contents of two cells where one of the
+  /// cells is None or can be regarded as empty
   fn apply_cmp_with_uninitialized(
     &self,
     cell_data: Option<&<Self as TypeOption>::CellData>,
     other_cell_data: Option<&<Self as TypeOption>::CellData>,
-    sort_conditon: SortCondition,
-  ) -> Ordering;
+    _sort_conditon: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(cell_data)) if !self.is_empty(cell_data) => Ordering::Greater,
+      (Some(cell_data), None) if !self.is_empty(cell_data) => Ordering::Less,
+      _ => Ordering::Equal,
+    }
+  }
+
+  /// Even though the cell is initialized, its content might still be
+  ///
+  fn is_empty(&self, _cell_data: &<Self as TypeOption>::CellData) -> bool {
+    false
+  }
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(

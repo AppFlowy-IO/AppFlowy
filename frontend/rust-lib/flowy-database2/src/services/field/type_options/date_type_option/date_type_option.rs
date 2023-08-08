@@ -320,16 +320,7 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     }
   }
 
-  fn apply_cmp_with_uninitialized(
-    &self,
-    cell_data: Option<&<Self as TypeOption>::CellData>,
-    other_cell_data: Option<&<Self as TypeOption>::CellData>,
-    _sort_condition: SortCondition,
-  ) -> Ordering {
-    match (cell_data, other_cell_data) {
-      (None, Some(cell_data)) if cell_data.timestamp.is_some() => Ordering::Greater,
-      (Some(cell_data), None) if cell_data.timestamp.is_some() => Ordering::Less,
-      _ => Ordering::Equal,
-    }
+  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
+    cell_data.timestamp.is_none()
   }
 }
