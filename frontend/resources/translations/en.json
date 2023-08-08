@@ -126,7 +126,9 @@
     "documentFromV010": "Document from v0.1.0",
     "databaseFromV010": "Database from v0.1.0",
     "csv": "CSV",
-    "database": "Database"
+    "database": "Database",
+    "importFromNotionMarkdownZip": "Import from Notion Markdown Zip",
+    "uploadZipFile": "Upload zip file"
   },
   "disclosureAction": {
     "rename": "Rename",
