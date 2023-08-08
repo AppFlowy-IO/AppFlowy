@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/core/raw_keyboard_extension.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -26,7 +27,7 @@ class BlockAddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlockActionButton(
-      svgName: 'editor/add',
+      svg: FlowySvgs.add,
       richMessage: TextSpan(
         children: [
           TextSpan(

@@ -1,5 +1,6 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,8 +41,8 @@ class _CheckboxCardCellState extends State<CheckboxCardCell> {
             previous.isSelected != current.isSelected,
         builder: (context, state) {
           final icon = state.isSelected
-              ? const FlowySvg(name: 'editor/editor_check')
-              : const FlowySvg(name: 'editor/editor_uncheck');
+              ? const FlowySvg(FlowySvgs.editor_check)
+              : const FlowySvg(FlowySvgs.editor_uncheck);
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(

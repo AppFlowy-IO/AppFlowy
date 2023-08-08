@@ -1,5 +1,6 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -119,8 +120,7 @@ class SelectOptionTag extends StatelessWidget {
               fillColor: Colors.transparent,
               hoverColor: Colors.transparent,
               icon: FlowySvg(
-                name:
-                'home/close',
+                FlowySvgs.close,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),

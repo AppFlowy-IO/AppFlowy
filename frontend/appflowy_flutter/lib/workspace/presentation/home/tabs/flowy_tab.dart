@@ -1,7 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +53,7 @@ class _FlowyTabState extends State<FlowyTab> {
                       child: FlowyIconButton(
                         onPressed: _closeTab,
                         icon: const FlowySvg(
-                          name: 'editor/close',
+                          FlowySvgs.close,
                           size: Size.fromWidth(16),
                         ),
                       ),

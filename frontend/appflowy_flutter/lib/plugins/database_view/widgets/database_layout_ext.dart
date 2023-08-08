@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,16 +17,16 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
     }
   }
 
-  String iconName() {
+  FlowySvgData get icon {
     switch (this) {
       case DatabaseLayoutPB.Board:
-        return 'editor/board';
+        return FlowySvgs.board;
       case DatabaseLayoutPB.Calendar:
-        return "editor/grid";
+        return FlowySvgs.grid;
       case DatabaseLayoutPB.Grid:
-        return "editor/grid";
+        return FlowySvgs.grid;
       default:
-        return "";
+        return const FlowySvgData('');
     }
   }
 }

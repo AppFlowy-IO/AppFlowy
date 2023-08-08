@@ -1,6 +1,7 @@
 import 'dart:math' as math;
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,7 @@ class ConditionButton extends StatelessWidget {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: FlowySvg(
-        name:
-        "home/arrow_left",
+        FlowySvgs.arrow_left,
         color: AFThemeExtension.of(context).textColor,
       ),
     );

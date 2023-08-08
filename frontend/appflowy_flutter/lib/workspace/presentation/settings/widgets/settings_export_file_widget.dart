@@ -1,5 +1,5 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_exporter_widget.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -66,8 +66,7 @@ class _OpenExportedDirectoryButton extends StatelessWidget {
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_export.tr(),
       icon: FlowySvg(
-        name:
-        'common/open_folder',
+        FlowySvgs.open_folder,
         color: Theme.of(context).iconTheme.color,
       ),
       onPressed: onTap,

@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
           if (widget.isSelected)
             const Padding(
               padding: EdgeInsets.only(right: 6),
-              child: FlowySvg(name: "grid/checkmark"),
+              child: FlowySvg(FlowySvgs.checkmark),
             ),
         ],
       ),

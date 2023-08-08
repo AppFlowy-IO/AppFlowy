@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
@@ -6,7 +7,7 @@ import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_ce
 import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -177,7 +178,7 @@ class NewEventButton extends StatelessWidget {
           child: FlowyIconButton(
             onPressed: onCreate,
             iconPadding: EdgeInsets.zero,
-            icon: const FlowySvg(name: "home/add"),
+            icon: const FlowySvg(FlowySvgs.add),
             fillColor: Theme.of(context).colorScheme.background,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             width: 22,

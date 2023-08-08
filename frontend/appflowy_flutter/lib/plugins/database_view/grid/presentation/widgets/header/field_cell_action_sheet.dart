@@ -1,10 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -178,8 +179,7 @@ class FieldActionCell extends StatelessWidget {
       ),
       onTap: () => action.run(context, fieldInfo),
       leftIcon: FlowySvg(
-        name:
-        action.iconName(),
+        action.icon(),
         color: enable
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
@@ -195,14 +195,14 @@ enum FieldAction {
 }
 
 extension _FieldActionExtension on FieldAction {
-  String iconName() {
+  FlowySvgData icon() {
     switch (this) {
       case FieldAction.hide:
-        return 'grid/hide';
+        return FlowySvgs.hide_;
       case FieldAction.duplicate:
-        return 'grid/duplicate';
+        return FlowySvgs.duplicate;
       case FieldAction.delete:
-        return 'grid/delete';
+        return FlowySvgs.delete;
     }
   }
 

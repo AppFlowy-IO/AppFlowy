@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
@@ -204,8 +204,7 @@ class _OpenStorageButton extends StatelessWidget {
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_openCurrentDataFolder.tr(),
       icon: FlowySvg(
-        name:
-        'common/open_folder',
+        FlowySvgs.open_folder,
         color: Theme.of(context).iconTheme.color,
       ),
       onPressed: () async {
@@ -238,8 +237,7 @@ class _RecoverDefaultStorageButtonState
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_recoverLocationTooltips.tr(),
       icon: FlowySvg(
-        name:
-        'common/recover',
+        FlowySvgs.recover,
         color: Theme.of(context).iconTheme.color,
       ),
       onPressed: () async {

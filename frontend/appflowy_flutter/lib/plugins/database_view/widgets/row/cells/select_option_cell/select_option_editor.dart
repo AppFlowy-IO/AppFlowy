@@ -1,11 +1,12 @@
 import 'dart:collection';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -220,8 +221,7 @@ class _Title extends StatelessWidget {
                 onPressed: onPressedAddButton,
                 width: 18,
                 icon: FlowySvg(
-                  name:
-                  'home/add',
+                  FlowySvgs.add,
                   color: Theme.of(context).iconTheme.color,
                 ),
               ),
@@ -318,15 +318,14 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           if (widget.isSelected)
             const Padding(
               padding: EdgeInsets.only(left: 6),
-              child: FlowySvg(name: "grid/checkmark"),
+              child: FlowySvg(FlowySvgs.checkmark),
             ),
           FlowyIconButton(
             onPressed: () => _popoverController.show(),
             hoverColor: Colors.transparent,
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             icon: FlowySvg(
-              name:
-              "editor/details",
+              FlowySvgs.details,
               color: Theme.of(context).iconTheme.color,
             ),
           ),

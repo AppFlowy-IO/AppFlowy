@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -196,8 +197,7 @@ class _OptionCellState extends State<_OptionCell> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: FlowySvg(
-              name:
-              "grid/details",
+              FlowySvgs.details,
               color: Theme.of(context).iconTheme.color,
             ),
           ),
@@ -258,8 +258,7 @@ class _AddOptionButton extends StatelessWidget {
                 .add(const SelectOptionTypeOptionEvent.addingOption());
           },
           leftIcon: FlowySvg(
-            name:
-            "home/add",
+            FlowySvgs.add,
             color: Theme.of(context).iconTheme.color,
           ),
         ),

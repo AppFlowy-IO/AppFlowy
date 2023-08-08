@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -13,7 +14,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -129,8 +130,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           height: 24,
           iconPadding: const EdgeInsets.all(3),
           icon: FlowySvg(
-            name:
-            'common/information',
+            FlowySvgs.information,
             color: Theme.of(context).iconTheme.color,
           ),
         ),
@@ -147,8 +147,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             height: 24,
             iconPadding: const EdgeInsets.all(3),
             icon: FlowySvg(
-              name:
-              'common/settings',
+              FlowySvgs.settings,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () => controller.show(),

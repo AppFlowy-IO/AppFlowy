@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
@@ -6,7 +7,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_event.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
@@ -86,7 +86,9 @@ class ThemeUploadOverlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      icon: const FlowySvg(name: 'folder'),
+      icon: const FlowySvg(
+        FlowySvgs.folder,
+      ),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
       onPressed: () => Dialogs.show(
         context,
@@ -190,7 +192,7 @@ class ThemeSelectionPopover extends StatelessWidget {
             child: FlowyButton(
               text: FlowyText.medium(theme),
               rightIcon: currentTheme == theme
-                  ? const FlowySvg(name: 'grid/checkmark')
+                  ? const FlowySvg(FlowySvgs.checkmark)
                   : null,
               onTap: () {
                 if (currentTheme != theme) {
@@ -201,7 +203,7 @@ class ThemeSelectionPopover extends StatelessWidget {
           ),
           if (!isBuiltin)
             FlowyIconButton(
-              icon: const FlowySvg(name: 'home/close'),
+              icon: const FlowySvg(FlowySvgs.close),
               width: 20,
               onPressed: () =>
                   bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
@@ -254,7 +256,7 @@ class BrightnessSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(_themeModeLabelText(themeMode)),
         rightIcon: currentThemeMode == themeMode
-            ? const FlowySvg(name: 'grid/checkmark')
+            ? const FlowySvg(FlowySvgs.checkmark)
             : null,
         onTap: () {
           if (currentThemeMode != themeMode) {
@@ -376,7 +378,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         ),
         rightIcon:
             buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(name: 'grid/checkmark')
+                ? const FlowySvg(FlowySvgs.checkmark)
                 : null,
         onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=

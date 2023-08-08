@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flowy_infra/image.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -44,7 +44,7 @@ class FlowyLogoTitle extends StatelessWidget {
         children: [
           SizedBox.fromSize(
             size: logoSize,
-            child: const FlowySvg(name: 'flowy_logo'),
+            child: const FlowySvg(FlowySvgs.flowy_logo),
           ),
           const VSpace(40),
           FlowyText.regular(

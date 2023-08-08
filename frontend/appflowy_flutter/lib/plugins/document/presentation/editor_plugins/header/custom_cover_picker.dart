@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -6,7 +7,7 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -219,7 +220,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const FlowySvg(
-                name: 'editor/add',
+                FlowySvgs.add,
                 size: Size(20, 20),
               ),
               const SizedBox(
@@ -243,7 +244,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
-              name: 'file_icon',
+              FlowySvgs.file_icon,
               size: Size(20, 20),
             ),
             text: FlowyText(
@@ -269,8 +270,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             color: Theme.of(context).colorScheme.onPrimary,
           ),
           child: const FlowySvg(
-            name:
-            "editor/close",
+            FlowySvgs.close,
             size: Size(20, 20),
           ),
         ),

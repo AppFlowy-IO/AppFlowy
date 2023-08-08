@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
@@ -9,7 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -170,15 +171,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: FlowySvg(
-              name:
-              "home/arrow_left",
+              FlowySvgs.arrow_left,
               color: Theme.of(context).iconTheme.color,
             ),
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: FlowySvg(
-              name:
-              "home/arrow_right",
+              FlowySvgs.arrow_right,
               color: Theme.of(context).iconTheme.color,
             ),
             headerMargin: const EdgeInsets.only(bottom: 8.0),
@@ -249,8 +248,7 @@ class _IncludeTimeButton extends StatelessWidget {
               child: Row(
                 children: [
                   FlowySvg(
-                    name:
-                    "grid/clock",
+                    FlowySvgs.clock,
                     color: Theme.of(context).iconTheme.color,
                   ),
                   const HSpace(6),
@@ -372,7 +370,7 @@ class DateTypeOptionButton extends StatelessWidget {
               child: FlowyButton(
                 text: FlowyText.medium(title),
                 margin: GridSize.typeOptionContentInsets,
-                rightIcon: const FlowySvg(name: 'grid/more'),
+                rightIcon: const FlowySvg(FlowySvgs.more),
               ),
             ),
           ),
@@ -483,7 +481,7 @@ class ClearDateButton extends StatelessWidget {
                 .add(const DateCellCalendarEvent.clearDate());
             PopoverContainer.of(context).close();
           },
-          leftIcon: const FlowySvg(name: "grid/delete"),
+          leftIcon: const FlowySvg(FlowySvgs.delete),
           margin: GridSize.typeOptionContentInsets,
         ),
       ),

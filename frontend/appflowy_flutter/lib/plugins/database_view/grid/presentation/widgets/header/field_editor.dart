@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -233,7 +234,7 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          leftIcon: const FlowySvg(name: 'grid/delete'),
+          leftIcon: const FlowySvg(FlowySvgs.delete),
           onTap: () {
             if (enable) onDeleted?.call();
           },
@@ -264,7 +265,7 @@ class _HideFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),
-          leftIcon: const FlowySvg(name: 'grid/hide'),
+          leftIcon: const FlowySvg(FlowySvgs.hide_),
           onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );

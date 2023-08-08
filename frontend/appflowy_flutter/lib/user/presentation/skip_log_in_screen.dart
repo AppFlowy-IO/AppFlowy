@@ -1,4 +1,5 @@
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -8,7 +9,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_langua
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -245,7 +245,7 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const FlowySvg(
-              name: 'login/language',
+              FlowySvgs.language,
               size: Size.square(20),
             ),
             const HSpace(4),
@@ -259,7 +259,7 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
               },
             ),
             const FlowySvg(
-              name: 'home/drop_down_hide',
+              FlowySvgs.drop_down_hide,
               size: Size.square(20),
             ),
           ],

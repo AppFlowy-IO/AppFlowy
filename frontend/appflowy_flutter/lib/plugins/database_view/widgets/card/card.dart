@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/foundation.dart';
@@ -280,8 +281,7 @@ class CardMoreOption extends StatelessWidget with CardAccessory {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
-        name:
-        'grid/details',
+        FlowySvgs.details,
         color: Theme.of(context).iconTheme.color,
       ),
     );
@@ -303,8 +303,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
-        name:
-        'editor/edit',
+        FlowySvgs.edit,
         color: Theme.of(context).iconTheme.color,
       ),
     );

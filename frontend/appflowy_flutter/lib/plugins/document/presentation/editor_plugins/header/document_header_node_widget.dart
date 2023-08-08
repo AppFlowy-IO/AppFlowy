@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
@@ -227,7 +228,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             cover: (CoverType.asset, builtInAssetImages.first),
           ),
           useIntrinsicWidth: true,
-          leftIcon: const FlowySvg(name: 'editor/image'),
+          leftIcon: const FlowySvg(FlowySvgs.image),
           text: FlowyText.regular(
             LocaleKeys.document_plugins_cover_addCover.tr(),
           ),
@@ -435,8 +436,7 @@ class DeleteCoverButton extends StatelessWidget {
       iconPadding: const EdgeInsets.all(5),
       width: 28,
       icon: FlowySvg(
-        name:
-        'editor/delete',
+        FlowySvgs.delete,
         color: Theme.of(context).colorScheme.tertiary,
       ),
       onPressed: onTap,

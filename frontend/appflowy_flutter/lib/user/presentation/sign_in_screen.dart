@@ -2,6 +2,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/startup/entry_point.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
@@ -19,7 +20,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -281,8 +281,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: const FlowySvg(name: "home/hide"),
-          obscureHideIcon: const FlowySvg(name: "home/show"),
+          obscureIcon: const FlowySvg(FlowySvgs.hide_),
+          obscureHideIcon: const FlowySvg(FlowySvgs.show_),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
           errorText: context
               .read<SignInBloc>()
@@ -357,7 +357,7 @@ class ThirdPartySignInButton extends StatelessWidget {
     required this.onPressed,
   }) : super(key: key);
 
-  final String icon;
+  final FlowySvgData icon;
   final VoidCallback onPressed;
 
   @override
@@ -369,7 +369,6 @@ class ThirdPartySignInButton extends StatelessWidget {
       radius: Corners.s10Border,
       onPressed: onPressed,
       icon: FlowySvg(
-        name:
         icon,
       ),
     );
@@ -389,7 +388,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: [
         ThirdPartySignInButton(
-          icon: 'login/google-mark',
+          icon: FlowySvgs.google_mark,
           onPressed: () {
             getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
             context.read<SignInBloc>().add(

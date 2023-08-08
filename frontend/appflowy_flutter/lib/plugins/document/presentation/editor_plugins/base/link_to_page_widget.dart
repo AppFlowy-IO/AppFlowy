@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -209,8 +209,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
                 FlowyButton(
                   isSelected: index == _selectedIndex,
                   leftIcon: FlowySvg(
-                    name:
-                    view.iconName,
+                    FlowySvgData(view.iconName),
                     color: Theme.of(context).iconTheme.color,
                   ),
                   text: FlowyText.regular(view.name),
