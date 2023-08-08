@@ -1,7 +1,6 @@
-import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/settings_appearance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -82,7 +81,8 @@ void main() {
       await tester.openSettingsPage(SettingsPage.appearance);
 
       expect(find.textContaining(DefaultAppearanceSettings.kDefaultFontFamily),
-          findsOneWidget);
+        findsOneWidget,
+      );
     });
   });
 }
