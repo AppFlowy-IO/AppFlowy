@@ -22,6 +22,8 @@ cd freezed
 # Allow execution permissions on CI
 chmod +x ./generate_freezed.sh
 ./generate_freezed.sh "$@"
+
+# Return to the main script directory
 cd ..
 
 echo "Generating env files using build_runner"
@@ -29,6 +31,15 @@ cd env
 # Allow execution permissions on CI
 chmod +x ./generate_env.sh
 ./generate_env.sh "$@"
+
+# Return to the main script directory
+cd ..
+
+echo "Generating svg files using flowy_svg"
+cd svg
+# Allow execution permissions on CI
+chmod +x ./generate_svgs.sh
+./generate_svgs.sh "$@"
 
 # Return to the original directory
 cd "$original_dir"
