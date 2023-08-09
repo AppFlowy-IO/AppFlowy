@@ -16,7 +16,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'historical_user.dart';
 import 'setting_third_party_login.dart';
 
 const defaultUserAvatar = '1F600';
@@ -56,7 +55,7 @@ class SettingsUserView extends StatelessWidget {
               const VSpace(20),
               _renderCurrentOpenaiKey(context),
               const VSpace(20),
-              _renderHistoricalUser(context),
+              // _renderHistoricalUser(context),
               _renderLoginOrLogoutButton(context, state),
               const VSpace(20),
             ],
@@ -127,16 +126,6 @@ class SettingsUserView extends StatelessWidget {
           ).show(context);
         },
       ),
-    );
-  }
-
-  Widget _renderHistoricalUser(BuildContext context) {
-    return BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
-      builder: (context, state) {
-        return HistoricalUserList(
-          didOpenUser: didOpenUser,
-        );
-      },
     );
   }
 }

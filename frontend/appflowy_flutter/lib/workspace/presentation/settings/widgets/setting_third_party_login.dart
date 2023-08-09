@@ -31,7 +31,11 @@ class SettingThirdPartyLogin extends StatelessWidget {
         builder: (_, __) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FlowyText.medium(LocaleKeys.signIn_signInWith.tr()),
+            FlowyText.medium(
+              LocaleKeys.signIn_signInWith.tr(),
+              fontSize: 16,
+            ),
+            const VSpace(6),
             const ThirdPartySignInButtons(
               mainAxisAlignment: MainAxisAlignment.start,
             ),
