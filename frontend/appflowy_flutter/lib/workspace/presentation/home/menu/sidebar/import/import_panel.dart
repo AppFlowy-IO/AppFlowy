@@ -114,6 +114,9 @@ class ImportPanel extends StatelessWidget {
                 parentViewId: parentViewId,
               );
               await notionImporter.importFromNotion(type, path);
+              if (context.mounted) {
+                  FlowyOverlay.pop(context);
+                }
               importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },

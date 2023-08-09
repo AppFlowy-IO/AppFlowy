@@ -55,8 +55,6 @@ void main() {
       await tester.tapButtonWithName(LocaleKeys.importPanel_uploadZipFile.tr());
       tester.expectToSeePageName(mainPageName);
       await tester.openPage(mainPageName);
-      //the above one openPage command closes the import panel
-      await tester.openPage(mainPageName);
       //test the main page is imported correctly
       final mainPageEditorState = tester.editor.getCurrentEditorState();
       expect(
