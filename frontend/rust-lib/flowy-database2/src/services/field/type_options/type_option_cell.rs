@@ -241,23 +241,27 @@ where
     Ok(cell)
   }
 
-  /// Compares two cells and returns an ordering based on sort_condition
+  /// Compares two cell data values given their optional references, field information, and sorting condition.
   ///
-  /// # Arguments
+  /// This function is designed to handle the comparison of cells that might not be initialized. The cells are
+  /// first decoded based on the provided field type, and then compared according to the specified sort condition.
   ///
-  /// * `left_cell`: the left cell, None indicates an uninitialized cell
-  /// * `right_cell`: the right cell, None indicates an uninitialized cell
-  /// * `field`: the field that both of the cells are under
-  /// * `sort_condition`: whether the sort is ascending or descending
+  /// # Parameters
+  /// - `left_cell`: An optional reference to the left cell's data.
+  /// - `right_cell`: An optional reference to the right cell's data.
+  /// - `field`: A reference to the field information, which includes details about the field type.
+  /// - `sort_condition`: The condition that dictates the sort order based on the results of the comparison.
   ///
-  /// When sorting, the following rules are followed:
-  /// - 2 uninitialized cells should preserve natural order
-  /// - uninitialized cell and initialized cell that is regarded as empty (empty text string, empty date timestamp, empty list of select ids, etc) should preserve natural order
-  /// - But if the field type is checkbox then the uninitialized cell must be treated as UNCHECKED and compared to the initialized cell according to the sort condition
-  /// - a pair of 1 uninitialized and 1 initialized cell that is not empty should move the initialized cell to the top regardless of sort condition
-  /// - 2 initialized that are both regarded as empty should preserve natural order
-  /// - 2 initialized cells that are both not empty should be compared against each other according to the field type and sort condition
-  /// - 1 initialized cell that is regarded as empty and another initialized cell that is not empty should move the non-empty cell to the top regardless of sort condition
+  /// # Returns
+  /// An `Ordering` indicating:
+  /// - `Ordering::Equal` if both cells are `None` or if their decoded values are equal.
+  /// - `Ordering::Less` or `Ordering::Greater` based on the `apply_cmp_with_uninitialized` or `apply_cmp`
+  ///   method results and the specified `sort_condition`.
+  ///
+  /// # Note
+  /// - If only one of the cells is `None`, the other cell is decoded, and the comparison is made using
+  ///   the `apply_cmp_with_uninitialized` method.
+  /// - If both cells are present, they are decoded, and the comparison is made using the `apply_cmp` method.
   fn handle_cell_compare(
     &self,
     left_cell: Option<&Cell>,
