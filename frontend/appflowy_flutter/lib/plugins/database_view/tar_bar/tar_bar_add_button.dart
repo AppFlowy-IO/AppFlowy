@@ -50,7 +50,7 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
               hoverColor: AFThemeExtension.of(context).greyHover,
               onPressed: () => popoverController.show(),
               radius: Corners.s4Border,
-              icon: const FlowySvg(FlowySvgs.add_home),
+              icon: const FlowySvg(FlowySvgs.add_s),
               iconColorOnHover: Theme.of(context).colorScheme.onSurface,
             ),
           ],
@@ -159,11 +159,10 @@ enum AddButtonAction {
   FlowySvgData get icon {
     switch (this) {
       case AddButtonAction.board:
-        return FlowySvgs.board_editor;
+        return FlowySvgs.board_s;
       case AddButtonAction.calendar:
-        return FlowySvgs.grid_editor;
       case AddButtonAction.grid:
-        return FlowySvgs.grid_editor;
+        return FlowySvgs.grid_s;
       default:
         return const FlowySvgData('');
     }

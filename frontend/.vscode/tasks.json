@@ -40,7 +40,7 @@
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
-        "AF: Generate Svg Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -59,7 +59,7 @@
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
-        "AF: Generate Svg Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -111,7 +111,7 @@
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
         "AF: Generate Freezed Files",
-        "AF: Generate Svg Files",
+        "AF: Generate Svg Files"
       ],
       "group": {
         "kind": "build",
@@ -165,7 +165,7 @@
             ]
           }
         }
-      },
+      }
     },
     {
       "label": "AF: Generate Language Files",
@@ -191,7 +191,7 @@
     {
       "label": "AF: Generate Svg Files",
       "type": "shell",
-      "command": "sh ./scripts/code_generation/svg/generate_svgs.sh",
+      "command": "sh ./scripts/code_generation/flowy_icons/generate_flowy_icons.sh",
       "windows": {
         "options": {
           "shell": {
@@ -199,7 +199,7 @@
             "args": [
               "/d",
               "/c",
-              ".\\scripts\\code_generation\\svg\\generate_svgs.cmd"
+              ".\\scripts\\code_generation\\flowy_icons\\generate_flowy_icons.cmd"
             ]
           }
         }
@@ -222,10 +222,7 @@
       "label": "AF: flutter build aar",
       "type": "flutter",
       "command": "flutter",
-      "args": [
-        "build",
-        "aar"
-      ],
+      "args": ["build", "aar"],
       "group": "build",
       "problemMatcher": [],
       "detail": "appflowy_flutter"
@@ -235,9 +232,7 @@
       "type": "shell",
       "isBackground": true,
       "command": "yarn",
-      "args": [
-        "dev"
-      ],
+      "args": ["dev"],
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
@@ -270,10 +265,7 @@
       "label": "AF: Tauri Clean + Dev",
       "type": "shell",
       "dependsOrder": "sequence",
-      "dependsOn": [
-        "AF: Tauri Clean",
-        "AF: Tauri UI Dev"
-      ],
+      "dependsOn": ["AF: Tauri Clean", "AF: Tauri UI Dev"],
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -293,6 +285,6 @@
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
-    },
+    }
   ]
 }

@@ -83,7 +83,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
                 children: [
                   const HSpace(4),
                   FlowySvg(
-                    FlowySvgData(view.layout.iconName),
+                    view.layout.icon,
                     size: const Size.square(18.0),
                   ),
                   const HSpace(2),

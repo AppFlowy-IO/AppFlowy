@@ -50,7 +50,7 @@ class SidebarTrashButton extends StatelessWidget {
       children: [
         const HSpace(6),
         const FlowySvg(
-          FlowySvgs.trash_home,
+          FlowySvgs.trash_m,
           size: Size(16, 16),
         ),
         const HSpace(6),

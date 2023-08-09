@@ -82,7 +82,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(FlowySvgs.checkmark_grid);
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(

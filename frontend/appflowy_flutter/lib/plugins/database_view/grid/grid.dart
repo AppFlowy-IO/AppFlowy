@@ -19,7 +19,7 @@ class GridPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
-  FlowySvgData get icon => FlowySvgs.grid_editor;
+  FlowySvgData get icon => FlowySvgs.grid_s;
 
   @override
   PluginType get pluginType => PluginType.grid;

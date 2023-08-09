@@ -221,7 +221,7 @@ class _Title extends StatelessWidget {
                 onPressed: onPressedAddButton,
                 width: 18,
                 icon: FlowySvg(
-                  FlowySvgs.add_home,
+                  FlowySvgs.add_s,
                   color: Theme.of(context).iconTheme.color,
                 ),
               ),
@@ -318,14 +318,14 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           if (widget.isSelected)
             const Padding(
               padding: EdgeInsets.only(left: 6),
-              child: FlowySvg(FlowySvgs.checkmark_grid),
+              child: FlowySvg(FlowySvgs.check_s),
             ),
           FlowyIconButton(
             onPressed: () => _popoverController.show(),
             hoverColor: Colors.transparent,
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             icon: FlowySvg(
-              FlowySvgs.details_editor,
+              FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,
             ),
           ),

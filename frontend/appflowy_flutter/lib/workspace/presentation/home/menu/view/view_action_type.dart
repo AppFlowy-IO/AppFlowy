@@ -39,21 +39,21 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
   Widget icon(Color iconColor) {
     switch (this) {
       case ViewMoreActionType.delete:
-        return const FlowySvg(FlowySvgs.delete_editor);
+        return const FlowySvg(FlowySvgs.delete_s);
       case ViewMoreActionType.favorite:
-        return const FlowySvg(FlowySvgs.unfavorite_home);
+        return const FlowySvg(FlowySvgs.unfavorite_s);
       case ViewMoreActionType.unFavorite:
-        return const FlowySvg(FlowySvgs.favorite_home);
+        return const FlowySvg(FlowySvgs.favorite_s);
       case ViewMoreActionType.duplicate:
-        return const FlowySvg(FlowySvgs.copy_editor);
+        return const FlowySvg(FlowySvgs.copy_s);
       case ViewMoreActionType.copyLink:
         return const Icon(Icons.copy);
       case ViewMoreActionType.rename:
-        return const FlowySvg(FlowySvgs.edit_editor);
+        return const FlowySvg(FlowySvgs.edit_s);
       case ViewMoreActionType.moveTo:
         return const Icon(Icons.move_to_inbox);
       case ViewMoreActionType.openInNewTab:
-        return const FlowySvg(FlowySvgs.expander_grid);
+        return const FlowySvg(FlowySvgs.full_view_s);
     }
   }
 }

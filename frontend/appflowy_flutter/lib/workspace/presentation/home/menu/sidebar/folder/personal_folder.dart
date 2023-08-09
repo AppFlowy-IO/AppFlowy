@@ -115,7 +115,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
               iconPadding: const EdgeInsets.all(2),
               height: iconSize,
               width: iconSize,
-              icon: const FlowySvg(FlowySvgs.add_editor),
+              icon: const FlowySvg(FlowySvgs.add_s),
               onPressed: () {
                 context.read<MenuBloc>().add(
                       MenuEvent.createApp(

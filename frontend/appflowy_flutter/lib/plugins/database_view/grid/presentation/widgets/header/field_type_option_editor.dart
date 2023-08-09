@@ -117,7 +117,7 @@ class SwitchFieldButton extends StatelessWidget {
         bloc.state.field.fieldType.title(),
       ),
       leftIcon: FlowySvg(bloc.state.field.fieldType.icon()),
-      rightIcon: const FlowySvg(FlowySvgs.more_grid),
+      rightIcon: const FlowySvg(FlowySvgs.more_s),
     );
   }
 }

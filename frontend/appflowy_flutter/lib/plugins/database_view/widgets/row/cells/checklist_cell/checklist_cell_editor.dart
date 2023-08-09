@@ -109,8 +109,8 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
   @override
   Widget build(BuildContext context) {
     final icon = widget.option.isSelected
-        ? const FlowySvg(FlowySvgs.editor_check_editor)
-        : const FlowySvg(FlowySvgs.editor_uncheck_editor);
+        ? const FlowySvg(FlowySvgs.check_filled_s)
+        : const FlowySvg(FlowySvgs.uncheck_s);
     return _wrapPopover(
       SizedBox(
         height: GridSize.popoverItemHeight,
@@ -143,7 +143,7 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
       onPressed: () => _popoverController.show(),
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: FlowySvg(
-        FlowySvgs.details_editor,
+        FlowySvgs.details_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );

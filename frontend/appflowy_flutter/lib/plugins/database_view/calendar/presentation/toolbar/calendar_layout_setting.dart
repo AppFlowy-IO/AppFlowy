@@ -251,9 +251,9 @@ class LayoutDateField extends StatelessWidget {
                         onUpdated(fieldInfo.id);
                         popoverMutex.close();
                       },
-                      leftIcon: const FlowySvg(FlowySvgs.date_field_grid),
+                      leftIcon: const FlowySvg(FlowySvgs.grid_s),
                       rightIcon: fieldInfo.id == fieldId
-                          ? const FlowySvg(FlowySvgs.checkmark_grid)
+                          ? const FlowySvg(FlowySvgs.check_s)
                           : null,
                     ),
                   );
@@ -443,7 +443,7 @@ class StartFromButton extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(title),
         onTap: () => onTap(dayIndex),
-        rightIcon: isSelected ? const FlowySvg(FlowySvgs.checkmark_grid) : null,
+        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
       ),
     );
   }

@@ -220,7 +220,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       child: FlowySvg(
-        FlowySvgs.edit_editor,
+        FlowySvgs.edit_s,
         color: AFThemeExtension.of(context).textColor,
       ),
       popupBuilder: (BuildContext popoverContext) {
@@ -261,7 +261,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return _URLAccessoryIconContainer(
         child: FlowySvg(
-          FlowySvgs.copy_editor,
+          FlowySvgs.copy_s,
           color: AFThemeExtension.of(context).textColor,
         ),
       );
@@ -303,7 +303,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return _URLAccessoryIconContainer(
         child: FlowySvg(
-          FlowySvgs.link_editor,
+          FlowySvgs.attach_s,
           color: AFThemeExtension.of(context).textColor,
         ),
       );

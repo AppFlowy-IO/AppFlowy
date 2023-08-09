@@ -157,13 +157,13 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
   FlowySvgData iconData() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return FlowySvgs.properties_setting_grid;
+        return FlowySvgs.properties_s;
       case DatabaseSettingAction.showLayout:
-        return FlowySvgs.database_layout_setting_grid;
+        return FlowySvgs.database_layout_m;
       case DatabaseSettingAction.showGroup:
-        return FlowySvgs.group_setting_grid;
+        return FlowySvgs.group_s;
       case DatabaseSettingAction.showCalendarLayout:
-        return FlowySvgs.calendar_layout_setting_grid;
+        return FlowySvgs.calendar_layout_m;
     }
   }
 

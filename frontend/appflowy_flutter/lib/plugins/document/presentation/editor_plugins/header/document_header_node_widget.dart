@@ -228,7 +228,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             cover: (CoverType.asset, builtInAssetImages.first),
           ),
           useIntrinsicWidth: true,
-          leftIcon: const FlowySvg(FlowySvgs.image_editor),
+          leftIcon: const FlowySvg(FlowySvgs.image_s),
           text: FlowyText.regular(
             LocaleKeys.document_plugins_cover_addCover.tr(),
           ),
@@ -436,7 +436,7 @@ class DeleteCoverButton extends StatelessWidget {
       iconPadding: const EdgeInsets.all(5),
       width: 28,
       icon: FlowySvg(
-        FlowySvgs.delete_editor,
+        FlowySvgs.delete_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
       onPressed: onTap,

@@ -96,7 +96,7 @@ class _TrashPageState extends State<TrashPage> {
           IntrinsicWidth(
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
-              leftIcon: const FlowySvg(FlowySvgs.restore_editor),
+              leftIcon: const FlowySvg(FlowySvgs.restore_s),
               onTap: () => context.read<TrashBloc>().add(
                     const TrashEvent.restoreAll(),
                   ),
@@ -106,7 +106,7 @@ class _TrashPageState extends State<TrashPage> {
           IntrinsicWidth(
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
-              leftIcon: const FlowySvg(FlowySvgs.delete_editor),
+              leftIcon: const FlowySvg(FlowySvgs.delete_s),
               onTap: () =>
                   context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),

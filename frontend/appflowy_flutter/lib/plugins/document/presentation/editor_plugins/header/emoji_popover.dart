@@ -78,7 +78,7 @@ class DeleteButton extends StatelessWidget {
         text: FlowyText(
           LocaleKeys.document_plugins_cover_removeIcon.tr(),
         ),
-        leftIcon: const FlowySvg(FlowySvgs.delete_editor),
+        leftIcon: const FlowySvg(FlowySvgs.delete_s),
       ),
     );
   }

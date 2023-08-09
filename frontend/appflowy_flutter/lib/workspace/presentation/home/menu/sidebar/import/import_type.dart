@@ -30,17 +30,16 @@ enum ImportType {
   WidgetBuilder get icon => (context) {
         final FlowySvgData svg;
         switch (this) {
-          case ImportType.historyDocument:
-            svg = FlowySvgs.board_editor;
           case ImportType.historyDatabase:
-            svg = FlowySvgs.documents_editor;
+            svg = FlowySvgs.documents_s;
+          case ImportType.historyDocument:
           case ImportType.databaseCSV:
-            svg = FlowySvgs.board_editor;
           case ImportType.databaseRawData:
-            svg = FlowySvgs.board_editor;
+            svg = FlowySvgs.board_s;
           case ImportType.markdownOrText:
-            svg = FlowySvgs.text_editor;
+            svg = FlowySvgs.text_s;
         }
+
         return FlowySvg(
           svg,
           color: Theme.of(context).colorScheme.tertiary,

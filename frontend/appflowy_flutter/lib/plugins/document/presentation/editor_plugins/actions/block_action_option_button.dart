@@ -58,7 +58,7 @@ class BlockOptionButton extends StatelessWidget {
 
   Widget _buildOptionButton(PopoverController controller) {
     return BlockActionButton(
-      svg: FlowySvgs.option_editor,
+      svg: FlowySvgs.drag_element_s,
       richMessage: TextSpan(
         children: [
           TextSpan(

@@ -178,7 +178,7 @@ class NewEventButton extends StatelessWidget {
           child: FlowyIconButton(
             onPressed: onCreate,
             iconPadding: EdgeInsets.zero,
-            icon: const FlowySvg(FlowySvgs.add_home),
+            icon: const FlowySvg(FlowySvgs.add_s),
             fillColor: Theme.of(context).colorScheme.background,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             width: 22,

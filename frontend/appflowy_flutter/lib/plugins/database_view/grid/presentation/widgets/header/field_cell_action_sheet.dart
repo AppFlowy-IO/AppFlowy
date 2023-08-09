@@ -198,11 +198,11 @@ extension _FieldActionExtension on FieldAction {
   FlowySvgData icon() {
     switch (this) {
       case FieldAction.hide:
-        return FlowySvgs.hide_grid;
+        return FlowySvgs.hide_s;
       case FieldAction.duplicate:
-        return FlowySvgs.duplicate_grid;
+        return FlowySvgs.copy_s;
       case FieldAction.delete:
-        return FlowySvgs.delete_grid;
+        return FlowySvgs.delete_s;
     }
   }
 

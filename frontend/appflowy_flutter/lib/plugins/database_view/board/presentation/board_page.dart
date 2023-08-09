@@ -223,7 +223,7 @@ class _BoardContentState extends State<BoardContent> {
         height: 20,
         width: 20,
         child: FlowySvg(
-          FlowySvgs.add_home,
+          FlowySvgs.add_s,
           color: Theme.of(context).iconTheme.color,
         ),
       ),
@@ -246,7 +246,7 @@ class _BoardContentState extends State<BoardContent> {
         height: 20,
         width: 20,
         child: FlowySvg(
-          FlowySvgs.add_home,
+          FlowySvgs.add_s,
           color: Theme.of(context).iconTheme.color,
         ),
       ),
@@ -382,9 +382,9 @@ Widget? _buildHeaderIcon(GroupData customData) {
     case FieldType.Checkbox:
       final group = customData.asCheckboxGroup()!;
       if (group.isCheck) {
-        widget = const FlowySvg(FlowySvgs.editor_check_editor);
+        widget = const FlowySvg(FlowySvgs.check_filled_s);
       } else {
-        widget = const FlowySvg(FlowySvgs.editor_uncheck_editor);
+        widget = const FlowySvg(FlowySvgs.uncheck_s);
       }
       break;
     case FieldType.DateTime:

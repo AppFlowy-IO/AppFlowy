@@ -39,20 +39,20 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const Widget widget = FlowySvg(FlowySvgs.file_icon);
+    const Widget widget = FlowySvg(FlowySvgs.page_s);
     return widget;
   }
 
   Widget defaultIcon() {
-    final iconName = switch (layout) {
-      ViewLayoutPB.Board => 'editor/board',
-      ViewLayoutPB.Calendar => 'editor/calendar',
-      ViewLayoutPB.Grid => 'editor/grid',
-      ViewLayoutPB.Document => 'editor/documents',
-      _ => 'file_icon',
-    };
-
-    return FlowySvg(FlowySvgData(iconName));
+    return FlowySvg(
+      switch (layout) {
+        ViewLayoutPB.Board => FlowySvgs.board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Grid => FlowySvgs.grid_s,
+        ViewLayoutPB.Document => FlowySvgs.documents_s,
+        _ => FlowySvgs.documents_s,
+      },
+    );
   }
 
   PluginType get pluginType {
@@ -103,22 +103,20 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  String get iconName {
-    return layout.iconName;
-  }
+  FlowySvgData get iconData => layout.icon;
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
-  String get iconName {
+  FlowySvgData get icon {
     switch (this) {
       case ViewLayoutPB.Grid:
-        return 'editor/grid';
+        return FlowySvgs.grid_s;
       case ViewLayoutPB.Board:
-        return 'editor/board';
+        return FlowySvgs.board_s;
       case ViewLayoutPB.Calendar:
-        return 'editor/date';
+        return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return 'editor/documents';
+        return FlowySvgs.documents_s;
       default:
         throw Exception('Unknown layout type');
     }

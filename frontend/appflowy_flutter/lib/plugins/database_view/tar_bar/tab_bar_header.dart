@@ -209,7 +209,7 @@ class TabBarItemButton extends StatelessWidget {
               controller.show();
             },
             leftIcon: FlowySvg(
-              FlowySvgData(view.iconName),
+              view.iconData,
               size: const Size(14, 14),
               color: color,
             ),
@@ -272,9 +272,9 @@ enum TabBarViewAction implements ActionCell {
   Widget icon(Color iconColor) {
     switch (this) {
       case TabBarViewAction.rename:
-        return const FlowySvg(FlowySvgs.edit_editor);
+        return const FlowySvg(FlowySvgs.edit_s);
       case TabBarViewAction.delete:
-        return const FlowySvg(FlowySvgs.delete_editor);
+        return const FlowySvg(FlowySvgs.delete_s);
     }
   }
 

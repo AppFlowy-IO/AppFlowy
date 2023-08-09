@@ -36,7 +36,7 @@ class _DisclosureButtonState extends State<DisclosureButton> {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           width: 20,
           icon: FlowySvg(
-            FlowySvgs.details_editor,
+            FlowySvgs.details_s,
             color: Theme.of(context).iconTheme.color,
           ),
           onPressed: () => controller.show(),

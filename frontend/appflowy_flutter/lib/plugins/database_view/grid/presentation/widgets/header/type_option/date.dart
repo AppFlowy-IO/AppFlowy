@@ -147,7 +147,7 @@ class DateFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
         onTap: onTap,
         onHover: onHover,
-        rightIcon: const FlowySvg(FlowySvgs.more_grid),
+        rightIcon: const FlowySvg(FlowySvgs.more_s),
       ),
     );
   }
@@ -172,7 +172,7 @@ class TimeFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
         onTap: onTap,
         onHover: onHover,
-        rightIcon: const FlowySvg(FlowySvgs.more_grid),
+        rightIcon: const FlowySvg(FlowySvgs.more_s),
       ),
     );
   }
@@ -229,7 +229,7 @@ class DateFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(FlowySvgs.checkmark_grid);
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(
@@ -313,7 +313,7 @@ class TimeFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(FlowySvgs.checkmark_grid);
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(

@@ -20,7 +20,7 @@ class ConditionButton extends StatelessWidget {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: FlowySvg(
-        FlowySvgs.arrow_left_home,
+        FlowySvgs.arrow_left_s,
         color: AFThemeExtension.of(context).textColor,
       ),
     );

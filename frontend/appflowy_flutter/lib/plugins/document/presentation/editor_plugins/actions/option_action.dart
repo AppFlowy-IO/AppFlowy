@@ -26,9 +26,9 @@ enum OptionAction {
   FlowySvgData get svg {
     switch (this) {
       case OptionAction.delete:
-        return FlowySvgs.delete_editor;
+        return FlowySvgs.delete_s;
       case OptionAction.duplicate:
-        return FlowySvgs.duplicate_editor;
+        return FlowySvgs.copy_s;
       case OptionAction.turnInto:
         return const FlowySvgData('editor/turn_into');
       case OptionAction.moveUp:
@@ -40,7 +40,7 @@ enum OptionAction {
       case OptionAction.divider:
         return const FlowySvgData('editor/divider');
       case OptionAction.align:
-        return FlowySvgs.center_align_editor;
+        return FlowySvgs.align_center_s;
     }
   }
 
@@ -87,11 +87,11 @@ enum OptionAlignType {
   FlowySvgData get svg {
     switch (this) {
       case OptionAlignType.left:
-        return FlowySvgs.left_align_editor;
+        return FlowySvgs.align_left_s;
       case OptionAlignType.center:
-        return FlowySvgs.center_align_editor;
+        return FlowySvgs.align_center_s;
       case OptionAlignType.right:
-        return FlowySvgs.right_align_editor;
+        return FlowySvgs.align_right_s;
     }
   }
 
@@ -219,7 +219,7 @@ class ColorOptionAction extends PopoverActionCell {
   @override
   Widget? leftIcon(Color iconColor) {
     return const FlowySvg(
-      FlowySvgs.color_formatter_editor,
+      FlowySvgs.color_format_m,
       size: Size.square(12),
     ).padding(all: 2.0);
   }

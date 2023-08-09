@@ -12,7 +12,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        data: FlowySvgs.grid_editor,
+        data: FlowySvgs.grid_s,
         isSelected: onSelected,
         style: style,
       ),
@@ -37,7 +37,7 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        data: FlowySvgs.board_editor,
+        data: FlowySvgs.board_s,
         isSelected: onSelected,
         style: style,
       ),
@@ -61,7 +61,7 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        data: FlowySvgs.calendar_editor,
+        data: FlowySvgs.date_s,
         isSelected: onSelected,
         style: style,
       ),

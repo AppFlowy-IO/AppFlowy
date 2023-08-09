@@ -222,7 +222,7 @@ extension QuestionBubbleExtension on BubbleAction {
         return const Padding(
           padding: EdgeInsets.all(3.0),
           child: FlowySvg(
-            FlowySvgs.archive_common,
+            FlowySvgs.archive_m,
             size: Size.square(12),
           ),
         );

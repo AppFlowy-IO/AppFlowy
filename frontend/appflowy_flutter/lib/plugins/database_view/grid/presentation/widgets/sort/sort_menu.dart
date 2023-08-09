@@ -68,14 +68,14 @@ class SortChoiceChip extends StatelessWidget {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
       child: FlowySvg(
-        FlowySvgs.arrow_left_home,
+        FlowySvgs.arrow_left_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );
 
     final text = LocaleKeys.grid_settings_sort.tr();
     final leftIcon = FlowySvg(
-      FlowySvgs.sort_setting_grid,
+      FlowySvgs.sort_ascending_s,
       color: Theme.of(context).iconTheme.color,
     );
 

@@ -97,7 +97,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
   @override
   Widget build(BuildContext context) {
     final checkmark = FlowySvg(
-      widget.fieldInfo.visibility ? FlowySvgs.show_home : FlowySvgs.hide_home,
+      widget.fieldInfo.visibility ? FlowySvgs.show_m : FlowySvgs.hide_m,
       color: Theme.of(context).iconTheme.color,
     );
 

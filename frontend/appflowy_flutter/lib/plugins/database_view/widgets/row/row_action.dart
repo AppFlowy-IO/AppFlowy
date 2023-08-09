@@ -57,7 +57,7 @@ class RowDetailPageDeleteButton extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.regular(LocaleKeys.grid_row_delete.tr()),
-        leftIcon: const FlowySvg(FlowySvgs.trash_home),
+        leftIcon: const FlowySvg(FlowySvgs.trash_m),
         onTap: () {
           context.read<RowDetailBloc>().add(RowDetailEvent.deleteRow(rowId));
           FlowyOverlay.pop(context);
@@ -82,7 +82,7 @@ class RowDetailPageDuplicateButton extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.regular(LocaleKeys.grid_row_duplicate.tr()),
-        leftIcon: const FlowySvg(FlowySvgs.duplicate_grid),
+        leftIcon: const FlowySvg(FlowySvgs.copy_s),
         onTap: () {
           context
               .read<RowDetailBloc>()
@@ -145,7 +145,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
             );
           },
           leftIcon: FlowySvg(
-            FlowySvgs.add_home,
+            FlowySvgs.add_m,
             color: AFThemeExtension.of(context).textColor,
           ),
         ),

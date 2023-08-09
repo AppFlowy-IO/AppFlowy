@@ -99,11 +99,8 @@ class LanguageItem extends StatelessWidget {
         text: FlowyText.medium(
           languageFromLocale(locale),
         ),
-        rightIcon: currentLocale == locale
-            ? const FlowySvg(
-                FlowySvgs.checkmark_grid,
-              )
-            : null,
+        rightIcon:
+            currentLocale == locale ? const FlowySvg(FlowySvgs.check_s) : null,
         onTap: () {
           if (currentLocale != locale) {
             context.read<AppearanceSettingsCubit>().setLocale(context, locale);

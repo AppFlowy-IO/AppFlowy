@@ -22,7 +22,7 @@ class TrashPluginBuilder extends PluginBuilder {
   String get menuName => "TrashPB";
 
   @override
-  FlowySvgData get icon => FlowySvgs.trash_home;
+  FlowySvgData get icon => FlowySvgs.trash_m;
 
   @override
   PluginType get pluginType => PluginType.trash;

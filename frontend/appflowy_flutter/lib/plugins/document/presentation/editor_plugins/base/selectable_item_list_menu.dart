@@ -48,7 +48,7 @@ class SelectableItem extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         text: FlowyText.medium(item),
-        rightIcon: isSelected ? const FlowySvg(FlowySvgs.checkmark_grid) : null,
+        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
         onTap: onTap,
       ),
     );

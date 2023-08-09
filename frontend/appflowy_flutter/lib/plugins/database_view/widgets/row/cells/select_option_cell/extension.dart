@@ -120,7 +120,7 @@ class SelectOptionTag extends StatelessWidget {
               fillColor: Colors.transparent,
               hoverColor: Colors.transparent,
               icon: FlowySvg(
-                FlowySvgs.close_home,
+                FlowySvgs.close_s,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),

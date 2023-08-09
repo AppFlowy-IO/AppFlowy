@@ -29,7 +29,7 @@ class UploadNewThemeWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FlowySvg(
-            FlowySvgs.folder,
+            FlowySvgs.folder_m,
             size: ThemeUploadWidget.iconSize,
             color: Theme.of(context).colorScheme.onBackground,
           ),

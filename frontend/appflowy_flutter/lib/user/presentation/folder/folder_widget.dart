@@ -86,7 +86,7 @@ class FolderOptionsWidget extends StatelessWidget {
       builder: (context, result) {
         final subtitle = result.hasData ? result.data! : '';
         return _FolderCard(
-          icon: const FlowySvg(FlowySvgs.archive_common),
+          icon: const FlowySvg(FlowySvgs.archive_m),
           title: LocaleKeys.settings_files_defineWhereYourDataIsStored.tr(),
           subtitle: subtitle,
           trailing: _buildTextButton(

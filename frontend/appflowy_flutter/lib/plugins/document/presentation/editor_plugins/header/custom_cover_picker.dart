@@ -7,7 +7,6 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -220,7 +219,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const FlowySvg(
-                FlowySvgs.add_editor,
+                FlowySvgs.add_s,
                 size: Size(20, 20),
               ),
               const SizedBox(
@@ -244,7 +243,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
-              FlowySvgs.file_icon,
+              FlowySvgs.page_s,
               size: Size(20, 20),
             ),
             text: FlowyText(
@@ -270,7 +269,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             color: Theme.of(context).colorScheme.onPrimary,
           ),
           child: const FlowySvg(
-            FlowySvgs.close_editor,
+            FlowySvgs.close_s,
             size: Size(20, 20),
           ),
         ),

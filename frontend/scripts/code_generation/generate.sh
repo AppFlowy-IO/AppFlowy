@@ -36,10 +36,10 @@ chmod +x ./generate_env.sh
 cd ..
 
 echo "Generating svg files using flowy_svg"
-cd svg
+cd flowy_icons
 # Allow execution permissions on CI
-chmod +x ./generate_svgs.sh
-./generate_svgs.sh "$@"
+chmod +x ./generate_flowy_icons.sh
+./generate_flowy_icons.sh "$@"
 
 # Return to the original directory
 cd "$original_dir"

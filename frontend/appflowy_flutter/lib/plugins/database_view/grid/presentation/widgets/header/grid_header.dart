@@ -214,7 +214,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
             (r) => Log.error("Failed to create field type option: $r"),
           );
         },
-        leftIcon: const FlowySvg(FlowySvgs.add_home),
+        leftIcon: const FlowySvg(FlowySvgs.add_s),
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(

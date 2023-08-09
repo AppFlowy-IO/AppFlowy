@@ -36,10 +36,10 @@ REM Return to the main script directory
 cd ..
 
 echo Generating svg files using flowy_svg
-cd svg
+cd flowy_icons
 REM Allow execution permissions on CI
-chmod +x generate_svgs.cmd
-call generate_svgs.cmd %*
+chmod +x generate_flowy_icons.cmd
+call generate_flowy_icons.cmd %*
 
 REM Return to the original directory
 cd /d "%original_dir%"

@@ -197,7 +197,7 @@ class _OptionCellState extends State<_OptionCell> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: FlowySvg(
-              FlowySvgs.details_grid,
+              FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,
             ),
           ),
@@ -258,7 +258,7 @@ class _AddOptionButton extends StatelessWidget {
                 .add(const SelectOptionTypeOptionEvent.addingOption());
           },
           leftIcon: FlowySvg(
-            FlowySvgs.add_home,
+            FlowySvgs.add_s,
             color: Theme.of(context).iconTheme.color,
           ),
         ),

@@ -20,7 +20,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
     });
     return SVGIconItemWidget(
       iconBuilder: (_) => FlowySvg(
-        FlowySvgs.math_editor,
+        FlowySvgs.math_lg,
         size: const Size.square(16),
         color: isHighlight ? highlightColor : Colors.white,
       ),

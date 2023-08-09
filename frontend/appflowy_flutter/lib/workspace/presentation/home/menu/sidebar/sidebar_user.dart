@@ -84,7 +84,10 @@ class SidebarUser extends StatelessWidget {
         borderRadius: Corners.s5Border,
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          child: FlowySvg(FlowySvgData('emoji/$iconUrl')),
+          child: FlowySvg(
+            FlowySvgData('emoji/$iconUrl'),
+            overrideColor: false,
+          ),
         ),
       ),
     );
@@ -141,7 +144,7 @@ class SidebarUser extends StatelessWidget {
         icon: SizedBox.square(
           dimension: 20,
           child: FlowySvg(
-            FlowySvgs.settings_home,
+            FlowySvgs.settings_m,
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ),

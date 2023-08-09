@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -108,7 +107,7 @@ class InlinePageReferenceService {
     for (final view in views) {
       final SelectionMenuItem pageSelectionMenuItem = SelectionMenuItem(
         icon: (editorState, isSelected, style) => SelectableSvgWidget(
-          data: FlowySvgData(view.iconName),
+          data: view.iconData,
           isSelected: isSelected,
           style: style,
         ),

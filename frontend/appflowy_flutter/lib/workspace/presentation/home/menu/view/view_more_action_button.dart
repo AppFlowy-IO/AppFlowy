@@ -42,7 +42,7 @@ class ViewMoreActionButton extends StatelessWidget {
           hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(2),
           width: 26,
-          icon: const FlowySvg(FlowySvgs.details_editor),
+          icon: const FlowySvg(FlowySvgs.details_s),
           onPressed: () {
             onEditing(true);
             popover.show();

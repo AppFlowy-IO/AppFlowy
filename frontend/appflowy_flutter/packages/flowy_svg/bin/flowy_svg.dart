@@ -77,6 +77,7 @@ const languageKeywords = [
   'implements',
   'set',
 ];
+
 void main(List<String> args) {
   if (_isHelpCommand(args)) {
     _printHelperDisplay();
@@ -105,7 +106,7 @@ ArgParser _generateArgParser(Options? generateOptions) {
     ..addOption(
       'source-dir',
       abbr: 'S',
-      defaultsTo: '/assets/images',
+      defaultsTo: '/assets/flowy_icons',
       callback: (String? x) => generateOptions!.sourceDir = x,
       help: 'Folder containing localization files',
     )
@@ -204,8 +205,10 @@ Future<void> generate(
   generated.writeAsStringSync(builder.toString());
 }
 
-String lineFor(File file, Options options) =>
-    "  static const ${varNameFor(file, options)} = FlowySvgData('${pathFor(file)}');";
+String lineFor(File file, Options options) {
+  final name = varNameFor(file, options);
+  return "  static const $name = FlowySvgData('${pathFor(file)}');";
+}
 
 String pathFor(File file) {
   final relative = path.relative(file.path, from: Directory.current.path);
@@ -214,23 +217,32 @@ String pathFor(File file) {
 }
 
 String varNameFor(File file, Options options) {
-  String from = source(options).path;
+  final from = source(options).path;
 
   final relative = Uri.file(path.relative(file.path, from: from));
 
   final parts = relative.pathSegments;
 
-  final cleaned = parts.map((segment) => clean(segment)).toList();
+  final cleaned = parts.map(clean).toList();
 
-  return cleaned.reversed
+  var simplified = cleaned.reversed
       // join all cleaned path segments with an underscore
       .join('_')
-      // there are some cases where the segment contained a dart reserved keyword
+      // there are some cases where the segment contains a dart reserved keyword
       // in this case, the path will be suffixed with an underscore which means
       // there will be a double underscore, so we have to replace the double
       // underscore with one underscore
-      .replaceAll(RegExp(r'_+'), '_');
+      .replaceAll(RegExp('_+'), '_');
+
+  // rename icon based on relative path folder name (16x, 24x, etc.)
+  for (final key in sizeMap.keys) {
+    simplified = simplified.replaceAll(key, sizeMap[key]!);
+  }
+
+  return simplified;
 }
+
+const sizeMap = {r'$16x': 's', r'$24x': 'm', r'$32x': 'lg', r'$40x': 'xl'};
 
 /// cleans the path segment before rejoining the path into a variable name
 String clean(String segment) {

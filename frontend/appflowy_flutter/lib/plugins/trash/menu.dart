@@ -49,7 +49,7 @@ class MenuTrash extends StatelessWidget {
     return Row(
       children: [
         const FlowySvg(
-          FlowySvgs.trash_home,
+          FlowySvgs.trash_m,
           size: Size(16, 16),
         ),
         const HSpace(6),

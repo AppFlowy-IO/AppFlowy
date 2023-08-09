@@ -320,10 +320,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return const _DotIconWidget();
     }
 
-    final svg =
-        widget.isExpanded
-        ? FlowySvgs.drop_down_show_home
-        : FlowySvgs.drop_down_hide_home;
+    final svg = widget.isExpanded
+        ? FlowySvgs.drop_menu_show_m
+        : FlowySvgs.drop_menu_hide_m;
     return GestureDetector(
       child: FlowySvg(
         svg,

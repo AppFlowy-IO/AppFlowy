@@ -61,7 +61,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               margin: GridSize.typeOptionContentInsets,
-              rightIcon: const FlowySvg(FlowySvgs.more_grid),
+              rightIcon: const FlowySvg(FlowySvgs.more_s),
               text: FlowyText.regular(
                 state.typeOption.format.title(),
               ),
@@ -182,9 +182,7 @@ class NumberFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(
-        FlowySvgs.checkmark_grid,
-      );
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(

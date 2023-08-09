@@ -27,7 +27,7 @@ class BlockAddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlockActionButton(
-      svg: FlowySvgs.add_editor,
+      svg: FlowySvgs.add_s,
       richMessage: TextSpan(
         children: [
           TextSpan(

@@ -57,7 +57,7 @@ class ViewAddButton extends StatelessWidget {
           hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(2),
           width: 26,
-          icon: const FlowySvg(FlowySvgs.add_editor),
+          icon: const FlowySvg(FlowySvgs.add_s),
           onPressed: () {
             onEditing(true);
             popover.show();
@@ -124,7 +124,7 @@ class ViewImportActionWrapper extends ActionCell {
   final DocumentPluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.import_editor);
+  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.import_s);
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();

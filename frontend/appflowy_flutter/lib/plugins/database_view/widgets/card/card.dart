@@ -281,7 +281,7 @@ class CardMoreOption extends StatelessWidget with CardAccessory {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
-        FlowySvgs.details_grid,
+        FlowySvgs.details_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );
@@ -303,7 +303,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
     return Padding(
       padding: const EdgeInsets.all(3.0),
       child: FlowySvg(
-        FlowySvgs.edit_editor,
+        FlowySvgs.edit_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );

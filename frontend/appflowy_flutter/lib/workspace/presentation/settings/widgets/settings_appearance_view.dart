@@ -86,9 +86,7 @@ class ThemeUploadOverlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      icon: const FlowySvg(
-        FlowySvgs.folder,
-      ),
+      icon: const FlowySvg(FlowySvgs.folder_m),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
       onPressed: () => Dialogs.show(
         context,
@@ -192,7 +190,7 @@ class ThemeSelectionPopover extends StatelessWidget {
             child: FlowyButton(
               text: FlowyText.medium(theme),
               rightIcon: currentTheme == theme
-                  ? const FlowySvg(FlowySvgs.checkmark_grid)
+                  ? const FlowySvg(FlowySvgs.check_s)
                   : null,
               onTap: () {
                 if (currentTheme != theme) {
@@ -203,7 +201,7 @@ class ThemeSelectionPopover extends StatelessWidget {
           ),
           if (!isBuiltin)
             FlowyIconButton(
-              icon: const FlowySvg(FlowySvgs.close_home),
+              icon: const FlowySvg(FlowySvgs.close_m),
               width: 20,
               onPressed: () =>
                   bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
@@ -256,7 +254,7 @@ class BrightnessSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(_themeModeLabelText(themeMode)),
         rightIcon: currentThemeMode == themeMode
-            ? const FlowySvg(FlowySvgs.checkmark_grid)
+            ? const FlowySvg(FlowySvgs.check_s)
             : null,
         onTap: () {
           if (currentThemeMode != themeMode) {
@@ -378,7 +376,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         ),
         rightIcon:
             buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(FlowySvgs.checkmark_grid)
+                ? const FlowySvg(FlowySvgs.check_s)
                 : null,
         onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=

@@ -92,7 +92,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
           useIntrinsicWidth: true,
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           leftIcon: FlowySvg(
-            FlowySvgs.add_home,
+            FlowySvgs.add_s,
             color: Theme.of(context).iconTheme.color,
           ),
           onTap: () => popoverController.show(),

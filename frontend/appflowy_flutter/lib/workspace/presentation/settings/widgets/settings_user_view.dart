@@ -302,7 +302,7 @@ class _CurrentIcon extends StatelessWidget {
                     LocaleKeys.settings_user_selectAnIcon.tr(),
                     fontSize: FontSizes.s16,
                   ),
-                  children: <Widget>[
+                  children: [
                     SizedBox(
                       height: 300,
                       width: 300,
@@ -318,6 +318,7 @@ class _CurrentIcon extends StatelessWidget {
             child: FlowySvg(
               FlowySvgData('emoji/$iconUrl'),
               size: _iconSize,
+              overrideColor: false,
             ),
           ),
         ),
@@ -357,7 +358,11 @@ class IconGallery extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
             children: (snapshot.data ?? []).map((String iconUrl) {
-              return IconOption(FlowySvgData(iconUrl), setIcon);
+              return IconOption(
+                FlowySvgData('emoji/$iconUrl'),
+                iconUrl,
+                setIcon,
+              );
             }).toList(),
           );
         } else {
@@ -372,9 +377,10 @@ class IconGallery extends StatelessWidget {
 
 class IconOption extends StatelessWidget {
   final FlowySvgData emoji;
+  final String iconUrl;
   final Function setIcon;
 
-  IconOption(this.emoji, this.setIcon, {Key? key})
+  IconOption(this.emoji, this.iconUrl, this.setIcon, {Key? key})
       : super(key: ValueKey(emoji));
 
   @override
@@ -382,10 +388,8 @@ class IconOption extends StatelessWidget {
     return InkWell(
       borderRadius: Corners.s6Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-      onTap: () {
-        setIcon(emoji);
-      },
-      child: FlowySvg(emoji, size: _iconSize),
+      onTap: () => setIcon(iconUrl),
+      child: FlowySvg(emoji, size: _iconSize, overrideColor: false),
     );
   }
 }
