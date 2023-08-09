@@ -13,7 +13,8 @@ pub fn make_plugins(
   document_manager2: Weak<DocumentManager2>,
 ) -> Vec<AFPlugin> {
   let store_preferences = user_session
-    .upgrade().map(|session| session.get_store_preferences())
+    .upgrade()
+    .map(|session| session.get_store_preferences())
     .unwrap();
   let user_plugin = flowy_user::event_map::init(user_session);
   let folder_plugin = flowy_folder2::event_map::init(folder_manager);

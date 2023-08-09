@@ -241,6 +241,23 @@ where
     Ok(cell)
   }
 
+  /// Compares two cells and returns an ordering based on sort_condition
+  ///
+  /// # Arguments
+  ///
+  /// * `left_cell`: the left cell, None indicates an uninitialized cell
+  /// * `right_cell`: the right cell, None indicates an uninitialized cell
+  /// * `field`: the field that both of the cells are under
+  /// * `sort_condition`: whether the sort is ascending or descending
+  ///
+  /// When sorting, the following rules are followed:
+  /// - 2 uninitialized cells should preserve natural order
+  /// - uninitialized cell and initialized cell that is regarded as empty (empty text string, empty date timestamp, empty list of select ids, etc) should preserve natural order
+  /// - But if the field type is checkbox then the uninitialized cell must be treated as UNCHECKED and compared to the initialized cell according to the sort condition
+  /// - a pair of 1 uninitialized and 1 initialized cell that is not empty should move the initialized cell to the top regardless of sort condition
+  /// - 2 initialized that are both regarded as empty should preserve natural order
+  /// - 2 initialized cells that are both not empty should be compared against each other according to the field type and sort condition
+  /// - 1 initialized cell that is regarded as empty and another initialized cell that is not empty should move the non-empty cell to the top regardless of sort condition
   fn handle_cell_compare(
     &self,
     left_cell: Option<&Cell>,
