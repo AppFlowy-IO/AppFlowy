@@ -137,6 +137,17 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOption {
 }
 
 impl TypeOptionCellDataCompare for MultiSelectTypeOption {
+  /// Orders two cell values to ensure non-empty cells are moved to the front and empty ones to the back.
+  ///
+  /// This function compares the two provided cell values (`left` and `right`) to determine their
+  /// relative ordering:
+  ///
+  /// - If both cells are empty (`None`), they are considered equal.
+  /// - If the left cell is empty and the right is not, the left cell is ordered to come after the right.
+  /// - If the right cell is empty and the left is not, the left cell is ordered to come before the right.
+  /// - If both cells are non-empty, they are ordered based on their names. If there is an additional sort condition,
+  ///   this condition will further evaluate their order.
+  ///
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
@@ -148,7 +159,6 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
         for (left_id, right_id) in cell_data.iter().zip(other_cell_data.iter()) {
           let left = self.options.iter().find(|option| &option.id == left_id);
           let right = self.options.iter().find(|option| &option.id == right_id);
-
           let order = match (left, right) {
             (None, None) => Ordering::Equal,
             (None, Some(_)) => Ordering::Greater,

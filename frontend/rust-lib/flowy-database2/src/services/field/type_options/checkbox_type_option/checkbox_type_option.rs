@@ -142,6 +142,12 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     sort_condition.evaluate_order(order)
   }
 
+  /// Compares two cell data using a specified sort condition and accounts for uninitialized cells.
+  ///
+  /// This function checks if either `cell_data` or `other_cell_data` is checked (i.e., has the `is_check` property set).
+  /// If the right cell is checked and the left cell isn't, the function will return `Ordering::Less`. Conversely, if the
+  /// left cell is checked and the right one isn't, the function will return `Ordering::Greater`. In all other cases, it returns
+  /// `Ordering::Equal`.
   fn apply_cmp_with_uninitialized(
     &self,
     cell_data: Option<&<Self as TypeOption>::CellData>,

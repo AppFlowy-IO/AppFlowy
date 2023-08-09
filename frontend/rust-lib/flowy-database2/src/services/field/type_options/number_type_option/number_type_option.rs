@@ -245,6 +245,14 @@ impl TypeOptionCellDataFilter for NumberTypeOption {
 }
 
 impl TypeOptionCellDataCompare for NumberTypeOption {
+  /// Compares two cell data using a specified sort condition.
+  ///
+  /// The function checks if either `cell_data` or `other_cell_data` is empty (using the `is_empty` method) and:
+  /// - If both are empty, it returns `Ordering::Equal`.
+  /// - If only the left cell is empty, it returns `Ordering::Greater`.
+  /// - If only the right cell is empty, it returns `Ordering::Less`.
+  /// - If neither is empty, the cell data is converted into `NumberCellFormat` and compared based on the decimal value.
+  ///
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
