@@ -102,7 +102,7 @@ async fn update_view_subscription_test() {
 
   let cloned_test = test.clone();
   let view = workspace.views.pop().unwrap();
-  assert_eq!(view.is_favorite, false);
+  assert!(!view.is_favorite);
 
   let update_view_id = view.id.clone();
   tokio::spawn(async move {
@@ -123,5 +123,5 @@ async fn update_view_subscription_test() {
   let expected_view = update.update_child_views.first().unwrap();
   assert_eq!(expected_view.id, view.id);
   assert_eq!(expected_view.name, "hello world".to_string());
-  assert_eq!(expected_view.is_favorite, true);
+  assert!(expected_view.is_favorite);
 }
