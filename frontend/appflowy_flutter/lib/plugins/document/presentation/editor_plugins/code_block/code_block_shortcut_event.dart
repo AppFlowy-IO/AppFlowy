@@ -280,10 +280,23 @@ CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
 };
 
 CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
-  final selection = editorState.selection;
-  if (selection == null || !selection.isCollapsed) {
+  var selection = editorState.selection;
+  if (selection == null) {
     return KeyEventResult.ignored;
   }
+
+  // delete the selection first.
+  if (!selection.isCollapsed) {
+    editorState.deleteSelection(selection);
+  }
+
+  // fetch selection again.
+  selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.skipRemainingHandlers;
+  }
+  assert(selection.isCollapsed);
+
   final node = editorState.getNodeAtPath(selection.end.path);
   if (node == null || node.type != CodeBlockKeys.type) {
     return KeyEventResult.ignored;
@@ -295,7 +308,7 @@ CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
       final transaction = editorState.transaction
         ..insertText(
           node,
-          selection.end.offset,
+          selection!.end.offset,
           text,
         );
 
