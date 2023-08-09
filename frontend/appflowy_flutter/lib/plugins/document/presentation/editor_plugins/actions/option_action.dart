@@ -40,7 +40,7 @@ enum OptionAction {
       case OptionAction.divider:
         return const FlowySvgData('editor/divider');
       case OptionAction.align:
-        return const FlowySvgData('editor/align/center');
+        return FlowySvgs.center_align_editor;
     }
   }
 
