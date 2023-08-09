@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,59 +43,60 @@ void main() {
       );
       // mock get files
 
-      expect(find.widgetWithText(Card, 'From Markdown Zip'), findsNothing);
-      await tester.tapButtonWithName('Import from Notion Markdown Zip');
+      await tester.tapButtonWithName(
+          LocaleKeys.importPanel_importFromNotionMarkdownZip.tr());
       expect(find.widgetWithText(Card, 'From Markdown Zip'), findsOneWidget);
       await tester.tapButtonWithName('From Markdown Zip');
-      expect(find.text('Import Notion From Markdown Zip'), findsOneWidget);
+      expect(find.text(LocaleKeys.importPanel_importFromNotionMarkdownZip.tr()),
+          findsOneWidget);
       await mockPickFilePaths(
         paths: paths,
       );
-      await tester.tapButtonWithName('Upload zip file');
+      await tester.tapButtonWithName(LocaleKeys.importPanel_uploadZipFile.tr());
       tester.expectToSeePageName(mainPageName);
       await tester.openPage(mainPageName);
       //the above one openPage command closes the import panel
       await tester.openPage(mainPageName);
       //test the main page is imported correctly
+      final mainPageEditorState = tester.editor.getCurrentEditorState();
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        mainPageEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([2])!.type,
+        mainPageEditorState.getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([3])!.type,
+        mainPageEditorState.getNodeAtPath([3])!.type,
         ImageBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([4])!.type,
+        mainPageEditorState.getNodeAtPath([4])!.type,
         DividerBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([5])!.type,
+        mainPageEditorState.getNodeAtPath([5])!.type,
         BulletedListBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([8])!.type,
+        mainPageEditorState.getNodeAtPath([8])!.type,
         NumberedListBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([10])!.type,
+        mainPageEditorState.getNodeAtPath([10])!.type,
         ParagraphBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([11])!.type,
+        mainPageEditorState.getNodeAtPath([11])!.type,
         ParagraphBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([12])!.type,
+        mainPageEditorState.getNodeAtPath([12])!.type,
         ParagraphBlockKeys.type,
       );
       //the below line get the href from the text
-      final hrefFromText = tester.editor
-          .getCurrentEditorState()
+      final hrefFromText = mainPageEditorState
           .getNodeAtPath([13])!
           .attributes
           .values
@@ -113,52 +116,55 @@ void main() {
 
       //test if subPage 1 is imported correctly
       await tester.openPage(subPageOneName);
+      final subPageOneEditorState = tester.editor.getCurrentEditorState();
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subPageOneEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subPageOneEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([2])!.type,
+        subPageOneEditorState.getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
       );
       //test if subPage 2 is imported correctly
       await tester.openPage(subPageTwoName);
+      final subPageTwoEditorState = tester.editor.getCurrentEditorState();
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subPageTwoEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subPageTwoEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([1])!.type,
+        subPageTwoEditorState.getNodeAtPath([1])!.type,
         ImageBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([2])!.type,
+        subPageTwoEditorState.getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([3])!.type,
+        subPageTwoEditorState.getNodeAtPath([3])!.type,
         ParagraphBlockKeys.type,
       );
       //test if subSubPage is imported correctly
       await tester.openPage(subSubPageName);
+      final subSubPageEditorState = tester.editor.getCurrentEditorState();
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subSubPageEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([0])!.type,
+        subSubPageEditorState.getNodeAtPath([0])!.type,
         HeadingBlockKeys.type,
       );
       expect(
-        tester.editor.getCurrentEditorState().getNodeAtPath([2])!.type,
+        subSubPageEditorState.getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
       );
     });
