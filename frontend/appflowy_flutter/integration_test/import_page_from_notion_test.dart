@@ -44,11 +44,11 @@ void main() {
       // mock get files
 
       await tester.tapButtonWithName(
-          LocaleKeys.importPanel_importFromNotionMarkdownZip.tr());
-      expect(find.widgetWithText(Card, 'From Markdown Zip'), findsOneWidget);
-      await tester.tapButtonWithName('From Markdown Zip');
+          LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),);
+      expect(find.widgetWithText(Card, LocaleKeys.importPanel_fromMarkdownZip.tr()), findsOneWidget);
+      await tester.tapButtonWithName(LocaleKeys.importPanel_fromMarkdownZip.tr());
       expect(find.text(LocaleKeys.importPanel_importFromNotionMarkdownZip.tr()),
-          findsOneWidget);
+          findsOneWidget,);
       await mockPickFilePaths(
         paths: paths,
       );
