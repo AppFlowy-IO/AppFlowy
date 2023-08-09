@@ -13,13 +13,6 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
-class Pair<F, S> {
-  F first;
-  S second;
-
-  Pair(this.first, this.second);
-}
-
 class NotionImporter {
   NotionImporter({
     required this.parentViewId,
@@ -42,8 +35,8 @@ class NotionImporter {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
     final unzipFiles = ZipDecoder().decodeBytes(bytes);
-    final List<Pair<List<Pair<String, ArchiveFile>>, List<ArchiveFile>>>
-        markdownFiles = [];
+    final List<(List<(String, ArchiveFile)>, List<ArchiveFile>)> markdownFiles =
+        [];
     ArchiveFile? mainpage;
     final List<ArchiveFile> mainpageAssets = [];
     for (final element in unzipFiles) {
@@ -101,7 +94,7 @@ class NotionImporter {
     parentNameToId[mainPageName] = mainPageId;
     //now we will import the sub pages
     while (unzipFiles.isNotEmpty) {
-      final List<Pair<String, ArchiveFile>> files = [];
+      final List<(String, ArchiveFile)> files = [];
       final List<ArchiveFile> images = [];
       final List<ArchiveFile> folders = [];
       for (int i = 0; i < unzipFiles.length; i++) {
@@ -109,7 +102,7 @@ class NotionImporter {
             unzipFiles[i].name.endsWith('.md') &&
             unzipFiles[i].name.split('/').length - 1 == 1) {
           final String parentName = unzipFiles[i].name.split('/')[0];
-          files.add(Pair(parentName, unzipFiles[i]));
+          files.add((parentName, unzipFiles[i]));
         } else if (unzipFiles[i].isFile && unzipFiles[i].name.endsWith('.md')) {
           final List<String> segments = unzipFiles[i].name.split('/');
           segments.removeAt(0);
@@ -125,7 +118,7 @@ class NotionImporter {
         unzipFiles.files.remove(element);
       }
       for (final element in files) {
-        unzipFiles.files.remove(element.second);
+        unzipFiles.files.remove(element.$2);
       }
 
       for (int i = 0; i < unzipFiles.length; i++) {
@@ -145,21 +138,20 @@ class NotionImporter {
       for (final element in images) {
         unzipFiles.files.remove(element);
       }
-      markdownFiles.add(Pair(files, images));
+      markdownFiles.add((files, images));
     }
     while (markdownFiles.isNotEmpty) {
       final file = markdownFiles.removeAt(0);
-      final markdownFileList = file.first;
-      final images = file.second;
+      final markdownFileList = file.$1;
+      final images = file.$2;
       for (final element in markdownFileList) {
-        final String parentName = element.first;
+        final String parentName = element.$1;
         final String? parentID = parentNameToId[parentName];
         if (parentID == null) {
           return;
         }
-        final name = p.basenameWithoutExtension(element.second.name);
-        final markdownContents =
-            utf8.decode(element.second.content as Uint8List);
+        final name = p.basenameWithoutExtension(element.$2.name);
+        final markdownContents = utf8.decode(element.$2.content as Uint8List);
         final processedMarkdownFile = await _preProcessMarkdownFile(
           markdownContents,
           images,
