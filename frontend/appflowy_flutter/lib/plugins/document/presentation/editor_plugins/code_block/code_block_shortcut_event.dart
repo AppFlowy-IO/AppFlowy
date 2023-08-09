@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
   enterInCodeBlock,
@@ -9,9 +10,10 @@ final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
 
 final List<CommandShortcutEvent> codeBlockCommands = [
   insertNewParagraphNextToCodeBlockCommand,
+  pasteInCodeblock,
+  selectAllInCodeBlockCommand,
   tabToInsertSpacesInCodeBlockCommand,
   tabToDeleteSpacesInCodeBlockCommand,
-  selectAllInCodeBlockCommand,
 ];
 
 /// press the enter key in code block to insert a new line in it.
@@ -95,6 +97,18 @@ final CommandShortcutEvent selectAllInCodeBlockCommand = CommandShortcutEvent(
   command: 'ctrl+a',
   macOSCommand: 'meta+a',
   handler: _selectAllInCodeBlockCommandHandler,
+);
+
+/// ctrl + v to paste text in code block.
+///
+/// - support
+///   - desktop
+///   - web
+final CommandShortcutEvent pasteInCodeblock = CommandShortcutEvent(
+  key: 'paste in codeblock',
+  command: 'ctrl+v',
+  macOSCommand: 'cmd+v',
+  handler: _pasteInCodeBlock,
 );
 
 CharacterShortcutEventHandler _enterInCodeBlockCommandHandler =
@@ -261,6 +275,33 @@ CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
       endOffset: delta.length,
     ),
   );
+
+  return KeyEventResult.handled;
+};
+
+CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
+  final selection = editorState.selection;
+  if (selection == null || !selection.isCollapsed) {
+    return KeyEventResult.ignored;
+  }
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null || node.type != CodeBlockKeys.type) {
+    return KeyEventResult.ignored;
+  }
+  () async {
+    final data = await Clipboard.getData('text/plain');
+    final text = data?.text;
+    if (text != null && text.isNotEmpty) {
+      final transaction = editorState.transaction
+        ..insertText(
+          node,
+          selection.end.offset,
+          text,
+        );
+
+      await editorState.apply(transaction);
+    }
+  }();
 
   return KeyEventResult.handled;
 };
