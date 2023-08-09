@@ -88,7 +88,7 @@ enum ImportFromNotionType {
   String toString() {
     switch (this) {
       case ImportFromNotionType.markdownZip:
-        return 'From Markdown Zip';
+        return LocaleKeys.importPanel_fromMarkdownZip.tr();
     }
   }
 

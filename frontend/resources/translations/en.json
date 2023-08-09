@@ -127,6 +127,7 @@
     "databaseFromV010": "Database from v0.1.0",
     "csv": "CSV",
     "database": "Database",
+    "fromMarkdownZip":"From Markdown Zip",
     "importFromNotionMarkdownZip": "Import from Notion Markdown Zip",
     "uploadZipFile": "Upload zip file"
   },
