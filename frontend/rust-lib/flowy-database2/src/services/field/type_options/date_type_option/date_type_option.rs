@@ -2,7 +2,7 @@ use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -81,7 +81,7 @@ impl From<DateTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for DateTypeOption {
+impl TypeOptionCellDataSerde for DateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -318,9 +318,5 @@ impl TypeOptionCellDataCompare for DateTypeOption {
       (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
-  }
-
-  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.timestamp.is_none()
   }
 }

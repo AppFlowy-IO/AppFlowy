@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  default_order, SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde,
 };
 use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
@@ -47,7 +47,7 @@ impl From<SingleSelectTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for SingleSelectTypeOption {
+impl TypeOptionCellDataSerde for SingleSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -151,10 +151,6 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
       (None, None) => default_order(),
     }
   }
-
-  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.is_empty()
-  }
 }
 
 #[cfg(test)]
@@ -227,6 +223,6 @@ mod tests {
     // delete
     let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
     let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert!(select_option_ids.is_empty());
+    assert!(select_option_ids.is_cell_empty());
   }
 }

@@ -16,8 +16,8 @@ use crate::services::cell::{
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
+  SingleSelectTypeOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -105,7 +105,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellData
+    + TypeOptionCellDataSerde
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -208,7 +208,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellData
+    + TypeOptionCellDataSerde
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare

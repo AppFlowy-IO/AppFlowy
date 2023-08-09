@@ -33,7 +33,7 @@ pub trait TypeOption {
   ///
   /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
-  type CellData: ToString + Default + Send + Sync + Clone + Debug + 'static;
+  type CellData: TypeOptionCellData + ToString + Default + Send + Sync + Clone + Debug + 'static;
 
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
@@ -53,8 +53,11 @@ pub trait TypeOption {
   /// Represents as the filter configuration for this type option.
   type CellFilter: FromFilterString + Send + Sync + 'static;
 }
-
-pub trait TypeOptionCellData: TypeOption {
+/// This trait providing serialization and deserialization methods for cell data.
+///
+/// This trait ensures that a type which implements both `TypeOption` and `TypeOptionCellDataSerde` can
+/// be converted to and from a corresponding `Protobuf struct`, and can be parsed from an opaque [Cell] structure.
+pub trait TypeOptionCellDataSerde: TypeOption {
   /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
@@ -68,6 +71,18 @@ pub trait TypeOptionCellData: TypeOption {
   /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
   /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+}
+
+/// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
+///
+pub trait TypeOptionCellData {
+  /// Checks if the cell content is considered empty.
+  ///
+  /// Even if a cell is initialized, its content might still be considered empty
+  /// based on certain criteria. e.g. empty text, date, select option, etc.
+  fn is_cell_empty(&self) -> bool {
+    false
+  }
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -145,16 +160,10 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     _sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
-      (None, Some(cell_data)) if !self.is_empty(cell_data) => Ordering::Greater,
-      (Some(cell_data), None) if !self.is_empty(cell_data) => Ordering::Less,
+      (None, Some(cell_data)) if !cell_data.is_cell_empty() => Ordering::Greater,
+      (Some(cell_data), None) if !cell_data.is_cell_empty() => Ordering::Less,
       _ => Ordering::Equal,
     }
-  }
-
-  /// Even though the cell is initialized, its contents might still be
-  /// regarded as empty, e.g. empty text, date, select option, etc.
-  fn is_empty(&self, _cell_data: &<Self as TypeOption>::CellData) -> bool {
-    false
   }
 }
 

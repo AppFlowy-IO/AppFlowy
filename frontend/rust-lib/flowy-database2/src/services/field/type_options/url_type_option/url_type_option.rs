@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
   TypeOptionTransform, URLCellData,
 };
 use crate::services::sort::SortCondition;
@@ -47,7 +47,7 @@ impl From<URLTypeOption> for TypeOptionData {
 
 impl TypeOptionTransform for URLTypeOption {}
 
-impl TypeOptionCellData for URLTypeOption {
+impl TypeOptionCellDataSerde for URLTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -137,10 +137,6 @@ impl TypeOptionCellDataCompare for URLTypeOption {
         sort_condition.evaluate_order(order)
       },
     }
-  }
-
-  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.data.is_empty()
   }
 }
 

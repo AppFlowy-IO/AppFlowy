@@ -11,8 +11,8 @@ use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   default_order, SelectOption, SelectOptionCellChangeset, SelectOptionIds,
-  SelectTypeOptionSharedAction, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  SelectTypeOptionSharedAction, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde,
 };
 use crate::services::sort::SortCondition;
 
@@ -48,7 +48,7 @@ impl From<MultiSelectTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for MultiSelectTypeOption {
+impl TypeOptionCellDataSerde for MultiSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -177,10 +177,6 @@ impl TypeOptionCellDataCompare for MultiSelectTypeOption {
       },
       order => sort_condition.evaluate_order(order),
     }
-  }
-
-  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.is_empty()
   }
 }
 

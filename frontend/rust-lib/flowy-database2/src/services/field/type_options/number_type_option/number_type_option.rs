@@ -18,7 +18,7 @@ use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -33,6 +33,12 @@ pub struct NumberTypeOption {
 
 #[derive(Clone, Debug, Default)]
 pub struct NumberCellData(pub String);
+
+impl TypeOptionCellData for NumberCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.0.is_empty()
+  }
+}
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
@@ -96,7 +102,7 @@ impl From<NumberTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for NumberTypeOption {
+impl TypeOptionCellDataSerde for NumberTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -259,9 +265,7 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let is_left_empty = self.is_empty(cell_data);
-    let is_right_empty = self.is_empty(other_cell_data);
-    match (is_left_empty, is_right_empty) {
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,
@@ -279,10 +283,6 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
         }
       },
     }
-  }
-
-  fn is_empty(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.0.is_empty()
   }
 }
 
