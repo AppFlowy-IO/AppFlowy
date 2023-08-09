@@ -136,6 +136,9 @@ class _ImportPanelState extends State<ImportPanel> {
                 parentViewId: widget.parentViewId,
               );
               await notionImporter.importFromNotion(type, path);
+              if (context.mounted) {
+                  FlowyOverlay.pop(context);
+                }
               widget.importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },
