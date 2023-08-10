@@ -29,15 +29,13 @@ void main() {
       await tester.tapAddViewButton();
       await tester.tapImportButton();
 
-      final paths = <String>[];
-      final ByteData data = await rootBundle
-          .load('assets/test/workspaces/import_page_from_notion_test.zip');
-      final path = p.join(
+      final paths = [p.join(
         context.applicationDataDirectory,
         'import_page_from_notion_test.zip',
-      );
-      paths.add(path);
-      final file = File(path);
+      )];
+      final ByteData data = await rootBundle
+          .load('assets/test/workspaces/import_page_from_notion_test.zip');
+      final file = File(paths[0]);
       await file.writeAsBytes(
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
       );

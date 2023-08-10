@@ -35,8 +35,6 @@ class NotionImporter {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
     final unzipFiles = ZipDecoder().decodeBytes(bytes);
-    final List<(List<(String, ArchiveFile)>, List<ArchiveFile>)> markdownFiles =
-        [];
     ArchiveFile? mainpage;
     final List<ArchiveFile> mainpageAssets = [];
     for (final element in unzipFiles) {
@@ -94,15 +92,40 @@ class NotionImporter {
     parentNameToId[mainPageName] = mainPageId;
     //now we will import the sub pages
     while (unzipFiles.isNotEmpty) {
-      final List<(String, ArchiveFile)> files = [];
+      final List<ArchiveFile> files = [];
       final List<ArchiveFile> images = [];
       final List<ArchiveFile> folders = [];
+      for (int i = 0; i < unzipFiles.length; i++) {
+        if (unzipFiles[i].isFile &&
+            ['.png', '.jpg', '.jpeg']
+                .contains(p.extension(unzipFiles[i].name)) &&
+            unzipFiles[i].name.split('/').length - 1 == 1) {
+          images.add(unzipFiles[i]);
+        } else if (unzipFiles[i].isFile &&
+            ['.png', '.jpg', '.jpeg']
+                .contains(p.extension(unzipFiles[i].name))) {
+          final List<String> segments = unzipFiles[i].name.split('/');
+          segments.removeAt(0);
+          unzipFiles[i].name = segments.join('/');
+        }
+      }
       for (int i = 0; i < unzipFiles.length; i++) {
         if (unzipFiles[i].isFile &&
             unzipFiles[i].name.endsWith('.md') &&
             unzipFiles[i].name.split('/').length - 1 == 1) {
           final String parentName = unzipFiles[i].name.split('/')[0];
-          files.add((parentName, unzipFiles[i]));
+          final String? parentViewId = parentNameToId[parentName];
+          if (parentViewId == null) {
+            return;
+          }
+          final createdpageId =
+              await _createPage(parentViewId, unzipFiles[i], images);
+          if (createdpageId == null) {
+            return;
+          }
+          final name = p.basenameWithoutExtension(unzipFiles[i].name);
+          parentNameToId[name] = createdpageId;
+          files.add(unzipFiles[i]);
         } else if (unzipFiles[i].isFile && unzipFiles[i].name.endsWith('.md')) {
           final List<String> segments = unzipFiles[i].name.split('/');
           segments.removeAt(0);
@@ -118,61 +141,40 @@ class NotionImporter {
         unzipFiles.files.remove(element);
       }
       for (final element in files) {
-        unzipFiles.files.remove(element.$2);
+        unzipFiles.files.remove(element);
       }
 
-      for (int i = 0; i < unzipFiles.length; i++) {
-        if (unzipFiles[i].isFile &&
-            ['.png', '.jpg', '.jpeg']
-                .contains(p.extension(unzipFiles[i].name)) &&
-            unzipFiles[i].name.split('/').length - 1 == 1) {
-          images.add(unzipFiles[i]);
-        } else if (unzipFiles[i].isFile &&
-            ['.png', '.jpg', '.jpeg']
-                .contains(p.extension(unzipFiles[i].name))) {
-          final List<String> segments = unzipFiles[i].name.split('/');
-          segments.removeAt(0);
-          unzipFiles[i].name = segments.join('/');
-        }
-      }
       for (final element in images) {
         unzipFiles.files.remove(element);
       }
-      markdownFiles.add((files, images));
     }
-    while (markdownFiles.isNotEmpty) {
-      final file = markdownFiles.removeAt(0);
-      final markdownFileList = file.$1;
-      final images = file.$2;
-      for (final element in markdownFileList) {
-        final String parentName = element.$1;
-        final String? parentID = parentNameToId[parentName];
-        if (parentID == null) {
-          return;
-        }
-        final name = p.basenameWithoutExtension(element.$2.name);
-        final markdownContents = utf8.decode(element.$2.content as Uint8List);
-        final processedMarkdownFile = await _preProcessMarkdownFile(
-          markdownContents,
-          images,
-        );
-        final data = documentDataFrom(
-          ImportType.markdownOrText,
-          processedMarkdownFile,
-        );
-        final result = await ViewBackendService.createView(
-          layoutType: ViewLayoutPB.Document,
-          name: name,
-          parentViewId: parentID,
-          initialDataBytes: data,
-        );
-        if (result.isLeft()) {
-          parentNameToId[name] = result.getLeftOrNull()!.id;
-        } else {
-          return;
-        }
-      }
+  }
+
+  Future<String?> _createPage(
+    String parentViewId,
+    ArchiveFile file,
+    List<ArchiveFile> images,
+  ) async {
+    final name = p.basenameWithoutExtension(file.name);
+    final markdownContents = utf8.decode(file.content as Uint8List);
+    final processedMarkdownFile = await _preProcessMarkdownFile(
+      markdownContents,
+      images,
+    );
+    final data = documentDataFrom(
+      ImportType.markdownOrText,
+      processedMarkdownFile,
+    );
+    final result = await ViewBackendService.createView(
+      layoutType: ViewLayoutPB.Document,
+      name: name,
+      parentViewId: parentViewId,
+      initialDataBytes: data,
+    );
+    if (result.isLeft()) {
+      return result.getLeftOrNull()!.id;
     }
+    return null;
   }
 
   Future<String> _preProcessMarkdownFile(
