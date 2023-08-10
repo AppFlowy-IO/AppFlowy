@@ -24,8 +24,7 @@ extension DatabaseLayoutExtension on DatabaseLayoutPB {
       case DatabaseLayoutPB.Calendar:
       case DatabaseLayoutPB.Grid:
         return FlowySvgs.grid_s;
-      default:
-        return const FlowySvgData('');
     }
+    throw UnimplementedError();
   }
 }

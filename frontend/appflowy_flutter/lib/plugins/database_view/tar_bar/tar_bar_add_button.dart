@@ -163,8 +163,6 @@ enum AddButtonAction {
       case AddButtonAction.calendar:
       case AddButtonAction.grid:
         return FlowySvgs.grid_s;
-      default:
-        return const FlowySvgData('');
     }
   }
 }
