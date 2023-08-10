@@ -616,6 +616,7 @@ impl UserSession {
       user_id: uid,
       user_workspace,
     };
+    self.cloud_services.set_auth_type(AuthType::Local);
     self.set_current_session(Some(session))?;
     Ok(())
   }

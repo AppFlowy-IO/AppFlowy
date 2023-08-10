@@ -1,9 +1,10 @@
 use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
   TypeOptionTransform, URLCellData,
 };
+use crate::services::sort::SortCondition;
 
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
@@ -46,7 +47,7 @@ impl From<URLTypeOption> for TypeOptionData {
 
 impl TypeOptionTransform for URLTypeOption {}
 
-impl TypeOptionCellData for URLTypeOption {
+impl TypeOptionCellDataSerde for URLTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -123,12 +124,19 @@ impl TypeOptionCellDataCompare for URLTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    cell_data.data.cmp(&other_cell_data.data)
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.data.is_empty()
+    let is_left_empty = cell_data.data.is_empty();
+    let is_right_empty = other_cell_data.data.is_empty();
+    match (is_left_empty, is_right_empty) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let order = cell_data.data.cmp(&other_cell_data.data);
+        sort_condition.evaluate_order(order)
+      },
+    }
   }
 }
 

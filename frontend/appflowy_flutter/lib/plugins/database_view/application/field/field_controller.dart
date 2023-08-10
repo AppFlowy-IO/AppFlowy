@@ -19,6 +19,7 @@ import '../setting/setting_listener.dart';
 import '../setting/setting_service.dart';
 import '../sort/sort_listener.dart';
 import '../sort/sort_service.dart';
+import 'field_info.dart';
 import 'field_listener.dart';
 
 class _GridFieldNotifier extends ChangeNotifier {
@@ -438,12 +439,18 @@ class FieldController {
   }
 
   void _updateFieldInfos() {
+    final List<FieldInfo> newFieldInfos = [];
     for (final field in _fieldNotifier.fieldInfos) {
-      field._isGroupField = _groupConfigurationByFieldId[field.id] != null;
-      field._hasFilter = _filterPBByFieldId[field.id] != null;
-      field._hasSort = _sortPBByFieldId[field.id] != null;
+      newFieldInfos.add(
+        field.copyWith(
+          isGroupField: _groupConfigurationByFieldId[field.id] != null,
+          hasFilter: _filterPBByFieldId[field.id] != null,
+          hasSort: _sortPBByFieldId[field.id] != null,
+        ),
+      );
     }
-    _fieldNotifier.notify();
+
+    _fieldNotifier.fieldInfos = newFieldInfos;
   }
 
   Future<void> dispose() async {
@@ -488,7 +495,7 @@ class FieldController {
           }
 
           _fieldNotifier.fieldInfos =
-              newFields.map((field) => FieldInfo(field: field)).toList();
+              newFields.map((field) => FieldInfo.initial(field)).toList();
           _loadFilters();
           _loadSorts();
           _updateFieldInfos();
@@ -652,7 +659,7 @@ class FieldController {
     }
     final List<FieldInfo> newFieldInfos = fieldInfos;
     for (final indexField in insertedFields) {
-      final fieldInfo = FieldInfo(field: indexField.field_1);
+      final fieldInfo = FieldInfo.initial(indexField.field_1);
       if (newFieldInfos.length > indexField.index) {
         newFieldInfos.insert(indexField.index, fieldInfo);
       } else {
@@ -674,7 +681,7 @@ class FieldController {
           newFields.indexWhere((field) => field.id == updatedFieldPB.id);
       if (index != -1) {
         newFields.removeAt(index);
-        final fieldInfo = FieldInfo(field: updatedFieldPB);
+        final fieldInfo = FieldInfo.initial(updatedFieldPB);
         newFields.insert(index, fieldInfo);
         updatedFields.add(fieldInfo);
       }
@@ -693,7 +700,7 @@ class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
   RowCacheDependenciesImpl(FieldController cache) : _fieldController = cache;
 
   @override
-  UnmodifiableListView<FieldInfo> get fields =>
+  UnmodifiableListView<FieldInfo> get fieldInfos =>
       UnmodifiableListView(_fieldController.fieldInfos);
 
   @override
@@ -728,74 +735,4 @@ FieldInfo? _findFieldInfo({
   } else {
     return null;
   }
-}
-
-class FieldInfo {
-  final FieldPB _field;
-  bool _isGroupField = false;
-
-  bool _hasFilter = false;
-
-  bool _hasSort = false;
-
-  String get id => _field.id;
-
-  FieldType get fieldType => _field.fieldType;
-
-  bool get visibility => _field.visibility;
-
-  double get width => _field.width.toDouble();
-
-  bool get isPrimary => _field.isPrimary;
-
-  String get name => _field.name;
-
-  FieldPB get field => _field;
-
-  bool get isGroupField => _isGroupField;
-
-  bool get hasFilter => _hasFilter;
-
-  bool get canBeGroup {
-    switch (_field.fieldType) {
-      case FieldType.URL:
-      case FieldType.Checkbox:
-      case FieldType.MultiSelect:
-      case FieldType.SingleSelect:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  bool get canCreateFilter {
-    if (hasFilter) return false;
-
-    switch (_field.fieldType) {
-      case FieldType.Checkbox:
-      case FieldType.MultiSelect:
-      case FieldType.RichText:
-      case FieldType.SingleSelect:
-      case FieldType.Checklist:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  bool get canCreateSort {
-    if (_hasSort) return false;
-
-    switch (_field.fieldType) {
-      case FieldType.RichText:
-      case FieldType.Checkbox:
-      case FieldType.Number:
-      case FieldType.DateTime:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  FieldInfo({required FieldPB field}) : _field = field;
 }

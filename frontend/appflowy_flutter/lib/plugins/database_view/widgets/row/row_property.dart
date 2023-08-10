@@ -44,7 +44,7 @@ class RowPropertyList extends StatelessWidget {
             // The rest of the fields are displayed in the order of the field
             // list
             ...state.cells
-                .where((element) => !element.fieldInfo.isPrimary)
+                .where((element) => !element.fieldInfo.field.isPrimary)
                 .map(
                   (cell) => _PropertyCell(
                     cellContext: cell,

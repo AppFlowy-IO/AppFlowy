@@ -1,7 +1,9 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/background.dart';
@@ -118,7 +120,18 @@ class SignInForm extends StatelessWidget {
               : [
                   const VSpace(indicatorMinHeight * 2.0)
                 ], // add the same space when there's no loading status.
-          const VSpace(20)
+          // ConstrainedBox(
+          //   constraints: const BoxConstraints(maxHeight: 140),
+          //   child: HistoricalUserList(
+          //     didOpenUser: () async {
+          //       await FlowyRunner.run(
+          //         FlowyApp(),
+          //         integrationEnv(),
+          //       );
+          //     },
+          //   ),
+          // ),
+          const VSpace(20),
         ],
       ),
     );
@@ -183,14 +196,49 @@ class SignInAsGuestButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextButton(
-      title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
-      height: 48,
-      borderRadius: Corners.s6Border,
-      onPressed: () {
-        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
-        context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest());
-      },
+    return BlocProvider(
+      create: (context) => HistoricalUserBloc()
+        ..add(
+          const HistoricalUserEvent.initial(),
+        ),
+      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
+        listenWhen: (previous, current) =>
+            previous.openedHistoricalUser != current.openedHistoricalUser,
+        listener: (context, state) async {
+          await FlowyRunner.run(
+            FlowyApp(),
+            integrationEnv(),
+          );
+        },
+        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+          builder: (context, state) {
+            if (state.historicalUsers.isEmpty) {
+              return RoundedTextButton(
+                title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
+                height: 48,
+                borderRadius: Corners.s6Border,
+                onPressed: () {
+                  getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
+                  context
+                      .read<SignInBloc>()
+                      .add(const SignInEvent.signedInAsGuest());
+                },
+              );
+            } else {
+              return RoundedTextButton(
+                title: LocaleKeys.signIn_continueAnonymousUser.tr(),
+                height: 48,
+                borderRadius: Corners.s6Border,
+                onPressed: () {
+                  final bloc = context.read<HistoricalUserBloc>();
+                  final user = bloc.state.historicalUsers.first;
+                  bloc.add(HistoricalUserEvent.openHistoricalUser(user));
+                },
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 }

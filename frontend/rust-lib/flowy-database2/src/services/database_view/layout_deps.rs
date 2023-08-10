@@ -31,13 +31,12 @@ impl DatabaseLayoutDepsResolver {
     match self.database_layout {
       DatabaseLayout::Grid => (None, None),
       DatabaseLayout::Board => {
-        if self
+        if !self
           .database
           .lock()
           .get_fields(None)
           .into_iter()
-          .find(|field| FieldType::from(field.field_type).can_be_group())
-          .is_none()
+          .any(|field| FieldType::from(field.field_type).can_be_group())
         {
           let select_field = self.create_select_field();
           (Some(select_field), None)

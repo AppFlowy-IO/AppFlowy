@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
@@ -31,13 +32,13 @@ class TransactionAdapter {
   final String documentId;
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
-    // Log.debug('transaction => ${transaction.toJson()}');
+    Log.debug('transaction => ${transaction.toJson()}');
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState))
         .whereNotNull()
         .expand((element) => element)
         .toList(growable: false); // avoid lazy evaluation
-    // Log.debug('actions => $actions');
+    Log.debug('actions => $actions');
     await documentService.applyAction(
       documentId: documentId,
       actions: actions,
@@ -72,7 +73,7 @@ extension on InsertOperation {
           editorState.getNodeAtPath(path.previous)?.id ??
           '';
       assert(parentId.isNotEmpty);
-      if (path.equals(path.previous)) {
+      if (path.equals(path.previous) && !path.equals([0])) {
         prevId = '';
       } else {
         assert(prevId.isNotEmpty && prevId != node.id);

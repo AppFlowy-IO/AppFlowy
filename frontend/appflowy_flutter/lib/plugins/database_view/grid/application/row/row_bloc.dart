@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:equatable/equatable.dart';
@@ -7,7 +8,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
 import '../../../application/cell/cell_service.dart';
-import '../../../application/field/field_controller.dart';
 import '../../../application/row/row_cache.dart';
 import '../../../application/row/row_controller.dart';
 import '../../../application/row/row_service.dart';
@@ -119,16 +119,16 @@ class RowState with _$RowState {
 }
 
 class GridCellEquatable extends Equatable {
-  final FieldInfo _fieldContext;
+  final FieldInfo _fieldInfo;
 
-  const GridCellEquatable(FieldInfo field) : _fieldContext = field;
+  const GridCellEquatable(FieldInfo field) : _fieldInfo = field;
 
   @override
   List<Object?> get props => [
-        _fieldContext.id,
-        _fieldContext.fieldType,
-        _fieldContext.visibility,
-        _fieldContext.width,
+        _fieldInfo.id,
+        _fieldInfo.fieldType,
+        _fieldInfo.field.visibility,
+        _fieldInfo.field.width,
       ];
 }
 

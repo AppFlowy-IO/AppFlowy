@@ -84,7 +84,7 @@ async fn grid_filter_number_is_less_than_or_equal_test() {
 async fn grid_filter_number_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let row_count = test.row_details.len();
-  let expected = 1;
+  let expected = 2;
   let scripts = vec![
     CreateNumberFilter {
       condition: NumberFilterConditionPB::NumberIsEmpty,

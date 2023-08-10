@@ -45,7 +45,7 @@ pub struct FlowyCoreTest {
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
-    let temp_dir = PathBuf::from(temp_dir()).join(nanoid!(6));
+    let temp_dir = temp_dir().join(nanoid!(6));
     std::fs::create_dir_all(&temp_dir).unwrap();
     Self::new_with_user_data_path(temp_dir, nanoid!(6))
   }
@@ -57,7 +57,7 @@ impl FlowyCoreTest {
   }
 
   pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
-    let config = AppFlowyCoreConfig::new(path.clone().to_str().unwrap(), name).log_filter(
+    let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
       "info",
       vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
     );
