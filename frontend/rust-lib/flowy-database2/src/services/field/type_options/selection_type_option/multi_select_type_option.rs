@@ -1,4 +1,4 @@
-use std::cmp::{min, Ordering};
+use std::cmp::Ordering;
 
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
@@ -11,9 +11,10 @@ use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
   default_order, SelectOption, SelectOptionCellChangeset, SelectOptionIds,
-  SelectTypeOptionSharedAction, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  SelectTypeOptionSharedAction, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde,
 };
+use crate::services::sort::SortCondition;
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -47,7 +48,7 @@ impl From<MultiSelectTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for MultiSelectTypeOption {
+impl TypeOptionCellDataSerde for MultiSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -136,35 +137,46 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOption {
 }
 
 impl TypeOptionCellDataCompare for MultiSelectTypeOption {
+  /// Orders two cell values to ensure non-empty cells are moved to the front and empty ones to the back.
+  ///
+  /// This function compares the two provided cell values (`left` and `right`) to determine their
+  /// relative ordering:
+  ///
+  /// - If both cells are empty (`None`), they are considered equal.
+  /// - If the left cell is empty and the right is not, the left cell is ordered to come after the right.
+  /// - If the right cell is empty and the left is not, the left cell is ordered to come before the right.
+  /// - If both cells are non-empty, they are ordered based on their names. If there is an additional sort condition,
+  ///   this condition will further evaluate their order.
+  ///
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    for i in 0..min(cell_data.len(), other_cell_data.len()) {
-      let order = match (
-        cell_data
-          .get(i)
-          .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-        other_cell_data
-          .get(i)
-          .and_then(|id| self.options.iter().find(|option| &option.id == id)),
-      ) {
-        (Some(left), Some(right)) => left.name.cmp(&right.name),
-        (Some(_), None) => Ordering::Greater,
-        (None, Some(_)) => Ordering::Less,
-        (None, None) => default_order(),
-      };
+    match cell_data.len().cmp(&other_cell_data.len()) {
+      Ordering::Equal => {
+        for (left_id, right_id) in cell_data.iter().zip(other_cell_data.iter()) {
+          let left = self.options.iter().find(|option| &option.id == left_id);
+          let right = self.options.iter().find(|option| &option.id == right_id);
+          let order = match (left, right) {
+            (None, None) => Ordering::Equal,
+            (None, Some(_)) => Ordering::Greater,
+            (Some(_), None) => Ordering::Less,
+            (Some(left_option), Some(right_option)) => {
+              let name_order = left_option.name.cmp(&right_option.name);
+              sort_condition.evaluate_order(name_order)
+            },
+          };
 
-      if order.is_ne() {
-        return order;
-      }
+          if order.is_ne() {
+            return order;
+          }
+        }
+        default_order()
+      },
+      order => sort_condition.evaluate_order(order),
     }
-    default_order()
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.is_empty()
   }
 }
 

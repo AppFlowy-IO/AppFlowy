@@ -16,8 +16,8 @@ use crate::services::cell::{
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, URLTypeOption,
+  SingleSelectTypeOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -48,8 +48,8 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_compare(
     &self,
-    left_cell: &Cell,
-    right_cell: &Cell,
+    left_cell: Option<&Cell>,
+    right_cell: Option<&Cell>,
     field: &Field,
     sort_condition: SortCondition,
   ) -> Ordering;
@@ -105,7 +105,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellData
+    + TypeOptionCellDataSerde
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -208,7 +208,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellData
+    + TypeOptionCellDataSerde
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -241,32 +241,61 @@ where
     Ok(cell)
   }
 
+  /// Compares two cell data values given their optional references, field information, and sorting condition.
+  ///
+  /// This function is designed to handle the comparison of cells that might not be initialized. The cells are
+  /// first decoded based on the provided field type, and then compared according to the specified sort condition.
+  ///
+  /// # Parameters
+  /// - `left_cell`: An optional reference to the left cell's data.
+  /// - `right_cell`: An optional reference to the right cell's data.
+  /// - `field`: A reference to the field information, which includes details about the field type.
+  /// - `sort_condition`: The condition that dictates the sort order based on the results of the comparison.
+  ///
+  /// # Returns
+  /// An `Ordering` indicating:
+  /// - `Ordering::Equal` if both cells are `None` or if their decoded values are equal.
+  /// - `Ordering::Less` or `Ordering::Greater` based on the `apply_cmp_with_uninitialized` or `apply_cmp`
+  ///   method results and the specified `sort_condition`.
+  ///
+  /// # Note
+  /// - If only one of the cells is `None`, the other cell is decoded, and the comparison is made using
+  ///   the `apply_cmp_with_uninitialized` method.
+  /// - If both cells are present, they are decoded, and the comparison is made using the `apply_cmp` method.
   fn handle_cell_compare(
     &self,
-    left_cell: &Cell,
-    right_cell: &Cell,
+    left_cell: Option<&Cell>,
+    right_cell: Option<&Cell>,
     field: &Field,
     sort_condition: SortCondition,
   ) -> Ordering {
     let field_type = FieldType::from(field.field_type);
-    let left = self
-      .get_decoded_cell_data(left_cell, &field_type, field)
-      .unwrap_or_default();
-    let right = self
-      .get_decoded_cell_data(right_cell, &field_type, field)
-      .unwrap_or_default();
 
-    match (self.exempt_from_cmp(&left), self.exempt_from_cmp(&right)) {
-      (true, true) => Ordering::Equal,
-      (true, false) => Ordering::Greater,
-      (false, true) => Ordering::Less,
-      (false, false) => {
-        let order = self.apply_cmp(&left, &right);
-        // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
-        match sort_condition {
-          SortCondition::Ascending => order,
-          SortCondition::Descending => order.reverse(),
-        }
+    match (left_cell, right_cell) {
+      (None, None) => Ordering::Equal,
+      (None, Some(right_cell)) => {
+        let right_cell_data = self
+          .get_decoded_cell_data(right_cell, &field_type, field)
+          .unwrap_or_default();
+
+        self.apply_cmp_with_uninitialized(None, Some(right_cell_data).as_ref(), sort_condition)
+      },
+      (Some(left_cell), None) => {
+        let left_cell_data = self
+          .get_decoded_cell_data(left_cell, &field_type, field)
+          .unwrap_or_default();
+
+        self.apply_cmp_with_uninitialized(Some(left_cell_data).as_ref(), None, sort_condition)
+      },
+      (Some(left_cell), Some(right_cell)) => {
+        let left_cell_data: <T as TypeOption>::CellData = self
+          .get_decoded_cell_data(left_cell, &field_type, field)
+          .unwrap_or_default();
+        let right_cell_data = self
+          .get_decoded_cell_data(right_cell, &field_type, field)
+          .unwrap_or_default();
+
+        self.apply_cmp(&left_cell_data, &right_cell_data, sort_condition)
       },
     }
   }

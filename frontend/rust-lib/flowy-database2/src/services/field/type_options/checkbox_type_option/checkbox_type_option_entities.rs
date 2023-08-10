@@ -9,7 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";
@@ -28,6 +28,12 @@ impl CheckboxCellData {
 
   pub fn is_uncheck(&self) -> bool {
     self.0 == UNCHECK
+  }
+}
+
+impl TypeOptionCellData for CheckboxCellData {
+  fn is_cell_empty(&self) -> bool {
+    false
   }
 }
 

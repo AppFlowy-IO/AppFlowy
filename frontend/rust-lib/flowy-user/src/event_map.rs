@@ -17,7 +17,7 @@ use crate::{errors::FlowyError, services::UserSession};
 pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
   let store_preferences = user_session
     .upgrade()
-    .and_then(|session| Some(session.get_store_preferences()))
+    .map(|session| session.get_store_preferences())
     .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
