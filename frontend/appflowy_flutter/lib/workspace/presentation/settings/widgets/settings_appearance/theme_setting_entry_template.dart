@@ -32,10 +32,12 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
         if (trailing != null) ...trailing!,
         if (onResetRequested != null)
           FlowyIconButton(
+            hoverColor: Theme.of(context).colorScheme.secondaryContainer,
             key: resetButtonKey,
             width: 24,
-            icon: const FlowySvg(
+            icon: FlowySvg(
               name: 'common/recover',
+              color: Theme.of(context).iconTheme.color,
             ),
             iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
             tooltipText: LocaleKeys.settings_appearance_resetSetting.tr(),
