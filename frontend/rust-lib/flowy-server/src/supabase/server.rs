@@ -124,9 +124,11 @@ impl AppFlowyServer for SupabaseServer {
   fn handle_realtime_event(&self, json: Value) {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
-        tracing::trace!("realtime event: {:?}", event)
+        tracing::trace!("realtime event: {}", event);
       },
-      Err(_) => {},
+      Err(e) => {
+        tracing::error!("parse realtime event error: {}", e);
+      },
     }
   }
 }

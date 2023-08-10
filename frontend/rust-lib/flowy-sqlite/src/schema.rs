@@ -44,8 +44,8 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-  collab_snapshot,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
+    collab_snapshot,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
 );

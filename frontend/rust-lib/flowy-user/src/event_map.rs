@@ -64,24 +64,35 @@ pub struct SignUpContext {
 pub trait UserStatusCallback: Send + Sync + 'static {
   /// When the [AuthType] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, auth_type: AuthType) {}
+  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
-  fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  fn did_init(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed in.
-  fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  fn did_sign_in(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>>;
   /// Will be called after the user signed up.
   fn did_sign_up(
     &self,
     context: SignUpContext,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
+    device_id: &str,
   ) -> Fut<FlowyResult<()>>;
 
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
-  fn did_update_network(&self, reachable: bool) {}
-  fn receive_realtime_event(&self, json: Value) {}
+  fn did_update_network(&self, _reachable: bool) {}
+  fn receive_realtime_event(&self, _json: Value) {}
 }
 
 /// The user cloud service provider.
@@ -117,11 +128,21 @@ where
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
-  fn did_init(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_init(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
-  fn did_sign_in(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
 
@@ -130,6 +151,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
     _context: SignUpContext,
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
+    _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }

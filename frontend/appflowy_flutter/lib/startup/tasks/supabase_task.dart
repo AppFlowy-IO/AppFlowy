@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/supabase_realtime.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_protocol/url_protocol.dart';

@@ -1,5 +1,5 @@
 use std::fmt;
-use std::fmt::Write;
+use std::fmt::Display;
 
 use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer};
@@ -40,9 +40,20 @@ pub(crate) struct UidResponse {
 pub struct RealtimeCollabUpdateEvent {
   pub schema: String,
   pub table: String,
+  #[serde(rename = "eventType")]
   pub event_type: String,
   #[serde(rename = "new")]
   pub payload: RealtimeCollabUpdate,
+}
+
+impl Display for RealtimeCollabUpdateEvent {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(
+      f,
+      "schema: {}, table: {}, event_type: {}",
+      self.schema, self.table, self.event_type
+    )
+  }
 }
 
 #[derive(Debug, Deserialize)]

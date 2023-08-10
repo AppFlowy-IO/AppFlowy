@@ -282,13 +282,20 @@ struct UserStatusCallbackImpl {
 impl UserStatusCallback for UserStatusCallbackImpl {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
-  fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_init(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    collab_builder.set_device_id(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -309,13 +316,19 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+    collab_builder.set_device_id(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -341,6 +354,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     context: SignUpContext,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
+    device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let collab_builder = self.collab_builder.clone();
@@ -348,6 +362,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
     let document_manager = self.document_manager.clone();
+    collab_builder.set_device_id(device_id.to_owned());
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
       folder_manager

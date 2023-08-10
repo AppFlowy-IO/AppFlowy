@@ -4,6 +4,7 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -112,7 +113,8 @@ class SupabaseAuthService implements AuthService {
         return await setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
-            AuthServiceMapKeys.email: userEmail
+            AuthServiceMapKeys.email: userEmail,
+            AuthServiceMapKeys.deviceId: await getDeviceId()
           },
         );
       },
@@ -161,7 +163,8 @@ class SupabaseAuthService implements AuthService {
         return await setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
-            AuthServiceMapKeys.email: userEmail
+            AuthServiceMapKeys.email: userEmail,
+            AuthServiceMapKeys.deviceId: await getDeviceId()
           },
         );
       },

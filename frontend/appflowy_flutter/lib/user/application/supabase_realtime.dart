@@ -43,9 +43,8 @@ class SupbaseRealtimeService {
           schema: 'public',
         ), (payload, [ref]) {
       try {
-        final json = jsonDecode(payload);
-        Log.info(json);
-        final pb = RealtimePayloadPB.create()..jsonStr = jsonEncode(json);
+        final jsonStr = jsonEncode(payload);
+        final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
         UserEventPushRealtimeEvent(pb).send();
       } catch (e) {
         Log.error(e);
@@ -53,8 +52,13 @@ class SupbaseRealtimeService {
     });
 
     channel?.subscribe(
-      (statue, [err]) {
-        Log.info("channel subscribe statue: $statue, err: $err");
+      (status, [err]) {
+        Log.info("channel subscribe statue: $status, err: $err");
+        if (status != "SUBSCRIBED") {
+          Future.delayed(const Duration(seconds: 10), () {
+            _subscribeTableChanges();
+          });
+        }
       },
     );
   }

@@ -22,5 +22,5 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
   fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>>;
-  fn handle_realtime_event(&self, json: Value) {}
+  fn handle_realtime_event(&self, _json: Value) {}
 }

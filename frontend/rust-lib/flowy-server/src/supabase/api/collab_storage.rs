@@ -40,7 +40,8 @@ where
 
   async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
     let postgrest = self.0.try_get_weak_postgrest()?;
-    let action = FetchObjectUpdateAction::new(object.id.clone(), object.ty.clone(), postgrest);
+    let action =
+      FetchObjectUpdateAction::new(object.object_id.clone(), object.ty.clone(), postgrest);
     let updates = action.run().await?;
     Ok(updates)
   }
@@ -123,7 +124,8 @@ where
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
 
-    let update_items = get_updates_from_server(&object.id, &object.ty, postgrest.clone()).await?;
+    let update_items =
+      get_updates_from_server(&object.object_id, &object.ty, postgrest.clone()).await?;
 
     // If the update_items is empty, we can send the init_update directly
     if update_items.is_empty() {
@@ -138,7 +140,7 @@ where
       let md5 = md5(&merge_result.new_update);
       let new_update = format!("\\x{}", hex::encode(merge_result.new_update));
       let params = InsertParamsBuilder::new()
-        .insert("oid", object.id.clone())
+        .insert("oid", object.object_id.clone())
         .insert("new_key", override_key)
         .insert("new_value", new_update)
         .insert("md5", md5)
@@ -147,6 +149,7 @@ where
         .insert("uid", object.uid)
         .insert("workspace_id", workspace_id)
         .insert("removed_keys", merge_result.merged_keys)
+        .insert("did", object.get_device_id().unwrap_or_default())
         .build();
 
       postgrest
@@ -174,12 +177,13 @@ async fn send_update(
   let md5 = md5(&update);
   let update = format!("\\x{}", hex::encode(update));
   let builder = InsertParamsBuilder::new()
-    .insert("oid", object.id.clone())
+    .insert("oid", object.object_id.clone())
     .insert("partition_key", partition_key(&object.ty))
     .insert("value", update)
     .insert("uid", object.uid)
     .insert("md5", md5)
     .insert("workspace_id", workspace_id)
+    .insert("did", object.get_device_id().unwrap_or_default())
     .insert("value_size", value_size);
 
   let params = builder.build();

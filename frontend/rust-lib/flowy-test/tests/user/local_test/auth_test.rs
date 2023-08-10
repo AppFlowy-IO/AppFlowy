@@ -15,6 +15,7 @@ async fn sign_up_with_invalid_email() {
       name: valid_name(),
       password: login_password(),
       auth_type: AuthTypePB::Local,
+      device_id: "".to_string(),
     };
 
     assert_eq!(
@@ -38,6 +39,7 @@ async fn sign_up_with_long_password() {
     name: valid_name(),
     password: "1234".repeat(100).as_str().to_string(),
     auth_type: AuthTypePB::Local,
+    device_id: "".to_string(),
   };
 
   assert_eq!(
@@ -64,7 +66,7 @@ async fn sign_in_success() {
     password: sign_up_context.password.clone(),
     name: "".to_string(),
     auth_type: AuthTypePB::Local,
-    uid: Some(sign_up_context.user_profile.id),
+    device_id: "".to_string(),
   };
 
   let response = EventBuilder::new(test.clone())
@@ -85,7 +87,7 @@ async fn sign_in_with_invalid_email() {
       password: login_password(),
       name: "".to_string(),
       auth_type: AuthTypePB::Local,
-      uid: None,
+      device_id: "".to_string(),
     };
 
     assert_eq!(
@@ -112,7 +114,7 @@ async fn sign_in_with_invalid_password() {
       password,
       name: "".to_string(),
       auth_type: AuthTypePB::Local,
-      uid: None,
+      device_id: "".to_string(),
     };
 
     assert!(EventBuilder::new(sdk)

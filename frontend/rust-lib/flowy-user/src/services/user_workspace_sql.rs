@@ -1,7 +1,8 @@
-use chrono::{TimeZone, Utc};
-use flowy_error::FlowyError;
 use std::convert::TryFrom;
 
+use chrono::{TimeZone, Utc};
+
+use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_user_deps::entities::UserWorkspace;
 

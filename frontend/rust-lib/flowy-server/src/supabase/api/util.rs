@@ -5,15 +5,14 @@ use serde_json::Value;
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::{to_fut, Fut};
 
+#[derive(Default)]
 pub struct InsertParamsBuilder {
   map: serde_json::Map<String, Value>,
 }
 
 impl InsertParamsBuilder {
   pub fn new() -> Self {
-    Self {
-      map: serde_json::Map::new(),
-    }
+    Self::default()
   }
 
   pub fn insert<T: serde::Serialize>(mut self, key: &str, value: T) -> Self {
