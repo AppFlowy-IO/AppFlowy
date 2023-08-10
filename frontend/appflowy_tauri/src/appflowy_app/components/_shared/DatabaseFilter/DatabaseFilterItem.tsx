@@ -1,6 +1,6 @@
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
-import { FieldType, SelectOptionPB } from '@/services/backend';
+import { FieldType } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { IPopupItem, PopupSelect } from '$app/components/_shared/PopupSelect';
@@ -14,9 +14,11 @@ import {
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
 import { CellOption } from '$app/components/_shared/EditRow/Options/CellOption';
 import { useAppSelector } from '$app/stores/store';
-import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
+import ButtonPopoverList from '$app/components/_shared/ButtonPopoverList';
+import { FieldSelect } from '$app/components/_shared/DatabaseFilter/FieldSelect';
 
 export const DatabaseFilterItem = ({
   data,
@@ -62,8 +64,6 @@ export const DatabaseFilterItem = ({
 
   const [showFieldSelect, setShowFieldSelect] = useState(false);
   const refFieldSelect = useRef<HTMLDivElement>(null);
-  const [fieldSelectTop, setFieldSelectTop] = useState(0);
-  const [fieldSelectLeft, setFieldSelectLeft] = useState(0);
 
   const [showOperatorSelect, setShowOperatorSelect] = useState(false);
   const refOperatorSelect = useRef<HTMLDivElement>(null);
@@ -114,12 +114,7 @@ export const DatabaseFilterItem = ({
     [columns, fields, filtersStore]
   );
 
-  const onFieldClick: MouseEventHandler = (e) => {
-    if (!refFieldSelect.current) return;
-    const { left, top, height } = refFieldSelect.current.getBoundingClientRect();
-
-    setFieldSelectTop(top + height + 5);
-    setFieldSelectLeft(left);
+  const onFieldClick: MouseEventHandler = (_) => {
     setShowFieldSelect(true);
   };
 
@@ -230,27 +225,13 @@ export const DatabaseFilterItem = ({
           )}
         </div>
 
-        <div
-          ref={refFieldSelect}
-          onClick={onFieldClick}
-          className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-            showFieldSelect ? 'border-fill-hover' : 'border-line-border'
-          }`}
-        >
-          {currentFieldType !== undefined && currentFieldId ? (
-            <div className={'flex items-center gap-2'}>
-              <i className={'block h-5 w-5'}>
-                <FieldTypeIcon fieldType={currentFieldType}></FieldTypeIcon>
-              </i>
-              <span>{fields[currentFieldId].title}</span>
-            </div>
-          ) : (
-            <span className={'text-text-placeholder'}>Select a field</span>
-          )}
-          <i className={`h-5 w-5 transition-transform duration-500 ${showFieldSelect ? 'rotate-180' : 'rotate-0'}`}>
-            <DropDownShowSvg></DropDownShowSvg>
-          </i>
-        </div>
+        <FieldSelect
+          columns={supportedColumns}
+          fields={fields}
+          onSelectFieldClick={onSelectFieldClick}
+          currentFieldId={currentFieldId}
+          currentFieldType={currentFieldType}
+        ></FieldSelect>
 
         <div
           ref={refOperatorSelect}
@@ -345,23 +326,6 @@ export const DatabaseFilterItem = ({
           </i>
         </button>
       </div>
-
-      {showFieldSelect && (
-        <PopupSelect
-          items={supportedColumns.map<IPopupItem>((c) => ({
-            icon: (
-              <i className={'block h-5 w-5'}>
-                <FieldTypeIcon fieldType={fields[c.fieldId].fieldType}></FieldTypeIcon>
-              </i>
-            ),
-            title: fields[c.fieldId].title,
-            onClick: () => onSelectFieldClick(c.fieldId),
-          }))}
-          className={'fixed z-10 text-sm'}
-          style={{ top: `${fieldSelectTop}px`, left: `${fieldSelectLeft}px`, width: `${180}px` }}
-          onOutsideClick={() => setShowFieldSelect(false)}
-        ></PopupSelect>
-      )}
 
       {showOperatorSelect && (
         <PopupSelect
