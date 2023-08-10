@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
+use serde_json::Value;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -14,6 +15,7 @@ use crate::supabase::api::{
   SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl,
   SupabaseServerServiceImpl,
 };
+use crate::supabase::entities::RealtimeCollabUpdateEvent;
 use crate::AppFlowyServer;
 
 /// https://www.pgbouncer.org/features.html
@@ -117,5 +119,14 @@ impl AppFlowyServer for SupabaseServer {
     Some(Arc::new(SupabaseCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
     )))
+  }
+
+  fn handle_realtime_event(&self, json: Value) {
+    match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
+      Ok(event) => {
+        tracing::trace!("realtime event: {:?}", event)
+      },
+      Err(_) => {},
+    }
   }
 }

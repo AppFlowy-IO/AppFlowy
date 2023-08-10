@@ -10,6 +10,7 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
+use serde_json::Value;
 use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager;
@@ -206,6 +207,7 @@ impl AppFlowyCore {
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
       document_manager: document_manager.clone(),
+      server_provider: server_provider.clone(),
       config: config.clone(),
     };
 
@@ -272,6 +274,7 @@ struct UserStatusCallbackImpl {
   folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager>,
   document_manager: Arc<DocumentManager>,
+  server_provider: Arc<AppFlowyServerProvider>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -408,6 +411,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn did_update_network(&self, reachable: bool) {
     self.collab_builder.update_network(reachable);
+  }
+
+  fn receive_realtime_event(&self, json: Value) {
+    self.server_provider.handle_realtime_event(json);
   }
 }
 

@@ -1,6 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
+use serde_json::Value;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -49,6 +50,7 @@ pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
     .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
+    .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
 }
 
 pub struct SignUpContext {
@@ -62,7 +64,7 @@ pub struct SignUpContext {
 pub trait UserStatusCallback: Send + Sync + 'static {
   /// When the [AuthType] changed, this method will be called. Currently, the auth type
   /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, auth_type: AuthType);
+  fn auth_type_did_changed(&self, auth_type: AuthType) {}
   /// This will be called after the application launches if the user is already signed in.
   /// If the user is not signed in, this method will not be called
   fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
@@ -78,7 +80,8 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
-  fn did_update_network(&self, reachable: bool);
+  fn did_update_network(&self, reachable: bool) {}
+  fn receive_realtime_event(&self, json: Value) {}
 }
 
 /// The user cloud service provider.
@@ -114,8 +117,6 @@ where
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
-
   fn did_init(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
@@ -140,8 +141,6 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
-
-  fn did_update_network(&self, _reachable: bool) {}
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -221,4 +220,7 @@ pub enum UserEvent {
 
   #[event(input = "HistoricalUserPB")]
   OpenHistoricalUser = 26,
+
+  #[event(input = "RealtimePayloadPB")]
+  PushRealtimeEvent = 27,
 }

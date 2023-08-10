@@ -15,7 +15,7 @@ use tokio_retry::{Action, Condition, RetryIf};
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
-use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::util::{decode_hex_string, ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
 
@@ -299,11 +299,6 @@ fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
 pub struct UpdateItem {
   pub key: i64,
   pub value: Vec<u8>,
-}
-
-fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
-  let s = s.strip_prefix("\\x")?;
-  hex::decode(s).ok()
 }
 
 pub struct RetryCondition(Weak<PostgresWrapper>);

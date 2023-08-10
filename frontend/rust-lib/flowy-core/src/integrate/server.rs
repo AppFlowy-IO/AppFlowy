@@ -5,6 +5,7 @@ use std::sync::{Arc, Weak};
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabType, RemoteCollabStorage, YrsDocAction};
 use parking_lot::RwLock;
+use serde_json::Value;
 use serde_repr::*;
 
 use flowy_database_deps::cloud::*;
@@ -133,6 +134,13 @@ impl AppFlowyServerProvider {
       .write()
       .insert(provider_type.clone(), server.clone());
     Ok(server)
+  }
+
+  pub fn handle_realtime_event(&self, json: Value) {
+    let provider_type = self.provider_type.read().clone();
+    if let Some(server) = self.providers.read().get(&provider_type) {
+      server.handle_realtime_event(json);
+    }
   }
 }
 

@@ -126,3 +126,8 @@ async fn parse_response_as_error(response: Response) -> FlowyError {
     ),
   )
 }
+
+pub fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
+  let s = s.strip_prefix("\\x")?;
+  hex::decode(s).ok()
+}

@@ -2,6 +2,8 @@ use std::convert::TryFrom;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
+use serde_json::Value;
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
@@ -278,5 +280,23 @@ pub async fn open_historical_users_handler(
   let user = user.into_inner();
   let session = upgrade_session(session)?;
   session.open_historical_user(user.user_id)?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn push_realtime_event_handler(
+  payload: AFPluginData<RealtimePayloadPB>,
+  session: AFPluginState<Weak<UserSession>>,
+) -> Result<(), FlowyError> {
+  match serde_json::from_str::<Value>(&payload.into_inner().json_str) {
+    Ok(json) => {
+      let session = upgrade_session(session)?;
+      session.receive_realtime_event(json).await;
+    },
+    Err(e) => {
+      tracing::error!("Deserialize RealtimePayload failed: {:?}", e);
+    },
+  }
+
   Ok(())
 }

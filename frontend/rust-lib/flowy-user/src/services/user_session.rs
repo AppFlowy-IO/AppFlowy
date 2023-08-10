@@ -5,6 +5,7 @@ use std::sync::{Arc, Weak};
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -619,6 +620,14 @@ impl UserSession {
     self.cloud_services.set_auth_type(AuthType::Local);
     self.set_current_session(Some(session))?;
     Ok(())
+  }
+
+  pub async fn receive_realtime_event(&self, json: Value) {
+    self
+      .user_status_callback
+      .read()
+      .await
+      .receive_realtime_event(json);
   }
 
   /// Returns the current user session.
