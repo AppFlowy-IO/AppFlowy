@@ -46,7 +46,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Reset the current user selected theme back to the default
   Future<void> resetTheme() =>
-      setTheme(DefaultAppearanceSettings.kDefaultFontFamily);
+      setTheme(DefaultAppearanceSettings.kDefaultThemeName);
 
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
