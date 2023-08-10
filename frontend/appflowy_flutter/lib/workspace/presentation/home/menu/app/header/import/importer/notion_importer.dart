@@ -31,6 +31,7 @@ class NotionImporter {
     return;
   }
 
+  //For detailed explaination of working of this import feature - https://github.com/AppFlowy-IO/AppFlowy/pull/3146
   Future<void> _importFromMarkdownZip(String path) async {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
@@ -82,6 +83,7 @@ class NotionImporter {
       parentViewId: parentViewId,
       initialDataBytes: data,
     );
+    //this map will store the name of the view as key and its viewID are value
     final Map<String, String> parentNameToId = {};
     String mainPageId;
     if (result.isLeft()) {
@@ -90,7 +92,14 @@ class NotionImporter {
       return;
     }
     parentNameToId[mainPageName] = mainPageId;
-    //now we will import the sub pages
+    // now we will import the sub pages
+    // Each iteration of the below while loops will be importing one level of
+    // pages, like the main page and its assets would be consider level one then
+    // if main page contains any subpages then those sub pages along with the
+    // assets in those subpages will be considered level 2 and if any of those
+    // subpages contains any subpage that would be level 3 and so on. But we
+    // have already imported the main page this while loop wil start from level 
+    // 2
     while (unzipFiles.isNotEmpty) {
       final List<ArchiveFile> files = [];
       final List<ArchiveFile> images = [];
@@ -131,6 +140,8 @@ class NotionImporter {
           segments.removeAt(0);
           unzipFiles[i].name = segments.join('/');
         } else if (!unzipFiles[i].isFile) {
+          //folders are of no use so they are stored here and will be deleted
+          //unzipfiles
           folders.add(unzipFiles[i]);
         }
       }
@@ -177,6 +188,16 @@ class NotionImporter {
     return null;
   }
 
+  // we take all contents of a markdown file and pass it through
+  // _preProcessMarkdownFile   function which returns us a string which is the
+  // contents of the markdown file but with changes. The changes this function
+  //performs are related to images . It will iterate through each line and if it
+  // it finds something like ![name](path) this is how a image is represented in
+  // markdown . When we get this line is detected we get the path from this
+  // this path is actually the file name of image from the above unzipfiles
+  // so with the help of path we will get the image file and save it
+  // locally and change the current path to the path where the image is saved
+  // locally
   Future<String> _preProcessMarkdownFile(
     String markdown,
     Iterable<ArchiveFile> images,
