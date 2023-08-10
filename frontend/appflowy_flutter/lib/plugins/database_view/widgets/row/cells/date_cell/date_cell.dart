@@ -141,7 +141,7 @@ class GridDateCellText extends StatelessWidget {
           padding: GridSize.cellContentInsets,
           child: FlowyText.medium(
             dateStr,
-            overflow: TextOverflow.ellipsis,
+            maxLines: null,
           ),
         ),
       ),

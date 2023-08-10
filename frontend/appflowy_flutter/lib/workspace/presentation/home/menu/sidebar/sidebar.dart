@@ -1,4 +1,4 @@
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_pa
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -33,24 +34,45 @@ class HomeSideBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => MenuBloc(
-        user: user,
-        workspace: workspaceSetting.workspace,
-      )..add(const MenuEvent.initial()),
-      child: BlocConsumer<MenuBloc, MenuState>(
-        builder: (context, state) => _buildSidebar(context, state),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => MenuBloc(
+            user: user,
+            workspace: workspaceSetting.workspace,
+          )..add(const MenuEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
+        )
+      ],
+      child: BlocListener<MenuBloc, MenuState>(
         listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-        listener: (context, state) => getIt<TabsBloc>().add(
-          TabsEvent.openPlugin(plugin: state.plugin),
+        listener: (context, state) => context
+            .read<TabsBloc>()
+            .add(TabsEvent.openPlugin(plugin: state.plugin)),
+        child: Builder(
+          builder: (context) {
+            final menuState = context.watch<MenuBloc>().state;
+            final favoriteState = context.watch<FavoriteBloc>().state;
+
+            return _buildSidebar(
+              context,
+              menuState.views,
+              favoriteState.views,
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildSidebar(BuildContext context, MenuState state) {
-    final views = state.views;
-    return Container(
+  Widget _buildSidebar(
+    BuildContext context,
+    List<ViewPB> views,
+    List<ViewPB> favoriteViews,
+  ) {
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
         border: Border(
@@ -67,13 +89,13 @@ class HomeSideBar extends StatelessWidget {
             const SidebarTopMenu(),
             // user, setting
             SidebarUser(user: user),
-            // Favorite, Not supported yet
             const VSpace(20),
             // scrollable document list
             Expanded(
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
+                  favoriteViews: favoriteViews,
                 ),
               ),
             ),

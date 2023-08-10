@@ -4,6 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
@@ -32,13 +33,27 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
       offset: const Offset(0, 8),
       margin: EdgeInsets.zero,
       triggerActions: PopoverTriggerFlags.none,
-      child: FlowyIconButton(
-        iconPadding: const EdgeInsets.all(4),
-        hoverColor: AFThemeExtension.of(context).greyHover,
-        onPressed: () => popoverController.show(),
-        icon: svgWidget(
-          'home/add',
-          color: Theme.of(context).colorScheme.tertiary,
+      child: SizedBox(
+        height: 26,
+        child: Row(
+          children: [
+            VerticalDivider(
+              width: 1.0,
+              thickness: 1.0,
+              indent: 4.0,
+              endIndent: 4.0,
+              color: Theme.of(context).dividerColor,
+            ),
+            FlowyIconButton(
+              width: 26,
+              iconPadding: const EdgeInsets.all(5),
+              hoverColor: AFThemeExtension.of(context).greyHover,
+              onPressed: () => popoverController.show(),
+              radius: Corners.s4Border,
+              icon: const FlowySvg(name: 'home/add'),
+              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+            ),
+          ],
         ),
       ),
       popupBuilder: (BuildContext context) {

@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: appflowy_editor
-      sha256: b30f645eac57639ff003e6920d04432b9c80a4e2f6e177326e81c221608d7044
+      sha256: "6886c32ab8c3f5385ec9eb333f3fca596fe5f5ee94da84484c7f56a322a026e7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.3"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -628,7 +628,7 @@ packages:
     source: hosted
     version: "0.7.0"
   hive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: hive
       sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
@@ -636,7 +636,7 @@ packages:
     source: hosted
     version: "2.2.3"
   hive_flutter:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: hive_flutter
       sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
@@ -1589,6 +1589,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  url_protocol:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "77a84201ed8ca50082f4248f3a373d053b1c0462"
+      url: "https://github.com/LucasXu0/flutter_url_protocol.git"
+    source: git
+    version: "1.0.0"
   uuid:
     dependency: transitive
     description:

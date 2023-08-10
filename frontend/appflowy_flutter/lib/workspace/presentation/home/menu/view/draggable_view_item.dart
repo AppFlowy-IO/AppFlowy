@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -70,16 +71,17 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       data: widget.view,
       onWillAccept: (data) => true,
       onMove: (data) {
-        if (!_shouldAccept(data.data)) {
-          return;
-        }
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
+        final position = _computeHoverPosition(offset, renderBox.size);
+        if (!_shouldAccept(data.data, position)) {
+          return;
+        }
         setState(() {
-          position = _computeHoverPosition(offset, renderBox.size);
           Log.debug(
             'offset: $offset, position: $position, size: ${renderBox.size}',
           );
+          this.position = position;
         });
       },
       onLeave: (_) => setState(
@@ -102,6 +104,12 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   void _move(ViewPB from, ViewPB to) {
+    if (position == DraggableHoverPosition.center &&
+        to.layout != ViewLayoutPB.Document) {
+      // not support moving into a database
+      return;
+    }
+
     switch (position) {
       case DraggableHoverPosition.top:
         context.read<ViewBloc>().add(
@@ -136,7 +144,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   DraggableHoverPosition _computeHoverPosition(Offset offset, Size size) {
-    final threshold = size.height / 4.0;
+    final threshold = size.height / 3.0;
     if (widget.isFirstChild && offset.dy < -5.0) {
       return DraggableHoverPosition.top;
     }
@@ -146,7 +154,13 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableHoverPosition.center;
   }
 
-  bool _shouldAccept(ViewPB data) {
+  bool _shouldAccept(ViewPB data, DraggableHoverPosition position) {
+    // could not move the view to a database
+    if (widget.view.layout.isDatabaseView &&
+        position == DraggableHoverPosition.center) {
+      return false;
+    }
+
     // ignore moving the view to itself
     if (data.id == widget.view.id) {
       return false;

@@ -93,7 +93,7 @@ class ChecklistState extends State<ChecklistFilterEditor> {
               children: [
                 Expanded(
                   child: FlowyText(
-                    state.filterInfo.fieldInfo.name,
+                    state.filterInfo.fieldInfo.field.name,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

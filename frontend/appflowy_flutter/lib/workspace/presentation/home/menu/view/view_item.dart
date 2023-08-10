@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -17,18 +19,27 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef ViewItemOnSelected = void Function(ViewPB);
+
 class ViewItem extends StatelessWidget {
   const ViewItem({
     super.key,
     required this.view,
+    this.parentView,
+    required this.categoryType,
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
     this.isDraggable = true,
+    required this.isFeedback,
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
+
+  final FolderCategoryType categoryType;
 
   // indicate the level of the view item
   // used to calculate the left padding
@@ -38,7 +49,11 @@ class ViewItem extends StatelessWidget {
   // the left padding of the each level = level * leftPadding
   final double leftPadding;
 
-  final void Function(ViewPB) onSelected;
+  // Selected by normal conventions
+  final ViewItemOnSelected onSelected;
+
+  // Selected by middle mouse button
+  final ViewItemOnSelected? onTertiarySelected;
 
   // used for indicating the first child of the parent view, so that we can
   // add top border to the first child
@@ -47,24 +62,38 @@ class ViewItem extends StatelessWidget {
   // it should be false when it's rendered as feedback widget inside DraggableItem
   final bool isDraggable;
 
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
+      child: BlocConsumer<ViewBloc, ViewState>(
+        listenWhen: (p, c) =>
+            c.lastCreatedView != null &&
+            p.lastCreatedView?.id != c.lastCreatedView!.id,
+        listener: (context, state) =>
+            context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
+          // don't remove this code. it's related to the backend service.
           view.childViews
             ..clear()
             ..addAll(state.childViews);
           return InnerViewItem(
-            view: view,
+            view: state.view,
+            parentView: parentView,
+            childViews: state.childViews,
+            categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
             showActions: state.isEditing,
             isExpanded: state.isExpanded,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
+            isFeedback: isFeedback,
           );
         },
       ),
@@ -76,48 +105,69 @@ class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
     required this.view,
+    required this.parentView,
+    required this.childViews,
+    required this.categoryType,
     this.isDraggable = true,
     this.isExpanded = true,
     required this.level,
-    this.leftPadding = 10,
+    required this.leftPadding,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
+    required this.isFeedback,
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
+  final List<ViewPB> childViews;
+  final FolderCategoryType categoryType;
 
   final bool isDraggable;
   final bool isExpanded;
   final bool isFirstChild;
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
 
   final int level;
   final double leftPadding;
 
   final bool showActions;
-  final void Function(ViewPB) onSelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
     Widget child = SingleInnerViewItem(
       view: view,
+      parentView: parentView,
       level: level,
       showActions: showActions,
+      categoryType: categoryType,
       onSelected: onSelected,
+      onTertiarySelected: onTertiarySelected,
       isExpanded: isExpanded,
+      isDraggable: isDraggable,
+      leftPadding: leftPadding,
+      isFeedback: isFeedback,
     );
 
     // if the view is expanded and has child views, render its child views
-    final childViews = view.childViews;
     if (isExpanded && childViews.isNotEmpty) {
       final children = childViews.map((childView) {
         return ViewItem(
-          key: ValueKey(childView.id),
+          key: ValueKey('${categoryType.name} ${childView.id}'),
+          parentView: view,
+          categoryType: categoryType,
           isFirstChild: childView.id == childViews.first.id,
           view: childView,
           level: level + 1,
           onSelected: onSelected,
+          onTertiarySelected: onTertiarySelected,
           isDraggable: isDraggable,
+          leftPadding: leftPadding,
+          isFeedback: isFeedback,
         );
       }).toList();
 
@@ -131,7 +181,7 @@ class InnerViewItem extends StatelessWidget {
     }
 
     // wrap the child with DraggableItem if isDraggable is true
-    if (isDraggable) {
+    if (isDraggable && !isReferencedDatabaseView(view, parentView)) {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
@@ -139,11 +189,22 @@ class InnerViewItem extends StatelessWidget {
         feedback: (context) {
           return ViewItem(
             view: view,
+            parentView: parentView,
+            categoryType: categoryType,
             level: level,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isDraggable: false,
+            leftPadding: leftPadding,
+            isFeedback: true,
           );
         },
+      );
+    } else {
+      // keep the same height of the DraggableItem
+      child = Padding(
+        padding: const EdgeInsets.only(top: 2.0),
+        child: child,
       );
     }
 
@@ -155,21 +216,32 @@ class SingleInnerViewItem extends StatefulWidget {
   const SingleInnerViewItem({
     super.key,
     required this.view,
+    required this.parentView,
     required this.isExpanded,
     required this.level,
-    this.leftPadding = 10,
+    required this.leftPadding,
+    this.isDraggable = true,
+    required this.categoryType,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
+    required this.isFeedback,
   });
 
   final ViewPB view;
+  final ViewPB? parentView;
   final bool isExpanded;
+  // identify if the view item is rendered as feedback widget inside DraggableItem
+  final bool isFeedback;
 
   final int level;
   final double leftPadding;
 
+  final bool isDraggable;
   final bool showActions;
-  final void Function(ViewPB) onSelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
+  final FolderCategoryType categoryType;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
@@ -178,6 +250,10 @@ class SingleInnerViewItem extends StatefulWidget {
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   @override
   Widget build(BuildContext context) {
+    if (widget.isFeedback) {
+      return _buildViewItem(false);
+    }
+
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
@@ -193,12 +269,11 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewItem(bool onHover) {
     final children = [
       // expand icon
-      _buildExpandedIcon(),
-      const HSpace(7),
+      _buildLeftIcon(),
       // icon
       SizedBox.square(
         dimension: 16,
-        child: widget.view.icon(),
+        child: widget.view.defaultIcon(),
       ),
       const HSpace(5),
       // title
@@ -214,12 +289,17 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     if (widget.showActions || onHover) {
       // ··· more action button
       children.add(_buildViewMoreActionButton(context));
-      // + button
-      children.add(_buildViewAddButton(context));
+      // only support add button for document layout
+      if (widget.view.layout == ViewLayoutPB.Document) {
+        // + button
+        children.add(_buildViewAddButton(context));
+      }
     }
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
+      onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
       child: SizedBox(
         height: 26,
         child: Padding(
@@ -232,8 +312,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     );
   }
 
-  // > button
-  Widget _buildExpandedIcon() {
+  // > button or · button
+  // show > if the view is expandable.
+  // show · if the view can't contain child views.
+  Widget _buildLeftIcon() {
+    if (isReferencedDatabaseView(widget.view, widget.parentView)) {
+      return const _DotIconWidget();
+    }
+
     final name =
         widget.isExpanded ? 'home/drop_down_show' : 'home/drop_down_hide';
     return GestureDetector(
@@ -284,10 +370,17 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
+        view: widget.view,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
           switch (action) {
+            case ViewMoreActionType.favorite:
+            case ViewMoreActionType.unFavorite:
+              context
+                  .read<FavoriteBloc>()
+                  .add(FavoriteEvent.toggle(widget.view));
+              break;
             case ViewMoreActionType.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),
@@ -305,12 +398,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().add(
-                    TabsEvent.openTab(
-                      plugin: widget.view.plugin(),
-                      view: widget.view,
-                    ),
-                  );
+              context.read<TabsBloc>().openTab(widget.view);
               break;
             default:
               throw UnsupportedError('$action is not supported');
@@ -319,4 +407,31 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       ),
     );
   }
+}
+
+class _DotIconWidget extends StatelessWidget {
+  const _DotIconWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: Container(
+        width: 4,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Theme.of(context).iconTheme.color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+  }
+}
+
+// workaround: we should use view.isEndPoint or something to check if the view can contain child views. But currently, we don't have that field.
+bool isReferencedDatabaseView(ViewPB view, ViewPB? parentView) {
+  if (parentView == null) {
+    return false;
+  }
+  return view.layout.isDatabaseView && parentView.layout.isDatabaseView;
 }

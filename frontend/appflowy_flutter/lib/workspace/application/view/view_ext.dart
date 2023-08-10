@@ -44,7 +44,7 @@ extension ViewExtension on ViewPB {
     return widget;
   }
 
-  Widget icon() {
+  Widget defaultIcon() {
     final iconName = switch (layout) {
       ViewLayoutPB.Board => 'editor/board',
       ViewLayoutPB.Calendar => 'editor/calendar',
@@ -118,9 +118,22 @@ extension ViewLayoutExtension on ViewLayoutPB {
       case ViewLayoutPB.Board:
         return 'editor/board';
       case ViewLayoutPB.Calendar:
-        return 'editor/calendar';
+        return 'editor/date';
       case ViewLayoutPB.Document:
         return 'editor/documents';
+      default:
+        throw Exception('Unknown layout type');
+    }
+  }
+
+  bool get isDatabaseView {
+    switch (this) {
+      case ViewLayoutPB.Grid:
+      case ViewLayoutPB.Board:
+      case ViewLayoutPB.Calendar:
+        return true;
+      case ViewLayoutPB.Document:
+        return false;
       default:
         throw Exception('Unknown layout type');
     }

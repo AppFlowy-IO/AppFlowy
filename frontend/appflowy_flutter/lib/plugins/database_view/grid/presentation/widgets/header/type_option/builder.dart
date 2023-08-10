@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_entities.pb.dart';

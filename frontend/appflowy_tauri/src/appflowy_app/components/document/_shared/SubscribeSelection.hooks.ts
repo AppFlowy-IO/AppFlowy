@@ -18,19 +18,8 @@ export function useSubscribeDecorate(id: string) {
     return temporary.selection;
   });
 
-  const linkDecorateSelection = useAppSelector((state) => {
-    const linkPopoverState = state[TEXT_LINK_NAME][docId];
-
-    if (!linkPopoverState?.open || linkPopoverState?.id !== id) return;
-    return {
-      selection: linkPopoverState.selection,
-      placeholder: linkPopoverState.title,
-    };
-  });
-
   return {
     decorateSelection,
-    linkDecorateSelection,
     temporarySelection,
   };
 }

@@ -10,7 +10,7 @@ use chrono::{DateTime, Utc};
 use collab_plugins::cloud_storage::{CollabObject, CollabType, RemoteCollabSnapshot};
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;
-use tokio_retry::{Action, Retry};
+use tokio_retry::{Action, Condition, RetryIf};
 
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
@@ -34,18 +34,20 @@ impl FetchObjectUpdateAction {
     }
   }
 
-  pub fn run(self) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
+  pub fn run(self) -> RetryIf<Take<FixedInterval>, FetchObjectUpdateAction, RetryCondition> {
+    let postgrest = self.postgrest.clone();
     let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
-    Retry::spawn(retry_strategy, self)
+    RetryIf::spawn(retry_strategy, self, RetryCondition(postgrest))
   }
 
   pub fn run_with_fix_interval(
     self,
     secs: u64,
     times: usize,
-  ) -> Retry<Take<FixedInterval>, FetchObjectUpdateAction> {
+  ) -> RetryIf<Take<FixedInterval>, FetchObjectUpdateAction, RetryCondition> {
+    let postgrest = self.postgrest.clone();
     let retry_strategy = FixedInterval::new(Duration::from_secs(secs)).take(times);
-    Retry::spawn(retry_strategy, self)
+    RetryIf::spawn(retry_strategy, self, RetryCondition(postgrest))
   }
 }
 
@@ -89,9 +91,10 @@ impl BatchFetchObjectUpdateAction {
     }
   }
 
-  pub fn run(self) -> Retry<Take<FixedInterval>, BatchFetchObjectUpdateAction> {
+  pub fn run(self) -> RetryIf<Take<FixedInterval>, BatchFetchObjectUpdateAction, RetryCondition> {
+    let postgrest = self.postgrest.clone();
     let retry_strategy = FixedInterval::new(Duration::from_secs(5)).take(3);
-    Retry::spawn(retry_strategy, self)
+    RetryIf::spawn(retry_strategy, self, RetryCondition(postgrest))
   }
 }
 
@@ -301,4 +304,11 @@ pub struct UpdateItem {
 fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
   let s = s.strip_prefix("\\x")?;
   hex::decode(s).ok()
+}
+
+pub struct RetryCondition(Weak<PostgresWrapper>);
+impl Condition<anyhow::Error> for RetryCondition {
+  fn should_retry(&mut self, _error: &anyhow::Error) -> bool {
+    self.0.upgrade().is_some()
+  }
 }

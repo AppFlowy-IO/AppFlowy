@@ -15,6 +15,7 @@ use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
 use flowy_document2::event_map::DocumentEvent;
+use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
@@ -24,6 +25,7 @@ use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
+use crate::document::document_event::OpenDocumentData;
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, SignUpContext};
 
@@ -36,14 +38,26 @@ pub mod user_event;
 pub struct FlowyCoreTest {
   auth_type: Arc<RwLock<AuthTypePB>>,
   inner: AppFlowyCore,
-  cleaner: Arc<RwLock<Option<Cleaner>>>,
+  #[allow(dead_code)]
+  cleaner: Arc<Cleaner>,
   pub notification_sender: TestNotificationSender,
 }
 
 impl Default for FlowyCoreTest {
   fn default() -> Self {
-    let temp_dir = temp_dir();
-    let config = AppFlowyCoreConfig::new(temp_dir.to_str().unwrap(), nanoid!(6)).log_filter(
+    let temp_dir = temp_dir().join(nanoid!(6));
+    std::fs::create_dir_all(&temp_dir).unwrap();
+    Self::new_with_user_data_path(temp_dir, nanoid!(6))
+  }
+}
+
+impl FlowyCoreTest {
+  pub fn new() -> Self {
+    Self::default()
+  }
+
+  pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
+    let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
       "info",
       vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
     );
@@ -51,23 +65,16 @@ impl Default for FlowyCoreTest {
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))
       .join()
       .unwrap();
-    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     let notification_sender = TestNotificationSender::new();
+    let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     register_notification_sender(notification_sender.clone());
-
     std::mem::forget(inner.dispatcher());
     Self {
       inner,
       auth_type,
       notification_sender,
-      cleaner: Arc::new(RwLock::new(None)),
+      cleaner: Arc::new(Cleaner(path)),
     }
-  }
-}
-
-impl FlowyCoreTest {
-  pub fn new() -> Self {
-    Self::default()
   }
 
   pub async fn new_with_guest_user() -> Self {
@@ -134,8 +141,6 @@ impl FlowyCoreTest {
       .await
       .try_parse::<UserProfilePB>()?;
 
-    let user_path = PathBuf::from(&self.config.storage_path).join(user_profile.id.to_string());
-    *self.cleaner.write() = Some(Cleaner::new(user_path));
     Ok(user_profile)
   }
 
@@ -155,6 +160,17 @@ impl FlowyCoreTest {
       .await
       .parse::<flowy_folder2::entities::RepeatedViewPB>()
       .items
+  }
+
+  pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadView)
+      .payload(ViewIdPB {
+        value: parent_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<flowy_folder2::entities::ViewPB>()
   }
 
   pub async fn delete_view(&self, view_id: &str) {
@@ -180,6 +196,15 @@ impl FlowyCoreTest {
       .error()
   }
 
+  pub async fn update_view_icon(&self, payload: UpdateViewIconPayloadPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateViewIcon)
+      .payload(payload)
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -190,6 +215,7 @@ impl FlowyCoreTest {
       initial_data: vec![],
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -214,6 +240,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     let view = EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -246,6 +273,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -265,6 +293,19 @@ impl FlowyCoreTest {
       .await;
   }
 
+  pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
+    let payload = OpenDocumentPayloadPB {
+      document_id: doc_id.clone(),
+    };
+    let data = EventBuilder::new(self.clone())
+      .event(DocumentEvent::OpenDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+    OpenDocumentData { id: doc_id, data }
+  }
+
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -275,6 +316,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -299,6 +341,7 @@ impl FlowyCoreTest {
       initial_data,
       meta: Default::default(),
       set_as_current: true,
+      index: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -726,8 +769,17 @@ impl TestNotificationSender {
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
           if let Some(payload) = value.payload {
-            if let Ok(object) = T::try_from(Bytes::from(payload)) {
-              let _ = tx.send(object).await;
+            match T::try_from(Bytes::from(payload)) {
+              Ok(object) => {
+                let _ = tx.send(object).await;
+              },
+              Err(e) => {
+                panic!(
+                  "Failed to parse notification payload to type: {:?} with error: {}",
+                  std::any::type_name::<T>(),
+                  e
+                );
+              },
             }
           }
         }
@@ -768,10 +820,10 @@ impl NotificationSender for TestNotificationSender {
   }
 }
 
-struct Cleaner(PathBuf);
+pub struct Cleaner(PathBuf);
 
 impl Cleaner {
-  fn new(dir: PathBuf) -> Self {
+  pub fn new(dir: PathBuf) -> Self {
     Cleaner(dir)
   }
 

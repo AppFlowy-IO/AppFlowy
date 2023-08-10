@@ -21,16 +21,16 @@ use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 
-pub struct RESTfulSupabaseCollabStorageImpl<T>(T);
+pub struct SupabaseCollabStorageImpl<T>(T);
 
-impl<T> RESTfulSupabaseCollabStorageImpl<T> {
+impl<T> SupabaseCollabStorageImpl<T> {
   pub fn new(server: T) -> Self {
     Self(server)
   }
 }
 
 #[async_trait]
-impl<T> RemoteCollabStorage for RESTfulSupabaseCollabStorageImpl<T>
+impl<T> RemoteCollabStorage for SupabaseCollabStorageImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -102,11 +102,14 @@ where
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    let postgrest = self.0.try_get_postgrest()?;
-    let workspace_id = object
-      .get_workspace_id()
-      .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-    send_update(workspace_id, object, update, &postgrest).await
+    if let Some(postgrest) = self.0.get_postgrest() {
+      let workspace_id = object
+        .get_workspace_id()
+        .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+      send_update(workspace_id, object, update, &postgrest).await?;
+    }
+
+    Ok(())
   }
 
   async fn send_init_sync(
@@ -181,7 +184,7 @@ async fn send_update(
 
   let params = builder.build();
   postgrest
-    .from(&table_name(&object.ty))
+    .from(AF_COLLAB_UPDATE_TABLE)
     .insert(params)
     .execute()
     .await?

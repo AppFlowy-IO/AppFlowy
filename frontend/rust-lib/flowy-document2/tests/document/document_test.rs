@@ -1,9 +1,8 @@
 use std::{collections::HashMap, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
+use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 use serde_json::{json, to_value, Value};
-
-use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
 use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 

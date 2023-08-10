@@ -109,7 +109,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.name,
+              state.filterInfo.fieldInfo.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),

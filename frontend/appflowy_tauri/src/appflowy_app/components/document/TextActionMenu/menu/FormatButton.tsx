@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { TemporaryType, TextAction } from '$app/interfaces/document';
-import ToolbarTooltip from '$app/components/document/_shared/ToolbarTooltip';
 import { getFormatActiveThunk, toggleFormatThunk } from '$app_reducers/document/async-actions/format';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
-import { newLinkThunk } from '$app_reducers/document/async-actions/link';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { RANGE_NAME } from '$app/constants/document/name';
 import { createTemporary } from '$app_reducers/document/async-actions/temporary';
@@ -18,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import LinkIcon from '@mui/icons-material/AddLink';
 import { useTranslation } from 'react-i18next';
+import Tooltip from '@mui/material/Tooltip';
 
 export const iconSize = { width: 18, height: 18 };
 
@@ -57,14 +56,6 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
     [controller, dispatch, isActive]
   );
 
-  const addLink = useCallback(() => {
-    dispatch(
-      newLinkThunk({
-        docId,
-      })
-    );
-  }, [dispatch, docId]);
-
   const addTemporaryInput = useCallback(
     (type: TemporaryType) => {
       dispatch(createTemporary({ type, docId }));
@@ -103,12 +94,12 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
         case TextAction.Code:
           return toggleFormat(format);
         case TextAction.Link:
-          return addLink();
+          return addTemporaryInput(TemporaryType.Link);
         case TextAction.Equation:
           return addTemporaryInput(TemporaryType.Equation);
       }
     },
-    [addLink, addTemporaryInput, toggleFormat]
+    [addTemporaryInput, toggleFormat]
   );
 
   const formatIcon = useMemo(() => {
@@ -139,11 +130,11 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
   }, [icon]);
 
   return (
-    <ToolbarTooltip title={formatTooltips[format]}>
+    <Tooltip disableInteractive placement={'top'} title={formatTooltips[format]}>
       <div className={`${color} cursor-pointer px-1 hover:text-fill-default`} onClick={() => formatClick(format)}>
         {formatIcon}
       </div>
-    </ToolbarTooltip>
+    </Tooltip>
   );
 };
 

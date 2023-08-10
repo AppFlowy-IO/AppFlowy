@@ -1,11 +1,10 @@
 use std::sync::{Arc, Weak};
 
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-
 use crate::entities::*;
 use crate::manager::FolderManager;
 use crate::share::ImportParams;
+use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 fn upgrade_folder(
   folder_manager: AFPluginState<Weak<FolderManager>>,
@@ -140,6 +139,17 @@ pub(crate) async fn update_view_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_icon_handler(
+  data: AFPluginData<UpdateViewIconPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params: UpdateViewIconParams = data.into_inner().try_into()?;
+  folder.update_view_icon_with_params(params).await?;
+  Ok(())
+}
+
 pub(crate) async fn delete_view_handler(
   data: AFPluginData<RepeatedViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -148,6 +158,18 @@ pub(crate) async fn delete_view_handler(
   let params: RepeatedViewIdPB = data.into_inner();
   for view_id in &params.items {
     let _ = folder.move_view_to_trash(view_id).await;
+  }
+  Ok(())
+}
+
+pub(crate) async fn toggle_favorites_handler(
+  data: AFPluginData<RepeatedViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let params: RepeatedViewIdPB = data.into_inner();
+  let folder = upgrade_folder(folder)?;
+  for view_id in &params.items {
+    let _ = folder.toggle_favorites(view_id).await;
   }
   Ok(())
 }
@@ -208,6 +230,27 @@ pub(crate) async fn duplicate_view_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_favorites_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let favorites = folder.get_all_favorites().await;
+  let mut views = vec![];
+  for info in favorites {
+    let view = folder.get_view(&info.id).await;
+    match view {
+      Ok(view) => {
+        views.push(view);
+      },
+      Err(err) => {
+        return Err(err);
+      },
+    }
+  }
+
+  data_result_ok(RepeatedViewPB { items: views })
+}
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,

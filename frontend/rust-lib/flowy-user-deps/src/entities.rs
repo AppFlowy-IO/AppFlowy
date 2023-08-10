@@ -164,6 +164,7 @@ pub enum AuthType {
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
+
 impl Default for AuthType {
   fn default() -> Self {
     Self::Local

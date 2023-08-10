@@ -1,12 +1,13 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter,
+  default_order, SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde,
 };
 use crate::services::field::{
   SelectOptionCellChangeset, SelectOptionIds, SelectTypeOptionSharedAction,
 };
+use crate::services::sort::SortCondition;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
@@ -46,7 +47,7 @@ impl From<SingleSelectTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for SingleSelectTypeOption {
+impl TypeOptionCellDataSerde for SingleSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -131,6 +132,7 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (
       cell_data
@@ -140,15 +142,14 @@ impl TypeOptionCellDataCompare for SingleSelectTypeOption {
         .first()
         .and_then(|id| self.options.iter().find(|option| &option.id == id)),
     ) {
-      (Some(left), Some(right)) => left.name.cmp(&right.name),
-      (Some(_), None) => Ordering::Greater,
-      (None, Some(_)) => Ordering::Less,
+      (Some(left), Some(right)) => {
+        let order = left.name.cmp(&right.name);
+        sort_condition.evaluate_order(order)
+      },
+      (Some(_), None) => Ordering::Less,
+      (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.is_empty()
   }
 }
 
@@ -222,6 +223,6 @@ mod tests {
     // delete
     let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
     let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert!(select_option_ids.is_empty());
+    assert!(select_option_ids.is_cell_empty());
   }
 }

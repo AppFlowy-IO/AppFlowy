@@ -6,8 +6,9 @@ use chrono::prelude::*;
 use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::Deserialize;
 use serde::Serialize;
+use serde_json::Value;
 
-use flowy_user_deps::entities::{SignInResponse, UserWorkspace};
+use flowy_user_deps::entities::{SignInResponse, SignUpResponse, UserWorkspace};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
@@ -44,7 +45,9 @@ impl<'de> Visitor<'de> for SessionVisitor {
         "user_workspace" => {
           user_workspace = Some(map.next_value()?);
         },
-        _ => {},
+        _ => {
+          let _ = map.next_value::<Value>();
+        },
       }
     }
     let user_id = user_id.ok_or(serde::de::Error::missing_field("user_id"))?;
@@ -99,26 +102,52 @@ impl std::convert::From<Session> for String {
   }
 }
 
+impl From<&SignUpResponse> for Session {
+  fn from(value: &SignUpResponse) -> Self {
+    Session {
+      user_id: value.user_id,
+      user_workspace: value.latest_workspace.clone(),
+    }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
+  use serde_json::json;
 
   #[derive(serde::Serialize)]
   struct OldSession {
     user_id: i64,
     workspace_id: String,
+    name: String,
   }
 
   #[test]
   fn deserialize_user_workspace_from_workspace_id() {
     // For historical reasons, the session used to contain a workspace_id field.
     let old = OldSession {
-      user_id: 1,
-      workspace_id: uuid::Uuid::new_v4().to_string(),
+      user_id: 223238635422486528,
+      workspace_id: "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6".to_string(),
+      name: "Me".to_string(),
     };
     let s = serde_json::to_string(&old).unwrap();
     let new = serde_json::from_str::<Session>(&s).unwrap();
     assert_eq!(old.user_id, new.user_id);
     assert_eq!(old.workspace_id, new.user_workspace.id);
+
+    let json = json!({
+      "user_id": 2232386,
+      "workspace_id": "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6",
+      "name": "Me",
+      "token": null,
+      "email": "0085bfda-85fa-4611-bfbe-25d5a1229f44@appflowy.io"
+    });
+    let new = serde_json::from_value::<Session>(json).unwrap();
+    assert_eq!(new.user_id, 2232386);
+    assert_eq!(
+      new.user_workspace.id,
+      "f58f5492-ee0a-4a9f-8cf1-dacb459a55f6"
+    );
   }
 }

@@ -7,8 +7,8 @@ use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
-  Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo, View, ViewChange,
-  ViewChangeReceiver, ViewLayout, Workspace,
+  FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
+  View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::Mutex;
 use tokio_stream::wrappers::WatchStream;
@@ -18,6 +18,7 @@ use tracing::{event, Level};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::FolderCloudService;
 
+use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
@@ -370,9 +371,10 @@ impl FolderManager {
         .await?;
     }
 
+    let index = params.index;
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), index);
     });
 
     Ok(view)
@@ -393,7 +395,7 @@ impl FolderManager {
       .await?;
     let view = create_view(params, view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     Ok(view)
   }
@@ -442,21 +444,21 @@ impl FolderManager {
 
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
   /// When the view is moved to trash, all the child views will be moved to trash as well.
+  /// All the favorite views being trashed will be unfavorited first to remove it from favorites list as well. The process of unfavoriting concerned view is handled by `unfavorite_view_and_decendants()`
   #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
     self.with_folder((), |folder| {
-      let view = folder.views.get_view(view_id);
-      folder.add_trash(vec![view_id.to_string()]);
+      if let Some(view) = folder.views.get_view(view_id) {
+        self.unfavorite_view_and_decendants(view.clone(), folder);
+        folder.add_trash(vec![view_id.to_string()]);
+        // notify the parent view that the view is moved to trash
+        send_notification(view_id, FolderNotification::DidMoveViewToTrash)
+          .payload(DeletedViewPB {
+            view_id: view_id.to_string(),
+            index: None,
+          })
+          .send();
 
-      // notify the parent view that the view is moved to trash
-      send_notification(view_id, FolderNotification::DidMoveViewToTrash)
-        .payload(DeletedViewPB {
-          view_id: view_id.to_string(),
-          index: None,
-        })
-        .send();
-
-      if let Some(view) = view {
         notify_child_views_changed(
           view_pb_without_child_views(view),
           ChildViewChangeReason::DidDeleteView,
@@ -465,6 +467,31 @@ impl FolderManager {
     });
 
     Ok(())
+  }
+
+  fn unfavorite_view_and_decendants(&self, view: Arc<View>, folder: &Folder) {
+    let mut all_descendant_views: Vec<Arc<View>> = vec![view.clone()];
+    all_descendant_views.extend(folder.views.get_views_belong_to(&view.id));
+
+    let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
+      .iter()
+      .filter(|view| view.is_favorite)
+      .map(|view| view_pb_without_child_views(view.clone()))
+      .collect();
+
+    if !favorite_descendant_views.is_empty() {
+      folder.delete_favorites(
+        favorite_descendant_views
+          .iter()
+          .map(|v| v.id.clone())
+          .collect(),
+      );
+      send_notification("favorite", FolderNotification::DidUnfavoriteView)
+        .payload(RepeatedViewPB {
+          items: favorite_descendant_views,
+        })
+        .send();
+    }
   }
 
   /// Moves a nested view to a new location in the hierarchy.
@@ -561,33 +588,29 @@ impl FolderManager {
   /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
-    let value = self.with_folder(None, |folder| {
-      let old_view = folder.views.get_view(&params.view_id);
-      let new_view = folder.views.update_view(&params.view_id, |update| {
+    self
+      .update_view(&params.view_id, |update| {
         update
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
           .set_layout_if_not_none(params.layout)
-          .set_icon_url_if_not_none(params.icon_url)
-          .set_cover_url_if_not_none(params.cover_url)
+          .set_favorite_if_not_none(params.is_favorite)
           .done()
-      });
+      })
+      .await
+  }
 
-      Some((old_view, new_view))
-    });
-
-    if let Some((Some(old_view), Some(new_view))) = value {
-      if let Ok(handler) = self.get_handler(&old_view.layout) {
-        handler.did_update_view(&old_view, &new_view).await?;
-      }
-    }
-
-    if let Ok(view_pb) = self.get_view(&params.view_id).await {
-      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
-        .payload(view_pb)
-        .send();
-    }
-    Ok(())
+  /// Update the icon of the view with the given params.
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn update_view_icon_with_params(
+    &self,
+    params: UpdateViewIconParams,
+  ) -> FlowyResult<()> {
+    self
+      .update_view(&params.view_id, |update| {
+        update.set_icon(params.icon).done()
+      })
+      .await
   }
 
   /// Duplicate the view with the given view id.
@@ -599,6 +622,14 @@ impl FolderManager {
 
     let handler = self.get_handler(&view.layout)?;
     let view_data = handler.duplicate_view(&view.id).await?;
+
+    // get the current view index in the parent view, because we need to insert the duplicated view below the current view.
+    let index = if let Some((_, __, views)) = self.get_view_relation(&view.parent_view_id).await {
+      views.iter().position(|id| id == view_id).map(|i| i as u32)
+    } else {
+      None
+    };
+
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
@@ -608,9 +639,10 @@ impl FolderManager {
       view_id: gen_view_id(),
       meta: Default::default(),
       set_as_current: true,
+      index,
     };
 
-    let _ = self.create_view_with_params(duplicate_params).await?;
+    self.create_view_with_params(duplicate_params).await?;
     Ok(())
   }
 
@@ -634,6 +666,57 @@ impl FolderManager {
     self.get_view(&view_id).await.ok()
   }
 
+  /// Toggles the favorite status of a view identified by `view_id`If the view is not a favorite, it will be added to the favorites list; otherwise, it will be removed from the list.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn toggle_favorites(&self, view_id: &str) -> FlowyResult<()> {
+    self.with_folder((), |folder| {
+      if let Some(old_view) = folder.views.get_view(view_id) {
+        if old_view.is_favorite {
+          folder.delete_favorites(vec![view_id.to_string()]);
+        } else {
+          folder.add_favorites(vec![view_id.to_string()]);
+        }
+      }
+    });
+    self.send_toggle_favorite_notification(view_id).await;
+    Ok(())
+  }
+
+  // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
+  async fn send_toggle_favorite_notification(&self, view_id: &str) {
+    if let Ok(view) = self.get_view(view_id).await {
+      let notification_type = if view.is_favorite {
+        FolderNotification::DidFavoriteView
+      } else {
+        FolderNotification::DidUnfavoriteView
+      };
+      send_notification("favorite", notification_type)
+        .payload(RepeatedViewPB {
+          items: vec![view.clone()],
+        })
+        .send();
+
+      send_notification(&view.id, FolderNotification::DidUpdateView)
+        .payload(view)
+        .send()
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
+    self.with_folder(vec![], |folder| {
+      let trash_ids = folder
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
+
+      let mut views = folder.get_all_favorites();
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
+    })
+  }
+
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
     self.with_folder(vec![], |folder| folder.get_all_trash())
@@ -644,7 +727,6 @@ impl FolderManager {
     self.with_folder((), |folder| {
       folder.remote_all_trash();
     });
-
     send_notification("trash", FolderNotification::DidUpdateTrash)
       .payload(RepeatedTrashPB { items: vec![] })
       .send();
@@ -718,14 +800,41 @@ impl FolderManager {
       view_id,
       meta: Default::default(),
       set_as_current: false,
+      index: None,
     };
 
     let view = create_view(params, import_data.view_layout);
     self.with_folder((), |folder| {
-      folder.insert_view(view.clone());
+      folder.insert_view(view.clone(), None);
     });
     notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
     Ok(view)
+  }
+
+  /// Update the view with the provided view_id using the specified function.
+  async fn update_view<F>(&self, view_id: &str, f: F) -> FlowyResult<()>
+  where
+    F: FnOnce(ViewUpdate) -> Option<View>,
+  {
+    let value = self.with_folder(None, |folder| {
+      let old_view = folder.views.get_view(view_id);
+      let new_view = folder.views.update_view(view_id, f);
+
+      Some((old_view, new_view))
+    });
+
+    if let Some((Some(old_view), Some(new_view))) = value {
+      if let Ok(handler) = self.get_handler(&old_view.layout) {
+        handler.did_update_view(&old_view, &new_view).await?;
+      }
+    }
+
+    if let Ok(view_pb) = self.get_view(view_id).await {
+      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
+        .payload(view_pb)
+        .send();
+    }
+    Ok(())
   }
 
   /// Returns a handler that implements the [FolderOperationHandler] trait

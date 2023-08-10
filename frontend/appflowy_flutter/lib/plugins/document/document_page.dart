@@ -65,7 +65,8 @@ class _DocumentPageState extends State<DocumentPage> {
       child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           return state.loadingState.when(
-            loading: () => const SizedBox.shrink(),
+            loading: () =>
+                const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.fold(
               (error) {
                 Log.error(error);

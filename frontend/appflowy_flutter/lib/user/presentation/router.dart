@@ -13,6 +13,13 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 
+const routerNameRoot = '/';
+const routerNameSignUp = '/signUp';
+const routerNameSignIn = '/signIn';
+const routerNameSkipLogIn = '/skipLogIn';
+const routerNameWelcome = '/welcome';
+const routerNameHome = '/home';
+
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
 
@@ -24,6 +31,7 @@ class AuthRouter {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => SignUpScreen(router: getIt<AuthRouter>()),
+        const RouteSettings(name: routerNameSignUp),
       ),
     );
   }
@@ -41,6 +49,7 @@ class AuthRouter {
           workspaceSetting,
           key: ValueKey(profile.id),
         ),
+        const RouteSettings(name: routerNameHome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -71,6 +80,7 @@ class SplashRoute {
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
+        const RouteSettings(name: routerNameWelcome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -97,6 +107,7 @@ class SplashRoute {
           workspaceSetting,
           key: ValueKey(userProfile.id),
         ),
+        const RouteSettings(name: routerNameWelcome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -107,6 +118,7 @@ class SplashRoute {
       context,
       PageRoutes.fade(
         () => SignInScreen(router: getIt<AuthRouter>()),
+        const RouteSettings(name: routerNameSignIn),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -120,6 +132,7 @@ class SplashRoute {
           router: getIt<AuthRouter>(),
           authService: getIt<AuthService>(),
         ),
+        const RouteSettings(name: routerNameSkipLogIn),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );

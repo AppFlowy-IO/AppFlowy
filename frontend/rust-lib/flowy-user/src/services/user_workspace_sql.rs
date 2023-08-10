@@ -1,4 +1,6 @@
 use chrono::{TimeZone, Utc};
+use flowy_error::FlowyError;
+use std::convert::TryFrom;
 
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_user_deps::entities::UserWorkspace;
@@ -13,15 +15,24 @@ pub struct UserWorkspaceTable {
   pub database_storage_id: String,
 }
 
-impl From<(i64, &UserWorkspace)> for UserWorkspaceTable {
-  fn from(value: (i64, &UserWorkspace)) -> Self {
-    Self {
+impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
+  type Error = FlowyError;
+
+  fn try_from(value: (i64, &UserWorkspace)) -> Result<Self, Self::Error> {
+    if value.1.id.is_empty() {
+      return Err(FlowyError::invalid_data().context("The id is empty"));
+    }
+    if value.1.database_storage_id.is_empty() {
+      return Err(FlowyError::invalid_data().context("The database storage id is empty"));
+    }
+
+    Ok(Self {
       id: value.1.id.clone(),
       name: value.1.name.clone(),
       uid: value.0,
       created_at: value.1.created_at.timestamp(),
       database_storage_id: value.1.database_storage_id.clone(),
-    }
+    })
   }
 }
 
@@ -34,7 +45,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
         .timestamp_opt(value.created_at, 0)
         .single()
         .unwrap_or_default(),
-      database_storage_id: "".to_string(),
+      database_storage_id: value.database_storage_id,
     }
   }
 }

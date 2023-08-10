@@ -19,15 +19,15 @@ use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::SupabaseServerService;
 use crate::supabase::define::*;
 
-pub struct RESTfulSupabaseFolderServiceImpl<T>(T);
+pub struct SupabaseFolderServiceImpl<T>(T);
 
-impl<T> RESTfulSupabaseFolderServiceImpl<T> {
+impl<T> SupabaseFolderServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self(server)
   }
 }
 
-impl<T> FolderCloudService for RESTfulSupabaseFolderServiceImpl<T>
+impl<T> FolderCloudService for SupabaseFolderServiceImpl<T>
 where
   T: SupabaseServerService,
 {

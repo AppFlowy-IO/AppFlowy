@@ -17,11 +17,8 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
       ),
       keywords: ['grid', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           openAfterCreate: false,
@@ -45,11 +42,8 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
       ),
       keywords: ['board', 'kanban', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -72,11 +66,8 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
       ),
       keywords: ['calendar', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

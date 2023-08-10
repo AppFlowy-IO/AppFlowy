@@ -119,7 +119,7 @@ function ColorPicker({
     }
   }, [selectOption, formatColor, colors]);
 
-  useBindArrowKey({
+  const { run, stop } = useBindArrowKey({
     options: colors.map((item) => item.key),
     onChange: (key) => {
       setSelectOption(key);
@@ -127,6 +127,14 @@ function ColorPicker({
     selectOption,
     onEnter: () => onClick(),
   });
+
+  useEffect(() => {
+    if (open) {
+      run();
+    } else {
+      stop();
+    }
+  }, [open, run, stop]);
 
   return (
     <>

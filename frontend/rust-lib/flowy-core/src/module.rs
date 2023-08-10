@@ -12,12 +12,16 @@ pub fn make_plugins(
   user_session: Weak<UserSession>,
   document_manager2: Weak<DocumentManager2>,
 ) -> Vec<AFPlugin> {
+  let store_preferences = user_session
+    .upgrade()
+    .map(|session| session.get_store_preferences())
+    .unwrap();
   let user_plugin = flowy_user::event_map::init(user_session);
   let folder_plugin = flowy_folder2::event_map::init(folder_manager);
   let network_plugin = flowy_net::event_map::init();
   let database_plugin = flowy_database2::event_map::init(database_manager);
   let document_plugin2 = flowy_document2::event_map::init(document_manager2);
-  let config_plugin = flowy_config::event_map::init();
+  let config_plugin = flowy_config::event_map::init(store_preferences);
   vec![
     user_plugin,
     folder_plugin,
