@@ -99,13 +99,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
             bloc: bloc..add(DynamicPluginEvent.load()),
             buildWhen: (previous, current) => current is Ready,
             builder: (context, state) {
-              return state.when(
-                uninitialized: () => const SizedBox.shrink(),
-                processing: () => const SizedBox.shrink(),
-                compilationFailure: (message) => const SizedBox.shrink(),
-                deletionFailure: (message) => const SizedBox.shrink(),
-                deletionSuccess: () => const SizedBox.shrink(),
-                compilationSuccess: () => const SizedBox.shrink(),
+              return state.maybeWhen(
                 ready: (plugins) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -130,6 +124,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                     ],
                   ],
                 ),
+                orElse: () => const SizedBox.shrink(),
               );
             },
           ),
