@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -161,7 +162,7 @@ class GridFilterPropertyCell extends StatelessWidget {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
-        fieldInfo.name,
+        fieldInfo.field.name,
         color: AFThemeExtension.of(context).textColor,
       ),
       onTap: () => onTap(fieldInfo),

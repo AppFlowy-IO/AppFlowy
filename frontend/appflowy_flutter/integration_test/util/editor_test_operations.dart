@@ -87,7 +87,7 @@ class EditorOperations {
 
   Future<void> switchSolidColorBackground() async {
     final findPurpleButton = find.byWidgetPredicate(
-      (widget) => widget is ColorItem && widget.option.colorHex == "ffe8e0ff",
+      (widget) => widget is ColorItem && widget.option.name == 'Purple',
     );
     await tester.tapButton(findPurpleButton);
   }
