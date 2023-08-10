@@ -17,7 +17,7 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a getting started page
-      tester.expectToSeePageName(gettingStated);
+      tester.expectToSeePageName(gettingStarted);
 
       await tester.tapAddViewButton();
       await tester.tapImportButton();

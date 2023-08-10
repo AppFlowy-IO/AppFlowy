@@ -276,13 +276,13 @@ class RowContent extends StatelessWidget {
         final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
-          width: cellId.fieldInfo.width.toDouble(),
-          isPrimary: cellId.fieldInfo.isPrimary,
+          width: cellId.fieldInfo.field.width.toDouble(),
+          isPrimary: cellId.fieldInfo.field.isPrimary,
           cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellId.fieldInfo.isPrimary) {
+            if (cellId.fieldInfo.field.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
                   builder: (key) => PrimaryCellAccessory(

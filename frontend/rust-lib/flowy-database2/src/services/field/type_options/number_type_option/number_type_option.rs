@@ -18,8 +18,9 @@ use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   NumberCellFormat, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
 };
+use crate::services::sort::SortCondition;
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -32,6 +33,12 @@ pub struct NumberTypeOption {
 
 #[derive(Clone, Debug, Default)]
 pub struct NumberCellData(pub String);
+
+impl TypeOptionCellData for NumberCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.0.is_empty()
+  }
+}
 
 impl From<&Cell> for NumberCellData {
   fn from(cell: &Cell) -> Self {
@@ -95,7 +102,7 @@ impl From<NumberTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for NumberTypeOption {
+impl TypeOptionCellDataSerde for NumberTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -219,7 +226,7 @@ impl CellDataChangeset for NumberTypeOption {
         NumberCellData::from(formatter.to_string()),
       )),
       _ => Ok((
-        NumberCellData::from(formatter.to_string()).into(),
+        NumberCellData::from(formatter.to_unformatted_string()).into(),
         NumberCellData::from(formatter.to_string()),
       )),
     }
@@ -244,27 +251,41 @@ impl TypeOptionCellDataFilter for NumberTypeOption {
 }
 
 impl TypeOptionCellDataCompare for NumberTypeOption {
+  /// Compares two cell data using a specified sort condition.
+  ///
+  /// The function checks if either `cell_data` or `other_cell_data` is empty (using the `is_empty` method) and:
+  /// - If both are empty, it returns `Ordering::Equal`.
+  /// - If only the left cell is empty, it returns `Ordering::Greater`.
+  /// - If only the right cell is empty, it returns `Ordering::Less`.
+  /// - If neither is empty, the cell data is converted into `NumberCellFormat` and compared based on the decimal value.
+  ///
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
-    let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
-    match (left, right) {
-      (Ok(left), Ok(right)) => {
-        return left.decimal().cmp(right.decimal());
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let left = NumberCellFormat::from_format_str(&cell_data.0, &self.format);
+        let right = NumberCellFormat::from_format_str(&other_cell_data.0, &self.format);
+        match (left, right) {
+          (Ok(left), Ok(right)) => {
+            let order = left.decimal().cmp(right.decimal());
+            sort_condition.evaluate_order(order)
+          },
+          (Ok(_), Err(_)) => Ordering::Less,
+          (Err(_), Ok(_)) => Ordering::Greater,
+          (Err(_), Err(_)) => Ordering::Equal,
+        }
       },
-      (Ok(_), Err(_)) => Ordering::Greater,
-      (Err(_), Ok(_)) => Ordering::Less,
-      (Err(_), Err(_)) => Ordering::Equal,
     }
   }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.0.is_empty()
-  }
 }
+
 impl std::default::Default for NumberTypeOption {
   fn default() -> Self {
     let format = NumberFormat::default();

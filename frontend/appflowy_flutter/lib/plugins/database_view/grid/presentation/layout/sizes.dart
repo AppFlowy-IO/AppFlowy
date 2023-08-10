@@ -30,6 +30,9 @@ class GridSize {
 
   static EdgeInsets get typeOptionContentInsets => const EdgeInsets.all(4);
 
+  static EdgeInsets get toolbarSettingButtonInsets =>
+      const EdgeInsets.symmetric(horizontal: 8, vertical: 2);
+
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.leadingHeaderPadding,
         GridSize.headerContainerPadding,

@@ -254,18 +254,23 @@ class _EventList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      child: ListView.separated(
-        itemBuilder: (BuildContext context, int index) => EventCard(
-          event: events[index],
-          viewId: viewId,
-          rowCache: rowCache,
-          constraints: constraints,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          scrollbars: true,
         ),
-        itemCount: events.length,
-        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
-        separatorBuilder: (BuildContext context, int index) =>
-            VSpace(GridSize.typeOptionSeparatorHeight),
-        shrinkWrap: true,
+        child: ListView.separated(
+          itemBuilder: (BuildContext context, int index) => EventCard(
+            event: events[index],
+            viewId: viewId,
+            rowCache: rowCache,
+            constraints: constraints,
+          ),
+          itemCount: events.length,
+          padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
+          separatorBuilder: (BuildContext context, int index) =>
+              VSpace(GridSize.typeOptionSeparatorHeight),
+          shrinkWrap: true,
+        ),
       ),
     );
   }

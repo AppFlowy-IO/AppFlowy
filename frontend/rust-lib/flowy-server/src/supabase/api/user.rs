@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
+use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -74,9 +75,15 @@ where
         .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
         .cloned();
 
+      let user_name = if user_profile.name.is_empty() {
+        DEFAULT_USER_NAME()
+      } else {
+        user_profile.name
+      };
+
       Ok(SignUpResponse {
         user_id: user_profile.uid,
-        name: user_profile.name,
+        name: user_name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
         is_new: is_new_user,
@@ -100,9 +107,10 @@ where
         .iter()
         .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
         .cloned();
+
       Ok(SignInResponse {
         user_id: user_profile.uid,
-        name: "".to_string(),
+        name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
         email: None,

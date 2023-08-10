@@ -1,14 +1,13 @@
+import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FavoriteFolder extends StatelessWidget {
@@ -24,6 +23,7 @@ class FavoriteFolder extends StatelessWidget {
     if (views.isEmpty) {
       return const SizedBox.shrink();
     }
+
     return BlocProvider<FolderBloc>(
       create: (context) => FolderBloc(type: FolderCategoryType.favorite)
         ..add(
@@ -50,14 +50,18 @@ class FavoriteFolder extends StatelessWidget {
                     categoryType: FolderCategoryType.favorite,
                     isDraggable: false,
                     isFirstChild: view.id == views.first.id,
+                    isFeedback: false,
                     view: view,
                     level: 0,
                     onSelected: (view) {
-                      getIt<MenuSharedState>().latestOpenView = view;
-                      context
-                          .read<MenuBloc>()
-                          .add(MenuEvent.openPage(view.plugin()));
+                      if (RawKeyboard.instance.isControlPressed) {
+                        context.read<TabsBloc>().openTab(view);
+                      }
+
+                      context.read<TabsBloc>().openPlugin(view);
                     },
+                    onTertiarySelected: (view) =>
+                        context.read<TabsBloc>().openTab(view),
                   ),
                 )
             ],

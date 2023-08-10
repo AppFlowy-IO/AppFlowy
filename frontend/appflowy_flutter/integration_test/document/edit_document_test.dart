@@ -59,7 +59,7 @@ void main() {
       );
 
       // switch to other page and switch back
-      await tester.openPage(gettingStated);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // the numbered list should be kept
@@ -91,7 +91,7 @@ void main() {
       }
 
       // switch to other page and switch back
-      await tester.openPage(gettingStated);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // this screenshots are different on different platform, so comment it out temporarily.

@@ -16,7 +16,7 @@ void main() {
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(gettingStated);
+      tester.expectToSeePageName(gettingStarted);
 
       // mock the file picker
       final path = await mockSaveFilePath(
@@ -43,11 +43,11 @@ void main() {
         await tester.tapGoButton();
 
         // expect to see a getting started page
-        tester.expectToSeePageName(gettingStated);
+        tester.expectToSeePageName(gettingStarted);
 
         // rename the document
         await tester.hoverOnPageName(
-          gettingStated,
+          gettingStarted,
           onHover: () async {
             await tester.renamePage('example');
           },
@@ -94,6 +94,13 @@ const expectedMarkdown = r'''
 1. Keyboard shortcuts [guide](https://appflowy.gitbook.io/docs/essential-documentation/shortcuts)
 1. Markdown [reference](https://appflowy.gitbook.io/docs/essential-documentation/markdown)
 1. Type `/code` to insert a code block
+```rust
+// This is the main function.
+fn main() {
+    // Print text to the console.
+    println!("Hello World!");
+}
+```
 
 ## Have a question❓
 > Click `?` at the bottom right for help and support.

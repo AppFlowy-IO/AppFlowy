@@ -34,20 +34,20 @@ void main() {
 
       // delete the readme page
       await tester.hoverOnPageName(
-        gettingStated,
+        gettingStarted,
         onHover: () async => await tester.tapDeletePageButton(),
       );
 
       // the banner should show up and the readme page should be gone
       tester.expectToSeeDocumentBanner();
-      tester.expectNotToSeePageName(gettingStated);
+      tester.expectNotToSeePageName(gettingStarted);
 
       // restore the readme page
       await tester.tapRestoreButton();
 
       // the banner should be gone and the readme page should be back
       tester.expectNotToSeeDocumentBanner();
-      tester.expectToSeePageName(gettingStated);
+      tester.expectToSeePageName(gettingStarted);
     });
 
     testWidgets('delete the readme page and delete it permanently',
@@ -58,20 +58,20 @@ void main() {
 
       // delete the readme page
       await tester.hoverOnPageName(
-        gettingStated,
+        gettingStarted,
         onHover: () async => await tester.tapDeletePageButton(),
       );
 
       // the banner should show up and the readme page should be gone
       tester.expectToSeeDocumentBanner();
-      tester.expectNotToSeePageName(gettingStated);
+      tester.expectNotToSeePageName(gettingStarted);
 
       // delete the page permanently
       await tester.tapDeletePermanentlyButton();
 
       // the banner should be gone and the readme page should be gone
       tester.expectNotToSeeDocumentBanner();
-      tester.expectNotToSeePageName(gettingStated);
+      tester.expectNotToSeePageName(gettingStarted);
     });
   });
 }

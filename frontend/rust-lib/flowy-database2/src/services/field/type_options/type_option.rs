@@ -20,6 +20,7 @@ use crate::services::field::{
   RichTextTypeOption, SingleSelectTypeOption, TimeFormat, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
+use crate::services::sort::SortCondition;
 
 pub trait TypeOption {
   /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -32,7 +33,7 @@ pub trait TypeOption {
   ///
   /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
-  type CellData: ToString + Default + Send + Sync + Clone + Debug + 'static;
+  type CellData: TypeOptionCellData + ToString + Default + Send + Sync + Clone + Debug + 'static;
 
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
@@ -52,8 +53,11 @@ pub trait TypeOption {
   /// Represents as the filter configuration for this type option.
   type CellFilter: FromFilterString + Send + Sync + 'static;
 }
-
-pub trait TypeOptionCellData: TypeOption {
+/// This trait providing serialization and deserialization methods for cell data.
+///
+/// This trait ensures that a type which implements both `TypeOption` and `TypeOptionCellDataSerde` can
+/// be converted to and from a corresponding `Protobuf struct`, and can be parsed from an opaque [Cell] structure.
+pub trait TypeOptionCellDataSerde: TypeOption {
   /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
@@ -67,6 +71,18 @@ pub trait TypeOptionCellData: TypeOption {
   /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
   /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+}
+
+/// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
+///
+pub trait TypeOptionCellData {
+  /// Checks if the cell content is considered empty.
+  ///
+  /// Even if a cell is initialized, its content might still be considered empty
+  /// based on certain criteria. e.g. empty text, date, select option, etc.
+  fn is_cell_empty(&self) -> bool {
+    false
+  }
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -127,13 +143,28 @@ pub fn default_order() -> Ordering {
 }
 
 pub trait TypeOptionCellDataCompare: TypeOption {
+  /// Compares the cell contents of two cells that are both not
+  /// None. However, the cell contents might still be empty
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering;
 
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool;
+  /// Compares the two cells where one of the cells is None
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    _sort_condition: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(cell_data)) if !cell_data.is_cell_empty() => Ordering::Greater,
+      (Some(cell_data), None) if !cell_data.is_cell_empty() => Ordering::Less,
+      _ => Ordering::Equal,
+    }
+  }
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(

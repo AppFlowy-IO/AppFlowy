@@ -246,46 +246,20 @@ fn cmp_row(
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
-    Some(field_rev) => match (
+    Some(field_rev) => cmp_cell(
       left.cells.get(&sort.field_id),
       right.cells.get(&sort.field_id),
-    ) {
-      (Some(left_cell), Some(right_cell)) => cmp_cell(
-        left_cell,
-        right_cell,
-        field_rev,
-        field_type,
-        cell_data_cache,
-        sort.condition,
-      ),
-      (Some(_), None) => {
-        if field_type.is_checkbox() {
-          match sort.condition {
-            SortCondition::Ascending => Ordering::Greater,
-            SortCondition::Descending => Ordering::Less,
-          }
-        } else {
-          Ordering::Less
-        }
-      },
-      (None, Some(_)) => {
-        if field_type.is_checkbox() {
-          match sort.condition {
-            SortCondition::Ascending => Ordering::Less,
-            SortCondition::Descending => Ordering::Greater,
-          }
-        } else {
-          Ordering::Greater
-        }
-      },
-      _ => default_order(),
-    },
+      field_rev,
+      field_type,
+      cell_data_cache,
+      sort.condition,
+    ),
   }
 }
 
 fn cmp_cell(
-  left_cell: &Cell,
-  right_cell: &Cell,
+  left_cell: Option<&Cell>,
+  right_cell: Option<&Cell>,
   field: &Arc<Field>,
   field_type: FieldType,
   cell_data_cache: &CellCache,
@@ -306,6 +280,7 @@ fn cmp_cell(
     },
   }
 }
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum SortEvent {
   SortDidChanged,

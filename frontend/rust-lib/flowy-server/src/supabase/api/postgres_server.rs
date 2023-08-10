@@ -68,8 +68,8 @@ impl SupabaseServerService for SupabaseServerServiceImpl {
       .map(|server| server.postgrest.clone())
       .ok_or_else(|| {
         FlowyError::new(
-          ErrorCode::SupabaseSyncRequired,
-          "Supabase sync is disabled, please enable it first",
+          ErrorCode::DataSyncRequired,
+          "Data Sync is disabled, please enable it first",
         )
         .into()
       })

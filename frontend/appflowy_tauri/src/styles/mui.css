@@ -53,6 +53,10 @@
     font-weight: 400 !important;
 }
 
+.MuiTooltip-arrow {
+    color: var(--bg-tips) !important;
+}
+
 .MuiInput-input[class$='-MuiSelect-select-MuiInputBase-input-MuiInput-input']:focus {
     background: transparent;
 }

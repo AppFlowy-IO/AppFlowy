@@ -43,7 +43,7 @@ SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
   name: 'Code Block',
   iconData: Icons.abc,
   keywords: ['code', 'codeblock'],
-  nodeBuilder: (editorState) => codeBlockNode(),
+  nodeBuilder: (editorState, _) => codeBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 

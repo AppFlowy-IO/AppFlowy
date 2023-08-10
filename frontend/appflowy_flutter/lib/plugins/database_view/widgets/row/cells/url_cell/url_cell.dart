@@ -152,7 +152,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
             child: TextField(
               controller: _controller,
               focusNode: focusNode,
-              maxLines: 1,
+              maxLines: null,
               style: (widget.cellStyle?.textStyle ??
                       Theme.of(context).textTheme.bodyMedium)
                   ?.copyWith(

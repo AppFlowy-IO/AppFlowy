@@ -15,7 +15,7 @@ use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
@@ -59,6 +59,12 @@ impl DateCellData {
       timestamp: Some(timestamp),
       include_time,
     }
+  }
+}
+
+impl TypeOptionCellData for DateCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.timestamp.is_none()
   }
 }
 

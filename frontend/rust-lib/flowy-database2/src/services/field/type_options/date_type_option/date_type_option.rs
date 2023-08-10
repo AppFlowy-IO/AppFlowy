@@ -2,9 +2,10 @@ use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
   TypeOptionTransform,
 };
+use crate::services::sort::SortCondition;
 use chrono::format::strftime::StrftimeItems;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
@@ -80,7 +81,7 @@ impl From<DateTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for DateTypeOption {
+impl TypeOptionCellDataSerde for DateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -306,16 +307,16 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data.timestamp, other_cell_data.timestamp) {
-      (Some(left), Some(right)) => left.cmp(&right),
-      (Some(_), None) => Ordering::Greater,
-      (None, Some(_)) => Ordering::Less,
+      (Some(left), Some(right)) => {
+        let order = left.cmp(&right);
+        sort_condition.evaluate_order(order)
+      },
+      (Some(_), None) => Ordering::Less,
+      (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.timestamp.is_none()
   }
 }

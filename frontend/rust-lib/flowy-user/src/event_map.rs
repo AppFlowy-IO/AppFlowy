@@ -15,9 +15,14 @@ use crate::event_handler::*;
 use crate::{errors::FlowyError, services::UserSession};
 
 pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
+  let store_preferences = user_session
+    .upgrade()
+    .map(|session| session.get_store_preferences())
+    .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
     .state(user_session)
+    .state(store_preferences)
     .event(UserEvent::SignIn, sign_in)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
@@ -42,6 +47,8 @@ pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
       remove_user_from_workspace_handler,
     )
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
+    .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
+    .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
 }
 
 pub struct SignUpContext {
@@ -80,6 +87,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration);
   fn set_auth_type(&self, auth_type: AuthType);
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
+  fn service_name(&self) -> String;
 }
 
 impl<T> UserCloudServiceProvider for Arc<T>
@@ -96,6 +104,10 @@ where
 
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
     (**self).get_user_service()
+  }
+
+  fn service_name(&self) -> String {
+    (**self).service_name()
   }
 }
 
@@ -203,4 +215,10 @@ pub enum UserEvent {
 
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
+
+  #[event(output = "RepeatedHistoricalUserPB")]
+  GetHistoricalUsers = 25,
+
+  #[event(input = "HistoricalUserPB")]
+  OpenHistoricalUser = 26,
 }

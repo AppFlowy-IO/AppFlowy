@@ -16,8 +16,9 @@ use crate::services::cell::{
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform, CELL_DATA,
+  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
 };
+use crate::services::sort::SortCondition;
 
 /// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
 /// used yet.
@@ -85,7 +86,7 @@ impl TypeOptionTransform for RichTextTypeOption {
   }
 }
 
-impl TypeOptionCellData for RichTextTypeOption {
+impl TypeOptionCellDataSerde for RichTextTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -152,12 +153,17 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    cell_data.0.cmp(&other_cell_data.0)
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.0.trim().is_empty()
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let order = cell_data.0.cmp(&other_cell_data.0);
+        sort_condition.evaluate_order(order)
+      },
+    }
   }
 }
 
@@ -218,6 +224,12 @@ impl std::ops::Deref for StrCellData {
 
   fn deref(&self) -> &Self::Target {
     &self.0
+  }
+}
+
+impl TypeOptionCellData for StrCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.0.is_empty()
   }
 }
 
