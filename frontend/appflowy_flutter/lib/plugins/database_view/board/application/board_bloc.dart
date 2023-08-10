@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
@@ -254,11 +256,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   Future<void> _openGrid(Emitter<BoardState> emit) async {
     final result = await databaseController.open();
     result.fold(
-      (grid) => emit(
-        state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
-      ),
+      (grid) {
+        databaseController.setIsLoading(false);
+        emit(
+          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+        );
+      },
       (err) => emit(
-        state.copyWith(loadingState: GridLoadingState.finish(right(err))),
+        state.copyWith(loadingState: LoadingState.finish(right(err))),
       ),
     );
   }
@@ -323,7 +328,7 @@ class BoardState with _$BoardState {
     required Option<DatabasePB> grid,
     required List<String> groupIds,
     required Option<BoardEditingRow> editingRow,
-    required GridLoadingState loadingState,
+    required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
@@ -333,16 +338,8 @@ class BoardState with _$BoardState {
         groupIds: [],
         editingRow: none(),
         noneOrError: none(),
-        loadingState: const _Loading(),
+        loadingState: const LoadingState.loading(),
       );
-}
-
-@freezed
-class GridLoadingState with _$GridLoadingState {
-  const factory GridLoadingState.loading() = _Loading;
-  const factory GridLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
-  ) = _Finish;
 }
 
 class GridFieldEquatable extends Equatable {

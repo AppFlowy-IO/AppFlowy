@@ -1,26 +1,30 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::fmt::{Display, Formatter};
+use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::RemoteCollabStorage;
+use appflowy_integrate::{CollabType, RemoteCollabStorage, YrsDocAction};
 use parking_lot::RwLock;
 use serde_repr::*;
 
-use flowy_database2::deps::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
-use flowy_document2::deps::{DocumentCloudService, DocumentData, DocumentSnapshot};
+use flowy_database_deps::cloud::*;
+use flowy_document2::deps::DocumentData;
+use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder2::deps::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
-use flowy_server::local_server::LocalServer;
+use flowy_folder_deps::cloud::*;
+use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::AppFlowyServer;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_sqlite::kv::KV;
-use flowy_user::event_map::{UserAuthService, UserCloudServiceProvider};
-use flowy_user::services::AuthType;
+use flowy_sqlite::kv::StorePreferences;
+use flowy_user::event_map::UserCloudServiceProvider;
+use flowy_user::services::database::{
+  get_user_profile, get_user_workspace, open_collab_db, open_user_db,
+};
+use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
 use crate::AppFlowyCoreConfig;
@@ -34,32 +38,49 @@ pub enum ServerProviderType {
   /// Offline mode, no user authentication and the data is stored locally.
   Local = 0,
   /// Self-hosted server provider.
-  /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) is still a work in
+  /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Cloud) is still a work in
   /// progress.
-  SelfHosted = 1,
+  AppFlowyCloud = 1,
   /// Supabase server provider.
   /// It uses supabase's postgresql database to store data and user authentication.
   Supabase = 2,
 }
 
+impl Display for ServerProviderType {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      ServerProviderType::Local => write!(f, "Local"),
+      ServerProviderType::AppFlowyCloud => write!(f, "AppFlowyCloud"),
+      ServerProviderType::Supabase => write!(f, "Supabase"),
+    }
+  }
+}
+
 /// The [AppFlowyServerProvider] provides list of [AppFlowyServer] base on the [AuthType]. Using
 /// the auth type, the [AppFlowyServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserAuthService], etc.
+/// Each server implements the [AppFlowyServer] trait, which provides the [UserService], etc.
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
   supabase_config: RwLock<Option<SupabaseConfiguration>>,
+  store_preferences: Weak<StorePreferences>,
 }
 
 impl AppFlowyServerProvider {
-  pub fn new(config: AppFlowyCoreConfig, supabase_config: Option<SupabaseConfiguration>) -> Self {
+  pub fn new(
+    config: AppFlowyCoreConfig,
+    provider_type: ServerProviderType,
+    supabase_config: Option<SupabaseConfiguration>,
+    store_preferences: Weak<StorePreferences>,
+  ) -> Self {
     Self {
       config,
-      provider_type: RwLock::new(current_server_provider()),
+      provider_type: RwLock::new(provider_type),
       providers: RwLock::new(HashMap::new()),
       supabase_config: RwLock::new(supabase_config),
+      store_preferences,
     }
   }
 
@@ -78,10 +99,14 @@ impl AppFlowyServerProvider {
 
     let server = match provider_type {
       ServerProviderType::Local => {
-        let server = Arc::new(LocalServer::new(&self.config.storage_path));
+        let local_db = Arc::new(LocalServerDBImpl {
+          storage_path: self.config.storage_path.clone(),
+        });
+        let server = Arc::new(LocalServer::new(local_db));
+
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      ServerProviderType::SelfHosted => {
+      ServerProviderType::AppFlowyCloud => {
         let config = self_host_server_configuration().map_err(|e| {
           FlowyError::new(
             ErrorCode::InvalidAuthConfig,
@@ -134,33 +159,42 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
     let provider_type: ServerProviderType = auth_type.into();
     *self.provider_type.write() = provider_type.clone();
 
-    match KV::set_object(SERVER_PROVIDER_TYPE_KEY, provider_type.clone()) {
-      Ok(_) => tracing::trace!("Update server provider type to: {:?}", provider_type),
-      Err(e) => {
-        tracing::error!("🔴Failed to update server provider type: {:?}", e);
+    match self.store_preferences.upgrade() {
+      None => tracing::error!("🔴Failed to update server provider type: store preferences is drop"),
+      Some(store_preferences) => {
+        match store_preferences.set_object(SERVER_PROVIDER_TYPE_KEY, provider_type.clone()) {
+          Ok(_) => tracing::trace!("Update server provider type to: {:?}", provider_type),
+          Err(e) => {
+            tracing::error!("🔴Failed to update server provider type: {:?}", e);
+          },
+        }
       },
     }
   }
 
-  /// Returns the [UserAuthService] base on the current [ServerProviderType].
+  /// Returns the [UserService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
-  fn get_auth_service(&self) -> Result<Arc<dyn UserAuthService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
     Ok(
       self
         .get_provider(&self.provider_type.read())?
         .user_service(),
     )
   }
+
+  fn service_name(&self) -> String {
+    self.provider_type.read().to_string()
+  }
 }
 
 impl FolderCloudService for AppFlowyServerProvider {
-  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, FlowyError> {
+  fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, FlowyError> {
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
@@ -174,7 +208,7 @@ impl FolderCloudService for AppFlowyServerProvider {
   fn get_folder_latest_snapshot(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
@@ -185,11 +219,7 @@ impl FolderCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_folder_updates(
-    &self,
-    workspace_id: &str,
-    uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
@@ -209,13 +239,17 @@ impl FolderCloudService for AppFlowyServerProvider {
 }
 
 impl DatabaseCloudService for AppFlowyServerProvider {
-  fn get_collab_update(&self, object_id: &str) -> FutureResult<CollabObjectUpdate, FlowyError> {
+  fn get_collab_update(
+    &self,
+    object_id: &str,
+    object_ty: CollabType,
+  ) -> FutureResult<CollabObjectUpdate, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id)
+        .get_collab_update(&database_id, object_ty)
         .await
     })
   }
@@ -223,12 +257,13 @@ impl DatabaseCloudService for AppFlowyServerProvider {
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
-  ) -> FutureResult<CollabObjectUpdateByOid, FlowyError> {
+    object_ty: CollabType,
+  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids)
+        .batch_get_collab_updates(object_ids, object_ty)
         .await
     })
   }
@@ -236,7 +271,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
   fn get_collab_latest_snapshot(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
@@ -249,7 +284,7 @@ impl DatabaseCloudService for AppFlowyServerProvider {
 }
 
 impl DocumentCloudService for AppFlowyServerProvider {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
@@ -263,7 +298,7 @@ impl DocumentCloudService for AppFlowyServerProvider {
   fn get_document_latest_snapshot(
     &self,
     document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
@@ -274,7 +309,7 @@ impl DocumentCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, FlowyError> {
+  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
@@ -316,7 +351,7 @@ impl From<AuthType> for ServerProviderType {
   fn from(auth_provider: AuthType) -> Self {
     match auth_provider {
       AuthType::Local => ServerProviderType::Local,
-      AuthType::SelfHosted => ServerProviderType::SelfHosted,
+      AuthType::SelfHosted => ServerProviderType::AppFlowyCloud,
       AuthType::Supabase => ServerProviderType::Supabase,
     }
   }
@@ -328,9 +363,37 @@ impl From<&AuthType> for ServerProviderType {
   }
 }
 
-fn current_server_provider() -> ServerProviderType {
-  match KV::get_object::<ServerProviderType>(SERVER_PROVIDER_TYPE_KEY) {
+pub fn current_server_provider(store_preferences: &Arc<StorePreferences>) -> ServerProviderType {
+  match store_preferences.get_object::<ServerProviderType>(SERVER_PROVIDER_TYPE_KEY) {
     None => ServerProviderType::Local,
     Some(provider_type) => provider_type,
+  }
+}
+
+struct LocalServerDBImpl {
+  storage_path: String,
+}
+
+impl LocalServerDB for LocalServerDBImpl {
+  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError> {
+    let sqlite_db = open_user_db(&self.storage_path, uid)?;
+    let user_profile = get_user_profile(&sqlite_db, uid).ok();
+    Ok(user_profile)
+  }
+
+  fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError> {
+    let sqlite_db = open_user_db(&self.storage_path, uid)?;
+    let user_workspace = get_user_workspace(&sqlite_db, uid)?;
+    Ok(user_workspace)
+  }
+
+  fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {
+    let collab_db = open_collab_db(&self.storage_path, uid)?;
+    let read_txn = collab_db.read_txn();
+    let updates = read_txn
+      .get_all_updates(uid, object_id)
+      .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
+
+    Ok(updates)
   }
 }

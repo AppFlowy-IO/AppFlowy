@@ -7,7 +7,7 @@ export const BoardPage = () => {
   const params = useParams();
   const [viewId, setViewId] = useState('');
   const pagesStore = useAppSelector((state) => state.pages);
-  const page = useAppSelector((state) => (params.id ? state.pages.map[params.id] : undefined));
+  const page = useAppSelector((state) => (params.id ? state.pages.pageMap[params.id] : undefined));
   const [title, setTitle] = useState('');
 
   useEffect(() => {

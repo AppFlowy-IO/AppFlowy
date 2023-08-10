@@ -75,12 +75,28 @@ class AppFlowyAuthService implements AuthService {
     required String platform,
     AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> map = const {},
-  }) {
-    throw UnimplementedError();
+  }) async {
+    return left(
+      FlowyError.create()
+        ..code = 0
+        ..msg = "Unsupported sign up action",
+    );
   }
 
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
+  }
+
+  @override
+  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+    required String email,
+    Map<String, String> map = const {},
+  }) async {
+    return left(
+      FlowyError.create()
+        ..code = 0
+        ..msg = "Unsupported sign up action",
+    );
   }
 }

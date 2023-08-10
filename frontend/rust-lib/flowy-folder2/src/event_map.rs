@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use strum_macros::Display;
 
@@ -8,7 +8,7 @@ use lib_dispatch::prelude::*;
 use crate::event_handler::*;
 use crate::manager::FolderManager;
 
-pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
+pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
@@ -29,6 +29,7 @@ pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
     .event(FolderEvent::SetLatestView, set_latest_view_handler)
     .event(FolderEvent::CloseView, close_view_handler)
     .event(FolderEvent::MoveView, move_view_handler)
+    .event(FolderEvent::MoveNestedView, move_nested_view_handler)
     // Trash
     .event(FolderEvent::ReadTrash, read_trash_handler)
     .event(FolderEvent::PutbackTrash, putback_trash_handler)
@@ -37,6 +38,9 @@ pub fn init(folder: Arc<FolderManager>) -> AFPlugin {
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
       .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
+      .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
+    .event(FolderEvent::ReadFavorites, read_favorites_handler)
+    .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -132,4 +136,21 @@ pub enum FolderEvent {
 
   #[event()]
   GetFolderSnapshots = 31,
+  /// Moves a nested view to a new location in the hierarchy.
+  ///
+  /// This function takes the `view_id` of the view to be moved,
+  /// `new_parent_id` of the view under which the `view_id` should be moved,
+  /// and an optional `prev_view_id` to position the `view_id` right after
+  /// this specific view.
+  #[event(input = "MoveNestedViewPayloadPB")]
+  MoveNestedView = 32,
+
+  #[event(output = "RepeatedViewPB")]
+  ReadFavorites = 33,
+
+  #[event(input = "RepeatedViewIdPB")]
+  ToggleFavorite = 34,
+
+  #[event(input = "UpdateViewIconPayloadPB")]
+  UpdateViewIcon = 35,
 }

@@ -1,5 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -133,11 +135,14 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _openDatabase(Emitter<CalendarState> emit) async {
     final result = await databaseController.open();
     result.fold(
-      (database) => emit(
-        state.copyWith(loadingState: DatabaseLoadingState.finish(left(unit))),
-      ),
+      (database) {
+        databaseController.setIsLoading(false);
+        emit(
+          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+        );
+      },
       (err) => emit(
-        state.copyWith(loadingState: DatabaseLoadingState.finish(right(err))),
+        state.copyWith(loadingState: LoadingState.finish(right(err))),
       ),
     );
   }
@@ -425,7 +430,7 @@ class CalendarState with _$CalendarState {
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required List<String> deleteEventIds,
     required Option<CalendarLayoutSettingPB> settings,
-    required DatabaseLoadingState loadingState,
+    required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _CalendarState;
 
@@ -436,16 +441,8 @@ class CalendarState with _$CalendarState {
         deleteEventIds: [],
         settings: none(),
         noneOrError: none(),
-        loadingState: const _Loading(),
+        loadingState: const LoadingState.loading(),
       );
-}
-
-@freezed
-class DatabaseLoadingState with _$DatabaseLoadingState {
-  const factory DatabaseLoadingState.loading() = _Loading;
-  const factory DatabaseLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
-  ) = _Finish;
 }
 
 class CalendarEditingRow {

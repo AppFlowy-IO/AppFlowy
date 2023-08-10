@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
@@ -83,7 +83,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
               controller: _popover,
               triggerActions: PopoverTriggerFlags.none,
               direction: PopoverDirection.bottomWithLeftAligned,
-              constraints: BoxConstraints.loose(const Size(260, 500)),
+              constraints: BoxConstraints.loose(const Size(260, 520)),
               margin: EdgeInsets.zero,
               child: dateTextWidget,
               popupBuilder: (BuildContext popoverContent) {
@@ -141,7 +141,7 @@ class GridDateCellText extends StatelessWidget {
           padding: GridSize.cellContentInsets,
           child: FlowyText.medium(
             dateStr,
-            overflow: TextOverflow.ellipsis,
+            maxLines: null,
           ),
         ),
       ),

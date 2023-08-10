@@ -6,7 +6,6 @@ import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import Delta from 'quill-delta';
 import { getDeltaText } from '$app/utils/document/delta';
-import { rangeActions, rectSelectionActions } from '$app_reducers/document/slice';
 import { setRectSelectionThunk } from '$app_reducers/document/async-actions/rect_selection';
 
 export function useTurnInto({ node, onClose }: { node: NestedBlock; onClose?: () => void }) {

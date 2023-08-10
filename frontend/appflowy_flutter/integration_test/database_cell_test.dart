@@ -15,8 +15,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       await tester.editCell(
         rowIndex: 0,
@@ -38,7 +37,10 @@ void main() {
     testWidgets('edit multiple text cells', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(ViewLayoutPB.Grid, 'my grid');
+      await tester.createNewPageWithName(
+        name: 'my grid',
+        layout: ViewLayoutPB.Grid,
+      );
       await tester.createField(FieldType.RichText, 'description');
 
       await tester.editCell(
@@ -75,8 +77,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.Number;
 
@@ -134,8 +135,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       await tester.assertCheckboxCell(rowIndex: 0, isSelected: false);
       await tester.tapCheckboxCellInGrid(rowIndex: 0);
@@ -153,8 +153,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.CreatedTime;
       // Create a create time field
@@ -172,8 +171,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.LastEditedTime;
       // Create a last time field
@@ -191,8 +189,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.DateTime;
       await tester.createField(fieldType, fieldType.name);
@@ -268,6 +265,18 @@ void main() {
         content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
 
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Clear the date and time
+      await tester.clearDate();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        fieldType: fieldType,
+        content: '',
+      );
+
       await tester.pumpAndSettle();
     });
 
@@ -276,9 +285,9 @@ void main() {
       await tester.tapGoButton();
 
       const fieldType = FieldType.SingleSelect;
-      await tester.tapAddButton();
+
       // When create a grid, it will create a single select field by default
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Tap the cell to invoke the selection option editor
       await tester.tapSelectOptionCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -354,8 +363,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.MultiSelect;
       await tester.createField(fieldType, fieldType.name);

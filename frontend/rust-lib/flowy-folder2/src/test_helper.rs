@@ -44,6 +44,7 @@ impl FolderManager {
       initial_data: vec![],
       meta: ext,
       set_as_current: true,
+      index: None,
     };
     self.create_view_with_params(params).await.unwrap();
     view_id

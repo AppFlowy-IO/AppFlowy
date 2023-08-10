@@ -25,7 +25,6 @@ export function useEditor({
   decorateSelection,
   onKeyDown,
   isCodeBlock,
-  linkDecorateSelection,
   temporarySelection,
 }: EditorProps) {
   const { editor } = useSlateYjs({ delta });
@@ -43,21 +42,53 @@ export function useEditor({
   const onChangeHandler = useCallback(
     (slateValue: Descendant[]) => {
       const oldContents = delta || new Delta();
-
-      onChange?.(convertToDelta(slateValue), oldContents);
+      const newContents = convertToDelta(slateValue);
+      onChange?.(newContents, oldContents);
       onSelectionChangeHandler(editor.selection);
     },
     [delta, editor, onChange, onSelectionChangeHandler]
   );
 
-  const onDOMBeforeInput = useCallback((e: InputEvent) => {
-    // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".
-    // It will cause repeated characters when inputting Chinese.
-    // Here, prevent the beforeInput event and wait for the compositionend event to take effect.
-    if (e.inputType === 'insertFromComposition') {
-      e.preventDefault();
+  // Prevent attributes from being applied when entering text at the beginning or end of an inline block.
+  // For example, when entering text before or after a mentioned page,
+  // we expect plain text instead of applying mention attributes.
+  // Similarly, when entering text before or after inline code,
+  // we also expect plain text that is not confined within the inline code scope.
+  const preventInlineBlockAttributeOverride = useCallback(() => {
+    const marks = editor.getMarks();
+    const markKeys = marks
+      ? Object.keys(marks).filter((mark) => ['mention', 'formula', 'href', 'code'].includes(mark))
+      : [];
+    const currentSelection = editor.selection || [];
+    let removeMark = markKeys.length > 0;
+    const [_, path] = editor.node(currentSelection);
+    if (removeMark) {
+      const selectionStart = editor.start(currentSelection);
+      const selectionEnd = editor.end(currentSelection);
+      const isNodeEnd = editor.isEnd(selectionEnd, path);
+      const isNodeStart = editor.isStart(selectionStart, path);
+      removeMark = isNodeStart || isNodeEnd;
     }
-  }, []);
+
+    if (removeMark) {
+      markKeys.forEach((mark) => {
+        editor.removeMark(mark);
+      });
+    }
+  }, [editor]);
+
+  const onDOMBeforeInput = useCallback(
+    (e: InputEvent) => {
+      // COMPAT: in Apple, `compositionend` is dispatched after the `beforeinput` for "insertFromComposition".
+      // It will cause repeated characters when inputting Chinese.
+      // Here, prevent the beforeInput event and wait for the compositionend event to take effect.
+      if (e.inputType === 'insertFromComposition') {
+        e.preventDefault();
+      }
+      preventInlineBlockAttributeOverride();
+    },
+    [preventInlineBlockAttributeOverride]
+  );
 
   const getDecorateRange = useCallback(
     (
@@ -97,10 +128,6 @@ export function useEditor({
         getDecorateRange(path, decorateSelection, {
           selection_high_lighted: true,
         }),
-        getDecorateRange(path, linkDecorateSelection?.selection, {
-          link_selection_lighted: true,
-          link_placeholder: linkDecorateSelection?.placeholder,
-        }),
         getDecorateRange(path, temporarySelection, {
           temporary: true,
         }),
@@ -108,7 +135,7 @@ export function useEditor({
 
       return ranges;
     },
-    [temporarySelection, decorateSelection, linkDecorateSelection, getDecorateRange]
+    [temporarySelection, decorateSelection, getDecorateRange]
   );
 
   const onKeyDownRewrite = useCallback(
@@ -167,7 +194,8 @@ export function useEditor({
 
     if (!slateSelection) return;
 
-    if (isFocused && JSON.stringify(slateSelection) === JSON.stringify(editor.selection)) return;
+    const isEqual = JSON.stringify(slateSelection) === JSON.stringify(editor.selection);
+    if (isFocused && isEqual) return;
 
     // why we didn't use slate api to change selection?
     // because the slate must be focused before change selection,

@@ -21,8 +21,8 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -67,8 +67,8 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document

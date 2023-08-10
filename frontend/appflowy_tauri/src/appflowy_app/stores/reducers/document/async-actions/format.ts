@@ -5,6 +5,35 @@ import { DocumentController } from '$app/stores/effects/document/document_contro
 import Delta from 'quill-delta';
 import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 
+type FormatValues = Record<string, (boolean | string | undefined)[]>;
+
+export const getFormatValuesThunk = createAsyncThunk(
+  'document/getFormatValues',
+  ({ docId, format }: { docId: string; format: TextAction }, thunkAPI) => {
+    const { getState } = thunkAPI;
+    const state = getState() as RootState;
+    const document = state[DOCUMENT_NAME][docId];
+    const documentRange = state[RANGE_NAME][docId];
+    const { ranges } = documentRange;
+    const mapAttrs = (delta: Delta, format: TextAction) => {
+      return delta.ops.map((op) => op.attributes?.[format] as boolean | string | undefined);
+    };
+
+    const formatValues: FormatValues = {};
+
+    Object.entries(ranges).forEach(([id, range]) => {
+      const node = document.nodes[id];
+      const delta = new Delta(node.data?.delta);
+      const index = range?.index || 0;
+      const length = range?.length || 0;
+      const rangeDelta = delta.slice(index, index + length);
+
+      formatValues[id] = mapAttrs(rangeDelta, format);
+    });
+    return formatValues;
+  }
+);
+
 export const getFormatActiveThunk = createAsyncThunk<
   boolean,
   {
@@ -12,30 +41,22 @@ export const getFormatActiveThunk = createAsyncThunk<
     docId: string;
   }
 >('document/getFormatActive', async ({ format, docId }, thunkAPI) => {
-  const { getState } = thunkAPI;
-  const state = getState() as RootState;
-  const document = state[DOCUMENT_NAME][docId];
-  const documentRange = state[RANGE_NAME][docId];
-  const { ranges } = documentRange;
-  const match = (delta: Delta, format: TextAction) => {
-    return delta.ops.every((op) => op.attributes?.[format]);
+  const { dispatch } = thunkAPI;
+  const { payload } = (await dispatch(getFormatValuesThunk({ docId, format }))) as {
+    payload: FormatValues;
   };
 
-  return Object.entries(ranges).every(([id, range]) => {
-    const node = document.nodes[id];
-    const delta = new Delta(node.data?.delta);
-    const index = range?.index || 0;
-    const length = range?.length || 0;
-    const rangeDelta = delta.slice(index, index + length);
-
-    return match(rangeDelta, format);
+  return Object.values(payload).every((values) => {
+    return values.every((value) => {
+      return value !== undefined;
+    });
   });
 });
 
 export const toggleFormatThunk = createAsyncThunk(
   'document/toggleFormat',
   async (payload: { format: TextAction; controller: DocumentController; isActive?: boolean }, thunkAPI) => {
-    const { getState, dispatch } = thunkAPI;
+    const { dispatch } = thunkAPI;
     const { format, controller } = payload;
     const docId = controller.documentId;
     let isActive = payload.isActive;
@@ -51,38 +72,30 @@ export const toggleFormatThunk = createAsyncThunk(
       isActive = !!active;
     }
 
-    const formatValue = isActive ? undefined : true;
+    const formatValue = isActive ? null : true;
+    await dispatch(formatThunk({ format, value: formatValue, controller }));
+  }
+);
+
+export const formatThunk = createAsyncThunk(
+  'document/format',
+  async (payload: { format: TextAction; value: string | boolean | null; controller: DocumentController }, thunkAPI) => {
+    const { getState } = thunkAPI;
+    const { format, controller, value } = payload;
+    const docId = controller.documentId;
     const state = getState() as RootState;
     const document = state[DOCUMENT_NAME][docId];
     const documentRange = state[RANGE_NAME][docId];
     const { ranges } = documentRange;
-
-    const toggle = (delta: Delta, format: TextAction, value: string | boolean | undefined) => {
-      const newOps = delta.ops.map((op) => {
-        const attributes = {
-          ...op.attributes,
-          [format]: value,
-        };
-
-        return {
-          insert: op.insert,
-          attributes: attributes,
-        };
-      });
-
-      return new Delta(newOps);
-    };
 
     const actions = Object.entries(ranges).map(([id, range]) => {
       const node = document.nodes[id];
       const delta = new Delta(node.data?.delta);
       const index = range?.index || 0;
       const length = range?.length || 0;
-      const beforeDelta = delta.slice(0, index);
-      const afterDelta = delta.slice(index + length);
-      const rangeDelta = delta.slice(index, index + length);
-      const toggleFormatDelta = toggle(rangeDelta, format, formatValue);
-      const newDelta = beforeDelta.concat(toggleFormatDelta).concat(afterDelta);
+      const diffDelta: Delta = new Delta();
+      diffDelta.retain(index).retain(length, { [format]: value });
+      const newDelta = delta.compose(diffDelta);
 
       return controller.getUpdateAction({
         ...node,

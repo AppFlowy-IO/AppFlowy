@@ -54,7 +54,7 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
             focusNode: focusNode,
             onEditingComplete: () => focusNode.unfocus(),
             onSubmitted: (_) => focusNode.unfocus(),
-            maxLines: 1,
+            maxLines: null,
             style: Theme.of(context).textTheme.bodyMedium,
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(

@@ -4,9 +4,9 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
@@ -27,6 +27,7 @@ import 'package:styled_widget/styled_widget.dart';
 import '../navigation.dart';
 import 'app/create_button.dart';
 import 'app/menu_app.dart';
+import 'app/section/item.dart';
 import 'menu_user.dart';
 
 export './app/header/header.dart';
@@ -47,30 +48,18 @@ class HomeMenu extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<MenuBloc>(
-          create: (context) {
-            final menuBloc = MenuBloc(
-              user: user,
-              workspace: workspaceSetting.workspace,
-            );
-            menuBloc.add(const MenuEvent.initial());
-            return menuBloc;
-          },
+          create: (context) => MenuBloc(
+            user: user,
+            workspace: workspaceSetting.workspace,
+          )..add(const MenuEvent.initial()),
         ),
+        BlocProvider(
+          create: (context) =>
+              getIt<FavoriteBloc>()..add(const FavoriteEvent.initial()),
+        )
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-            listener: (context, state) {
-              getIt<TabsBloc>().add(
-                TabsEvent.openPlugin(plugin: state.plugin),
-              );
-            },
-          ),
-        ],
-        child: BlocBuilder<MenuBloc, MenuState>(
-          builder: (context, state) => _renderBody(context),
-        ),
+      child: BlocBuilder<MenuBloc, MenuState>(
+        builder: (context, state) => _renderBody(context),
       ),
     );
   }
@@ -105,6 +94,50 @@ class HomeMenu extends StatelessWidget {
     );
   }
 
+  Widget _renderFavorites(BuildContext context) {
+    return BlocBuilder<FavoriteBloc, FavoriteState>(
+      builder: (context, state) {
+        return state.views.isNotEmpty
+            ? ExpandableTheme(
+                data: ExpandableThemeData(
+                  useInkWell: true,
+                  animationDuration: Durations.medium,
+                ),
+                child: ExpandablePanel(
+                  theme: const ExpandableThemeData(
+                    headerAlignment: ExpandablePanelHeaderAlignment.center,
+                    tapBodyToExpand: false,
+                    tapBodyToCollapse: false,
+                    tapHeaderToExpand: false,
+                    iconPadding: EdgeInsets.zero,
+                    hasIcon: false,
+                  ),
+                  // header: const FavoriteHeader(),
+                  expanded: ScrollConfiguration(
+                    behavior:
+                        const ScrollBehavior().copyWith(scrollbars: false),
+                    child: Column(
+                      children: state.views
+                          .map(
+                            (e) => ViewSectionItem(
+                              key: ValueKey(e.id),
+                              isSelected: false,
+                              onSelected: (view) => getIt<MenuSharedState>()
+                                  .latestOpenView = view,
+                              view: e,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                  collapsed: const SizedBox.shrink(),
+                ),
+              )
+            : const SizedBox.shrink();
+      },
+    );
+  }
+
   Widget _renderApps(BuildContext context) {
     return ExpandableTheme(
       data: ExpandableThemeData(
@@ -122,10 +155,16 @@ class HomeMenu extends StatelessWidget {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
-                header: Padding(
-                  padding:
-                      EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
-                  child: MenuUser(user),
+                header: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MenuAppSizes.appVPadding,
+                      ),
+                      child: MenuUser(user),
+                    ),
+                    _renderFavorites(context),
+                  ],
                 ),
                 onReorder: (oldIndex, newIndex) {
                   // Moving item1 from index 0 to index 1
@@ -180,7 +219,7 @@ class MenuSharedState {
   ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 
   set latestOpenView(ViewPB? view) {
-    if (_latestOpenView.value != view) {
+    if (_latestOpenView.value?.id != view?.id) {
       _latestOpenView.value = view;
     }
   }

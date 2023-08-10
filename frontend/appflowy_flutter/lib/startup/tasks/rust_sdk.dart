@@ -30,19 +30,11 @@ class InitRustSDKTask extends LaunchTask {
 }
 
 AppFlowyEnv getAppFlowyEnv() {
-  final postgresConfig = PostgresConfiguration(
-    url: Env.supabaseDb,
-    password: Env.supabaseDbPassword,
-    port: int.parse(Env.supabaseDbPort),
-    user_name: Env.supabaseDbUser,
-  );
-
   final supabaseConfig = SupabaseConfiguration(
-    enable_sync: Env.enableSupabaseSync,
+    enable_sync: true,
     url: Env.supabaseUrl,
-    key: Env.supabaseKey,
+    anon_key: Env.supabaseAnonKey,
     jwt_secret: Env.supabaseJwtSecret,
-    postgres_config: postgresConfig,
   );
 
   return AppFlowyEnv(

@@ -19,7 +19,7 @@ SelectionMenuItem outlineItem = SelectionMenuItem.node(
   name: LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
-  nodeBuilder: (editorState) => outlineBlockNode(),
+  nodeBuilder: (editorState, _) => outlineBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 

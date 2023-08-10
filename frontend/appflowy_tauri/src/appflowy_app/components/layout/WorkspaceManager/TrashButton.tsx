@@ -14,6 +14,7 @@ function TrashButton() {
 
   return (
     <MenuItem
+      data-page-id={'trash'}
       selected={currentPathType === 'trash'}
       onClick={navigateToTrash}
       style={{

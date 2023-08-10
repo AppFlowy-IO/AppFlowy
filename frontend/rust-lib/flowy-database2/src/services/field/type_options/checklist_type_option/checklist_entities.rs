@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::services::cell::{FromCellChangeset, ToCellChangeset};
-use crate::services::field::{SelectOption, CELL_DATA};
+use crate::services::field::{SelectOption, TypeOptionCellData, CELL_DATA};
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{internal_error, FlowyResult};
@@ -16,6 +16,12 @@ pub struct ChecklistCellData {
 impl ToString for ChecklistCellData {
   fn to_string(&self) -> String {
     serde_json::to_string(self).unwrap_or_default()
+  }
+}
+
+impl TypeOptionCellData for ChecklistCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.selected_option_ids.is_empty()
   }
 }
 

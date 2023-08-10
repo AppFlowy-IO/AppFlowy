@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
@@ -95,7 +96,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
   @override
   Widget build(BuildContext context) {
     final checkmark = svgWidget(
-      widget.fieldInfo.visibility ? 'home/show' : 'home/hide',
+      widget.fieldInfo.field.visibility ? 'home/show' : 'home/hide',
       color: Theme.of(context).iconTheme.color,
     );
 
@@ -130,7 +131,7 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
             context.read<DatabasePropertyBloc>().add(
                   DatabasePropertyEvent.setFieldVisibility(
                     widget.fieldInfo.id,
-                    !widget.fieldInfo.visibility,
+                    !widget.fieldInfo.field.visibility,
                   ),
                 );
           },

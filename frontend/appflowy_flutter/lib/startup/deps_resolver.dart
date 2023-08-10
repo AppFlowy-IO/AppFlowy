@@ -1,5 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -81,8 +83,11 @@ void _resolveCommonService(
 }
 
 void _resolveUserDeps(GetIt getIt) {
-  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
-  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+  if (isSupabaseEnabled) {
+    getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+  } else {
+    getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  }
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
@@ -156,6 +161,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }
 
 void _resolveDocDeps(GetIt getIt) {
