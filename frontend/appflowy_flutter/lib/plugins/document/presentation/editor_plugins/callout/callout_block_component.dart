@@ -48,7 +48,7 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
   name: 'Callout',
   iconData: Icons.note,
   keywords: ['callout'],
-  nodeBuilder: (editorState) => calloutNode(),
+  nodeBuilder: (editorState, _) => calloutNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (_, path, __, ___) {
     return Selection.single(path: path, startOffset: 0);

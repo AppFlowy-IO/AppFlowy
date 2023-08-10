@@ -49,7 +49,7 @@ SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
   name: LocaleKeys.document_plugins_toggleList.tr(),
   iconData: Icons.arrow_right,
   keywords: ['collapsed list', 'toggle list', 'list'],
-  nodeBuilder: (editorState) => toggleListBlockNode(),
+  nodeBuilder: (editorState, _) => toggleListBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 
