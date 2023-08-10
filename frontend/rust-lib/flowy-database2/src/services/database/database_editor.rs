@@ -134,7 +134,9 @@ impl DatabaseEditor {
       let field = database.fields.get_field(field_id);
       if let Some(field) = field {
         let group_setting = default_group_setting(&field);
-        database.insert_group_setting(view_id, group_setting);
+        database.views.update_database_view(view_id, |view| {
+          view.set_groups(vec![group_setting.into()]);
+        });
       }
     }
 
