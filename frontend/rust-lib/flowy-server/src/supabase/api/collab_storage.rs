@@ -184,7 +184,9 @@ async fn send_update(
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
   let md5 = md5(&update);
+  tracing::trace!("md5 value origin: {}", md5);
   let update = format!("\\x{}", hex::encode(update));
+  tracing::trace!("md5 value origin string: {}", update);
   let builder = InsertParamsBuilder::new()
     .insert("oid", object.object_id.clone())
     .insert("partition_key", partition_key(&object.ty))

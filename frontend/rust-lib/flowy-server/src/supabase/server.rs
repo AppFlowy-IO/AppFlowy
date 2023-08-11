@@ -141,15 +141,11 @@ impl AppFlowyServer for SupabaseServer {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
         if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
-          tracing::trace!(
-            "{} receive realtime update from {}:{}",
-            self.device_id.lock(),
-            event.table,
-            event.payload.did
-          );
           if self.device_id.lock().as_str() != event.payload.did.as_str() {
-            if let Err(e) = tx.send(event.payload.value) {
-              tracing::trace!("send realtime update error: {}", e);
+            if let Ok(data) = hex::decode(event.payload.value) {
+              if let Err(e) = tx.send(data) {
+                tracing::trace!("send realtime update error: {}", e);
+              }
             }
           }
         }

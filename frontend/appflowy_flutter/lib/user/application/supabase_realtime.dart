@@ -36,6 +36,10 @@ class SupbaseRealtimeService {
 
   void _subscribeTableChanges() {
     Log.info("subscribe supabase table changes");
+    if (channel != null) {
+      channel?.unsubscribe();
+      channel = null;
+    }
     channel = supabase.client.channel("table-db-changes").onEvents(
         "postgres_changes",
         ChannelFilter(
@@ -53,10 +57,8 @@ class SupbaseRealtimeService {
 
     channel?.subscribe(
       (status, [err]) {
+        Log.info("Channel subscribe statue: $status, err: $err");
         if (status != "SUBSCRIBED") {
-          channel?.unsubscribe();
-          Log.info("Channel subscribe statue: $status, err: $err");
-
           Future.delayed(const Duration(seconds: 10), () {
             _subscribeTableChanges();
           });
