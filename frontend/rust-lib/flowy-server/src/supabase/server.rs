@@ -142,8 +142,9 @@ impl AppFlowyServer for SupabaseServer {
       Ok(event) => {
         if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
           tracing::trace!(
-            "{} receive realtime update from {}",
+            "{} receive realtime update from {}:{}",
             self.device_id.lock(),
+            event.table,
             event.payload.did
           );
           if self.device_id.lock().as_str() != event.payload.did.as_str() {

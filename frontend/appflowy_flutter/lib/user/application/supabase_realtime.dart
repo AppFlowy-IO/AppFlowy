@@ -55,7 +55,7 @@ class SupbaseRealtimeService {
       (status, [err]) {
         if (status != "SUBSCRIBED") {
           channel?.unsubscribe();
-          Log.info("channel subscribe statue: $status, err: $err");
+          Log.info("Channel subscribe statue: $status, err: $err");
 
           Future.delayed(const Duration(seconds: 10), () {
             _subscribeTableChanges();

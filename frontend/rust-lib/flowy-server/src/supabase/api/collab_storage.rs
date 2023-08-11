@@ -167,7 +167,7 @@ where
     Ok(())
   }
 
-  async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
+  fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
     let rx = self.rx.lock().take();
     if rx.is_none() {
       tracing::warn!("The receiver is already taken");
