@@ -17,7 +17,7 @@ pub mod util;
 
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn enable_sync(&self, _enable: bool) {}
-  fn set_sync_device_id(&self, device_id: &str) {}
+  fn set_sync_device_id(&self, _device_id: &str) {}
   fn user_service(&self) -> Arc<dyn UserService>;
   fn folder_service(&self) -> Arc<dyn FolderCloudService>;
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;

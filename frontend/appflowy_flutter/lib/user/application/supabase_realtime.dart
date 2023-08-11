@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupbaseRealtimeService {
   final Supabase supabase;
   RealtimeChannel? channel;
+  bool isSubscribing = false;
   StreamSubscription<AuthState>? authStateSubscription;
 
   SupbaseRealtimeService({required this.supabase}) {
@@ -35,7 +36,6 @@ class SupbaseRealtimeService {
   }
 
   void _subscribeTableChanges() {
-    Log.info("subscribe supabase table changes");
     if (channel != null) {
       channel?.unsubscribe();
       channel = null;
@@ -57,11 +57,17 @@ class SupbaseRealtimeService {
 
     channel?.subscribe(
       (status, [err]) {
-        Log.info("Channel subscribe statue: $status, err: $err");
-        if (status != "SUBSCRIBED") {
-          Future.delayed(const Duration(seconds: 10), () {
-            _subscribeTableChanges();
-          });
+        if (status == "SUBSCRIBED") {
+          Log.info("Channel subscribe statue: $status, err: $err");
+          isSubscribing = false;
+        } else {
+          if (!isSubscribing) {
+            Log.info("Channel subscribe statue: $status, err: $err");
+            isSubscribing = true;
+            Future.delayed(const Duration(seconds: 10), () {
+              _subscribeTableChanges();
+            });
+          }
         }
       },
     );

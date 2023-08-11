@@ -41,7 +41,7 @@ impl AppFlowyServer for SelfHostServer {
     Arc::new(SelfHostedDocumentCloudServiceImpl())
   }
 
-  fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
 }

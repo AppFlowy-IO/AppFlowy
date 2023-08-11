@@ -133,7 +133,7 @@ impl AppFlowyServer for SupabaseServer {
       .insert(collab_object.object_id.clone(), tx);
     Some(Arc::new(SupabaseCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
-      rx,
+      Some(rx),
     )))
   }
 
