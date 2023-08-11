@@ -1,13 +1,11 @@
 import { IDatabaseSort } from '$app_reducers/database/slice';
-import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
-import { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '$app/stores/store';
-import { IPopupItem, PopupSelect } from '$app/components/_shared/PopupSelect';
 import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
 import { SortConditionPB } from '@/services/backend';
-import { SortAscSvg } from '$app/components/_shared/svg/SortAscSvg';
-import { SortDescSvg } from '$app/components/_shared/svg/SortDescSvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
+import { FieldSelect } from '$app/components/_shared/DatabaseFilter/FieldSelect';
+import { OrderSelect } from '$app/components/_shared/DatabaseSort/OrderSelect';
 
 export const DatabaseSortItem = ({
   data,
@@ -27,20 +25,14 @@ export const DatabaseSortItem = ({
   const [currentFieldId, setCurrentFieldId] = useState<string | null>(data?.fieldId ?? null);
   const [currentOrder, setCurrentOrder] = useState<SortConditionPB | null>(data?.order ?? null);
 
-  // ui
-  const [showFieldSelect, setShowFieldSelect] = useState(false);
-  const refFieldSelect = useRef<HTMLDivElement>(null);
-  const [fieldSelectTop, setFieldSelectTop] = useState(0);
-  const [fieldSelectLeft, setFieldSelectLeft] = useState(0);
-
-  const [showOrderSelect, setShowOrderSelect] = useState(false);
-  const refOrderSelect = useRef<HTMLDivElement>(null);
-  const [orderSelectTop, setOrderSelectTop] = useState(0);
-  const [orderSelectLeft, setOrderSelectLeft] = useState(0);
-
   const supportedColumns = useMemo(
     () => columns.filter((c) => sortStore.findIndex((s) => s.fieldId === c.fieldId) === -1),
     [columns, sortStore]
+  );
+
+  const currentFieldType = useMemo(
+    () => (currentFieldId ? fields[currentFieldId].fieldType : undefined),
+    [currentFieldId, fields]
   );
 
   useEffect(() => {
@@ -68,143 +60,38 @@ export const DatabaseSortItem = ({
     setCurrentFieldId(id);
     // set ascending order by default
     setCurrentOrder(SortConditionPB.Ascending);
-    setShowFieldSelect(false);
-  };
-
-  const onFieldClick: MouseEventHandler = () => {
-    if (!refFieldSelect.current) return;
-    const { top, left, height } = refFieldSelect.current.getBoundingClientRect();
-
-    setFieldSelectTop(top + height);
-    setFieldSelectLeft(left);
-    setShowFieldSelect(true);
   };
 
   const onSelectOrderClick = (order: SortConditionPB) => {
     setCurrentOrder(order);
-    setShowOrderSelect(false);
-  };
-
-  const onOrderClick: MouseEventHandler = () => {
-    if (!refOrderSelect.current) return;
-    const { top, left, height } = refOrderSelect.current.getBoundingClientRect();
-
-    setOrderSelectTop(top + height);
-    setOrderSelectLeft(left);
-    setShowOrderSelect(true);
   };
 
   return (
-    <>
-      <div className={'flex items-center gap-2'}>
-        <button className={'flex-shrink-0 rounded p-1 hover:bg-fill-list-hover'}>
-          <i className={'block h-[16px] w-[16px]'}>
-            <DragElementSvg></DragElementSvg>
-          </i>
-        </button>
-        <div className={'flex flex-1 items-center gap-2'}>
-          <div
-            className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-              showFieldSelect ? 'border-fill-hover' : 'border-shade-4'
-            }`}
-            ref={refFieldSelect}
-            onClick={onFieldClick}
-          >
-            {currentFieldId ? (
-              <div className={'flex items-center gap-2'}>
-                <i className={'block h-5 w-5'}>
-                  <FieldTypeIcon fieldType={fields[currentFieldId].fieldType}></FieldTypeIcon>
-                </i>
-                <span>{fields[currentFieldId].title}</span>
-              </div>
-            ) : (
-              <span className={'text-text-caption'}>Select a field</span>
-            )}
-          </div>
-          <div
-            className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-              showOrderSelect ? 'border-fill-hover' : 'border-shade-4'
-            }`}
-            ref={refOrderSelect}
-            onClick={onOrderClick}
-          >
-            {currentOrder !== null ? (
-              <SortLabel value={currentOrder}></SortLabel>
-            ) : (
-              <span className={'text-text-caption'}>Select order</span>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={() => onDelete?.()}
-          className={`rounded p-1 hover:bg-fill-list-hover ${data ? 'opacity-100' : 'opacity-0'}`}
-        >
-          <i className={'block h-[16px] w-[16px]'}>
-            <TrashSvg />
-          </i>
-        </button>
-      </div>
-      {showFieldSelect && (
-        <PopupSelect
-          items={supportedColumns.map<IPopupItem>((c) => ({
-            icon: (
-              <i className={'block h-5 w-5'}>
-                <FieldTypeIcon fieldType={fields[c.fieldId].fieldType}></FieldTypeIcon>
-              </i>
-            ),
-            title: fields[c.fieldId].title,
-            onClick: () => onSelectFieldClick(c.fieldId),
-          }))}
-          className={'fixed z-10 text-sm'}
-          style={{ top: `${fieldSelectTop}px`, left: `${fieldSelectLeft}px`, width: `${180}px` }}
-          onOutsideClick={() => setShowFieldSelect(false)}
-        ></PopupSelect>
-      )}
-      {showOrderSelect && (
-        <PopupSelect
-          items={[
-            {
-              icon: (
-                <i className={'h-5 w-5'}>
-                  <SortAscSvg></SortAscSvg>
-                </i>
-              ),
-              title: 'Ascending',
-              onClick: () => onSelectOrderClick(SortConditionPB.Ascending),
-            },
-            {
-              icon: (
-                <i className={'h-5 w-5'}>
-                  <SortDescSvg></SortDescSvg>
-                </i>
-              ),
-              title: 'Descending',
-              onClick: () => onSelectOrderClick(SortConditionPB.Descending),
-            },
-          ]}
-          className={'fixed z-10 text-sm'}
-          style={{ top: `${orderSelectTop}px`, left: `${orderSelectLeft}px`, width: `${180}px` }}
-          onOutsideClick={() => setShowOrderSelect(false)}
-        ></PopupSelect>
-      )}
-    </>
-  );
-};
+    <div className={'flex items-center gap-4'}>
+      <button className={'flex-shrink-0 rounded p-1 hover:bg-fill-list-hover'}>
+        <i className={'block h-[16px] w-[16px]'}>
+          <DragElementSvg></DragElementSvg>
+        </i>
+      </button>
 
-const SortLabel = ({ value }: { value: SortConditionPB }) => {
-  return value === SortConditionPB.Ascending ? (
-    <div className={'flex items-center gap-2'}>
-      <i className={'block h-5 w-5'}>
-        <SortAscSvg></SortAscSvg>
-      </i>
-      <span>Ascending</span>
-    </div>
-  ) : (
-    <div className={'flex items-center gap-2'}>
-      <i className={'block h-5 w-5'}>
-        <SortDescSvg></SortDescSvg>
-      </i>
-      <span>Descending</span>
+      <FieldSelect
+        columns={supportedColumns}
+        fields={fields}
+        onSelectFieldClick={onSelectFieldClick}
+        currentFieldId={currentFieldId}
+        currentFieldType={currentFieldType}
+      ></FieldSelect>
+
+      <OrderSelect currentOrder={currentOrder} onSelectOrderClick={onSelectOrderClick}></OrderSelect>
+
+      <button
+        onClick={() => onDelete?.()}
+        className={`rounded p-1 hover:bg-fill-list-hover ${data ? 'opacity-100' : 'opacity-0'}`}
+      >
+        <i className={'block h-[16px] w-[16px]'}>
+          <TrashSvg />
+        </i>
+      </button>
     </div>
   );
 };

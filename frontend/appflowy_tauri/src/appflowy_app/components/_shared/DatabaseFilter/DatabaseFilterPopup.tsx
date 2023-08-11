@@ -1,7 +1,7 @@
 import { t } from 'i18next';
 import AddSvg from '../../_shared/svg/AddSvg';
 import { useAppSelector } from '$app/stores/store';
-import { MouseEventHandler, useMemo, useRef, useState } from 'react';
+import { MouseEventHandler, useMemo, useState } from 'react';
 import { DatabaseFilterItem } from '$app/components/_shared/DatabaseFilter/DatabaseFilterItem';
 import { IDatabaseFilter, TDatabaseOperators } from '$app_reducers/database/slice';
 import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
@@ -21,8 +21,6 @@ export const DatabaseFilterPopup = ({
   filterController: FilterController;
   onOutsideClick: () => void;
 }) => {
-  const refContainer = useRef<HTMLDivElement>(null);
-
   // stores
   const filtersStore = useAppSelector((state) => state.database.filters);
 
@@ -153,11 +151,7 @@ export const DatabaseFilterPopup = ({
       className={'fixed inset-0 z-10 flex items-center justify-center overflow-y-auto backdrop-blur-sm'}
       onClick={onOutsideClick}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className='flex flex-col rounded-lg bg-white shadow-md'
-        ref={refContainer}
-      >
+      <div onClick={(e) => e.stopPropagation()} className='flex flex-col rounded-lg bg-white shadow-md'>
         <div className='px-6 pt-6 text-sm text-text-caption'>{t('grid.settings.filter')}</div>
 
         <div className='flex flex-col gap-3 overflow-y-scroll px-6 py-6 text-sm'>
