@@ -1,5 +1,18 @@
 # Release Notes
 
+## Version 0.2.9 - 08/08/2023
+
+### New Features
+
+- Improve tab and shortcut, click with alt/option to open a page in new tab.
+- Improve database tab bar UI.
+
+### Bug fixes
+
+- Add button and more action button of the favorite section doesn't work.
+- Fix euro currency number format.
+- Some UI issues
+
 ## Version 0.2.8 - 08/03/2023
 
 ### New Features
