@@ -35,9 +35,10 @@ export const LogicalOperatorSelect = () => {
     >
       <div
         onClick={() => setShowSelect(true)}
-        className={`flex w-[88px] items-center justify-between rounded-lg border px-2 py-1 ${
+        className={`flex items-center justify-between rounded-lg border px-2 py-1 ${
           showSelect ? 'border-fill-hover' : 'border-line-border'
         }`}
+        style={{ width: `${WIDTH}px` }}
       >
         and
         <i className={`h-5 w-5 transition-transform duration-500 ${showSelect ? 'rotate-180' : 'rotate-0'}`}>

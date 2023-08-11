@@ -1,24 +1,17 @@
-import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
 import { FieldType } from '@/services/backend';
-import { getBgColor } from '$app/components/_shared/getColor';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
-import { IPopupItem, PopupSelect } from '$app/components/_shared/PopupSelect';
 import {
   IDatabaseFilter,
   ISelectOption,
-  ISelectOptionType,
   SupportedOperatorsByType,
   TDatabaseOperators,
 } from '$app_reducers/database/slice';
-import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { CellOption } from '$app/components/_shared/EditRow/Options/CellOption';
 import { useAppSelector } from '$app/stores/store';
-import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
-import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
-import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FieldSelect } from '$app/components/_shared/DatabaseFilter/FieldSelect';
 import { LogicalOperatorSelect } from '$app/components/_shared/DatabaseFilter/LogicalOperatorSelect';
 import { OperatorSelect } from '$app/components/_shared/DatabaseFilter/OperatorSelect';
+import { FilterValue } from '$app/components/_shared/DatabaseFilter/FilterValue';
 
 export const DatabaseFilterItem = ({
   data,
@@ -55,18 +48,6 @@ export const DatabaseFilterItem = ({
       setCurrentValue(null);
     }
   }, [data]);
-
-  // ui
-  const [showOperatorSelect, setShowOperatorSelect] = useState(false);
-  const refOperatorSelect = useRef<HTMLDivElement>(null);
-  const [operatorSelectTop, setOperatorSelectTop] = useState(0);
-  const [operatorSelectLeft, setOperatorSelectLeft] = useState(0);
-
-  const [showValueOptions, setShowValueOptions] = useState(false);
-  const refValueOptions = useRef<HTMLDivElement>(null);
-  const [valueOptionsTop, setValueOptionsTop] = useState(0);
-  const [valueOptionsLeft, setValueOptionsLeft] = useState(0);
-  const [valueOptionsMinWidth, setValueOptionsMinWidth] = useState(0);
 
   const [textInputActive, setTextInputActive] = useState(false);
 
@@ -106,25 +87,6 @@ export const DatabaseFilterItem = ({
     [columns, fields, filtersStore]
   );
 
-  const onOperatorClick: MouseEventHandler = (e) => {
-    if (!refOperatorSelect.current) return;
-    const { left, top, height } = refOperatorSelect.current.getBoundingClientRect();
-
-    setOperatorSelectTop(top + height + 5);
-    setOperatorSelectLeft(left);
-    setShowOperatorSelect(true);
-  };
-
-  const onValueOptionsClick: MouseEventHandler = () => {
-    if (!refValueOptions.current) return;
-    const { left, top, width, height } = refValueOptions.current.getBoundingClientRect();
-
-    setValueOptionsTop(top + height + 5);
-    setValueOptionsLeft(left);
-    setValueOptionsMinWidth(width);
-    setShowValueOptions(true);
-  };
-
   const onSelectFieldClick = (id: string) => {
     setCurrentFieldId(id);
 
@@ -150,7 +112,6 @@ export const DatabaseFilterItem = ({
 
   const onSelectOperatorClick = (operator: TDatabaseOperators) => {
     setCurrentOperator(operator);
-    setShowOperatorSelect(false);
   };
 
   const onValueOptionClick = (option: ISelectOption) => {
@@ -161,13 +122,6 @@ export const DatabaseFilterItem = ({
     } else {
       setCurrentValue(value.filter((v) => v !== option.selectOptionId));
     }
-  };
-
-  const getSelectOption = (optionId: string) => {
-    if (!currentFieldId) return undefined;
-    return (fields[currentFieldId].fieldOptions as ISelectOptionType).selectOptions.find(
-      (option) => option.selectOptionId === optionId
-    );
   };
 
   return (
@@ -195,72 +149,16 @@ export const DatabaseFilterItem = ({
           onSelectOperatorClick={onSelectOperatorClick}
         ></OperatorSelect>
 
-        {currentFieldId ? (
-          <>
-            {(currentFieldType === FieldType.MultiSelect || currentFieldType === FieldType.SingleSelect) && (
-              <div
-                ref={refValueOptions}
-                onClick={onValueOptionsClick}
-                className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-                  showValueOptions ? 'border-fill-hover' : 'border-line-border'
-                }`}
-              >
-                {currentValue ? (
-                  <div className={'flex flex-1 items-center gap-1 overflow-hidden'}>
-                    {(currentValue as string[]).length === 0 && (
-                      <span className={'text-text-placeholder'}>none selected</span>
-                    )}
-                    {(currentValue as string[]).map((option, i) => (
-                      <span
-                        className={`${getBgColor(getSelectOption(option)?.color)} rounded px-2 py-0.5 text-xs`}
-                        key={i}
-                      >
-                        {getSelectOption(option)?.title}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className={'text-text-placeholder'}>Select an option</span>
-                )}
-
-                <i className={'h-5 w-5 transition-transform duration-200'}>
-                  <DropDownShowSvg></DropDownShowSvg>
-                </i>
-              </div>
-            )}
-            {currentFieldType === FieldType.RichText && (
-              <div
-                className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-                  textInputActive ? 'border-fill-hover' : 'border-line-border'
-                }`}
-              >
-                <input
-                  placeholder={'Enter value'}
-                  className={'flex-1'}
-                  onFocus={() => setTextInputActive(true)}
-                  onBlur={() => setTextInputActive(false)}
-                  value={currentValue as string}
-                  onChange={(e) => setCurrentValue(e.target.value)}
-                />
-              </div>
-            )}
-            {currentFieldType === FieldType.Checkbox && (
-              <div
-                onClick={() => setCurrentValue(!currentValue)}
-                className={`flex w-[180px] cursor-pointer items-center gap-2 rounded-lg border border-line-border px-2 py-1`}
-              >
-                <button className={'h-5 w-5'}>
-                  {currentValue ? <EditorCheckSvg></EditorCheckSvg> : <EditorUncheckSvg></EditorUncheckSvg>}
-                </button>
-                <span>{currentValue ? 'Checked' : 'Unchecked'}</span>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className={`flex w-[180px] items-center justify-between rounded-lg border border-line-border px-2 py-1`}>
-            <span className={'text-text-placeholder'}>Select field</span>
-          </div>
-        )}
+        <FilterValue
+          currentFieldId={currentFieldId}
+          currentFieldType={currentFieldType}
+          currentValue={currentValue}
+          setCurrentValue={setCurrentValue}
+          fields={fields}
+          textInputActive={textInputActive}
+          setTextInputActive={setTextInputActive}
+          onValueOptionClick={onValueOptionClick}
+        ></FilterValue>
 
         <button
           onClick={() => onDelete?.()}
@@ -271,30 +169,6 @@ export const DatabaseFilterItem = ({
           </i>
         </button>
       </div>
-
-      {showValueOptions && currentFieldId && (
-        <PopupWindow
-          left={valueOptionsLeft}
-          top={valueOptionsTop}
-          className={'flex flex-col gap-2 p-2 text-xs'}
-          onOutsideClick={() => setShowValueOptions(false)}
-          style={{ minWidth: `${valueOptionsMinWidth}px` }}
-        >
-          <div className={'font-medium text-text-caption'}>Value option</div>
-          <div className={'flex flex-col gap-1'}>
-            {(fields[currentFieldId].fieldOptions as ISelectOptionType).selectOptions.map((option, index) => (
-              <CellOption
-                key={index}
-                option={option}
-                checked={(currentValue as string[]).findIndex((o) => o === option.selectOptionId) !== -1}
-                noSelect={true}
-                noDetail={true}
-                onOptionClick={() => onValueOptionClick(option)}
-              ></CellOption>
-            ))}
-          </div>
-        </PopupWindow>
-      )}
     </>
   );
 };

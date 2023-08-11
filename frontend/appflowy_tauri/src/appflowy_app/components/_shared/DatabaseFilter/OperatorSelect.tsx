@@ -44,9 +44,10 @@ export const OperatorSelect = ({ currentOperator, currentFieldType, onSelectOper
     >
       <div
         onClick={() => setShowSelect(true)}
-        className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
+        className={`flex items-center justify-between rounded-lg border px-2 py-1 ${
           showSelect ? 'border-fill-hover' : 'border-line-border'
         }`}
+        style={{ width: `${WIDTH}px` }}
       >
         {currentOperator ? (
           <span>{currentOperator}</span>
