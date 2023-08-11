@@ -295,7 +295,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
 
-    collab_builder.set_device_id(device_id.to_owned());
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -328,7 +329,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
-    collab_builder.set_device_id(device_id.to_owned());
+
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -362,7 +365,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
     let document_manager = self.document_manager.clone();
-    collab_builder.set_device_id(device_id.to_owned());
+
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
       folder_manager

@@ -1,7 +1,8 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::RemoteCollabStorage;
-use parking_lot::RwLock;
+use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
+use parking_lot::{Mutex, RwLock};
 use serde_json::Value;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -56,11 +57,14 @@ impl PgPoolMode {
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
+  device_id: Mutex<String>,
+  update_tx: RwLock<HashMap<String, RemoteUpdateSender>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
 }
 
 impl SupabaseServer {
   pub fn new(config: SupabaseConfiguration) -> Self {
+    let update_tx = RwLock::new(HashMap::new());
     let restful_postgres = if config.enable_sync {
       Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
     } else {
@@ -68,6 +72,8 @@ impl SupabaseServer {
     };
     Self {
       config,
+      device_id: Default::default(),
+      update_tx,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
     }
   }
@@ -89,6 +95,10 @@ impl AppFlowyServer for SupabaseServer {
   fn enable_sync(&self, enable: bool) {
     tracing::info!("supabase sync: {}", enable);
     self.set_enable_sync(enable);
+  }
+
+  fn set_sync_device_id(&self, device_id: &str) {
+    *self.device_id.lock() = device_id.to_string();
   }
 
   fn user_service(&self) -> Arc<dyn UserService> {
@@ -115,16 +125,33 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+    self
+      .update_tx
+      .write()
+      .insert(collab_object.object_id.clone(), tx);
     Some(Arc::new(SupabaseCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
+      rx,
     )))
   }
 
   fn handle_realtime_event(&self, json: Value) {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
-        tracing::trace!("realtime event: {}", event);
+        if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
+          tracing::trace!(
+            "{} receive realtime update from {}",
+            self.device_id.lock(),
+            event.payload.did
+          );
+          if self.device_id.lock().as_str() != event.payload.did.as_str() {
+            if let Err(e) = tx.send(event.payload.value) {
+              tracing::trace!("send realtime update error: {}", e);
+            }
+          }
+        }
       },
       Err(e) => {
         tracing::error!("parse realtime event error: {}", e);

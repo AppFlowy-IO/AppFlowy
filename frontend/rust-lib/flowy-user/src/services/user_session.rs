@@ -629,7 +629,12 @@ impl UserSession {
     users
   }
 
-  pub fn open_historical_user(&self, uid: i64) -> FlowyResult<()> {
+  pub fn open_historical_user(
+    &self,
+    uid: i64,
+    device_id: String,
+    auth_type: AuthType,
+  ) -> FlowyResult<()> {
     let conn = self.db_connection(uid)?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
@@ -637,10 +642,11 @@ impl UserSession {
     let user_workspace = UserWorkspace::from(row);
     let session = Session {
       user_id: uid,
-      device_id: "".to_string(),
+      device_id,
       user_workspace,
     };
-    self.cloud_services.set_auth_type(AuthType::Local);
+    debug_assert!(auth_type.is_local());
+    self.cloud_services.set_auth_type(auth_type);
     self.set_current_session(Some(session))?;
     Ok(())
   }

@@ -279,7 +279,8 @@ pub async fn open_historical_users_handler(
 ) -> Result<(), FlowyError> {
   let user = user.into_inner();
   let session = upgrade_session(session)?;
-  session.open_historical_user(user.user_id)?;
+  let auth_type = AuthType::from(user.auth_type);
+  session.open_historical_user(user.user_id, user.device_id, auth_type)?;
   Ok(())
 }
 

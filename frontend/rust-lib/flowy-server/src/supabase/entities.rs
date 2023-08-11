@@ -58,8 +58,10 @@ impl Display for RealtimeCollabUpdateEvent {
 
 #[derive(Debug, Deserialize)]
 pub struct RealtimeCollabUpdate {
+  pub oid: String,
   pub uid: i64,
   pub key: i64,
+  pub did: String,
   #[serde(deserialize_with = "deserialize_value")]
   pub value: Vec<u8>,
 }

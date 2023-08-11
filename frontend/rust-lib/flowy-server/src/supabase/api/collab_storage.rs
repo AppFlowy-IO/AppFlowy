@@ -8,6 +8,7 @@ use collab_plugins::cloud_storage::{
   CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage,
   RemoteUpdateReceiver,
 };
+use parking_lot::Mutex;
 use tokio::task::spawn_blocking;
 
 use lib_infra::async_trait::async_trait;
@@ -21,11 +22,17 @@ use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 
-pub struct SupabaseCollabStorageImpl<T>(T);
+pub struct SupabaseCollabStorageImpl<T> {
+  server: T,
+  rx: Mutex<Option<RemoteUpdateReceiver>>,
+}
 
 impl<T> SupabaseCollabStorageImpl<T> {
-  pub fn new(server: T) -> Self {
-    Self(server)
+  pub fn new(server: T, rx: RemoteUpdateReceiver) -> Self {
+    Self {
+      server,
+      rx: Mutex::new(Some(rx)),
+    }
   }
 }
 
@@ -39,7 +46,7 @@ where
   }
 
   async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
-    let postgrest = self.0.try_get_weak_postgrest()?;
+    let postgrest = self.server.try_get_weak_postgrest()?;
     let action =
       FetchObjectUpdateAction::new(object.object_id.clone(), object.ty.clone(), postgrest);
     let updates = action.run().await?;
@@ -47,14 +54,14 @@ where
   }
 
   async fn get_latest_snapshot(&self, object_id: &str) -> Option<RemoteCollabSnapshot> {
-    let postgrest = self.0.try_get_postgrest().ok()?;
+    let postgrest = self.server.try_get_postgrest().ok()?;
     get_latest_snapshot_from_server(object_id, postgrest)
       .await
       .ok()?
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
-    let postgrest = self.0.try_get_postgrest()?;
+    let postgrest = self.server.try_get_postgrest()?;
     let json = postgrest
       .from("af_collab_state")
       .select("*")
@@ -93,7 +100,7 @@ where
   }
 
   async fn create_snapshot(&self, object: &CollabObject, snapshot: Vec<u8>) -> Result<i64, Error> {
-    let postgrest = self.0.try_get_postgrest()?;
+    let postgrest = self.server.try_get_postgrest()?;
     create_snapshot(&postgrest, object, snapshot).await
   }
 
@@ -103,7 +110,7 @@ where
     _id: MsgId,
     update: Vec<u8>,
   ) -> Result<(), Error> {
-    if let Some(postgrest) = self.0.get_postgrest() {
+    if let Some(postgrest) = self.server.get_postgrest() {
       let workspace_id = object
         .get_workspace_id()
         .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
@@ -119,7 +126,7 @@ where
     _id: MsgId,
     init_update: Vec<u8>,
   ) -> Result<(), Error> {
-    let postgrest = self.0.try_get_postgrest()?;
+    let postgrest = self.server.try_get_postgrest()?;
     let workspace_id = object
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
@@ -134,14 +141,12 @@ where
       // 2.Merge the updates into one and then delete the merged updates
       let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
       tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
-      let override_key = merge_result.merged_keys.last().cloned().unwrap();
 
       let value_size = merge_result.new_update.len() as i32;
       let md5 = md5(&merge_result.new_update);
       let new_update = format!("\\x{}", hex::encode(merge_result.new_update));
       let params = InsertParamsBuilder::new()
         .insert("oid", object.object_id.clone())
-        .insert("new_key", override_key)
         .insert("new_value", new_update)
         .insert("md5", md5)
         .insert("value_size", value_size)
@@ -153,7 +158,7 @@ where
         .build();
 
       postgrest
-        .rpc("flush_collab_updates", params)
+        .rpc("flush_collab_updates_v2", params)
         .execute()
         .await?
         .success()
@@ -163,7 +168,11 @@ where
   }
 
   async fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
-    todo!()
+    let rx = self.rx.lock().take();
+    if rx.is_none() {
+      tracing::warn!("The receiver is already taken");
+    }
+    rx
   }
 }
 
