@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/application/template_service.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -42,6 +43,13 @@ class ViewAddButton extends StatelessWidget {
               pluginBuilder: pluginBuilder,
             ),
           ),
+
+      // add template ...
+      ...getIt<PluginSandbox>().builders.whereType<DocumentPluginBuilder>().map(
+            (pluginBuilder) => TemplateActionWrapper(
+              pluginBuilder: pluginBuilder,
+            ),
+          ),
     ];
   }
 
@@ -63,12 +71,17 @@ class ViewAddButton extends StatelessWidget {
           },
         );
       },
-      onSelected: (action, popover) {
+      onSelected: (action, popover) async {
         onEditing(false);
         if (action is ViewAddButtonActionWrapper) {
           _showViewAddButtonActions(context, action);
         } else if (action is ViewImportActionWrapper) {
           _showViewImportAction(context, action);
+        } else if (action is TemplateActionWrapper) {
+          final TemplateService templateService = TemplateService();
+          final archive = await templateService.pickTemplate();
+
+          await templateService.unloadTemplate(parentViewId, archive);
         }
         popover.close();
       },
@@ -127,4 +140,18 @@ class ViewImportActionWrapper extends ActionCell {
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();
+}
+
+class TemplateActionWrapper extends ActionCell {
+  final PluginBuilder pluginBuilder;
+
+  TemplateActionWrapper({
+    required this.pluginBuilder,
+  });
+
+  @override
+  Widget? leftIcon(Color iconColor) => const FlowySvg(name: 'editor/template');
+
+  @override
+  String get name => "Template";
 }

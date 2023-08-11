@@ -100,7 +100,6 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             editorState: widget.editorState,
             hasCover: hasCover,
             hasIcon: hasIcon,
-            view: widget.view,
           ),
         ),
         if (hasCover)
@@ -172,7 +171,6 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
-  final ViewPB view;
 
   final Future<void> Function({(CoverType, String?)? cover, String? icon})
       onCoverChanged;
@@ -183,7 +181,6 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.hasCover,
     required this.hasIcon,
     required this.onCoverChanged,
-    required this.view,
     super.key,
   });
 
@@ -228,7 +225,6 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     }
     final List<Widget> children = [];
 
-    // TODO: Remove these buttons from here and add to left add menu
 
     children.add(
       FlowyButton(
@@ -242,26 +238,6 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       ),
     );
 
-    children.add(
-      FlowyButton(
-        leftIconSize: const Size.square(18),
-        onTap: () async {
-          final TemplateService templateService = TemplateService();
-
-          final archive = await templateService.pickTemplate();
-          
-          await templateService.unloadTemplate(
-            widget.view.parentViewId,
-            archive,
-          );
-        },
-        useIntrinsicWidth: true,
-        leftIcon: const FlowySvg(name: 'editor/image'),
-        text: const FlowyText.regular(
-          "Add Template",
-        ),
-      ),
-    );
 
     if (!widget.hasCover) {
       children.add(

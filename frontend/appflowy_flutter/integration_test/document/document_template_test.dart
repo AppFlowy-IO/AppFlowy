@@ -49,15 +49,11 @@ void main() {
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(
-       name: 'template',
-        layout: ViewLayoutPB.Document,
-
-        
-      );
+      await tester.editor.tapLineOfEditorAt(0);
 
       const zipFileName = 'template.zip';
       final data = await rootBundle.load('assets/test/workspaces/$zipFileName');
+
       final bytes = Uint8List.view(data.buffer);
       final path = p.join(context.applicationDataDirectory, zipFileName);
       File(path).writeAsBytesSync(bytes);
@@ -65,11 +61,23 @@ void main() {
       // mock get files
       await mockPickFilePaths(paths: [path]);
 
-      // tap the first line of the document
-      await tester.editor.tapLineOfEditorAt(0);
+      // tap template button
+      await tester.tapAddViewButton();
+      await tester.tapButtonWithName("Template");
 
-      await tester.editor.hoverOnCoverToolbar();
-      await tester.tapButtonWithName("Add Template");
+      await tester.expandPage(gettingStarted);
+
+      await tester.pumpAndSettle();
+      await Future.delayed(const Duration(seconds: 2));
+
+      // expect to see the template files
+      tester.expectToSeePageName("doc1", parentName: gettingStarted);
+      tester.expectToSeePageName("doc2", parentName: gettingStarted);
+
+      // expect to see the db files 
+      tester.expectToSeeText("db1");
+      tester.expectToSeeText("db2");
+
     });
   });
 }
@@ -86,7 +94,7 @@ Future<void> insertReferenceDatabase(
     name: name,
     layout: layout,
   );
-  
+
   // create a new document
   await tester.createNewPageWithName(
     name: 'template',

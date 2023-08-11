@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/database_view_block_component.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:flutter/material.dart';
@@ -13,7 +15,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/import.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
 class TemplateService {
@@ -25,6 +26,7 @@ class TemplateService {
       await dir.create(recursive: true);
     } else {
       // TODO: Show an alert dialog before overwriting the template
+
       for (final entity in dir.listSync()) {
         if (entity is File) {
           entity.deleteSync();
@@ -34,7 +36,7 @@ class TemplateService {
       }
     }
 
-    final file = File('${directory.path}/template/template.json');
+    final file = File(path.join(directory.path, 'template', 'template.json'));
 
     await file.writeAsString(json.encode(editorState.document.toJson()));
 
@@ -46,7 +48,9 @@ class TemplateService {
     int count = 1;
     for (int i = 0; i < children.length; i++) {
       // TODO: add feat to add calendar
-      if (children[i]["type"] == "grid" || children[i]["type"] == "board") {
+
+      if (children[i]["type"] == DatabaseBlockKeys.gridType ||
+          children[i]["type"] == DatabaseBlockKeys.boardType) {
         _exportDBFiles("db${count++}", children[i]["data"]["view_id"]);
       }
     }
@@ -64,14 +68,15 @@ class TemplateService {
     await dbFile.writeAsString(pb);
   }
 
-  /// Steps:
+  /// Steps for importing a template:
   /// 1. Pick template(.zip)
   /// 2. Zip may contain several files, use [config.json] to determine which files to use.
   /// 3. Load template into editor, using [TemplateService.unloadTemplate] function
 
   Future<Archive?> pickTemplate() async {
     // Pick a ZIP file from the system
-    final result = await FilePicker().pickFiles(
+
+    final result = await getIt<FilePickerService>().pickFiles(
       type: FileType.custom,
       allowedExtensions: ['zip'],
       allowMultiple: false,
@@ -120,7 +125,7 @@ class TemplateService {
   Future<void> _loadTemplate(String parentViewId, DocumentModel doc) async {
     final directory = await getTemporaryDirectory();
 
-    /// Import all databases first
+    /// 1. Import all databases first
 
     final List<ViewPB> dbViews = [];
 
@@ -135,7 +140,8 @@ class TemplateService {
       dbViews.add(res);
     }
 
-    /// Import the document and embed the [dbViews]
+    /// 2. Check if the template contains a grid/kanban view
+    /// If yes, update the view_id and parent_id
 
     final String templateRes =
         await File('${directory.path}/${doc.name}').readAsString();
@@ -163,12 +169,16 @@ class TemplateService {
       }
     });
 
+    /// 3. Import the document
+
     final docBytes =
         DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
 
+    final docName = doc.name.replaceAll('.json', '');
+
     await ImportBackendService.importData(
       docBytes!,
-      doc.name,
+      docName,
       parentViewId,
       ImportTypePB.HistoryDocument,
     );
@@ -182,7 +192,7 @@ Future<ViewPB?> _importDB(String db, String parentViewId) async {
 
   final res = await ImportBackendService.importData(
     utf8.encode(dbRes),
-    db,
+    db.replaceAll(".csv", ""),
     parentViewId,
     ImportTypePB.CSV,
   );
