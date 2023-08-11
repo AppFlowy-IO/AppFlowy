@@ -13,7 +13,7 @@ export const GridTitle = ({
   viewId: string;
 }) => {
   const [showOptions, setShowOptions] = useState(false);
-  const pagesStore = useAppSelector((state) => state.pages.map[viewId]);
+  const pagesStore = useAppSelector((state) => state.pages.pageMap[viewId]);
 
   return (
     <div className={'relative flex items-center '}>
