@@ -58,7 +58,7 @@ export const MultiSelectTypeOptions = ({
         {showInput && (
           <div
             ref={inputContainerRef}
-            className={`border-shades-3 flex items-center gap-2 rounded border bg-main-selector px-2`}
+            className={`border-shades-3 bg-main-selector flex items-center gap-2 rounded border px-2`}
           >
             {newInputWidth > 0 && (
               <input
@@ -71,7 +71,7 @@ export const MultiSelectTypeOptions = ({
                 onKeyDown={onKeyDown}
               />
             )}
-            <div className={'font-mono text-shade-3'}>{value.length}/30</div>
+            <div className={'font-mono text-text-caption'}>{value.length}/30</div>
           </div>
         )}
 

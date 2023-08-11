@@ -74,7 +74,7 @@ export const DatabaseSortPopup = ({
 
       <div className={'fixed inset-0 z-10 flex items-center justify-center overflow-y-auto'}>
         <div className='flex flex-col rounded-lg bg-white shadow-md' ref={refContainer}>
-          <div className='text-shade-3 px-6 pt-6 text-sm'>{t('grid.settings.sort')}</div>
+          <div className='px-6 pt-6 text-sm text-text-caption'>{t('grid.settings.sort')}</div>
 
           <div className='flex flex-col gap-3 overflow-y-scroll px-6 py-6 text-sm'>
             {rows.map((sortItem, index) => (
@@ -89,7 +89,10 @@ export const DatabaseSortPopup = ({
 
           <hr />
 
-          <button onClick={onAddClick} className='text-shade-1 flex cursor-pointer items-center gap-2 px-6 py-6 text-sm'>
+          <button
+            onClick={onAddClick}
+            className='flex cursor-pointer items-center gap-2 px-6 py-6 text-sm text-text-caption'
+          >
             <div className='h-5 w-5'>
               <AddSvg />
             </div>

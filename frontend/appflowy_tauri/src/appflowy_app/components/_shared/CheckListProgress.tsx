@@ -7,7 +7,7 @@ export const CheckListProgress = ({ completed, max }: { completed: number; max: 
             {completed > 0 && filledCheckListBars({ amount: completed })}
             {max - completed > 0 && emptyCheckListBars({ amount: max - completed })}
           </div>
-          <div className={'text-shade-4 text-xs'}>{((100 * completed) / max).toFixed(0)}%</div>
+          <div className={'text-xs text-text-caption'}>{((100 * completed) / max).toFixed(0)}%</div>
         </>
       )}
     </div>

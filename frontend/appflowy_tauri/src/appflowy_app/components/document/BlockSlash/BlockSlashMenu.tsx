@@ -292,7 +292,7 @@ function BlockSlashMenu({
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
         {Object.entries(optionsByGroup).map(([group, options]) => (
           <div key={group}>
-            <div className={'text-shade-3 px-2 py-2 text-sm'}>{group}</div>
+            <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
             <div>
               {options.map((option) => {
                 return (

@@ -53,7 +53,7 @@ const MenuItem = forwardRef(function (
             width: imgSize.width,
             height: imgSize.height,
           }}
-          className={`mr-2 flex items-center justify-center rounded border border-shade-5`}
+          className={`border-shade-5 mr-2 flex items-center justify-center rounded border`}
         >
           {icon}
         </div>
@@ -61,7 +61,7 @@ const MenuItem = forwardRef(function (
           <div className={'text-sm'}>{title}</div>
           {desc && (
             <div
-              className={'font-normal text-shade-4'}
+              className={'font-normal text-text-caption'}
               style={{
                 fontSize: '0.85em',
                 fontWeight: 300,

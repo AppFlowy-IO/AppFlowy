@@ -35,7 +35,7 @@ export const ConfirmAccount = () => {
           />
         </div>
 
-        <a href='#' className='hover:text-main-hovered text-xs text-fill-hover'>
+        <a href='#' className='hover:text-content-hover text-xs text-fill-hover'>
           <span>Send code again</span>
         </a>
       </div>

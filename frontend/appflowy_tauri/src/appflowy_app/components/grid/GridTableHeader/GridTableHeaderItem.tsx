@@ -94,10 +94,10 @@ export const GridTableHeaderItem = ({
       >
         <div className={'flex w-full items-center justify-between py-2 pl-2'} ref={ref}>
           <div className={'flex min-w-0 items-center gap-2'}>
-            <div className={'text-shade-3 flex h-5 w-5 flex-shrink-0 items-center justify-center'}>
+            <div className={'flex h-5 w-5 flex-shrink-0 items-center justify-center text-text-caption'}>
               <FieldTypeIcon fieldType={field.fieldType}></FieldTypeIcon>
             </div>
-            <span className={'text-shade-3 overflow-hidden text-ellipsis whitespace-nowrap'}>{field.title}</span>
+            <span className={'overflow-hidden text-ellipsis whitespace-nowrap text-text-caption'}>{field.title}</span>
           </div>
           <div className={'flex items-center gap-1'}>
             {sortStore.findIndex((sort) => sort.fieldId === field.fieldId) !== -1 && (

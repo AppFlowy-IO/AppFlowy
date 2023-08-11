@@ -155,7 +155,7 @@ export const DatabaseFilterPopup = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className='flex flex-col rounded-lg bg-white shadow-md'
+        className='bg-body flex flex-col rounded-lg shadow-md'
         ref={refContainer}
       >
         <div className='px-6 pt-6 text-sm text-text-caption'>{t('grid.settings.filter')}</div>

@@ -118,7 +118,7 @@ export const DatabaseSortItem = ({
                 <span>{fields[currentFieldId].title}</span>
               </div>
             ) : (
-              <span className={'text-shade-4'}>Select a field</span>
+              <span className={'text-text-caption'}>Select a field</span>
             )}
           </div>
           <div
@@ -131,7 +131,7 @@ export const DatabaseSortItem = ({
             {currentOrder !== null ? (
               <SortLabel value={currentOrder}></SortLabel>
             ) : (
-              <span className={'text-shade-4'}>Select order</span>
+              <span className={'text-text-caption'}>Select order</span>
             )}
           </div>
         </div>
