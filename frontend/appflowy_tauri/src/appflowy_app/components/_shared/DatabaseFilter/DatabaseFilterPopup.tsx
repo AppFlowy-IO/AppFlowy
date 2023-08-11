@@ -151,7 +151,7 @@ export const DatabaseFilterPopup = ({
       className={'fixed inset-0 z-10 flex items-center justify-center overflow-y-auto backdrop-blur-sm'}
       onClick={onOutsideClick}
     >
-      <div onClick={(e) => e.stopPropagation()} className='flex flex-col rounded-lg bg-white shadow-md'>
+      <div onClick={(e) => e.stopPropagation()} className='flex flex-col rounded-lg bg-bg-body shadow-md'>
         <div className='px-6 pt-6 text-sm text-text-caption'>{t('grid.settings.filter')}</div>
 
         <div className='flex flex-col gap-3 overflow-y-scroll px-6 py-6 text-sm'>
