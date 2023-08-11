@@ -220,6 +220,12 @@ class EditorStyleCustomizer {
       );
     }
 
-    return textSpan;
+    return defaultTextSpanDecoratorForAttribute(
+      context,
+      node,
+      index,
+      text,
+      textSpan,
+    );
   }
 }

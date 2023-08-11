@@ -83,6 +83,7 @@ class ImportPanel extends StatelessWidget {
                     e.toString(),
                     fontSize: 15,
                     overflow: TextOverflow.ellipsis,
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
                   onTap: () async {
                     await _importFile(parentViewId, e);
@@ -157,6 +158,8 @@ class ImportPanel extends StatelessWidget {
           assert(false, 'Unsupported Type $importType');
       }
     }
+
+    importCallback(importType, '', null);
   }
 }
 

@@ -4,7 +4,7 @@
  * which you can think of as a higher-level interface to interact with documents.
  */
 
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_document::blocks::{
   json_str_to_hashmap, Block, BlockAction, BlockActionPayload, BlockActionType, BlockEvent,
@@ -17,11 +17,21 @@ use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataRes
 use crate::entities::*;
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
+fn upgrade_document(
+  document_manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<Arc<DocumentManager>> {
+  let manager = document_manager
+    .upgrade()
+    .ok_or(FlowyError::internal().context("The document manager is already dropped"))?;
+  Ok(manager)
+}
+
 // Handler for creating a new document
 pub(crate) async fn create_document_handler(
   data: AFPluginData<CreateDocumentPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
   let params: CreateDocumentParams = data.into_inner().try_into()?;
   manager.create_document(&params.document_id, params.initial_data)?;
   Ok(())
@@ -30,8 +40,9 @@ pub(crate) async fn create_document_handler(
 // Handler for opening an existing document
 pub(crate) async fn open_document_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
@@ -41,8 +52,9 @@ pub(crate) async fn open_document_handler(
 
 pub(crate) async fn close_document_handler(
   data: AFPluginData<CloseDocumentPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
   let params: CloseDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   manager.close_document(&doc_id)?;
@@ -53,8 +65,9 @@ pub(crate) async fn close_document_handler(
 //  if the document does not exist, return an error.
 pub(crate) async fn get_document_data_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document_data = manager.get_document_data(&doc_id).await?;
@@ -64,8 +77,9 @@ pub(crate) async fn get_document_data_handler(
 // Handler for applying an action to a document
 pub(crate) async fn apply_action_handler(
   data: AFPluginData<ApplyActionPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
   let params: ApplyActionParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
@@ -76,7 +90,6 @@ pub(crate) async fn apply_action_handler(
 
 pub(crate) async fn convert_data_to_document(
   data: AFPluginData<ConvertDataPayloadPB>,
-  _manager: AFPluginState<Arc<DocumentManager>>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
   let payload = data.into_inner();
   let document = convert_data_to_document_internal(payload)?;
@@ -100,8 +113,9 @@ pub fn convert_data_to_document_internal(
 
 pub(crate) async fn redo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
@@ -118,8 +132,9 @@ pub(crate) async fn redo_handler(
 
 pub(crate) async fn undo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
@@ -136,8 +151,9 @@ pub(crate) async fn undo_handler(
 
 pub(crate) async fn can_undo_redo_handler(
   data: AFPluginData<DocumentRedoUndoPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<DocumentRedoUndoResponsePB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: DocumentRedoUndoParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
@@ -154,8 +170,9 @@ pub(crate) async fn can_undo_redo_handler(
 
 pub(crate) async fn get_snapshot_handler(
   data: AFPluginData<OpenDocumentPayloadPB>,
-  manager: AFPluginState<Arc<DocumentManager>>,
+  manager: AFPluginState<Weak<DocumentManager>>,
 ) -> DataResult<RepeatedDocumentSnapshotPB, FlowyError> {
+  let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
   let snapshots = manager.get_document_snapshots(&doc_id).await?;

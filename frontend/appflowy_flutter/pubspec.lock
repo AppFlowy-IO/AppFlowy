@@ -52,12 +52,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "33b18d9"
-      resolved-ref: "33b18d98dcc6db996eef3d6b869f293da3da3615"
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
-    version: "1.2.0"
+      name: appflowy_editor
+      sha256: "6886c32ab8c3f5385ec9eb333f3fca596fe5f5ee94da84484c7f56a322a026e7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -629,7 +628,7 @@ packages:
     source: hosted
     version: "0.7.0"
   hive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: hive
       sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
@@ -637,7 +636,7 @@ packages:
     source: hosted
     version: "2.2.3"
   hive_flutter:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: hive_flutter
       sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
@@ -1002,7 +1001,7 @@ packages:
     source: hosted
     version: "3.1.0"
   plugin_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: plugin_platform_interface
       sha256: "6a2128648c854906c53fa8e33986fc0247a1116122f9534dd20e3ab9e16a32bc"
@@ -1567,7 +1566,7 @@ packages:
     source: hosted
     version: "3.0.5"
   url_launcher_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: url_launcher_platform_interface
       sha256: "6c9ca697a5ae218ce56cece69d46128169a58aa8653c1b01d26fcd4aad8c4370"
@@ -1590,6 +1589,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  url_protocol:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "77a84201ed8ca50082f4248f3a373d053b1c0462"
+      url: "https://github.com/LucasXu0/flutter_url_protocol.git"
+    source: git
+    version: "1.0.0"
   uuid:
     dependency: transitive
     description:

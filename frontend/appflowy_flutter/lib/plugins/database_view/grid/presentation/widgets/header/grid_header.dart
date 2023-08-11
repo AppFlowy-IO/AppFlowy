@@ -96,7 +96,7 @@ class _GridHeaderState extends State<_GridHeader> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final cells = state.fields
-            .where((field) => field.visibility)
+            .where((fieldInfo) => fieldInfo.field.visibility)
             .map(
               (field) => FieldContext(
                 viewId: widget.viewId,

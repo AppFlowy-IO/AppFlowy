@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-
-use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
+use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
 use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 

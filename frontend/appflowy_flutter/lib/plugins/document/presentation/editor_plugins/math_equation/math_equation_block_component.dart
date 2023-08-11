@@ -37,7 +37,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
   name: 'MathEquation',
   iconData: Icons.text_fields_rounded,
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
-  nodeBuilder: (editorState) => mathEquationNode(),
+  nodeBuilder: (editorState, _) => mathEquationNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (editorState, path, __, ___) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

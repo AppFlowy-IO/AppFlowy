@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use std::sync::Weak;
+
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -7,7 +8,7 @@ use lib_dispatch::prelude::AFPlugin;
 use crate::event_handler::get_snapshot_handler;
 use crate::{event_handler::*, manager::DocumentManager};
 
-pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
+pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
   AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(document_manager)

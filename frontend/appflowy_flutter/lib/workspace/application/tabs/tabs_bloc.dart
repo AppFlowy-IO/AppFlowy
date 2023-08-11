@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -21,7 +22,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     on<TabsEvent>((event, emit) async {
       event.when(
         selectTab: (int index) {
-          if (index != state.currentIndex) {
+          if (index != state.currentIndex &&
+              index >= 0 &&
+              index < state.pages) {
             emit(state.copyWith(newIndex: index));
             _setLatestOpenView();
           }
@@ -29,6 +32,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
         moveTab: () {},
         closeTab: (String pluginId) {
           emit(state.closeView(pluginId));
+          _setLatestOpenView();
+        },
+        closeCurrentTab: () {
+          emit(state.closeView(state.currentPageManager.plugin.id));
           _setLatestOpenView();
         },
         openTab: (Plugin plugin, ViewPB view) {
@@ -54,4 +61,12 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
       }
     }
   }
+
+  /// Adds a [TabsEvent.openTab] event for the provided [ViewPB]
+  void openTab(ViewPB view) =>
+      add(TabsEvent.openTab(plugin: view.plugin(), view: view));
+
+  /// Adds a [TabsEvent.openPlugin] event for the provided [ViewPB]
+  void openPlugin(ViewPB view) =>
+      add(TabsEvent.openPlugin(plugin: view.plugin(), view: view));
 }

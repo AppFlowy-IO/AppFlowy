@@ -28,13 +28,13 @@
       }
     },
     {
-      "label": "AF: Clean + Rebuild All (Android)",
+      "label": "AF: Clean + Rebuild All (iOS)",
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
         "AF: Dart Clean",
         "AF: Flutter Clean",
-        "AF: Build Appflowy Core_for_android",
+        "AF: Build Appflowy Core For iOS",
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
@@ -46,9 +46,36 @@
       }
     },
     {
-      "label": "AF: Build Appflowy Core_for_android",
+      "label": "AF: Clean + Rebuild All (iOS Simulator)",
       "type": "shell",
-      "command": "cargo make --profile development-android appflowy-core-dev-android",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core For iOS Simulator",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64 appflowy-core-dev-ios",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS Simulator",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios",
       "group": "build",
       "options": {
         "cwd": "${workspaceFolder}"

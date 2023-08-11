@@ -1,5 +1,5 @@
 import React, { forwardRef, MouseEvent, useMemo } from 'react';
-import { ListItemButton } from '@mui/material';
+import { MenuItem as MuiMenuItem } from '@mui/material';
 
 const MenuItem = forwardRef(function (
   {
@@ -34,14 +34,16 @@ const MenuItem = forwardRef(function (
 
   return (
     <div className={className} ref={ref} id={id}>
-      <ListItemButton
+      <MuiMenuItem
         sx={{
           borderRadius: '4px',
           padding: '4px 8px',
           fontSize: 14,
         }}
         selected={isHovered}
-        onMouseEnter={(e) => onHover?.(e)}
+        onMouseEnter={(e) => {
+          onHover?.(e);
+        }}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -53,7 +55,7 @@ const MenuItem = forwardRef(function (
             width: imgSize.width,
             height: imgSize.height,
           }}
-          className={`border-shade-5 mr-2 flex items-center justify-center rounded border`}
+          className={`mr-2 flex items-center justify-center rounded border border-line-divider`}
         >
           {icon}
         </div>
@@ -72,7 +74,7 @@ const MenuItem = forwardRef(function (
           )}
         </div>
         <div>{extra}</div>
-      </ListItemButton>
+      </MuiMenuItem>
     </div>
   );
 });

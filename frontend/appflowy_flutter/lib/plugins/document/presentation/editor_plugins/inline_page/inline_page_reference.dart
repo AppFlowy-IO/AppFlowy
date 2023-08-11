@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 enum MentionType {
@@ -98,17 +97,11 @@ class InlinePageReferenceService {
 
   Future<List<SelectionMenuItem>> generatePageItems(String character) async {
     final service = ViewBackendService();
-    final List<(ViewPB, List<ViewPB>)> pbViews = await service.fetchViews(
-      (_, __) => true,
-    );
-    if (pbViews.isEmpty) {
+    final views = await service.fetchViews();
+    if (views.isEmpty) {
       return [];
     }
     final List<SelectionMenuItem> pages = [];
-    final List<ViewPB> views = [];
-    for (final element in pbViews) {
-      views.addAll(element.$2);
-    }
     views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
 
     for (final view in views) {

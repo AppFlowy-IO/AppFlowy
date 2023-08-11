@@ -14,6 +14,47 @@ export async function readImage(url: string) {
   }
 }
 
+export async function readCoverImageUrls(): Promise<{
+  images: { url: string }[];
+}> {
+  const { BaseDirectory, readTextFile, exists } = await import('@tauri-apps/api/fs');
+
+  try {
+    const existDir = await exists('cover/image_urls.json', { dir: BaseDirectory.AppLocalData });
+
+    if (!existDir) {
+      return {
+        images: [],
+      };
+    }
+
+    const data = await readTextFile('cover/image_urls.json', { dir: BaseDirectory.AppLocalData });
+
+    return JSON.parse(data);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function writeCoverImageUrls(images: { url: string }[]) {
+  const { BaseDirectory, createDir, exists, writeTextFile } = await import('@tauri-apps/api/fs');
+
+  const fileName = 'cover/image_urls.json';
+  const jsonString = JSON.stringify({ images });
+
+  try {
+    const existDir = await exists('cover', { dir: BaseDirectory.AppLocalData });
+
+    if (!existDir) {
+      await createDir('cover', { dir: BaseDirectory.AppLocalData });
+    }
+
+    await writeTextFile(fileName, jsonString, { dir: BaseDirectory.AppLocalData });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
 export function convertBlobToBase64(blob: Blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

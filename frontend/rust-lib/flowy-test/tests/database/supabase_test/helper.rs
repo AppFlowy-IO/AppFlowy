@@ -5,6 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
+use collab_plugins::cloud_storage::CollabType;
 
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
@@ -22,14 +23,20 @@ impl FlowySupabaseDatabaseTest {
   #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
-    inner.sign_up_with_uuid(&uuid).await;
+    inner
+      .third_party_sign_up_with_uuid(&uuid, None)
+      .await
+      .unwrap();
     Some(Self { uuid, inner })
   }
 
   pub async fn new_with_new_user() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
-    let _ = inner.sign_up_with_uuid(&uuid).await;
+    let _ = inner
+      .third_party_sign_up_with_uuid(&uuid, None)
+      .await
+      .unwrap();
     Some(Self { uuid, inner })
   }
 
@@ -69,9 +76,12 @@ impl FlowySupabaseDatabaseTest {
       .parse::<RepeatedDatabaseSnapshotPB>()
   }
 
-  pub async fn get_collab_update(&self, database_id: &str) -> Vec<u8> {
+  pub async fn get_database_collab_update(&self, database_id: &str) -> Vec<u8> {
     let cloud_service = self.database_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service.get_collab_update(database_id).await.unwrap();
+    let remote_updates = cloud_service
+      .get_collab_update(database_id, CollabType::Database)
+      .await
+      .unwrap();
 
     if remote_updates.is_empty() {
       return vec![];

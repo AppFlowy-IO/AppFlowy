@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'ime.dart';
 import 'util.dart';
 
 extension EditorWidgetTester on WidgetTester {
@@ -88,7 +87,7 @@ class EditorOperations {
 
   Future<void> switchSolidColorBackground() async {
     final findPurpleButton = find.byWidgetPredicate(
-      (widget) => widget is ColorItem && widget.option.colorHex == "ffe8e0ff",
+      (widget) => widget is ColorItem && widget.option.name == 'Purple',
     );
     await tester.tapButton(findPurpleButton);
   }

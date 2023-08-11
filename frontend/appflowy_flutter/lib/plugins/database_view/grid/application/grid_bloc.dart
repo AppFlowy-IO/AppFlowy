@@ -1,16 +1,16 @@
 import 'dart:async';
+import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../application/field/field_controller.dart';
 import '../../application/database_controller.dart';
 import 'dart:collection';
 
@@ -134,12 +134,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     final result = await databaseController.open();
     result.fold(
       (grid) {
+        databaseController.setIsLoading(false);
         emit(
-          state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
+          state.copyWith(loadingState: LoadingState.finish(left(unit))),
         );
       },
       (err) => emit(
-        state.copyWith(loadingState: GridLoadingState.finish(right(err))),
+        state.copyWith(loadingState: LoadingState.finish(right(err))),
       ),
     );
   }
@@ -177,7 +178,7 @@ class GridState with _$GridState {
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
-    required GridLoadingState loadingState,
+    required LoadingState loadingState,
     required bool reorderable,
     required ChangedReason reason,
     required List<SortInfo> sorts,
@@ -191,40 +192,33 @@ class GridState with _$GridState {
         grid: none(),
         viewId: viewId,
         reorderable: true,
-        loadingState: const _Loading(),
+        loadingState: const LoadingState.loading(),
         reason: const InitialListState(),
         filters: [],
         sorts: [],
       );
 }
 
-@freezed
-class GridLoadingState with _$GridLoadingState {
-  const factory GridLoadingState.loading() = _Loading;
-  const factory GridLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
-  ) = _Finish;
-}
-
 class GridFieldEquatable extends Equatable {
-  final List<FieldInfo> _fields;
+  final List<FieldInfo> _fieldInfos;
   const GridFieldEquatable(
-    List<FieldInfo> fields,
-  ) : _fields = fields;
+    List<FieldInfo> fieldInfos,
+  ) : _fieldInfos = fieldInfos;
 
   @override
   List<Object?> get props {
-    if (_fields.isEmpty) {
+    if (_fieldInfos.isEmpty) {
       return [];
     }
 
     return [
-      _fields.length,
-      _fields
-          .map((field) => field.width)
+      _fieldInfos.length,
+      _fieldInfos
+          .map((fieldInfo) => fieldInfo.field.width)
           .reduce((value, element) => value + element),
     ];
   }
 
-  UnmodifiableListView<FieldInfo> get value => UnmodifiableListView(_fields);
+  UnmodifiableListView<FieldInfo> get value =>
+      UnmodifiableListView(_fieldInfos);
 }

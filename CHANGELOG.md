@@ -1,5 +1,47 @@
 # Release Notes
 
+## Version 0.2.9 - 08/08/2023
+
+### New Features
+
+- Improve tab and shortcut, click with alt/option to open a page in new tab.
+- Improve database tab bar UI.
+
+### Bug fixes
+
+- Add button and more action button of the favorite section doesn't work.
+- Fix euro currency number format.
+- Some UI issues
+
+## Version 0.2.8 - 08/03/2023
+
+### New Features
+
+- Nestable personal folder that supports drag and drop
+- Support for favorite folders.
+- Support for sorting by date in Grid view.
+- Add a duplicate button in the Board context menu.
+
+### Bug fixes
+
+- Improve readability in Callout
+- Some UI issues
+
+## Version 0.2.7 - 07/18/2023
+
+### New Features
+
+<img width="1147" src="https://github.com/AppFlowy-IO/AppFlowy/assets/11863087/ac464740-c685-4a85-ae99-1074c1c607e5">
+
+- Open page in new tab
+- Create toggle lists to keep things tidy in your pages
+- Alt/Option + click to add a text block above
+
+### Bug fixes
+
+- Pasting into a Grid property crashed on Windows
+- Double-click a link to open
+
 ## Version 0.2.6 - 07/11/2023
 
 ### New Features

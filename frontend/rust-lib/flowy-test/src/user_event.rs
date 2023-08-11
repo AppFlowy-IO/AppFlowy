@@ -55,7 +55,7 @@ pub async fn async_sign_up(
   let email = random_email();
   let payload = SignUpPayloadPB {
     email,
-    name: "app flowy".to_string(),
+    name: "appflowy".to_string(),
     password: password.clone(),
     auth_type,
   }

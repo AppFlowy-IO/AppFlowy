@@ -15,15 +15,6 @@ mac_alias = "appflowy-core-dev-macos"
 windows_alias = "appflowy-core-dev-windows"
 linux_alias = "appflowy-core-dev-linux"
 
-[tasks.appflowy-core-dev-android]
-category = "Build"
-dependencies = ["env_check"]
-run_task = { name = [
-  "setup-crate-type",
-  "sdk-build-android",
-  "restore-crate-type",
-] }
-
 [tasks.appflowy-core-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
@@ -63,6 +54,19 @@ script = [
     rustup show
     echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-build.mac]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo  RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
