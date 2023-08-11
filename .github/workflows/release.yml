@@ -82,9 +82,12 @@ jobs:
 
       - name: Build Windows app
         working-directory: frontend
+        # the cargo make script has to be run separately because of file locking issues
         run: |
           flutter config --enable-windows-desktop
+          dart ./scripts/flutter_release_build/build_flowy.dart exclude-directives . ${{ github.ref_name }}
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
+          dart ./scripts/flutter_release_build/build_flowy.dart include-directives . ${{ github.ref_name }}
 
       - name: Archive Asset
         uses: vimtor/action-zip@v1
@@ -172,7 +175,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
+          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
       - name: Create macOS dmg
         run: |
@@ -369,7 +372,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
+          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
       - name: Archive Assert
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
