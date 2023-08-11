@@ -7,7 +7,7 @@ interface ButtonPopoverListProps {
   isVisible: boolean;
   children: React.ReactNode;
   popoverOptions: {
-    key: string;
+    key: React.Key;
     icon: React.ReactNode;
     label: React.ReactNode | string;
     onClick: () => void;

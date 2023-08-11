@@ -22,7 +22,7 @@ export const FieldSelect = ({
   currentFieldId,
   currentFieldType,
 }: IFieldSelectProps) => {
-  const [showFieldSelect, setShowFieldSelect] = useState(false);
+  const [showSelect, setShowSelect] = useState(false);
 
   return (
     <ButtonPopoverList
@@ -37,7 +37,7 @@ export const FieldSelect = ({
         label: fields[column.fieldId].title,
         onClick: () => {
           onSelectFieldClick(column.fieldId);
-          setShowFieldSelect(false);
+          setShowSelect(false);
         },
       }))}
       popoverOrigin={{
@@ -50,13 +50,13 @@ export const FieldSelect = ({
           horizontal: 'left',
         },
       }}
-      onClose={() => setShowFieldSelect(false)}
+      onClose={() => setShowSelect(false)}
       sx={{ width: `${WIDTH}px` }}
     >
       <div
-        onClick={() => setShowFieldSelect(true)}
+        onClick={() => setShowSelect(true)}
         className={`flex items-center justify-between rounded-lg border px-2 py-1 ${
-          showFieldSelect ? 'border-fill-hover' : 'border-line-border'
+          showSelect ? 'border-fill-hover' : 'border-line-border'
         }`}
         style={{ width: `${WIDTH}px` }}
       >
@@ -70,7 +70,7 @@ export const FieldSelect = ({
         ) : (
           <span className={'text-text-placeholder'}>Select a field</span>
         )}
-        <i className={`h-5 w-5 transition-transform duration-500 ${showFieldSelect ? 'rotate-180' : 'rotate-0'}`}>
+        <i className={`h-5 w-5 transition-transform duration-500 ${showSelect ? 'rotate-180' : 'rotate-0'}`}>
           <DropDownShowSvg></DropDownShowSvg>
         </i>
       </div>

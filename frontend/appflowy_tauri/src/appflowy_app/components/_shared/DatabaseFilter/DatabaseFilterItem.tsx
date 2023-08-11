@@ -1,4 +1,3 @@
-import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { DropDownShowSvg } from '$app/components/_shared/svg/DropDownShowSvg';
 import { FieldType } from '@/services/backend';
 import { getBgColor } from '$app/components/_shared/getColor';
@@ -17,8 +16,9 @@ import { useAppSelector } from '$app/stores/store';
 import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorCheckSvg } from '$app/components/_shared/svg/EditorCheckSvg';
 import { EditorUncheckSvg } from '$app/components/_shared/svg/EditorUncheckSvg';
-import ButtonPopoverList from '$app/components/_shared/ButtonPopoverList';
 import { FieldSelect } from '$app/components/_shared/DatabaseFilter/FieldSelect';
+import { LogicalOperatorSelect } from '$app/components/_shared/DatabaseFilter/LogicalOperatorSelect';
+import { OperatorSelect } from '$app/components/_shared/DatabaseFilter/OperatorSelect';
 
 export const DatabaseFilterItem = ({
   data,
@@ -57,14 +57,6 @@ export const DatabaseFilterItem = ({
   }, [data]);
 
   // ui
-  const [showLogicalOperatorSelect, setShowLogicalOperatorSelect] = useState(false);
-  const refLogicalOperatorSelect = useRef<HTMLDivElement>(null);
-  const [logicalOperatorSelectTop, setLogicalOperatorSelectTop] = useState(0);
-  const [logicalOperatorSelectLeft, setLogicalOperatorSelectLeft] = useState(0);
-
-  const [showFieldSelect, setShowFieldSelect] = useState(false);
-  const refFieldSelect = useRef<HTMLDivElement>(null);
-
   const [showOperatorSelect, setShowOperatorSelect] = useState(false);
   const refOperatorSelect = useRef<HTMLDivElement>(null);
   const [operatorSelectTop, setOperatorSelectTop] = useState(0);
@@ -114,10 +106,6 @@ export const DatabaseFilterItem = ({
     [columns, fields, filtersStore]
   );
 
-  const onFieldClick: MouseEventHandler = (_) => {
-    setShowFieldSelect(true);
-  };
-
   const onOperatorClick: MouseEventHandler = (e) => {
     if (!refOperatorSelect.current) return;
     const { left, top, height } = refOperatorSelect.current.getBoundingClientRect();
@@ -137,18 +125,8 @@ export const DatabaseFilterItem = ({
     setShowValueOptions(true);
   };
 
-  const onLogicalOperatorClick: MouseEventHandler = () => {
-    if (!refLogicalOperatorSelect.current) return;
-    const { left, top, height } = refLogicalOperatorSelect.current.getBoundingClientRect();
-
-    setLogicalOperatorSelectTop(top + height + 5);
-    setLogicalOperatorSelectLeft(left);
-    setShowLogicalOperatorSelect(true);
-  };
-
   const onSelectFieldClick = (id: string) => {
     setCurrentFieldId(id);
-    setShowFieldSelect(false);
 
     switch (fields[id].fieldType) {
       case FieldType.RichText:
@@ -185,13 +163,6 @@ export const DatabaseFilterItem = ({
     }
   };
 
-  const onSelectLogicalOperatorClick = (operator: 'and' | 'or') => {
-    setCurrentLogicalOperator(operator);
-    setShowLogicalOperatorSelect(false);
-  };
-
-  const LogicalOperators: ('and' | 'or')[] = ['and', 'or'];
-
   const getSelectOption = (optionId: string) => {
     if (!currentFieldId) return undefined;
     return (fields[currentFieldId].fieldOptions as ISelectOptionType).selectOptions.find(
@@ -206,22 +177,7 @@ export const DatabaseFilterItem = ({
           {index === 0 ? (
             <span className={'text-sm text-text-caption'}>Where</span>
           ) : (
-            <div
-              ref={refLogicalOperatorSelect}
-              onClick={onLogicalOperatorClick}
-              className={`flex w-[88px] items-center justify-between rounded-lg border px-2 py-1 ${
-                showLogicalOperatorSelect ? 'border-fill-hover' : 'border-line-border'
-              }`}
-            >
-              and
-              <i
-                className={`h-5 w-5 transition-transform duration-500 ${
-                  showLogicalOperatorSelect ? 'rotate-180' : 'rotate-0'
-                }`}
-              >
-                <DropDownShowSvg></DropDownShowSvg>
-              </i>
-            </div>
+            <LogicalOperatorSelect></LogicalOperatorSelect>
           )}
         </div>
 
@@ -233,22 +189,11 @@ export const DatabaseFilterItem = ({
           currentFieldType={currentFieldType}
         ></FieldSelect>
 
-        <div
-          ref={refOperatorSelect}
-          onClick={onOperatorClick}
-          className={`flex w-[180px] items-center justify-between rounded-lg border px-2 py-1 ${
-            showOperatorSelect ? 'border-fill-hover' : 'border-line-border'
-          }`}
-        >
-          {currentOperator ? (
-            <span>{currentOperator}</span>
-          ) : (
-            <span className={'text-text-placeholder'}>Select an option</span>
-          )}
-          <i className={`h-5 w-5 transition-transform duration-500 ${showOperatorSelect ? 'rotate-180' : 'rotate-0'}`}>
-            <DropDownShowSvg></DropDownShowSvg>
-          </i>
-        </div>
+        <OperatorSelect
+          currentOperator={currentOperator}
+          currentFieldType={currentFieldType}
+          onSelectOperatorClick={onSelectOperatorClick}
+        ></OperatorSelect>
 
         {currentFieldId ? (
           <>
@@ -326,34 +271,6 @@ export const DatabaseFilterItem = ({
           </i>
         </button>
       </div>
-
-      {showOperatorSelect && (
-        <PopupSelect
-          items={SupportedOperatorsByType[currentFieldType ? currentFieldType : FieldType.RichText].map<IPopupItem>(
-            (operatorName) => ({
-              icon: null,
-              title: operatorName,
-              onClick: () => onSelectOperatorClick(operatorName),
-            })
-          )}
-          className={'fixed z-10 text-sm'}
-          style={{ top: `${operatorSelectTop}px`, left: `${operatorSelectLeft}px`, width: `${180}px` }}
-          onOutsideClick={() => setShowOperatorSelect(false)}
-        ></PopupSelect>
-      )}
-
-      {showLogicalOperatorSelect && (
-        <PopupSelect
-          items={LogicalOperators.map<IPopupItem>((operatorName) => ({
-            icon: null,
-            title: operatorName,
-            onClick: () => onSelectLogicalOperatorClick(operatorName),
-          }))}
-          className={'fixed z-10 text-sm'}
-          style={{ top: `${logicalOperatorSelectTop}px`, left: `${logicalOperatorSelectLeft}px`, width: `${88}px` }}
-          onOutsideClick={() => setShowLogicalOperatorSelect(false)}
-        ></PopupSelect>
-      )}
 
       {showValueOptions && currentFieldId && (
         <PopupWindow
