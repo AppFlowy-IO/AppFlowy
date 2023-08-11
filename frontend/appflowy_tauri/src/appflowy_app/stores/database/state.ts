@@ -4,6 +4,7 @@ import { DatabaseLayoutPB } from '@/services/backend';
 
 export const database = proxy<Database>({
   id: '',
+  viewId: '',
   name: '',
   fields: [],
   rows: [],

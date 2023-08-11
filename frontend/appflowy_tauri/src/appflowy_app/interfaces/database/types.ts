@@ -14,6 +14,7 @@ import {
 
 export interface Database {
   id: string;
+  viewId: string;
   name: string;
   fields: Database.UndeterminedField[];
   rows: Database.Row[];

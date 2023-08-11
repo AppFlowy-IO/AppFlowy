@@ -361,7 +361,7 @@ export async function getFieldTypeOption(viewId: string, fieldId: string, fieldT
 /**
  * TODO data type need to clarify
  */
-export async function createFieldTypeOption(viewId: string, fieldType: FieldType, data: Uint8Array): Promise<TypeOptionPB> {
+export async function createFieldTypeOption(viewId: string, fieldType: FieldType, data?: Uint8Array): Promise<TypeOptionPB> {
   const payload = CreateFieldPayloadPB.fromObject({
     view_id: viewId,
     field_type: fieldType,

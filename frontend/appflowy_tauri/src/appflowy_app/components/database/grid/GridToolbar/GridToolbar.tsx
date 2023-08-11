@@ -1,7 +1,7 @@
-import { Button, Input, Icon, IconButton } from '@mui/material';
-import AddSvg from '$app/components/_shared/svg/AddSvg';
-import { SearchSvg } from '$app/components/_shared/svg/SearchSvg';
-import { SettingsSvg } from '$app/components/_shared/svg/SettingsSvg';
+import { Button, Input, IconButton } from '@mui/material';
+import { ReactComponent as AddSvg } from '$app/assets/add.svg';
+import { ReactComponent as SearchSvg } from '$app/assets/search.svg';
+import { ReactComponent as SettingsSvg } from '$app/assets/settings.svg';
 
 export const GridToolbar = () => {
   return (
@@ -11,7 +11,7 @@ export const GridToolbar = () => {
           My plans on week
         </span>
         <span className="ml-2">
-          <IconButton className="h-5 w-5">
+          <IconButton size="small">
             <SettingsSvg />
           </IconButton>
         </span>
@@ -20,11 +20,8 @@ export const GridToolbar = () => {
         <Button
           variant="text"
           color="inherit"
-          startIcon={(
-            <Icon>
-              <AddSvg />
-            </Icon>
-          )}
+          size="small"
+          startIcon={<AddSvg />}
         >
           Add View
         </Button>
@@ -32,11 +29,7 @@ export const GridToolbar = () => {
           className="ml-8 w-36"
           placeholder="Search"
           disableUnderline
-          startAdornment={(
-            <Icon className="mr-2" fontSize="small">
-              <SearchSvg />
-            </Icon>
-          )}
+          startAdornment={<span className="mr-2"><SearchSvg className="w-4 h-4" /></span>}
         />
       </div>
     </div>

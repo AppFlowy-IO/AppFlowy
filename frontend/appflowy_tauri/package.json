@@ -66,6 +66,7 @@
     "yjs": "^13.5.51"
   },
   "devDependencies": {
+    "@svgr/plugin-svgo": "^8.0.1",
     "@tauri-apps/cli": "^1.2.2",
     "@types/google-protobuf": "^3.15.6",
     "@types/is-hotkey": "^0.1.7",
@@ -95,6 +96,7 @@
     "tailwindcss": "^3.2.7",
     "typescript": "^4.6.4",
     "uuid": "^9.0.0",
-    "vite": "^4.0.0"
+    "vite": "^4.0.0",
+    "vite-plugin-svgr": "^3.2.0"
   }
 }

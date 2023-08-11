@@ -1,14 +1,12 @@
-import { FC, RefObject } from 'react';
+import { FC } from 'react';
 import { GridToolbar } from '../GridToolbar';
 import { GridTable } from '../GridTable/GridTable';
 
-export const Grid: FC<{ scrollElementRef: RefObject<HTMLElement> }> = ({
-  scrollElementRef,
-}) => {
+export const Grid: FC = () => {
   return (
     <>
      <GridToolbar />
-     <GridTable scrollElementRef={scrollElementRef} />
+     <GridTable />
     </>
   );
 };

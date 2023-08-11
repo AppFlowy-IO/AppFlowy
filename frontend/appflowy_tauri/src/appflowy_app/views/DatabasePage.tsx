@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useSnapshot } from 'valtio';
 import { DatabaseLayoutPB } from '@/services/backend';
 import { readDatabase, database } from '$app/stores/database';
-import { Grid } from '../components/database/grid/Grid/Grid';
+import { VerticalScrollElementRefContext, Grid } from '../components/database/grid';
 
 export const DatabasePage = () => {
   const viewId = useParams().id;
@@ -15,8 +15,11 @@ export const DatabasePage = () => {
       return;
     }
 
-    void readDatabase(viewId);
+    const closePromise = readDatabase(viewId);
 
+    return () => {
+      void closePromise.then(close => close());
+    };
   }, [viewId]);
 
   return (
@@ -31,9 +34,11 @@ export const DatabasePage = () => {
             👋  Welcome to AppFlowy
           </div>
         </div>
-        {snapshot.layoutType === DatabaseLayoutPB.Grid
-          ? <Grid scrollElementRef={scrollElementRef} />
-          : null}
+        <VerticalScrollElementRefContext.Provider value={scrollElementRef}>
+          {snapshot.layoutType === DatabaseLayoutPB.Grid
+            ? <Grid />
+            : null}
+        </VerticalScrollElementRefContext.Provider>
       </div>
     </div>
   );

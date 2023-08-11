@@ -1,5 +1,6 @@
-import type { Database } from '$app/interfaces/database';
-import { DatabaseLayoutPB } from '@/services/backend';
+import { type Database, fieldPbToField } from '$app/interfaces/database';
+import { subscribeNotification } from '$app/hooks';
+import { DatabaseLayoutPB, DatabaseNotification } from '@/services/backend';
 import * as service from './bd_svc';
 import { database } from './state';
 
@@ -14,16 +15,10 @@ export const readDatabase = async (viewId: string) => {
 
   const fieldsPb = await service.getFields(viewId, databasePb.fields.map(field => field.field_id));
 
-  const fields: Database.Field[] = fieldsPb.map(field => ({
-    id: field.id,
-    name: field.name,
-    type: field.field_type,
-    visibility: field.visibility,
-    width: field.width,
-    isPrimary: field.is_primary,
-  }));
+  const fields: Database.Field[] = fieldsPb.map(fieldPbToField);
 
   database.id = databasePb.id;
+  database.viewId = viewId;
   database.layoutType = databasePb.layout_type;
   database.isLinked = databasePb.is_linked;
   database.fields = fields;
@@ -63,4 +58,21 @@ export const readDatabase = async (viewId: string) => {
 
     database.layoutSetting = layoutSetting;
   }
+
+  const unsubscribes = await Promise.all([
+    subscribeNotification(viewId, DatabaseNotification.DidUpdateFields, async data => {
+      if (data.err) {
+        return;
+      }
+
+      const { fields: fieldIds } = await service.getDatabase(viewId);
+      const newFieldsPb = await service.getFields(viewId, fieldIds.map(field => field.field_id));
+      
+      database.fields = newFieldsPb.map(fieldPbToField);
+    }),
+  ]);
+
+  return () => {
+    unsubscribes.forEach(unsubscribe => unsubscribe());
+  };
 };
