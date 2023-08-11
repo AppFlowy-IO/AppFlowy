@@ -37,7 +37,9 @@ class ImportFromNotionWidget extends StatelessWidget {
       margin: EdgeInsets.zero,
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyButton(
-        leftIcon: const FlowySvg(name: 'notion_logo'),
+        leftIcon: FlowySvg(
+          name: 'notion_logo',
+          color: Theme.of(context).colorScheme.tertiary,),
         leftIconSize: const Size.square(20),
         text: FlowyText.medium(
           LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),

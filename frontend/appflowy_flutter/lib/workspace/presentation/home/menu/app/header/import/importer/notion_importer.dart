@@ -154,7 +154,6 @@ class NotionImporter {
       for (final element in files) {
         unzipFiles.files.remove(element);
       }
-
       for (final element in images) {
         unzipFiles.files.remove(element);
       }
@@ -191,10 +190,10 @@ class NotionImporter {
   // we take all contents of a markdown file and pass it through
   // _preProcessMarkdownFile   function which returns us a string which is the
   // contents of the markdown file but with changes. The changes this function
-  //performs are related to images . It will iterate through each line and if it
+  // performs are related to images .It will iterate through each line and if it
   // it finds something like ![name](path) this is how a image is represented in
-  // markdown . When we get this line is detected we get the path from this
-  // this path is actually the file name of image from the above unzipfiles
+  // markdown , we get this line if detected, we get the path from this.
+  // This path is actually the file name of image from the above unzipfiles
   // so with the help of path we will get the image file and save it
   // locally and change the current path to the path where the image is saved
   // locally

@@ -39,7 +39,6 @@ void main() {
       await file.writeAsBytes(
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
       );
-      // mock get files
 
       await tester.tapButtonWithName(
           LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),);
@@ -53,7 +52,7 @@ void main() {
       await tester.tapButtonWithName(LocaleKeys.importPanel_uploadZipFile.tr());
       tester.expectToSeePageName(mainPageName);
       await tester.openPage(mainPageName);
-      //test the main page is imported correctly
+      //test if the main page is imported correctly
       final mainPageEditorState = tester.editor.getCurrentEditorState();
       expect(
         mainPageEditorState.getNodeAtPath([0])!.type,
@@ -110,7 +109,7 @@ void main() {
       await tester.expandPage(subPageTwoName);
       tester.expectToSeePageName(subSubPageName);
 
-      //test if subPage 1 is imported correctly
+      //test if subpage 1 is imported correctly
       await tester.openPage(subPageOneName);
       final subPageOneEditorState = tester.editor.getCurrentEditorState();
       expect(
@@ -125,7 +124,7 @@ void main() {
         subPageOneEditorState.getNodeAtPath([2])!.type,
         ImageBlockKeys.type,
       );
-      //test if subPage 2 is imported correctly
+      //test if subpage 2 is imported correctly
       await tester.openPage(subPageTwoName);
       final subPageTwoEditorState = tester.editor.getCurrentEditorState();
       expect(
