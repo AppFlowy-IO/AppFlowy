@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -15,7 +16,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupbaseRealtimeService {
   final Supabase supabase;
   RealtimeChannel? channel;
-  bool isSubscribing = false;
   StreamSubscription<AuthState>? authStateSubscription;
 
   SupbaseRealtimeService({required this.supabase}) {
@@ -27,13 +27,13 @@ class SupbaseRealtimeService {
     authStateSubscription = auth.onAuthStateChange.listen((state) async {
       switch (state.event) {
         case AuthChangeEvent.signedIn:
-          _subscribeTableChanges();
+          _subscribeTablesChanges();
           break;
         case AuthChangeEvent.signedOut:
           channel?.unsubscribe();
           break;
         case AuthChangeEvent.tokenRefreshed:
-          _subscribeTableChanges();
+          _subscribeTablesChanges();
           break;
         default:
           break;
@@ -41,38 +41,52 @@ class SupbaseRealtimeService {
     });
   }
 
-  /// Sets up and subscribes to realtime table changes in Supabase.
-  ///
-  /// Specifically subscribes to 'INSERT' events on the 'public' schema
-  /// of the table named 'table-db-changes'. Upon receiving an event,
-  /// it encodes the payload and pushes a realtime event.
-  void _subscribeTableChanges() {
-    channel = supabase.client
-        .channel(
-      "table-db-changes",
-      opts: const RealtimeChannelConfig(ack: true),
-    )
-        .on(
-            RealtimeListenTypes.postgresChanges,
-            ChannelFilter(
-              event: 'INSERT',
-              schema: 'public',
-            ), (payload, [ref]) {
-      try {
-        final jsonStr = jsonEncode(payload);
-        final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
-        UserEventPushRealtimeEvent(pb).send();
-      } catch (e) {
-        Log.error(e);
-      }
-    });
+  Future<void> _subscribeTablesChanges() async {
+    final result = await UserBackendService.getCurrentUserProfile();
+    result.fold((l) => null, (userProfile) {
+      Log.info("Start listening to table changes");
+      // https://supabase.com/docs/guides/realtime/postgres-changes
+      final filters = [
+        "document",
+        "folder",
+        "database",
+        "database_row",
+        "w_database",
+      ].map(
+        (name) => ChannelFilter(
+          event: 'INSERT',
+          schema: 'public',
+          table: "af_collab_update_$name",
+          filter: 'uid=eq.${userProfile.id}',
+        ),
+      );
 
-    channel?.subscribe(
-      (status, [err]) {
-        Log.info(
-          "subscribe channel statue: $status, err: $err",
+      const ops = RealtimeChannelConfig(ack: true);
+      channel = supabase.client.channel("table-db-changes", opts: ops);
+      for (final filter in filters) {
+        channel?.on(
+          RealtimeListenTypes.postgresChanges,
+          filter,
+          (payload, [ref]) {
+            try {
+              final jsonStr = jsonEncode(payload);
+              Log.info("Realtime payload: $jsonStr");
+              final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
+              UserEventPushRealtimeEvent(pb).send();
+            } catch (e) {
+              Log.error(e);
+            }
+          },
         );
-      },
-    );
+      }
+
+      channel?.subscribe(
+        (status, [err]) {
+          Log.info(
+            "subscribe channel statue: $status, err: $err",
+          );
+        },
+      );
+    });
   }
 }
