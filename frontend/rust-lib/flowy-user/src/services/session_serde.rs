@@ -33,7 +33,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
     // For historical reasons, the session used to contain a workspace_id field.
     // This field is no longer used, and is replaced by user_workspace.
     let mut workspace_id = None;
-    let mut device_id = "".to_string();
+    let mut device_id = "phantom".to_string();
     let mut user_workspace = None;
 
     while let Some(key) = map.next_key::<String>()? {
