@@ -21,9 +21,8 @@ pub struct SignInPayloadPB {
   #[pb(index = 4)]
   pub auth_type: AuthTypePB,
 
-  // Only used in local sign in.
-  #[pb(index = 5, one_of)]
-  pub uid: Option<i64>,
+  #[pb(index = 5)]
+  pub device_id: String,
 }
 
 impl TryInto<SignInParams> for SignInPayloadPB {
@@ -38,7 +37,7 @@ impl TryInto<SignInParams> for SignInPayloadPB {
       password: password.0,
       name: self.name,
       auth_type: self.auth_type.into(),
-      uid: self.uid,
+      device_id: self.device_id,
     })
   }
 }
@@ -56,7 +55,11 @@ pub struct SignUpPayloadPB {
 
   #[pb(index = 4)]
   pub auth_type: AuthTypePB,
+
+  #[pb(index = 5)]
+  pub device_id: String,
 }
+
 impl TryInto<SignUpParams> for SignUpPayloadPB {
   type Error = ErrorCode;
 
@@ -70,6 +73,7 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
       name: name.0,
       password: password.0,
       auth_type: self.auth_type.into(),
+      device_id: self.device_id,
     })
   }
 }

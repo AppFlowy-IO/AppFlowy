@@ -41,7 +41,7 @@ async fn supabase_get_folder_test() {
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
-    id: user.latest_workspace.id.clone(),
+    object_id: user.latest_workspace.id.clone(),
     uid: user.user_id,
     ty: CollabType::Folder,
     meta: Default::default(),
@@ -124,7 +124,7 @@ async fn supabase_duplicate_updates_test() {
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
-    id: user.latest_workspace.id.clone(),
+    object_id: user.latest_workspace.id.clone(),
     uid: user.user_id,
     ty: CollabType::Folder,
     meta: Default::default(),
@@ -220,7 +220,7 @@ async fn supabase_diff_state_vec_test() {
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
-    id: user.latest_workspace.id.clone(),
+    object_id: user.latest_workspace.id.clone(),
     uid: user.user_id,
     ty: CollabType::Folder,
     meta: Default::default(),

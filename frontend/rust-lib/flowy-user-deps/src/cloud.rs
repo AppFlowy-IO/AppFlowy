@@ -1,7 +1,7 @@
-use anyhow::Error;
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use anyhow::Error;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -64,7 +64,12 @@ pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, 
   let map: HashMap<String, String> = any.unbox_or_error()?;
   let uuid = uuid_from_map(&map)?;
   let email = map.get("email").cloned().unwrap_or_default();
-  Ok(ThirdPartyParams { uuid, email })
+  let device_id = map.get("device_id").cloned().unwrap_or_default();
+  Ok(ThirdPartyParams {
+    uuid,
+    email,
+    device_id,
+  })
 }
 
 pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {

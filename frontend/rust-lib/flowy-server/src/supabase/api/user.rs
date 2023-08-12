@@ -89,6 +89,7 @@ where
         is_new: is_new_user,
         email: Some(user_profile.email),
         token: None,
+        device_id: params.device_id,
       })
     })
   }
@@ -115,6 +116,7 @@ where
         user_workspaces,
         email: None,
         token: None,
+        device_id: params.device_id,
       })
     })
   }

@@ -5,6 +5,7 @@ use std::sync::{Arc, Weak};
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -107,7 +108,7 @@ impl UserSession {
       }
 
       if let Err(e) = user_status_callback
-        .did_init(session.user_id, &session.user_workspace)
+        .did_init(session.user_id, &session.user_workspace, &session.device_id)
         .await
       {
         tracing::error!("Failed to call did_sign_in callback: {:?}", e);
@@ -161,9 +162,16 @@ impl UserSession {
       .await?;
     let session: Session = response.clone().into();
     let uid = session.user_id;
+    let device_id = session.device_id.clone();
     self.set_current_session(Some(session))?;
 
-    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
+    self.log_user(
+      uid,
+      &response.device_id,
+      response.name.clone(),
+      &auth_type,
+      self.user_dir(uid),
+    );
 
     let user_workspace = response.latest_workspace.clone();
     save_user_workspaces(
@@ -182,7 +190,7 @@ impl UserSession {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(user_profile.id, &user_workspace)
+      .did_sign_in(user_profile.id, &user_workspace, &device_id)
       .await
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
@@ -234,7 +242,13 @@ impl UserSession {
     let new_session = Session::from(&response);
     self.set_current_session(Some(new_session.clone()))?;
     let uid = response.user_id;
-    self.log_user(uid, response.name.clone(), &auth_type, self.user_dir(uid));
+    self.log_user(
+      uid,
+      &response.device_id,
+      response.name.clone(),
+      &auth_type,
+      self.user_dir(uid),
+    );
     save_user_workspaces(
       self.db_pool(uid)?,
       response
@@ -282,6 +296,7 @@ impl UserSession {
         sign_up_context,
         &new_user_profile,
         &new_session.user_workspace,
+        &new_session.device_id,
       )
       .await;
     Ok(new_user_profile)
@@ -579,7 +594,14 @@ impl UserSession {
     Ok(())
   }
 
-  fn log_user(&self, uid: i64, user_name: String, auth_type: &AuthType, storage_path: String) {
+  fn log_user(
+    &self,
+    uid: i64,
+    device_id: &str,
+    user_name: String,
+    auth_type: &AuthType,
+    storage_path: String,
+  ) {
     let mut logger_users = self
       .store_preferences
       .get_object::<HistoricalUsers>(HISTORICAL_USER)
@@ -590,6 +612,7 @@ impl UserSession {
       auth_type: auth_type.clone(),
       sign_in_timestamp: timestamp(),
       storage_path,
+      device_id: device_id.to_string(),
     });
     let _ = self
       .store_preferences
@@ -606,7 +629,12 @@ impl UserSession {
     users
   }
 
-  pub fn open_historical_user(&self, uid: i64) -> FlowyResult<()> {
+  pub fn open_historical_user(
+    &self,
+    uid: i64,
+    device_id: String,
+    auth_type: AuthType,
+  ) -> FlowyResult<()> {
     let conn = self.db_connection(uid)?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
@@ -614,11 +642,21 @@ impl UserSession {
     let user_workspace = UserWorkspace::from(row);
     let session = Session {
       user_id: uid,
+      device_id,
       user_workspace,
     };
-    self.cloud_services.set_auth_type(AuthType::Local);
+    debug_assert!(auth_type.is_local());
+    self.cloud_services.set_auth_type(auth_type);
     self.set_current_session(Some(session))?;
     Ok(())
+  }
+
+  pub async fn receive_realtime_event(&self, json: Value) {
+    self
+      .user_status_callback
+      .read()
+      .await
+      .receive_realtime_event(json);
   }
 
   /// Returns the current user session.
@@ -718,6 +756,8 @@ pub struct HistoricalUser {
   pub auth_type: AuthType,
   pub sign_in_timestamp: i64,
   pub storage_path: String,
+  #[serde(default)]
+  pub device_id: String,
 }
 
 const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

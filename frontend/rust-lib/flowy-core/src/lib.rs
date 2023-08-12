@@ -10,6 +10,7 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
+use serde_json::Value;
 use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager;
@@ -206,6 +207,7 @@ impl AppFlowyCore {
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
       document_manager: document_manager.clone(),
+      server_provider: server_provider.clone(),
       config: config.clone(),
     };
 
@@ -272,6 +274,7 @@ struct UserStatusCallbackImpl {
   folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager>,
   document_manager: Arc<DocumentManager>,
+  server_provider: Arc<AppFlowyServerProvider>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -279,13 +282,21 @@ struct UserStatusCallbackImpl {
 impl UserStatusCallback for UserStatusCallbackImpl {
   fn auth_type_did_changed(&self, _auth_type: AuthType) {}
 
-  fn did_init(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_init(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -306,13 +317,21 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn did_sign_in(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+  fn did_sign_in(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
@@ -338,6 +357,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     context: SignUpContext,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
+    device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let collab_builder = self.collab_builder.clone();
@@ -345,6 +365,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let database_manager = self.database_manager.clone();
     let user_workspace = user_workspace.clone();
     let document_manager = self.document_manager.clone();
+
+    self.server_provider.set_sync_device(device_id);
+    self.collab_builder.set_sync_device(device_id.to_owned());
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
       folder_manager
@@ -408,6 +431,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn did_update_network(&self, reachable: bool) {
     self.collab_builder.update_network(reachable);
+  }
+
+  fn receive_realtime_event(&self, json: Value) {
+    self.server_provider.handle_realtime_event(json);
   }
 }
 

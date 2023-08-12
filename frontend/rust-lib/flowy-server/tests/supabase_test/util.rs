@@ -27,6 +27,7 @@ pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
   let server = Arc::new(RESTfulPostgresServer::new(config));
   Arc::new(SupabaseCollabStorageImpl::new(
     SupabaseServerServiceImpl::new(server),
+    None,
   ))
 }
 
