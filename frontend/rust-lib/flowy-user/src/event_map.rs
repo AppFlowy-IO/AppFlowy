@@ -243,6 +243,8 @@ pub enum UserEvent {
   #[event(input = "HistoricalUserPB")]
   OpenHistoricalUser = 26,
 
+  /// Push a realtime event to the user. Currently, the realtime event is only used
+  /// when the auth type is: [AuthType::Supabase].
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
 }

@@ -18,7 +18,9 @@ use crate::supabase::api::request::{
   create_snapshot, get_latest_snapshot_from_server, get_updates_from_server,
   FetchObjectUpdateAction, UpdateItem,
 };
-use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::util::{
+  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnEncoder,
+};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 
@@ -154,7 +156,7 @@ where
         .insert("uid", object.uid)
         .insert("workspace_id", workspace_id)
         .insert("removed_keys", merge_result.merged_keys)
-        .insert("did", object.get_device_id().unwrap_or_default())
+        .insert("did", object.get_device_id())
         .build();
 
       postgrest
@@ -184,7 +186,7 @@ async fn send_update(
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
   let md5 = md5(&update);
-  let update = format!("\\x{}", hex::encode(update));
+  let update = SupabaseBinaryColumnEncoder::encode(update);
   let builder = InsertParamsBuilder::new()
     .insert("oid", object.object_id.clone())
     .insert("partition_key", partition_key(&object.ty))
@@ -192,7 +194,7 @@ async fn send_update(
     .insert("uid", object.uid)
     .insert("md5", md5)
     .insert("workspace_id", workspace_id)
-    .insert("did", object.get_device_id().unwrap_or_default())
+    .insert("did", object.get_device_id())
     .insert("value_size", value_size);
 
   let params = builder.build();

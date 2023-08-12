@@ -6,6 +6,12 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// A service to manage realtime interactions with Supabase.
+///
+/// `SupbaseRealtimeService` handles subscribing to table changes in Supabase
+/// based on the authentication state of a user. The service is initialized with
+/// a reference to a Supabase instance and sets up the necessary subscriptions
+/// accordingly.
 class SupbaseRealtimeService {
   final Supabase supabase;
   RealtimeChannel? channel;
@@ -35,17 +41,23 @@ class SupbaseRealtimeService {
     });
   }
 
+  /// Sets up and subscribes to realtime table changes in Supabase.
+  ///
+  /// Specifically subscribes to 'INSERT' events on the 'public' schema
+  /// of the table named 'table-db-changes'. Upon receiving an event,
+  /// it encodes the payload and pushes a realtime event.
   void _subscribeTableChanges() {
-    if (channel != null) {
-      channel?.unsubscribe();
-      channel = null;
-    }
-    channel = supabase.client.channel("table-db-changes").onEvents(
-        "postgres_changes",
-        ChannelFilter(
-          event: 'INSERT',
-          schema: 'public',
-        ), (payload, [ref]) {
+    channel = supabase.client
+        .channel(
+      "table-db-changes",
+      opts: const RealtimeChannelConfig(ack: true),
+    )
+        .on(
+            RealtimeListenTypes.postgresChanges,
+            ChannelFilter(
+              event: 'INSERT',
+              schema: 'public',
+            ), (payload, [ref]) {
       try {
         final jsonStr = jsonEncode(payload);
         final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
@@ -57,18 +69,9 @@ class SupbaseRealtimeService {
 
     channel?.subscribe(
       (status, [err]) {
-        if (status == "SUBSCRIBED") {
-          Log.info("Channel subscribe statue: $status, err: $err");
-          isSubscribing = false;
-        } else {
-          if (!isSubscribing) {
-            Log.info("Channel subscribe statue: $status, err: $err");
-            isSubscribing = true;
-            Future.delayed(const Duration(seconds: 10), () {
-              _subscribeTableChanges();
-            });
-          }
-        }
+        Log.info(
+          "subscribe channel statue: $status, err: $err",
+        );
       },
     );
   }

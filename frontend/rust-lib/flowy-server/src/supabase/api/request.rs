@@ -15,7 +15,9 @@ use tokio_retry::{Action, Condition, RetryIf};
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
-use crate::supabase::api::util::{decode_hex_string, ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::util::{
+  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+};
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
 
@@ -168,7 +170,7 @@ pub async fn get_latest_snapshot_from_server(
       let blob = value
         .get("blob")
         .and_then(|blob| blob.as_str())
-        .and_then(decode_hex_string)?;
+        .and_then(SupabaseBinaryColumnDecoder::decode)?;
       let sid = value.get("sid").and_then(|id| id.as_i64())?;
       let created_at = value.get("created_at").and_then(|created_at| {
         created_at
@@ -272,7 +274,7 @@ fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
   let some_record = json
     .get("value")
     .and_then(|value| value.as_str())
-    .and_then(decode_hex_string);
+    .and_then(SupabaseBinaryColumnDecoder::decode);
 
   let some_key = json.get("key").and_then(|value| value.as_i64());
   if let (Some(value), Some(key)) = (some_record, some_key) {

@@ -5,7 +5,7 @@ use serde::de::{Error, Visitor};
 use serde::{Deserialize, Deserializer};
 use uuid::Uuid;
 
-use crate::supabase::api::util::decode_hex_string;
+use crate::supabase::api::util::SupabaseRealtimeEventBinaryColumnDecoder;
 use crate::util::deserialize_null_or_default;
 
 pub enum GetUserProfileParams {
@@ -83,14 +83,14 @@ where
     where
       E: Error,
     {
-      Ok(decode_hex_string(v).unwrap_or_default())
+      Ok(SupabaseRealtimeEventBinaryColumnDecoder::decode(v).unwrap_or_default())
     }
 
     fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
     where
       E: Error,
     {
-      Ok(decode_hex_string(&v).unwrap_or_default())
+      Ok(SupabaseRealtimeEventBinaryColumnDecoder::decode(v).unwrap_or_default())
     }
   }
   deserializer.deserialize_any(ValueVisitor())

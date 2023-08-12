@@ -142,16 +142,14 @@ impl AppFlowyServer for SupabaseServer {
       Ok(event) => {
         if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
           if self.device_id.lock().as_str() != event.payload.did.as_str() {
-            if let Ok(data) = hex::decode(event.payload.value) {
-              if let Err(e) = tx.send(data) {
-                tracing::trace!("send realtime update error: {}", e);
-              }
+            if let Err(e) = tx.send(event.payload.value) {
+              tracing::trace!("send realtime update error: {}", e);
             }
           }
         }
       },
       Err(e) => {
-        tracing::error!("parse realtime event error: {}", e);
+        tracing::error!("parser realtime event error: {}", e);
       },
     }
   }
