@@ -19,7 +19,6 @@ import '../startup.dart';
 const appflowyDeepLinkSchema = 'appflowy-flutter';
 const supabaseLoginCallback = '$appflowyDeepLinkSchema://login-callback';
 
-bool isSupabaseInitialized = false;
 const hiveBoxName = 'appflowy_supabase_authentication';
 
 // Used to store the session of the supabase in case of the user switch the different folder.
@@ -30,10 +29,6 @@ class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     if (!isSupabaseEnabled) {
-      return;
-    }
-
-    if (isSupabaseInitialized) {
       return;
     }
 
@@ -52,8 +47,6 @@ class InitSupabaseTask extends LaunchTask {
     );
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
     supabase = initializedSupabase;
-
-    isSupabaseInitialized = true;
   }
 }
 
