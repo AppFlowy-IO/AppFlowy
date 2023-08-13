@@ -7,9 +7,9 @@ use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
 use flowy_user_deps::entities::UserWorkspace;
 
 use crate::entities::RepeatedUserWorkspacePB;
+use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
-use crate::services::UserManager;
 
 impl UserManager {
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
@@ -73,14 +73,7 @@ impl UserManager {
       if let Ok(pool) = self.db_pool(uid) {
         tokio::spawn(async move {
           if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
-            let _ = save_user_workspaces(
-              pool,
-              new_user_workspaces
-                .iter()
-                .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-                .collect(),
-            );
-
+            let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
             let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
             send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
               .payload(repeated_workspace_pbs)
@@ -127,9 +120,15 @@ impl UserManager {
 }
 
 pub fn save_user_workspaces(
+  uid: i64,
   pool: Arc<ConnectionPool>,
-  user_workspaces: Vec<UserWorkspaceTable>,
+  user_workspaces: &Vec<UserWorkspace>,
 ) -> FlowyResult<()> {
+  let user_workspaces = user_workspaces
+    .iter()
+    .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
+    .collect::<Vec<UserWorkspaceTable>>();
+
   let conn = pool.get()?;
   conn.immediate_transaction(|| {
     for user_workspace in user_workspaces {

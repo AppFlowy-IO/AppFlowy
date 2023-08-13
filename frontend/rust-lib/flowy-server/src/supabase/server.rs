@@ -12,7 +12,7 @@ use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
 use crate::supabase::api::{
-  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl, SupabaseCollabStorageImpl,
+  RESTfulPostgresServer, RESTfulSupabaseUserServiceImpl, SupabaseCollabStorageImpl,
   SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl,
   SupabaseServerServiceImpl,
 };
@@ -102,7 +102,7 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserService> {
-    Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(
+    Arc::new(RESTfulSupabaseUserServiceImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
     ))
   }

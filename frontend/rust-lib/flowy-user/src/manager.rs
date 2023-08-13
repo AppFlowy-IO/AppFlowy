@@ -2,9 +2,10 @@ use std::convert::TryFrom;
 use std::string::ToString;
 use std::sync::{Arc, Weak};
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
-use collab_user::core::{MutexUserAwareness, UserAwareness};
+use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -28,9 +29,9 @@ use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::UserMigrationContext;
 use crate::services::database::UserDB;
 use crate::services::entities::Session;
+use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
-use crate::services::user_workspace_sql::UserWorkspaceTable;
 use crate::{errors::FlowyError, notification::*};
 
 const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
@@ -59,8 +60,9 @@ pub struct UserManager {
   session_config: UserSessionConfig,
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<StorePreferences>,
-  user_awareness: Arc<parking_lot::Mutex<Option<MutexUserAwareness>>>,
+  pub(crate) user_awareness: Arc<parking_lot::Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
+  pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
 }
 
 impl UserManager {
@@ -68,6 +70,7 @@ impl UserManager {
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
     store_preferences: Arc<StorePreferences>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Self {
     let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
@@ -79,6 +82,7 @@ impl UserManager {
       store_preferences,
       user_awareness: Arc::new(Default::default()),
       user_status_callback,
+      collab_builder,
     }
   }
 
@@ -88,6 +92,7 @@ impl UserManager {
 
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
+      // Do the user data migration if needed
       match (
         self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
@@ -106,12 +111,16 @@ impl UserManager {
         },
         _ => tracing::error!("Failed to get collab db or sqlite pool"),
       }
-
+      self.set_collab_config(&session);
+      // Init the user awareness
+      self
+        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
+        .await;
       if let Err(e) = user_status_callback
         .did_init(session.user_id, &session.user_workspace, &session.device_id)
         .await
       {
-        tracing::error!("Failed to call did_sign_in callback: {:?}", e);
+        tracing::error!("Failed to call did_init callback: {:?}", e);
       }
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
@@ -163,8 +172,8 @@ impl UserManager {
     let session: Session = response.clone().into();
     let uid = session.user_id;
     let device_id = session.device_id.clone();
-    self.set_current_session(Some(session))?;
-
+    self.set_collab_config(&session);
+    self.set_current_session(Some(session.clone()))?;
     self.log_user(
       uid,
       &response.device_id,
@@ -172,20 +181,15 @@ impl UserManager {
       &auth_type,
       self.user_dir(uid),
     );
-
     let user_workspace = response.latest_workspace.clone();
-    save_user_workspaces(
-      self.db_pool(uid)?,
-      response
-        .user_workspaces
-        .iter()
-        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-        .collect(),
-    )?;
+    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
     let user_profile: UserProfile = self
       .save_user(uid, (response, auth_type).into())
       .await?
       .into();
+    let _ = self
+      .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
+      .await;
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -195,10 +199,10 @@ impl UserManager {
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
     }
+
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
       .send();
-
     Ok(user_profile)
   }
 
@@ -241,6 +245,7 @@ impl UserManager {
     };
     let new_session = Session::from(&response);
     self.set_current_session(Some(new_session.clone()))?;
+    self.set_collab_config(&new_session);
     let uid = response.user_id;
     self.log_user(
       uid,
@@ -249,14 +254,7 @@ impl UserManager {
       &auth_type,
       self.user_dir(uid),
     );
-    save_user_workspaces(
-      self.db_pool(uid)?,
-      response
-        .user_workspaces
-        .iter()
-        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-        .collect(),
-    )?;
+    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
     let user_table = self
       .save_user(uid, (response, auth_type.clone()).into())
       .await?;
@@ -288,6 +286,9 @@ impl UserManager {
       }
     }
 
+    self
+      .initialize_user_awareness(&new_session, UserAwarenessDataSource::Remote)
+      .await;
     let _ = self
       .user_status_callback
       .read()
@@ -425,7 +426,7 @@ impl UserManager {
   }
 
   pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
-    self.cloud_services.update_supabase_config(&config);
+    self.cloud_services.set_supabase_config(&config);
     let _ = self
       .store_preferences
       .set_object(SUPABASE_CONFIG_CACHE_KEY, config);
@@ -503,15 +504,11 @@ impl UserManager {
     }
   }
 
-  fn with_awareness<F, Output>(&self, default_value: Output, f: F) -> Output
-  where
-    F: FnOnce(&UserAwareness) -> Output,
-  {
-    let user_awareness = self.user_awareness.lock();
-    match &*user_awareness {
-      None => default_value,
-      Some(user_awareness) => f(&*user_awareness.lock()),
-    }
+  fn set_collab_config(&self, session: &Session) {
+    let collab_builder = self.collab_builder.upgrade().unwrap();
+    collab_builder.set_sync_device(session.device_id.clone());
+    collab_builder.initialize(session.user_workspace.id.clone());
+    self.cloud_services.set_device_id(&session.device_id);
   }
 }
 

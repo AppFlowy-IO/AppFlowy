@@ -6,9 +6,9 @@ use flowy_sqlite::{query_dsl::*, ExpressionMethods};
 use flowy_user_deps::entities::{AuthType, UserWorkspace};
 use lib_infra::util::timestamp;
 
+use crate::manager::UserManager;
 use crate::services::entities::{HistoricalUser, HistoricalUsers, Session};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
-use crate::services::UserManager;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {

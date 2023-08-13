@@ -8,18 +8,18 @@ use flowy_database2::{DatabaseManager, DatabaseUser};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
-use flowy_user::services::UserManager;
+use flowy_user::manager::UserManager;
 
 pub struct DatabaseDepsResolver();
 
 impl DatabaseDepsResolver {
   pub async fn resolve(
-    user_session: Weak<UserManager>,
+    user_manager: Weak<UserManager>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Arc<DatabaseManager> {
-    let user = Arc::new(DatabaseUserImpl(user_session));
+    let user = Arc::new(DatabaseUserImpl(user_manager));
     Arc::new(DatabaseManager::new(
       user,
       task_scheduler,

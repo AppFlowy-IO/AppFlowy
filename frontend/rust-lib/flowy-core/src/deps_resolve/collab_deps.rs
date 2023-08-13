@@ -11,7 +11,7 @@ use flowy_sqlite::{
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
-use flowy_user::services::UserManager;
+use flowy_user::manager::UserManager;
 use lib_infra::util::timestamp;
 
 pub struct SnapshotDBImpl(pub Weak<UserManager>);

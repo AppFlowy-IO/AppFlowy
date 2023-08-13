@@ -152,7 +152,7 @@ impl AppFlowyServerProvider {
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
-  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
+  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
     self
       .supabase_config
       .write()
@@ -185,6 +185,10 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
         }
       },
     }
+  }
+
+  fn set_device_id(&self, device_id: &str) {
+    *self.device_id.lock() = device_id.to_string();
   }
 
   /// Returns the [UserService] base on the current [ServerProviderType].

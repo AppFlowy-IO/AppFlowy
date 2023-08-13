@@ -12,8 +12,9 @@ use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
+use crate::errors::FlowyError;
 use crate::event_handler::*;
-use crate::{errors::FlowyError, services::UserManager};
+use crate::manager::UserManager;
 
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
   let store_preferences = user_session
@@ -51,6 +52,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
     .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
+    .event(UserEvent::CreateReminder, create_reminder_event_handler)
+    .event(UserEvent::GetAllReminders, create_reminder_event_handler)
 }
 
 pub struct SignUpContext {
@@ -98,8 +101,9 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration);
+  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration);
   fn set_auth_type(&self, auth_type: AuthType);
+  fn set_device_id(&self, device_id: &str);
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
   fn service_name(&self) -> String;
 }
@@ -108,12 +112,16 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
-  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
-    (**self).update_supabase_config(supabase_config)
+  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
+    (**self).set_supabase_config(supabase_config)
   }
 
   fn set_auth_type(&self, auth_type: AuthType) {
     (**self).set_auth_type(auth_type)
+  }
+
+  fn set_device_id(&self, device_id: &str) {
+    (**self).set_device_id(device_id)
   }
 
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
@@ -247,4 +255,10 @@ pub enum UserEvent {
   /// when the auth type is: [AuthType::Supabase].
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
+
+  #[event(input = "CreateReminderPayloadPB")]
+  CreateReminder = 28,
+
+  #[event(output = "RepeatedReminderPB")]
+  GetAllReminders = 29,
 }

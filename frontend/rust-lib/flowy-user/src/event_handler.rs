@@ -12,7 +12,7 @@ use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
-use crate::services::{get_supabase_config, UserManager};
+use crate::manager::{get_supabase_config, UserManager};
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager
@@ -297,6 +297,32 @@ pub async fn push_realtime_event_handler(
       tracing::error!("Deserialize RealtimePayload failed: {:?}", e);
     },
   }
-
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn create_reminder_event_handler(
+  data: AFPluginData<ReminderPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager.add_reminder(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_all_reminder_event_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedReminderPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  data_result_ok(
+    manager
+      .get_all_reminders()
+      .await
+      .into_iter()
+      .map(ReminderPB::from)
+      .collect::<Vec<_>>()
+      .into(),
+  )
 }

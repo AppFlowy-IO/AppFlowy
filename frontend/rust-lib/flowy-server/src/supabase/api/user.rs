@@ -17,17 +17,17 @@ use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
 
-pub struct RESTfulSupabaseUserAuthServiceImpl<T> {
+pub struct RESTfulSupabaseUserServiceImpl<T> {
   server: T,
 }
 
-impl<T> RESTfulSupabaseUserAuthServiceImpl<T> {
+impl<T> RESTfulSupabaseUserServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self { server }
   }
 }
 
-impl<T> UserService for RESTfulSupabaseUserAuthServiceImpl<T>
+impl<T> UserService for RESTfulSupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -200,6 +200,10 @@ where
     _workspace_id: String,
   ) -> FutureResult<(), Error> {
     todo!()
+  }
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 }
 

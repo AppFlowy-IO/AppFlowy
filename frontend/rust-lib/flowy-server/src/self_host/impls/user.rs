@@ -1,4 +1,5 @@
 use anyhow::Error;
+
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserService;
 use flowy_user_deps::entities::*;
@@ -120,6 +121,11 @@ impl UserService for SelfHostedUserAuthServiceImpl {
   ) -> FutureResult<(), Error> {
     // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(vec![]) })
   }
 }
 
