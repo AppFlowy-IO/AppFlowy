@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::RemoteCollabStorage;
+use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -41,7 +41,7 @@ impl AppFlowyServer for SelfHostServer {
     Arc::new(SelfHostedDocumentCloudServiceImpl())
   }
 
-  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
 }

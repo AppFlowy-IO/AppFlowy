@@ -346,6 +346,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontSize: FontSizes.s11,
             fontColor: theme.shader3,
           ),
+          calloutBGColor: theme.hoverBG3,
           caption: _getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,

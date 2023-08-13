@@ -12,4 +12,4 @@ mod folder;
 mod postgres_server;
 mod request;
 mod user;
-mod util;
+pub mod util;

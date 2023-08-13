@@ -67,7 +67,7 @@ pub fn assert_folder_collab_content(workspace_id: &str, collab_update: &[u8], ex
   }
 
   let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);
-  collab.lock().with_transact_mut(|txn| {
+  collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);
   });
