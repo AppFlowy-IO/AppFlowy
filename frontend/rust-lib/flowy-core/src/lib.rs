@@ -20,7 +20,7 @@ use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
-use flowy_user::services::{get_supabase_config, UserSession, UserSessionConfig};
+use flowy_user::services::{get_supabase_config, UserManager, UserSessionConfig};
 use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -114,7 +114,7 @@ fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
 pub struct AppFlowyCore {
   #[allow(dead_code)]
   pub config: AppFlowyCoreConfig,
-  pub user_session: Arc<UserSession>,
+  pub user_session: Arc<UserManager>,
   pub document_manager: Arc<DocumentManager>,
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
@@ -260,9 +260,9 @@ fn mk_user_session(
   config: &AppFlowyCoreConfig,
   storage_preference: &Arc<StorePreferences>,
   user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
-) -> Arc<UserSession> {
+) -> Arc<UserManager> {
   let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
-  Arc::new(UserSession::new(
+  Arc::new(UserManager::new(
     user_config,
     user_cloud_service_provider,
     storage_preference.clone(),

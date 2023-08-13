@@ -4,22 +4,20 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
-use serde::{Deserialize, Serialize};
+use collab_user::core::{MutexUserAwareness, UserAwareness};
 use serde_json::Value;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_error::{internal_error, ErrorCode};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_sqlite::schema::{user_table, user_workspace_table};
+use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
-use lib_infra::util::timestamp;
 
-use crate::entities::{AuthTypePB, RepeatedUserWorkspacePB};
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
@@ -29,12 +27,12 @@ use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
 use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::UserMigrationContext;
 use crate::services::database::UserDB;
-use crate::services::session_serde::Session;
+use crate::services::entities::Session;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
+use crate::services::user_workspace::save_user_workspaces;
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 use crate::{errors::FlowyError, notification::*};
 
-const HISTORICAL_USER: &str = "af_historical_users";
 const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
 
 pub struct UserSessionConfig {
@@ -56,15 +54,16 @@ impl UserSessionConfig {
   }
 }
 
-pub struct UserSession {
+pub struct UserManager {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_services: Arc<dyn UserCloudServiceProvider>,
-  store_preferences: Arc<StorePreferences>,
+  pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
+  pub(crate) store_preferences: Arc<StorePreferences>,
+  user_awareness: Arc<parking_lot::Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
 }
 
-impl UserSession {
+impl UserManager {
   pub fn new(
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -78,6 +77,7 @@ impl UserSession {
       session_config,
       cloud_services,
       store_preferences,
+      user_awareness: Arc::new(Default::default()),
       user_status_callback,
     }
   }
@@ -366,48 +366,6 @@ impl UserSession {
     Ok(())
   }
 
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
-    let uid = self.user_id()?;
-    if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
-      if let Err(err) = self
-        .user_status_callback
-        .read()
-        .await
-        .open_workspace(uid, &user_workspace)
-        .await
-      {
-        tracing::error!("Open workspace failed: {:?}", err);
-      }
-    }
-    Ok(())
-  }
-
-  pub async fn add_user_to_workspace(
-    &self,
-    user_email: String,
-    to_workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .add_workspace_member(user_email, to_workspace_id)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn remove_user_to_workspace(
-    &self,
-    user_email: String,
-    from_workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .remove_workspace_member(user_email, from_workspace_id)
-      .await?;
-    Ok(())
-  }
-
   /// Get the user profile from the database
   /// If the refresh is true, it will try to get the user profile from the server
   pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
@@ -507,78 +465,7 @@ impl UserSession {
     Ok(user)
   }
 
-  pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
-    let conn = self.db_connection(uid).ok()?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::id.eq(workspace_id))
-      .first::<UserWorkspaceTable>(&*conn)
-      .ok()?;
-    Some(UserWorkspace::from(row))
-  }
-
-  pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
-    let conn = self.db_connection(uid)?;
-    let rows = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .load::<UserWorkspaceTable>(&*conn)?;
-
-    if let Ok(service) = self.cloud_services.get_user_service() {
-      if let Ok(pool) = self.db_pool(uid) {
-        tokio::spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
-            let _ = save_user_workspaces(
-              pool,
-              new_user_workspaces
-                .iter()
-                .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-                .collect(),
-            );
-
-            let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
-            send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
-              .payload(repeated_workspace_pbs)
-              .send();
-          }
-        });
-      }
-    }
-    Ok(rows.into_iter().map(UserWorkspace::from).collect())
-  }
-
-  pub async fn save_user_workspaces(
-    &self,
-    uid: i64,
-    user_workspaces: Vec<UserWorkspaceTable>,
-  ) -> FlowyResult<()> {
-    let conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|| {
-      for user_workspace in user_workspaces {
-        if let Err(err) = diesel::update(
-          user_workspace_table::dsl::user_workspace_table
-            .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-        )
-        .set((
-          user_workspace_table::name.eq(&user_workspace.name),
-          user_workspace_table::created_at.eq(&user_workspace.created_at),
-          user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-        ))
-        .execute(&*conn)
-        .and_then(|rows| {
-          if rows == 0 {
-            let _ = diesel::insert_into(user_workspace_table::table)
-              .values(user_workspace)
-              .execute(&*conn)?;
-          }
-          Ok(())
-        }) {
-          tracing::error!("Error saving user workspace: {:?}", err);
-        }
-      }
-      Ok::<(), FlowyError>(())
-    })
-  }
-
-  fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
+  pub(crate) fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     tracing::debug!("Set current user: {:?}", session);
     match &session {
       None => self
@@ -591,63 +478,6 @@ impl UserSession {
           .map_err(internal_error)?;
       },
     }
-    Ok(())
-  }
-
-  fn log_user(
-    &self,
-    uid: i64,
-    device_id: &str,
-    user_name: String,
-    auth_type: &AuthType,
-    storage_path: String,
-  ) {
-    let mut logger_users = self
-      .store_preferences
-      .get_object::<HistoricalUsers>(HISTORICAL_USER)
-      .unwrap_or_default();
-    logger_users.add_user(HistoricalUser {
-      user_id: uid,
-      user_name,
-      auth_type: auth_type.clone(),
-      sign_in_timestamp: timestamp(),
-      storage_path,
-      device_id: device_id.to_string(),
-    });
-    let _ = self
-      .store_preferences
-      .set_object(HISTORICAL_USER, logger_users);
-  }
-
-  pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    let mut users = self
-      .store_preferences
-      .get_object::<HistoricalUsers>(HISTORICAL_USER)
-      .unwrap_or_default()
-      .users;
-    users.sort_by(|a, b| b.sign_in_timestamp.cmp(&a.sign_in_timestamp));
-    users
-  }
-
-  pub fn open_historical_user(
-    &self,
-    uid: i64,
-    device_id: String,
-    auth_type: AuthType,
-  ) -> FlowyResult<()> {
-    let conn = self.db_connection(uid)?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .first::<UserWorkspaceTable>(&*conn)?;
-    let user_workspace = UserWorkspace::from(row);
-    let session = Session {
-      user_id: uid,
-      device_id,
-      user_workspace,
-    };
-    debug_assert!(auth_type.is_local());
-    self.cloud_services.set_auth_type(auth_type);
-    self.set_current_session(Some(session))?;
     Ok(())
   }
 
@@ -672,6 +502,17 @@ impl UserSession {
       Some(session) => Ok(session),
     }
   }
+
+  fn with_awareness<F, Output>(&self, default_value: Output, f: F) -> Output
+  where
+    F: FnOnce(&UserAwareness) -> Output,
+  {
+    let user_awareness = self.user_awareness.lock();
+    match &*user_awareness {
+      None => default_value,
+      Some(user_awareness) => f(&*user_awareness.lock()),
+    }
+  }
 }
 
 pub fn get_supabase_config(
@@ -682,82 +523,3 @@ pub fn get_supabase_config(
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
-
-pub fn save_user_workspaces(
-  pool: Arc<ConnectionPool>,
-  user_workspaces: Vec<UserWorkspaceTable>,
-) -> FlowyResult<()> {
-  let conn = pool.get()?;
-  conn.immediate_transaction(|| {
-    for user_workspace in user_workspaces {
-      if let Err(err) = diesel::update(
-        user_workspace_table::dsl::user_workspace_table
-          .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-      )
-      .set((
-        user_workspace_table::name.eq(&user_workspace.name),
-        user_workspace_table::created_at.eq(&user_workspace.created_at),
-        user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-      ))
-      .execute(&*conn)
-      .and_then(|rows| {
-        if rows == 0 {
-          let _ = diesel::insert_into(user_workspace_table::table)
-            .values(user_workspace)
-            .execute(&*conn)?;
-        }
-        Ok(())
-      }) {
-        tracing::error!("Error saving user workspace: {:?}", err);
-      }
-    }
-    Ok::<(), FlowyError>(())
-  })
-}
-
-impl From<AuthTypePB> for AuthType {
-  fn from(pb: AuthTypePB) -> Self {
-    match pb {
-      AuthTypePB::Supabase => AuthType::Supabase,
-      AuthTypePB::Local => AuthType::Local,
-      AuthTypePB::SelfHosted => AuthType::SelfHosted,
-    }
-  }
-}
-
-impl From<AuthType> for AuthTypePB {
-  fn from(auth_type: AuthType) -> Self {
-    match auth_type {
-      AuthType::Supabase => AuthTypePB::Supabase,
-      AuthType::Local => AuthTypePB::Local,
-      AuthType::SelfHosted => AuthTypePB::SelfHosted,
-    }
-  }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct HistoricalUsers {
-  pub(crate) users: Vec<HistoricalUser>,
-}
-
-impl HistoricalUsers {
-  pub fn add_user(&mut self, new_user: HistoricalUser) {
-    self.users.retain(|user| user.user_id != new_user.user_id);
-    self.users.push(new_user);
-  }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct HistoricalUser {
-  pub user_id: i64,
-  #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
-  pub user_name: String,
-  #[serde(default = "DEFAULT_AUTH_TYPE")]
-  pub auth_type: AuthType,
-  pub sign_in_timestamp: i64,
-  pub storage_path: String,
-  #[serde(default)]
-  pub device_id: String,
-}
-
-const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

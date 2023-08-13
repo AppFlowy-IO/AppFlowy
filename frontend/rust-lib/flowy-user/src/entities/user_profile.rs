@@ -6,7 +6,7 @@ use flowy_user_deps::entities::*;
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
-use crate::services::HistoricalUser;
+use crate::services::entities::HistoricalUser;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {

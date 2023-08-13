@@ -7,12 +7,12 @@ use flowy_database2::DatabaseManager;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_user::services::UserSession;
+use flowy_user::services::UserManager;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
   pub fn resolve(
-    user_session: Weak<UserSession>,
+    user_session: Weak<UserManager>,
     _database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
@@ -26,7 +26,7 @@ impl DocumentDepsResolver {
   }
 }
 
-struct DocumentUserImpl(Weak<UserSession>);
+struct DocumentUserImpl(Weak<UserManager>);
 impl DocumentUser for DocumentUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self

@@ -10,7 +10,7 @@ use collab_folder::core::Folder;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::migrations::migration::UserDataMigration;
-use crate::services::session_serde::Session;
+use crate::services::entities::Session;
 
 /// Migrate the first level documents of the workspace by inserting documents
 pub struct HistoricalEmptyDocumentMigration;

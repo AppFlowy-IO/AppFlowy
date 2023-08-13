@@ -13,9 +13,9 @@ use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::event_handler::*;
-use crate::{errors::FlowyError, services::UserSession};
+use crate::{errors::FlowyError, services::UserManager};
 
-pub fn init(user_session: Weak<UserSession>) -> AFPlugin {
+pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
   let store_preferences = user_session
     .upgrade()
     .map(|session| session.get_store_preferences())

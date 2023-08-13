@@ -8,13 +8,13 @@ use flowy_database2::{DatabaseManager, DatabaseUser};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
 use flowy_task::TaskDispatcher;
-use flowy_user::services::UserSession;
+use flowy_user::services::UserManager;
 
 pub struct DatabaseDepsResolver();
 
 impl DatabaseDepsResolver {
   pub async fn resolve(
-    user_session: Weak<UserSession>,
+    user_session: Weak<UserManager>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
@@ -29,7 +29,7 @@ impl DatabaseDepsResolver {
   }
 }
 
-struct DatabaseUserImpl(Weak<UserSession>);
+struct DatabaseUserImpl(Weak<UserManager>);
 impl DatabaseUser for DatabaseUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
