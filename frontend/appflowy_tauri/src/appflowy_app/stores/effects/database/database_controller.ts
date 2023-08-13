@@ -145,6 +145,10 @@ export class DatabaseController {
     return this.backendService.changeWidth(params);
   };
 
+  duplicateField = (fieldId: string) => {
+    return this.backendService.duplicateField(fieldId);
+  };
+
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
 

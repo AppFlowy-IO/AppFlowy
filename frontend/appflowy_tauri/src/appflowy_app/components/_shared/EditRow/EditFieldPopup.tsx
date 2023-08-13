@@ -89,6 +89,11 @@ export const EditFieldPopup = ({
     }
   };
 
+  const onDuplicatePropertyClick = async () => {
+    onOutsideClick();
+    await controller.duplicateField(cellIdentifier.fieldId);
+  };
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -164,7 +169,10 @@ export const EditFieldPopup = ({
                 </>
               )}
             </div>
-            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+            <div
+              onClick={() => onDuplicatePropertyClick()}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'block h-5 w-5'}>
                 <CopySvg />
               </i>

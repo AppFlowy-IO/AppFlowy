@@ -20,6 +20,8 @@ import {
   MoveRowPayloadPB,
   RowIdPB,
   DatabaseEventUpdateDatabaseSetting,
+  DuplicateFieldPayloadPB,
+  DatabaseEventDuplicateField,
 } from '@/services/backend/events/flowy-database2';
 import {
   GetFieldPayloadPB,
@@ -150,6 +152,12 @@ export class DatabaseBackendService {
     const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: params.fieldId, width: params.width });
 
     return DatabaseEventUpdateField(payload);
+  };
+
+  duplicateField = (fieldId: string) => {
+    const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: fieldId });
+
+    return DatabaseEventDuplicateField(payload);
   };
 
   /// Get all groups in database
