@@ -17,6 +17,7 @@ import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
 import 'tabs_test.dart' as tabs_test;
+import 'hotkeys_test.dart' as hotkeys_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -54,6 +55,9 @@ void main() {
 
   // Tabs
   tabs_test.main();
+
+  // Others
+  hotkeys_test.main();
 
   // board_test.main();
   // empty_document_test.main();
