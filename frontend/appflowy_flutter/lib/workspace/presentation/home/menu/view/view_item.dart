@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_it
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_more_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -285,30 +286,73 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       )
     ];
 
-    // hover action
-    if (widget.showActions || onHover) {
-      // ··· more action button
-      children.add(_buildViewMoreActionButton(context));
-      // only support add button for document layout
-      if (widget.view.layout == ViewLayoutPB.Document) {
-        // + button
-        children.add(_buildViewAddButton(context));
+    List<Widget> buildTrailingButtons(void Function() showMoreActions) {
+      final List<Widget> trailingButtons = [];
+      // hover action
+      if (widget.showActions || onHover) {
+        // ··· more action button
+        trailingButtons
+            .add(_buildViewMoreActionButton(context, showMoreActions));
+        // only support add button for document layout
+        if (widget.view.layout == ViewLayoutPB.Document) {
+          // + button
+          trailingButtons.add(_buildViewAddButton(context));
+        }
       }
+      return trailingButtons;
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => widget.onSelected(widget.view),
-      onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
-      child: SizedBox(
-        height: 26,
-        child: Padding(
-          padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
-          child: Row(
-            children: children,
+    return ViewMoreActions(
+      view: widget.view,
+      onEditing: (value) =>
+          context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+      onAction: (action) {
+        switch (action) {
+          case ViewMoreActionType.favorite:
+          case ViewMoreActionType.unFavorite:
+            context.read<FavoriteBloc>().add(FavoriteEvent.toggle(widget.view));
+            break;
+          case ViewMoreActionType.rename:
+            NavigatorTextFieldDialog(
+              title: LocaleKeys.disclosureAction_rename.tr(),
+              autoSelectAllText: true,
+              value: widget.view.name,
+              confirm: (newValue) {
+                context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+              },
+            ).show(context);
+            break;
+          case ViewMoreActionType.delete:
+            context.read<ViewBloc>().add(const ViewEvent.delete());
+            break;
+          case ViewMoreActionType.duplicate:
+            context.read<ViewBloc>().add(const ViewEvent.duplicate());
+            break;
+          case ViewMoreActionType.openInNewTab:
+            context.read<TabsBloc>().openTab(widget.view);
+            break;
+          default:
+            throw UnsupportedError('$action is not supported');
+        }
+      },
+      child: (showMoreActions) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => widget.onSelected(widget.view),
+          onSecondaryTap: showMoreActions,
+          onTertiaryTapDown: (_) =>
+              widget.onTertiarySelected?.call(widget.view),
+          child: SizedBox(
+            height: 26,
+            child: Padding(
+              padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
+              child: Row(
+                children: children + buildTrailingButtons(showMoreActions),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -367,44 +411,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   // ··· more action button
-  Widget _buildViewMoreActionButton(BuildContext context) {
+  Widget _buildViewMoreActionButton(
+      BuildContext context, void Function() showMoreActions,) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
-        view: widget.view,
-        onEditing: (value) =>
-            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-        onAction: (action) {
-          switch (action) {
-            case ViewMoreActionType.favorite:
-            case ViewMoreActionType.unFavorite:
-              context
-                  .read<FavoriteBloc>()
-                  .add(FavoriteEvent.toggle(widget.view));
-              break;
-            case ViewMoreActionType.rename:
-              NavigatorTextFieldDialog(
-                title: LocaleKeys.disclosureAction_rename.tr(),
-                autoSelectAllText: true,
-                value: widget.view.name,
-                confirm: (newValue) {
-                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-                },
-              ).show(context);
-              break;
-            case ViewMoreActionType.delete:
-              context.read<ViewBloc>().add(const ViewEvent.delete());
-              break;
-            case ViewMoreActionType.duplicate:
-              context.read<ViewBloc>().add(const ViewEvent.duplicate());
-              break;
-            case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().openTab(widget.view);
-              break;
-            default:
-              throw UnsupportedError('$action is not supported');
-          }
-        },
+        onPressed: showMoreActions,
       ),
     );
   }
