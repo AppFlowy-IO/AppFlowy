@@ -36,16 +36,14 @@ export const GridTableHeader = ({
             />
           );
         })}
-      <div className='m-0 w-40 border border-r-0 border-line-divider p-0'>
-        <div
-          className='flex cursor-pointer items-center px-4 py-2 text-text-caption hover:bg-fill-list-hover hover:text-text-title'
-          onClick={onAddField}
-        >
-          <i className='mr-2 h-5 w-5'>
-            <AddSvg />
-          </i>
-          <span className={'whitespace-nowrap'}>{t('grid.field.newProperty')}</span>
-        </div>
+      <div
+        onClick={onAddField}
+        className='-ml-1.5 flex w-40 flex-shrink-0 cursor-pointer items-center border-b border-t border-line-divider px-4 py-2 text-text-caption hover:bg-fill-list-hover hover:text-text-title'
+      >
+        <i className='mr-2 h-5 w-5'>
+          <AddSvg />
+        </i>
+        <span className={'whitespace-nowrap'}>{t('grid.field.newProperty')}</span>
       </div>
     </div>
   );

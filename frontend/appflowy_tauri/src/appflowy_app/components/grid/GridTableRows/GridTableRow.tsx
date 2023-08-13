@@ -46,8 +46,8 @@ export const GridTableRow = ({
               .map((cell, cellIndex) => {
                 return (
                   <div
-                    className={`group/cell relative flex flex-shrink-0 border-b border-line-divider ${
-                      snapshot.isDragging ? 'border-t bg-bg-body' : ''
+                    className={`group/cell relative flex flex-shrink-0 border-b border-line-divider bg-bg-body ${
+                      snapshot.isDragging ? 'border-t' : ''
                     }`}
                     key={cellIndex}
                     draggable={false}
@@ -76,6 +76,9 @@ export const GridTableRow = ({
                   </div>
                 );
               })}
+            <div
+              className={`-ml-1.5 w-40 border-b border-line-divider bg-bg-body ${snapshot.isDragging ? 'border-t' : ''}`}
+            ></div>
           </div>
         )}
       </Draggable>
