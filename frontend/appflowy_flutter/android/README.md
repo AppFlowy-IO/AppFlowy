@@ -1,15 +1,17 @@
 # Description
 
-This is a guide on how to build the rust SDK for AppFlowy on android.
+This is a rough guide on how to build the rust SDK for AppFlowy on android.
 Compiling the sdk is easy it just needs a few tweaks.
 When compiling for android we need the following pre-requisites:
 
-- Android NDK Tools. (v24 has been tested).
+- Android NDK Tools. (v24 has been tested for this) even the latest version works.
 - Cargo NDK. (@latest version).
+
+**Warning** currently the rust backend for android does not compile on windows.
 
 **Getting the tools**
 - Install cargo-ndk ```bash cargo install cargo-ndk```.
-- [Download](https://developer.android.com/ndk/downloads/) Android NDK version 24.
+- [Android NDK](https://developer.android.com/ndk/downloads/) .
 - When downloading Android NDK you can get the compressed version as a standalone from the site.
     Or you can download it through [Android Studio](https://developer.android.com/studio).
 - After downloading the two you need to set the environment variables. For Windows that's a separate process.
@@ -19,7 +21,7 @@ When compiling for android we need the following pre-requisites:
 
 **Cargo Config File**
 This code needs to be written in ~/.cargo/config, this helps cargo know where to locate the android tools(linker and archiver).
-**NB** Keep in mind just replace 'user' with your own user name. Or just point it to the location of where you put the NDK.
+**NB** Keep in mind just replace `user` with your own `username`. Or just point it to the location of where you put the NDK.
 
 ```toml
 [target.aarch64-linux-android]
@@ -39,19 +41,6 @@ ar = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86
 linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
 ```
 
-**Clang Fix**
- In order to get clang to work properly with version 24 you need to create this file.
- libgcc.a, then add this one line.
- ```
- INPUT(-lunwind)
- ```
-
-**Folder path: 'Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.1/lib/linux'.**
-After that you have to copy this file into three different folders namely aarch64, arm, i386 and x86_64.
-We have to do this so we Android NDK can find clang on our system, if we used NDK 22 we wouldn't have to do this process.
-Though using NDK v22 will not give us a lot of features to work with.
-This GitHub [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) explains the reason why we are doing this.
-
  ---
 
  **Android NDK**
@@ -60,5 +49,16 @@ This GitHub [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) e
  (.vimrc, .zshrc, .profile, .bashrc file), That way it can be found.
 
  ```vim
- export PATH=/home/sean/Android/Sdk/ndk/24.0.8215888
+ export PATH=/home/user/Android/Sdk/ndk/24.0.8215888
  ```
+ 
+You also need to copy a specific file `libc++_shared.so` into the android `jniLib` folder
+During the building of the backend process it somehow got skipped. The best fix for now
+is to manually copy it into the folder.
+The block below shows an example of where it is on a linux machine
+`$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/x86_64-android/libc++_shared.so`
+
+Then from there you can just run this in the frontend folder to build the rust backend
+`cargo make --profile production-android appflowy-core-dev-android` 
+
+Or you can head into vscode and run the android task

@@ -220,6 +220,58 @@ script = [
 ]
 script_runner = "@duckscript"
 
+[tasks.setup-sqlite-crate]
+private = true
+script = [
+  '''
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} "optional = true" "optional = false" 
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+      ''',
+]
+script_runner = "@duckscript"
+
+[tasks.setup-sqlite-openssl]
+private = true
+script = [
+  '''
+      org = set "\"openssl\", \"openssl-sys\""
+      mod = set "\"openssl/vendored\", \"openssl-sys/vendored\""
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} ${org} ${mod}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+      ''',
+]
+script_runner = "@duckscript"
+
+[tasks.restore-sqlite-crate]
+private = true
+script = [
+  '''
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} "optional = false" "optional = true" 
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+      ''',
+]
+script_runner = "@duckscript"
+
+[tasks.restore-sqlite-openssl]
+private = true
+script = [
+  '''
+      org = set "\"openssl\", \"openssl-sys\""
+      mod = set "\"openssl/vendored\", \"openssl-sys/vendored\""
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml
+      val = replace ${toml} ${mod} ${org} 
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-sqlite/Cargo.toml ${val}
+      assert ${result}
+      ''',
+]
+script_runner = "@duckscript"
+
 [tasks.restore-crate-type]
 private = true
 script = [

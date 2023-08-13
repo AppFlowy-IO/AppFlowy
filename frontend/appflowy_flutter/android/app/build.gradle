@@ -26,8 +26,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 31
-    ndkVersion "24.0.8215888"
+    compileSdkVersion 33
+    ndkVersion "25.2.9519653"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -63,6 +63,14 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    externalNativeBuild {
+        cmake {
+            path 'src/main/jniLibs/CMakeLists.txt'
+        }
+    }
+    
+    //Eventually split ABI for google playstore
 }
 
 flutter {

@@ -20,6 +20,20 @@ run_task = { name = [
   "restore-crate-type",
 ] }
 
+[tasks.appflowy-core-dev-android]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "setup-sqlite-crate",
+  "setup-sqlite-openssl",
+  "sdk-build-android",
+  "post-mobile-android",
+  "restore-crate-type",
+  "restore-sqlite-crate",
+  "restore-sqlite-openssl",
+] }
+
 [tasks.sdk-build-ios]
 private = true
 script = [
@@ -28,6 +42,32 @@ script = [
     rustup show
     echo cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-build-android]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    rustup target add aarch64-linux-android \
+      armv7-linux-androideabi \
+      i686-linux-android \
+      x86_64-linux-android
+    DEST=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/android/app/src/main/jniLibs
+    rm -rf $DEST/arm64-v8a \
+      $DEST/armeabi-v7a \
+      $DEST/x86 \
+      $DEST/x86_64
+    cargo ndk \
+      -t arm64-v8a \
+      -t armeabi-v7a \
+      -t x86 \
+      -t x86_64 \
+      -o $DEST build --release
     cd ../
   """,
 ]
@@ -50,6 +90,19 @@ script = [
     rm -f ${dart_ffi_dir}/Classes/binding.h
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
     ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.post-mobile-android]
+private = true
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core for Android platform build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/android/src/main/main/jniLibs
+    lib = set lib${LIB_NAME}.so
+
+    echo "💻 💻 💻  Copied ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} to ${dart_ffi_dir}"
   """,
 ]
 script_runner = "@duckscript"

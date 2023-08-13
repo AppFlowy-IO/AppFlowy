@@ -44,6 +44,16 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
+            "name": "AF-iOS: Build Dart Only",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             "name": "AF-iOS: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
@@ -55,11 +65,21 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
-            "name": "AF-iOS-Simulator: Clean + Rebuild All",
+            "name": "AF-Android: Build Dart Only",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-Android: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (Android)",
             "env": {
                 "RUST_LOG": "trace"
             },
