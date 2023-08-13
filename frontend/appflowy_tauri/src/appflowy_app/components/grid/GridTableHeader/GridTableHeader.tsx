@@ -20,7 +20,8 @@ export const GridTableHeader = ({
   const { t } = useTranslation();
 
   return (
-    <div className={'flex select-none pl-8 text-xs'} style={{ userSelect: 'none' }}>
+    <div className={'flex select-none text-xs'} style={{ userSelect: 'none' }}>
+      <div className={'w-7 flex-shrink-0'}></div>
       {columns
         .filter((column) => column.visible)
         .map((column, i) => {

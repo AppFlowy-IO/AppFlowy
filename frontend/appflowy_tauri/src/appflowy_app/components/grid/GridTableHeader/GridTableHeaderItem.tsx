@@ -89,6 +89,7 @@ export const GridTableHeaderItem = ({
   return (
     <>
       <div
+        // field width minus divider width with padding
         style={{ width: `${field.width - (index === 0 ? 7 : 14)}px` }}
         className='flex-shrink-0 border-b border-t border-line-divider'
       >

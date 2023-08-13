@@ -32,7 +32,7 @@ export const GridTableRow = ({
           <div
             ref={provided.innerRef}
             {...provided.draggableProps}
-            className={`group/row flex cursor-pointer items-stretch border-b border-line-divider`}
+            className={`group/row flex cursor-pointer items-stretch ${snapshot.isDragging ? 'shadow-md' : ''}`}
           >
             <GridRowActions controller={controller} rowId={row.row.id} isDragging={snapshot.isDragging}>
               <i className={`block h-5 w-5`} {...provided.dragHandleProps}>
@@ -45,7 +45,13 @@ export const GridTableRow = ({
               .filter((cell) => fields[cell.fieldId]?.visible ?? true)
               .map((cell, cellIndex) => {
                 return (
-                  <div className={`group/cell relative flex flex-shrink-0`} key={cellIndex} draggable={false}>
+                  <div
+                    className={`group/cell relative flex flex-shrink-0 border-b border-line-divider ${
+                      snapshot.isDragging ? 'border-t bg-bg-body' : ''
+                    }`}
+                    key={cellIndex}
+                    draggable={false}
+                  >
                     <GridCell
                       width={fields[cell.fieldId]?.width}
                       cellIdentifier={cell.cellIdentifier}
