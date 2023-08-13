@@ -53,7 +53,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
-    .event(UserEvent::GetAllReminders, create_reminder_event_handler)
+    .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
 }
 
 pub struct SignUpContext {
@@ -256,7 +256,7 @@ pub enum UserEvent {
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
 
-  #[event(input = "CreateReminderPayloadPB")]
+  #[event(input = "ReminderPB")]
   CreateReminder = 28,
 
   #[event(output = "RepeatedReminderPB")]

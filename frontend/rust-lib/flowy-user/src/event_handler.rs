@@ -316,13 +316,11 @@ pub async fn get_all_reminder_event_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedReminderPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  data_result_ok(
-    manager
-      .get_all_reminders()
-      .await
-      .into_iter()
-      .map(ReminderPB::from)
-      .collect::<Vec<_>>()
-      .into(),
-  )
+  let reminders = manager
+    .get_all_reminders()
+    .await
+    .into_iter()
+    .map(ReminderPB::from)
+    .collect::<Vec<_>>();
+  data_result_ok(reminders.into())
 }

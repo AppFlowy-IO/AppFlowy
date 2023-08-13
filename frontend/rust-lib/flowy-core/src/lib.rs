@@ -293,7 +293,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
-    device_id: &str,
+    _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
@@ -325,7 +325,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     &self,
     user_id: i64,
     user_workspace: &UserWorkspace,
-    device_id: &str,
+    _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
@@ -356,7 +356,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     context: SignUpContext,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
-    device_id: &str,
+    _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_profile = user_profile.clone();
     let folder_manager = self.folder_manager.clone();

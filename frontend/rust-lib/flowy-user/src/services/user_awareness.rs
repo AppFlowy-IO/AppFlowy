@@ -89,7 +89,7 @@ impl UserManager {
     let user_awareness = self.user_awareness.lock();
     match &*user_awareness {
       None => default_value,
-      Some(user_awareness) => f(&*user_awareness.lock()),
+      Some(user_awareness) => f(&user_awareness.lock()),
     }
   }
 }

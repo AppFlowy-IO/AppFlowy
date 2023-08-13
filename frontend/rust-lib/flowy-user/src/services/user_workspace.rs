@@ -122,7 +122,7 @@ impl UserManager {
 pub fn save_user_workspaces(
   uid: i64,
   pool: Arc<ConnectionPool>,
-  user_workspaces: &Vec<UserWorkspace>,
+  user_workspaces: &[UserWorkspace],
 ) -> FlowyResult<()> {
   let user_workspaces = user_workspaces
     .iter()

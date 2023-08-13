@@ -111,7 +111,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 }
