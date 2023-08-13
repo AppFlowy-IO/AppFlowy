@@ -22,8 +22,7 @@ import { EditCheckListPopup } from '$app/components/_shared/EditRow/CheckList/Ed
 import { PropertiesPanel } from '$app/components/_shared/EditRow/PropertiesPanel';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
 import { PromptWindow } from '$app/components/_shared/PromptWindow';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
-import { databaseActions, IDateType, INumberType, ISelectOption, ISelectOptionType } from '$app_reducers/database/slice';
+import { useAppSelector } from '$app/stores/store';
 
 export const EditRow = ({
   onClose,
@@ -37,19 +36,16 @@ export const EditRow = ({
   rowInfo: RowInfo;
 }) => {
   const fieldsStore = useAppSelector((state) => state.database.fields);
-  const dispatch = useAppDispatch();
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation();
   const [unveil, setUnveil] = useState(false);
 
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
+  const [editFieldAnchorEl, setEditFieldAnchorEl] = useState<HTMLDivElement | null>(null);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
-  const [editFieldTop, setEditFieldTop] = useState(0);
-  const [editFieldLeft, setEditFieldLeft] = useState(0);
 
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
-  const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
-  const [changeFieldTypeLeft, setChangeFieldTypeLeft] = useState(0);
+  const [changeFieldTypeAnchorEl, setChangeFieldTypeAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
@@ -91,10 +87,9 @@ export const EditRow = ({
     }, 300);
   };
 
-  const onEditFieldClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
+  const onEditFieldClick = (cellIdentifier: CellIdentifier, anchorEl: HTMLDivElement) => {
+    setEditFieldAnchorEl(anchorEl);
     setEditingCell(cellIdentifier);
-    setEditFieldTop(top);
-    setEditFieldLeft(left + 10);
     setShowFieldEditor(true);
   };
 
@@ -104,9 +99,8 @@ export const EditRow = ({
     }
   };
 
-  const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
-    setChangeFieldTypeTop(buttonTop);
-    setChangeFieldTypeLeft(buttonRight + 30);
+  const onChangeFieldTypeClick = (el: HTMLDivElement) => {
+    setChangeFieldTypeAnchorEl(el);
     setShowChangeFieldTypePopup(true);
   };
 
@@ -277,23 +271,21 @@ export const EditRow = ({
             ></PropertiesPanel>
           </div>
 
-          {showFieldEditor && editingCell && (
+          {editingCell && (
             <EditFieldPopup
-              top={editFieldTop}
-              left={editFieldLeft}
+              open={showFieldEditor}
+              anchorEl={editFieldAnchorEl}
               cellIdentifier={editingCell}
               viewId={viewId}
               onOutsideClick={onOutsideEditFieldClick}
               controller={controller}
               changeFieldTypeClick={onChangeFieldTypeClick}
-              onNumberFormat={onNumberFormat}
-              onOpenOptionDetailClick={onOpenOptionDetailClick}
             ></EditFieldPopup>
           )}
           {showChangeFieldTypePopup && (
             <ChangeFieldTypePopup
-              top={changeFieldTypeTop}
-              left={changeFieldTypeLeft}
+              open={showChangeFieldTypePopup}
+              anchorEl={changeFieldTypeAnchorEl}
               onClick={(newType) => changeFieldType(newType)}
               onOutsideClick={() => setShowChangeFieldTypePopup(false)}
             ></ChangeFieldTypePopup>

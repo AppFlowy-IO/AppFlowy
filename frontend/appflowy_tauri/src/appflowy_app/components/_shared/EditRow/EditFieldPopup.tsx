@@ -1,4 +1,4 @@
-import { FocusEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import React, { FocusEventHandler, useEffect, useRef, useState } from 'react';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
@@ -7,42 +7,40 @@ import { Some } from 'ts-results';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
-import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { FieldType, SelectOptionPB } from '@/services/backend';
-import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
-import { MultiSelectTypeOptions } from '$app/components/_shared/EditRow/Options/MultiSelectTypeOptions';
 import { DatabaseController } from '$app/stores/effects/database/database_controller';
+import { EyeClosedSvg } from '$app/components/_shared/svg/EyeClosedSvg';
+import { Popover } from '@mui/material';
+import { CopySvg } from '$app/components/_shared/svg/CopySvg';
+import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
+import { SkipLeftSvg } from '$app/components/_shared/svg/SkipLeftSvg';
+import { SkipRightSvg } from '$app/components/_shared/svg/SkipRightSvg';
 
 export const EditFieldPopup = ({
-  top,
-  left,
+  open,
+  anchorEl,
   cellIdentifier,
   viewId,
   onOutsideClick,
   controller,
   changeFieldTypeClick,
-  onNumberFormat,
-  onOpenOptionDetailClick,
 }: {
-  top: number;
-  left: number;
+  open: boolean;
+  anchorEl: HTMLDivElement | null;
   cellIdentifier: CellIdentifier;
   viewId: string;
   onOutsideClick: () => void;
   controller: DatabaseController;
-  changeFieldTypeClick: (buttonTop: number, buttonRight: number) => void;
-  onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
-  onOpenOptionDetailClick?: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
+  changeFieldTypeClick: (el: HTMLDivElement) => void;
 }) => {
-  const databaseStore = useAppSelector((state) => state.database);
+  const fieldsStore = useAppSelector((state) => state.database.fields);
   const { t } = useTranslation();
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
 
   useEffect(() => {
-    setName(databaseStore.fields[cellIdentifier.fieldId].title);
-  }, [databaseStore, cellIdentifier]);
+    setName(fieldsStore[cellIdentifier.fieldId].title);
+  }, [fieldsStore, cellIdentifier]);
 
   // focus input on mount
   useEffect(() => {
@@ -67,36 +65,28 @@ export const EditFieldPopup = ({
 
   const onChangeFieldTypeClick = () => {
     if (!changeTypeButtonRef.current) return;
-    const { top: buttonTop, right: buttonRight } = changeTypeButtonRef.current.getBoundingClientRect();
 
-    changeFieldTypeClick(buttonTop, buttonRight);
-  };
-
-  const onNumberFormatClick: MouseEventHandler = (e) => {
-    e.stopPropagation();
-    let target = e.target as HTMLElement;
-
-    while (!(target instanceof HTMLButtonElement)) {
-      if (target.parentElement === null) return;
-      target = target.parentElement;
-    }
-
-    const { right: _left, top: _top } = target.getBoundingClientRect();
-
-    onNumberFormat?.(_left, _top);
+    changeFieldTypeClick(changeTypeButtonRef.current);
   };
 
   return (
-    <PopupWindow
-      className={'px-2 py-2 text-xs'}
-      onOutsideClick={async () => {
+    <Popover
+      anchorEl={anchorEl}
+      open={open}
+      onClose={async () => {
         await save();
         onOutsideClick();
       }}
-      left={left}
-      top={top}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
     >
-      <div className={'flex flex-col gap-2'}>
+      <div className={'flex flex-col gap-2 p-2 text-xs'}>
         <input
           ref={inputRef}
           onFocus={selectAll}
@@ -130,40 +120,46 @@ export const EditFieldPopup = ({
           </span>
         </div>
 
-        {cellIdentifier.fieldType === FieldType.Number && (
-          <>
-            <hr className={'-mx-2 border-line-divider'} />
-            <button
-              onClick={onNumberFormatClick}
-              className={
-                'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-fill-list-hover'
-              }
-            >
-              <span className={'pl-2'}>{t('grid.field.numberFormat')}</span>
-              <span className={'pr-2'}>
-                <i className={'block h-5 w-5'}>
-                  <MoreSvg></MoreSvg>
-                </i>
-              </span>
-            </button>
-          </>
-        )}
+        <div className={'-mx-2 h-[1px] bg-line-divider'}></div>
 
-        {cellIdentifier.fieldType === FieldType.DateTime && controller && (
-          <DateTypeOptions
-            cellIdentifier={cellIdentifier}
-            fieldController={controller.fieldController}
-          ></DateTypeOptions>
-        )}
+        <div className={'grid grid-cols-2'}>
+          <div className={'flex flex-col gap-2'}>
+            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+              <i className={'block h-5 w-5'}>
+                <EyeClosedSvg />
+              </i>
+              <span>{t('grid.field.hide')}</span>
+            </div>
+            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+              <i className={'block h-5 w-5'}>
+                <CopySvg />
+              </i>
+              <span>{t('grid.field.duplicate')}</span>
+            </div>
+            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+              <i className={'block h-5 w-5'}>
+                <TrashSvg />
+              </i>
+              <span>{t('grid.field.delete')}</span>
+            </div>
+          </div>
 
-        {(cellIdentifier.fieldType === FieldType.MultiSelect || cellIdentifier.fieldType === FieldType.SingleSelect) &&
-          controller && (
-            <MultiSelectTypeOptions
-              cellIdentifier={cellIdentifier}
-              openOptionDetail={onOpenOptionDetailClick}
-            ></MultiSelectTypeOptions>
-          )}
+          <div className={'flex flex-col gap-2'}>
+            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+              <i className={'block h-5 w-5'}>
+                <SkipLeftSvg />
+              </i>
+              <span>{t('grid.field.insertLeft')}</span>
+            </div>
+            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+              <i className={'block h-5 w-5'}>
+                <SkipRightSvg />
+              </i>
+              <span>{t('grid.field.insertRight')}</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </PopupWindow>
+    </Popover>
   );
 };

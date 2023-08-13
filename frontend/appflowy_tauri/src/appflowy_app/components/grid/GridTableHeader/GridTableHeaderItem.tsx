@@ -39,13 +39,8 @@ export const GridTableHeaderItem = ({
 
   const dispatch = useAppDispatch();
   const [showFieldEditor, setShowFieldEditor] = useState(false);
-  const [editFieldTop, setEditFieldTop] = useState(0);
-  const [editFieldRight, setEditFieldRight] = useState(0);
-
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
-  const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
-  const [changeFieldTypeRight, setChangeFieldTypeRight] = useState(0);
-
+  const [changeFieldTypeAnchorEl, setChangeFieldTypeAnchorEl] = useState<HTMLDivElement | null>(null);
   const [editingField, setEditingField] = useState<IDatabaseField | null>(null);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -77,11 +72,6 @@ export const GridTableHeaderItem = ({
   };
 
   const onFieldOptionsClick = () => {
-    if (!ref.current) return;
-    const { top, left } = ref.current.getBoundingClientRect();
-
-    setEditFieldRight(left - 10);
-    setEditFieldTop(top + 40);
     setEditingField(field);
     setShowFieldEditor(true);
   };
@@ -133,10 +123,10 @@ export const GridTableHeaderItem = ({
           <div className={'h-full w-[1px] bg-line-divider group-hover:bg-fill-hover'}></div>
         </div>
       </div>
-      {showFieldEditor && editingField && (
+      {editingField && (
         <EditFieldPopup
-          top={editFieldTop}
-          left={editFieldRight}
+          open={showFieldEditor}
+          anchorEl={ref.current}
           cellIdentifier={
             {
               fieldId: editingField.fieldId,
@@ -149,22 +139,19 @@ export const GridTableHeaderItem = ({
             setShowFieldEditor(false);
           }}
           controller={controller}
-          changeFieldTypeClick={(buttonTop, buttonRight) => {
-            setChangeFieldTypeTop(buttonTop);
-            setChangeFieldTypeRight(buttonRight);
+          changeFieldTypeClick={(el) => {
+            setChangeFieldTypeAnchorEl(el);
             setShowChangeFieldTypePopup(true);
           }}
         ></EditFieldPopup>
       )}
 
-      {showChangeFieldTypePopup && (
-        <ChangeFieldTypePopup
-          top={changeFieldTypeTop}
-          left={changeFieldTypeRight}
-          onClick={(newType) => changeFieldType(newType)}
-          onOutsideClick={() => setShowChangeFieldTypePopup(false)}
-        ></ChangeFieldTypePopup>
-      )}
+      <ChangeFieldTypePopup
+        open={showChangeFieldTypePopup}
+        anchorEl={changeFieldTypeAnchorEl}
+        onClick={(newType) => changeFieldType(newType)}
+        onOutsideClick={() => setShowChangeFieldTypePopup(false)}
+      ></ChangeFieldTypePopup>
     </>
   );
 };

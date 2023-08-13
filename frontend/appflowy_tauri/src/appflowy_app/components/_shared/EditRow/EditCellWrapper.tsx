@@ -30,7 +30,7 @@ export const EditCellWrapper = ({
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
-  onEditFieldClick: (cell: CellIdentifier, left: number, top: number) => void;
+  onEditFieldClick: (cell: CellIdentifier, anchorEl: HTMLDivElement) => void;
   onEditOptionsClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditDateClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditCheckListClick: (cell: CellIdentifier, left: number, top: number) => void;
@@ -41,9 +41,8 @@ export const EditCellWrapper = ({
 
   const onClick = () => {
     if (!el.current) return;
-    const { top, right } = el.current.getBoundingClientRect();
 
-    onEditFieldClick(cellIdentifier, right, top);
+    onEditFieldClick(cellIdentifier, el.current);
   };
 
   return (
