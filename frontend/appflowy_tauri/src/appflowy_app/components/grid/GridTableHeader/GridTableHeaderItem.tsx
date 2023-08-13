@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
 import { FilterSvg } from '$app/components/_shared/svg/FilterSvg';
 import { SortAscSvg } from '$app/components/_shared/svg/SortAscSvg';
+import { PromptWindow } from '$app/components/_shared/PromptWindow';
 
 const MIN_COLUMN_WIDTH = 100;
 
@@ -42,6 +43,8 @@ export const GridTableHeaderItem = ({
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
   const [changeFieldTypeAnchorEl, setChangeFieldTypeAnchorEl] = useState<HTMLDivElement | null>(null);
   const [editingField, setEditingField] = useState<IDatabaseField | null>(null);
+  const [deletingPropertyId, setDeletingPropertyId] = useState<string | null>(null);
+  const [showDeletePropertyPrompt, setShowDeletePropertyPrompt] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -74,6 +77,25 @@ export const GridTableHeaderItem = ({
   const onFieldOptionsClick = () => {
     setEditingField(field);
     setShowFieldEditor(true);
+  };
+
+  const onDeletePropertyClick = (fieldId: string) => {
+    setDeletingPropertyId(fieldId);
+    setShowDeletePropertyPrompt(true);
+  };
+
+  const onDelete = async () => {
+    if (!deletingPropertyId) return;
+    const fieldInfo = controller.fieldController.getField(deletingPropertyId);
+
+    if (!fieldInfo) return;
+    const typeController = new TypeOptionController(controller.viewId, Some(fieldInfo));
+
+    setEditingField(null);
+
+    await typeController.initialize();
+    await typeController.deleteField();
+    setShowDeletePropertyPrompt(false);
   };
 
   return (
@@ -143,6 +165,7 @@ export const GridTableHeaderItem = ({
             setChangeFieldTypeAnchorEl(el);
             setShowChangeFieldTypePopup(true);
           }}
+          onDeletePropertyClick={onDeletePropertyClick}
         ></EditFieldPopup>
       )}
 
@@ -152,6 +175,14 @@ export const GridTableHeaderItem = ({
         onClick={(newType) => changeFieldType(newType)}
         onOutsideClick={() => setShowChangeFieldTypePopup(false)}
       ></ChangeFieldTypePopup>
+
+      {showDeletePropertyPrompt && (
+        <PromptWindow
+          msg={'Are you sure you want to delete this property?'}
+          onYes={() => onDelete()}
+          onCancel={() => setShowDeletePropertyPrompt(false)}
+        ></PromptWindow>
+      )}
     </>
   );
 };

@@ -14,6 +14,7 @@ import { CopySvg } from '$app/components/_shared/svg/CopySvg';
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { SkipLeftSvg } from '$app/components/_shared/svg/SkipLeftSvg';
 import { SkipRightSvg } from '$app/components/_shared/svg/SkipRightSvg';
+import { EyeOpenSvg } from '$app/components/_shared/svg/EyeOpenSvg';
 
 export const EditFieldPopup = ({
   open,
@@ -23,6 +24,7 @@ export const EditFieldPopup = ({
   onOutsideClick,
   controller,
   changeFieldTypeClick,
+  onDeletePropertyClick,
 }: {
   open: boolean;
   anchorEl: HTMLDivElement | null;
@@ -31,6 +33,7 @@ export const EditFieldPopup = ({
   onOutsideClick: () => void;
   controller: DatabaseController;
   changeFieldTypeClick: (el: HTMLDivElement) => void;
+  onDeletePropertyClick: (fieldId: string) => void;
 }) => {
   const fieldsStore = useAppSelector((state) => state.database.fields);
   const { t } = useTranslation();
@@ -67,6 +70,23 @@ export const EditFieldPopup = ({
     if (!changeTypeButtonRef.current) return;
 
     changeFieldTypeClick(changeTypeButtonRef.current);
+  };
+
+  const toggleHideProperty = async () => {
+    // we need to close the popup because after hiding the field, parent element will be removed
+    onOutsideClick();
+    const fieldInfo = controller.fieldController.getField(cellIdentifier.fieldId);
+
+    if (fieldInfo) {
+      const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
+      await typeController.initialize();
+      if (fieldInfo.field.visibility) {
+        await typeController.hideField();
+      } else {
+        await typeController.showField();
+      }
+    }
   };
 
   return (
@@ -124,11 +144,25 @@ export const EditFieldPopup = ({
 
         <div className={'grid grid-cols-2'}>
           <div className={'flex flex-col gap-2'}>
-            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
-              <i className={'block h-5 w-5'}>
-                <EyeClosedSvg />
-              </i>
-              <span>{t('grid.field.hide')}</span>
+            <div
+              onClick={toggleHideProperty}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              {fieldsStore[cellIdentifier.fieldId]?.visible ? (
+                <>
+                  <i className={'block h-5 w-5'}>
+                    <EyeClosedSvg />
+                  </i>
+                  <span>{t('grid.field.hide')}</span>
+                </>
+              ) : (
+                <>
+                  <i className={'block h-5 w-5'}>
+                    <EyeOpenSvg />
+                  </i>
+                  <span>Show</span>
+                </>
+              )}
             </div>
             <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
               <i className={'block h-5 w-5'}>
@@ -136,7 +170,13 @@ export const EditFieldPopup = ({
               </i>
               <span>{t('grid.field.duplicate')}</span>
             </div>
-            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+            <div
+              onClick={() => {
+                onOutsideClick();
+                onDeletePropertyClick(cellIdentifier.fieldId);
+              }}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'block h-5 w-5'}>
                 <TrashSvg />
               </i>

@@ -94,9 +94,7 @@ export const EditRow = ({
   };
 
   const onOutsideEditFieldClick = () => {
-    if (!showChangeFieldTypePopup) {
-      setShowFieldEditor(false);
-    }
+    setShowFieldEditor(false);
   };
 
   const onChangeFieldTypeClick = (el: HTMLDivElement) => {
@@ -148,12 +146,6 @@ export const EditRow = ({
     setEditCheckListTop(_top);
   };
 
-  const onNumberFormat = (_left: number, _top: number) => {
-    setShowNumberFormatPopup(true);
-    setNumberFormatLeft(_left + 10);
-    setNumberFormatTop(_top);
-  };
-
   const onEditCheckListClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setShowCheckListPopup(true);
@@ -181,6 +173,8 @@ export const EditRow = ({
 
     if (!fieldInfo) return;
     const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
+    setEditingCell(null);
 
     await typeController.initialize();
     await typeController.deleteField();
@@ -280,6 +274,7 @@ export const EditRow = ({
               onOutsideClick={onOutsideEditFieldClick}
               controller={controller}
               changeFieldTypeClick={onChangeFieldTypeClick}
+              onDeletePropertyClick={onDeletePropertyClick}
             ></EditFieldPopup>
           )}
           {showChangeFieldTypePopup && (
