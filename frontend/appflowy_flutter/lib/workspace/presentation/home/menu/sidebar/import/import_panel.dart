@@ -6,7 +6,8 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
