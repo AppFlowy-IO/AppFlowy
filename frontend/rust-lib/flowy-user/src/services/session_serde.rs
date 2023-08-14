@@ -13,6 +13,7 @@ use flowy_user_deps::entities::{SignInResponse, SignUpResponse, UserWorkspace};
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
   pub user_id: i64,
+  pub device_id: String,
   pub user_workspace: UserWorkspace,
 }
 
@@ -32,6 +33,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
     // For historical reasons, the session used to contain a workspace_id field.
     // This field is no longer used, and is replaced by user_workspace.
     let mut workspace_id = None;
+    let mut device_id = "phantom".to_string();
     let mut user_workspace = None;
 
     while let Some(key) = map.next_key::<String>()? {
@@ -41,6 +43,9 @@ impl<'de> Visitor<'de> for SessionVisitor {
         },
         "workspace_id" => {
           workspace_id = Some(map.next_value()?);
+        },
+        "device_id" => {
+          device_id = map.next_value()?;
         },
         "user_workspace" => {
           user_workspace = Some(map.next_value()?);
@@ -65,6 +70,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
 
     let session = Session {
       user_id,
+      device_id,
       user_workspace: user_workspace.ok_or(serde::de::Error::missing_field("user_workspace"))?,
     };
 
@@ -85,6 +91,7 @@ impl std::convert::From<SignInResponse> for Session {
   fn from(resp: SignInResponse) -> Self {
     Session {
       user_id: resp.user_id,
+      device_id: resp.device_id,
       user_workspace: resp.latest_workspace,
     }
   }
@@ -106,6 +113,7 @@ impl From<&SignUpResponse> for Session {
   fn from(value: &SignUpResponse) -> Self {
     Session {
       user_id: value.user_id,
+      device_id: value.device_id.clone(),
       user_workspace: value.latest_workspace.clone(),
     }
   }
@@ -113,8 +121,9 @@ impl From<&SignUpResponse> for Session {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use serde_json::json;
+
+  use super::*;
 
   #[derive(serde::Serialize)]
   struct OldSession {

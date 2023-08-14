@@ -1,6 +1,6 @@
-use anyhow::Error;
 use std::sync::Arc;
 
+use anyhow::Error;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
@@ -42,6 +42,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
         is_new: true,
         email: Some(params.email),
         token: None,
+        device_id: params.device_id,
       })
     })
   }
@@ -50,10 +51,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
-      let uid = match params.uid {
-        None => ID_GEN.lock().next_id(),
-        Some(uid) => uid,
-      };
+      let uid = ID_GEN.lock().next_id();
 
       let user_workspace = db
         .get_user_workspace(uid)?
@@ -65,6 +63,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
         user_workspaces: vec![user_workspace],
         email: Some(params.email),
         token: None,
+        device_id: params.device_id,
       })
     })
   }

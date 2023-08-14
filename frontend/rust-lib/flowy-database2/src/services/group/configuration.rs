@@ -379,6 +379,10 @@ where
       .await
   }
 
+  pub fn get_setting_content(&self) -> String {
+    self.setting.content.clone()
+  }
+
   /// # Arguments
   ///
   /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::RemoteCollabStorage;
+use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
@@ -68,7 +68,7 @@ impl AppFlowyServer for LocalServer {
     Arc::new(LocalServerDocumentCloudServiceImpl())
   }
 
-  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
 }

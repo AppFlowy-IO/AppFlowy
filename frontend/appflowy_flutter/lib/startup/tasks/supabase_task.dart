@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/user/application/supabase_realtime.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -22,6 +23,7 @@ const hiveBoxName = 'appflowy_supabase_authentication';
 
 // Used to store the session of the supabase in case of the user switch the different folder.
 Supabase? supabase;
+SupbaseRealtimeService? realtimeService;
 
 class InitSupabaseTask extends LaunchTask {
   @override
@@ -37,12 +39,14 @@ class InitSupabaseTask extends LaunchTask {
 
     supabase?.dispose();
     supabase = null;
-    supabase = await Supabase.initialize(
+    final initializedSupabase = await Supabase.initialize(
       url: Env.supabaseUrl,
       anonKey: Env.supabaseAnonKey,
       debug: kDebugMode,
       localStorage: const SupabaseLocalStorage(),
     );
+    realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
+    supabase = initializedSupabase;
   }
 }
 

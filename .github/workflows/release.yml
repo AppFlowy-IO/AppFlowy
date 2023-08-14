@@ -84,7 +84,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-windows-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
 
       - name: Archive Asset
         uses: vimtor/action-zip@v1

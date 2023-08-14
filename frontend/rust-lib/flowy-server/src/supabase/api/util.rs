@@ -5,15 +5,14 @@ use serde_json::Value;
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::{to_fut, Fut};
 
+#[derive(Default)]
 pub struct InsertParamsBuilder {
   map: serde_json::Map<String, Value>,
 }
 
 impl InsertParamsBuilder {
   pub fn new() -> Self {
-    Self {
-      map: serde_json::Map::new(),
-    }
+    Self::default()
   }
 
   pub fn insert<T: serde::Serialize>(mut self, key: &str, value: T) -> Self {
@@ -125,4 +124,61 @@ async fn parse_response_as_error(response: Response) -> FlowyError {
       status_code, msg
     ),
   )
+}
+/// An encoder for binary columns in Supabase.
+///
+/// Provides utilities to encode binary data into a format suitable for Supabase columns.
+pub struct SupabaseBinaryColumnEncoder;
+
+impl SupabaseBinaryColumnEncoder {
+  /// Encodes the given binary data into a Supabase-friendly string representation.
+  ///
+  /// # Parameters
+  /// - `value`: The binary data to encode.
+  ///
+  /// # Returns
+  /// Returns the encoded string in the format: `\\xHEX_ENCODED_STRING`
+  pub fn encode<T: AsRef<[u8]>>(value: T) -> String {
+    format!("\\x{}", hex::encode(value))
+  }
+}
+
+/// A decoder for binary columns in Supabase.
+///
+/// Provides utilities to decode a string from Supabase columns back into binary data.
+pub struct SupabaseBinaryColumnDecoder;
+
+impl SupabaseBinaryColumnDecoder {
+  /// Decodes a Supabase binary column string into binary data.
+  ///
+  /// # Parameters
+  /// - `value`: The string representation from a Supabase binary column.
+  ///
+  /// # Returns
+  /// Returns an `Option` containing the decoded binary data if decoding is successful.
+  /// Otherwise, returns `None`.
+  pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
+    let s = value.as_ref().strip_prefix("\\x")?;
+    hex::decode(s).ok()
+  }
+}
+
+/// A decoder specifically tailored for realtime event binary columns in Supabase.
+///
+/// Decodes the realtime event binary column data using the standard Supabase binary column decoder.
+pub struct SupabaseRealtimeEventBinaryColumnDecoder;
+
+impl SupabaseRealtimeEventBinaryColumnDecoder {
+  /// Decodes a realtime event binary column string from Supabase into binary data.
+  ///
+  /// # Parameters
+  /// - `value`: The string representation from a Supabase realtime event binary column.
+  ///
+  /// # Returns
+  /// Returns an `Option` containing the decoded binary data if decoding is successful.
+  /// Otherwise, returns `None`.
+  pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
+    let bytes = SupabaseBinaryColumnDecoder::decode(value)?;
+    hex::decode(bytes).ok()
+  }
 }
