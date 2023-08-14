@@ -32,11 +32,6 @@ class InitSupabaseTask extends LaunchTask {
       return;
     }
 
-    // register deep link for Windows
-    if (Platform.isWindows) {
-      registerProtocolHandler(appflowyDeepLinkSchema);
-    }
-
     supabase?.dispose();
     supabase = null;
     final initializedSupabase = await Supabase.initialize(
@@ -47,6 +42,19 @@ class InitSupabaseTask extends LaunchTask {
     );
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
     supabase = initializedSupabase;
+
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
+    } else if (Platform.isLinux) {
+      // register deep link for Linux
+      await SupabaseAuth.instance.registerDBusService(
+        // these values should be compatible with the values in the desktop file
+        // dbus-interface.xml
+        '/io/appflowy/AppFlowy/Object',
+        'io.appflowy.AppFlowy',
+      );
+    }
   }
 }
 
