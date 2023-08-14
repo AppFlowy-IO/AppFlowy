@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/layout/layout_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +82,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(
@@ -92,8 +93,8 @@ class DatabaseViewLayoutCell extends StatelessWidget {
           databaseLayout.layoutName(),
           color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
-          databaseLayout.iconName(),
+        leftIcon: FlowySvg(
+          databaseLayout.icon,
           color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: checkmark,

@@ -1,10 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -39,21 +39,19 @@ extension FlowyPluginExtension on FlowyPlugin {
 
 extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    const String thumbnail = "file_icon";
-    const Widget widget = FlowySvg(name: thumbnail);
+    const Widget widget = FlowySvg(FlowySvgs.page_s);
     return widget;
   }
 
   Widget defaultIcon() {
-    final iconName = switch (layout) {
-      ViewLayoutPB.Board => 'editor/board',
-      ViewLayoutPB.Calendar => 'editor/calendar',
-      ViewLayoutPB.Grid => 'editor/grid',
-      ViewLayoutPB.Document => 'editor/documents',
-      _ => 'file_icon',
-    };
     return FlowySvg(
-      name: iconName,
+      switch (layout) {
+        ViewLayoutPB.Board => FlowySvgs.board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.date_s,
+        ViewLayoutPB.Grid => FlowySvgs.grid_s,
+        ViewLayoutPB.Document => FlowySvgs.documents_s,
+        _ => FlowySvgs.documents_s,
+      },
     );
   }
 
@@ -105,22 +103,20 @@ extension ViewExtension on ViewPB {
     throw UnimplementedError;
   }
 
-  String get iconName {
-    return layout.iconName;
-  }
+  FlowySvgData get iconData => layout.icon;
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
-  String get iconName {
+  FlowySvgData get icon {
     switch (this) {
       case ViewLayoutPB.Grid:
-        return 'editor/grid';
+        return FlowySvgs.grid_s;
       case ViewLayoutPB.Board:
-        return 'editor/board';
+        return FlowySvgs.board_s;
       case ViewLayoutPB.Calendar:
-        return 'editor/date';
+        return FlowySvgs.date_s;
       case ViewLayoutPB.Document:
-        return 'editor/documents';
+        return FlowySvgs.documents_s;
       default:
         throw Exception('Unknown layout type');
     }

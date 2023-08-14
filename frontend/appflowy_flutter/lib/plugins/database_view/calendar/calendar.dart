@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -18,7 +19,7 @@ class CalendarPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.calendar_menuName.tr();
 
   @override
-  String get menuIcon => "editor/date";
+  FlowySvgData get icon => FlowySvgs.date_s;
 
   @override
   PluginType get pluginType => PluginType.calendar;

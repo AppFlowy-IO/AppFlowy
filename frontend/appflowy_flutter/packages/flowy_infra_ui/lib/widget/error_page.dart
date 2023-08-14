@@ -1,5 +1,6 @@
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -190,9 +191,9 @@ class GitHubRedirectButton extends StatelessWidget {
         "AppFlowy",
       ),
       useIntrinsicWidth: true,
-      leftIcon: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: svgWidget('login/github-mark'),
+      leftIcon: const Padding(
+        padding: EdgeInsets.all(4.0),
+        child: FlowySvg(FlowySvgData('login/github-mark')),
       ),
       onTap: () async {
         if (await canLaunchUrl(_gitHubNewBugUri)) {

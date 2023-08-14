@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_editor_bloc.dart';
@@ -6,7 +7,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -125,8 +126,8 @@ class DatabaseSortItem extends StatelessWidget {
       },
       iconPadding: const EdgeInsets.all(5),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      icon: svgWidget(
-        "home/close",
+      icon: FlowySvg(
+        FlowySvgs.close_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );
@@ -190,7 +191,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
           disable: getCreatableSorts(widget.fieldController.fieldInfos).isEmpty,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
-          leftIcon: const FlowySvg(name: 'home/add'),
+          leftIcon: const FlowySvg(FlowySvgs.add_s),
         ),
       ),
       popupBuilder: (BuildContext context) {
@@ -222,7 +223,7 @@ class DatabaseDeleteSortButton extends StatelessWidget {
                   .read<SortEditorBloc>()
                   .add(const SortEditorEvent.deleteAllSorts());
             },
-            leftIcon: const FlowySvg(name: 'editor/delete'),
+            leftIcon: const FlowySvg(FlowySvgs.delete_s),
           ),
         );
       },
@@ -252,7 +253,7 @@ class _DatabaseSortItemOrderButtonState
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget("home/arrow_left"),
+      child: const FlowySvg(FlowySvgs.arrow_left_s),
     );
 
     return AppFlowyPopover(

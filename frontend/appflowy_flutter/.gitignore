@@ -77,3 +77,4 @@ coverage/
 **/failures/*.png
 
 assets/translations/
+assets/flowy_icons/*
