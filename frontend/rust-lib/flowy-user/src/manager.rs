@@ -6,7 +6,7 @@ use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 
 use flowy_error::{internal_error, ErrorCode};
@@ -59,7 +59,7 @@ pub struct UserManager {
   session_config: UserSessionConfig,
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<StorePreferences>,
-  pub(crate) user_awareness: Arc<parking_lot::Mutex<Option<MutexUserAwareness>>>,
+  pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
 }
@@ -89,6 +89,12 @@ impl UserManager {
     Arc::downgrade(&self.store_preferences)
   }
 
+  /// Initializes the user session, including data migrations and user awareness configuration.
+  ///
+  /// This asynchronous function starts by retrieving the current session. If the session is successfully obtained,
+  /// it will attempt a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
+  /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
+  /// completion, a user status callback is invoked to signify that the initialization process is complete.
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
       // Do the user data migration if needed
@@ -129,12 +135,6 @@ impl UserManager {
     self.database.get_connection(uid)
   }
 
-  // The caller will be not 'Sync' before of the return value,
-  // PooledConnection<ConnectionManager> is not sync. You can use
-  // db_connection_pool function to require the ConnectionPool that is 'Sync'.
-  //
-  // let pool = self.db_connection_pool()?;
-  // let conn: PooledConnection<ConnectionManager> = pool.get()?;
   pub fn db_pool(&self, uid: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
     self.database.get_pool(uid)
   }
@@ -146,17 +146,14 @@ impl UserManager {
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
-  async fn migrate_local_user_to_cloud(
-    &self,
-    old_user: &UserMigrationContext,
-    new_user: &UserMigrationContext,
-  ) -> Result<Option<FolderData>, FlowyError> {
-    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
-    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
-    Ok(folder_data)
-  }
-
+  /// Performs a user sign-in, initializing user awareness and sending relevant notifications.
+  ///
+  /// This asynchronous function interacts with an external user service to authenticate and sign in a user
+  /// based on provided parameters. Once signed in, it updates the collaboration configuration, logs the user,
+  /// saves their workspaces, and initializes their user awareness.
+  ///
+  /// A sign-in notification is also sent after a successful sign-in.
+  ///
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_in(
     &self,
@@ -173,7 +170,7 @@ impl UserManager {
     let device_id = session.device_id.clone();
     self.set_collab_config(&session);
     self.set_current_session(Some(session.clone()))?;
-    self.log_user(
+    self.log_historical_user(
       uid,
       &response.device_id,
       response.name.clone(),
@@ -189,6 +186,7 @@ impl UserManager {
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
+
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -215,6 +213,13 @@ impl UserManager {
     self.cloud_services.set_auth_type(auth_type.clone());
   }
 
+  /// Manages the user sign-up process, potentially migrating data if necessary.
+  ///
+  /// This asynchronous function interacts with an external authentication service to register and sign up a user
+  /// based on the provided parameters. Following a successful sign-up, it handles configuration updates, logging,
+  /// and saving workspace information. If a user is signing up with a new profile and previously had guest data,
+  /// this function may migrate that data over to the new account.
+  ///
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_up(
     &self,
@@ -246,7 +251,7 @@ impl UserManager {
     self.set_current_session(Some(new_session.clone()))?;
     self.set_collab_config(&new_session);
     let uid = response.user_id;
-    self.log_user(
+    self.log_historical_user(
       uid,
       &response.device_id,
       response.name.clone(),
@@ -254,11 +259,15 @@ impl UserManager {
       self.user_dir(uid),
     );
     save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
-    let user_table = self
+    let new_user_profile: UserProfile = self
       .save_user(uid, (response, auth_type.clone()).into())
-      .await?;
-    let new_user_profile: UserProfile = user_table.into();
-
+      .await?
+      .into();
+    let user_awareness_source = if sign_up_context.is_new {
+      UserAwarenessDataSource::Local
+    } else {
+      UserAwarenessDataSource::Remote
+    };
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     if sign_up_context.is_new {
@@ -268,7 +277,6 @@ impl UserManager {
             user_profile: new_user_profile.clone(),
             session: new_session.clone(),
           };
-
           tracing::info!(
             "Migrate old user data from {:?} to {:?}",
             old_user.user_profile.id,
@@ -278,7 +286,6 @@ impl UserManager {
             Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
-
           // close the old user db
           let _ = self.database.close(old_user.session.user_id);
         }
@@ -286,8 +293,9 @@ impl UserManager {
     }
 
     self
-      .initialize_user_awareness(&new_session, UserAwarenessDataSource::Remote)
+      .initialize_user_awareness(&new_session, user_awareness_source)
       .await;
+
     let _ = self
       .user_status_callback
       .read()
@@ -318,6 +326,12 @@ impl UserManager {
     Ok(())
   }
 
+  /// Updates the user's profile with the given parameters.
+  ///
+  /// This function modifies the user's profile based on the provided update parameters. After updating, it
+  /// sends a notification about the change. It's also responsible for handling interactions with the underlying
+  /// database and updates user profile.
+  ///
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn update_user_profile(
     &self,
@@ -366,8 +380,11 @@ impl UserManager {
     Ok(())
   }
 
-  /// Get the user profile from the database
-  /// If the refresh is true, it will try to get the user profile from the server
+  /// Fetches the user profile for the given user ID.
+  ///
+  /// This function retrieves the user profile from the local database. If the `refresh` flag is set to `true`,
+  /// it also attempts to update the user profile from a cloud service, and then sends a notification about the
+  /// profile update.
   pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
     let user_id = uid.to_string();
     let user = user_table::dsl::user_table
@@ -508,6 +525,17 @@ impl UserManager {
     collab_builder.set_sync_device(session.device_id.clone());
     collab_builder.initialize(session.user_workspace.id.clone());
     self.cloud_services.set_device_id(&session.device_id);
+  }
+
+  async fn migrate_local_user_to_cloud(
+    &self,
+    old_user: &UserMigrationContext,
+    new_user: &UserMigrationContext,
+  ) -> Result<Option<FolderData>, FlowyError> {
+    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
+    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    Ok(folder_data)
   }
 }
 

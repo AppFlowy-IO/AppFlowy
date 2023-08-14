@@ -84,39 +84,6 @@ impl UserManager {
     }
     Ok(rows.into_iter().map(UserWorkspace::from).collect())
   }
-
-  pub async fn save_user_workspaces(
-    &self,
-    uid: i64,
-    user_workspaces: Vec<UserWorkspaceTable>,
-  ) -> FlowyResult<()> {
-    let conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|| {
-      for user_workspace in user_workspaces {
-        if let Err(err) = diesel::update(
-          user_workspace_table::dsl::user_workspace_table
-            .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-        )
-        .set((
-          user_workspace_table::name.eq(&user_workspace.name),
-          user_workspace_table::created_at.eq(&user_workspace.created_at),
-          user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-        ))
-        .execute(&*conn)
-        .and_then(|rows| {
-          if rows == 0 {
-            let _ = diesel::insert_into(user_workspace_table::table)
-              .values(user_workspace)
-              .execute(&*conn)?;
-          }
-          Ok(())
-        }) {
-          tracing::error!("Error saving user workspace: {:?}", err);
-        }
-      }
-      Ok::<(), FlowyError>(())
-    })
-  }
 }
 
 pub fn save_user_workspaces(

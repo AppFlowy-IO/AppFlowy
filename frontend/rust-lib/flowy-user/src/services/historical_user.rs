@@ -12,7 +12,19 @@ use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {
-  pub fn log_user(
+  /// Logs a user's details for historical tracking.
+  ///
+  /// This function adds a user's details to a local historical tracking system, useful for
+  /// keeping track of past sign-ins or any other historical activities.
+  ///
+  /// # Parameters
+  /// - `uid`: The user ID.
+  /// - `device_id`: The ID of the device the user is using.
+  /// - `user_name`: The name of the user.
+  /// - `auth_type`: The type of authentication used.
+  /// - `storage_path`: Path where user data is stored.
+  ///
+  pub fn log_historical_user(
     &self,
     uid: i64,
     device_id: &str,
@@ -37,6 +49,9 @@ impl UserManager {
       .set_object(HISTORICAL_USER, logger_users);
   }
 
+  /// Fetches a list of historical users, sorted by their sign-in timestamp.
+  ///
+  /// This function retrieves a list of users who have previously been logged for historical tracking.
   pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
     let mut users = self
       .store_preferences
@@ -47,6 +62,11 @@ impl UserManager {
     users
   }
 
+  /// Opens a historical user's session based on their user ID, device ID, and authentication type.
+  ///
+  /// This function facilitates the re-opening of a user's session from historical tracking.
+  /// It retrieves the user's workspace and establishes a new session for the user.
+  ///
   pub fn open_historical_user(
     &self,
     uid: i64,
