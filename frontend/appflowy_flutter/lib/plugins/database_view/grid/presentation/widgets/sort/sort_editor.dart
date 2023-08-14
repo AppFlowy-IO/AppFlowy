@@ -46,51 +46,27 @@ class _SortEditorState extends State<SortEditor> {
       )..add(const SortEditorEvent.initial()),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
         builder: (context, state) {
-          return IntrinsicWidth(
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  _SortList(popoverMutex: popoverMutex),
-                  DatabaseAddSortButton(
-                    viewId: widget.viewId,
-                    fieldController: widget.fieldController,
+          return Column(
+            children: [
+              ...state.sortInfos.map(
+                (info) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: DatabaseSortItem(
+                    sortInfo: info,
                     popoverMutex: popoverMutex,
                   ),
-                  DatabaseDeleteSortButton(popoverMutex: popoverMutex),
-                ],
+                ),
               ),
-            ),
+              DatabaseAddSortButton(
+                viewId: widget.viewId,
+                fieldController: widget.fieldController,
+                popoverMutex: popoverMutex,
+              ),
+              DatabaseDeleteSortButton(popoverMutex: popoverMutex),
+            ],
           );
         },
       ),
-    );
-  }
-}
-
-class _SortList extends StatelessWidget {
-  final PopoverMutex popoverMutex;
-  const _SortList({required this.popoverMutex, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SortEditorBloc, SortEditorState>(
-      builder: (context, state) {
-        final List<Widget> children = state.sortInfos
-            .map(
-              (info) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: DatabaseSortItem(
-                  sortInfo: info,
-                  popoverMutex: popoverMutex,
-                ),
-              ),
-            )
-            .toList();
-
-        return Column(
-          children: children,
-        );
-      },
     );
   }
 }
@@ -136,7 +112,8 @@ class DatabaseSortItem extends StatelessWidget {
         SizedBox(height: 26, child: nameButton),
         const HSpace(6),
         SizedBox(height: 26, child: orderButton),
-        const HSpace(16),
+        const HSpace(6),
+        const Spacer(),
         deleteButton
       ],
     );
@@ -216,7 +193,7 @@ class DatabaseDeleteSortButton extends StatelessWidget {
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.grid_sort_deleteSort.tr()),
+            text: FlowyText.medium(LocaleKeys.grid_sort_deleteAllSorts.tr()),
             onTap: () {
               context
                   .read<SortEditorBloc>()

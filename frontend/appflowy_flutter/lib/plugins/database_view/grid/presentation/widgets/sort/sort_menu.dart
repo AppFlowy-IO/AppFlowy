@@ -34,18 +34,22 @@ class SortMenu extends StatelessWidget {
               controller: PopoverController(),
               constraints: BoxConstraints.loose(const Size(340, 200)),
               direction: PopoverDirection.bottomWithLeftAligned,
+              offset: const Offset(0, 5),
               popupBuilder: (BuildContext popoverContext) {
-                return SortEditor(
-                  viewId: state.viewId,
-                  fieldController: context.read<SortMenuBloc>().fieldController,
-                  sortInfos: state.sortInfos,
+                return SingleChildScrollView(
+                  child: SortEditor(
+                    viewId: state.viewId,
+                    fieldController:
+                        context.read<SortMenuBloc>().fieldController,
+                    sortInfos: state.sortInfos,
+                  ),
                 );
               },
               child: SortChoiceChip(sortInfos: state.sortInfos),
             );
-          } else {
-            return const SizedBox();
           }
+
+          return const SizedBox.shrink();
         },
       ),
     );
