@@ -23,6 +23,7 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
+    "@mui/system": "^5.14.4",
     "@reduxjs/toolkit": "^1.9.2",
     "@slate-yjs/core": "^1.0.0",
     "@tanstack/react-virtual": "3.0.0-beta.54",

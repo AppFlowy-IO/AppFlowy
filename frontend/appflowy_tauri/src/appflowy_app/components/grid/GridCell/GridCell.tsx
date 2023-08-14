@@ -18,10 +18,10 @@ export const GridCell = ({
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
-  width: number;
+  width?: number;
 }) => {
   return (
-    <div style={{ width: `${width}px` }}>
+    <div style={{ width }}>
       {cellIdentifier.fieldType === FieldType.MultiSelect ||
       cellIdentifier.fieldType === FieldType.Checklist ||
       cellIdentifier.fieldType === FieldType.SingleSelect ? (
