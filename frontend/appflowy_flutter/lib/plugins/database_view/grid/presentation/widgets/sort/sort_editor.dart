@@ -22,12 +22,13 @@ class SortEditor extends StatefulWidget {
   final String viewId;
   final List<SortInfo> sortInfos;
   final FieldController fieldController;
+
   const SortEditor({
+    super.key,
     required this.viewId,
     required this.fieldController,
     required this.sortInfos,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<SortEditor> createState() => _SortEditorState();
@@ -57,12 +58,21 @@ class _SortEditorState extends State<SortEditor> {
                   ),
                 ),
               ),
-              DatabaseAddSortButton(
-                viewId: widget.viewId,
-                fieldController: widget.fieldController,
-                popoverMutex: popoverMutex,
+              Row(
+                children: [
+                  Flexible(
+                    child: DatabaseAddSortButton(
+                      viewId: widget.viewId,
+                      fieldController: widget.fieldController,
+                      popoverMutex: popoverMutex,
+                    ),
+                  ),
+                  const HSpace(6),
+                  Flexible(
+                    child: DatabaseDeleteSortButton(popoverMutex: popoverMutex),
+                  ),
+                ],
               ),
-              DatabaseDeleteSortButton(popoverMutex: popoverMutex),
             ],
           );
         },
@@ -74,47 +84,45 @@ class _SortEditorState extends State<SortEditor> {
 class DatabaseSortItem extends StatelessWidget {
   final SortInfo sortInfo;
   final PopoverMutex popoverMutex;
+
   const DatabaseSortItem({
+    super.key,
     required this.popoverMutex,
     required this.sortInfo,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final nameButton = SortChoiceButton(
-      text: sortInfo.fieldInfo.name,
-      editable: false,
-      onTap: () {},
-    );
-    final orderButton = DatabaseSortItemOrderButton(
-      sortInfo: sortInfo,
-      popoverMutex: popoverMutex,
-    );
-
     final deleteButton = FlowyIconButton(
       width: 26,
-      onPressed: () {
-        context
-            .read<SortEditorBloc>()
-            .add(SortEditorEvent.deleteSort(sortInfo));
-      },
+      onPressed: () => context
+          .read<SortEditorBloc>()
+          .add(SortEditorEvent.deleteSort(sortInfo)),
       iconPadding: const EdgeInsets.all(5),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      icon: svgWidget(
-        "home/close",
-        color: Theme.of(context).iconTheme.color,
-      ),
+      icon: svgWidget("home/close", color: Theme.of(context).iconTheme.color),
     );
 
     return Row(
       children: [
-        SizedBox(height: 26, child: nameButton),
+        SizedBox(
+          height: 26,
+          child: SortChoiceButton(
+            text: sortInfo.fieldInfo.name,
+            editable: false,
+          ),
+        ),
         const HSpace(6),
-        SizedBox(height: 26, child: orderButton),
+        SizedBox(
+          height: 26,
+          child: DatabaseSortItemOrderButton(
+            sortInfo: sortInfo,
+            popoverMutex: popoverMutex,
+          ),
+        ),
         const HSpace(6),
         const Spacer(),
-        deleteButton
+        deleteButton,
       ],
     );
   }
@@ -123,12 +131,11 @@ class DatabaseSortItem extends StatelessWidget {
 extension SortConditionExtension on SortConditionPB {
   String get title {
     switch (this) {
-      case SortConditionPB.Ascending:
-        return LocaleKeys.grid_sort_ascending.tr();
       case SortConditionPB.Descending:
         return LocaleKeys.grid_sort_descending.tr();
+      default:
+        return LocaleKeys.grid_sort_ascending.tr();
     }
-    return "";
   }
 }
 
@@ -136,12 +143,13 @@ class DatabaseAddSortButton extends StatefulWidget {
   final String viewId;
   final FieldController fieldController;
   final PopoverMutex popoverMutex;
+
   const DatabaseAddSortButton({
+    super.key,
     required this.viewId,
     required this.fieldController,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<DatabaseAddSortButton> createState() => _DatabaseAddSortButtonState();
@@ -183,8 +191,10 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
 
 class DatabaseDeleteSortButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
-  const DatabaseDeleteSortButton({required this.popoverMutex, Key? key})
-      : super(key: key);
+  const DatabaseDeleteSortButton({
+    super.key,
+    required this.popoverMutex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -194,12 +204,12 @@ class DatabaseDeleteSortButton extends StatelessWidget {
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
             text: FlowyText.medium(LocaleKeys.grid_sort_deleteAllSorts.tr()),
+            leftIcon: const FlowySvg(name: 'editor/delete'),
             onTap: () {
               context
                   .read<SortEditorBloc>()
                   .add(const SortEditorEvent.deleteAllSorts());
             },
-            leftIcon: const FlowySvg(name: 'editor/delete'),
           ),
         );
       },
@@ -211,10 +221,10 @@ class DatabaseSortItemOrderButton extends StatefulWidget {
   final SortInfo sortInfo;
   final PopoverMutex popoverMutex;
   const DatabaseSortItemOrderButton({
+    super.key,
     required this.popoverMutex,
     required this.sortInfo,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<DatabaseSortItemOrderButton> createState() =>
