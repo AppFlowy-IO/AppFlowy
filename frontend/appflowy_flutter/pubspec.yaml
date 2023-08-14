@@ -105,9 +105,6 @@ dependencies:
   envied: ^0.3.0+3
   dotted_border: ^2.0.0+3
   url_protocol:
-    git:
-      url: https://github.com/LucasXu0/flutter_url_protocol.git
-      commit: 77a8420
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
@@ -129,6 +126,20 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
+
+  supabase_flutter:
+    git:
+      url: https://github.com/LucasXu0/supabase-flutter
+      ref: e882842
+      path: packages/supabase_flutter
+  app_links:
+    git:
+      url: https://github.com/LucasXu0/app_links
+      ref: f897e1d
+  url_protocol:
+    git:
+      url: https://github.com/LucasXu0/flutter_url_protocol.git
+      commit: 77a8420
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

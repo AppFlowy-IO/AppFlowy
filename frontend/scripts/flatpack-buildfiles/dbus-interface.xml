@@ -1,0 +1,16 @@
+<node name="/io/appflowy/AppFlowy/Object">
+	<interface name="io.appflowy.AppFlowy">
+		<method name="Activate">
+			<arg type="a{sv}" name="platform_data" direction="in" />
+		</method>
+		<method name="Open">
+			<arg type="as" name="uris" direction="in" />
+			<arg type="a{sv}" name="platform_data" direction="in" />
+		</method>
+		<method name="ActivateAction">
+			<arg type="s" name="action_name" direction="in" />
+			<arg type="av" name="parameter" direction="in" />
+			<arg type="a{sv}" name="platform_data" direction="in" />
+		</method>
+	</interface>
+</node>
