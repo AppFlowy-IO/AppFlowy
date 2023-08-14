@@ -463,7 +463,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Outline"
+      "outline": "Outline",
+      "codeBlock": "Code Block"
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
