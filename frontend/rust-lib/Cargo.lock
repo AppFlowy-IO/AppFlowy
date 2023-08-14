@@ -1496,7 +1496,6 @@ dependencies = [
 name = "flowy-encrypt"
 version = "0.1.0"
 dependencies = [
- "aes",
  "aes-gcm",
  "anyhow",
  "base64 0.21.2",
@@ -1737,6 +1736,7 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
+ "flowy-encrypt",
  "flowy-error",
  "flowy-notification",
  "flowy-server-config",
