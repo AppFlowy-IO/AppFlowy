@@ -12,7 +12,7 @@ cd ../../../appflowy_flutter
 
 rm -rf assets/flowy_icons/
 mkdir -p assets/flowy_icons/
-cp -r ../resources/flowy_icons/ assets/flowy_icons/
+rsync -r ../resources/flowy_icons/ assets/
 
 flutter packages pub get
 
