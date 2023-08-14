@@ -152,7 +152,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
             child: TextField(
               controller: _controller,
               focusNode: focusNode,
-              maxLines: 1,
+              maxLines: null,
               style: (widget.cellStyle?.textStyle ??
                       Theme.of(context).textTheme.bodyMedium)
                   ?.copyWith(
@@ -191,9 +191,6 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
 
   @override
   String? onCopy() => _cellBloc.state.content;
-
-  @override
-  void onInsert(String value) => _cellBloc.add(URLCellEvent.updateURL(value));
 }
 
 class _EditURLAccessory extends StatefulWidget {

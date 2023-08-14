@@ -1,4 +1,5 @@
 // lib/env/env.dart
+import 'package:appflowy/startup/startup.dart';
 import 'package:envied/envied.dart';
 
 part 'env.g.dart';
@@ -28,61 +29,22 @@ abstract class Env {
     defaultValue: '',
   )
   static final String supabaseAnonKey = _Env.supabaseAnonKey;
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_KEY',
-    defaultValue: '',
-  )
-  static final String supabaseKey = _Env.supabaseKey;
+
   @EnviedField(
     obfuscate: true,
     varName: 'SUPABASE_JWT_SECRET',
     defaultValue: '',
   )
   static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB',
-    defaultValue: '',
-  )
-  static final String supabaseDb = _Env.supabaseDb;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_USER',
-    defaultValue: '',
-  )
-  static final String supabaseDbUser = _Env.supabaseDbUser;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_PASSWORD',
-    defaultValue: '',
-  )
-  static final String supabaseDbPassword = _Env.supabaseDbPassword;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_DB_PORT',
-    defaultValue: '5432',
-  )
-  static final String supabaseDbPort = _Env.supabaseDbPort;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'ENABLE_SUPABASE_SYNC',
-    defaultValue: true,
-  )
-  static final bool enableSupabaseSync = _Env.enableSupabaseSync;
 }
 
-bool get isSupabaseEnable =>
-    Env.supabaseUrl.isNotEmpty &&
-    Env.supabaseAnonKey.isNotEmpty &&
-    Env.supabaseKey.isNotEmpty &&
-    Env.supabaseJwtSecret.isNotEmpty &&
-    Env.supabaseDb.isNotEmpty &&
-    Env.supabaseDbUser.isNotEmpty &&
-    Env.supabaseDbPassword.isNotEmpty &&
-    Env.supabaseDbPort.isNotEmpty;
+bool get isSupabaseEnabled {
+  // Only enable supabase in release and develop mode.
+  if (integrationEnv().isRelease || integrationEnv().isDevelop) {
+    return Env.supabaseUrl.isNotEmpty &&
+        Env.supabaseAnonKey.isNotEmpty &&
+        Env.supabaseJwtSecret.isNotEmpty;
+  } else {
+    return false;
+  }
+}

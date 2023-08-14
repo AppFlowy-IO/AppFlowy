@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
@@ -30,8 +31,9 @@ class DatabaseGroupList extends StatelessWidget {
         fieldController: fieldController,
       )..add(const DatabaseGroupEvent.initial()),
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
+        buildWhen: (previous, current) => true,
         builder: (context, state) {
-          final cells = state.fieldContexts.map((fieldInfo) {
+          final cells = state.fieldInfos.map((fieldInfo) {
             Widget cell = _GridGroupCell(
               fieldInfo: fieldInfo,
               onSelected: () => onDismissed(),

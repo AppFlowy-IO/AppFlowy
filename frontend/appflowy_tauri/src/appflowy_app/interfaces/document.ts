@@ -82,7 +82,14 @@ export interface ImageBlockData {
   align: Align;
 }
 
-export type PageBlockData = TextBlockData;
+export enum CoverType {
+  Image = 'image',
+  Color = 'color',
+}
+export interface PageBlockData extends TextBlockData {
+  cover?: string;
+  coverType?: CoverType;
+}
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
@@ -235,6 +242,8 @@ export enum TextAction {
   Code = 'code',
   Equation = 'formula',
   Link = 'href',
+  TextColor = 'font_color',
+  Highlight = 'bg_color',
 }
 export interface TextActionMenuProps {
   /**
@@ -297,10 +306,6 @@ export interface EditorProps {
   value?: Delta;
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
-  linkDecorateSelection?: {
-    selection?: RangeStaticNoId;
-    placeholder?: string;
-  };
   temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
@@ -311,15 +316,6 @@ export interface BlockCopyData {
   json: string;
   text: string;
   html: string;
-}
-
-export interface LinkPopoverState {
-  anchorPosition?: { top: number; left: number };
-  id?: string;
-  selection?: RangeStaticNoId;
-  open?: boolean;
-  href?: string;
-  title?: string;
 }
 
 export interface TemporaryState {
@@ -333,10 +329,11 @@ export interface TemporaryState {
 
 export enum TemporaryType {
   Equation = 'equation',
+  Link = 'link',
 }
 
-export type TemporaryData = InlineEquationData;
-
-export interface InlineEquationData {
-  latex: string;
+export interface TemporaryData {
+  latex?: string;
+  href?: string;
+  text?: string;
 }

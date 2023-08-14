@@ -1,19 +1,19 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
+use anyhow::Error;
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
+use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 
-use flowy_document2::deps::{DocumentCloudService, DocumentSnapshot, DocumentUser};
 use flowy_document2::document::MutexDocument;
-use flowy_document2::document_data::default_document_data;
-use flowy_document2::manager::DocumentManager;
-use flowy_error::FlowyError;
+use flowy_document2::manager::{DocumentManager, DocumentUser};
+use flowy_document_deps::cloud::*;
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -38,12 +38,12 @@ impl Deref for DocumentTest {
 }
 
 pub struct FakeUser {
-  kv: Arc<RocksCollabDB>,
+  collab_db: Arc<RocksCollabDB>,
 }
 
 impl FakeUser {
   pub fn new() -> Self {
-    Self { kv: db() }
+    Self { collab_db: db() }
   }
 }
 
@@ -56,8 +56,11 @@ impl DocumentUser for FakeUser {
     Ok(None)
   }
 
-  fn collab_db(&self, _uid: i64) -> Result<std::sync::Arc<RocksCollabDB>, flowy_error::FlowyError> {
-    Ok(self.kv.clone())
+  fn collab_db(
+    &self,
+    _uid: i64,
+  ) -> Result<std::sync::Weak<RocksCollabDB>, flowy_error::FlowyError> {
+    Ok(Arc::downgrade(&self.collab_db))
   }
 }
 
@@ -79,6 +82,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
+  builder.set_sync_device(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
 
@@ -106,21 +110,18 @@ pub fn gen_id() -> String {
 
 pub struct LocalTestDocumentCloudServiceImpl();
 impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
-  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_document_latest_snapshot(
     &self,
     _document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, FlowyError> {
+  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 
-  fn get_document_data(
-    &self,
-    _document_id: &str,
-  ) -> FutureResult<Option<DocumentData>, FlowyError> {
+  fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 }

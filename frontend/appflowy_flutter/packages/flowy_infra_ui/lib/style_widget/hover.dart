@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
@@ -12,6 +10,10 @@ class FlowyHover extends StatefulWidget {
   final bool Function()? isSelected;
   final void Function(bool)? onHover;
   final MouseCursor? cursor;
+
+  /// Reset the hover state when the parent widget get rebuild.
+  /// Default to true.
+  final bool resetHoverOnRebuild;
 
   /// Determined whether the [builder] should get called when onEnter/onExit
   /// happened
@@ -29,6 +31,7 @@ class FlowyHover extends StatefulWidget {
     this.isSelected,
     this.onHover,
     this.cursor,
+    this.resetHoverOnRebuild = true,
     this.buildWhenOnHover,
   }) : super(key: key);
 
@@ -41,8 +44,10 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   @override
   void didUpdateWidget(covariant FlowyHover oldWidget) {
-    // Reset the _onHover to false when the parent widget get rebuild.
-    _onHover = false;
+    if (widget.resetHoverOnRebuild == true) {
+      // Reset the _onHover to false when the parent widget get rebuild.
+      _onHover = false;
+    }
     super.didUpdateWidget(oldWidget);
   }
 

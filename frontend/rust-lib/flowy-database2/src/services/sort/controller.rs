@@ -156,7 +156,7 @@ impl SortController {
     }
 
     let fields = self.delegate.get_fields(&self.view_id, None).await;
-    for sort in self.sorts.iter() {
+    for sort in self.sorts.iter().rev() {
       rows
         .par_sort_by(|left, right| cmp_row(&left.row, &right.row, sort, &fields, &self.cell_cache));
     }
@@ -240,44 +240,30 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let order = match (
-    left.cells.get(&sort.field_id),
-    right.cells.get(&sort.field_id),
-  ) {
-    (Some(left_cell), Some(right_cell)) => {
-      let field_type = sort.field_type.clone();
-      match fields
-        .iter()
-        .find(|field_rev| field_rev.id == sort.field_id)
-      {
-        None => default_order(),
-        Some(field_rev) => cmp_cell(
-          left_cell,
-          right_cell,
-          field_rev,
-          field_type,
-          cell_data_cache,
-        ),
-      }
-    },
-    (Some(_), None) => Ordering::Greater,
-    (None, Some(_)) => Ordering::Less,
-    _ => default_order(),
-  };
-
-  // The order is calculated by Ascending. So reverse the order if the SortCondition is descending.
-  match sort.condition {
-    SortCondition::Ascending => order,
-    SortCondition::Descending => order.reverse(),
+  let field_type = sort.field_type.clone();
+  match fields
+    .iter()
+    .find(|field_rev| field_rev.id == sort.field_id)
+  {
+    None => default_order(),
+    Some(field_rev) => cmp_cell(
+      left.cells.get(&sort.field_id),
+      right.cells.get(&sort.field_id),
+      field_rev,
+      field_type,
+      cell_data_cache,
+      sort.condition,
+    ),
   }
 }
 
 fn cmp_cell(
-  left_cell: &Cell,
-  right_cell: &Cell,
+  left_cell: Option<&Cell>,
+  right_cell: Option<&Cell>,
   field: &Arc<Field>,
   field_type: FieldType,
   cell_data_cache: &CellCache,
+  sort_condition: SortCondition,
 ) -> Ordering {
   match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)
@@ -285,7 +271,8 @@ fn cmp_cell(
     None => default_order(),
     Some(handler) => {
       let cal_order = || {
-        let order = handler.handle_cell_compare(left_cell, right_cell, field.as_ref());
+        let order =
+          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
         Option::<Ordering>::Some(order)
       };
 
@@ -293,6 +280,7 @@ fn cmp_cell(
     },
   }
 }
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum SortEvent {
   SortDidChanged,

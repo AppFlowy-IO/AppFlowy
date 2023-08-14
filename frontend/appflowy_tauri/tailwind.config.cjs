@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors,
-      boxShadow
+      boxShadow,
     },
   },
   plugins: [],

@@ -58,7 +58,8 @@ class TrashPluginDisplay extends PluginWidgetBuilder {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget({PluginContext? context}) => const TrashPage(
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
+      const TrashPage(
         key: ValueKey('TrashPage'),
       );
 

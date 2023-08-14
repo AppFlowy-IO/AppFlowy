@@ -58,7 +58,6 @@ impl FlowyError {
   static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
   static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
   static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
-  static_flowy_error!(connection, ErrorCode::HttpServerConnectError);
   static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
   static_flowy_error!(email_format, ErrorCode::EmailFormatInvalid);
   static_flowy_error!(email_exist, ErrorCode::EmailAlreadyExists);
@@ -121,6 +120,7 @@ impl std::convert::From<protobuf::ProtobufError> for FlowyError {
 
 impl From<anyhow::Error> for FlowyError {
   fn from(e: anyhow::Error) -> Self {
-    FlowyError::internal().context(e)
+    e.downcast::<FlowyError>()
+      .unwrap_or_else(|err| FlowyError::new(ErrorCode::Internal, err))
   }
 }

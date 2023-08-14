@@ -126,11 +126,6 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
   String? onCopy() => _cellBloc.state.content;
 
   @override
-  void onInsert(String value) {
-    _cellBloc.add(TextCellEvent.updateText(value));
-  }
-
-  @override
   Future<void> focusChanged() {
     _cellBloc.add(
       TextCellEvent.updateText(_controller.text),

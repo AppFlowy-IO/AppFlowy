@@ -48,6 +48,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             ),
           );
         },
+        signedWithMagicLink: (SignedWithMagicLink value) async {
+          await _performActionOnSignInWithMagicLink(state, emit, value.email);
+        },
       );
     });
   }
@@ -99,6 +102,34 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
   }
 
+  Future<void> _performActionOnSignInWithMagicLink(
+    SignInState state,
+    Emitter<SignInState> emit,
+    String email,
+  ) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: none(),
+        passwordError: none(),
+        successOrFail: none(),
+      ),
+    );
+
+    final result = await authService.signInWithMagicLink(
+      email: email,
+    );
+    emit(
+      result.fold(
+        (error) => stateFromCode(error),
+        (userProfile) => state.copyWith(
+          isSubmitting: false,
+          successOrFail: some(left(userProfile)),
+        ),
+      ),
+    );
+  }
+
   Future<void> _performActionOnSignInAsGuest(
     SignInState state,
     Emitter<SignInState> emit,
@@ -125,7 +156,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   SignInState stateFromCode(FlowyError error) {
-    switch (ErrorCode.valueOf(error.code)!) {
+    switch (ErrorCode.valueOf(error.code)) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
@@ -154,6 +185,8 @@ class SignInEvent with _$SignInEvent {
   const factory SignInEvent.signedInWithOAuth(String platform) =
       SignedInWithOAuth;
   const factory SignInEvent.signedInAsGuest() = SignedInAsGuest;
+  const factory SignInEvent.signedWithMagicLink(String email) =
+      SignedWithMagicLink;
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
 }

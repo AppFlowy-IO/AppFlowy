@@ -14,8 +14,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateCalendarButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
 
       // open setting
       await tester.tapDatabaseSettingButton();
@@ -36,7 +35,11 @@ void main() {
       await tester.tapGoButton();
 
       // Create calendar view
-      await tester.createNewPageWithName(ViewLayoutPB.Calendar, 'calendar');
+      const name = 'calendar';
+      await tester.createNewPageWithName(
+        name: name,
+        layout: ViewLayoutPB.Calendar,
+      );
 
       // Open setting
       await tester.tapDatabaseSettingButton();
@@ -47,9 +50,9 @@ void main() {
       await tester.tapFirstDayOfWeekStartFromMonday();
 
       // Open the other page and open the new calendar page again
-      await tester.openPage(readme);
+      await tester.openPage(gettingStarted);
       await tester.pumpAndSettle(const Duration(milliseconds: 300));
-      await tester.openPage('calendar');
+      await tester.openPage(name, layout: ViewLayoutPB.Calendar);
 
       // Open setting again and check the start from Monday is selected
       await tester.tapDatabaseSettingButton();
@@ -65,8 +68,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create the calendar view
-      await tester.tapAddButton();
-      await tester.tapCreateCalendarButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
 
       // Scroll until today's date cell is visible
       await tester.scrollToToday();
@@ -135,8 +137,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create the calendar view
-      await tester.tapAddButton();
-      await tester.tapCreateCalendarButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Calendar);
 
       // Create a new event on the first of this month
       final today = DateTime.now();

@@ -60,16 +60,26 @@ class SettingsMenu extends StatelessWidget {
         ),
 
         // Only show supabase setting if supabase is enabled and the current auth type is not local
-        if (isSupabaseEnable &&
+        if (isSupabaseEnabled &&
             context.read<SettingsDialogBloc>().state.userProfile.authType !=
                 AuthTypePB.Local)
           SettingsMenuElement(
-            page: SettingsPage.supabaseSetting,
+            page: SettingsPage.syncSetting,
             selectedPage: currentPage,
-            label: LocaleKeys.settings_menu_supabaseSetting.tr(),
+            label: LocaleKeys.settings_menu_syncSetting.tr(),
             icon: Icons.sync,
             changeSelectedPage: changeSelectedPage,
           ),
+        const SizedBox(
+          height: 10,
+        ),
+        SettingsMenuElement(
+          page: SettingsPage.shortcuts,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
+          icon: Icons.cut,
+          changeSelectedPage: changeSelectedPage,
+        ),
       ],
     );
   }

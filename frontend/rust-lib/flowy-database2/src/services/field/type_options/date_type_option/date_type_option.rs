@@ -1,19 +1,23 @@
-use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
-use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::{
-  default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform,
-};
+use std::cmp::Ordering;
+use std::str::FromStr;
+
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::str::FromStr;
+
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+
+use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+use crate::services::field::{
+  default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
+};
+use crate::services::sort::SortCondition;
 
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
@@ -79,7 +83,7 @@ impl From<DateTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for DateTypeOption {
+impl TypeOptionCellDataSerde for DateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -231,6 +235,18 @@ impl CellDataChangeset for DateTypeOption {
       None => (None, false),
     };
 
+    if changeset.clear_flag == Some(true) {
+      let (timestamp, include_time) = (None, include_time);
+
+      let cell_data = DateCellData {
+        timestamp,
+        include_time,
+      };
+
+      let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
+      return Ok((Cell::from(cell_wrapper), cell_data));
+    }
+
     // update include_time if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
 
@@ -293,11 +309,15 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data.timestamp, other_cell_data.timestamp) {
-      (Some(left), Some(right)) => left.cmp(&right),
-      (Some(_), None) => Ordering::Greater,
-      (None, Some(_)) => Ordering::Less,
+      (Some(left), Some(right)) => {
+        let order = left.cmp(&right);
+        sort_condition.evaluate_order(order)
+      },
+      (Some(_), None) => Ordering::Less,
+      (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
   }

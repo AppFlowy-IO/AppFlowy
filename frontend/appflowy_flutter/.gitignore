@@ -76,4 +76,4 @@ coverage/
 
 **/failures/*.png
 
-assets/translations/*.json
+assets/translations/

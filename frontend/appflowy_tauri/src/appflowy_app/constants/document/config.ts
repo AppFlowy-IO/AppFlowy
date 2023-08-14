@@ -1,4 +1,5 @@
 import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
+import { randomEmoji } from '$app/utils/document/emoji';
 
 /**
  * If the block type is not in the config, it will be thrown an error in development env
@@ -69,7 +70,7 @@ export const blockConfig: Record<string, BlockConfig> = {
     canAddChild: true,
     defaultData: {
       delta: [],
-      icon: 'bulb',
+      icon: randomEmoji(),
     },
     splitProps: {
       nextLineRelationShip: SplitRelationship.NextSibling,

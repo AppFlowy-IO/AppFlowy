@@ -43,7 +43,7 @@ SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
   name: 'Code Block',
   iconData: Icons.abc,
   keywords: ['code', 'codeblock'],
-  nodeBuilder: (editorState) => codeBlockNode(),
+  nodeBuilder: (editorState, _) => codeBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 
@@ -102,6 +102,11 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
 
   @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: CodeBlockKeys.type,
+  );
+
+  @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
@@ -118,7 +123,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     'BASIC',
     'C',
     'C#',
-    'C++',
+    'CPP',
     'Clojure',
     'CSS',
     'Dart',
@@ -162,7 +167,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       .map((e) => e.toLowerCase())
       .toSet()
       .intersection(allLanguages.keys.toSet())
-      .toList();
+      .toList()
+    ..add('auto')
+    ..add('c')
+    ..sort();
 
   late final editorState = context.read<EditorState>();
 
@@ -185,6 +193,12 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
           _buildCodeBlock(context),
         ],
       ),
+    );
+
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
     );
 
     if (widget.actionBuilder != null) {
@@ -242,7 +256,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: FlowyTextButton(
-          '${language?.capitalize() ?? 'auto'} ',
+          '${language?.capitalize() ?? 'Auto'} ',
           padding: const EdgeInsets.symmetric(
             horizontal: 12.0,
             vertical: 4.0,
@@ -270,7 +284,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   Future<void> updateLanguage(String language) async {
     final transaction = editorState.transaction
       ..updateNode(node, {
-        CodeBlockKeys.language: language,
+        CodeBlockKeys.language: language == 'auto' ? null : language,
       })
       ..afterSelection = Selection.collapse(
         node.path,

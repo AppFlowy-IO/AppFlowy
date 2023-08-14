@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -34,16 +35,14 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           _listener.start(appsChanged: _handleAppsOrFail);
           await _fetchApps(emit);
         },
-        openPage: (e) async {
-          emit(state.copyWith(plugin: e.plugin));
-        },
         createApp: (_CreateApp event) async {
           final result = await _workspaceService.createApp(
             name: event.name,
-            desc: event.desc ?? "",
+            desc: event.desc,
+            index: event.index,
           );
           result.fold(
-            (app) => {},
+            (app) => emit(state.copyWith(plugin: app.plugin())),
             (error) {
               Log.error(error);
               emit(state.copyWith(successOrFailure: right(error)));
@@ -108,8 +107,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 @freezed
 class MenuEvent with _$MenuEvent {
   const factory MenuEvent.initial() = _Initial;
-  const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
-  const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
+  const factory MenuEvent.createApp(String name, {String? desc, int? index}) =
+      _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
   const factory MenuEvent.didReceiveApps(
     Either<List<ViewPB>, FlowyError> appsOrFail,

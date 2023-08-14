@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '../util/ime.dart';
 import '../util/util.dart';
 
 void main() {
@@ -22,8 +21,8 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -68,8 +67,8 @@ void main() {
 
       // create a new document
       await tester.createNewPageWithName(
-        ViewLayoutPB.Document,
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        layout: ViewLayoutPB.Document,
       );
 
       // tap the first line of the document
@@ -99,12 +98,12 @@ void main() {
       // expect to the see the inline math equation button is highlighted
       inlineMathEquationButton = find.byWidgetPredicate(
         (widget) =>
-            widget is IconItemWidget &&
+            widget is SVGIconItemWidget &&
             widget.tooltip ==
                 LocaleKeys.document_plugins_createInlineMathEquation.tr(),
       );
       expect(
-        tester.widget<IconItemWidget>(inlineMathEquationButton).isHighlight,
+        tester.widget<SVGIconItemWidget>(inlineMathEquationButton).isHighlight,
         isTrue,
       );
 

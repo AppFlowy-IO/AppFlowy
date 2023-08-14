@@ -117,18 +117,25 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.fieldInfo.name),
-          const HSpace(4),
-          TextFilterConditionPBList(
-            filterInfo: state.filterInfo,
-            popoverMutex: popoverMutex,
-            onCondition: (condition) {
-              context
-                  .read<TextFilterEditorBloc>()
-                  .add(TextFilterEditorEvent.updateCondition(condition));
-            },
+          Expanded(
+            child: FlowyText(
+              state.filterInfo.fieldInfo.name,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          const Spacer(),
+          const HSpace(4),
+          Expanded(
+            child: TextFilterConditionPBList(
+              filterInfo: state.filterInfo,
+              popoverMutex: popoverMutex,
+              onCondition: (condition) {
+                context
+                    .read<TextFilterEditorBloc>()
+                    .add(TextFilterEditorEvent.updateCondition(condition));
+              },
+            ),
+          ),
+          const HSpace(4),
           DisclosureButton(
             popoverMutex: popoverMutex,
             onAction: (action) {

@@ -88,7 +88,7 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     // if the env is not configured, we will skip to the 'skip login screen'.
-    if (isSupabaseEnable) {
+    if (isSupabaseEnabled) {
       getIt<SplashRoute>().pushSignInScreen(context);
     } else {
       getIt<SplashRoute>().pushSkipLoginScreen(context);

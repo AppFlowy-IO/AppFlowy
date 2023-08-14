@@ -74,7 +74,11 @@ impl DatabaseEditor {
     tokio::spawn(async move {
       while let Some(snapshot_state) = snapshot_state.next().await {
         if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-          tracing::debug!("Did create database remote snapshot: {}", new_snapshot_id);
+          tracing::debug!(
+            "Did create {} database remote snapshot: {}",
+            database_id,
+            new_snapshot_id
+          );
           send_notification(
             &database_id,
             DatabaseNotification::DidUpdateDatabaseSnapshotState,
@@ -130,7 +134,9 @@ impl DatabaseEditor {
       let field = database.fields.get_field(field_id);
       if let Some(field) = field {
         let group_setting = default_group_setting(&field);
-        database.insert_group_setting(view_id, group_setting);
+        database.views.update_database_view(view_id, |view| {
+          view.set_groups(vec![group_setting.into()]);
+        });
       }
     }
 

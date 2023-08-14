@@ -20,7 +20,7 @@ impl FlowySupabaseFolderTest {
   pub async fn new() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
-    let _ = inner.sign_up_with_uuid(&uuid).await;
+    let _ = inner.third_party_sign_up_with_uuid(&uuid, None).await;
     Some(Self { inner })
   }
 
@@ -67,7 +67,7 @@ pub fn assert_folder_collab_content(workspace_id: &str, collab_update: &[u8], ex
   }
 
   let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);
-  collab.lock().with_transact_mut(|txn| {
+  collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);
   });

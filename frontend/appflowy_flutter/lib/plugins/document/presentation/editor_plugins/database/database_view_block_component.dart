@@ -78,8 +78,14 @@ class _DatabaseBlockComponentWidgetState
         return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
+          shrinkWrap: true,
         );
       },
+    );
+
+    child = Padding(
+      padding: padding,
+      child: child,
     );
 
     if (widget.actionBuilder != null) {

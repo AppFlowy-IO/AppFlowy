@@ -1,7 +1,7 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/image.dart';

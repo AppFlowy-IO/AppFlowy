@@ -1,10 +1,12 @@
 use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
+use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{AuthTypePB, UpdateUserProfileParams, UserProfile};
+use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
+use crate::services::HistoricalUser;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -152,5 +154,102 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       icon_url,
       openai_key,
     })
+  }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct RepeatedUserWorkspacePB {
+  #[pb(index = 1)]
+  pub items: Vec<UserWorkspacePB>,
+}
+
+impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
+  fn from(workspaces: Vec<UserWorkspace>) -> Self {
+    Self {
+      items: workspaces.into_iter().map(UserWorkspacePB::from).collect(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Debug, Clone)]
+pub struct UserWorkspacePB {
+  #[pb(index = 1)]
+  pub id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+}
+
+impl From<UserWorkspace> for UserWorkspacePB {
+  fn from(value: UserWorkspace) -> Self {
+    Self {
+      id: value.id,
+      name: value.name,
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct AddWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct RemoveWorkspaceUserPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct RepeatedHistoricalUserPB {
+  #[pb(index = 1)]
+  pub items: Vec<HistoricalUserPB>,
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct HistoricalUserPB {
+  #[pb(index = 1)]
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub user_name: String,
+
+  #[pb(index = 3)]
+  pub last_time: i64,
+
+  #[pb(index = 4)]
+  pub auth_type: AuthTypePB,
+
+  #[pb(index = 5)]
+  pub device_id: String,
+}
+
+impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
+  fn from(historical_users: Vec<HistoricalUser>) -> Self {
+    Self {
+      items: historical_users
+        .into_iter()
+        .map(HistoricalUserPB::from)
+        .collect(),
+    }
+  }
+}
+
+impl From<HistoricalUser> for HistoricalUserPB {
+  fn from(historical_user: HistoricalUser) -> Self {
+    Self {
+      user_id: historical_user.user_id,
+      user_name: historical_user.user_name,
+      last_time: historical_user.sign_in_timestamp,
+      auth_type: historical_user.auth_type.into(),
+      device_id: historical_user.device_id,
+    }
   }
 }

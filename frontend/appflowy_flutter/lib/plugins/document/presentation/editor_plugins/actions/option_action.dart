@@ -16,6 +16,8 @@ enum OptionAction {
   turnInto,
   moveUp,
   moveDown,
+
+  /// callout background color
   color,
   divider,
   align;
@@ -241,11 +243,12 @@ class ColorOptionAction extends PopoverActionCell {
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
         final selectedColor = bgColor?.toColor();
-
+        // get default background color from themeExtension
+        final defaultColor = AFThemeExtension.of(context).calloutBGColor;
         final colors = [
-          // clear background color.
+          // reset to default background color
           FlowyColorOption(
-            color: Colors.transparent,
+            color: defaultColor,
             name: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
           ),
           ...FlowyTint.values.map(
@@ -265,8 +268,7 @@ class ColorOptionAction extends PopoverActionCell {
           ),
           onTap: (color, index) async {
             final transaction = editorState.transaction;
-            final backgroundColor =
-                color == Colors.transparent ? null : color.toHex();
+            final backgroundColor = color.toHex();
             transaction.updateNode(node, {
               blockComponentBackgroundColor: backgroundColor,
             });

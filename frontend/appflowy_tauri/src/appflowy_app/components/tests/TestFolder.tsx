@@ -1,7 +1,7 @@
 import React from 'react';
 import { UserBackendService } from '$app/stores/effects/user/user_bd_svc';
 import { useAppSelector } from '$app/stores/store';
-import { WorkspaceBackendService } from '$app/stores/effects/folder/workspace/workspace_bd_svc';
+import { WorkspaceController } from '../../stores/effects/workspace/workspace_controller';
 import { ViewLayoutPB, ViewPB } from '@/services/backend';
 
 const testCreateFolder = async (userId?: number) => {
@@ -9,36 +9,41 @@ const testCreateFolder = async (userId?: number) => {
     console.log('user is not logged in');
     return;
   }
+
   console.log('test create views');
   const userBackendService: UserBackendService = new UserBackendService(userId);
   const workspaces = await userBackendService.getWorkspaces();
+
   if (workspaces.ok) {
     console.log('workspaces: ', workspaces.val.toObject());
   }
+
   const currentWorkspace = await userBackendService.getCurrentWorkspace();
 
-  const workspaceService = new WorkspaceBackendService(currentWorkspace.workspace.id);
+  const workspaceService = new WorkspaceController(currentWorkspace.workspace.id);
   const rootViews: ViewPB[] = [];
+
   for (let i = 1; i <= 3; i++) {
     const result = await workspaceService.createView({
       name: `test board ${i}`,
       desc: 'test description',
-      layoutType: ViewLayoutPB.Board,
+      layout: ViewLayoutPB.Board,
     });
-    if (result.ok) {
-      rootViews.push(result.val);
-    }
+
+    rootViews.push(result);
   }
+
   for (let i = 1; i <= 3; i++) {
     const result = await workspaceService.createView({
       name: `test board 1 ${i}`,
       desc: 'test description',
-      layoutType: ViewLayoutPB.Board,
-      parentViewId: rootViews[0].id,
+      layout: ViewLayoutPB.Board,
+      parent_view_id: rootViews[0].id,
     });
   }
 
-  const allApps = await workspaceService.getAllViews();
+  const allApps = await workspaceService.getChildPages();
+
   console.log(allApps);
 };
 

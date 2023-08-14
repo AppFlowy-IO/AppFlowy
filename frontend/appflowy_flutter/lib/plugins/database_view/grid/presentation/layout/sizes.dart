@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 class GridSize {
   static double scale = 1;
 
-  static double get scrollBarSize => 12 * scale;
+  static double get scrollBarSize => 8 * scale;
   static double get headerHeight => 40 * scale;
   static double get footerHeight => 40 * scale;
   static double get leadingHeaderPadding => 50 * scale;
@@ -29,6 +29,9 @@ class GridSize {
       );
 
   static EdgeInsets get typeOptionContentInsets => const EdgeInsets.all(4);
+
+  static EdgeInsets get toolbarSettingButtonInsets =>
+      const EdgeInsets.symmetric(horizontal: 8, vertical: 2);
 
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
         GridSize.leadingHeaderPadding,
