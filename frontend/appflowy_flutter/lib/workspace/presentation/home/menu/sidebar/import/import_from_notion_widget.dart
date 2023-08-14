@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/image.dart';
@@ -39,7 +39,8 @@ class ImportFromNotionWidget extends StatelessWidget {
       child: FlowyButton(
         leftIcon: FlowySvg(
           name: 'notion_logo',
-          color: Theme.of(context).colorScheme.tertiary,),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         leftIconSize: const Size.square(20),
         text: FlowyText.medium(
           LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),
