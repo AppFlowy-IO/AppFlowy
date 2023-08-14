@@ -302,8 +302,8 @@ CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
     return KeyEventResult.ignored;
   }
   () async {
-    final data = await Clipboard.getData('text/plain');
-    final text = data?.text;
+    final data = await AppFlowyClipboard.getData();
+    final text = data.text;
     if (text != null && text.isNotEmpty) {
       final transaction = editorState.transaction
         ..insertText(
