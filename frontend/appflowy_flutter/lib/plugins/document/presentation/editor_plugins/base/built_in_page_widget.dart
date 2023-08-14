@@ -9,6 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -129,10 +130,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           width: 24,
           height: 24,
           iconPadding: const EdgeInsets.all(3),
-          icon: FlowySvg(
+          icon: const FlowySvg(
             FlowySvgs.information_s,
-            color: Theme.of(context).iconTheme.color,
           ),
+          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
         ),
         // setting
         const Space(7, 0),
@@ -146,9 +147,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: FlowySvg(
+            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+            icon: const FlowySvg(
               FlowySvgs.settings_s,
-              color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () => controller.show(),
           ),

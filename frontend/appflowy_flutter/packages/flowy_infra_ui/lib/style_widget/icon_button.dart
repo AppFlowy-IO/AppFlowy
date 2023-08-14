@@ -1,6 +1,4 @@
 import 'dart:math';
-
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_svg/flowy_svg.dart';
@@ -71,7 +69,6 @@ class FlowyIconButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
-          hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -79,10 +76,10 @@ class FlowyIconButton extends StatelessWidget {
           onPressed: onPressed,
           child: FlowyHover(
             style: HoverStyle(
-              hoverColor: Colors.transparent,
+              hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              backgroundColor: Colors.transparent,
+              //Do not set background here. Use [fillColor] instead.
             ),
             child: Padding(
               padding: iconPadding,
