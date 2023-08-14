@@ -220,10 +220,10 @@ class _Title extends StatelessWidget {
               child: FlowyIconButton(
                 onPressed: onPressedAddButton,
                 width: 18,
-                icon: FlowySvg(
+                icon: const FlowySvg(
                   FlowySvgs.add_s,
-                  color: Theme.of(context).iconTheme.color,
                 ),
+                iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
