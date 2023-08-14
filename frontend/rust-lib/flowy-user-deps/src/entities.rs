@@ -3,6 +3,16 @@ use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use uuid::Uuid;
 
+pub trait UserAuthResponse {
+  fn user_id(&self) -> i64;
+  fn user_name(&self) -> &str;
+  fn latest_workspace(&self) -> &UserWorkspace;
+  fn user_workspaces(&self) -> &[UserWorkspace];
+  fn device_id(&self) -> &str;
+  fn user_token(&self) -> Option<String>;
+  fn user_email(&self) -> Option<String>;
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SignInResponse {
   pub user_id: i64,
@@ -12,6 +22,36 @@ pub struct SignInResponse {
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+}
+
+impl UserAuthResponse for SignInResponse {
+  fn user_id(&self) -> i64 {
+    self.user_id
+  }
+
+  fn user_name(&self) -> &str {
+    &self.name
+  }
+
+  fn latest_workspace(&self) -> &UserWorkspace {
+    &self.latest_workspace
+  }
+
+  fn user_workspaces(&self) -> &[UserWorkspace] {
+    &self.user_workspaces
+  }
+
+  fn device_id(&self) -> &str {
+    &self.device_id
+  }
+
+  fn user_token(&self) -> Option<String> {
+    self.token.clone()
+  }
+
+  fn user_email(&self) -> Option<String> {
+    self.email.clone()
+  }
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -42,6 +82,36 @@ pub struct SignUpResponse {
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+}
+
+impl UserAuthResponse for SignUpResponse {
+  fn user_id(&self) -> i64 {
+    self.user_id
+  }
+
+  fn user_name(&self) -> &str {
+    &self.name
+  }
+
+  fn latest_workspace(&self) -> &UserWorkspace {
+    &self.latest_workspace
+  }
+
+  fn user_workspaces(&self) -> &[UserWorkspace] {
+    &self.user_workspaces
+  }
+
+  fn device_id(&self) -> &str {
+    &self.device_id
+  }
+
+  fn user_token(&self) -> Option<String> {
+    self.token.clone()
+  }
+
+  fn user_email(&self) -> Option<String> {
+    self.email.clone()
+  }
 }
 
 #[derive(Clone, Debug)]
@@ -111,38 +181,50 @@ pub struct UserProfile {
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct UpdateUserProfileParams {
-  pub id: i64,
-  pub auth_type: AuthType,
+  pub uid: i64,
   pub name: Option<String>,
   pub email: Option<String>,
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub encrypt: Option<i32>,
 }
 
 impl UpdateUserProfileParams {
-  pub fn name(mut self, name: &str) -> Self {
+  pub fn new(uid: i64) -> Self {
+    Self {
+      uid,
+      ..Default::default()
+    }
+  }
+
+  pub fn with_name(mut self, name: &str) -> Self {
     self.name = Some(name.to_owned());
     self
   }
 
-  pub fn email(mut self, email: &str) -> Self {
+  pub fn with_email(mut self, email: &str) -> Self {
     self.email = Some(email.to_owned());
     self
   }
 
-  pub fn password(mut self, password: &str) -> Self {
+  pub fn with_password(mut self, password: &str) -> Self {
     self.password = Some(password.to_owned());
     self
   }
 
-  pub fn icon_url(mut self, icon_url: &str) -> Self {
+  pub fn with_icon_url(mut self, icon_url: &str) -> Self {
     self.icon_url = Some(icon_url.to_owned());
     self
   }
 
-  pub fn openai_key(mut self, openai_key: &str) -> Self {
+  pub fn with_openai_key(mut self, openai_key: &str) -> Self {
     self.openai_key = Some(openai_key.to_owned());
+    self
+  }
+
+  pub fn with_encrypt(mut self, encrypt: i32) -> Self {
+    self.encrypt = Some(encrypt);
     self
   }
 
@@ -152,6 +234,7 @@ impl UpdateUserProfileParams {
       && self.password.is_none()
       && self.icon_url.is_none()
       && self.openai_key.is_none()
+      && self.encrypt.is_none()
   }
 }
 

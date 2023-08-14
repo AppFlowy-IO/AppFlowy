@@ -1,3 +1,19 @@
+use std::format;
+use std::str::FromStr;
+use std::sync::Arc;
+
+use chrono::{
+  DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
+};
+use chrono_tz::Tz;
+use collab_database::database::timestamp;
+use collab_database::fields::Field;
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{
   DateCellDataPB, FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
   RowMetaPB,
@@ -12,19 +28,6 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
 };
-use chrono::{
-  DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
-};
-use chrono_tz::Tz;
-use collab_database::database::timestamp;
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::format;
-use std::str::FromStr;
-use std::sync::Arc;
 
 pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
   fn from_json(s: &str) -> Result<Self, serde_json::Error>;
@@ -46,20 +49,15 @@ impl GroupConfigurationContentSerde for DateGroupConfiguration {
   }
 }
 
-#[derive(Serialize_repr, Deserialize_repr)]
+#[derive(Default, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum DateCondition {
+  #[default]
   Relative = 0,
   Day = 1,
   Week = 2,
   Month = 3,
   Year = 4,
-}
-
-impl std::default::Default for DateCondition {
-  fn default() -> Self {
-    DateCondition::Relative
-  }
 }
 
 pub type DateGroupController = BaseGroupController<
@@ -245,7 +243,7 @@ impl GroupController for DateGroupController {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, _)) => {
-        let date = DateTime::parse_from_str(&group_id, GROUP_ID_DATE_FORMAT).unwrap();
+        let date = DateTime::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
         let cell = insert_date_cell(date.timestamp(), None, field);
         cells.insert(field.id.clone(), cell);
       },
@@ -308,7 +306,7 @@ fn make_group_from_date_cell(
   )
 }
 
-const GROUP_ID_DATE_FORMAT: &'static str = "%Y/%m/%d";
+const GROUP_ID_DATE_FORMAT: &str = "%Y/%m/%d";
 
 fn group_id(
   cell_data: &DateCellData,
@@ -458,14 +456,16 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> Dat
 
 #[cfg(test)]
 mod tests {
+  use std::vec;
+
+  use chrono::{offset, Days, Duration, NaiveDateTime};
+
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
     group::controller_impls::date_controller::{
       group_id, group_name_from_id, GROUP_ID_DATE_FORMAT,
     },
   };
-  use chrono::{offset, Days, Duration, NaiveDateTime};
-  use std::vec;
 
   #[test]
   fn group_id_name_test() {

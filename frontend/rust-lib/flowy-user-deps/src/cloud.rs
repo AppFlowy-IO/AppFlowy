@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 use anyhow::Error;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -12,6 +13,23 @@ use crate::entities::{
   SignInResponse, SignUpResponse, ThirdPartyParams, UpdateUserProfileParams, UserCredentials,
   UserProfile, UserWorkspace,
 };
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserCloudConfig {
+  pub enable_sync: bool,
+  pub enable_encrypt: bool,
+  pub encrypt_secret: String,
+}
+
+impl UserCloudConfig {
+  pub fn new(enable_sync: bool, enable_encrypt: bool, encrypt_secret: String) -> Self {
+    Self {
+      enable_sync,
+      enable_encrypt,
+      encrypt_secret,
+    }
+  }
+}
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management

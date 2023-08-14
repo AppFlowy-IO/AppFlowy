@@ -16,7 +16,7 @@ const ITERATIONS: u32 = 100_000;
 const NONCE_LENGTH: usize = 12;
 const CONCATENATED_DELIMITER: &str = "$";
 
-pub fn generate_user_encrypt_secret() -> String {
+pub fn generate_encrypt_secret() -> String {
   let passphrase = generate_passphrase();
   let salt = generate_salt();
   concatenate_passphrase_and_salt(&passphrase, &salt)
@@ -28,10 +28,10 @@ pub fn encrypt(data: &[u8], combined_passphrase_salt: &str) -> Result<Vec<u8>> {
   let cipher = Aes256Gcm::new(GenericArray::from_slice(&key));
   let nonce: [u8; NONCE_LENGTH] = rand::thread_rng().gen();
   let ciphertext = cipher
-    .encrypt(&GenericArray::from_slice(&nonce), data)
+    .encrypt(GenericArray::from_slice(&nonce), data)
     .unwrap();
 
-  Ok(nonce.to_vec().into_iter().chain(ciphertext).collect())
+  Ok(nonce.into_iter().chain(ciphertext).collect())
 }
 
 pub fn decrypt(data: &[u8], combined_passphrase_salt: &str) -> Result<Vec<u8>> {
@@ -43,7 +43,7 @@ pub fn decrypt(data: &[u8], combined_passphrase_salt: &str) -> Result<Vec<u8>> {
   let cipher = Aes256Gcm::new(GenericArray::from_slice(&key));
   let (nonce, ciphertext) = data.split_at(NONCE_LENGTH);
   cipher
-    .decrypt(&GenericArray::from_slice(nonce), ciphertext)
+    .decrypt(GenericArray::from_slice(nonce), ciphertext)
     .map_err(|e| anyhow::anyhow!("Decryption error: {:?}", e))
 }
 
@@ -93,7 +93,7 @@ mod tests {
 
   #[test]
   fn test_encrypt_decrypt() {
-    let secret = generate_user_encrypt_secret();
+    let secret = generate_encrypt_secret();
     let data = b"hello world";
     let encrypted = encrypt(data, &secret).unwrap();
     let decrypted = decrypt(&encrypted, &secret).unwrap();

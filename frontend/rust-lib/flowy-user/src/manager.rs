@@ -9,8 +9,7 @@ use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
@@ -32,8 +31,6 @@ use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
-
-const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
 
 pub struct UserSessionConfig {
   root_dir: String,
@@ -87,6 +84,19 @@ impl UserManager {
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
     Arc::downgrade(&self.store_preferences)
+  }
+
+  pub async fn set_encrypt_secret(&self, uid: i64, secret: String) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_user(
+        UserCredentials::from_uid(uid),
+        UpdateUserProfileParams::new(uid).with_encrypt(1),
+      )
+      .await?;
+    self.cloud_services.set_encrypt_secret(secret);
+    Ok(())
   }
 
   /// Initializes the user session, including data migrations and user awareness configuration.
@@ -166,23 +176,8 @@ impl UserManager {
       .sign_in(params)
       .await?;
     let session: Session = response.clone().into();
-    let uid = session.user_id;
-    let device_id = session.device_id.clone();
-    self.set_collab_config(&session);
-    self.set_current_session(Some(session.clone()))?;
-    self.log_historical_user(
-      uid,
-      &response.device_id,
-      response.name.clone(),
-      &auth_type,
-      self.user_dir(uid),
-    );
-    let user_workspace = response.latest_workspace.clone();
-    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
-    let user_profile: UserProfile = self
-      .save_user(uid, (response, auth_type).into())
-      .await?
-      .into();
+    let latest_workspace = response.latest_workspace.clone();
+    let user_profile = self.prepare(response, &auth_type, &session).await?;
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
@@ -191,7 +186,7 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(user_profile.id, &user_workspace, &device_id)
+      .did_sign_in(user_profile.id, &latest_workspace, &session.device_id)
       .await
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
@@ -243,26 +238,13 @@ impl UserManager {
 
     let auth_service = self.cloud_services.get_user_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
+
     let mut sign_up_context = SignUpContext {
       is_new: response.is_new,
       local_folder: None,
     };
     let new_session = Session::from(&response);
-    self.set_current_session(Some(new_session.clone()))?;
-    self.set_collab_config(&new_session);
-    let uid = response.user_id;
-    self.log_historical_user(
-      uid,
-      &response.device_id,
-      response.name.clone(),
-      &auth_type,
-      self.user_dir(uid),
-    );
-    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
-    let new_user_profile: UserProfile = self
-      .save_user(uid, (response, auth_type.clone()).into())
-      .await?
-      .into();
+    let user_profile = self.prepare(response, &auth_type, &new_session).await?;
     let user_awareness_source = if sign_up_context.is_new {
       UserAwarenessDataSource::Local
     } else {
@@ -274,7 +256,7 @@ impl UserManager {
       if let Some(old_user) = old_user {
         if old_user.user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
           let new_user = UserMigrationContext {
-            user_profile: new_user_profile.clone(),
+            user_profile: user_profile.clone(),
             session: new_session.clone(),
           };
           tracing::info!(
@@ -286,7 +268,6 @@ impl UserManager {
             Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
-          // close the old user db
           let _ = self.database.close(old_user.session.user_id);
         }
       }
@@ -302,12 +283,12 @@ impl UserManager {
       .await
       .did_sign_up(
         sign_up_context,
-        &new_user_profile,
+        &user_profile,
         &new_session.user_workspace,
         &new_session.device_id,
       )
       .await;
-    Ok(new_user_profile)
+    Ok(user_profile)
   }
 
   #[tracing::instrument(level = "info", skip(self))]
@@ -337,7 +318,8 @@ impl UserManager {
     &self,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let auth_type = params.auth_type.clone();
+    let old_user_profile = self.get_user_profile(params.uid, false).await?;
+    let auth_type = old_user_profile.auth_type.clone();
     let session = self.get_session()?;
     let changeset = UserTableChangeset::new(params.clone());
     diesel_update_table!(
@@ -347,13 +329,12 @@ impl UserManager {
     );
 
     let session = self.get_session()?;
-    let user_profile = self.get_user_profile(session.user_id, false).await?;
-    let profile_pb: UserProfilePB = user_profile.into();
+    let new_user_profile = self.get_user_profile(session.user_id, false).await?;
     send_notification(
       &session.user_id.to_string(),
       UserNotification::DidUpdateUserProfile,
     )
-    .payload(profile_pb)
+    .payload(UserProfilePB::from(new_user_profile))
     .send();
     self
       .update_user(&auth_type, session.user_id, None, params)
@@ -441,13 +422,6 @@ impl UserManager {
     Ok(None)
   }
 
-  pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
-    self.cloud_services.set_supabase_config(&config);
-    let _ = self
-      .store_preferences
-      .set_object(SUPABASE_CONFIG_CACHE_KEY, config);
-  }
-
   async fn update_user(
     &self,
     _auth_type: &AuthType,
@@ -520,6 +494,30 @@ impl UserManager {
     }
   }
 
+  async fn prepare(
+    &self,
+    auth_response: impl UserAuthResponse,
+    auth_type: &AuthType,
+    session: &Session,
+  ) -> Result<UserProfile, FlowyError> {
+    self.set_current_session(Some(session.clone()))?;
+    self.set_collab_config(session);
+    let uid = auth_response.user_id();
+    self.log_historical_user(
+      uid,
+      auth_response.device_id(),
+      auth_response.user_name().to_string(),
+      auth_type,
+      self.user_dir(uid),
+    );
+    save_user_workspaces(uid, self.db_pool(uid)?, auth_response.user_workspaces())?;
+    let user_profile: UserProfile = self
+      .save_user(uid, (auth_response, auth_type.clone()).into())
+      .await?
+      .into();
+    Ok(user_profile)
+  }
+
   fn set_collab_config(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
     collab_builder.set_sync_device(session.device_id.clone());
@@ -537,13 +535,4 @@ impl UserManager {
     let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
     Ok(folder_data)
   }
-}
-
-pub fn get_supabase_config(
-  store_preference: &Arc<StorePreferences>,
-) -> Option<SupabaseConfiguration> {
-  store_preference
-    .get_str(SUPABASE_CONFIG_CACHE_KEY)
-    .and_then(|s| serde_json::from_str(&s).ok())
-    .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }

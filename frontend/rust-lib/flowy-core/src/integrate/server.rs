@@ -24,7 +24,7 @@ use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 };
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::{UserCloudConfig, UserService};
 use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
@@ -66,7 +66,7 @@ pub struct AppFlowyServerProvider {
   provider_type: RwLock<ServerProviderType>,
   device_id: Mutex<String>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
-  supabase_config: RwLock<Option<SupabaseConfiguration>>,
+  cloud_config: RwLock<UserCloudConfig>,
   store_preferences: Weak<StorePreferences>,
 }
 
@@ -74,7 +74,7 @@ impl AppFlowyServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
     provider_type: ServerProviderType,
-    supabase_config: Option<SupabaseConfiguration>,
+    cloud_config: UserCloudConfig,
     store_preferences: Weak<StorePreferences>,
   ) -> Self {
     Self {
@@ -82,7 +82,7 @@ impl AppFlowyServerProvider {
       provider_type: RwLock::new(provider_type),
       device_id: Default::default(),
       providers: RwLock::new(HashMap::new()),
-      supabase_config: RwLock::new(supabase_config),
+      cloud_config: RwLock::new(cloud_config),
       store_preferences,
     }
   }
@@ -127,11 +127,20 @@ impl AppFlowyServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerProviderType::Supabase => {
-        let config = self.supabase_config.read().clone().ok_or(FlowyError::new(
-          ErrorCode::InvalidAuthConfig,
-          "Missing supabase config".to_string(),
-        ))?;
-        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(config)))
+        let config = SupabaseConfiguration::from_env()?;
+        let read_guard = self.cloud_config.read();
+        let enable_sync = read_guard.enable_sync;
+        let encrypt_secret = if read_guard.enable_encrypt {
+          Some(read_guard.encrypt_secret.clone())
+        } else {
+          None
+        };
+        drop(read_guard);
+        Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
+          config,
+          enable_sync,
+          encrypt_secret,
+        )))
       },
     }?;
     server.set_sync_device_id(&self.device_id.lock());
@@ -152,15 +161,23 @@ impl AppFlowyServerProvider {
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
-  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
-    self
-      .supabase_config
-      .write()
-      .replace(supabase_config.clone());
+  fn set_enable_sync(&self, enable_sync: bool) {
+    match self.get_provider(&self.provider_type.read()) {
+      Ok(provider) => {
+        provider.set_enable_sync(enable_sync);
+        self.cloud_config.write().enable_sync = enable_sync;
+      },
+      Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
+    }
+  }
 
-    supabase_config.write_env();
-    if let Ok(provider) = self.get_provider(&self.provider_type.read()) {
-      provider.enable_sync(supabase_config.enable_sync);
+  fn set_encrypt_secret(&self, secret: String) {
+    match self.get_provider(&self.provider_type.read()) {
+      Ok(provider) => {
+        provider.set_enable_encrypt(secret);
+        self.cloud_config.write().enable_encrypt = true;
+      },
+      Err(e) => tracing::error!("🔴Failed to enable encrypt: {:?}", e),
     }
   }
 
@@ -361,12 +378,7 @@ impl CollabStorageProvider for AppFlowyServerProvider {
   }
 
   fn is_sync_enabled(&self) -> bool {
-    self
-      .supabase_config
-      .read()
-      .as_ref()
-      .map(|config| config.enable_sync)
-      .unwrap_or(false)
+    self.cloud_config.read().enable_sync
   }
 }
 

@@ -55,13 +55,13 @@ async fn supabase_update_user_profile_test() {
     .update_user(
       UserCredentials::from_uid(user.user_id),
       UpdateUserProfileParams {
-        id: user.user_id,
-        auth_type: Default::default(),
+        uid: user.user_id,
         name: Some("123".to_string()),
         email: Some(format!("{}@test.com", Uuid::new_v4())),
         password: None,
         icon_url: None,
         openai_key: None,
+        encrypt: None,
       },
     )
     .await

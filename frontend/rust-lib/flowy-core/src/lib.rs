@@ -21,7 +21,8 @@ use flowy_folder2::manager::{FolderInitializeData, FolderManager};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
-use flowy_user::manager::{get_supabase_config, UserManager, UserSessionConfig};
+use flowy_user::manager::{UserManager, UserSessionConfig};
+use flowy_user::services::cloud_config::get_cloud_config;
 use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -149,7 +150,7 @@ impl AppFlowyCore {
     let server_provider = Arc::new(AppFlowyServerProvider::new(
       config.clone(),
       provider_type,
-      get_supabase_config(&store_preference),
+      get_cloud_config(&store_preference),
       Arc::downgrade(&store_preference),
     ));
 

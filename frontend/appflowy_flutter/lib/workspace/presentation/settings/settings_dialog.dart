@@ -102,7 +102,7 @@ class SettingsDialog extends StatelessWidget {
           didOpenUser: didOpenUser,
         );
       case SettingsPage.syncSetting:
-        return const SyncSettingView();
+        return SyncSettingView(userId: user.id.toString());
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();
       default:

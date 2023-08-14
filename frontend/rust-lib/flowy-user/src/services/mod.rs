@@ -1,3 +1,4 @@
+pub mod cloud_config;
 pub mod database;
 pub mod entities;
 pub(crate) mod historical_user;

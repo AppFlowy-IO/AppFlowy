@@ -77,9 +77,6 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
-
-  #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -146,13 +143,13 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
     };
 
     Ok(UpdateUserProfileParams {
-      id: self.id,
-      auth_type: self.auth_type.into(),
+      uid: self.id,
       name,
       email,
       password,
       icon_url,
       openai_key,
+      encrypt: None,
     })
   }
 }

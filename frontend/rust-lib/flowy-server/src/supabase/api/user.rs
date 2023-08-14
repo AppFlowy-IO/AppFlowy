@@ -276,7 +276,7 @@ async fn update_user_profile(
   let exists = !postgrest
     .from(USER_TABLE)
     .select("uid")
-    .eq("uid", params.id.to_string())
+    .eq("uid", params.uid.to_string())
     .execute()
     .await?
     .error_for_status()?
@@ -284,9 +284,8 @@ async fn update_user_profile(
     .await?
     .is_empty();
   if !exists {
-    anyhow::bail!("user uid {} does not exist", params.id);
+    anyhow::bail!("user uid {} does not exist", params.uid);
   }
-
   let mut update_params = serde_json::Map::new();
   if let Some(name) = params.name {
     update_params.insert("name".to_string(), serde_json::json!(name));
@@ -294,12 +293,15 @@ async fn update_user_profile(
   if let Some(email) = params.email {
     update_params.insert("email".to_string(), serde_json::json!(email));
   }
-  let update_payload = serde_json::to_string(&update_params).unwrap();
+  if let Some(encrypt) = params.encrypt {
+    update_params.insert("encrypt".to_string(), serde_json::json!(encrypt));
+  }
 
+  let update_payload = serde_json::to_string(&update_params).unwrap();
   let resp = postgrest
     .from(USER_TABLE)
     .update(update_payload)
-    .eq("uid", params.id.to_string())
+    .eq("uid", params.uid.to_string())
     .execute()
     .await?
     .success_with_body()

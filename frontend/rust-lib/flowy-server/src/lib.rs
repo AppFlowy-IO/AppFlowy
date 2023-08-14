@@ -16,7 +16,8 @@ pub mod supabase;
 pub mod util;
 
 pub trait AppFlowyServer: Send + Sync + 'static {
-  fn enable_sync(&self, _enable: bool) {}
+  fn set_enable_sync(&self, _enable: bool) {}
+  fn set_enable_encrypt(&self, _secret: String) {}
   fn set_sync_device_id(&self, _device_id: &str) {}
   fn user_service(&self) -> Arc<dyn UserService>;
   fn folder_service(&self) -> Arc<dyn FolderCloudService>;

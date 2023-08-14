@@ -60,12 +60,17 @@ pub struct SupabaseServer {
   device_id: Mutex<String>,
   update_tx: RwLock<HashMap<String, RemoteUpdateSender>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
+  encrypt_secret: Mutex<Option<String>>,
 }
 
 impl SupabaseServer {
-  pub fn new(config: SupabaseConfiguration) -> Self {
+  pub fn new(
+    config: SupabaseConfiguration,
+    enable_sync: bool,
+    encrypt_secret: Option<String>,
+  ) -> Self {
     let update_tx = RwLock::new(HashMap::new());
-    let restful_postgres = if config.enable_sync {
+    let restful_postgres = if enable_sync {
       Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
     } else {
       None
@@ -75,6 +80,7 @@ impl SupabaseServer {
       device_id: Default::default(),
       update_tx,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
+      encrypt_secret: Mutex::new(encrypt_secret),
     }
   }
 
@@ -92,9 +98,13 @@ impl SupabaseServer {
 }
 
 impl AppFlowyServer for SupabaseServer {
-  fn enable_sync(&self, enable: bool) {
+  fn set_enable_sync(&self, enable: bool) {
     tracing::info!("supabase sync: {}", enable);
     self.set_enable_sync(enable);
+  }
+
+  fn set_enable_encrypt(&self, secret: String) {
+    *self.encrypt_secret.lock() = Some(secret);
   }
 
   fn set_sync_device_id(&self, device_id: &str) {

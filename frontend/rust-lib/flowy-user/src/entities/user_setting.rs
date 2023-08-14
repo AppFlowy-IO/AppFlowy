@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_user_deps::cloud::UserCloudConfig;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -104,40 +102,38 @@ impl std::default::Default for AppearanceSettingsPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct SupabaseConfigPB {
+pub struct UserCloudConfigPB {
   #[pb(index = 1)]
-  supabase_url: String,
+  enable_sync: bool,
 
   #[pb(index = 2)]
-  key: String,
+  enable_encrypt: bool,
 
   #[pb(index = 3)]
-  jwt_secret: String,
-
-  #[pb(index = 4)]
-  enable_sync: bool,
+  encrypt_secret: String,
 }
 
-impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
-  type Error = FlowyError;
+#[derive(Default, ProtoBuf)]
+pub struct UpdateCloudConfigPB {
+  #[pb(index = 1, one_of)]
+  pub enable_sync: Option<bool>,
 
-  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
-    Ok(SupabaseConfiguration {
-      url: config.supabase_url,
-      anon_key: config.key,
-      jwt_secret: config.jwt_secret,
-      enable_sync: config.enable_sync,
-    })
-  }
+  #[pb(index = 2, one_of)]
+  pub enable_encrypt: Option<bool>,
 }
 
-impl From<SupabaseConfiguration> for SupabaseConfigPB {
-  fn from(value: SupabaseConfiguration) -> Self {
+#[derive(Default, ProtoBuf)]
+pub struct UserSecretPB {
+  #[pb(index = 1)]
+  pub secret: String,
+}
+
+impl From<UserCloudConfig> for UserCloudConfigPB {
+  fn from(value: UserCloudConfig) -> Self {
     Self {
-      supabase_url: value.url,
-      key: value.anon_key,
-      jwt_secret: value.jwt_secret,
       enable_sync: value.enable_sync,
+      enable_encrypt: value.enable_encrypt,
+      encrypt_secret: value.encrypt_secret,
     }
   }
 }

@@ -1,18 +1,19 @@
-use std::convert::TryFrom;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
 
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
+use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::*;
-use crate::manager::{get_supabase_config, UserManager};
+use crate::manager::UserManager;
+use crate::notification::{send_notification, UserNotification};
+use crate::services::cloud_config::{get_cloud_config, save_cloud_config};
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager
@@ -180,23 +181,59 @@ pub async fn third_party_auth_handler(
   data_result_ok(user_profile.into())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn set_supabase_config_handler(
-  data: AFPluginData<SupabaseConfigPB>,
-  manager: AFPluginState<Weak<UserManager>>,
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn set_encrypt_secret_handler(
+  data: AFPluginData<UserSecretPB>,
+  _manager: AFPluginState<Weak<UserManager>>,
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
 ) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let config = SupabaseConfiguration::try_from(data.into_inner())?;
-  manager.save_supabase_config(config);
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let data = data.into_inner();
+  let config = UserCloudConfig::new(false, false, data.secret);
+  save_cloud_config(&store_preferences, config)?;
   Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn get_supabase_config_handler(
+pub async fn set_cloud_config_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+  data: AFPluginData<UpdateCloudConfigPB>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
-) -> DataResult<SupabaseConfigPB, FlowyError> {
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let user_id = manager.get_session()?.user_id;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
-  let config = get_supabase_config(&store_preferences).unwrap_or_default();
+  let update = data.into_inner();
+  let mut config = get_cloud_config(&store_preferences);
+
+  if let Some(enable_sync) = update.enable_sync {
+    manager.cloud_services.set_enable_sync(enable_sync);
+    config.enable_sync = enable_sync;
+  }
+
+  if let Some(enable_encrypt) = update.enable_encrypt {
+    config.enable_encrypt = enable_encrypt;
+    if enable_encrypt {
+      manager
+        .set_encrypt_secret(user_id, config.encrypt_secret.clone())
+        .await?;
+    }
+  }
+
+  let config_pb = UserCloudConfigPB::from(config.clone());
+  save_cloud_config(&store_preferences, config)?;
+  send_notification(&user_id.to_string(), UserNotification::DidUpdateCloudConfig)
+    .payload(config_pb)
+    .send();
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_cloud_config_handler(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<UserCloudConfigPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let config = get_cloud_config(&store_preferences);
   data_result_ok(config.into())
 }
 

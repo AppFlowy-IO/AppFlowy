@@ -174,11 +174,9 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
       Some(cell)
     },
     FieldType::DateTime => {
-      let date = NaiveDateTime::parse_from_str(
-        &format!("{} 00:00:00", group_id).to_string(),
-        "%Y/%m/%d %H:%M:%S",
-      )
-      .unwrap();
+      let date =
+        NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
+          .unwrap();
       let cell = insert_date_cell(date.timestamp(), None, field);
       Some(cell)
     },

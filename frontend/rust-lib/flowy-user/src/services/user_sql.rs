@@ -23,32 +23,18 @@ impl UserTable {
   }
 }
 
-impl From<(SignUpResponse, AuthType)> for UserTable {
-  fn from(params: (SignUpResponse, AuthType)) -> Self {
-    let resp = params.0;
+impl<T> From<(T, AuthType)> for UserTable
+where
+  T: UserAuthResponse,
+{
+  fn from(value: (T, AuthType)) -> Self {
+    let (resp, auth_type) = value;
     UserTable {
-      id: resp.user_id.to_string(),
-      name: resp.name,
-      token: resp.token.unwrap_or_default(),
-      email: resp.email.unwrap_or_default(),
-      workspace: resp.latest_workspace.id,
-      icon_url: "".to_string(),
-      openai_key: "".to_string(),
-      auth_type: params.1 as i32,
-    }
-  }
-}
-
-impl From<(SignInResponse, AuthType)> for UserTable {
-  fn from(params: (SignInResponse, AuthType)) -> Self {
-    let resp = params.0;
-    let auth_type = params.1;
-    UserTable {
-      id: resp.user_id.to_string(),
-      name: resp.name,
-      token: resp.token.unwrap_or_default(),
-      email: resp.email.unwrap_or_default(),
-      workspace: resp.latest_workspace.id,
+      id: resp.user_id().to_string(),
+      name: resp.user_name().to_string(),
+      token: resp.user_token().unwrap_or_default(),
+      email: resp.user_email().unwrap_or_default(),
+      workspace: resp.latest_workspace().id.clone(),
       icon_url: "".to_string(),
       openai_key: "".to_string(),
       auth_type: auth_type as i32,
@@ -85,7 +71,7 @@ pub struct UserTableChangeset {
 impl UserTableChangeset {
   pub fn new(params: UpdateUserProfileParams) -> Self {
     UserTableChangeset {
-      id: params.id.to_string(),
+      id: params.uid.to_string(),
       workspace: None,
       name: params.name,
       email: params.email,
