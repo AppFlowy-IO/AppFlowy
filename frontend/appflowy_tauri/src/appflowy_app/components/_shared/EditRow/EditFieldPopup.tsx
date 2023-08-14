@@ -94,6 +94,16 @@ export const EditFieldPopup = ({
     await controller.duplicateField(cellIdentifier.fieldId);
   };
 
+  const onAddToLeftClick = async () => {
+    onOutsideClick();
+    await controller.addFieldToLeft(cellIdentifier.fieldId);
+  };
+
+  const onAddToRightClick = async () => {
+    onOutsideClick();
+    await controller.addFieldToRight(cellIdentifier.fieldId);
+  };
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -193,13 +203,19 @@ export const EditFieldPopup = ({
           </div>
 
           <div className={'flex flex-col gap-2'}>
-            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+            <div
+              onClick={onAddToLeftClick}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'block h-5 w-5'}>
                 <SkipLeftSvg />
               </i>
               <span>{t('grid.field.insertLeft')}</span>
             </div>
-            <div className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}>
+            <div
+              onClick={onAddToRightClick}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
               <i className={'block h-5 w-5'}>
                 <SkipRightSvg />
               </i>

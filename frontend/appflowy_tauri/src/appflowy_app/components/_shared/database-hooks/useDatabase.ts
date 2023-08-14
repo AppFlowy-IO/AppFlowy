@@ -161,7 +161,6 @@ export const useDatabase = (viewId: string, type?: ViewLayoutPB) => {
           dispatch(databaseActions.updateFilters({ filters: reduxFilters }));
         },
         onSortChanged: (sorts) => {
-          console.log('sorts', sorts);
           dispatch(databaseActions.updateSorts({ sorts: [...sorts] }));
         },
       });

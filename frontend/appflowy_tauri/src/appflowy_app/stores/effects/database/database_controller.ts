@@ -149,6 +149,34 @@ export class DatabaseController {
     return this.backendService.duplicateField(fieldId);
   };
 
+  addFieldToLeft = async (fieldId: string) => {
+    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
+
+    await this.backendService.createField();
+
+    const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
+
+    await this.moveField({
+      fieldId: newFieldId,
+      fromIndex: this.fieldController.fieldInfos.length - 1,
+      toIndex: index,
+    });
+  };
+
+  addFieldToRight = async (fieldId: string) => {
+    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
+
+    await this.backendService.createField();
+
+    const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
+
+    await this.moveField({
+      fieldId: newFieldId,
+      fromIndex: this.fieldController.fieldInfos.length - 1,
+      toIndex: index + 1,
+    });
+  };
+
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
 

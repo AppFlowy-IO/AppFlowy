@@ -32,6 +32,8 @@ import {
   ViewIdPB,
 } from '@/services/backend';
 import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { None } from 'ts-results';
 
 /// A service that wraps the backend service
 export class DatabaseBackendService {
@@ -158,6 +160,12 @@ export class DatabaseBackendService {
     const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: fieldId });
 
     return DatabaseEventDuplicateField(payload);
+  };
+
+  createField = async () => {
+    const fieldController = new TypeOptionController(this.viewId, None);
+
+    await fieldController.initialize();
   };
 
   /// Get all groups in database
