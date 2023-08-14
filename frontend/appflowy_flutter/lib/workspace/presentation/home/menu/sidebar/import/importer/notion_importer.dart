@@ -4,14 +4,16 @@ import 'dart:io';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_panel.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
+
+import '../import_panel.dart';
 
 class NotionImporter {
   NotionImporter({

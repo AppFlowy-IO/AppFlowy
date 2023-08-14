@@ -6,7 +6,9 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/share/import_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_from_notion_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/importer/notion_importer.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -17,8 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:path/path.dart' as p;
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/import_from_notion_widget.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/header/import/importer/notion_importer.dart';
 
 typedef ImportCallback = void Function(
   ImportType? type,
@@ -115,8 +115,8 @@ class ImportPanel extends StatelessWidget {
               );
               await notionImporter.importFromNotion(type, path);
               if (context.mounted) {
-                  FlowyOverlay.pop(context);
-                }
+                FlowyOverlay.pop(context);
+              }
               importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },
