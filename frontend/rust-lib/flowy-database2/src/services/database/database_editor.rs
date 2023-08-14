@@ -27,6 +27,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, type_option_to_pb, DateCellData, SelectOptionCellChangeset,
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
+use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::Filter;
 use crate::services::group::{
   default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
@@ -474,15 +475,17 @@ impl DatabaseEditor {
       None => default_type_option_data_from_type(field_type),
       Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
     };
-    let (index, field) =
-      self
-        .database
-        .lock()
-        .create_field_with_mut(view_id, name, field_type.into(), |field| {
-          field
-            .type_options
-            .insert(field_type.to_string(), type_option_data.clone());
-        });
+    let (index, field) = self.database.lock().create_field_with_mut(
+      view_id,
+      name,
+      field_type.into(),
+      |field| {
+        field
+          .type_options
+          .insert(field_type.to_string(), type_option_data.clone());
+      },
+      default_field_settings_by_layout_map(),
+    );
 
     let _ = self
       .notify_did_insert_database_field(field.clone(), index)
@@ -1101,6 +1104,24 @@ impl DatabaseEditor {
     Ok(csv)
   }
 
+  pub async fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> FlowyResult<Vec<FieldSettings>> {
+    let field_settings_map = self
+      .database
+      .lock()
+      .get_field_settings(view_id, Some(field_ids));
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    Ok(field_settings?)
+  }
+
   fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
     self
       .database
@@ -1188,6 +1209,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
           .type_options
           .insert(field_type.to_string(), type_option_data);
       },
+      default_field_settings_by_layout_map(),
     );
     to_fut(async move { field })
   }

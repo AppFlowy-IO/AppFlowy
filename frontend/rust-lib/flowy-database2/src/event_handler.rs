@@ -891,3 +891,40 @@ pub(crate) async fn get_snapshots_handler(
   let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_field_settings_handler(
+  data: AFPluginData<FieldIdsPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let (view_id, field_ids) = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let field_settings = database_editor
+    .get_field_settings(&view_id, field_ids)
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect::<Vec<FieldSettingsPB>>()
+    .into();
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_field_settings_handler(
+  data: AFPluginData<FieldSettingsChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: FieldSettingsChangesetPB = data.into_inner();
+  let (view_id, field_ids) = params.fields.try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  // database_editor
+  //   .update_field_settings_with_changeset(
+  //     &params.view_id, params.
+  //   )
+  //   .await?; // TODO
+  Ok(())
+}

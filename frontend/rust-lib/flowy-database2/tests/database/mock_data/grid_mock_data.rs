@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
+use flowy_database2::services::field_settings::default_field_settings_by_layout;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -319,6 +320,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Grid),
     ..Default::default()
   };
 

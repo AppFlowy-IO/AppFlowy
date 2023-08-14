@@ -120,6 +120,7 @@ pub fn make_test_calendar() -> DatabaseData {
     field_orders: vec![],
     created_at: 0,
     modified_at: 0,
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Calendar),
   };
 
   DatabaseData { view, fields, rows }

@@ -238,6 +238,7 @@ pub fn make_test_board() -> DatabaseData {
     field_orders: vec![],
     created_at: 0,
     modified_at: 0,
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Board),
   };
   DatabaseData { view, fields, rows }
 }

@@ -25,6 +25,7 @@ use crate::entities::{
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
+use crate::services::field_settings::default_field_settings_by_layout;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser: Send + Sync {
@@ -249,7 +250,13 @@ impl DatabaseManager {
     database_view_id: String,
   ) -> FlowyResult<()> {
     let wdb = self.get_workspace_database().await?;
-    let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+    let mut params = CreateViewParams::new(
+      database_id.clone(),
+      database_view_id,
+      name,
+      layout,
+      default_field_settings_by_layout(layout),
+    );
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
         .resolve_deps_when_create_database_linked_view();
