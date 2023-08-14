@@ -110,18 +110,15 @@ class SelectOptionTag extends StatelessWidget {
             child: FlowyText.medium(
               name,
               overflow: TextOverflow.ellipsis,
-              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           if (onRemove != null)
             FlowyIconButton(
               width: 18.0,
               onPressed: () => onRemove?.call(name),
-              fillColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              icon: FlowySvg(
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              icon: const FlowySvg(
                 FlowySvgs.close_s,
-                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
         ],

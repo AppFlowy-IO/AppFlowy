@@ -69,6 +69,7 @@ class FlowyIconButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
+          hoverColor: hoverColor,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -76,6 +77,7 @@ class FlowyIconButton extends StatelessWidget {
           onPressed: onPressed,
           child: FlowyHover(
             style: HoverStyle(
+              // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
               hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
