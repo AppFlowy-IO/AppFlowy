@@ -11,13 +11,17 @@ import {
   DatabaseEventMoveGroup,
   DatabaseEventMoveGroupRow,
   DatabaseEventMoveRow,
+  DatabaseEventUpdateField,
   DatabaseGroupIdPB,
+  FieldChangesetPB,
   MoveFieldPayloadPB,
   MoveGroupPayloadPB,
   MoveGroupRowPayloadPB,
   MoveRowPayloadPB,
   RowIdPB,
   DatabaseEventUpdateDatabaseSetting,
+  DuplicateFieldPayloadPB,
+  DatabaseEventDuplicateField,
 } from '@/services/backend/events/flowy-database2';
 import {
   GetFieldPayloadPB,
@@ -28,6 +32,8 @@ import {
   ViewIdPB,
 } from '@/services/backend';
 import { FolderEventCloseView } from '@/services/backend/events/flowy-folder2';
+import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
+import { None } from 'ts-results';
 
 /// A service that wraps the backend service
 export class DatabaseBackendService {
@@ -84,6 +90,11 @@ export class DatabaseBackendService {
     return DatabaseEventDeleteRow(payload);
   };
 
+  moveRow = async (fromRowId: string, toRowId: string) => {
+    const payload = MoveRowPayloadPB.fromObject({ view_id: this.viewId, from_row_id: fromRowId, to_row_id: toRowId });
+    return DatabaseEventMoveRow(payload);
+  };
+
   /// Move the row from one group to another group
   /// [toRowId] is used to locate the moving row location.
   moveGroupRow = (fromRowId: string, toGroupId: string, toRowId?: string) => {
@@ -137,6 +148,24 @@ export class DatabaseBackendService {
     });
 
     return DatabaseEventMoveField(payload);
+  };
+
+  changeWidth = (params: { fieldId: string; width: number }) => {
+    const payload = FieldChangesetPB.fromObject({ view_id: this.viewId, field_id: params.fieldId, width: params.width });
+
+    return DatabaseEventUpdateField(payload);
+  };
+
+  duplicateField = (fieldId: string) => {
+    const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: fieldId });
+
+    return DatabaseEventDuplicateField(payload);
+  };
+
+  createField = async () => {
+    const fieldController = new TypeOptionController(this.viewId, None);
+
+    await fieldController.initialize();
   };
 
   /// Get all groups in database

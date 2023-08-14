@@ -4,33 +4,43 @@ import { GroupBySvg } from '../../_shared/svg/GroupBySvg';
 import { PropertiesSvg } from '../../_shared/svg/PropertiesSvg';
 import { SortSvg } from '../../_shared/svg/SortSvg';
 
-export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => {
+export const GridTitleOptionsPopup = ({
+  onClose,
+  onFilterClick,
+  onSortClick,
+}: {
+  onClose?: () => void;
+  onFilterClick: () => void;
+  onSortClick: () => void;
+}) => {
   const items: IPopupItem[] = [
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <FilterSvg />
         </i>
       ),
       onClick: () => {
-        console.log('filter');
+        onFilterClick && onFilterClick();
+        onClose && onClose();
       },
       title: 'Filter',
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <SortSvg />
         </i>
       ),
       onClick: () => {
-        console.log('sort');
+        onSortClick && onSortClick();
+        onClose && onClose();
       },
-      title: 'Sort',
+      title: 'Sort By',
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <PropertiesSvg />
         </i>
       ),
@@ -41,7 +51,7 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
     },
     {
       icon: (
-        <i className={'h-[16px] w-[16px] text-text-title'}>
+        <i className={'h-[16px] w-[16px] flex-shrink-0 text-text-title'}>
           <GroupBySvg />
         </i>
       ),
@@ -52,5 +62,5 @@ export const GridTitleOptionsPopup = ({ onClose }: { onClose?: () => void }) => 
     },
   ];
 
-  return <PopupSelect items={items} className={'absolute top-full z-10 w-fit'} onOutsideClick={onClose} />;
+  return <PopupSelect items={items} className={'absolute top-full z-10 w-[140px]'} onOutsideClick={onClose} />;
 };

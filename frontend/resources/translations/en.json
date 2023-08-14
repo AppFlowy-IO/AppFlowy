@@ -403,7 +403,8 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column"
     },
     "sort": {
       "ascending": "Ascending",
