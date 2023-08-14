@@ -318,7 +318,6 @@ class _CurrentIcon extends StatelessWidget {
             child: FlowySvg(
               FlowySvgData('emoji/$iconUrl'),
               size: _iconSize,
-              overrideColor: false,
             ),
           ),
         ),
@@ -389,7 +388,7 @@ class IconOption extends StatelessWidget {
       borderRadius: Corners.s6Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
       onTap: () => setIcon(iconUrl),
-      child: FlowySvg(emoji, size: _iconSize, overrideColor: false),
+      child: FlowySvg(emoji, size: _iconSize),
     );
   }
 }

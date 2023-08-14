@@ -86,7 +86,6 @@ class SidebarUser extends StatelessWidget {
           backgroundColor: Colors.transparent,
           child: FlowySvg(
             FlowySvgData('emoji/$iconUrl'),
-            overrideColor: false,
           ),
         ),
       ),
