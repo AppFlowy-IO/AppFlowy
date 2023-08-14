@@ -109,6 +109,15 @@ impl DatabaseEditor {
 
   pub async fn close(&self) {}
 
+  pub async fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
+    let view = self.database_views.get_view_editor(view_id).await.ok();
+    if let Some(editor) = view {
+      editor.v_get_layout_type().await
+    } else {
+      DatabaseLayout::default()
+    }
+  }
+
   pub async fn update_view_layout(
     &self,
     view_id: &str,
@@ -1350,10 +1359,6 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       .database
       .lock()
       .insert_layout_setting(view_id, layout_ty, layout_setting);
-  }
-
-  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
-    self.database.lock().views.get_database_view_layout(view_id)
   }
 
   fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout) {

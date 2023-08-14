@@ -17,8 +17,8 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 pub fn make_test_board() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
-  // Iterate through the FieldType to create the corresponding Field.
   let field_settings = default_field_settings_by_layout(DatabaseLayout::Board);
+  // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
       FieldType::RichText => {

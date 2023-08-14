@@ -56,4 +56,3 @@ collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = 
 #appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
 #collab-user = { path = "../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../AppFlowy-Collab/collab-define" }
-

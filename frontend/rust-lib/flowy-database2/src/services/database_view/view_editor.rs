@@ -75,6 +75,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Arc<RowCell>>;
 
+  /// Return the database layout type for the view with given view_id
+  /// The default layout type is [DatabaseLayout::Grid]
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
   fn get_group_setting(&self, view_id: &str) -> Vec<GroupSetting>;
@@ -109,10 +111,6 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     layout_ty: &DatabaseLayout,
     layout_setting: LayoutSetting,
   );
-
-  /// Return the database layout type for the view with given view_id
-  /// The default layout type is [DatabaseLayout::Grid]
-  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout;
 
   fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
 
@@ -862,6 +860,10 @@ impl DatabaseViewEditor {
       events.push(event);
     }
     Some(events)
+  }
+
+  pub async fn v_get_layout_type(&self) -> DatabaseLayout {
+    self.delegate.get_layout_for_view(&self.view_id)
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
