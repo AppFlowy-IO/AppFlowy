@@ -58,6 +58,8 @@ pub trait UserService: Send + Sync {
     user_email: String,
     workspace_id: String,
   ) -> FutureResult<(), Error>;
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 }
 
 pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {

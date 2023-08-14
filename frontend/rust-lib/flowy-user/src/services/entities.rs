@@ -4,11 +4,13 @@ use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use chrono::prelude::*;
 use serde::de::{Deserializer, MapAccess, Visitor};
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use flowy_user_deps::entities::AuthType;
 use flowy_user_deps::entities::{SignInResponse, SignUpResponse, UserWorkspace};
+
+use crate::entities::AuthTypePB;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
@@ -160,3 +162,49 @@ mod tests {
     );
   }
 }
+
+impl From<AuthTypePB> for AuthType {
+  fn from(pb: AuthTypePB) -> Self {
+    match pb {
+      AuthTypePB::Supabase => AuthType::Supabase,
+      AuthTypePB::Local => AuthType::Local,
+      AuthTypePB::SelfHosted => AuthType::SelfHosted,
+    }
+  }
+}
+
+impl From<AuthType> for AuthTypePB {
+  fn from(auth_type: AuthType) -> Self {
+    match auth_type {
+      AuthType::Supabase => AuthTypePB::Supabase,
+      AuthType::Local => AuthTypePB::Local,
+      AuthType::SelfHosted => AuthTypePB::SelfHosted,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HistoricalUsers {
+  pub(crate) users: Vec<HistoricalUser>,
+}
+
+impl HistoricalUsers {
+  pub fn add_user(&mut self, new_user: HistoricalUser) {
+    self.users.retain(|user| user.user_id != new_user.user_id);
+    self.users.push(new_user);
+  }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HistoricalUser {
+  pub user_id: i64,
+  #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
+  pub user_name: String,
+  #[serde(default = "DEFAULT_AUTH_TYPE")]
+  pub auth_type: AuthType,
+  pub sign_in_timestamp: i64,
+  pub storage_path: String,
+  #[serde(default)]
+  pub device_id: String,
+}
+const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

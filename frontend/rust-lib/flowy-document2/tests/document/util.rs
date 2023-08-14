@@ -81,7 +81,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
   builder.set_sync_device(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }

@@ -1,25 +1,23 @@
-use std::convert::TryFrom;
 use std::string::ToString;
 use std::sync::{Arc, Weak};
 
+use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
 use collab_folder::core::FolderData;
-use serde::{Deserialize, Serialize};
+use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use flowy_error::{internal_error, ErrorCode};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_sqlite::schema::{user_table, user_workspace_table};
+use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
-use lib_infra::util::timestamp;
 
-use crate::entities::{AuthTypePB, RepeatedUserWorkspacePB};
 use crate::entities::{UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
@@ -29,12 +27,12 @@ use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
 use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::UserMigrationContext;
 use crate::services::database::UserDB;
-use crate::services::session_serde::Session;
+use crate::services::entities::Session;
+use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
-use crate::services::user_workspace_sql::UserWorkspaceTable;
+use crate::services::user_workspace::save_user_workspaces;
 use crate::{errors::FlowyError, notification::*};
 
-const HISTORICAL_USER: &str = "af_historical_users";
 const SUPABASE_CONFIG_CACHE_KEY: &str = "af_supabase_config";
 
 pub struct UserSessionConfig {
@@ -56,19 +54,22 @@ impl UserSessionConfig {
   }
 }
 
-pub struct UserSession {
+pub struct UserManager {
   database: UserDB,
   session_config: UserSessionConfig,
-  cloud_services: Arc<dyn UserCloudServiceProvider>,
-  store_preferences: Arc<StorePreferences>,
+  pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
+  pub(crate) store_preferences: Arc<StorePreferences>,
+  pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
+  pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
 }
 
-impl UserSession {
+impl UserManager {
   pub fn new(
     session_config: UserSessionConfig,
     cloud_services: Arc<dyn UserCloudServiceProvider>,
     store_preferences: Arc<StorePreferences>,
+    collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Self {
     let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
@@ -78,7 +79,9 @@ impl UserSession {
       session_config,
       cloud_services,
       store_preferences,
+      user_awareness: Arc::new(Default::default()),
       user_status_callback,
+      collab_builder,
     }
   }
 
@@ -86,8 +89,15 @@ impl UserSession {
     Arc::downgrade(&self.store_preferences)
   }
 
+  /// Initializes the user session, including data migrations and user awareness configuration.
+  ///
+  /// This asynchronous function starts by retrieving the current session. If the session is successfully obtained,
+  /// it will attempt a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
+  /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
+  /// completion, a user status callback is invoked to signify that the initialization process is complete.
   pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
     if let Ok(session) = self.get_session() {
+      // Do the user data migration if needed
       match (
         self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
@@ -106,12 +116,16 @@ impl UserSession {
         },
         _ => tracing::error!("Failed to get collab db or sqlite pool"),
       }
-
+      self.set_collab_config(&session);
+      // Init the user awareness
+      self
+        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
+        .await;
       if let Err(e) = user_status_callback
         .did_init(session.user_id, &session.user_workspace, &session.device_id)
         .await
       {
-        tracing::error!("Failed to call did_sign_in callback: {:?}", e);
+        tracing::error!("Failed to call did_init callback: {:?}", e);
       }
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
@@ -121,12 +135,6 @@ impl UserSession {
     self.database.get_connection(uid)
   }
 
-  // The caller will be not 'Sync' before of the return value,
-  // PooledConnection<ConnectionManager> is not sync. You can use
-  // db_connection_pool function to require the ConnectionPool that is 'Sync'.
-  //
-  // let pool = self.db_connection_pool()?;
-  // let conn: PooledConnection<ConnectionManager> = pool.get()?;
   pub fn db_pool(&self, uid: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
     self.database.get_pool(uid)
   }
@@ -138,17 +146,14 @@ impl UserSession {
       .map(|collab_db| Arc::downgrade(&collab_db))
   }
 
-  async fn migrate_local_user_to_cloud(
-    &self,
-    old_user: &UserMigrationContext,
-    new_user: &UserMigrationContext,
-  ) -> Result<Option<FolderData>, FlowyError> {
-    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
-    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
-    Ok(folder_data)
-  }
-
+  /// Performs a user sign-in, initializing user awareness and sending relevant notifications.
+  ///
+  /// This asynchronous function interacts with an external user service to authenticate and sign in a user
+  /// based on provided parameters. Once signed in, it updates the collaboration configuration, logs the user,
+  /// saves their workspaces, and initializes their user awareness.
+  ///
+  /// A sign-in notification is also sent after a successful sign-in.
+  ///
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_in(
     &self,
@@ -163,29 +168,25 @@ impl UserSession {
     let session: Session = response.clone().into();
     let uid = session.user_id;
     let device_id = session.device_id.clone();
-    self.set_current_session(Some(session))?;
-
-    self.log_user(
+    self.set_collab_config(&session);
+    self.set_current_session(Some(session.clone()))?;
+    self.log_historical_user(
       uid,
       &response.device_id,
       response.name.clone(),
       &auth_type,
       self.user_dir(uid),
     );
-
     let user_workspace = response.latest_workspace.clone();
-    save_user_workspaces(
-      self.db_pool(uid)?,
-      response
-        .user_workspaces
-        .iter()
-        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-        .collect(),
-    )?;
+    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
     let user_profile: UserProfile = self
       .save_user(uid, (response, auth_type).into())
       .await?
       .into();
+    let _ = self
+      .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
+      .await;
+
     if let Err(e) = self
       .user_status_callback
       .read()
@@ -195,10 +196,10 @@ impl UserSession {
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
     }
+
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
       .send();
-
     Ok(user_profile)
   }
 
@@ -212,6 +213,13 @@ impl UserSession {
     self.cloud_services.set_auth_type(auth_type.clone());
   }
 
+  /// Manages the user sign-up process, potentially migrating data if necessary.
+  ///
+  /// This asynchronous function interacts with an external authentication service to register and sign up a user
+  /// based on the provided parameters. Following a successful sign-up, it handles configuration updates, logging,
+  /// and saving workspace information. If a user is signing up with a new profile and previously had guest data,
+  /// this function may migrate that data over to the new account.
+  ///
   #[tracing::instrument(level = "debug", skip(self, params))]
   pub async fn sign_up(
     &self,
@@ -241,27 +249,25 @@ impl UserSession {
     };
     let new_session = Session::from(&response);
     self.set_current_session(Some(new_session.clone()))?;
+    self.set_collab_config(&new_session);
     let uid = response.user_id;
-    self.log_user(
+    self.log_historical_user(
       uid,
       &response.device_id,
       response.name.clone(),
       &auth_type,
       self.user_dir(uid),
     );
-    save_user_workspaces(
-      self.db_pool(uid)?,
-      response
-        .user_workspaces
-        .iter()
-        .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-        .collect(),
-    )?;
-    let user_table = self
+    save_user_workspaces(uid, self.db_pool(uid)?, &response.user_workspaces)?;
+    let new_user_profile: UserProfile = self
       .save_user(uid, (response, auth_type.clone()).into())
-      .await?;
-    let new_user_profile: UserProfile = user_table.into();
-
+      .await?
+      .into();
+    let user_awareness_source = if sign_up_context.is_new {
+      UserAwarenessDataSource::Local
+    } else {
+      UserAwarenessDataSource::Remote
+    };
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     if sign_up_context.is_new {
@@ -271,7 +277,6 @@ impl UserSession {
             user_profile: new_user_profile.clone(),
             session: new_session.clone(),
           };
-
           tracing::info!(
             "Migrate old user data from {:?} to {:?}",
             old_user.user_profile.id,
@@ -281,12 +286,15 @@ impl UserSession {
             Ok(folder_data) => sign_up_context.local_folder = folder_data,
             Err(e) => tracing::error!("{:?}", e),
           }
-
           // close the old user db
           let _ = self.database.close(old_user.session.user_id);
         }
       }
     }
+
+    self
+      .initialize_user_awareness(&new_session, user_awareness_source)
+      .await;
 
     let _ = self
       .user_status_callback
@@ -318,6 +326,12 @@ impl UserSession {
     Ok(())
   }
 
+  /// Updates the user's profile with the given parameters.
+  ///
+  /// This function modifies the user's profile based on the provided update parameters. After updating, it
+  /// sends a notification about the change. It's also responsible for handling interactions with the underlying
+  /// database and updates user profile.
+  ///
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn update_user_profile(
     &self,
@@ -366,50 +380,11 @@ impl UserSession {
     Ok(())
   }
 
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
-    let uid = self.user_id()?;
-    if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
-      if let Err(err) = self
-        .user_status_callback
-        .read()
-        .await
-        .open_workspace(uid, &user_workspace)
-        .await
-      {
-        tracing::error!("Open workspace failed: {:?}", err);
-      }
-    }
-    Ok(())
-  }
-
-  pub async fn add_user_to_workspace(
-    &self,
-    user_email: String,
-    to_workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .add_workspace_member(user_email, to_workspace_id)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn remove_user_to_workspace(
-    &self,
-    user_email: String,
-    from_workspace_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .remove_workspace_member(user_email, from_workspace_id)
-      .await?;
-    Ok(())
-  }
-
-  /// Get the user profile from the database
-  /// If the refresh is true, it will try to get the user profile from the server
+  /// Fetches the user profile for the given user ID.
+  ///
+  /// This function retrieves the user profile from the local database. If the `refresh` flag is set to `true`,
+  /// it also attempts to update the user profile from a cloud service, and then sends a notification about the
+  /// profile update.
   pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
     let user_id = uid.to_string();
     let user = user_table::dsl::user_table
@@ -467,7 +442,7 @@ impl UserSession {
   }
 
   pub fn save_supabase_config(&self, config: SupabaseConfiguration) {
-    self.cloud_services.update_supabase_config(&config);
+    self.cloud_services.set_supabase_config(&config);
     let _ = self
       .store_preferences
       .set_object(SUPABASE_CONFIG_CACHE_KEY, config);
@@ -507,78 +482,7 @@ impl UserSession {
     Ok(user)
   }
 
-  pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
-    let conn = self.db_connection(uid).ok()?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::id.eq(workspace_id))
-      .first::<UserWorkspaceTable>(&*conn)
-      .ok()?;
-    Some(UserWorkspace::from(row))
-  }
-
-  pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
-    let conn = self.db_connection(uid)?;
-    let rows = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .load::<UserWorkspaceTable>(&*conn)?;
-
-    if let Ok(service) = self.cloud_services.get_user_service() {
-      if let Ok(pool) = self.db_pool(uid) {
-        tokio::spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
-            let _ = save_user_workspaces(
-              pool,
-              new_user_workspaces
-                .iter()
-                .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-                .collect(),
-            );
-
-            let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
-            send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
-              .payload(repeated_workspace_pbs)
-              .send();
-          }
-        });
-      }
-    }
-    Ok(rows.into_iter().map(UserWorkspace::from).collect())
-  }
-
-  pub async fn save_user_workspaces(
-    &self,
-    uid: i64,
-    user_workspaces: Vec<UserWorkspaceTable>,
-  ) -> FlowyResult<()> {
-    let conn = self.db_connection(uid)?;
-    conn.immediate_transaction(|| {
-      for user_workspace in user_workspaces {
-        if let Err(err) = diesel::update(
-          user_workspace_table::dsl::user_workspace_table
-            .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-        )
-        .set((
-          user_workspace_table::name.eq(&user_workspace.name),
-          user_workspace_table::created_at.eq(&user_workspace.created_at),
-          user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-        ))
-        .execute(&*conn)
-        .and_then(|rows| {
-          if rows == 0 {
-            let _ = diesel::insert_into(user_workspace_table::table)
-              .values(user_workspace)
-              .execute(&*conn)?;
-          }
-          Ok(())
-        }) {
-          tracing::error!("Error saving user workspace: {:?}", err);
-        }
-      }
-      Ok::<(), FlowyError>(())
-    })
-  }
-
-  fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
+  pub(crate) fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
     tracing::debug!("Set current user: {:?}", session);
     match &session {
       None => self
@@ -591,63 +495,6 @@ impl UserSession {
           .map_err(internal_error)?;
       },
     }
-    Ok(())
-  }
-
-  fn log_user(
-    &self,
-    uid: i64,
-    device_id: &str,
-    user_name: String,
-    auth_type: &AuthType,
-    storage_path: String,
-  ) {
-    let mut logger_users = self
-      .store_preferences
-      .get_object::<HistoricalUsers>(HISTORICAL_USER)
-      .unwrap_or_default();
-    logger_users.add_user(HistoricalUser {
-      user_id: uid,
-      user_name,
-      auth_type: auth_type.clone(),
-      sign_in_timestamp: timestamp(),
-      storage_path,
-      device_id: device_id.to_string(),
-    });
-    let _ = self
-      .store_preferences
-      .set_object(HISTORICAL_USER, logger_users);
-  }
-
-  pub fn get_historical_users(&self) -> Vec<HistoricalUser> {
-    let mut users = self
-      .store_preferences
-      .get_object::<HistoricalUsers>(HISTORICAL_USER)
-      .unwrap_or_default()
-      .users;
-    users.sort_by(|a, b| b.sign_in_timestamp.cmp(&a.sign_in_timestamp));
-    users
-  }
-
-  pub fn open_historical_user(
-    &self,
-    uid: i64,
-    device_id: String,
-    auth_type: AuthType,
-  ) -> FlowyResult<()> {
-    let conn = self.db_connection(uid)?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .first::<UserWorkspaceTable>(&*conn)?;
-    let user_workspace = UserWorkspace::from(row);
-    let session = Session {
-      user_id: uid,
-      device_id,
-      user_workspace,
-    };
-    debug_assert!(auth_type.is_local());
-    self.cloud_services.set_auth_type(auth_type);
-    self.set_current_session(Some(session))?;
     Ok(())
   }
 
@@ -672,6 +519,24 @@ impl UserSession {
       Some(session) => Ok(session),
     }
   }
+
+  fn set_collab_config(&self, session: &Session) {
+    let collab_builder = self.collab_builder.upgrade().unwrap();
+    collab_builder.set_sync_device(session.device_id.clone());
+    collab_builder.initialize(session.user_workspace.id.clone());
+    self.cloud_services.set_device_id(&session.device_id);
+  }
+
+  async fn migrate_local_user_to_cloud(
+    &self,
+    old_user: &UserMigrationContext,
+    new_user: &UserMigrationContext,
+  ) -> Result<Option<FolderData>, FlowyError> {
+    let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
+    let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
+    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    Ok(folder_data)
+  }
 }
 
 pub fn get_supabase_config(
@@ -682,82 +547,3 @@ pub fn get_supabase_config(
     .and_then(|s| serde_json::from_str(&s).ok())
     .unwrap_or_else(|| SupabaseConfiguration::from_env().ok())
 }
-
-pub fn save_user_workspaces(
-  pool: Arc<ConnectionPool>,
-  user_workspaces: Vec<UserWorkspaceTable>,
-) -> FlowyResult<()> {
-  let conn = pool.get()?;
-  conn.immediate_transaction(|| {
-    for user_workspace in user_workspaces {
-      if let Err(err) = diesel::update(
-        user_workspace_table::dsl::user_workspace_table
-          .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
-      )
-      .set((
-        user_workspace_table::name.eq(&user_workspace.name),
-        user_workspace_table::created_at.eq(&user_workspace.created_at),
-        user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
-      ))
-      .execute(&*conn)
-      .and_then(|rows| {
-        if rows == 0 {
-          let _ = diesel::insert_into(user_workspace_table::table)
-            .values(user_workspace)
-            .execute(&*conn)?;
-        }
-        Ok(())
-      }) {
-        tracing::error!("Error saving user workspace: {:?}", err);
-      }
-    }
-    Ok::<(), FlowyError>(())
-  })
-}
-
-impl From<AuthTypePB> for AuthType {
-  fn from(pb: AuthTypePB) -> Self {
-    match pb {
-      AuthTypePB::Supabase => AuthType::Supabase,
-      AuthTypePB::Local => AuthType::Local,
-      AuthTypePB::SelfHosted => AuthType::SelfHosted,
-    }
-  }
-}
-
-impl From<AuthType> for AuthTypePB {
-  fn from(auth_type: AuthType) -> Self {
-    match auth_type {
-      AuthType::Supabase => AuthTypePB::Supabase,
-      AuthType::Local => AuthTypePB::Local,
-      AuthType::SelfHosted => AuthTypePB::SelfHosted,
-    }
-  }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct HistoricalUsers {
-  pub(crate) users: Vec<HistoricalUser>,
-}
-
-impl HistoricalUsers {
-  pub fn add_user(&mut self, new_user: HistoricalUser) {
-    self.users.retain(|user| user.user_id != new_user.user_id);
-    self.users.push(new_user);
-  }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct HistoricalUser {
-  pub user_id: i64,
-  #[serde(default = "flowy_user_deps::DEFAULT_USER_NAME")]
-  pub user_name: String,
-  #[serde(default = "DEFAULT_AUTH_TYPE")]
-  pub auth_type: AuthType,
-  pub sign_in_timestamp: i64,
-  pub storage_path: String,
-  #[serde(default)]
-  pub device_id: String,
-}
-
-const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;

@@ -12,9 +12,9 @@ use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
 use crate::supabase::api::{
-  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl, SupabaseCollabStorageImpl,
-  SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl,
-  SupabaseServerServiceImpl,
+  RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
+  SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl, SupabaseServerServiceImpl,
+  SupabaseUserServiceImpl,
 };
 use crate::supabase::entities::RealtimeCollabUpdateEvent;
 use crate::AppFlowyServer;
@@ -102,9 +102,9 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn user_service(&self) -> Arc<dyn UserService> {
-    Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(
-      SupabaseServerServiceImpl(self.restful_postgres.clone()),
-    ))
+    Arc::new(SupabaseUserServiceImpl::new(SupabaseServerServiceImpl(
+      self.restful_postgres.clone(),
+    )))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
