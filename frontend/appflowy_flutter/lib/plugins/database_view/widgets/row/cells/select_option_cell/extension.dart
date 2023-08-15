@@ -6,6 +6,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -113,7 +114,8 @@ class SelectOptionTag extends StatelessWidget {
               color: AFThemeExtension.of(context).textColor,
             ),
           ),
-          if (onRemove != null)
+          if (onRemove != null) ...[
+            const HSpace(2),
             FlowyIconButton(
               width: 18.0,
               onPressed: () => onRemove?.call(name),
@@ -122,6 +124,7 @@ class SelectOptionTag extends StatelessWidget {
                 FlowySvgs.close_s,
               ),
             ),
+          ]
         ],
       ),
     );
