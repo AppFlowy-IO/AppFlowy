@@ -39,7 +39,7 @@ class FlowySvg extends StatelessWidget {
   ///
   /// Defaults to true
   ///
-  final BlendMode blendMode;
+  final BlendMode? blendMode;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,11 @@ class FlowySvg extends StatelessWidget {
     final child = SvgPicture.asset(
       _normalized(),
       colorFilter:
-          iconColor != null ? ColorFilter.mode(iconColor, blendMode)
+          iconColor != null && blendMode != null
+          ? ColorFilter.mode(
+              iconColor,
+              blendMode!,
+            )
           : null,
     );
 
