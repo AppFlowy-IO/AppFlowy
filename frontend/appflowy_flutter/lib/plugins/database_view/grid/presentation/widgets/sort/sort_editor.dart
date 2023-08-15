@@ -101,7 +101,8 @@ class DatabaseSortItem extends StatelessWidget {
           .add(SortEditorEvent.deleteSort(sortInfo)),
       iconPadding: const EdgeInsets.all(5),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      icon: svgWidget("home/close", color: Theme.of(context).iconTheme.color),
+      icon:
+          FlowySvg(FlowySvgs.close_s, color: Theme.of(context).iconTheme.color),
     );
 
     return Row(
