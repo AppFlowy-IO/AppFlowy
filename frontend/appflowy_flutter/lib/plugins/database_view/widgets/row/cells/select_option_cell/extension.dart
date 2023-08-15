@@ -119,7 +119,7 @@ class SelectOptionTag extends StatelessWidget {
             FlowyIconButton(
               width: 18.0,
               onPressed: () => onRemove?.call(name),
-              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              hoverColor: Colors.transparent,
               icon: const FlowySvg(
                 FlowySvgs.close_s,
               ),
