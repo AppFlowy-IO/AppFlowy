@@ -26,6 +26,7 @@ jobs:
           cat CHANGELOG.md | sed -e '/./{H;$!d;}' -e "x;/##\ Version\ ${{ github.ref_name }}/"'!d;' >> ${{ env.RELEASE_NOTES_PATH }}
 
       - name: Create release
+        if: github.run_number == 1
         id: create_release
         uses: actions/create-release@v1
         env:
