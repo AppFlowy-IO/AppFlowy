@@ -24,9 +24,9 @@ use crate::event_map::{
 use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
 use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
 use crate::migrations::migration::UserLocalDataMigration;
-use crate::migrations::UserMigrationContext;
+use crate::migrations::MigrationUser;
 use crate::services::database::UserDB;
-use crate::services::entities::Session;
+use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
 use crate::services::user_sql::{UserTable, UserTableChangeset};
 use crate::services::user_workspace::save_user_workspaces;
@@ -59,6 +59,7 @@ pub struct UserManager {
   pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
+  resumable_sign_up: Mutex<Option<ResumableSignUp>>,
 }
 
 impl UserManager {
@@ -79,24 +80,12 @@ impl UserManager {
       user_awareness: Arc::new(Default::default()),
       user_status_callback,
       collab_builder,
+      resumable_sign_up: Default::default(),
     }
   }
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
     Arc::downgrade(&self.store_preferences)
-  }
-
-  pub async fn set_encrypt_secret(&self, uid: i64, secret: String) -> FlowyResult<()> {
-    self
-      .cloud_services
-      .get_user_service()?
-      .update_user(
-        UserCredentials::from_uid(uid),
-        UpdateUserProfileParams::new(uid).with_encrypt(1),
-      )
-      .await?;
-    self.cloud_services.set_encrypt_secret(secret);
-    Ok(())
   }
 
   /// Initializes the user session, including data migrations and user awareness configuration.
@@ -175,9 +164,10 @@ impl UserManager {
       .get_user_service()?
       .sign_in(params)
       .await?;
-    let session: Session = response.clone().into();
+    let session = Session::from(&response);
     let latest_workspace = response.latest_workspace.clone();
-    let user_profile = self.prepare(response, &auth_type, &session).await?;
+    let user_profile = UserProfile::from((&response, &auth_type));
+    self.prepare_user(&response, &auth_type).await?;
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
@@ -186,12 +176,11 @@ impl UserManager {
       .user_status_callback
       .read()
       .await
-      .did_sign_in(user_profile.id, &latest_workspace, &session.device_id)
+      .did_sign_in(user_profile.uid, &latest_workspace, &session.device_id)
       .await
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
     }
-
     send_sign_in_notification()
       .payload::<UserProfilePB>(user_profile.clone().into())
       .send();
@@ -215,61 +204,92 @@ impl UserManager {
   /// and saving workspace information. If a user is signing up with a new profile and previously had guest data,
   /// this function may migrate that data over to the new account.
   ///
-  #[tracing::instrument(level = "debug", skip(self, params))]
+  #[tracing::instrument(level = "info", skip(self, params))]
   pub async fn sign_up(
     &self,
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    let old_user = {
-      if let Ok(old_session) = self.get_session() {
-        self
-          .get_user_profile(old_session.user_id, false)
-          .await
-          .ok()
-          .map(|user_profile| UserMigrationContext {
-            user_profile,
-            session: old_session,
-          })
-      } else {
-        None
-      }
-    };
-
+    let migration_user = self.get_migration_user(&auth_type).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
+    let user_profile = UserProfile::from((&response, &auth_type));
+    if user_profile.encryption_type.is_need_encrypt_secret() {
+      self
+        .resumable_sign_up
+        .lock()
+        .await
+        .replace(ResumableSignUp {
+          user_profile: user_profile.clone(),
+          migration_user,
+          response,
+          auth_type,
+        });
+    } else {
+      self
+        .continue_sign_up(&user_profile, migration_user, response, &auth_type)
+        .await?;
+    }
+    Ok(user_profile)
+  }
 
-    let mut sign_up_context = SignUpContext {
-      is_new: response.is_new,
-      local_folder: None,
-    };
-    let new_session = Session::from(&response);
-    let user_profile = self.prepare(response, &auth_type, &new_session).await?;
-    let user_awareness_source = if sign_up_context.is_new {
+  #[tracing::instrument(level = "info", skip(self))]
+  pub async fn resume_sign_up(&self) -> Result<(), FlowyError> {
+    let ResumableSignUp {
+      user_profile,
+      migration_user,
+      response,
+      auth_type,
+    } = self
+      .resumable_sign_up
+      .lock()
+      .await
+      .take()
+      .ok_or(FlowyError::new(
+        ErrorCode::Internal,
+        "No resumable sign up data",
+      ))?;
+
+    self
+      .continue_sign_up(&user_profile, migration_user, response, &auth_type)
+      .await?;
+    Ok(())
+  }
+
+  async fn continue_sign_up(
+    &self,
+    user_profile: &UserProfile,
+    migration_user: Option<MigrationUser>,
+    response: SignUpResponse,
+    auth_type: &AuthType,
+  ) -> FlowyResult<()> {
+    self.prepare_user(&response, &auth_type).await?;
+    let user_awareness_source = if response.is_new_user {
       UserAwarenessDataSource::Local
     } else {
       UserAwarenessDataSource::Remote
     };
-    // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
-    // auth type is not [AuthType::Local].
-    if sign_up_context.is_new {
-      if let Some(old_user) = old_user {
-        if old_user.user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
-          let new_user = UserMigrationContext {
-            user_profile: user_profile.clone(),
-            session: new_session.clone(),
-          };
-          tracing::info!(
-            "Migrate old user data from {:?} to {:?}",
-            old_user.user_profile.id,
-            new_user.user_profile.id
-          );
-          match self.migrate_local_user_to_cloud(&old_user, &new_user).await {
-            Ok(folder_data) => sign_up_context.local_folder = folder_data,
-            Err(e) => tracing::error!("{:?}", e),
-          }
-          let _ = self.database.close(old_user.session.user_id);
+    let new_session = Session::from(&response);
+    let mut sign_up_context = SignUpContext {
+      is_new: response.is_new_user,
+      local_folder: None,
+    };
+    if response.is_new_user {
+      if let Some(old_user) = migration_user {
+        let new_user = MigrationUser {
+          user_profile: user_profile.clone(),
+          session: new_session.clone(),
+        };
+        tracing::info!(
+          "Migrate old user data from {:?} to {:?}",
+          old_user.user_profile.uid,
+          new_user.user_profile.uid
+        );
+        match self.migrate_local_user_to_cloud(&old_user, &new_user).await {
+          Ok(folder_data) => sign_up_context.local_folder = folder_data,
+          Err(e) => tracing::error!("{:?}", e),
         }
+        let _ = self.database.close(old_user.session.user_id);
       }
     }
 
@@ -288,7 +308,7 @@ impl UserManager {
         &new_session.device_id,
       )
       .await;
-    Ok(user_profile)
+    Ok(())
   }
 
   #[tracing::instrument(level = "info", skip(self))]
@@ -440,7 +460,7 @@ impl UserManager {
     Ok(())
   }
 
-  async fn save_user(&self, uid: i64, user: UserTable) -> Result<UserTable, FlowyError> {
+  async fn save_user(&self, uid: i64, user: UserTable) -> Result<(), FlowyError> {
     let conn = self.db_connection(uid)?;
     conn.immediate_transaction(|| {
       // delete old user if exists
@@ -448,12 +468,12 @@ impl UserManager {
         .execute(&*conn)?;
 
       let _ = diesel::insert_into(user_table::table)
-        .values(user.clone())
+        .values(user)
         .execute(&*conn)?;
       Ok::<(), FlowyError>(())
     })?;
 
-    Ok(user)
+    Ok(())
   }
 
   pub(crate) fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
@@ -494,28 +514,28 @@ impl UserManager {
     }
   }
 
-  async fn prepare(
+  async fn prepare_user(
     &self,
-    auth_response: impl UserAuthResponse,
+    response: &impl UserAuthResponse,
     auth_type: &AuthType,
-    session: &Session,
-  ) -> Result<UserProfile, FlowyError> {
-    self.set_current_session(Some(session.clone()))?;
-    self.set_collab_config(session);
-    let uid = auth_response.user_id();
+  ) -> Result<(), FlowyError> {
+    let session = Session::from(response);
+    let user_profile = UserProfile::from((response, auth_type));
+    let uid = user_profile.uid;
     self.log_historical_user(
       uid,
-      auth_response.device_id(),
-      auth_response.user_name().to_string(),
+      response.device_id(),
+      response.user_name().to_string(),
       auth_type,
       self.user_dir(uid),
     );
-    save_user_workspaces(uid, self.db_pool(uid)?, auth_response.user_workspaces())?;
-    let user_profile: UserProfile = self
-      .save_user(uid, (auth_response, auth_type.clone()).into())
-      .await?
-      .into();
-    Ok(user_profile)
+    save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
+    self
+      .save_user(uid, (user_profile, auth_type.clone()).into())
+      .await?;
+    self.set_collab_config(&session);
+    self.set_current_session(Some(session))?;
+    Ok(())
   }
 
   fn set_collab_config(&self, session: &Session) {
@@ -527,12 +547,18 @@ impl UserManager {
 
   async fn migrate_local_user_to_cloud(
     &self,
-    old_user: &UserMigrationContext,
-    new_user: &UserMigrationContext,
+    old_user: &MigrationUser,
+    new_user: &MigrationUser,
   ) -> Result<Option<FolderData>, FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
     let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    // Save the old user workspace setting.
+    save_user_workspaces(
+      old_user.session.user_id,
+      self.database.get_pool(old_user.session.user_id)?,
+      &[old_user.session.user_workspace.clone()],
+    )?;
     Ok(folder_data)
   }
 }

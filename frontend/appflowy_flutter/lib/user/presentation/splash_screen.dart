@@ -10,16 +10,6 @@ import '../application/splash_bloc.dart';
 import '../domain/auth_state.dart';
 import 'router.dart';
 
-// [[diagram: splash screen]]
-// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
-// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
-// └────────────────┘           └──────────┘     └────────────┘     │
-//                                                                  │
-//                                                                  ▼
-//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
-//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
-//    └───────────┘            └─────────────┘                 └────────┘
-//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
     Key? key,
@@ -65,25 +55,40 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
+  /// Handles the authentication flow once a user is authenticated.
   Future<void> _handleAuthenticated(
     BuildContext context,
     Authenticated authenticated,
   ) async {
     final userProfile = authenticated.userProfile;
-    final result = await FolderEventGetCurrentWorkspace().send();
-    result.fold(
-      (workspaceSetting) {
-        getIt<SplashRoute>().pushHomeScreen(
-          context,
-          userProfile,
-          workspaceSetting,
+
+    /// After a user is authenticated, this function checks if encryption is required.
+    final result = await UserEventCheckEncryptionSign().send();
+
+    result.fold((check) async {
+      /// If encryption is needed, the user is navigated to the encryption screen.
+      /// Otherwise, it fetches the current workspace for the user and navigates them
+      if (check.isNeedSecret) {
+        getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
+      } else {
+        final result = await FolderEventGetCurrentWorkspace().send();
+        result.fold(
+          (workspaceSetting) {
+            getIt<SplashRoute>().pushHomeScreen(
+              context,
+              userProfile,
+              workspaceSetting,
+            );
+          },
+          (error) async {
+            Log.error(error);
+            getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+          },
         );
-      },
-      (error) async {
-        Log.error(error);
-        getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
-      },
-    );
+      }
+    }, (r) {
+      getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+    });
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {

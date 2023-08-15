@@ -25,6 +25,9 @@ pub(crate) struct UserProfileResponse {
 
   #[serde(deserialize_with = "deserialize_null_or_default")]
   pub latest_workspace_id: String,
+
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub encryption_sign: String,
 }
 
 #[derive(Debug, Deserialize)]

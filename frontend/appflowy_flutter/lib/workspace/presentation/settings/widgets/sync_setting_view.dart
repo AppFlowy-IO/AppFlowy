@@ -88,7 +88,7 @@ class EnableEncrypt extends StatelessWidget {
               children: [
                 IntrinsicHeight(
                   child: Opacity(
-                    opacity: 0.3,
+                    opacity: 0.6,
                     child: FlowyText.medium(
                       LocaleKeys.settings_menu_enableEncryptPrompt.tr(),
                       maxLines: 13,

@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
@@ -42,18 +42,42 @@ pub struct UserProfilePB {
 
   #[pb(index = 7)]
   pub auth_type: AuthTypePB,
+
+  #[pb(index = 8)]
+  pub encryption_sign: String,
+
+  #[pb(index = 9)]
+  pub encryption_ty: EncryptionTypePB,
+}
+
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
+pub enum EncryptionTypePB {
+  NoEncryption = 0,
+  SelfEncryption = 1,
+}
+
+impl Default for EncryptionTypePB {
+  fn default() -> Self {
+    Self::NoEncryption
+  }
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
+    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
+      EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
+      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::SelfEncryption),
+    };
     Self {
-      id: user_profile.id,
+      id: user_profile.uid,
       email: user_profile.email,
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
       auth_type: user_profile.auth_type.into(),
+      encryption_sign,
+      encryption_ty,
     }
   }
 }
@@ -149,7 +173,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       password,
       icon_url,
       openai_key,
-      encrypt: None,
+      encryption_sign: None,
     })
   }
 }

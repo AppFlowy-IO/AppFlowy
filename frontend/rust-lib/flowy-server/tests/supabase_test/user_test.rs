@@ -3,12 +3,12 @@ use uuid::Uuid;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::supabase_test::util::{get_supabase_config, sign_up_param, user_auth_service};
+use crate::supabase_test::util::{get_supabase_ci_config, sign_up_param, user_auth_service};
 
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
 async fn supabase_user_sign_up_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
   let user_service = user_auth_service();
@@ -22,7 +22,7 @@ async fn supabase_user_sign_up_test() {
 
 #[tokio::test]
 async fn supabase_user_sign_up_with_existing_uuid_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
   let user_service = user_auth_service();
@@ -40,7 +40,7 @@ async fn supabase_user_sign_up_with_existing_uuid_test() {
 
 #[tokio::test]
 async fn supabase_update_user_profile_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
   let user_service = user_auth_service();
@@ -61,7 +61,7 @@ async fn supabase_update_user_profile_test() {
         password: None,
         icon_url: None,
         openai_key: None,
-        encrypt: None,
+        encryption_sign: None,
       },
     )
     .await
@@ -78,7 +78,7 @@ async fn supabase_update_user_profile_test() {
 
 #[tokio::test]
 async fn supabase_get_user_profile_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
   let user_service = user_auth_service();
@@ -99,7 +99,7 @@ async fn supabase_get_user_profile_test() {
 
 #[tokio::test]
 async fn supabase_get_not_exist_user_profile_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 

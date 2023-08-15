@@ -368,7 +368,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     to_fut(async move {
       folder_manager
         .initialize_with_new_user(
-          user_profile.id,
+          user_profile.uid,
           &user_profile.token,
           context.is_new,
           context.local_folder,
@@ -377,14 +377,14 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .await?;
       database_manager
         .initialize_with_new_user(
-          user_profile.id,
+          user_profile.uid,
           user_workspace.id.clone(),
           user_workspace.database_storage_id,
         )
         .await?;
 
       document_manager
-        .initialize_with_new_user(user_profile.id, user_workspace.id)
+        .initialize_with_new_user(user_profile.uid, user_workspace.id)
         .await?;
       Ok(())
     })

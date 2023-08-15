@@ -229,7 +229,9 @@
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
-      "enableEncryptPrompt": "Enable encrypt will encrypt your data with this secret. Please make sure you keep the secret in a safe place. If you lose the secret, you will not be able to decrypt your data. Click to copy the secret",
+      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
+      "inputEncryptPrompt": "Please enter your encryption secret",
+      "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account"

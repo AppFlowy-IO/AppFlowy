@@ -7,11 +7,26 @@ use flowy_user_deps::entities::{AuthType, UserWorkspace};
 use lib_infra::util::timestamp;
 
 use crate::manager::UserManager;
+use crate::migrations::MigrationUser;
 use crate::services::entities::{HistoricalUser, HistoricalUsers, Session};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {
+  pub async fn get_migration_user(&self, auth_type: &AuthType) -> Option<MigrationUser> {
+    // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
+    // auth type is not [AuthType::Local].
+    let session = self.get_session().ok()?;
+    let user_profile = self.get_user_profile(session.user_id, false).await.ok()?;
+    if user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
+      Some(MigrationUser {
+        user_profile,
+        session,
+      })
+    } else {
+      None
+    }
+  }
   /// Logs a user's details for historical tracking.
   ///
   /// This function adds a user's details to a local historical tracking system, useful for

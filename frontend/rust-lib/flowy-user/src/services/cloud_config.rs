@@ -8,12 +8,8 @@ use flowy_user_deps::cloud::UserCloudConfig;
 const CLOUD_CONFIG_KEY: &str = "af_user_cloud_config";
 
 fn generate_cloud_config(store_preference: &Arc<StorePreferences>) -> UserCloudConfig {
-  let config = UserCloudConfig {
-    enable_sync: true,
-    enable_encrypt: false,
-    encrypt_secret: generate_encrypt_secret(),
-  };
-  let key = cache_key_for_user();
+  let config = UserCloudConfig::new(generate_encrypt_secret());
+  let key = cache_key_for_cloud_config();
   store_preference.set_object(&key, config.clone()).unwrap();
   config
 }
@@ -22,18 +18,25 @@ pub fn save_cloud_config(
   store_preference: &Arc<StorePreferences>,
   config: UserCloudConfig,
 ) -> FlowyResult<()> {
-  let key = cache_key_for_user();
+  let key = cache_key_for_cloud_config();
   store_preference.set_object(&key, config)?;
   Ok(())
 }
 
-fn cache_key_for_user() -> String {
+fn cache_key_for_cloud_config() -> String {
   CLOUD_CONFIG_KEY.to_string()
 }
 
 pub fn get_cloud_config(store_preference: &Arc<StorePreferences>) -> UserCloudConfig {
-  let key = cache_key_for_user();
+  let key = cache_key_for_cloud_config();
   store_preference
     .get_object::<UserCloudConfig>(&key)
     .unwrap_or_else(|| generate_cloud_config(store_preference))
+}
+
+pub fn get_encrypt_secret(store_preference: &Arc<StorePreferences>) -> Option<String> {
+  let key = cache_key_for_cloud_config();
+  store_preference
+    .get_object::<UserCloudConfig>(&key)
+    .map(|config| config.encrypt_secret)
 }

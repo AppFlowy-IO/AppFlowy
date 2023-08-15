@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
@@ -5,7 +6,6 @@ use serde_json::Value;
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
@@ -183,15 +183,55 @@ pub async fn third_party_auth_handler(
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn set_encrypt_secret_handler(
+  manager: AFPluginState<Weak<UserManager>>,
   data: AFPluginData<UserSecretPB>,
-  _manager: AFPluginState<Weak<UserManager>>,
   store_preferences: AFPluginState<Weak<StorePreferences>>,
 ) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let data = data.into_inner();
-  let config = UserCloudConfig::new(false, false, data.secret);
+
+  let mut config = get_cloud_config(&store_preferences);
+  match data.encryption_ty {
+    EncryptionTypePB::NoEncryption => {
+      tracing::error!("Encryption type is NoEncryption, but set encrypt secret");
+    },
+    EncryptionTypePB::SelfEncryption => {
+      manager.check_encryption_sign_with_secret(
+        data.user_id,
+        &data.encryption_sign,
+        &data.encryption_secret,
+      )?;
+      config.encrypt_secret = data.encryption_secret;
+      config.enable_encrypt = true;
+    },
+  }
+
   save_cloud_config(&store_preferences, config)?;
+  manager.resume_sign_up().await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn check_encrypt_secret_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let uid = manager.get_session()?.user_id;
+  let profile = manager.get_user_profile(uid, false).await?;
+
+  let is_need_secret = match profile.encryption_type {
+    EncryptionType::NoEncryption => false,
+    EncryptionType::SelfEncryption(sign) => {
+      if sign.is_empty() {
+        false
+      } else {
+        manager.check_encryption_sign(uid, &sign).is_err()
+      }
+    },
+  };
+
+  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -201,7 +241,7 @@ pub async fn set_cloud_config_handler(
   store_preferences: AFPluginState<Weak<StorePreferences>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let user_id = manager.get_session()?.user_id;
+  let session = manager.get_session()?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let update = data.into_inner();
   let mut config = get_cloud_config(&store_preferences);
@@ -214,17 +254,22 @@ pub async fn set_cloud_config_handler(
   if let Some(enable_encrypt) = update.enable_encrypt {
     config.enable_encrypt = enable_encrypt;
     if enable_encrypt {
+      let encrypt_sign =
+        manager.generate_encryption_sign(session.user_id, &config.encrypt_secret)?;
       manager
-        .set_encrypt_secret(user_id, config.encrypt_secret.clone())
+        .set_encrypt_secret(session.user_id, config.encrypt_secret.clone(), encrypt_sign)
         .await?;
     }
   }
 
   let config_pb = UserCloudConfigPB::from(config.clone());
   save_cloud_config(&store_preferences, config)?;
-  send_notification(&user_id.to_string(), UserNotification::DidUpdateCloudConfig)
-    .payload(config_pb)
-    .send();
+  send_notification(
+    &session.user_id.to_string(),
+    UserNotification::DidUpdateCloudConfig,
+  )
+  .payload(config_pb)
+  .send();
   Ok(())
 }
 

@@ -167,7 +167,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
       message: LocaleKeys.settings_files_changeLocationTooltips.tr(),
       child: SecondaryTextButton(
         LocaleKeys.settings_files_change.tr(),
-        mode: SecondaryTextButtonMode.small,
+        mode: TextButtonMode.small,
         onPressed: () async {
           // pick the new directory and reload app
           final path = await getIt<FilePickerService>().getDirectoryPath();

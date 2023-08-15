@@ -36,7 +36,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetUserSetting, get_user_setting)
     .event(UserEvent::SetCloudConfig, set_cloud_config_handler)
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
-    .event(UserEvent::SetEncryptSecret, set_encrypt_secret_handler)
+    .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
+    .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
     .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
     .event(
       UserEvent::GetAllUserWorkspaces,
@@ -232,8 +233,11 @@ pub enum UserEvent {
   #[event(output = "UserCloudConfigPB")]
   GetCloudConfig = 14,
 
-  #[event(output = "UserSecretPB")]
-  SetEncryptSecret = 15,
+  #[event(input = "UserSecretPB")]
+  SetEncryptionSecret = 15,
+
+  #[event(output = "UserEncryptionSecretCheckPB")]
+  CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user
   #[event()]

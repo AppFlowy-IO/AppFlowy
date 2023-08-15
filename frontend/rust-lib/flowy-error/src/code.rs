@@ -220,6 +220,9 @@ pub enum ErrorCode {
 
   #[error("Conflict")]
   Conflict = 73,
+
+  #[error("Invalid encrypt secret")]
+  InvalidEncryptSecret = 74,
 }
 
 impl ErrorCode {

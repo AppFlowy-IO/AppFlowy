@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_deps::cloud::UserCloudConfig;
 
+use crate::entities::EncryptionTypePB;
+
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
   #[pb(index = 1)]
@@ -125,7 +127,22 @@ pub struct UpdateCloudConfigPB {
 #[derive(Default, ProtoBuf)]
 pub struct UserSecretPB {
   #[pb(index = 1)]
-  pub secret: String,
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub encryption_secret: String,
+
+  #[pb(index = 3)]
+  pub encryption_ty: EncryptionTypePB,
+
+  #[pb(index = 4)]
+  pub encryption_sign: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserEncryptionSecretCheckPB {
+  #[pb(index = 1)]
+  pub is_need_secret: bool,
 }
 
 impl From<UserCloudConfig> for UserCloudConfigPB {

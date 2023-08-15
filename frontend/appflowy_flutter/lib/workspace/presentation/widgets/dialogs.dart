@@ -216,6 +216,7 @@ class OkCancelButton extends StatelessWidget {
   final String? cancelTitle;
   final double? minHeight;
   final MainAxisAlignment alignment;
+  final TextButtonMode mode;
 
   const OkCancelButton({
     Key? key,
@@ -225,6 +226,7 @@ class OkCancelButton extends StatelessWidget {
     this.cancelTitle,
     this.minHeight,
     this.alignment = MainAxisAlignment.spaceAround,
+    this.mode = TextButtonMode.big,
   }) : super(key: key);
 
   @override
@@ -238,14 +240,14 @@ class OkCancelButton extends StatelessWidget {
             SecondaryTextButton(
               cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: onCancelPressed,
-              mode: SecondaryTextButtonMode.big,
+              mode: mode,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
               okTitle ?? LocaleKeys.button_OK.tr(),
               onPressed: onOkPressed,
-              bigMode: true,
+              mode: mode,
             ),
         ],
       ),

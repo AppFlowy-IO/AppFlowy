@@ -88,10 +88,11 @@ where
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
-        is_new: is_new_user,
+        is_new_user,
         email: Some(user_profile.email),
         token: None,
         device_id: params.device_id,
+        encryption_type: EncryptionType::SelfEncryption(user_profile.encryption_sign),
       })
     })
   }
@@ -102,23 +103,24 @@ where
       let postgrest = try_get_postgrest?;
       let params = third_party_params_from_box_any(params)?;
       let uuid = params.uuid;
-      let user_profile = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
+      let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
         .unwrap();
-      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
+      let user_workspaces = get_user_workspaces(postgrest.clone(), response.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
-        .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+        .find(|user_workspace| user_workspace.id == response.latest_workspace_id)
         .cloned();
 
       Ok(SignInResponse {
-        user_id: user_profile.uid,
+        user_id: response.uid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
         email: None,
         token: None,
         device_id: params.device_id,
+        encrypt_type: EncryptionType::SelfEncryption(response.encryption_sign),
       })
     })
   }
@@ -154,15 +156,16 @@ where
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
       match user_profile_resp {
         None => Ok(None),
-        Some(user_profile_resp) => Ok(Some(UserProfile {
-          id: user_profile_resp.uid,
-          email: user_profile_resp.email,
-          name: user_profile_resp.name,
+        Some(response) => Ok(Some(UserProfile {
+          uid: response.uid,
+          email: response.email,
+          name: response.name,
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
-          workspace_id: user_profile_resp.latest_workspace_id,
+          workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
+          encryption_type: EncryptionType::from_str(&response.encryption_sign)?,
         })),
       }
     })
@@ -204,6 +207,10 @@ where
     todo!()
   }
 
+  fn load_user_folder(&self, uid: i64, encrypt_secret: &str) -> FutureResult<(), Error> {
+    todo!()
+  }
+
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let awareness_id = uid.to_string();
@@ -229,7 +236,7 @@ async fn get_user_profile(
 ) -> Result<Option<UserProfileResponse>, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
-    .select("uid, email, name, latest_workspace_id");
+    .select("uid, email, name, encryption_sign, latest_workspace_id");
 
   match params {
     GetUserProfileParams::Uid(uid) => builder = builder.eq("uid", uid.to_string()),
@@ -245,7 +252,10 @@ async fn get_user_profile(
   match profiles.len() {
     0 => Ok(None),
     1 => Ok(Some(profiles.swap_remove(0))),
-    _ => unreachable!(),
+    _ => {
+      tracing::error!("multiple user profile found");
+      Ok(None)
+    },
   }
 }
 
@@ -293,8 +303,11 @@ async fn update_user_profile(
   if let Some(email) = params.email {
     update_params.insert("email".to_string(), serde_json::json!(email));
   }
-  if let Some(encrypt) = params.encrypt {
-    update_params.insert("encrypt".to_string(), serde_json::json!(encrypt));
+  if let Some(encrypt_sign) = params.encryption_sign {
+    update_params.insert(
+      "encryption_sign".to_string(),
+      serde_json::json!(encrypt_sign),
+    );
   }
 
   let update_payload = serde_json::to_string(&update_params).unwrap();

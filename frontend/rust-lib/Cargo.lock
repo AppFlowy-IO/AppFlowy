@@ -1605,6 +1605,7 @@ dependencies = [
  "chrono",
  "collab",
  "collab-document",
+ "collab-folder",
  "collab-plugins",
  "config",
  "dotenv",

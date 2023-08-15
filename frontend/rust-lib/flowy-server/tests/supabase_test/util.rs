@@ -16,8 +16,8 @@ use flowy_user_deps::cloud::UserService;
 
 use crate::setup_log;
 
-pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
-  dotenv::from_filename("./.env.test").ok()?;
+pub fn get_supabase_ci_config() -> Option<SupabaseConfiguration> {
+  dotenv::from_filename("./.env.ci").ok()?;
   setup_log();
   SupabaseConfiguration::from_env().ok()
 }

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -11,6 +13,7 @@ pub trait UserAuthResponse {
   fn device_id(&self) -> &str;
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
+  fn encryption_sign(&self) -> EncryptionType;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -22,6 +25,7 @@ pub struct SignInResponse {
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+  pub encrypt_type: EncryptionType,
 }
 
 impl UserAuthResponse for SignInResponse {
@@ -52,6 +56,10 @@ impl UserAuthResponse for SignInResponse {
   fn user_email(&self) -> Option<String> {
     self.email.clone()
   }
+
+  fn encryption_sign(&self) -> EncryptionType {
+    self.encrypt_type.clone()
+  }
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -78,10 +86,11 @@ pub struct SignUpResponse {
   pub name: String,
   pub latest_workspace: UserWorkspace,
   pub user_workspaces: Vec<UserWorkspace>,
-  pub is_new: bool,
+  pub is_new_user: bool,
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+  pub encryption_type: EncryptionType,
 }
 
 impl UserAuthResponse for SignUpResponse {
@@ -111,6 +120,10 @@ impl UserAuthResponse for SignUpResponse {
 
   fn user_email(&self) -> Option<String> {
     self.email.clone()
+  }
+
+  fn encryption_sign(&self) -> EncryptionType {
+    self.encryption_type.clone()
   }
 }
 
@@ -169,7 +182,8 @@ impl UserWorkspace {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct UserProfile {
-  pub id: i64,
+  #[serde(rename = "id")]
+  pub uid: i64,
   pub email: String,
   pub name: String,
   pub token: String,
@@ -177,6 +191,52 @@ pub struct UserProfile {
   pub openai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
+  // If the encryption_sign is not empty, which means the user has enabled the encryption.
+  pub encryption_type: EncryptionType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub enum EncryptionType {
+  #[default]
+  NoEncryption,
+  SelfEncryption(String),
+}
+
+impl EncryptionType {
+  pub fn is_need_encrypt_secret(&self) -> bool {
+    match self {
+      EncryptionType::NoEncryption => false,
+      EncryptionType::SelfEncryption(sign) => !sign.is_empty(),
+    }
+  }
+}
+
+impl FromStr for EncryptionType {
+  type Err = serde_json::Error;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    serde_json::from_str(s)
+  }
+}
+
+impl<T> From<(&T, &AuthType)> for UserProfile
+where
+  T: UserAuthResponse,
+{
+  fn from(params: (&T, &AuthType)) -> Self {
+    let (value, auth_type) = params;
+    Self {
+      uid: value.user_id(),
+      email: value.user_email().unwrap_or_default(),
+      name: value.user_name().to_owned(),
+      token: value.user_token().unwrap_or_default(),
+      icon_url: "".to_owned(),
+      openai_key: "".to_owned(),
+      workspace_id: value.latest_workspace().id.to_owned(),
+      auth_type: auth_type.clone(),
+      encryption_type: value.encryption_sign(),
+    }
+  }
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -187,7 +247,7 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
-  pub encrypt: Option<i32>,
+  pub encryption_sign: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -223,8 +283,8 @@ impl UpdateUserProfileParams {
     self
   }
 
-  pub fn with_encrypt(mut self, encrypt: i32) -> Self {
-    self.encrypt = Some(encrypt);
+  pub fn with_encrypt(mut self, encrypt_sign: String) -> Self {
+    self.encryption_sign = Some(encrypt_sign);
     self
   }
 
@@ -234,7 +294,7 @@ impl UpdateUserProfileParams {
       && self.password.is_none()
       && self.icon_url.is_none()
       && self.openai_key.is_none()
-      && self.encrypt.is_none()
+      && self.encryption_sign.is_none()
   }
 }
 

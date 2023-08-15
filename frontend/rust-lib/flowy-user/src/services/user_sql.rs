@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use flowy_sqlite::schema::user_table;
 use flowy_user_deps::entities::*;
 
@@ -14,6 +16,7 @@ pub struct UserTable {
   pub(crate) token: String,
   pub(crate) email: String,
   pub(crate) auth_type: i32,
+  pub(crate) encryption_sign: String,
 }
 
 impl UserTable {
@@ -23,21 +26,20 @@ impl UserTable {
   }
 }
 
-impl<T> From<(T, AuthType)> for UserTable
-where
-  T: UserAuthResponse,
-{
-  fn from(value: (T, AuthType)) -> Self {
-    let (resp, auth_type) = value;
+impl From<(UserProfile, AuthType)> for UserTable {
+  fn from(value: (UserProfile, AuthType)) -> Self {
+    let (user_profile, auth_type) = value;
+    let encryption_sign = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTable {
-      id: resp.user_id().to_string(),
-      name: resp.user_name().to_string(),
-      token: resp.user_token().unwrap_or_default(),
-      email: resp.user_email().unwrap_or_default(),
-      workspace: resp.latest_workspace().id.clone(),
-      icon_url: "".to_string(),
-      openai_key: "".to_string(),
+      id: user_profile.uid.to_string(),
+      name: user_profile.name,
+      workspace: user_profile.workspace_id,
+      icon_url: user_profile.icon_url,
+      openai_key: user_profile.openai_key,
+      token: user_profile.token,
+      email: user_profile.email,
       auth_type: auth_type as i32,
+      encryption_sign,
     }
   }
 }
@@ -45,7 +47,7 @@ where
 impl From<UserTable> for UserProfile {
   fn from(table: UserTable) -> Self {
     UserProfile {
-      id: table.id.parse::<i64>().unwrap_or(0),
+      uid: table.id.parse::<i64>().unwrap_or(0),
       email: table.email,
       name: table.name,
       token: table.token,
@@ -53,6 +55,7 @@ impl From<UserTable> for UserProfile {
       openai_key: table.openai_key,
       workspace_id: table.workspace,
       auth_type: AuthType::from(table.auth_type),
+      encryption_type: EncryptionType::from_str(&table.encryption_sign).unwrap_or_default(),
     }
   }
 }
@@ -82,7 +85,7 @@ impl UserTableChangeset {
 
   pub fn from_user_profile(user_profile: UserProfile) -> Self {
     UserTableChangeset {
-      id: user_profile.id.to_string(),
+      id: user_profile.uid.to_string(),
       workspace: None,
       name: Some(user_profile.name),
       email: Some(user_profile.email),

@@ -7,10 +7,11 @@ use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use flowy_user_deps::entities::AuthType;
-use flowy_user_deps::entities::{SignInResponse, SignUpResponse, UserWorkspace};
+use flowy_user_deps::entities::{AuthType, UserAuthResponse};
+use flowy_user_deps::entities::{SignUpResponse, UserProfile, UserWorkspace};
 
 use crate::entities::AuthTypePB;
+use crate::migrations::MigrationUser;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Session {
@@ -89,12 +90,15 @@ impl<'de> Deserialize<'de> for Session {
   }
 }
 
-impl std::convert::From<SignInResponse> for Session {
-  fn from(resp: SignInResponse) -> Self {
-    Session {
-      user_id: resp.user_id,
-      device_id: resp.device_id,
-      user_workspace: resp.latest_workspace,
+impl<T> From<&T> for Session
+where
+  T: UserAuthResponse,
+{
+  fn from(value: &T) -> Self {
+    Self {
+      user_id: value.user_id(),
+      device_id: value.device_id().to_string(),
+      user_workspace: value.latest_workspace().clone(),
     }
   }
 }
@@ -107,16 +111,6 @@ impl std::convert::From<Session> for String {
         tracing::error!("Serialize session to string failed: {:?}", e);
         "".to_string()
       },
-    }
-  }
-}
-
-impl From<&SignUpResponse> for Session {
-  fn from(value: &SignUpResponse) -> Self {
-    Session {
-      user_id: value.user_id,
-      device_id: value.device_id.clone(),
-      user_workspace: value.latest_workspace.clone(),
     }
   }
 }
@@ -208,3 +202,10 @@ pub struct HistoricalUser {
   pub device_id: String,
 }
 const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;
+
+pub(crate) struct ResumableSignUp {
+  pub user_profile: UserProfile,
+  pub response: SignUpResponse,
+  pub auth_type: AuthType,
+  pub migration_user: Option<MigrationUser>,
+}

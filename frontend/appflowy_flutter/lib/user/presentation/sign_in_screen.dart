@@ -1,7 +1,6 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
@@ -57,7 +56,13 @@ class SignInScreen extends StatelessWidget {
     BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushHomeScreen(context, user),
+      (user) {
+        if (user.encryptionSign.isNotEmpty) {
+          router.pushEncryptionScreen(context, user);
+        } else {
+          router.pushHomeScreen(context, user);
+        }
+      },
       (error) => showSnapBar(context, error.msg),
     );
   }
@@ -205,10 +210,7 @@ class SignInAsGuestButton extends StatelessWidget {
         listenWhen: (previous, current) =>
             previous.openedHistoricalUser != current.openedHistoricalUser,
         listener: (context, state) async {
-          await FlowyRunner.run(
-            FlowyApp(),
-            integrationEnv(),
-          );
+          await runAppFlowy();
         },
         child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
           builder: (context, state) {

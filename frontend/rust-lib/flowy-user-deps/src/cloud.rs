@@ -18,14 +18,15 @@ use crate::entities::{
 pub struct UserCloudConfig {
   pub enable_sync: bool,
   pub enable_encrypt: bool,
+  // The secret used to encrypt the user's data
   pub encrypt_secret: String,
 }
 
 impl UserCloudConfig {
-  pub fn new(enable_sync: bool, enable_encrypt: bool, encrypt_secret: String) -> Self {
+  pub fn new(encrypt_secret: String) -> Self {
     Self {
-      enable_sync,
-      enable_encrypt,
+      enable_sync: true,
+      enable_encrypt: false,
       encrypt_secret,
     }
   }
@@ -77,6 +78,8 @@ pub trait UserService: Send + Sync {
     workspace_id: String,
   ) -> FutureResult<(), Error>;
 
+  /// Download the user's folder from the cloud storage if it's exist after the user sign in or sign up
+  fn load_user_folder(&self, uid: i64, encrypt_secret: &str) -> FutureResult<(), Error>;
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 }
 

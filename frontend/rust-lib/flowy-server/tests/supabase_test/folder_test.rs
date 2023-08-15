@@ -12,12 +12,12 @@ use flowy_user_deps::entities::SignUpResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
-  collab_service, folder_service, get_supabase_config, sign_up_param, user_auth_service,
+  collab_service, folder_service, get_supabase_ci_config, sign_up_param, user_auth_service,
 };
 
 #[tokio::test]
 async fn supabase_create_workspace_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -29,7 +29,7 @@ async fn supabase_create_workspace_test() {
 
 #[tokio::test]
 async fn supabase_get_folder_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -112,7 +112,7 @@ async fn supabase_get_folder_test() {
 /// Finally, it asserts that the duplicated updates don't affect the overall data consistency in Supabase.
 #[tokio::test]
 async fn supabase_duplicate_updates_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -208,7 +208,7 @@ async fn supabase_duplicate_updates_test() {
 
 #[tokio::test]
 async fn supabase_diff_state_vec_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
