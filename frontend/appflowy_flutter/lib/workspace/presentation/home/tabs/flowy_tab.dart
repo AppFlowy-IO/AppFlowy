@@ -52,6 +52,9 @@ class _FlowyTabState extends State<FlowyTab> {
                       visible: _isHovering,
                       child: FlowyIconButton(
                         onPressed: _closeTab,
+                        hoverColor: Theme.of(context).hoverColor,
+                        iconColorOnHover:
+                            Theme.of(context).colorScheme.onSurface,
                         icon: const FlowySvg(
                           FlowySvgs.close_s,
                           size: Size.fromWidth(16),
