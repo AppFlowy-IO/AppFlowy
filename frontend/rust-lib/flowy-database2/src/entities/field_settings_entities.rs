@@ -63,20 +63,20 @@ pub struct RepeatedFieldSettingsPB {
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct FieldSettingsChangesetPB {
   #[pb(index = 1)]
-  pub fields: FieldIdsPB,
+  pub view_id: String,
 
-  #[pb(index = 2, one_of)]
+  #[pb(index = 2)]
+  pub field_id: String,
+
+  #[pb(index = 3, one_of)]
   pub is_visible: Option<bool>,
 }
 
 impl From<FieldSettingsChangesetParams> for FieldSettingsChangesetPB {
   fn from(value: FieldSettingsChangesetParams) -> Self {
-    let fields = FieldIdsPB {
-      view_id: value.view_id,
-      field_ids: value.field_ids.into(),
-    };
     Self {
-      fields,
+      view_id: value.view_id,
+      field_id: value.field_id,
       is_visible: value.is_visible,
     }
   }
@@ -86,11 +86,9 @@ impl TryFrom<FieldSettingsChangesetPB> for FieldSettingsChangesetParams {
   type Error = ErrorCode;
 
   fn try_from(value: FieldSettingsChangesetPB) -> Result<Self, Self::Error> {
-    let (view_id, field_ids) = value.fields.try_into()?;
-
     Ok(FieldSettingsChangesetParams {
-      view_id,
-      field_ids,
+      view_id: value.view_id,
+      field_id: value.field_id,
       is_visible: value.is_visible,
     })
   }

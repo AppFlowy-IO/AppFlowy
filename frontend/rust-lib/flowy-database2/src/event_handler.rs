@@ -14,6 +14,7 @@ use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
 
@@ -918,13 +919,10 @@ pub(crate) async fn update_field_settings_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> FlowyResult<()> {
   let manager = upgrade_manager(manager)?;
-  let params: FieldSettingsChangesetPB = data.into_inner();
-  let (view_id, field_ids) = params.fields.try_into()?;
-  let database_editor = manager.get_database_with_view_id(&view_id).await?;
-  // database_editor
-  //   .update_field_settings_with_changeset(
-  //     &params.view_id, params.
-  //   )
-  //   .await?; // TODO
+  let params: FieldSettingsChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .update_field_settings_with_changeset(params)
+    .await?;
   Ok(())
 }

@@ -37,6 +37,6 @@ impl From<FieldSettings> for FieldSettingsMap {
 
 pub struct FieldSettingsChangesetParams {
   pub view_id: String,
-  pub field_ids: Vec<String>,
+  pub field_id: String,
   pub is_visible: Option<bool>,
 }
