@@ -32,14 +32,19 @@ class FlowySvg extends StatelessWidget {
   /// The size of the svg
   final Size? size;
 
-  /// The color of the svg
+  /// The color of the svg.
+  ///
+  /// This property will not be applied to the underlying svg widget if the
+  /// blend mode is null, but the blend mode defaults to [BlendMode.srcIn]
+  /// if it is not explicitly set to null.
   final Color? color;
 
-  /// If true a color filter is applied to the SVG, otherwise not applied.
+  /// The blend mode applied to the svg.
   ///
-  /// Defaults to true
-  ///
-  final BlendMode blendMode;
+  /// If the blend mode is null then the icon color will not be applied.
+  /// Set both the icon color and blendMode in order to apply color to the
+  /// svg widget.
+  final BlendMode? blendMode;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,11 @@ class FlowySvg extends StatelessWidget {
     final child = SvgPicture.asset(
       _normalized(),
       colorFilter:
-          iconColor != null ? ColorFilter.mode(iconColor, blendMode)
+          iconColor != null && blendMode != null
+          ? ColorFilter.mode(
+              iconColor,
+              blendMode!,
+            )
           : null,
     );
 
