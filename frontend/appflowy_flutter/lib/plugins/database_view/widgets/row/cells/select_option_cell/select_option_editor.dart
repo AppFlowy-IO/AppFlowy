@@ -316,14 +316,18 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         },
         children: [
           if (widget.isSelected)
-            const Padding(
-              padding: EdgeInsets.only(left: 6),
-              child: FlowySvg(FlowySvgs.check_s),
+            Padding(
+              padding: const EdgeInsets.only(left: 6),
+              child: FlowySvg(
+                FlowySvgs.check_s,
+                color: Theme.of(context).iconTheme.color,
+              ),
             ),
           FlowyIconButton(
             onPressed: () => _popoverController.show(),
-            hoverColor: Colors.transparent,
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
+            // If hover color is none, it will use secondary color from the theme, we use [Colors.transparent] to remove the hover color
+            hoverColor: Colors.transparent,
             icon: FlowySvg(
               FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,

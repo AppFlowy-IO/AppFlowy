@@ -110,6 +110,7 @@ class SelectOptionTag extends StatelessWidget {
             child: FlowyText.medium(
               name,
               overflow: TextOverflow.ellipsis,
+              color: AFThemeExtension.of(context).textColor,
             ),
           ),
           if (onRemove != null)
