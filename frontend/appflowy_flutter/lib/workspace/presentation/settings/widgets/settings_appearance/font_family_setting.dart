@@ -1,10 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,7 +123,9 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         ),
         rightIcon:
             buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(name: 'grid/checkmark')
+                ? const FlowySvg(
+                    FlowySvgs.check_s,
+                  )
                 : null,
         onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=

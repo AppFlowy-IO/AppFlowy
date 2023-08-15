@@ -1,7 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +36,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
             key: resetButtonKey,
             width: 24,
             icon: FlowySvg(
-              name: 'common/recover',
+              FlowySvgs.reload_s,
               color: Theme.of(context).iconTheme.color,
             ),
             iconColorOnHover: Theme.of(context).colorScheme.onPrimary,

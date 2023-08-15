@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,7 +58,9 @@ class BrightnessSetting extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(_themeModeLabelText(themeMode)),
         rightIcon: currentThemeMode == themeMode
-            ? const FlowySvg(name: 'grid/checkmark')
+            ? const FlowySvg(
+                FlowySvgs.check_s,
+              )
             : null,
         onTap: () {
           if (currentThemeMode != themeMode) {
