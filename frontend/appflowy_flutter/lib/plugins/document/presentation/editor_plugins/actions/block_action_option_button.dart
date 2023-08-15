@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -57,7 +58,7 @@ class BlockOptionButton extends StatelessWidget {
 
   Widget _buildOptionButton(PopoverController controller) {
     return BlockActionButton(
-      svgName: 'editor/option',
+      svg: FlowySvgs.drag_element_s,
       richMessage: TextSpan(
         children: [
           TextSpan(

@@ -107,7 +107,7 @@ class InlinePageReferenceService {
     for (final view in views) {
       final SelectionMenuItem pageSelectionMenuItem = SelectionMenuItem(
         icon: (editorState, isSelected, style) => SelectableSvgWidget(
-          name: view.iconName,
+          data: view.iconData,
           isSelected: isSelected,
           style: style,
         ),

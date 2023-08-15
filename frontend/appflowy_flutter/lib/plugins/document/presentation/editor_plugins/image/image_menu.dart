@@ -1,8 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +98,7 @@ class _ImageCopyLinkButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: const FlowySvg(
-        name: 'editor/copy',
+        FlowySvgs.copy_s,
         size: Size.square(16),
       ),
     );
@@ -190,9 +191,21 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     );
   }
 
+  FlowySvgData iconFor(String alignment) {
+    switch (alignment) {
+      case 'right':
+        return FlowySvgs.align_right_s;
+      case 'center':
+        return FlowySvgs.align_center_s;
+      case 'left':
+      default:
+        return FlowySvgs.align_left_s;
+    }
+  }
+
   Widget buildAlignIcon() {
     return FlowySvg(
-      name: 'editor/align/$align',
+      iconFor(align),
       size: const Size.square(16),
     );
   }
@@ -214,17 +227,17 @@ class _AlignButtons extends StatelessWidget {
         children: [
           const HSpace(4),
           _AlignButton(
-            align: 'left',
+            icon: FlowySvgs.align_left_s,
             onTap: () => onAlignChanged('left'),
           ),
           const _Divider(),
           _AlignButton(
-            align: 'left',
+            icon: FlowySvgs.align_center_s,
             onTap: () => onAlignChanged('center'),
           ),
           const _Divider(),
           _AlignButton(
-            align: 'left',
+            icon: FlowySvgs.align_right_s,
             onTap: () => onAlignChanged('right'),
           ),
           const HSpace(4),
@@ -236,11 +249,11 @@ class _AlignButtons extends StatelessWidget {
 
 class _AlignButton extends StatelessWidget {
   const _AlignButton({
-    required this.align,
+    required this.icon,
     required this.onTap,
   });
 
-  final String align;
+  final FlowySvgData icon;
   final VoidCallback onTap;
 
   @override
@@ -248,7 +261,7 @@ class _AlignButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: FlowySvg(
-        name: 'editor/align/$align',
+        icon,
         size: const Size.square(16),
       ),
     );
@@ -267,7 +280,7 @@ class _ImageDeleteButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: const FlowySvg(
-        name: 'editor/delete',
+        FlowySvgs.delete_s,
         size: Size.square(16),
       ),
     );

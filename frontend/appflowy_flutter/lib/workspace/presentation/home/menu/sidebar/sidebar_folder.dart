@@ -25,11 +25,12 @@ class SidebarFolder extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // favorite
-            if (favoriteViews.isNotEmpty)
+            if (favoriteViews.isNotEmpty) ...[
               FavoriteFolder(
                 views: favoriteViews,
               ),
-            const VSpace(10),
+              const VSpace(10),
+            ],
             // personal
             PersonalFolder(views: views),
           ],
