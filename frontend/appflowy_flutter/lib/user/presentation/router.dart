@@ -3,7 +3,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy/user/presentation/sign_up_screen.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/user/presentation/welcome_screen.dart';
+import 'package:appflowy/user/presentation/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -115,7 +115,7 @@ class SplashRoute {
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final screen = WelcomeScreen(userProfile: userProfile);
+    final screen = WorkspaceStartScreen(userProfile: userProfile);
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,

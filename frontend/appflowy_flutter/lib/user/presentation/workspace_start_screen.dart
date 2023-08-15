@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/workspace/welcome_bloc.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WorkspaceStartScreen extends StatelessWidget {
   final UserProfilePB userProfile;
-  const WelcomeScreen({
+  const WorkspaceStartScreen({
     Key? key,
     required this.userProfile,
   }) : super(key: key);
@@ -21,9 +21,9 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<WelcomeBloc>(param1: userProfile)
-        ..add(const WelcomeEvent.initial()),
-      child: BlocBuilder<WelcomeBloc, WelcomeState>(
+      create: (_) => getIt<WorkspaceBloc>(param1: userProfile)
+        ..add(const WorkspaceEvent.initial()),
+      child: BlocBuilder<WorkspaceBloc, WorkspaceState>(
         builder: (context, state) {
           return Scaffold(
             body: Padding(
@@ -41,10 +41,13 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _renderBody(WelcomeState state) {
+  Widget _renderBody(WorkspaceState state) {
     final body = state.successOrFailure.fold(
       (_) => _renderList(state.workspaces),
-      (error) => FlowyErrorPage.message(error.toString(), howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),),
+      (error) => FlowyErrorPage.message(
+        error.toString(),
+        howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+      ),
     );
     return body;
   }
@@ -58,8 +61,8 @@ class WelcomeScreen extends StatelessWidget {
         fontSize: 14,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onPressed: () {
-          context.read<WelcomeBloc>().add(
-                WelcomeEvent.createWorkspace(
+          context.read<WorkspaceBloc>().add(
+                WorkspaceEvent.createWorkspace(
                   LocaleKeys.workspace_hint.tr(),
                   "",
                 ),
@@ -85,7 +88,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   void _handleOnPress(BuildContext context, WorkspacePB workspace) {
-    context.read<WelcomeBloc>().add(WelcomeEvent.openWorkspace(workspace));
+    context.read<WorkspaceBloc>().add(WorkspaceEvent.openWorkspace(workspace));
 
     Navigator.of(context).pop(workspace.id);
   }

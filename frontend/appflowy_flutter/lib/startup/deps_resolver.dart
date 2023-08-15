@@ -122,8 +122,8 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
-    (user, _) => WelcomeBloc(
+  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
+    (user, _) => WorkspaceBloc(
       userService: UserBackendService(userId: user.id),
     ),
   );
