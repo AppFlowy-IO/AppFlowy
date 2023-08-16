@@ -10,11 +10,10 @@ import {
   ChildrenPB,
 } from '@/services/backend';
 import { DocumentObserver } from './document_observer';
-import * as Y from 'yjs';
 import { get } from '@/appflowy_app/utils/tool';
 import { blockPB2Node } from '$app/utils/document/block';
 import { Log } from '$app/utils/log';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/name';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME, TEXT_MAP_NAME } from '$app/constants/document/name';
 
 export class DocumentController {
   private readonly backendService: DocumentBackendService;
@@ -26,6 +25,10 @@ export class DocumentController {
   ) {
     this.backendService = new DocumentBackendService(documentId);
     this.observer = new DocumentObserver(documentId);
+  }
+
+  get backend() {
+    return this.backendService;
   }
 
   open = async (): Promise<DocumentData> => {
@@ -44,18 +47,34 @@ export class DocumentController {
         });
       });
       const children: Record<string, string[]> = {};
+      const deltaMap: Record<string, string> = {};
 
       get<Map<string, ChildrenPB>>(document.val, [META_NAME, CHILDREN_MAP_NAME]).forEach((child, key) => {
         children[key] = child.children;
+      });
+
+      get<Map<string, string>>(document.val, [META_NAME, TEXT_MAP_NAME]).forEach((delta, key) => {
+        deltaMap[key] = delta;
       });
       return {
         rootId: document.val.page_id,
         nodes,
         children,
+        deltaMap,
       };
     }
 
     return Promise.reject(document.val);
+  };
+
+  applyTextDelta = async (textId: string, delta: string) => {
+    const result = await this.backendService.applyTextDelta(textId, delta);
+
+    if (result.ok) {
+      return;
+    }
+
+    return Promise.reject(result.err);
   };
 
   applyActions = async (actions: ReturnType<typeof BlockActionPB.prototype.toObject>[]) => {
@@ -65,17 +84,44 @@ export class DocumentController {
   };
 
   getInsertAction = (node: Node, prevId: string | null) => {
-    // Here to make sure the delta is correct
-    this.composeDelta(node);
     return {
       action: BlockActionTypePB.Insert,
       payload: this.getActionPayloadByNode(node, prevId),
     };
   };
 
+  getInsertTextActions = (node: Node, delta: string, prevId: string | null) => {
+    const payload = this.getActionPayloadByNode(node, prevId);
+    const textId = node.externalId;
+
+    return [
+      {
+        action: BlockActionTypePB.InsertText,
+        payload: {
+          ...payload,
+          text_id: textId,
+          delta,
+        },
+      },
+      this.getInsertAction(node, prevId),
+    ];
+  };
+
+  getApplyTextDeltaAction = (node: Node, delta: string) => {
+    const textId = node.externalId;
+    const payload = this.getActionPayloadByNode(node, '');
+
+    return {
+      action: BlockActionTypePB.ApplyTextDelta,
+      payload: {
+        ...payload,
+        text_id: textId,
+        delta,
+      },
+    };
+  };
+
   getUpdateAction = (node: Node) => {
-    // Here to make sure the delta is correct
-    this.composeDelta(node);
     return {
       action: BlockActionTypePB.Update,
       payload: this.getActionPayloadByNode(node, ''),
@@ -152,31 +198,15 @@ export class DocumentController {
       children_id: node.children,
       data: JSON.stringify(node.data),
       ty: node.type,
+      external_id: node.externalId,
+      external_type: node.externalType,
     };
-  };
-
-  private composeDelta = (node: Node) => {
-    const delta = node.data.delta;
-
-    if (!delta) {
-      return;
-    }
-
-    // we use yjs to compose delta, it can make sure the delta is correct
-    // for example, if we insert a text at the end of the line, the delta will be [{ insert: 'hello' }, { insert: " world" }]
-    // but if we use yjs to compose the delta, the delta will be [{ insert: 'hello world' }]
-    const ydoc = new Y.Doc();
-    const ytext = ydoc.getText(node.id);
-
-    ytext.applyDelta(delta);
-    Object.assign(node.data, { delta: ytext.toDelta() });
   };
 
   private updated = (payload: Uint8Array) => {
     if (!this.onDocChange) return;
     const { events, is_remote } = DocEventPB.deserializeBinary(payload);
 
-    Log.debug('DocumentController', 'updated', { events, is_remote });
     events.forEach((blockEvent) => {
       blockEvent.event.forEach((_payload) => {
         this.onDocChange?.({

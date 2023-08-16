@@ -2,8 +2,10 @@ use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
+use serde_json::Value;
+use std::collections::HashMap;
 
-use crate::document::utils::{gen_id, gen_text_block_data};
+use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;
 use crate::FlowyCoreTest;
 
@@ -90,10 +92,33 @@ impl DocumentEventTest {
     children_map.get(&children_id).map(|c| c.children.clone())
   }
 
+  pub async fn get_block_text_delta(&self, doc_id: &str, text_id: &str) -> Option<String> {
+    let document_data = self.get_document_data(doc_id).await;
+    document_data.meta.text_map.get(text_id).cloned()
+  }
+
   pub async fn apply_actions(&self, payload: ApplyActionPayloadPB) {
     let core = &self.inner;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ApplyAction)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn create_text(&self, payload: TextDeltaPayloadPB) {
+    let core = &self.inner;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::CreateText)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn apply_text_delta(&self, payload: TextDeltaPayloadPB) {
+    let core = &self.inner;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::ApplyTextDelta)
       .payload(payload)
       .async_send()
       .await;
@@ -138,6 +163,18 @@ impl DocumentEventTest {
       .parse::<DocumentRedoUndoResponsePB>()
   }
 
+  pub async fn apply_delta_for_block(&self, document_id: &str, block_id: &str, delta: String) {
+    let block = self.get_block(document_id, block_id).await;
+    let text_id = block.unwrap().external_id.unwrap();
+    self
+      .apply_text_delta(TextDeltaPayloadPB {
+        document_id: document_id.to_string(),
+        text_id,
+        delta: Some(delta),
+      })
+      .await;
+  }
+
   /// Insert a new text block at the index of parent's children.
   /// return the new block id.
   pub async fn insert_index(
@@ -171,7 +208,18 @@ impl DocumentEventTest {
     };
 
     let new_block_id = gen_id();
-    let data = gen_text_block_data(&text);
+    let data = gen_text_block_data();
+
+    let external_id = gen_id();
+    let external_type = "text".to_string();
+
+    self
+      .create_text(TextDeltaPayloadPB {
+        document_id: document_id.to_string(),
+        text_id: external_id.clone(),
+        delta: Some(gen_delta_str(&text)),
+      })
+      .await;
 
     let new_block = BlockPB {
       id: new_block_id.clone(),
@@ -179,6 +227,8 @@ impl DocumentEventTest {
       data,
       parent_id: parent_id.clone(),
       children_id: gen_id(),
+      external_id: Some(external_id),
+      external_type: Some(external_type),
     };
     let action = BlockActionPB {
       action: BlockActionTypePB::Insert,
@@ -186,6 +236,8 @@ impl DocumentEventTest {
         block: new_block,
         prev_id,
         parent_id: Some(parent_id),
+        text_id: None,
+        delta: None,
       },
     };
     let payload = ApplyActionPayloadPB {
@@ -196,12 +248,12 @@ impl DocumentEventTest {
     new_block_id
   }
 
-  pub async fn update(&self, document_id: &str, block_id: &str, text: &str) {
+  pub async fn update_data(&self, document_id: &str, block_id: &str, data: HashMap<String, Value>) {
     let block = self.get_block(document_id, block_id).await.unwrap();
-    let data = gen_text_block_data(text);
+
     let new_block = {
       let mut new_block = block.clone();
-      new_block.data = data;
+      new_block.data = serde_json::to_string(&data).unwrap();
       new_block
     };
     let action = BlockActionPB {
@@ -210,6 +262,8 @@ impl DocumentEventTest {
         block: new_block,
         prev_id: None,
         parent_id: Some(block.parent_id.clone()),
+        text_id: None,
+        delta: None,
       },
     };
     let payload = ApplyActionPayloadPB {
@@ -228,6 +282,8 @@ impl DocumentEventTest {
         block,
         prev_id: None,
         parent_id: Some(parent_id),
+        text_id: None,
+        delta: None,
       },
     };
     let payload = ApplyActionPayloadPB {

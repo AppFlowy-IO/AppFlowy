@@ -91,6 +91,36 @@ pub(crate) async fn apply_action_handler(
   Ok(())
 }
 
+/// Handler for creating a text
+pub(crate) async fn create_text_handler(
+  data: AFPluginData<TextDeltaPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let params: TextDeltaParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_document(&doc_id).await?;
+  let document = document.lock();
+  document.create_text(&params.text_id, params.delta);
+  Ok(())
+}
+
+/// Handler for applying delta to a text
+pub(crate) async fn apply_text_delta_handler(
+  data: AFPluginData<TextDeltaPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let params: TextDeltaParams = data.into_inner().try_into()?;
+  let doc_id = params.document_id;
+  let document = manager.get_document(&doc_id).await?;
+  let text_id = params.text_id;
+  let delta = params.delta;
+  let document = document.lock();
+  document.apply_text_delta(&text_id, delta);
+  Ok(())
+}
+
 pub(crate) async fn convert_data_to_document(
   data: AFPluginData<ConvertDataPayloadPB>,
 ) -> DataResult<DocumentDataPB, FlowyError> {
@@ -198,6 +228,8 @@ impl From<BlockActionTypePB> for BlockActionType {
       BlockActionTypePB::Update => Self::Update,
       BlockActionTypePB::Delete => Self::Delete,
       BlockActionTypePB::Move => Self::Move,
+      BlockActionTypePB::InsertText => Self::InsertText,
+      BlockActionTypePB::ApplyTextDelta => Self::ApplyTextDelta,
     }
   }
 }
@@ -205,9 +237,11 @@ impl From<BlockActionTypePB> for BlockActionType {
 impl From<BlockActionPayloadPB> for BlockActionPayload {
   fn from(pb: BlockActionPayloadPB) -> Self {
     Self {
-      block: pb.block.into(),
+      block: Some(pb.block.into()),
       parent_id: pb.parent_id,
       prev_id: pb.prev_id,
+      text_id: pb.text_id,
+      delta: pb.delta,
     }
   }
 }
@@ -224,8 +258,8 @@ impl From<BlockPB> for Block {
       children: pb.children_id,
       parent: pb.parent_id,
       data,
-      external_id: None,
-      external_type: None,
+      external_id: pb.external_id,
+      external_type: pb.external_type,
     }
   }
 }

@@ -1,3 +1,4 @@
+use collab_document::blocks::json_str_to_hashmap;
 use flowy_document2::parser::json::parser::JsonToDocumentParser;
 use serde_json::json;
 
@@ -100,4 +101,23 @@ fn test_parser_nested_children() {
   let page_first_child = document.blocks.get(page_first_child_id).unwrap();
   assert_eq!(page_first_child.ty, "paragraph");
   assert_eq!(page_first_child.parent_id, page_id.to_owned());
+}
+
+#[tokio::test]
+async fn parse_readme_test() {
+  let json = include_str!("../../../../flowy-core/assets/read_me.json");
+  let document = JsonToDocumentParser::json_str_to_document(json).unwrap();
+
+  document.blocks.iter().for_each(|(_, block)| {
+    let data = json_str_to_hashmap(&block.data).ok();
+    assert!(data.is_some());
+    if let Some(data) = data {
+      assert!(data.get("delta").is_none());
+    }
+
+    if let Some(external_id) = &block.external_id {
+      let text = document.meta.text_map.get(external_id);
+      assert!(text.is_some());
+    }
+  });
 }

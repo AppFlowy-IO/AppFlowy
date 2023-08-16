@@ -21,7 +21,6 @@ async fn restore_document() {
   let data_a = document_a.lock().get_document_data().unwrap();
   assert_eq!(data_a, data);
 
-  // open a document
   let data_b = test
     .get_document(&doc_id)
     .await

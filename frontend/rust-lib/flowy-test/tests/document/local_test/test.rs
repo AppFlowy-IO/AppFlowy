@@ -1,6 +1,8 @@
 use flowy_document2::entities::*;
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::document::utils::*;
+use serde_json::{json, Value};
+use std::collections::HashMap;
 
 #[tokio::test]
 async fn get_document_event_test() {
@@ -70,20 +72,49 @@ async fn insert_text_block_test() {
   let block = test.get_block(&view.id, &block_id).await;
   assert!(block.is_some());
   let block = block.unwrap();
-  let data = gen_text_block_data(text);
-  assert_eq!(block.data, data);
+  assert!(block.external_id.is_some());
+  let external_id = block.external_id.unwrap();
+  let delta = test.get_block_text_delta(&view.id, &external_id).await;
+  assert_eq!(delta.unwrap(), json!([{ "insert": text }]).to_string());
 }
 
 #[tokio::test]
-async fn update_text_block_test() {
+async fn update_block_test() {
   let test = DocumentEventTest::new().await;
   let view = test.create_document().await;
   let block_id = test.insert_index(&view.id, "Hello World", 1, None).await;
-  let update_text = "Hello World 2";
-  test.update(&view.id, &block_id, update_text).await;
+  let data: HashMap<String, Value> = HashMap::from([
+    (
+      "bg_color".to_string(),
+      serde_json::to_value("#000000").unwrap(),
+    ),
+    (
+      "text_color".to_string(),
+      serde_json::to_value("#ffffff").unwrap(),
+    ),
+  ]);
+  test.update_data(&view.id, &block_id, data.clone()).await;
   let block = test.get_block(&view.id, &block_id).await;
   assert!(block.is_some());
   let block = block.unwrap();
-  let update_data = gen_text_block_data(update_text);
-  assert_eq!(block.data, update_data);
+  assert_eq!(block.data, serde_json::to_string(&data).unwrap());
+}
+
+#[tokio::test]
+async fn apply_text_delta_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+  let text = "Hello World";
+  let block_id = test.insert_index(&view.id, text, 1, None).await;
+  let update_delta = json!([{ "retain": 5 }, { "insert": "!" }]).to_string();
+  test
+    .apply_delta_for_block(&view.id, &block_id, update_delta)
+    .await;
+  let block = test.get_block(&view.id, &block_id).await;
+  let text_id = block.unwrap().external_id.unwrap();
+  let block_delta = test.get_block_text_delta(&view.id, &text_id).await;
+  assert_eq!(
+    block_delta.unwrap(),
+    json!([{ "insert": "Hello! World" }]).to_string()
+  );
 }

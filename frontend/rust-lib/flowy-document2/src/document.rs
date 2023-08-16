@@ -52,11 +52,7 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
   document
     .lock()
     .subscribe_block_changed(move |events, is_remote| {
-      tracing::trace!(
-        "document changed: {:?}, from remote: {}",
-        &events,
-        is_remote
-      );
+      tracing::trace!("document changed");
       // send notification to the client.
       send_notification(&doc_id, DocumentNotification::DidReceiveUpdate)
         .payload::<DocEventPB>((events, is_remote).into())

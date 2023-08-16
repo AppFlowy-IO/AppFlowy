@@ -115,8 +115,9 @@ export class AuthBackendService {
     return UserEventSignIn(payload);
   };
 
-  signUp = (params: { name: string; email: string; password: string }) => {
-    const payload = SignUpPayloadPB.fromObject({ name: params.name, email: params.email, password: params.password });
+  signUp = (params: { name: string; email: string; password: string; }) => {
+    const deviceId = nanoid(8);
+    const payload = SignUpPayloadPB.fromObject({ name: params.name, email: params.email, password: params.password, device_id: deviceId });
 
     return UserEventSignUp(payload);
   };

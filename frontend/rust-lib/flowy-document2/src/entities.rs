@@ -166,12 +166,20 @@ pub struct BlockPB {
 
   #[pb(index = 5)]
   pub children_id: String,
+
+  #[pb(index = 6, one_of)]
+  pub external_id: Option<String>,
+
+  #[pb(index = 7, one_of)]
+  pub external_type: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
 pub struct MetaPB {
   #[pb(index = 1)]
   pub children_map: HashMap<String, ChildrenPB>,
+  #[pb(index = 2)]
+  pub text_map: HashMap<String, String>,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -199,6 +207,12 @@ pub struct BlockActionPayloadPB {
 
   #[pb(index = 3, one_of)]
   pub parent_id: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub text_id: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub delta: Option<String>,
 }
 
 #[derive(ProtoBuf_Enum, Debug)]
@@ -207,6 +221,8 @@ pub enum BlockActionTypePB {
   Update = 1,
   Delete = 2,
   Move = 3,
+  InsertText = 4,
+  ApplyTextDelta = 5,
 }
 
 impl Default for BlockActionTypePB {
@@ -382,5 +398,38 @@ impl From<SyncState> for DocumentSyncStatePB {
       is_syncing: value.is_syncing(),
       is_finish: value.is_sync_finished(),
     }
+  }
+}
+
+#[derive(Default, ProtoBuf, Debug)]
+pub struct TextDeltaPayloadPB {
+  #[pb(index = 1)]
+  pub document_id: String,
+
+  #[pb(index = 2)]
+  pub text_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub delta: Option<String>,
+}
+
+pub struct TextDeltaParams {
+  pub document_id: String,
+  pub text_id: String,
+  pub delta: String,
+}
+
+impl TryInto<TextDeltaParams> for TextDeltaPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<TextDeltaParams, Self::Error> {
+    let document_id =
+      NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    let text_id = NotEmptyStr::parse(self.text_id).map_err(|_| ErrorCode::TextIdIsEmpty)?;
+    let delta = self.delta.map_or_else(|| "".to_string(), |delta| delta);
+    Ok(TextDeltaParams {
+      document_id: document_id.0,
+      text_id: text_id.0,
+      delta,
+    })
   }
 }
