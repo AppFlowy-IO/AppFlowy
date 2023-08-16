@@ -135,6 +135,7 @@ class Body extends StatelessWidget {
       child: isMobilePlatform
           ? const FlowySvg(
               FlowySvgs.flowy_logo_xl,
+              blendMode: null,
             )
           : SingleChildScrollView(
               child: Stack(
