@@ -153,7 +153,6 @@ export namespace Database {
     modifiedAt?: number;  
     height?: number;
     visibility?: boolean;
-    cells?: Record<string, UndeterminedCell>;
   }
   
   export interface Cell {
@@ -161,6 +160,21 @@ export namespace Database {
     fieldId: string;
     fieldType: FieldType;
     data: unknown;
+  }
+
+  export interface TextCell extends Cell {
+    fieldType: FieldType.RichText;
+    data: string;
+  }
+
+  export interface NumberCell extends Cell {
+    fieldType: FieldType.Number;
+    data: string;
+  }
+
+  export interface CheckboxCell extends Cell {
+    fieldType: FieldType.Checkbox;
+    data: 'Yes' | 'No';
   }
 
   export interface UrlCell extends Cell {
@@ -179,10 +193,8 @@ export namespace Database {
   }
   
   export interface SelectCellData {
-    /**
-     * link to [SelectOption's id property]{@link SelectOption#id}.
-     */
-    selectOptions?: string[];
+    options?: SelectOption[];
+    selectOptions?: SelectOption[];
   }
   
   export interface DateTimeCell extends Cell {
@@ -195,15 +207,6 @@ export namespace Database {
     time?: string;
     timestamp?: number;
     includeTime?: boolean;
-  }
-
-  export interface CheckboxCell extends Cell {
-    fieldType: FieldType.Checkbox;
-    data: CheckboxCellData;
-  }
-  
-  export interface CheckboxCellData {
-    isSelected?: boolean;
   }
 
   export interface ChecklistCell extends Cell {
@@ -219,5 +222,5 @@ export namespace Database {
     percentage?: number;
   }
 
-  export type UndeterminedCell = DateTimeCell | SelectCell | CheckboxCell | UrlCell | ChecklistCell | Cell;
+  export type UndeterminedCell = TextCell | NumberCell | DateTimeCell | SelectCell | CheckboxCell | UrlCell | ChecklistCell;
 }

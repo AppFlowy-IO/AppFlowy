@@ -1,4 +1,4 @@
-import { FieldPB } from '@/services/backend';
+import { CellPB, ChecklistCellDataPB, DateCellDataPB, FieldPB, FieldType, SelectOptionCellDataPB, URLCellDataPB } from '@/services/backend';
 import type { Database } from './types';
 
 export const fieldPbToField = (fieldPb: FieldPB): Database.Field => ({
@@ -9,3 +9,54 @@ export const fieldPbToField = (fieldPb: FieldPB): Database.Field => ({
   width: fieldPb.width,
   isPrimary: fieldPb.is_primary,
 });
+
+const toDateCellData = (pb: DateCellDataPB): Database.DateTimeCellData => ({
+  date: pb.date,
+  time: pb.time,
+  timestamp: pb.timestamp,
+  includeTime: pb.include_time,
+});
+
+const toSelectCellData = (pb: SelectOptionCellDataPB): Database.SelectCellData => ({
+  options: pb.options,
+  selectOptions: pb.select_options,
+});
+
+const toURLCellData = (pb: URLCellDataPB): Database.UrlCellData => ({
+  url: pb.url,
+  content: pb.content,
+});
+
+const toChecklistCellData = (pb: ChecklistCellDataPB): Database.ChecklistCellData => ({
+  selectedOptions: pb.selected_options.map(({ id }) => id),
+  percentage: pb.percentage,
+});
+
+function parseCellData(fieldType: FieldType, data: Uint8Array) {
+  switch (fieldType) {
+    case FieldType.RichText:
+    case FieldType.Number:
+    case FieldType.Checkbox:
+      return new TextDecoder().decode(data);
+    case FieldType.DateTime:
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return toDateCellData(DateCellDataPB.deserializeBinary(data));
+    case FieldType.SingleSelect:
+    case FieldType.MultiSelect:
+      return toSelectCellData(SelectOptionCellDataPB.deserializeBinary(data));
+    case FieldType.URL:
+      return toURLCellData(URLCellDataPB.deserializeBinary(data));
+    case FieldType.Checklist:
+      return toChecklistCellData(ChecklistCellDataPB.deserializeBinary(data));
+  }
+}
+
+export const cellPbToCell = (cellPb: CellPB, fieldType: FieldType): Database.UndeterminedCell => {
+  return {
+    rowId: cellPb.row_id,
+    fieldId: cellPb.field_id,
+    fieldType: fieldType,
+    data: parseCellData(fieldType, cellPb.data),
+  };
+};

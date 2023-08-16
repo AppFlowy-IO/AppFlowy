@@ -1,5 +1,5 @@
-import { Database } from '$app/interfaces/database';
-import { Divider, Grid , IconButton, Menu, MenuItem, OutlinedInput } from '@mui/material';
+import { Divider, Grid, IconButton, Menu, MenuItem, OutlinedInput } from '@mui/material';
+import { t } from 'i18next';
 import { ChangeEventHandler, FC, useCallback, useRef, useState } from 'react';
 import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
 import { ReactComponent as HideSvg } from '$app/assets/hide.svg';
@@ -8,27 +8,38 @@ import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as LeftSvg } from '$app/assets/left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/right.svg';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { database } from '$app/stores/database';
-import * as service from '$app/stores/database/bd_svc';
+import { Database } from '$app/interfaces/database';
+import * as service from '$app/components/database/database_bd_svc';
 import { FieldTypeSvg } from './FieldTypeSvg';
+import { FieldTypeText } from './FieldTypeText';
+import { useViewId } from '../../database.hooks';
 
-const ActionSvgMap = {
-  'hide': HideSvg,
-  'duplicate': CopySvg,
-  'delete': DeleteSvg,
-  'insert-left': LeftSvg,
-  'insert-right': RightSvg,
+enum FieldAction {
+  Hide = 'hide',
+  Duplicate = 'duplicate',
+  Delete = 'delete',
+  InsertLeft = 'insertLeft',
+  InsertRight = 'insertRight',
 }
 
-const TwoColumnActions = [
-  ['hide', 'duplicate', 'delete'] as const,
-  ['insert-left', 'insert-right'] as const,
+const FieldActionSvgMap = {
+  [FieldAction.Hide]: HideSvg,
+  [FieldAction.Duplicate]: CopySvg,
+  [FieldAction.Delete]: DeleteSvg,
+  [FieldAction.InsertLeft]: LeftSvg,
+  [FieldAction.InsertRight]: RightSvg,
+}
+
+const TwoColumnActions: FieldAction[][] = [
+  [FieldAction.Hide, FieldAction.Duplicate, FieldAction.Delete],
+  [FieldAction.InsertLeft, FieldAction.InsertRight],
 ];
 
 export const GridField: FC<{
   field: Database.Field;
 }> = ({ field }) => {
   const anchorEl = useRef<HTMLDivElement>(null);
+  const viewId = useViewId();
   const [open, setOpen] = useState(false);
   const [inputtingName, setInputtingName] = useState(field.name);
 
@@ -47,7 +58,7 @@ export const GridField: FC<{
   const handleBlur = useCallback(async () => {
     if (inputtingName !== field.name) {
       try {
-        await service.updateField(database.viewId, field.id, {
+        await service.updateField(viewId, field.id, {
           name: inputtingName,
         });
       } catch (e) {
@@ -55,7 +66,7 @@ export const GridField: FC<{
         console.error(`change field ${field.id} name from '${field.name}' to ${inputtingName} fail`, e);
       }
     }
-  }, [field, inputtingName]);
+  }, [viewId, field, inputtingName]);
 
   return (
     <div
@@ -86,7 +97,7 @@ export const GridField: FC<{
         <MenuItem dense>
           <FieldTypeSvg type={field.type} className="text-base mr-2" />
           <span className="flex-1 text-xs font-medium">
-            {field.type}
+            {FieldTypeText(field.type)}
           </span>
           <MoreSvg className="text-base" />
         </MenuItem>
@@ -95,12 +106,12 @@ export const GridField: FC<{
           {TwoColumnActions.map((column, index) => (
             <Grid key={index} item xs={6}>
               {column.map(action => {
-                const ActionSvg = ActionSvgMap[action];
+                const ActionSvg = FieldActionSvgMap[action];
 
                 return (
                   <MenuItem key={action} dense>
                     <ActionSvg className="mr-2 text-base" />
-                    {action}
+                    {t(`grid.field.${action}`)}
                   </MenuItem>
                 )
               })}

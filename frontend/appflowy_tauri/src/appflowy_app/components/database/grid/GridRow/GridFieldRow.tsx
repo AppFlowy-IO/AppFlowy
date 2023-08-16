@@ -1,11 +1,11 @@
 import { VirtualItem } from '@tanstack/react-virtual';
+import { t } from 'i18next';
 import { FC } from 'react';
-import { useSnapshot } from 'valtio';
 import { Button } from '@mui/material';
-import { database } from '$app/stores/database';
-import { ReactComponent as AddSvg } from '$app/assets/add.svg';
-import * as service from '$app/stores/database/bd_svc';
 import { FieldType } from '@/services/backend';
+import { ReactComponent as AddSvg } from '$app/assets/add.svg';
+import * as service from '$app/components/database/database_bd_svc';
+import { useDatabase } from '../../database.hooks';
 import { GridField } from '../GridField';
 
 export const GridFieldRow: FC<{
@@ -13,10 +13,9 @@ export const GridFieldRow: FC<{
   before: number;
   after: number;
 }> = ({ columnVirtualItems, before, after }) => {
-  const snap = useSnapshot(database);
-  const { fields } = snap;
+  const { viewId, fields } = useDatabase();
   const handleClick = async () => {
-    await service.createFieldTypeOption(snap.viewId, FieldType.RichText);
+    await service.createFieldTypeOption(viewId, FieldType.RichText);
   };
 
   return (
@@ -50,7 +49,7 @@ export const GridFieldRow: FC<{
           startIcon={<AddSvg />}
           onClick={handleClick}
         >
-          New Column
+          {t('grid.field.newColumn')}
         </Button>
       </div>
     </>

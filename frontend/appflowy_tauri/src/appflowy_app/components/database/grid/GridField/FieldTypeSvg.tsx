@@ -7,19 +7,24 @@ import { ReactComponent as SingleSelectSvg } from '$app/assets/database/field-ty
 import { ReactComponent as MultiSelectSvg } from '$app/assets/database/field-type-multi-select.svg';
 import { ReactComponent as ChecklistSvg } from '$app/assets/database/field-type-checklist.svg';
 import { ReactComponent as CheckboxSvg } from '$app/assets/database/field-type-checkbox.svg';
+import { ReactComponent as URLSvg } from '$app/assets/database/field-type-url.svg';
+import { ReactComponent as LastEditedTimeSvg } from '$app/assets/database/field-type-last-edited-time.svg';
 
-export const FieldTypeSvgMap: Record<number, FC<any>> = {
+export const FieldTypeSvgMap: Record<FieldType, FC<any>> = {
   [FieldType.RichText]: TextSvg,
   [FieldType.Number]: NumberSvg,
   [FieldType.DateTime]: DateSvg,
   [FieldType.SingleSelect]: SingleSelectSvg,
   [FieldType.MultiSelect]: MultiSelectSvg,
-  [FieldType.Checklist]: ChecklistSvg,
   [FieldType.Checkbox]: CheckboxSvg,
+  [FieldType.URL]: URLSvg,
+  [FieldType.Checklist]: ChecklistSvg,
+  [FieldType.LastEditedTime]: LastEditedTimeSvg,
+  [FieldType.CreatedTime]: LastEditedTimeSvg,
 };
 
 export const FieldTypeSvg: FC<{ type: FieldType, className?: string }> = ({ type, ...props }) => {
-  const Svg = FieldTypeSvgMap[type] ? FieldTypeSvgMap[type] : FieldTypeSvgMap[FieldType.RichText];
+  const Svg = FieldTypeSvgMap[type];
 
   return <Svg {...props} />;
 }

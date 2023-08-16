@@ -1,7 +1,8 @@
 import { Divider, Menu, MenuItem, MenuProps } from '@mui/material';
-import { FC, Fragment, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { FieldType } from '@/services/backend';
 import { FieldTypeSvg } from './FieldTypeSvg';
+import { FieldTypeText } from './FieldTypeText';
 
 const FieldTypeGroup = [
   {
@@ -35,18 +36,16 @@ export const FieldTypeMenu: FC<MenuProps> = (props) => {
       {...props}
       PopoverClasses={PopoverClasses}
     >
-      {FieldTypeGroup.map((group, index) => (
-        <Fragment key={group.name}>
-          <MenuItem dense disabled>{group.name}</MenuItem>
-          {group.types.map(type => (
-            <MenuItem key={type} dense>
-              <FieldTypeSvg className="mr-2 text-base" type={type} />
-              <span className="font-medium">{type}</span>
-            </MenuItem>
-          ))}
-          {index < FieldTypeGroup.length - 1 && <Divider />}
-        </Fragment>
-      ))}
+      {FieldTypeGroup.map((group, index) => [
+        <MenuItem key={group.name} dense disabled>{group.name}</MenuItem>,
+        group.types.map(type => (
+          <MenuItem key={type} dense>
+            <FieldTypeSvg className="mr-2 text-base" type={type} />
+            <span className="font-medium">{FieldTypeText(type)}</span>
+          </MenuItem>
+        )),
+        index < FieldTypeGroup.length - 1 && <Divider key={`Divider-${group.name}`} />,
+      ])}
     </Menu>
   )
 }

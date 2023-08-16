@@ -1,26 +1,19 @@
-import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useRef } from 'react';
 import { useSnapshot } from 'valtio';
 import { DatabaseLayoutPB } from '@/services/backend';
-import { readDatabase, database } from '$app/stores/database';
-import { VerticalScrollElementRefContext, Grid } from '../components/database/grid';
+import {
+  VerticalScrollElementRefContext,
+  DatabaseContext,
+  Grid,
+  useViewId,
+  useConnectDatabase,
+} from '../components/database';
 
 export const DatabasePage = () => {
-  const viewId = useParams().id;
+  const viewId = useViewId();
   const scrollElementRef = useRef<HTMLDivElement>(null);
+  const database = useConnectDatabase(viewId);
   const snapshot = useSnapshot(database);
-
-  useEffect(() => {
-    if (!viewId) {
-      return;
-    }
-
-    const closePromise = readDatabase(viewId);
-
-    return () => {
-      void closePromise.then(close => close());
-    };
-  }, [viewId]);
 
   return (
     <div
@@ -35,9 +28,9 @@ export const DatabasePage = () => {
           </div>
         </div>
         <VerticalScrollElementRefContext.Provider value={scrollElementRef}>
-          {snapshot.layoutType === DatabaseLayoutPB.Grid
-            ? <Grid />
-            : null}
+          <DatabaseContext.Provider value={database}>
+            {snapshot.layoutType === DatabaseLayoutPB.Grid ? <Grid /> : null}
+          </DatabaseContext.Provider>
         </VerticalScrollElementRefContext.Provider>
       </div>
     </div>

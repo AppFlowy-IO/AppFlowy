@@ -26,26 +26,36 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateNumOfGroups]:GroupChangesPB,
   [DatabaseNotification.DidUpdateGroupRow]: GroupRowsNotificationPB,
   [DatabaseNotification.DidUpdateField]: FieldPB,
+  [DatabaseNotification.DidUpdateCell]: null,
 };
 
 type NotificationMap = typeof NotificationPBMap;
 
 type NotificationEnum = keyof NotificationMap;
 
-type NotificationHandler<T> = (result: Result<T, FlowyError>) => void;
+type NullableInstanceType<K extends ((abstract new (...args: any) => any) | null)> = K extends (abstract new (...args: any) => any) ? InstanceType<K> : void;
 
-export function subscribeNotification<K extends NotificationEnum>(id: string | undefined, notification: K, callback: NotificationHandler<InstanceType<NotificationMap[K]>>): Promise<() => void>;
-export function subscribeNotification(id: string | undefined, notification: number, callback: NotificationHandler<unknown>): Promise<() => void> {
+type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
+
+export function subscribeNotifications(
+  callbacks: {
+    [K in NotificationEnum]?: NotificationHandler<K>;
+  },
+  options?: { id?: string },
+): Promise<() => void> {
   return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', event => {
     const subject = SubscribeObject.fromObject(event.payload);
+    const { id, ty } = subject;
 
-    if (id && id !== subject.id) {
+    if (options?.id !== undefined && id !== options.id) {
       return;
     }
 
-    const { ty } = subject;
+    const notification = ty as NotificationEnum;
+    const pb = NotificationPBMap[notification];
+    const callback = callbacks[notification] as NotificationHandler<NotificationEnum>;
 
-    if (ty === null || ty !== notification) {
+    if (pb === undefined || !callback) {
       return;
     }
 
@@ -55,20 +65,32 @@ export function subscribeNotification(id: string | undefined, notification: numb
       callback(Err(error));
     } else {
       const { payload } = subject;
-      const pb = NotificationPBMap[ty as keyof NotificationMap];
 
-      callback(Ok(pb ? pb.deserializeBinary(payload) : payload));
+      callback(pb ? Ok(pb.deserializeBinary(payload)) : Ok.EMPTY);
     }
   });
 }
 
-export function useNotification<K extends NotificationEnum>(id: string | undefined, notification: K, callback: NotificationHandler<NotificationMap[K]>): void;
-export function useNotification(id: string | undefined, notification: number, callback: NotificationHandler<unknown>): void {
+export function subscribeNotification<K extends NotificationEnum>(
+  notification: K,
+  callback: NotificationHandler<K>,
+  options?: { id?: string },
+): Promise<() => void> {
+  return subscribeNotifications({ [notification]: callback }, options);
+}
+
+export function useNotification<K extends NotificationEnum>(
+  notification: K,
+  callback: NotificationHandler<K>,
+  options: { id?: string },
+): void {
+  const { id } = options;
+
   useEffect(() => {
-    const unListenPromise = subscribeNotification(id, notification, callback);
+    const unsubscribePromise = subscribeNotification(notification, callback, { id });
 
     return () => {
-      void unListenPromise.then(fn => fn());
+      void unsubscribePromise.then(fn => fn());
     };
-  }, [id, notification, callback]);
+  }, [callback, id, notification]);
 }

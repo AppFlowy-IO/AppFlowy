@@ -1,6 +1,8 @@
 import { Database } from '$app/interfaces/database';
 import { VirtualItem } from '@tanstack/react-virtual';
 import { FC } from 'react';
+import { useDatabase } from '../../database.hooks';
+import { GridCell } from '../GridCell';
 
 export const GridCellRow: FC<{
   columnVirtualItems: VirtualItem[];
@@ -8,6 +10,8 @@ export const GridCellRow: FC<{
   before: number;
   after: number;
 }> = ({ columnVirtualItems, row, before, after }) => {
+  const { fields } = useDatabase();
+
   return (
     <>
       <div className="flex">
@@ -21,7 +25,7 @@ export const GridCellRow: FC<{
               width: virtualColumn.size,
             }}
           >
-            Cell {row?.id} {virtualColumn.index}
+            <GridCell rowId={row.id} field={fields[virtualColumn.index]} />
           </div>
         ))}
         {after > 0 && <div style={{ width: after }} />}

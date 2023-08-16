@@ -1,14 +1,12 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, useContext, useMemo, useRef } from 'react';
-import { useSnapshot } from 'valtio';
-import { database } from '$app/stores/database';
-import { VerticalScrollElementRefContext } from './context';
+import { VerticalScrollElementRefContext } from '../../database.context';
+import { useDatabase } from '../../database.hooks';
 import { GridRow, RenderRow } from '../GridRow';
 
 export const GridTable: FC = () => {
   const verticalScrollElementRef = useContext(VerticalScrollElementRefContext);
-  const snapshot = useSnapshot(database);
-  const { rows, fields } = snapshot;
+  const { rows, fields } = useDatabase();
 
   const horizontalScrollElementRef = useRef<HTMLDivElement>(null);
 
