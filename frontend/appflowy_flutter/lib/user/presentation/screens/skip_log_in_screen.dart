@@ -1,10 +1,13 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
+import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -22,14 +25,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../generated/locale_keys.g.dart';
-import 'folder/folder_widget.dart';
-import 'router.dart';
-import 'widgets/background.dart';
-
 class SkipLogInScreen extends StatefulWidget {
   final AuthRouter router;
   final AuthService authService;
+  static const routeName = '/SkipLogInScreen';
 
   const SkipLogInScreen({
     Key? key,

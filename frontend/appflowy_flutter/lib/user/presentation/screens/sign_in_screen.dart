@@ -29,6 +29,7 @@ class SignInScreen extends StatelessWidget {
     required this.router,
   });
 
+  static const routeName = '/SignInScreen';
   final AuthRouter router;
 
   @override
@@ -164,8 +165,8 @@ class SignInForm extends StatelessWidget {
   }
 }
 
-class SignUpPrompt extends StatelessWidget {
-  const SignUpPrompt({
+class SignInPrompt extends StatelessWidget {
+  const SignInPrompt({
     Key? key,
     required this.router,
   }) : super(key: key);
@@ -301,8 +302,8 @@ class ForgetPasswordButton extends StatelessWidget {
   }
 }
 
-class PasswordTextField extends StatelessWidget {
-  const PasswordTextField({
+class SigninPasswordTextField extends StatelessWidget {
+  const SigninPasswordTextField({
     Key? key,
   }) : super(key: key);
 
@@ -331,8 +332,8 @@ class PasswordTextField extends StatelessWidget {
   }
 }
 
-class EmailTextField extends StatelessWidget {
-  const EmailTextField({
+class SigninEmailTextField extends StatelessWidget {
+  const SigninEmailTextField({
     Key? key,
   }) : super(key: key);
 

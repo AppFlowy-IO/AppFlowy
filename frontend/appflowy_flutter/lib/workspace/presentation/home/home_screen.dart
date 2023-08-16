@@ -26,6 +26,7 @@ import 'home_layout.dart';
 import 'home_stack.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/HomeScreen';
   final UserProfilePB user;
   final WorkspaceSettingPB workspaceSetting;
   const HomeScreen(this.user, this.workspaceSetting, {Key? key})

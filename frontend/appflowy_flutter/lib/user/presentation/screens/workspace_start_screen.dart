@@ -13,6 +13,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 class WorkspaceStartScreen extends StatelessWidget {
   final UserProfilePB userProfile;
+  static const routeName = "/WorkspaceStartScreen";
   const WorkspaceStartScreen({
     Key? key,
     required this.userProfile,

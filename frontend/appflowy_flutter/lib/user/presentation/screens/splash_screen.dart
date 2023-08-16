@@ -1,16 +1,28 @@
+import 'dart:io';
+
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
+import 'package:appflowy/user/application/splash_bloc.dart';
+import 'package:appflowy/user/domain/auth_state.dart';
+import 'package:appflowy/user/presentation/helpers/helpers.dart';
+import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../startup/startup.dart';
-import '../application/splash_bloc.dart';
-import '../domain/auth_state.dart';
-import 'router.dart';
-
+// [[diagram: splash screen]]
+// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
+// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
+// └────────────────┘           └──────────┘     └────────────┘     │
+//                                                                  │
+//                                                                  ▼
+//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
+//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
+//    └───────────┘            └─────────────┘                 └────────┘
+//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
     Key? key,
@@ -116,23 +128,29 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    final isMobilePlatform = Platform.isIOS || Platform.isAndroid;
+
     return Container(
       alignment: Alignment.center,
-      child: SingleChildScrollView(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image(
-              fit: BoxFit.cover,
-              width: size.width,
-              height: size.height,
-              image:
-                  const AssetImage('assets/images/appflowy_launch_splash.jpg'),
+      child: isMobilePlatform
+          ? const FlowySvg(
+              FlowySvgs.flowy_logo_xl,
+            )
+          : SingleChildScrollView(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image(
+                    fit: BoxFit.cover,
+                    width: size.width,
+                    height: size.height,
+                    image: const AssetImage(
+                        'assets/images/appflowy_launch_splash.jpg'),
+                  ),
+                  const CircularProgressIndicator.adaptive(),
+                ],
+              ),
             ),
-            const CircularProgressIndicator.adaptive(),
-          ],
-        ),
-      ),
     );
   }
 }

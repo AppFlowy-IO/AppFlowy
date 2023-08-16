@@ -23,6 +23,7 @@ class SignUpScreen extends StatelessWidget {
     required this.router,
   });
 
+  static const routeName = '/SignUpScreen';
   final AuthRouter router;
 
   @override
@@ -46,7 +47,7 @@ class SignUpScreen extends StatelessWidget {
     Either<UserProfilePB, FlowyError> result,
   ) {
     result.fold(
-      (user) => router.pushWelcomeScreen(context, user),
+      (user) => router.pushWorkspaceStartScreen(context, user),
       (error) => showSnapBar(context, error.msg),
     );
   }

@@ -1,9 +1,7 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
-import 'package:appflowy/user/presentation/sign_up_screen.dart';
-import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/user/presentation/workspace_start_screen.dart';
+import 'package:appflowy/user/presentation/screens/screens.dart';
+import 'package:appflowy/user/presentation/screens/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -14,28 +12,21 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 
-import 'encrypt_secret_screen.dart';
-import 'workspace_error_screen.dart';
-
-const routerNameRoot = '/';
-const routerNameSignUp = '/signUp';
-const routerNameSignIn = '/signIn';
-const routerNameSkipLogIn = '/skipLogIn';
-const routerNameWelcome = '/welcome';
-const routerNameHome = '/home';
-
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
 
-  void pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) {
-    getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+  void pushWorkspaceStartScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) {
+    getIt<SplashRoute>().pushWorkspaceStartScreen(context, userProfile);
   }
 
   void pushSignUpScreen(BuildContext context) {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => SignUpScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: routerNameSignUp),
+        const RouteSettings(name: SignUpScreen.routeName),
       ),
     );
   }
@@ -53,7 +44,7 @@ class AuthRouter {
           workspaceSetting,
           key: ValueKey(profile.id),
         ),
-        const RouteSettings(name: routerNameHome),
+        const RouteSettings(name: HomeScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -70,7 +61,7 @@ class AuthRouter {
         userProfile,
         workspaceSettingPB,
       ),
-      (r) => pushWelcomeScreen(context, userProfile),
+      (r) => pushWorkspaceStartScreen(context, userProfile),
     );
   }
 
@@ -85,7 +76,7 @@ class AuthRouter {
           user: userProfile,
           key: ValueKey(userProfile.id),
         ),
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: EncryptSecretScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -103,7 +94,7 @@ class AuthRouter {
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: WorkspaceErrorScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -111,7 +102,7 @@ class AuthRouter {
 }
 
 class SplashRoute {
-  Future<void> pushWelcomeScreen(
+  Future<void> pushWorkspaceStartScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
@@ -119,7 +110,7 @@ class SplashRoute {
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: WorkspaceStartScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -146,7 +137,9 @@ class SplashRoute {
           workspaceSetting,
           key: ValueKey(userProfile.id),
         ),
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(
+          name: WorkspaceStartScreen.routeName,
+        ),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -157,7 +150,7 @@ class SplashRoute {
       context,
       PageRoutes.fade(
         () => SignInScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: routerNameSignIn),
+        const RouteSettings(name: SignInScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -171,7 +164,7 @@ class SplashRoute {
           router: getIt<AuthRouter>(),
           authService: getIt<AuthService>(),
         ),
-        const RouteSettings(name: routerNameSkipLogIn),
+        const RouteSettings(name: SkipLogInScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
