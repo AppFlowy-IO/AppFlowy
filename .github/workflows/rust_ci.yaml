@@ -60,5 +60,5 @@ jobs:
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --features="rev-sqlite"
+        run: cargo clippy --all
         working-directory: frontend/rust-lib

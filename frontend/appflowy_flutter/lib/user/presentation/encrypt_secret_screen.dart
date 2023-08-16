@@ -63,7 +63,8 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
             builder: (context, state) {
               final indicator = state.loadingState?.when(
                     loading: () => const Center(
-                        child: CircularProgressIndicator.adaptive()),
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
                     finish: (result) => const SizedBox.shrink(),
                   ) ??
                   const SizedBox.shrink();

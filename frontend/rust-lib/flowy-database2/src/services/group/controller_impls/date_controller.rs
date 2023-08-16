@@ -297,7 +297,7 @@ impl GroupsBuilder for DateGroupGenerator {
 fn make_group_from_date_cell(
   cell_data: &DateCellData,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> Group {
   let group_id = group_id(cell_data, type_option, setting_content);
   Group::new(
@@ -311,7 +311,7 @@ const GROUP_ID_DATE_FORMAT: &str = "%Y/%m/%d";
 fn group_id(
   cell_data: &DateCellData,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> String {
   let binding = DateTypeOption::default();
   let type_option = type_option.unwrap_or(&binding);
@@ -341,11 +341,11 @@ fn group_id(
         now.checked_add_signed(Duration::days(-1))
       } else if diff == 1 {
         now.checked_add_signed(Duration::days(1))
-      } else if diff >= -7 && diff < -1 {
+      } else if (-7..-1).contains(&diff) {
         now.checked_add_signed(Duration::days(-7))
       } else if diff > 1 && diff <= 7 {
         now.checked_add_signed(Duration::days(2))
-      } else if diff >= -30 && diff < -7 {
+      } else if (-30..-7).contains(&diff) {
         now.checked_add_signed(Duration::days(-30))
       } else if diff > 7 && diff <= 30 {
         now.checked_add_signed(Duration::days(8))
@@ -372,9 +372,9 @@ fn group_id(
 }
 
 fn group_name_from_id(
-  group_id: &String,
+  group_id: &str,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> String {
   let binding = DateTypeOption::default();
   let type_option = type_option.unwrap_or(&binding);
@@ -384,12 +384,7 @@ fn group_name_from_id(
   let tmp;
   match config.condition {
     DateCondition::Day => {
-      tmp = format!(
-        "{} {}, {}",
-        date.format("%b").to_string(),
-        date.day(),
-        date.year(),
-      );
+      tmp = format!("{} {}, {}", date.format("%b"), date.day(), date.year(),);
       tmp
     },
     DateCondition::Week => {
@@ -404,15 +399,15 @@ fn group_name_from_id(
 
       tmp = format!(
         "Week of {} {}-{} {}",
-        date.format("%b").to_string(),
-        begin_of_week.to_string(),
-        end_of_week.to_string(),
+        date.format("%b"),
+        begin_of_week,
+        end_of_week,
         date.year()
       );
       tmp
     },
     DateCondition::Month => {
-      tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
+      tmp = format!("{} {}", date.format("%b"), date.year(),);
       tmp
     },
     DateCondition::Year => date.year().to_string(),
@@ -429,7 +424,7 @@ fn group_name_from_id(
         -30 => "Last 30 days",
         8 => "Next 30 days",
         _ => {
-          tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
+          tmp = format!("{} {}", date.format("%b"), date.year(),);
           &tmp
         },
       };
@@ -439,7 +434,7 @@ fn group_name_from_id(
   }
 }
 
-fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> DateTime<Local> {
+fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &str) -> DateTime<Local> {
   match timestamp {
     Some(timestamp) => {
       let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
@@ -460,6 +455,7 @@ mod tests {
 
   use chrono::{offset, Days, Duration, NaiveDateTime};
 
+  use crate::entities::FieldType;
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
     group::controller_impls::date_controller::{
@@ -485,9 +481,9 @@ mod tests {
     let today = offset::Local::now();
     let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
 
-    let mut local_date_type_option = DateTypeOption::default();
+    let mut local_date_type_option = DateTypeOption::new(FieldType::DateTime);
     local_date_type_option.timezone_id = today.offset().to_string();
-    let mut default_date_type_option = DateTypeOption::default();
+    let mut default_date_type_option = DateTypeOption::new(FieldType::DateTime);
     default_date_type_option.timezone_id = "".to_string();
 
     let tests = vec![
@@ -552,7 +548,7 @@ mod tests {
         exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
-        cell_data: mar_14_2022_cd.clone(),
+        cell_data: mar_14_2022_cd,
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 4, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/01/01".to_string(),
@@ -588,7 +584,7 @@ mod tests {
       );
       assert_eq!(test.exp_group_id, group_id, "test {}", i);
 
-      if test.exp_group_name != "" {
+      if !test.exp_group_name.is_empty() {
         let group_name =
           group_name_from_id(&group_id, Some(test.type_option), &test.setting_content);
         assert_eq!(test.exp_group_name, group_name, "test {}", i);
