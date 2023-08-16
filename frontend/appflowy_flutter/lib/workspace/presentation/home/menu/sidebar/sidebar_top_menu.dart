@@ -46,12 +46,12 @@ class SidebarTopMenu extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final name = Theme.of(context).brightness == Brightness.dark
+    final svgData = Theme.of(context).brightness == Brightness.dark
         ? FlowySvgs.flowy_logo_dark_mode_xl
         : FlowySvgs.flowy_logo_text_xl;
 
     return FlowySvg(
-      name,
+      svgData,
       size: const Size(92, 17),
       blendMode: null,
     );
