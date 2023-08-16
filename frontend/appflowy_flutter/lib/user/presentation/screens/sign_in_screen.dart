@@ -1,13 +1,15 @@
+import 'dart:io';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/user/presentation/widgets/background.dart';
+import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
@@ -16,12 +18,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
@@ -43,13 +43,19 @@ class SignInScreen extends StatelessWidget {
             (result) => _handleSuccessOrFail(result, context),
           );
         },
-        builder: (_, __) => Scaffold(
-          appBar: const PreferredSize(
-            preferredSize: Size(double.infinity, 60),
-            child: MoveWindowDetector(),
-          ),
-          body: SignInForm(router: router),
-        ),
+        builder: (_, __) {
+          final signInScreenBody = SignInScreenBody(router: router);
+          if (Platform.isAndroid || Platform.isIOS) {
+            return Scaffold(body: signInScreenBody);
+          }
+          return Scaffold(
+            appBar: const PreferredSize(
+              preferredSize: Size(double.infinity, 60),
+              child: MoveWindowDetector(),
+            ),
+            body: signInScreenBody,
+          );
+        },
       ),
     );
   }
@@ -63,7 +69,7 @@ class SignInScreen extends StatelessWidget {
         if (user.encryptionType == EncryptionTypePB.Symmetric) {
           router.pushEncryptionScreen(context, user);
         } else {
-          router.pushHomeScreen(context, user);
+          router.pushWorkspaceStartScreen(context, user);
         }
       },
       (error) {
@@ -302,165 +308,58 @@ class ForgetPasswordButton extends StatelessWidget {
   }
 }
 
-class SigninPasswordTextField extends StatelessWidget {
-  const SigninPasswordTextField({
-    Key? key,
-  }) : super(key: key);
+// class SigninPasswordTextField extends StatelessWidget {
+//   const SigninPasswordTextField({
+//     Key? key,
+//   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SignInBloc, SignInState>(
-      buildWhen: (previous, current) =>
-          previous.passwordError != current.passwordError,
-      builder: (context, state) {
-        return RoundedInputField(
-          obscureText: true,
-          obscureIcon: const FlowySvg(FlowySvgs.hide_m),
-          obscureHideIcon: const FlowySvg(FlowySvgs.show_m),
-          hintText: LocaleKeys.signIn_passwordHint.tr(),
-          errorText: context
-              .read<SignInBloc>()
-              .state
-              .passwordError
-              .fold(() => "", (error) => error),
-          onChanged: (value) => context
-              .read<SignInBloc>()
-              .add(SignInEvent.passwordChanged(value)),
-        );
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<SignInBloc, SignInState>(
+//       buildWhen: (previous, current) =>
+//           previous.passwordError != current.passwordError,
+//       builder: (context, state) {
+//         return RoundedInputField(
+//           obscureText: true,
+//           obscureIcon: const FlowySvg(FlowySvgs.hide_m),
+//           obscureHideIcon: const FlowySvg(FlowySvgs.show_m),
+//           hintText: LocaleKeys.signIn_passwordHint.tr(),
+//           errorText: context
+//               .read<SignInBloc>()
+//               .state
+//               .passwordError
+//               .fold(() => "", (error) => error),
+//           onChanged: (value) => context
+//               .read<SignInBloc>()
+//               .add(SignInEvent.passwordChanged(value)),
+//         );
+//       },
+//     );
+//   }
+// }
 
-class SigninEmailTextField extends StatelessWidget {
-  const SigninEmailTextField({
-    Key? key,
-  }) : super(key: key);
+// class SigninEmailTextField extends StatelessWidget {
+//   const SigninEmailTextField({
+//     Key? key,
+//   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SignInBloc, SignInState>(
-      buildWhen: (previous, current) =>
-          previous.emailError != current.emailError,
-      builder: (context, state) {
-        return RoundedInputField(
-          hintText: LocaleKeys.signIn_emailHint.tr(),
-          errorText: context
-              .read<SignInBloc>()
-              .state
-              .emailError
-              .fold(() => "", (error) => error),
-          onChanged: (value) =>
-              context.read<SignInBloc>().add(SignInEvent.emailChanged(value)),
-        );
-      },
-    );
-  }
-}
-
-class OrContinueWith extends StatelessWidget {
-  const OrContinueWith({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Flexible(
-          child: Divider(
-            color: Colors.white,
-            height: 10,
-          ),
-        ),
-        FlowyText.regular('    Or continue with    '),
-        Flexible(
-          child: Divider(
-            color: Colors.white,
-            height: 10,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ThirdPartySignInButton extends StatelessWidget {
-  const ThirdPartySignInButton({
-    Key? key,
-    required this.icon,
-    required this.onPressed,
-  }) : super(key: key);
-
-  final FlowySvgData icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      height: 48,
-      width: 48,
-      iconPadding: const EdgeInsets.all(8.0),
-      radius: Corners.s10Border,
-      onPressed: onPressed,
-      icon: FlowySvg(
-        icon,
-        blendMode: null,
-      ),
-    );
-  }
-}
-
-class ThirdPartySignInButtons extends StatelessWidget {
-  final MainAxisAlignment mainAxisAlignment;
-  const ThirdPartySignInButtons({
-    this.mainAxisAlignment = MainAxisAlignment.center,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: mainAxisAlignment,
-      children: const [
-        GoogleSignUpButton(),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/github-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('github'));
-        //   },
-        // ),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/discord-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('discord'));
-        //   },
-        // ),
-      ],
-    );
-  }
-}
-
-class GoogleSignUpButton extends StatelessWidget {
-  const GoogleSignUpButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ThirdPartySignInButton(
-      icon: FlowySvgs.google_mark_xl,
-      onPressed: () {
-        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        context.read<SignInBloc>().add(
-              const SignInEvent.signedInWithOAuth('google'),
-            );
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<SignInBloc, SignInState>(
+//       buildWhen: (previous, current) =>
+//           previous.emailError != current.emailError,
+//       builder: (context, state) {
+//         return RoundedInputField(
+//           hintText: LocaleKeys.signIn_emailHint.tr(),
+//           errorText: context
+//               .read<SignInBloc>()
+//               .state
+//               .emailError
+//               .fold(() => "", (error) => error),
+//           onChanged: (value) =>
+//               context.read<SignInBloc>().add(SignInEvent.emailChanged(value)),
+//         );
+//       },
+//     );
+//   }
+// }

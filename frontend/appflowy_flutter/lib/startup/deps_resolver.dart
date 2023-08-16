@@ -107,7 +107,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     () => SignUpBloc(getIt<AuthService>()),
   );
 
-  getIt.registerFactory<SplashRoute>(() => SplashRoute());
+  getIt.registerFactory<SplashRouter>(() => SplashRouter());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());

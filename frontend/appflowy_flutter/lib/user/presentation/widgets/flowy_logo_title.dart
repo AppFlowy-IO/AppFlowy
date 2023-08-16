@@ -1,31 +1,8 @@
-import 'dart:math';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class AuthFormContainer extends StatelessWidget {
-  final List<Widget> children;
-  const AuthFormContainer({
-    Key? key,
-    required this.children,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return SizedBox(
-      width: min(size.width, 340),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: children,
-      ),
-    );
-  }
-}
 
 class FlowyLogoTitle extends StatelessWidget {
   final String title;

@@ -87,7 +87,7 @@ class SplashScreen extends StatelessWidget {
           final result = await FolderEventGetCurrentWorkspace().send();
           result.fold(
             (workspaceSetting) {
-              getIt<SplashRoute>().pushHomeScreen(
+              getIt<SplashRouter>().pushHomeScreen(
                 context,
                 userProfile,
                 workspaceSetting,
@@ -108,9 +108,9 @@ class SplashScreen extends StatelessWidget {
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     // if the env is not configured, we will skip to the 'skip login screen'.
     if (isSupabaseEnabled) {
-      getIt<SplashRoute>().pushSignInScreen(context);
+      getIt<SplashRouter>().pushSignInScreen(context);
     } else {
-      getIt<SplashRoute>().pushSkipLoginScreen(context);
+      getIt<SplashRouter>().pushSkipLoginScreen(context);
     }
   }
 

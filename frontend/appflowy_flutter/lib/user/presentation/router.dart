@@ -19,7 +19,7 @@ class AuthRouter {
     BuildContext context,
     UserProfilePB userProfile,
   ) {
-    getIt<SplashRoute>().pushWorkspaceStartScreen(context, userProfile);
+    getIt<SplashRouter>().pushWorkspaceStartScreen(context, userProfile);
   }
 
   void pushSignUpScreen(BuildContext context) {
@@ -31,7 +31,7 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreenWithWorkSpace(
+  void pushHomeScreen(
     BuildContext context,
     UserProfilePB profile,
     WorkspaceSettingPB workspaceSetting,
@@ -50,17 +50,20 @@ class AuthRouter {
     );
   }
 
-  Future<void> pushHomeScreen(
+  Future<void> pushHomeOrWorkspaceStartScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
+    // retrieve user's workspace
     final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
-      (workspaceSettingPB) => pushHomeScreenWithWorkSpace(
+      // if user has workspace, push [HomeScreen]
+      (workspaceSettingPB) => pushHomeScreen(
         context,
         userProfile,
         workspaceSettingPB,
       ),
+      // if user has no workspace, push [WorkspaceStartScreen]
       (r) => pushWorkspaceStartScreen(context, userProfile),
     );
   }
@@ -101,7 +104,7 @@ class AuthRouter {
   }
 }
 
-class SplashRoute {
+class SplashRouter {
   Future<void> pushWorkspaceStartScreen(
     BuildContext context,
     UserProfilePB userProfile,
