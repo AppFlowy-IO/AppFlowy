@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
@@ -39,7 +38,6 @@ pub async fn sign_in(
   let manager = upgrade_manager(manager)?;
   let params: SignInParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-  manager.update_auth_type(&auth_type).await;
 
   let user_profile: UserProfilePB = manager
     .sign_in(BoxAny::new(params), auth_type)
@@ -65,7 +63,6 @@ pub async fn sign_up(
   let manager = upgrade_manager(manager)?;
   let params: SignUpParams = data.into_inner().try_into()?;
   let auth_type = params.auth_type.clone();
-  manager.update_auth_type(&auth_type).await;
 
   let user_profile = manager.sign_up(auth_type, BoxAny::new(params)).await?;
   data_result_ok(user_profile.into())
@@ -176,7 +173,6 @@ pub async fn third_party_auth_handler(
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
-  manager.update_auth_type(&auth_type).await;
   let user_profile = manager.sign_up(auth_type, BoxAny::new(params.map)).await?;
   data_result_ok(user_profile.into())
 }
@@ -361,7 +357,9 @@ pub async fn open_historical_users_handler(
   let user = user.into_inner();
   let manager = upgrade_manager(manager)?;
   let auth_type = AuthType::from(user.auth_type);
-  manager.open_historical_user(user.user_id, user.device_id, auth_type)?;
+  manager
+    .open_historical_user(user.user_id, user.device_id, auth_type)
+    .await?;
   Ok(())
 }
 

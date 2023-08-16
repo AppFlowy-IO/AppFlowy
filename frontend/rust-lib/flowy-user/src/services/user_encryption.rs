@@ -52,7 +52,8 @@ impl UserManager {
     encrypt_sign: &str,
     encrypt_secret: &str,
   ) -> FlowyResult<()> {
-    let decrypt_str = decrypt_string(encrypt_sign, &encrypt_secret)?;
+    let decrypt_str = decrypt_string(encrypt_sign, encrypt_secret)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidEncryptSecret, "Invalid decryption secret"))?;
     if uid.to_string() == decrypt_str {
       Ok(())
     } else {

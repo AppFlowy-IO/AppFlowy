@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -17,6 +18,10 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
     on<EncryptSecretEvent>((event, emit) async {
       await event.when(
         setEncryptSecret: (secret) async {
+          if (isLoading()) {
+            return;
+          }
+
           final payload = UserSecretPB.create()
             ..encryptionSecret = secret
             ..encryptionSign = user.encryptionSign
@@ -24,28 +29,55 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
             ..userId = user.id;
           UserEventSetEncryptionSecret(payload).send().then((result) {
             if (!isClosed) {
-              add(EncryptSecretEvent.didFinishCheck(result, true));
+              add(EncryptSecretEvent.didFinishCheck(result));
             }
           });
+          emit(
+            state.copyWith(
+              loadingState: const LoadingState.loading(),
+              successOrFail: none(),
+            ),
+          );
         },
         cancelInputSecret: () async {
           await getIt<AuthService>().signOut();
           emit(
             state.copyWith(
+              successOrFail: none(),
               isSignOut: true,
             ),
           );
         },
-        didFinishCheck: (Either<Unit, FlowyError> result, bool isChecked) {
-          emit(
-            state.copyWith(
-              successOrFail: result,
-              isChecked: isChecked,
-            ),
+        didFinishCheck: (Either<Unit, FlowyError> result) {
+          result.fold(
+            (unit) {
+              emit(
+                state.copyWith(
+                  loadingState: const LoadingState.loading(),
+                  successOrFail: Some(result),
+                ),
+              );
+            },
+            (err) {
+              emit(
+                state.copyWith(
+                  loadingState: LoadingState.finish(right(err)),
+                  successOrFail: Some(result),
+                ),
+              );
+            },
           );
         },
       );
     });
+  }
+
+  bool isLoading() {
+    final loadingState = state.loadingState;
+    if (loadingState != null) {
+      return loadingState.when(loading: () => true, finish: (_) => false);
+    }
+    return false;
   }
 }
 
@@ -55,7 +87,6 @@ class EncryptSecretEvent with _$EncryptSecretEvent {
       _SetEncryptSecret;
   const factory EncryptSecretEvent.didFinishCheck(
     Either<Unit, FlowyError> result,
-    bool isChecked,
   ) = _DidFinishCheck;
   const factory EncryptSecretEvent.cancelInputSecret() = _CancelInputSecret;
 }
@@ -63,14 +94,13 @@ class EncryptSecretEvent with _$EncryptSecretEvent {
 @freezed
 class EncryptSecretState with _$EncryptSecretState {
   const factory EncryptSecretState({
-    required Either<Unit, FlowyError> successOrFail,
+    required Option<Either<Unit, FlowyError>> successOrFail,
     required bool isSignOut,
-    required bool isChecked,
+    LoadingState? loadingState,
   }) = _EncryptSecretState;
 
   factory EncryptSecretState.initial() => EncryptSecretState(
-        successOrFail: left(unit),
+        successOrFail: none(),
         isSignOut: false,
-        isChecked: false,
       );
 }

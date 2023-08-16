@@ -64,12 +64,19 @@ class EnableEncrypt extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CloudSettingBloc, CloudSettingState>(
       builder: (context, state) {
+        final indicator = state.loadingState.when(
+          loading: () => const CircularProgressIndicator.adaptive(),
+          finish: (successOrFail) => const SizedBox.shrink(),
+        );
+
         return Column(
           children: [
             Row(
               children: [
                 FlowyText.medium(LocaleKeys.settings_menu_enableEncrypt.tr()),
                 const Spacer(),
+                indicator,
+                const HSpace(3),
                 Switch(
                   onChanged: state.config.enableEncrypt
                       ? null
@@ -98,22 +105,25 @@ class EnableEncrypt extends StatelessWidget {
                 const VSpace(6),
                 SizedBox(
                   height: 40,
-                  child: FlowyButton(
-                    disable: !(state.config.enableEncrypt),
-                    decoration: BoxDecoration(
-                      borderRadius: Corners.s5Border,
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.secondary,
+                  child: Tooltip(
+                    message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
+                    child: FlowyButton(
+                      disable: !(state.config.enableEncrypt),
+                      decoration: BoxDecoration(
+                        borderRadius: Corners.s5Border,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
+                      text: FlowyText.medium(state.config.encryptSecret),
+                      onTap: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: state.config.encryptSecret),
+                        );
+                        // TODO(Lucas): bring the toast to the top of the dialog.
+                        showMessageToast(LocaleKeys.message_copy_success.tr());
+                      },
                     ),
-                    text: FlowyText.medium(state.config.encryptSecret),
-                    onTap: () async {
-                      await Clipboard.setData(
-                        ClipboardData(text: state.config.encryptSecret),
-                      );
-                      // TODO(Lucas): bring the toast to the top of the dialog.
-                      showMessageToast(LocaleKeys.message_copy_success.tr());
-                    },
                   ),
                 ),
               ],

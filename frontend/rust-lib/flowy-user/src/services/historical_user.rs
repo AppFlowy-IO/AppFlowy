@@ -82,12 +82,14 @@ impl UserManager {
   /// This function facilitates the re-opening of a user's session from historical tracking.
   /// It retrieves the user's workspace and establishes a new session for the user.
   ///
-  pub fn open_historical_user(
+  pub async fn open_historical_user(
     &self,
     uid: i64,
     device_id: String,
     auth_type: AuthType,
   ) -> FlowyResult<()> {
+    debug_assert!(auth_type.is_local());
+    self.update_auth_type(&auth_type).await;
     let conn = self.db_connection(uid)?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
@@ -98,8 +100,6 @@ impl UserManager {
       device_id,
       user_workspace,
     };
-    debug_assert!(auth_type.is_local());
-    self.cloud_services.set_auth_type(auth_type);
     self.set_current_session(Some(session))?;
     Ok(())
   }

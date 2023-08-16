@@ -14,6 +14,11 @@ fn generate_cloud_config(store_preference: &Arc<StorePreferences>) -> UserCloudC
   config
 }
 
+pub fn remove_cloud_config(store_preference: &Arc<StorePreferences>) {
+  let key = cache_key_for_cloud_config();
+  store_preference.remove(&key);
+}
+
 pub fn save_cloud_config(
   store_preference: &Arc<StorePreferences>,
   config: UserCloudConfig,

@@ -221,7 +221,7 @@ pub enum ErrorCode {
   #[error("Conflict")]
   Conflict = 73,
 
-  #[error("Invalid encrypt secret")]
+  #[error("Invalid decryption secret")]
   InvalidEncryptSecret = 74,
 }
 

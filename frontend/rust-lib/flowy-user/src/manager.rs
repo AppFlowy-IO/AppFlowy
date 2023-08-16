@@ -25,6 +25,7 @@ use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
 use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
 use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::MigrationUser;
+use crate::services::cloud_config::remove_cloud_config;
 use crate::services::database::UserDB;
 use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
@@ -159,6 +160,7 @@ impl UserManager {
     params: BoxAny,
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
+    self.update_auth_type(&auth_type).await;
     let response: SignInResponse = self
       .cloud_services
       .get_user_service()?
@@ -187,13 +189,12 @@ impl UserManager {
     Ok(user_profile)
   }
 
-  pub async fn update_auth_type(&self, auth_type: &AuthType) {
+  pub(crate) async fn update_auth_type(&self, auth_type: &AuthType) {
     self
       .user_status_callback
       .read()
       .await
       .auth_type_did_changed(auth_type.clone());
-
     self.cloud_services.set_auth_type(auth_type.clone());
   }
 
@@ -210,6 +211,9 @@ impl UserManager {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
+    remove_cloud_config(&self.store_preferences);
+    self.update_auth_type(&auth_type).await;
+
     let migration_user = self.get_migration_user(&auth_type).await;
     let auth_service = self.cloud_services.get_user_service()?;
     let response: SignUpResponse = auth_service.sign_up(params).await?;
@@ -249,7 +253,6 @@ impl UserManager {
         ErrorCode::Internal,
         "No resumable sign up data",
       ))?;
-
     self
       .continue_sign_up(&user_profile, migration_user, response, &auth_type)
       .await?;
@@ -263,7 +266,7 @@ impl UserManager {
     response: SignUpResponse,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.prepare_user(&response, &auth_type).await?;
+    self.prepare_user(&response, auth_type).await?;
     let user_awareness_source = if response.is_new_user {
       UserAwarenessDataSource::Local
     } else {
@@ -292,7 +295,6 @@ impl UserManager {
         let _ = self.database.close(old_user.session.user_id);
       }
     }
-
     self
       .initialize_user_awareness(&new_session, user_awareness_source)
       .await;
@@ -303,7 +305,7 @@ impl UserManager {
       .await
       .did_sign_up(
         sign_up_context,
-        &user_profile,
+        user_profile,
         &new_session.user_workspace,
         &new_session.device_id,
       )
@@ -316,6 +318,7 @@ impl UserManager {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
     self.set_current_session(None)?;
+    remove_cloud_config(&self.store_preferences);
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {

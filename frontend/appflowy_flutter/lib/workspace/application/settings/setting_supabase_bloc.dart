@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -38,11 +39,17 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
           updateCloudConfig(update);
         },
         didReceiveConfig: (UserCloudConfigPB config) {
-          emit(state.copyWith(config: config));
+          emit(
+            state.copyWith(
+              config: config,
+              loadingState: LoadingState.finish(left(unit)),
+            ),
+          );
         },
         enableEncrypt: (bool enable) {
           final update = UpdateCloudConfigPB.create()..enableEncrypt = enable;
           updateCloudConfig(update);
+          emit(state.copyWith(loadingState: const LoadingState.loading()));
         },
       );
     });
@@ -68,11 +75,13 @@ class CloudSettingState with _$CloudSettingState {
   const factory CloudSettingState({
     required UserCloudConfigPB config,
     required Either<Unit, String> successOrFailure,
+    required LoadingState loadingState,
   }) = _CloudSettingState;
 
   factory CloudSettingState.initial(UserCloudConfigPB config) =>
       CloudSettingState(
         config: config,
         successOrFailure: left(unit),
+        loadingState: LoadingState.finish(left(unit)),
       );
 }

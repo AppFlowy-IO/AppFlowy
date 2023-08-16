@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -32,24 +33,40 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
               listenWhen: (previous, current) =>
                   previous.isSignOut != current.isSignOut,
               listener: (context, state) async {
-                await runAppFlowy();
+                if (state.isSignOut) {
+                  await runAppFlowy();
+                }
               },
             ),
             BlocListener<EncryptSecretBloc, EncryptSecretState>(
               listenWhen: (previous, current) =>
-                  previous.isChecked != current.isChecked,
+                  previous.successOrFail != current.successOrFail,
               listener: (context, state) async {
                 state.successOrFail.fold(
-                  (l) async {
-                    await runAppFlowy();
+                  () {},
+                  (result) {
+                    result.fold(
+                      (unit) async {
+                        await runAppFlowy();
+                      },
+                      (err) {
+                        Log.error(err);
+                        showSnackBarMessage(context, err.msg);
+                      },
+                    );
                   },
-                  (err) => Log.error(err),
                 );
               },
             ),
           ],
           child: BlocBuilder<EncryptSecretBloc, EncryptSecretState>(
             builder: (context, state) {
+              final indicator = state.loadingState?.when(
+                    loading: () => const Center(
+                        child: CircularProgressIndicator.adaptive()),
+                    finish: (result) => const SizedBox.shrink(),
+                  ) ??
+                  const SizedBox.shrink();
               return Center(
                 child: SizedBox(
                   width: 300,
@@ -90,6 +107,8 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
                         },
                         mode: TextButtonMode.normal,
                       ),
+                      const VSpace(6),
+                      indicator,
                     ],
                   ),
                 ),

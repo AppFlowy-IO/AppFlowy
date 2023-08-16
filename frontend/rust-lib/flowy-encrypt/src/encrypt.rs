@@ -54,7 +54,7 @@ pub fn encrypt_string<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -
 
 pub fn decrypt_string<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<String> {
   let encrypted = STANDARD.decode(data)?;
-  let decrypted = decrypt_bytes(&encrypted, combined_passphrase_salt)?;
+  let decrypted = decrypt_bytes(encrypted, combined_passphrase_salt)?;
   Ok(String::from_utf8(decrypted)?)
 }
 
@@ -107,12 +107,12 @@ mod tests {
     let secret = generate_encrypt_secret();
     let data = b"hello world";
     let encrypted = encrypt_bytes(data, &secret).unwrap();
-    let decrypted = decrypt_bytes(&encrypted, &secret).unwrap();
+    let decrypted = decrypt_bytes(encrypted, &secret).unwrap();
     assert_eq!(data, decrypted.as_slice());
 
     let s = "123".to_string();
     let encrypted = encrypt_string(&s, &secret).unwrap();
-    let decrypted_str = decrypt_string(&encrypted, &secret).unwrap();
+    let decrypted_str = decrypt_string(encrypted, &secret).unwrap();
     assert_eq!(s, decrypted_str);
   }
 }

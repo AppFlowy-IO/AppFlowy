@@ -231,6 +231,7 @@
       "enableEncrypt": "Encrypt data",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret",
+      "clickToCopySecret": "Click to copy secret",
       "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
