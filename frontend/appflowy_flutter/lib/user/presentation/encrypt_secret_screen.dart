@@ -77,8 +77,9 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
                       Opacity(
                         opacity: 0.6,
                         child: FlowyText.medium(
-                          LocaleKeys.settings_menu_inputEncryptPrompt.tr(),
+                          "${LocaleKeys.settings_menu_inputEncryptPrompt.tr()} ${widget.user.email}",
                           fontSize: 14,
+                          maxLines: 10,
                         ),
                       ),
                       const VSpace(6),

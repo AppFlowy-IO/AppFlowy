@@ -207,10 +207,6 @@ where
     todo!()
   }
 
-  fn load_user_folder(&self, uid: i64, encrypt_secret: &str) -> FutureResult<(), Error> {
-    todo!()
-  }
-
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let awareness_id = uid.to_string();

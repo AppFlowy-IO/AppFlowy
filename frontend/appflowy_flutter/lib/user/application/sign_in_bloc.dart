@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';

@@ -113,10 +113,6 @@ impl UserService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn load_user_folder(&self, uid: i64, encrypt_secret: &str) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }

@@ -230,7 +230,7 @@
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
-      "inputEncryptPrompt": "Please enter your encryption secret",
+      "inputEncryptPrompt": "Please enter your encryption secret for",
       "clickToCopySecret": "Click to copy secret",
       "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
