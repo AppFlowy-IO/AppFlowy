@@ -22,7 +22,7 @@ function Editor({
   return (
     <div className={'min-h-[30px]'}>
       <div ref={ref} {...props} />
-      {!editor && <div className={'px-0.5 py-1 text-shade-4'}>{placeholder}</div>}
+      {!editor && <div className={'px-0.5 py-1 text-text-caption'}>{placeholder}</div>}
     </div>
   );
 }

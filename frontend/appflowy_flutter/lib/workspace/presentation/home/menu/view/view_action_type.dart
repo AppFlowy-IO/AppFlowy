@@ -1,6 +1,6 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flutter/material.dart';
 
 enum ViewMoreActionType {
@@ -39,21 +39,21 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
   Widget icon(Color iconColor) {
     switch (this) {
       case ViewMoreActionType.delete:
-        return const FlowySvg(name: 'editor/delete');
+        return const FlowySvg(FlowySvgs.delete_s);
       case ViewMoreActionType.favorite:
-        return const FlowySvg(name: 'home/unfavorite');
+        return const FlowySvg(FlowySvgs.unfavorite_s);
       case ViewMoreActionType.unFavorite:
-        return const FlowySvg(name: 'home/favorite');
+        return const FlowySvg(FlowySvgs.favorite_s);
       case ViewMoreActionType.duplicate:
-        return const FlowySvg(name: 'editor/copy');
+        return const FlowySvg(FlowySvgs.copy_s);
       case ViewMoreActionType.copyLink:
         return const Icon(Icons.copy);
       case ViewMoreActionType.rename:
-        return const FlowySvg(name: 'editor/edit');
+        return const FlowySvg(FlowySvgs.edit_s);
       case ViewMoreActionType.moveTo:
         return const Icon(Icons.move_to_inbox);
       case ViewMoreActionType.openInNewTab:
-        return const FlowySvg(name: 'grid/expander');
+        return const FlowySvg(FlowySvgs.full_view_s);
     }
   }
 }

@@ -408,12 +408,13 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column"
     },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "deleteSort": "Delete sort",
+      "deleteAllSorts": "Delete all sorts",
       "addSort": "Add sort"
     },
     "row": {

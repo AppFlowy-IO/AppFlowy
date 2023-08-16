@@ -60,13 +60,9 @@ class _DatabaseViewSettingContent extends StatelessWidget {
         return _wrapPadding(
           Row(
             children: [
-              SortMenu(
-                fieldController: fieldController,
-              ),
+              SortMenu(fieldController: fieldController),
               const HSpace(6),
-              FilterMenu(
-                fieldController: fieldController,
-              ),
+              FilterMenu(fieldController: fieldController),
             ],
           ),
         );

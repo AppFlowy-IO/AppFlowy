@@ -44,9 +44,7 @@ export default function GridSingleSelectOptions({
 
   return (
     <>
-      <div className='flex w-full cursor-pointer justify-start'>
-        <CellOptions data={data as SelectOptionCellDataPB} onEditClick={onEditOptionsClick} />
-      </div>
+      <CellOptions data={data as SelectOptionCellDataPB} onEditClick={onEditOptionsClick} />
 
       {showOptionsPopup && (
         <CellOptionsPopup
@@ -55,7 +53,7 @@ export default function GridSingleSelectOptions({
           cellIdentifier={cellIdentifier}
           cellCache={cellCache}
           fieldController={fieldController}
-          onOutsideClick={() => setShowOptionsPopup(false)}
+          onOutsideClick={() => !showEditCellOption && setShowOptionsPopup(false)}
           openOptionDetail={onOpenOptionDetailClick}
         />
       )}
@@ -65,6 +63,7 @@ export default function GridSingleSelectOptions({
           left={editCellOptionLeft}
           cellIdentifier={cellIdentifier}
           editingSelectOption={editingSelectOption}
+          setEditingSelectOption={setEditingSelectOption}
           onOutsideClick={() => {
             setShowEditCellOption(false);
           }}
