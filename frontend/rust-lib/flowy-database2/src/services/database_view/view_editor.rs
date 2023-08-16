@@ -131,6 +131,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     field_ids: Vec<String>,
   ) -> Result<Vec<FieldSettings>, anyhow::Error>;
 
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
   fn update_field_settings(&self, view_id: &str, field_id: &str, is_visible: Option<bool>);
 }
 
@@ -906,6 +908,10 @@ impl DatabaseViewEditor {
     field_ids: Vec<String>,
   ) -> Result<Vec<FieldSettings>, anyhow::Error> {
     self.delegate.get_field_settings(&self.view_id, field_ids)
+  }
+
+  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_all_field_settings(&self.view_id)
   }
 
   pub async fn v_update_field_settings(

@@ -1116,6 +1116,14 @@ impl DatabaseEditor {
     view.v_get_field_settings(field_ids).await
   }
 
+  pub async fn get_all_field_settings(
+    &self,
+    view_id: &str,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_get_all_field_settings().await
+  }
+
   pub async fn update_field_settings_with_changeset(
     &self,
     params: FieldSettingsChangesetParams,
@@ -1400,6 +1408,17 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     field_settings
   }
 
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    field_settings
+  }
+
   fn update_field_settings(&self, view_id: &str, field_id: &str, is_visible: Option<bool>) {
     let field_settings = self
       .get_field_settings(view_id, vec![field_id.to_string()])
@@ -1407,7 +1426,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
     let new_field_settings = match field_settings {
       Some(field_settings) => {
-        let field_settings = field_settings.first().unwrap();
+        let mut field_settings = field_settings.first().unwrap().clone();
         field_settings.is_visible = is_visible.unwrap_or(field_settings.is_visible);
         field_settings.clone()
       },

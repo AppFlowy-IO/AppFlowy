@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
+use flowy_database2::services::field_settings::default_field_settings_by_layout;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -8,16 +11,22 @@ use flowy_database2::services::setting::CalendarLayoutSetting;
 
 use crate::database::database_editor::TestRowBuilder;
 
+use super::anymap_from_hashmap;
+
 // Calendar unit test mock data
 pub fn make_test_calendar() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+  let mut field_settings_map = HashMap::new();
+  let default_field_settings = default_field_settings_by_layout(DatabaseLayout::Calendar);
+
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
     .visibility(true)
     .primary(true)
     .build();
+  field_settings_map.insert(text_field.id.clone(), default_field_settings.clone());
   fields.push(text_field);
 
   // date
@@ -25,7 +34,7 @@ pub fn make_test_calendar() -> DatabaseData {
     .name("Date")
     .visibility(true)
     .build();
-
+  field_settings_map.insert(date_field.id.clone(), default_field_settings.clone());
   let date_field_id = date_field.id.clone();
   fields.push(date_field);
 
@@ -36,6 +45,7 @@ pub fn make_test_calendar() -> DatabaseData {
     .name("Tags")
     .visibility(true)
     .build();
+  field_settings_map.insert(multi_select_field.id.clone(), default_field_settings);
   fields.push(multi_select_field);
 
   let calendar_setting: LayoutSetting = CalendarLayoutSetting::new(date_field_id).into();
@@ -120,7 +130,7 @@ pub fn make_test_calendar() -> DatabaseData {
     field_orders: vec![],
     created_at: 0,
     modified_at: 0,
-    field_settings: default_field_settings_by_layout(DatabaseLayout::Calendar),
+    field_settings: anymap_from_hashmap(field_settings_map),
   };
 
   DatabaseData { view, fields, rows }

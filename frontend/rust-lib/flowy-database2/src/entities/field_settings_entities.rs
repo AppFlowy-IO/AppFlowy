@@ -1,5 +1,6 @@
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use std::ops::Deref;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::RepeatedFieldIdPB;
@@ -46,8 +47,9 @@ impl TryInto<(String, Vec<String>)> for FieldIdsPB {
       .0;
     let field_ids = self
       .field_ids
+      .deref()
       .into_iter()
-      .map(|field_id| field_id.field_id)
+      .map(|field_id| field_id.field_id.clone())
       .collect();
 
     Ok((view_id, field_ids))
