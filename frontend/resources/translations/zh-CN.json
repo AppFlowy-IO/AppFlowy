@@ -548,5 +548,6 @@
   "message.copy.fail": "无法复制",
   "unSupportBlock": "当前版本不支持该块。",
   "views.deleteContentTitle": "您确定要删除 {pageType} 吗？",
-  "views.deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
+  "views.deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。",
+  "settings.shortcuts.shortcutsLabel": "快捷键"
 }

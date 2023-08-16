@@ -592,5 +592,7 @@
   "emoji.categories.symbols": "符號",
   "emoji.categories.flags": "旗幟",
   "emoji.categories.nature": "自然",
-  "emoji.categories.frequentlyUsed": "常用"
+  "emoji.categories.frequentlyUsed": "常用",
+  "settings.menu.syncSetting": "同步設定",
+  "settings.menu.historicalUserList": "用戶登錄記錄"
 }
