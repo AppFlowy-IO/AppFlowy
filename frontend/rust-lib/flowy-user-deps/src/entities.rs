@@ -25,7 +25,7 @@ pub struct SignInResponse {
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
-  pub encrypt_type: EncryptionType,
+  pub encryption_type: EncryptionType,
 }
 
 impl UserAuthResponse for SignInResponse {
@@ -58,7 +58,7 @@ impl UserAuthResponse for SignInResponse {
   }
 
   fn encryption_type(&self) -> EncryptionType {
-    self.encrypt_type.clone()
+    self.encryption_type.clone()
   }
 }
 
@@ -195,7 +195,7 @@ pub struct UserProfile {
   pub encryption_type: EncryptionType,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
 pub enum EncryptionType {
   #[default]
   NoEncryption,
@@ -283,8 +283,12 @@ impl UpdateUserProfileParams {
     self
   }
 
-  pub fn with_encrypt(mut self, encrypt_sign: String) -> Self {
-    self.encryption_sign = Some(encrypt_sign);
+  pub fn with_encryption_type(mut self, encryption_type: EncryptionType) -> Self {
+    let sign = match encryption_type {
+      EncryptionType::NoEncryption => "".to_string(),
+      EncryptionType::SelfEncryption(sign) => sign,
+    };
+    self.encryption_sign = Some(sign);
     self
   }
 

@@ -65,7 +65,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
-        encrypt_type: EncryptionType::NoEncryption,
+        encryption_type: EncryptionType::NoEncryption,
       })
     })
   }

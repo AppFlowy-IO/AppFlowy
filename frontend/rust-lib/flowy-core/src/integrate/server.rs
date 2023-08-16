@@ -17,7 +17,7 @@ use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
-use flowy_server::{AppFlowyEncryption, AppFlowyServer};
+use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::event_map::UserCloudServiceProvider;
@@ -429,27 +429,5 @@ impl LocalServerDB for LocalServerDBImpl {
       .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
 
     Ok(updates)
-  }
-}
-
-struct EncryptionImpl {
-  secret: RwLock<Option<String>>,
-}
-
-impl EncryptionImpl {
-  fn new(secret: Option<String>) -> Self {
-    Self {
-      secret: RwLock::new(secret),
-    }
-  }
-}
-
-impl AppFlowyEncryption for EncryptionImpl {
-  fn get_secret(&self) -> Option<String> {
-    self.secret.read().clone()
-  }
-
-  fn set_secret(&self, secret: String) {
-    *self.secret.write() = Some(secret);
   }
 }

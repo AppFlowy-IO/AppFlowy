@@ -16,7 +16,7 @@ pub struct UserTable {
   pub(crate) token: String,
   pub(crate) email: String,
   pub(crate) auth_type: i32,
-  pub(crate) encryption_sign: String,
+  pub(crate) encryption_type: String,
 }
 
 impl UserTable {
@@ -29,7 +29,7 @@ impl UserTable {
 impl From<(UserProfile, AuthType)> for UserTable {
   fn from(value: (UserProfile, AuthType)) -> Self {
     let (user_profile, auth_type) = value;
-    let encryption_sign = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
+    let encryption_type = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTable {
       id: user_profile.uid.to_string(),
       name: user_profile.name,
@@ -39,7 +39,7 @@ impl From<(UserProfile, AuthType)> for UserTable {
       token: user_profile.token,
       email: user_profile.email,
       auth_type: auth_type as i32,
-      encryption_sign,
+      encryption_type,
     }
   }
 }
@@ -55,7 +55,7 @@ impl From<UserTable> for UserProfile {
       openai_key: table.openai_key,
       workspace_id: table.workspace,
       auth_type: AuthType::from(table.auth_type),
-      encryption_type: EncryptionType::from_str(&table.encryption_sign).unwrap_or_default(),
+      encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
     }
   }
 }

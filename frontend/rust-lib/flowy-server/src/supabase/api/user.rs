@@ -83,12 +83,6 @@ where
         user_profile.name
       };
 
-      let encryption_type = if user_profile.encryption_sign.is_empty() {
-        EncryptionType::NoEncryption
-      } else {
-        EncryptionType::SelfEncryption(user_profile.encryption_sign)
-      };
-
       Ok(SignUpResponse {
         user_id: user_profile.uid,
         name: user_name,
@@ -98,7 +92,7 @@ where
         email: Some(user_profile.email),
         token: None,
         device_id: params.device_id,
-        encryption_type,
+        encryption_type: encryption_type_from_sign(user_profile.encryption_sign),
       })
     })
   }
@@ -126,7 +120,7 @@ where
         email: None,
         token: None,
         device_id: params.device_id,
-        encrypt_type: EncryptionType::SelfEncryption(response.encryption_sign),
+        encryption_type: encryption_type_from_sign(params.encryption_sign),
       })
     })
   }
@@ -171,8 +165,7 @@ where
           openai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
-          encryption_type: EncryptionType::from_str(&response.encryption_sign)
-            .unwrap_or(EncryptionType::NoEncryption),
+          encryption_type: encryption_type_from_sign(response.encryption_sign),
         })),
       }
     })
@@ -353,4 +346,12 @@ async fn check_user(
     anyhow::bail!("user does not exist, uid: {:?}, uuid: {:?}", uid, uuid);
   }
   Ok(())
+}
+
+fn encryption_type_from_sign(sign: String) -> EncryptionType {
+  if sign.is_empty() {
+    EncryptionType::NoEncryption
+  } else {
+    EncryptionType::SelfEncryption(sign)
+  }
 }

@@ -59,6 +59,23 @@ pub trait SupabaseServerService: Send + Sync + 'static {
   fn try_get_weak_postgrest(&self) -> Result<Weak<PostgresWrapper>, Error>;
 }
 
+impl<T> SupabaseServerService for Arc<T>
+where
+  T: SupabaseServerService,
+{
+  fn get_postgrest(&self) -> Option<Arc<PostgresWrapper>> {
+    (**self).get_postgrest()
+  }
+
+  fn try_get_postgrest(&self) -> Result<Arc<PostgresWrapper>, Error> {
+    (**self).try_get_postgrest()
+  }
+
+  fn try_get_weak_postgrest(&self) -> Result<Weak<PostgresWrapper>, Error> {
+    (**self).try_get_weak_postgrest()
+  }
+}
+
 #[derive(Clone)]
 pub struct SupabaseServerServiceImpl(pub Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>);
 

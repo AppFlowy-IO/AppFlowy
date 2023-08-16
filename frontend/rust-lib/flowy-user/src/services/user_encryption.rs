@@ -1,6 +1,6 @@
 use flowy_encrypt::{decrypt_string, encrypt_string};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_deps::entities::{UpdateUserProfileParams, UserCredentials};
+use flowy_user_deps::entities::{EncryptionType, UpdateUserProfileParams, UserCredentials};
 
 use crate::manager::UserManager;
 use crate::services::cloud_config::get_encrypt_secret;
@@ -10,16 +10,17 @@ impl UserManager {
     &self,
     uid: i64,
     secret: String,
-    encrypt_sign: String,
+    encryption_type: EncryptionType,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
       .update_user(
         UserCredentials::from_uid(uid),
-        UpdateUserProfileParams::new(uid).with_encrypt(encrypt_sign),
+        UpdateUserProfileParams::new(uid).with_encryption_type(encryption_type),
       )
       .await?;
+    let _ = self.get_user_profile(uid, true).await;
     self.cloud_services.set_encrypt_secret(secret);
     Ok(())
   }

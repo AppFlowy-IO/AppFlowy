@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
+use parking_lot::RwLock;
 use serde_json::Value;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -42,4 +43,26 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
   fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>>;
   fn handle_realtime_event(&self, _json: Value) {}
+}
+
+pub struct EncryptionImpl {
+  secret: RwLock<Option<String>>,
+}
+
+impl EncryptionImpl {
+  pub fn new(secret: Option<String>) -> Self {
+    Self {
+      secret: RwLock::new(secret),
+    }
+  }
+}
+
+impl AppFlowyEncryption for EncryptionImpl {
+  fn get_secret(&self) -> Option<String> {
+    self.secret.read().clone()
+  }
+
+  fn set_secret(&self, secret: String) {
+    *self.secret.write() = Some(secret);
+  }
 }

@@ -258,7 +258,7 @@ pub async fn set_cloud_config_handler(
         .set_encrypt_secret(
           session.user_id,
           config.encrypt_secret.clone(),
-          encryption_sign,
+          EncryptionType::SelfEncryption(encryption_sign),
         )
         .await?;
     }

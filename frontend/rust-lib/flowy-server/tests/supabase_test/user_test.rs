@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+use flowy_encrypt::{encrypt_string, generate_encrypt_secret};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
@@ -110,4 +111,38 @@ async fn supabase_get_not_exist_user_profile_test() {
     .unwrap();
   // user not found
   assert!(result.is_none());
+}
+
+#[tokio::test]
+async fn user_encryption_sign_test() {
+  if get_supabase_ci_config().is_none() {
+    return;
+  }
+  let user_service = user_auth_service();
+  let uuid = Uuid::new_v4().to_string();
+  let params = sign_up_param(uuid);
+  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+
+  // generate encryption sign
+  let secret = generate_encrypt_secret();
+  let sign = encrypt_string(user.user_id.to_string(), &secret).unwrap();
+
+  user_service
+    .update_user(
+      UserCredentials::from_uid(user.user_id),
+      UpdateUserProfileParams::new(user.user_id)
+        .with_encryption_type(EncryptionType::SelfEncryption(sign.clone())),
+    )
+    .await
+    .unwrap();
+
+  let user_profile: UserProfile = user_service
+    .get_user_profile(UserCredentials::from_uid(user.user_id))
+    .await
+    .unwrap()
+    .unwrap();
+  assert_eq!(
+    user_profile.encryption_type,
+    EncryptionType::SelfEncryption(sign)
+  );
 }

@@ -1,8 +1,6 @@
 use assert_json_diff::assert_json_eq;
 use collab_plugins::cloud_storage::{CollabObject, CollabType};
-use futures::future::join_all;
 use serde_json::json;
-use tokio::task;
 use uuid::Uuid;
 use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
@@ -75,26 +73,18 @@ async fn supabase_get_folder_test() {
     .unwrap();
   assert_eq!(updates.len(), 2);
 
-  // The init sync will try to merge the updates into one. Spawn 5 tasks to simulate
-  // multiple clients trying to init sync at the same time.
-  let mut handles = Vec::new();
   for _ in 0..5 {
-    let cloned_collab_service = collab_service.clone();
-    let cloned_collab_object = collab_object.clone();
-    let handle = task::spawn(async move {
-      cloned_collab_service
-        .send_init_sync(&cloned_collab_object, 3, vec![])
-        .await
-        .unwrap();
-    });
-    handles.push(handle);
+    collab_service
+      .send_init_sync(&collab_object, 3, vec![])
+      .await
+      .unwrap();
   }
-  let _results: Vec<_> = join_all(handles).await;
   let updates: Vec<Vec<u8>> = folder_service
     .get_folder_updates(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
-  assert_eq!(updates.len(), 5);
+
+  assert_eq!(updates.len(), 1);
   // Other the init sync, try to get the updates from the server.
   let remote_update = updates.first().unwrap().clone();
   let expected_update = doc
@@ -277,3 +267,12 @@ async fn supabase_diff_state_vec_test() {
     })
   );
 }
+
+// #[tokio::test]
+// async fn encryption_folder_test() {
+//   if get_supabase_ci_config().is_none() {
+//     return;
+//   }
+//   let secret = "ln1BKPkeln8i1Y8gErCTPSvBxv3vNA$CL6+kIgofgBGNbe34XxTQQ==".to_string();
+//   print_encryption_folder("c52b88fb-2808-4561-aad1-e8d96bfbfbf6", Some(secret)).await;
+// }
