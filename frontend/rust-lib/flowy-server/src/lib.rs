@@ -15,9 +15,26 @@ pub mod self_host;
 pub mod supabase;
 pub mod util;
 
+pub trait AppFlowyEncryption: Send + Sync + 'static {
+  fn get_secret(&self) -> Option<String>;
+  fn set_secret(&self, secret: String);
+}
+
+impl<T> AppFlowyEncryption for Arc<T>
+where
+  T: AppFlowyEncryption,
+{
+  fn get_secret(&self) -> Option<String> {
+    (**self).get_secret()
+  }
+
+  fn set_secret(&self, secret: String) {
+    (**self).set_secret(secret)
+  }
+}
+
 pub trait AppFlowyServer: Send + Sync + 'static {
   fn set_enable_sync(&self, _enable: bool) {}
-  fn set_enable_encrypt(&self, _secret: String) {}
   fn set_sync_device_id(&self, _device_id: &str) {}
   fn user_service(&self) -> Arc<dyn UserService>;
   fn folder_service(&self) -> Arc<dyn FolderCloudService>;

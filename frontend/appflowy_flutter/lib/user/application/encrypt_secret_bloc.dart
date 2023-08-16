@@ -25,7 +25,7 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
           final payload = UserSecretPB.create()
             ..encryptionSecret = secret
             ..encryptionSign = user.encryptionSign
-            ..encryptionTy = user.encryptionTy
+            ..encryptionType = user.encryptionType
             ..userId = user.id;
           UserEventSetEncryptionSecret(payload).send().then((result) {
             if (!isClosed) {

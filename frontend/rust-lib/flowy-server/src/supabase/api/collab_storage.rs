@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
@@ -23,17 +23,31 @@ use crate::supabase::api::util::{
 };
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
+use crate::AppFlowyEncryption;
 
 pub struct SupabaseCollabStorageImpl<T> {
   server: T,
   rx: Mutex<Option<RemoteUpdateReceiver>>,
+  encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl<T> SupabaseCollabStorageImpl<T> {
-  pub fn new(server: T, rx: Option<RemoteUpdateReceiver>) -> Self {
+  pub fn new(
+    server: T,
+    rx: Option<RemoteUpdateReceiver>,
+    encryption: Weak<dyn AppFlowyEncryption>,
+  ) -> Self {
     Self {
       server,
       rx: Mutex::new(rx),
+      encryption,
+    }
+  }
+
+  pub fn secret(&self) -> Option<String> {
+    match self.encryption.upgrade() {
+      None => None,
+      Some(encryption) => encryption.get_secret(),
     }
   }
 }
@@ -116,7 +130,7 @@ where
       let workspace_id = object
         .get_workspace_id()
         .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-      send_update(workspace_id, object, update, &postgrest).await?;
+      send_update(workspace_id, object, update, &postgrest, &self.secret()).await?;
     }
 
     Ok(())
@@ -138,7 +152,14 @@ where
 
     // If the update_items is empty, we can send the init_update directly
     if update_items.is_empty() {
-      send_update(workspace_id, object, init_update, &postgrest).await?;
+      send_update(
+        workspace_id,
+        object,
+        init_update,
+        &postgrest,
+        &self.secret(),
+      )
+      .await?;
     } else {
       // 2.Merge the updates into one and then delete the merged updates
       let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
@@ -146,10 +167,12 @@ where
 
       let value_size = merge_result.new_update.len() as i32;
       let md5 = md5(&merge_result.new_update);
-      let new_update = format!("\\x{}", hex::encode(merge_result.new_update));
+      let (new_update, encrypt) =
+        SupabaseBinaryColumnEncoder::encode(merge_result.new_update, &self.secret())?;
       let params = InsertParamsBuilder::new()
         .insert("oid", object.object_id.clone())
         .insert("new_value", new_update)
+        .insert("encrypt", encrypt)
         .insert("md5", md5)
         .insert("value_size", value_size)
         .insert("partition_key", partition_key(&object.ty))
@@ -160,7 +183,7 @@ where
         .build();
 
       postgrest
-        .rpc("flush_collab_updates_v2", params)
+        .rpc("flush_collab_updates_v3", params)
         .execute()
         .await?
         .success()
@@ -183,14 +206,16 @@ async fn send_update(
   object: &CollabObject,
   update: Vec<u8>,
   postgrest: &Arc<PostgresWrapper>,
+  encryption_secret: &Option<String>,
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
   let md5 = md5(&update);
-  let update = SupabaseBinaryColumnEncoder::encode(update);
+  let (update, encrypt) = SupabaseBinaryColumnEncoder::encode(update, encryption_secret)?;
   let builder = InsertParamsBuilder::new()
     .insert("oid", object.object_id.clone())
     .insert("partition_key", partition_key(&object.ty))
     .insert("value", update)
+    .insert("encrypt", encrypt)
     .insert("uid", object.uid)
     .insert("md5", md5)
     .insert("workspace_id", workspace_id)

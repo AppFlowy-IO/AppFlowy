@@ -133,7 +133,7 @@ pub struct UserSecretPB {
   pub encryption_secret: String,
 
   #[pb(index = 3)]
-  pub encryption_ty: EncryptionTypePB,
+  pub encryption_type: EncryptionTypePB,
 
   #[pb(index = 4)]
   pub encryption_sign: String,

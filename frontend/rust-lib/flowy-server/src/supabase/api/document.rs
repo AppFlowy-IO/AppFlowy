@@ -11,10 +11,13 @@ use lib_infra::future::FutureResult;
 use crate::supabase::api::request::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
 use crate::supabase::api::SupabaseServerService;
 
-pub struct SupabaseDocumentServiceImpl<T>(T);
+pub struct SupabaseDocumentServiceImpl<T> {
+  server: T,
+}
+
 impl<T> SupabaseDocumentServiceImpl<T> {
   pub fn new(server: T) -> Self {
-    Self(server)
+    Self { server }
   }
 }
 
@@ -23,7 +26,7 @@ where
   T: SupabaseServerService,
 {
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let try_get_postgrest = self.0.try_get_weak_postgrest();
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
@@ -43,7 +46,7 @@ where
     &self,
     document_id: &str,
   ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    let try_get_postgrest = self.0.try_get_postgrest();
+    let try_get_postgrest = self.server.try_get_postgrest();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -60,7 +63,7 @@ where
   }
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
-    let try_get_postgrest = self.0.try_get_weak_postgrest();
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {

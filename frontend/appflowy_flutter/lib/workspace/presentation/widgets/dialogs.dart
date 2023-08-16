@@ -125,10 +125,17 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(
-              widget.title,
-              fontSize: FontSizes.s16,
-              color: Theme.of(context).colorScheme.tertiary,
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 300,
+                maxHeight: 100,
+              ),
+              child: FlowyText.medium(
+                widget.title,
+                fontSize: FontSizes.s16,
+                color: Theme.of(context).colorScheme.tertiary,
+                maxLines: null,
+              ),
             ),
           ],
           if (widget.confirm != null) ...[

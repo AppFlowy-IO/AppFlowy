@@ -90,12 +90,11 @@ async fn supabase_get_folder_test() {
     handles.push(handle);
   }
   let _results: Vec<_> = join_all(handles).await;
-  // after the init sync, the updates should be merged into one.
   let updates: Vec<Vec<u8>> = folder_service
     .get_folder_updates(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
-  assert_eq!(updates.len(), 1);
+  assert_eq!(updates.len(), 5);
   // Other the init sync, try to get the updates from the server.
   let remote_update = updates.first().unwrap().clone();
   let expected_update = doc

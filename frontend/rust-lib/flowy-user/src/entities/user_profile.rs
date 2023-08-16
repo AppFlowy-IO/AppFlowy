@@ -47,7 +47,7 @@ pub struct UserProfilePB {
   pub encryption_sign: String,
 
   #[pb(index = 9)]
-  pub encryption_ty: EncryptionTypePB,
+  pub encryption_type: EncryptionTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -77,7 +77,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       openai_key: user_profile.openai_key,
       auth_type: user_profile.auth_type.into(),
       encryption_sign,
-      encryption_ty,
+      encryption_type: encryption_ty,
     }
   }
 }

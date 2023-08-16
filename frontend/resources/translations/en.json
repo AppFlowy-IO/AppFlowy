@@ -226,6 +226,7 @@
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
+      "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
       "enableEncrypt": "Encrypt data",

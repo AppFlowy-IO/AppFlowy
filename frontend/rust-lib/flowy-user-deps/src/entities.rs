@@ -13,7 +13,7 @@ pub trait UserAuthResponse {
   fn device_id(&self) -> &str;
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
-  fn encryption_sign(&self) -> EncryptionType;
+  fn encryption_type(&self) -> EncryptionType;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -57,7 +57,7 @@ impl UserAuthResponse for SignInResponse {
     self.email.clone()
   }
 
-  fn encryption_sign(&self) -> EncryptionType {
+  fn encryption_type(&self) -> EncryptionType {
     self.encrypt_type.clone()
   }
 }
@@ -122,7 +122,7 @@ impl UserAuthResponse for SignUpResponse {
     self.email.clone()
   }
 
-  fn encryption_sign(&self) -> EncryptionType {
+  fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
   }
 }
@@ -234,7 +234,7 @@ where
       openai_key: "".to_owned(),
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
-      encryption_type: value.encryption_sign(),
+      encryption_type: value.encryption_type(),
     }
   }
 }

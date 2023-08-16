@@ -17,7 +17,7 @@ use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::self_host::configuration::self_host_server_configuration;
 use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
-use flowy_server::AppFlowyServer;
+use flowy_server::{AppFlowyEncryption, AppFlowyServer};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::event_map::UserCloudServiceProvider;
@@ -66,7 +66,8 @@ pub struct AppFlowyServerProvider {
   provider_type: RwLock<ServerProviderType>,
   device_id: Mutex<String>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
-  cloud_config: RwLock<UserCloudConfig>,
+  enable_sync: RwLock<bool>,
+  encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   store_preferences: Weak<StorePreferences>,
 }
 
@@ -74,15 +75,26 @@ impl AppFlowyServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
     provider_type: ServerProviderType,
-    cloud_config: UserCloudConfig,
+    cloud_config: Option<UserCloudConfig>,
     store_preferences: Weak<StorePreferences>,
   ) -> Self {
+    let enable_sync = cloud_config
+      .as_ref()
+      .map(|config| config.enable_sync)
+      .unwrap_or(true);
+    let encryption = EncryptionImpl::new(
+      cloud_config
+        .as_ref()
+        .map(|config| config.encrypt_secret.clone()),
+    );
+
     Self {
       config,
       provider_type: RwLock::new(provider_type),
       device_id: Default::default(),
       providers: RwLock::new(HashMap::new()),
-      cloud_config: RwLock::new(cloud_config),
+      enable_sync: RwLock::new(enable_sync),
+      encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
     }
   }
@@ -128,18 +140,11 @@ impl AppFlowyServerProvider {
       },
       ServerProviderType::Supabase => {
         let config = SupabaseConfiguration::from_env()?;
-        let read_guard = self.cloud_config.read();
-        let enable_sync = read_guard.enable_sync;
-        let encrypt_secret = if read_guard.enable_encrypt {
-          Some(read_guard.encrypt_secret.clone())
-        } else {
-          None
-        };
-        drop(read_guard);
+        let encryption = Arc::downgrade(&*self.encryption.read());
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
           config,
-          enable_sync,
-          encrypt_secret,
+          *self.enable_sync.read(),
+          encryption,
         )))
       },
     }?;
@@ -163,22 +168,16 @@ impl AppFlowyServerProvider {
 impl UserCloudServiceProvider for AppFlowyServerProvider {
   fn set_enable_sync(&self, enable_sync: bool) {
     match self.get_provider(&self.provider_type.read()) {
-      Ok(provider) => {
-        provider.set_enable_sync(enable_sync);
-        self.cloud_config.write().enable_sync = enable_sync;
+      Ok(server) => {
+        server.set_enable_sync(enable_sync);
+        *self.enable_sync.write() = enable_sync;
       },
       Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
     }
   }
 
   fn set_encrypt_secret(&self, secret: String) {
-    match self.get_provider(&self.provider_type.read()) {
-      Ok(provider) => {
-        provider.set_enable_encrypt(secret);
-        self.cloud_config.write().enable_encrypt = true;
-      },
-      Err(e) => tracing::error!("🔴Failed to enable encrypt: {:?}", e),
-    }
+    self.encryption.write().set_secret(secret);
   }
 
   /// When user login, the provider type is set by the [AuthType] and save to disk for next use.
@@ -378,7 +377,7 @@ impl CollabStorageProvider for AppFlowyServerProvider {
   }
 
   fn is_sync_enabled(&self) -> bool {
-    self.cloud_config.read().enable_sync
+    *self.enable_sync.read()
   }
 }
 
@@ -430,5 +429,27 @@ impl LocalServerDB for LocalServerDBImpl {
       .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
 
     Ok(updates)
+  }
+}
+
+struct EncryptionImpl {
+  secret: RwLock<Option<String>>,
+}
+
+impl EncryptionImpl {
+  fn new(secret: Option<String>) -> Self {
+    Self {
+      secret: RwLock::new(secret),
+    }
+  }
+}
+
+impl AppFlowyEncryption for EncryptionImpl {
+  fn get_secret(&self) -> Option<String> {
+    self.secret.read().clone()
+  }
+
+  fn set_secret(&self, secret: String) {
+    *self.secret.write() = Some(secret);
   }
 }

@@ -11,6 +11,7 @@ use flowy_server::supabase::api::{
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_server::AppFlowyEncryption;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
@@ -22,18 +23,36 @@ pub fn get_supabase_ci_config() -> Option<SupabaseConfiguration> {
   SupabaseConfiguration::from_env().ok()
 }
 
+struct TestEncryptionImpl;
+impl AppFlowyEncryption for TestEncryptionImpl {
+  fn get_secret(&self) -> Option<String> {
+    None
+  }
+
+  fn set_secret(&self, _secret: String) {}
+}
+
 pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
   let config = SupabaseConfiguration::from_env().unwrap();
-  let server = Arc::new(RESTfulPostgresServer::new(config));
+  let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(TestEncryptionImpl);
+  let server = Arc::new(RESTfulPostgresServer::new(
+    config,
+    Arc::downgrade(&encryption_impl),
+  ));
   Arc::new(SupabaseCollabStorageImpl::new(
     SupabaseServerServiceImpl::new(server),
     None,
+    Arc::downgrade(&encryption_impl),
   ))
 }
 
 pub fn database_service() -> Arc<dyn DatabaseCloudService> {
   let config = SupabaseConfiguration::from_env().unwrap();
-  let server = Arc::new(RESTfulPostgresServer::new(config));
+  let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(TestEncryptionImpl);
+  let server = Arc::new(RESTfulPostgresServer::new(
+    config,
+    Arc::downgrade(&encryption_impl),
+  ));
   Arc::new(SupabaseDatabaseServiceImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))
@@ -41,7 +60,11 @@ pub fn database_service() -> Arc<dyn DatabaseCloudService> {
 
 pub fn user_auth_service() -> Arc<dyn UserService> {
   let config = SupabaseConfiguration::from_env().unwrap();
-  let server = Arc::new(RESTfulPostgresServer::new(config));
+  let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(TestEncryptionImpl);
+  let server = Arc::new(RESTfulPostgresServer::new(
+    config,
+    Arc::downgrade(&encryption_impl),
+  ));
   Arc::new(SupabaseUserServiceImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))
@@ -49,7 +72,11 @@ pub fn user_auth_service() -> Arc<dyn UserService> {
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {
   let config = SupabaseConfiguration::from_env().unwrap();
-  let server = Arc::new(RESTfulPostgresServer::new(config));
+  let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(TestEncryptionImpl);
+  let server = Arc::new(RESTfulPostgresServer::new(
+    config,
+    Arc::downgrade(&encryption_impl),
+  ));
   Arc::new(SupabaseFolderServiceImpl::new(
     SupabaseServerServiceImpl::new(server),
   ))

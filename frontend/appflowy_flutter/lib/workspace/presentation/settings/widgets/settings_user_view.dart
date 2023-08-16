@@ -120,7 +120,7 @@ class SettingsUserView extends StatelessWidget {
           ),
           onTap: () async {
             NavigatorAlertDialog(
-              title: LocaleKeys.settings_menu_logoutPrompt.tr(),
+              title: logoutPromptMessage(),
               confirm: () async {
                 await getIt<AuthService>().signOut();
                 didLogout();
@@ -130,6 +130,15 @@ class SettingsUserView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String logoutPromptMessage() {
+    switch (user.encryptionType) {
+      case EncryptionTypePB.SelfEncryption:
+        return LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr();
+      default:
+        return LocaleKeys.settings_menu_logoutPrompt.tr();
+    }
   }
 }
 

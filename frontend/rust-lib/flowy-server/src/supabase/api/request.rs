@@ -167,10 +167,16 @@ pub async fn get_latest_snapshot_from_server(
     .as_array()
     .and_then(|array| array.first())
     .and_then(|value| {
-      let blob = value
-        .get("blob")
-        .and_then(|blob| blob.as_str())
-        .and_then(SupabaseBinaryColumnDecoder::decode)?;
+      let blob = match (
+        json.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
+        json.get("blob").and_then(|value| value.as_str()),
+      ) {
+        (Some(encrypt), Some(value)) => {
+          SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, &postgrest.secret()).ok()
+        },
+        _ => None,
+      }?;
+
       let sid = value.get("sid").and_then(|id| id.as_i64())?;
       let created_at = value.get("created_at").and_then(|created_at| {
         created_at
@@ -196,7 +202,7 @@ pub async fn batch_get_updates_from_server(
 ) -> Result<CollabObjectUpdateByOid, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("oid, key, value, md5")
+    .select("oid, key, value, encrypt, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .in_("oid", object_ids)
     .execute()
@@ -208,7 +214,7 @@ pub async fn batch_get_updates_from_server(
   if let Some(records) = json.as_array() {
     for record in records {
       if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
-        if let Ok(updates) = parser_updates_form_json(record.clone()) {
+        if let Ok(updates) = parser_updates_form_json(record.clone(), &postgrest.secret()) {
           let object_updates = updates_by_oid
             .entry(oid.to_string())
             .or_insert_with(Vec::new);
@@ -230,14 +236,14 @@ pub async fn get_updates_from_server(
 ) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("key, value, md5")
+    .select("key, value, encrypt, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .eq("oid", object_id)
     .execute()
     .await?
     .get_json()
     .await?;
-  parser_updates_form_json(json)
+  parser_updates_form_json(json, &postgrest.secret())
 }
 
 /// json format:
@@ -245,24 +251,29 @@ pub async fn get_updates_from_server(
 /// [
 ///  {
 ///   "value": "\\x...",
+///   "encrypt": 1,
 ///   "md5": "..."
 ///  },
 ///  {
 ///   "value": "\\x...",
+///   "encrypt": 1,
 ///   "md5": "..."
 ///  },
 /// ...
 /// ]
 /// ```
-fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
+fn parser_updates_form_json(
+  json: Value,
+  encryption_secret: &Option<String>,
+) -> Result<Vec<UpdateItem>, Error> {
   let mut updates = vec![];
   match json.as_array() {
     None => {
-      updates.push(parser_update_from_json(&json)?);
+      updates.push(parser_update_from_json(&json, encryption_secret)?);
     },
     Some(values) => {
       for value in values {
-        updates.push(parser_update_from_json(value)?);
+        updates.push(parser_update_from_json(value, encryption_secret)?);
       }
     },
   }
@@ -270,11 +281,36 @@ fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
   Ok(updates)
 }
 
-fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
-  let some_record = json
-    .get("value")
-    .and_then(|value| value.as_str())
-    .and_then(SupabaseBinaryColumnDecoder::decode);
+/// Parses update from a JSON representation.
+///
+/// This function attempts to decode an encrypted value from a JSON object
+/// and verify its integrity against a provided MD5 hash.
+///
+/// # Parameters
+/// - `json`: The JSON value representing the update information.
+/// - `encryption_secret`: An optional encryption secret used for decrypting the value.
+///
+/// json format:
+/// ```json
+///  {
+///   "value": "\\x...",
+///   "encrypt": 1,
+///   "md5": "..."
+///  },
+/// ```
+fn parser_update_from_json(
+  json: &Value,
+  encryption_secret: &Option<String>,
+) -> Result<UpdateItem, Error> {
+  let some_record = match (
+    json.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
+    json.get("value").and_then(|value| value.as_str()),
+  ) {
+    (Some(encrypt), Some(value)) => {
+      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret).ok()
+    },
+    _ => None,
+  };
 
   let some_key = json.get("key").and_then(|value| value.as_i64());
   if let (Some(value), Some(key)) = (some_record, some_key) {

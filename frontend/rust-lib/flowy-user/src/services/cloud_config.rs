@@ -32,11 +32,13 @@ fn cache_key_for_cloud_config() -> String {
   CLOUD_CONFIG_KEY.to_string()
 }
 
-pub fn get_cloud_config(store_preference: &Arc<StorePreferences>) -> UserCloudConfig {
+pub fn get_cloud_config(store_preference: &Arc<StorePreferences>) -> Option<UserCloudConfig> {
   let key = cache_key_for_cloud_config();
-  store_preference
-    .get_object::<UserCloudConfig>(&key)
-    .unwrap_or_else(|| generate_cloud_config(store_preference))
+  store_preference.get_object::<UserCloudConfig>(&key)
+}
+
+pub fn get_or_create_cloud_config(store_preference: &Arc<StorePreferences>) -> UserCloudConfig {
+  get_cloud_config(store_preference).unwrap_or_else(|| generate_cloud_config(store_preference))
 }
 
 pub fn get_encrypt_secret(store_preference: &Arc<StorePreferences>) -> Option<String> {

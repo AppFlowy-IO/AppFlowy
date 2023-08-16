@@ -12,7 +12,7 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::*;
 use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::cloud_config::{get_cloud_config, save_cloud_config};
+use crate::services::cloud_config::{get_or_create_cloud_config, save_cloud_config};
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager
@@ -187,8 +187,8 @@ pub async fn set_encrypt_secret_handler(
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let data = data.into_inner();
 
-  let mut config = get_cloud_config(&store_preferences);
-  match data.encryption_ty {
+  let mut config = get_or_create_cloud_config(&store_preferences);
+  match data.encryption_type {
     EncryptionTypePB::NoEncryption => {
       tracing::error!("Encryption type is NoEncryption, but set encrypt secret");
     },
@@ -240,7 +240,7 @@ pub async fn set_cloud_config_handler(
   let session = manager.get_session()?;
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let update = data.into_inner();
-  let mut config = get_cloud_config(&store_preferences);
+  let mut config = get_or_create_cloud_config(&store_preferences);
 
   if let Some(enable_sync) = update.enable_sync {
     manager.cloud_services.set_enable_sync(enable_sync);
@@ -250,10 +250,16 @@ pub async fn set_cloud_config_handler(
   if let Some(enable_encrypt) = update.enable_encrypt {
     config.enable_encrypt = enable_encrypt;
     if enable_encrypt {
-      let encrypt_sign =
+      // The encryption secret is generated when the user first enables encryption and will be
+      // used to validate the encryption secret is correct when the user logs in.
+      let encryption_sign =
         manager.generate_encryption_sign(session.user_id, &config.encrypt_secret)?;
       manager
-        .set_encrypt_secret(session.user_id, config.encrypt_secret.clone(), encrypt_sign)
+        .set_encrypt_secret(
+          session.user_id,
+          config.encrypt_secret.clone(),
+          encryption_sign,
+        )
         .await?;
     }
   }
@@ -274,7 +280,7 @@ pub async fn get_cloud_config_handler(
   store_preferences: AFPluginState<Weak<StorePreferences>>,
 ) -> DataResult<UserCloudConfigPB, FlowyError> {
   let store_preferences = upgrade_store_preferences(store_preferences)?;
-  let config = get_cloud_config(&store_preferences);
+  let config = get_or_create_cloud_config(&store_preferences);
   data_result_ok(config.into())
 }
 

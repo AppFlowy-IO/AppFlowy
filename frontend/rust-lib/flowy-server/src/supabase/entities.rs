@@ -67,6 +67,8 @@ pub struct RealtimeCollabUpdate {
   pub did: String,
   #[serde(deserialize_with = "deserialize_value")]
   pub value: Vec<u8>,
+  #[serde(default)]
+  pub encrypt: i32,
 }
 
 pub fn deserialize_value<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
