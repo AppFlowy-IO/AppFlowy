@@ -12,15 +12,14 @@ impl UserManager {
     secret: String,
     encryption_type: EncryptionType,
   ) -> FlowyResult<()> {
+    let params = UpdateUserProfileParams::new(uid).with_encryption_type(encryption_type);
     self
       .cloud_services
       .get_user_service()?
-      .update_user(
-        UserCredentials::from_uid(uid),
-        UpdateUserProfileParams::new(uid).with_encryption_type(encryption_type),
-      )
+      .update_user(UserCredentials::from_uid(uid), params.clone())
       .await?;
-    let _ = self.get_user_profile(uid, true).await;
+
+    self.update_user_profile(params).await?;
     self.cloud_services.set_encrypt_secret(secret);
     Ok(())
   }

@@ -69,10 +69,15 @@ pub struct UserTableChangeset {
   pub email: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub encryption_type: Option<String>,
 }
 
 impl UserTableChangeset {
   pub fn new(params: UpdateUserProfileParams) -> Self {
+    let encryption_type = params.encryption_sign.map(|sign| {
+      let ty = EncryptionType::from_sign(&sign);
+      serde_json::to_string(&ty).unwrap_or_default()
+    });
     UserTableChangeset {
       id: params.uid.to_string(),
       workspace: None,
@@ -80,10 +85,12 @@ impl UserTableChangeset {
       email: params.email,
       icon_url: params.icon_url,
       openai_key: params.openai_key,
+      encryption_type,
     }
   }
 
   pub fn from_user_profile(user_profile: UserProfile) -> Self {
+    let encryption_type = serde_json::to_string(&user_profile.encryption_type).unwrap_or_default();
     UserTableChangeset {
       id: user_profile.uid.to_string(),
       workspace: None,
@@ -91,6 +98,7 @@ impl UserTableChangeset {
       email: Some(user_profile.email),
       icon_url: Some(user_profile.icon_url),
       openai_key: Some(user_profile.openai_key),
+      encryption_type: Some(encryption_type),
     }
   }
 }

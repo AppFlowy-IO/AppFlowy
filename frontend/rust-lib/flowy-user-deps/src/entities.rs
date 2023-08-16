@@ -203,6 +203,16 @@ pub enum EncryptionType {
 }
 
 impl EncryptionType {
+  pub fn from_sign(sign: &str) -> Self {
+    if sign.is_empty() {
+      EncryptionType::NoEncryption
+    } else {
+      EncryptionType::SelfEncryption(sign.to_owned())
+    }
+  }
+}
+
+impl EncryptionType {
   pub fn is_need_encrypt_secret(&self) -> bool {
     match self {
       EncryptionType::NoEncryption => false,
