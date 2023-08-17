@@ -525,7 +525,7 @@ impl UserManager {
     let session = Session::from(response);
     let user_profile = UserProfile::from((response, auth_type));
     let uid = user_profile.uid;
-    self.log_historical_user(
+    self.add_historical_user(
       uid,
       response.device_id(),
       response.user_name().to_string(),

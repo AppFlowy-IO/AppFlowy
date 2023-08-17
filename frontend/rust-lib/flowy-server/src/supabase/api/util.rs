@@ -180,13 +180,20 @@ impl SupabaseBinaryColumnDecoder {
       .as_ref()
       .strip_prefix("\\x")
       .ok_or(anyhow::anyhow!("Value is not start with: \\x",))?;
-    if encrypt == 0 || encryption_secret.is_none() {
+
+    if encrypt == 0 {
       let bytes = hex::decode(s)?;
       Ok(bytes)
     } else {
-      let encryption_secret = encryption_secret.as_ref().unwrap();
-      let encrypt_data = hex::decode(s)?;
-      decrypt_bytes(encrypt_data, encryption_secret)
+      match encryption_secret {
+        None => Err(anyhow::anyhow!(
+          "encryption_secret is None, but encrypt is 1"
+        )),
+        Some(encryption_secret) => {
+          let encrypt_data = hex::decode(s)?;
+          decrypt_bytes(encrypt_data, encryption_secret)
+        },
+      }
     }
   }
 }

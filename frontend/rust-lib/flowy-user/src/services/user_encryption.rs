@@ -18,9 +18,8 @@ impl UserManager {
       .get_user_service()?
       .update_user(UserCredentials::from_uid(uid), params.clone())
       .await?;
-
-    self.update_user_profile(params).await?;
     self.cloud_services.set_encrypt_secret(secret);
+
     Ok(())
   }
 
@@ -50,9 +49,9 @@ impl UserManager {
     &self,
     uid: i64,
     encrypt_sign: &str,
-    encrypt_secret: &str,
+    encryption_secret: &str,
   ) -> FlowyResult<()> {
-    let decrypt_str = decrypt_string(encrypt_sign, encrypt_secret)
+    let decrypt_str = decrypt_string(encrypt_sign, encryption_secret)
       .map_err(|_| FlowyError::new(ErrorCode::InvalidEncryptSecret, "Invalid decryption secret"))?;
     if uid.to_string() == decrypt_str {
       Ok(())

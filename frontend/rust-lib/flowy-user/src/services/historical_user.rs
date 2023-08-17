@@ -39,7 +39,7 @@ impl UserManager {
   /// - `auth_type`: The type of authentication used.
   /// - `storage_path`: Path where user data is stored.
   ///
-  pub fn log_historical_user(
+  pub fn add_historical_user(
     &self,
     uid: i64,
     device_id: &str,

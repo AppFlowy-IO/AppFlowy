@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_deps::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
@@ -63,10 +65,33 @@ pub fn encryption_folder_service(
   (service, encryption_impl)
 }
 
-#[allow(dead_code)]
-pub async fn print_encryption_folder(workspace_id: &str, encryption_secret: Option<String>) {
+pub fn encryption_collab_service(
+  secret: Option<String>,
+) -> (Arc<dyn RemoteCollabStorage>, Arc<dyn AppFlowyEncryption>) {
+  let (server, encryption_impl) = appflowy_server(secret);
+  let service = Arc::new(SupabaseCollabStorageImpl::new(
+    server,
+    None,
+    Arc::downgrade(&encryption_impl),
+  ));
+  (service, encryption_impl)
+}
+
+pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<String>) {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  let folder_data = cloud_service.get_folder_data(workspace_id).await.unwrap();
+  let folder_data = cloud_service.get_folder_data(folder_id).await.unwrap();
+  let json = serde_json::to_value(folder_data).unwrap();
+  println!("{}", serde_json::to_string_pretty(&json).unwrap());
+}
+
+pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret: Option<String>) {
+  let (cloud_service, _encryption) = encryption_collab_service(encryption_secret);
+  let snapshot = cloud_service.get_latest_snapshot(folder_id).await.unwrap();
+  let collab = Arc::new(
+    MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
+      .unwrap(),
+  );
+  let folder_data = Folder::open(collab, None).get_folder_data().unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }

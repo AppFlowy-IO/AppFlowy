@@ -217,7 +217,7 @@ where
           let postgrest = try_get_postgrest?;
           let action =
             FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
-          action.run_with_fix_interval(5, 10).await
+          action.run_with_fix_interval(3, 3).await
         }
         .await,
       )

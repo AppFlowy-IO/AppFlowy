@@ -1159,7 +1159,10 @@ unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
 pub enum FolderInitializeData {
+  /// It means using the data stored on local disk to initialize the folder
   Empty,
+  /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
   Raw(CollabRawData),
+  /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   Data(FolderData),
 }

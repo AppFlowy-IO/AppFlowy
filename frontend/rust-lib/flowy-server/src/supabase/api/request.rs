@@ -166,10 +166,10 @@ pub async fn get_latest_snapshot_from_server(
   let snapshot = json
     .as_array()
     .and_then(|array| array.first())
-    .and_then(|value| {
+    .and_then(|snapshot| {
       let blob = match (
-        json.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
-        json.get("blob").and_then(|value| value.as_str()),
+        snapshot.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
+        snapshot.get("blob").and_then(|value| value.as_str()),
       ) {
         (Some(encrypt), Some(value)) => {
           SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, &postgrest.secret()).ok()
@@ -177,8 +177,8 @@ pub async fn get_latest_snapshot_from_server(
         _ => None,
       }?;
 
-      let sid = value.get("sid").and_then(|id| id.as_i64())?;
-      let created_at = value.get("created_at").and_then(|created_at| {
+      let sid = snapshot.get("sid").and_then(|id| id.as_i64())?;
+      let created_at = snapshot.get("created_at").and_then(|created_at| {
         created_at
           .as_str()
           .map(|id| DateTime::<Utc>::from_str(id).ok())
@@ -213,15 +213,20 @@ pub async fn batch_get_updates_from_server(
   let mut updates_by_oid = CollabObjectUpdateByOid::new();
   if let Some(records) = json.as_array() {
     for record in records {
+      tracing::debug!("get updates from server: {:?}", record);
       if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
-        if let Ok(updates) = parser_updates_form_json(record.clone(), &postgrest.secret()) {
-          let object_updates = updates_by_oid
-            .entry(oid.to_string())
-            .or_insert_with(Vec::new);
-          tracing::debug!("get updates from server: {:?}", record);
-          for update in updates {
-            object_updates.push(update.value);
-          }
+        match parser_updates_form_json(record.clone(), &postgrest.secret()) {
+          Ok(updates) => {
+            let object_updates = updates_by_oid
+              .entry(oid.to_string())
+              .or_insert_with(Vec::new);
+            for update in updates {
+              object_updates.push(update.value);
+            }
+          },
+          Err(e) => {
+            tracing::error!("parser_updates_form_json error: {:?}", e);
+          },
         }
       }
     }
@@ -272,9 +277,15 @@ fn parser_updates_form_json(
       updates.push(parser_update_from_json(&json, encryption_secret)?);
     },
     Some(values) => {
+      let expected_update_len = values.len();
       for value in values {
         updates.push(parser_update_from_json(value, encryption_secret)?);
       }
+      debug_assert_eq!(
+        updates.len(),
+        expected_update_len,
+        "The length of the updates does not match the length of the expected updates, indicating that some updates failed to parse."
+      );
     },
   }
 
@@ -318,12 +329,14 @@ fn parser_update_from_json(
     // that we calculated locally.
     if let Some(expected_md5) = json.get("md5").and_then(|v| v.as_str()) {
       let value_md5 = md5(&value);
-      debug_assert!(
-        value_md5 == expected_md5,
-        "md5 not match: {} != {}",
-        value_md5,
-        expected_md5
-      );
+      if value_md5 != expected_md5 {
+        let msg = format!(
+          "md5 not match: key:{} {} != {}",
+          key, value_md5, expected_md5
+        );
+        tracing::error!("{}", msg);
+        return Err(anyhow::anyhow!(msg));
+      }
     }
     Ok(UpdateItem { key, value })
   } else {

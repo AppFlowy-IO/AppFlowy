@@ -64,30 +64,33 @@ class SplashScreen extends StatelessWidget {
 
     /// After a user is authenticated, this function checks if encryption is required.
     final result = await UserEventCheckEncryptionSign().send();
-    result.fold((check) async {
-      /// If encryption is needed, the user is navigated to the encryption screen.
-      /// Otherwise, it fetches the current workspace for the user and navigates them
-      if (check.isNeedSecret) {
-        getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
-      } else {
-        final result = await FolderEventGetCurrentWorkspace().send();
-        result.fold(
-          (workspaceSetting) {
-            getIt<SplashRoute>().pushHomeScreen(
-              context,
-              userProfile,
-              workspaceSetting,
-            );
-          },
-          (error) async {
-            Log.error(error);
-            getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
-          },
-        );
-      }
-    }, (r) {
-      getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
-    });
+    result.fold(
+      (check) async {
+        /// If encryption is needed, the user is navigated to the encryption screen.
+        /// Otherwise, it fetches the current workspace for the user and navigates them
+        if (check.isNeedSecret) {
+          getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
+        } else {
+          final result = await FolderEventGetCurrentWorkspace().send();
+          result.fold(
+            (workspaceSetting) {
+              getIt<SplashRoute>().pushHomeScreen(
+                context,
+                userProfile,
+                workspaceSetting,
+              );
+            },
+            (error) async {
+              Log.error(error);
+              getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+            },
+          );
+        }
+      },
+      (err) {
+        Log.error(err);
+      },
+    );
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {

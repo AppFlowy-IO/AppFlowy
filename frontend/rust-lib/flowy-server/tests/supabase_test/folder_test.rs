@@ -10,7 +10,8 @@ use flowy_user_deps::entities::SignUpResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
-  collab_service, folder_service, get_supabase_ci_config, sign_up_param, user_auth_service,
+  collab_service, folder_service, get_supabase_ci_config, get_supabase_dev_config,
+  print_encryption_folder, print_encryption_folder_snapshot, sign_up_param, user_auth_service,
 };
 
 #[tokio::test]
@@ -268,11 +269,21 @@ async fn supabase_diff_state_vec_test() {
   );
 }
 
-// #[tokio::test]
-// async fn encryption_folder_test() {
-//   if get_supabase_ci_config().is_none() {
-//     return;
-//   }
-//   let secret = "ln1BKPkeln8i1Y8gErCTPSvBxv3vNA$CL6+kIgofgBGNbe34XxTQQ==".to_string();
-//   print_encryption_folder("c52b88fb-2808-4561-aad1-e8d96bfbfbf6", Some(secret)).await;
-// }
+#[tokio::test]
+async fn print_folder_object_test() {
+  if get_supabase_dev_config().is_none() {
+    return;
+  }
+  let secret = Some("OGi9o4TQaFwFaSxjYsRlJQvUyNqCih$frCAdfPi8tVDbkRW+xb5Aw==".to_string());
+  print_encryption_folder("7f592754-e299-4dbe-823f-920fcdc7fbd2", secret).await;
+}
+
+#[tokio::test]
+async fn print_folder_snapshot_object_test() {
+  if get_supabase_dev_config().is_none() {
+    return;
+  }
+  // let secret = Some("OGi9o4TQaFwFaSxjYsRlJQvUyNqCih$frCAdfPi8tVDbkRW+xb5Aw==".to_string());
+  let secret = None;
+  print_encryption_folder_snapshot("7f592754-e299-4dbe-823f-920fcdc7fbd2", secret).await;
+}

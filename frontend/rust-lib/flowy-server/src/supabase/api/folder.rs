@@ -72,15 +72,19 @@ where
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest)
-        .await
-        .map(|updates| {
-          let updates = updates.into_iter().map(|item| item.value).collect();
-          let folder =
-            Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
-              .ok()?;
-          folder.get_folder_data()
-        })
+      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest).await?;
+      let updates = updates
+        .into_iter()
+        .map(|item| item.value)
+        .collect::<Vec<_>>();
+
+      if updates.is_empty() {
+        return Ok(None);
+      }
+
+      let folder =
+        Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+      Ok(folder.get_folder_data())
     })
   }
 
