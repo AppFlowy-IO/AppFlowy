@@ -120,7 +120,7 @@ checksum = "3b13c32d80ecc7ab747b80c3784bce54ee8a7a0cc4fbda9bf4cda2cf6fe90854"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "collab",
@@ -611,7 +611,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -629,7 +629,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -647,7 +647,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -684,7 +684,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -696,7 +696,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "collab",
@@ -715,7 +715,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "chrono",
@@ -735,7 +735,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "bincode",
  "chrono",
@@ -755,7 +755,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -784,7 +784,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "bytes",
  "collab",
@@ -806,7 +806,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=faf4492#faf4492caae14c199698829adc9a81f7141747f9"
+source = "git+https://github.com/richardshiue/AppFlowy-Collab?rev=96a3733#96a37339dce11c4ffe8863197b823d69a70e90c7"
 dependencies = [
  "anyhow",
  "collab",

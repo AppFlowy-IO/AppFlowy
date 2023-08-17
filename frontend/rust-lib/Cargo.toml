@@ -39,13 +39,14 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-collab-folder = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-collab-document = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-collab-database = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-appflowy-integrate = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-collab-plugins = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
-collab-user = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "faf4492" }
+collab = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+collab-folder = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+collab-document = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+collab-database = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+appflowy-integrate = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14 }
+collab-plugins = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+collab-user = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
+collab-define = { git = "https://github.com/richardshiue/AppFlowy-Collab", rev = "d62ee14" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
