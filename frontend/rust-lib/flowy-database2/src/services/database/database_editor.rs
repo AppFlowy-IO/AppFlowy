@@ -1130,7 +1130,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(&params.view_id).await?;
     view
-      .v_update_field_settings(&params.view_id, &params.field_id, params.is_visible)
+      .v_update_field_settings(&params.view_id, &params.field_id, params.visibility)
       .await?;
 
     Ok(())
@@ -1419,7 +1419,12 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     field_settings
   }
 
-  fn update_field_settings(&self, view_id: &str, field_id: &str, is_visible: Option<bool>) {
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) {
     let field_settings = self
       .get_field_settings(view_id, vec![field_id.to_string()])
       .ok();
@@ -1427,7 +1432,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let new_field_settings = match field_settings {
       Some(field_settings) => {
         let mut field_settings = field_settings.first().unwrap().clone();
-        field_settings.is_visible = is_visible.unwrap_or(field_settings.is_visible);
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
         field_settings.clone()
       },
       None => {
@@ -1437,7 +1442,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
           default_field_settings_by_layout(layout_ty),
         )
         .unwrap();
-        field_settings.is_visible = is_visible.unwrap_or(field_settings.is_visible);
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
         field_settings
       },
     };

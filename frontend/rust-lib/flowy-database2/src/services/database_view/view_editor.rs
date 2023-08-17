@@ -14,9 +14,9 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
-  InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -133,7 +133,12 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
 
-  fn update_field_settings(&self, view_id: &str, field_id: &str, is_visible: Option<bool>);
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  );
 }
 
 pub struct DatabaseViewEditor {
@@ -918,11 +923,11 @@ impl DatabaseViewEditor {
     &self,
     view_id: &str,
     field_id: &str,
-    is_visible: Option<bool>,
+    visibility: Option<FieldVisibility>,
   ) -> FlowyResult<()> {
     self
       .delegate
-      .update_field_settings(view_id, field_id, is_visible);
+      .update_field_settings(view_id, field_id, visibility);
 
     Ok(())
   }

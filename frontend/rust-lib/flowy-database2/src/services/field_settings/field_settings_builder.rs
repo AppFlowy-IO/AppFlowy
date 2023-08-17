@@ -1,8 +1,8 @@
 use collab_database::views::DatabaseLayout;
 
-use crate::services::field_settings::FieldSettings;
+use crate::entities::FieldVisibility;
 
-use crate::services::field_settings::default_is_visible;
+use crate::services::field_settings::{default_visibility, FieldSettings};
 
 /// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {
@@ -13,7 +13,7 @@ impl FieldSettingsBuilder {
   pub fn new(field_id: &str) -> Self {
     let field_settings = FieldSettings {
       field_id: field_id.to_string(),
-      is_visible: true,
+      visibility: FieldVisibility::AlwaysShown,
     };
     Self { field_settings }
   }
@@ -21,7 +21,7 @@ impl FieldSettingsBuilder {
   pub fn from_layout_type(field_id: &str, layout_ty: DatabaseLayout) -> Self {
     let field_settings = FieldSettings {
       field_id: field_id.to_string(),
-      is_visible: default_is_visible(layout_ty),
+      visibility: default_visibility(layout_ty),
     };
     Self { field_settings }
   }
@@ -31,8 +31,8 @@ impl FieldSettingsBuilder {
     self
   }
 
-  pub fn is_visible(mut self, is_visible: bool) -> Self {
-    self.field_settings.is_visible = is_visible;
+  pub fn visibility(mut self, visibility: FieldVisibility) -> Self {
+    self.field_settings.visibility = visibility;
     self
   }
 

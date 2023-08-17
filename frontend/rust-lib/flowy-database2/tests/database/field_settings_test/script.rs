@@ -1,35 +1,40 @@
+use flowy_database2::entities::FieldVisibility;
 use flowy_database2::services::field_settings::FieldSettingsChangesetParams;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum FieldSettingsScript {
   AssertFieldSettings {
-    visibility: Vec<bool>,
+    field_id: String,
+    visibility: FieldVisibility,
+  },
+  AssertAllFieldSettings {
+    visibility: FieldVisibility,
   },
   UpdateFieldSettings {
-    index: usize,
-    is_visible: Option<bool>,
+    field_id: String,
+    visibility: Option<FieldVisibility>,
   },
 }
 
 pub struct FieldSettingsTest {
-  database_test: DatabaseEditorTest,
+  inner: DatabaseEditorTest,
 }
 
 impl FieldSettingsTest {
   pub async fn new_grid() -> Self {
-    let database_test = DatabaseEditorTest::new_grid().await;
-    Self { database_test }
+    let inner = DatabaseEditorTest::new_grid().await;
+    Self { inner }
   }
 
   pub async fn new_board() -> Self {
-    let database_test = DatabaseEditorTest::new_board().await;
-    Self { database_test }
+    let inner = DatabaseEditorTest::new_board().await;
+    Self { inner }
   }
 
   pub async fn new_calendar() -> Self {
-    let database_test = DatabaseEditorTest::new_calendar().await;
-    Self { database_test }
+    let inner = DatabaseEditorTest::new_calendar().await;
+    Self { inner }
   }
 
   pub async fn run_scripts(&mut self, scripts: Vec<FieldSettingsScript>) {
@@ -40,31 +45,60 @@ impl FieldSettingsTest {
 
   pub async fn run_script(&mut self, script: FieldSettingsScript) {
     match script {
-      FieldSettingsScript::AssertFieldSettings { visibility } => {
+      FieldSettingsScript::AssertFieldSettings {
+        field_id,
+        visibility,
+      } => {
         let field_settings = self
-          .database_test
           .editor
-          .get_all_field_settings(&self.database_test.view_id)
+          .get_field_settings(&self.view_id, vec![field_id])
+          .await
+          .unwrap()
+          .first()
+          .unwrap()
+          .to_owned();
+
+        assert_eq!(field_settings.visibility, visibility)
+      },
+      FieldSettingsScript::AssertAllFieldSettings { visibility } => {
+        let field_settings = self
+          .editor
+          .get_all_field_settings(&self.view_id)
           .await
           .unwrap();
 
-        for (field_settings, is_visible) in field_settings.into_iter().zip(visibility) {
-          assert_eq!(field_settings.is_visible, is_visible)
+        for field_settings in field_settings.into_iter() {
+          assert_eq!(field_settings.visibility, visibility)
         }
       },
-      FieldSettingsScript::UpdateFieldSettings { index, is_visible } => {
-        let field = self.database_test.fields.get(index).unwrap();
+      FieldSettingsScript::UpdateFieldSettings {
+        field_id,
+        visibility,
+      } => {
         let params = FieldSettingsChangesetParams {
-          view_id: self.database_test.view_id.clone(),
-          field_id: field.id.clone(),
-          is_visible,
+          view_id: self.view_id.clone(),
+          field_id,
+          visibility,
         };
         let _ = self
-          .database_test
           .editor
           .update_field_settings_with_changeset(params)
           .await;
       },
     }
+  }
+}
+
+impl std::ops::Deref for FieldSettingsTest {
+  type Target = DatabaseEditorTest;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
+  }
+}
+
+impl std::ops::DerefMut for FieldSettingsTest {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.inner
   }
 }
