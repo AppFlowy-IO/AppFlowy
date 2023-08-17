@@ -38,17 +38,19 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "aac4e56" }
-#
-#collab = { path = "../../../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../../../AppFlowy-Collab/collab-folder" }
-#collab-database= { path = "../../../AppFlowy-Collab/collab-database" }
-#collab-document = { path = "../../../AppFlowy-Collab/collab-document" }
-#collab-plugins = { path = "../../../AppFlowy-Collab/collab-plugins" }
-#appflowy-integrate = { path = "../../../AppFlowy-Collab/appflowy-integrate" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "7f26d5" }
+
+#collab = { path = "../AppFlowy-Collab/collab" }
+#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
+#collab-database= { path = "../AppFlowy-Collab/collab-database" }
+#collab-document = { path = "../AppFlowy-Collab/collab-document" }
+#collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
+#appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
+#collab-user = { path = "../AppFlowy-Collab/collab-user" }
 

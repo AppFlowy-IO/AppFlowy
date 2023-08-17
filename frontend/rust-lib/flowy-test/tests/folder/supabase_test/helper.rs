@@ -44,7 +44,7 @@ impl FlowySupabaseFolderTest {
   pub async fn get_collab_update(&self, workspace_id: &str) -> Vec<u8> {
     let cloud_service = self.folder_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_folder_updates(workspace_id, self.user_session.user_id().unwrap())
+      .get_folder_updates(workspace_id, self.user_manager.user_id().unwrap())
       .await
       .unwrap();
 
@@ -67,7 +67,7 @@ pub fn assert_folder_collab_content(workspace_id: &str, collab_update: &[u8], ex
   }
 
   let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);
-  collab.lock().with_transact_mut(|txn| {
+  collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);
   });

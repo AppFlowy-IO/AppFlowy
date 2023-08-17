@@ -213,7 +213,7 @@ async fn grid_filter_delete_test() {
         changed: None,
       },
       AssertFilterCount { count: 0 },
-      AssertNumberOfVisibleRows { expected: 6 },
+      AssertNumberOfVisibleRows { expected: 7 },
     ])
     .await;
 }

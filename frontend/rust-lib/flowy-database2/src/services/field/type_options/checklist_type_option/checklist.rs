@@ -2,9 +2,10 @@ use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectO
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
+use crate::services::sort::SortCondition;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -32,7 +33,7 @@ impl From<ChecklistTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for ChecklistTypeOption {
+impl TypeOptionCellDataSerde for ChecklistTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -191,6 +192,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    _sort_condition: SortCondition,
   ) -> Ordering {
     let left = cell_data.percentage_complete();
     let right = other_cell_data.percentage_complete();
@@ -201,10 +203,6 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     } else {
       Ordering::Equal
     }
-  }
-
-  fn exempt_from_cmp(&self, cell_data: &<Self as TypeOption>::CellData) -> bool {
-    cell_data.selected_option_ids.is_empty()
   }
 }
 

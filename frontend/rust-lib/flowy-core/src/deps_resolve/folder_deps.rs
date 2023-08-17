@@ -23,20 +23,20 @@ use flowy_folder2::view_operation::{
 };
 use flowy_folder2::ViewLayout;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_user::services::UserSession;
+use flowy_user::manager::UserManager;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
-    user_session: Weak<UserSession>,
+    user_manager: Weak<UserManager>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<FolderManager> {
-    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_manager.clone()));
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
@@ -63,7 +63,7 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Weak<UserSession>);
+struct FolderUserImpl(Weak<UserManager>);
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self

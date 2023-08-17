@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,12 +44,20 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
 
+  /// Reset the current user selected theme back to the default
+  Future<void> resetTheme() =>
+      setTheme(DefaultAppearanceSettings.kDefaultThemeName);
+
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
     _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
     emit(state.copyWith(themeMode: themeMode));
   }
+
+  /// Resets the current brightness setting
+  void resetThemeMode() =>
+      setThemeMode(DefaultAppearanceSettings.kDefaultThemeMode);
 
   /// Toggle the theme mode
   void toggleThemeMode() {
@@ -65,6 +74,10 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveAppearanceSettings();
     emit(state.copyWith(font: fontFamilyName));
   }
+
+  /// Resets the current font family for the user preferences
+  void resetFontFamily() =>
+      setFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
@@ -346,6 +359,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontSize: FontSizes.s11,
             fontColor: theme.shader3,
           ),
+          calloutBGColor: theme.hoverBG3,
           caption: _getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,

@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/date_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -146,7 +147,7 @@ class DateFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr()),
         onTap: onTap,
         onHover: onHover,
-        rightIcon: const FlowySvg(name: 'grid/more'),
+        rightIcon: const FlowySvg(FlowySvgs.more_s),
       ),
     );
   }
@@ -171,7 +172,7 @@ class TimeFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr()),
         onTap: onTap,
         onHover: onHover,
-        rightIcon: const FlowySvg(name: 'grid/more'),
+        rightIcon: const FlowySvg(FlowySvgs.more_s),
       ),
     );
   }
@@ -228,7 +229,7 @@ class DateFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(name: 'grid/checkmark');
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(
@@ -312,7 +313,7 @@ class TimeFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(name: 'grid/checkmark');
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(

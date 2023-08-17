@@ -3,18 +3,18 @@ use std::sync::Weak;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager as DocumentManager2;
 use flowy_folder2::manager::FolderManager;
-use flowy_user::services::UserSession;
+use flowy_user::manager::UserManager;
 use lib_dispatch::prelude::AFPlugin;
 
 pub fn make_plugins(
   folder_manager: Weak<FolderManager>,
   database_manager: Weak<DatabaseManager>,
-  user_session: Weak<UserSession>,
+  user_session: Weak<UserManager>,
   document_manager2: Weak<DocumentManager2>,
 ) -> Vec<AFPlugin> {
   let store_preferences = user_session
     .upgrade()
-    .and_then(|session| Some(session.get_store_preferences()))
+    .map(|session| session.get_store_preferences())
     .unwrap();
   let user_plugin = flowy_user::event_map::init(user_session);
   let folder_plugin = flowy_folder2::event_map::init(folder_manager);

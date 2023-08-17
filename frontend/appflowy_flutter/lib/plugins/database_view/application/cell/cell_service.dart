@@ -15,7 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:convert' show utf8;
 
-import '../field/field_controller.dart';
+import '../field/field_info.dart';
 import '../row/row_service.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
@@ -62,14 +62,14 @@ class DatabaseCellContext with _$DatabaseCellContext {
 
   String get rowId => rowMeta.id;
 
-  String get fieldId => fieldInfo.id;
+  String get fieldId => fieldInfo.field.id;
 
-  FieldType get fieldType => fieldInfo.fieldType;
+  FieldType get fieldType => fieldInfo.field.fieldType;
 
   ValueKey key() {
-    return ValueKey("${rowMeta.id}$fieldId${fieldInfo.fieldType}");
+    return ValueKey("${rowMeta.id}$fieldId${fieldInfo.field.fieldType}");
   }
 
   /// Only the primary field can have an emoji.
-  String? get emoji => fieldInfo.isPrimary ? rowMeta.icon : null;
+  String? get emoji => fieldInfo.field.isPrimary ? rowMeta.icon : null;
 }

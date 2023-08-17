@@ -1,8 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -30,8 +32,9 @@ class DatabaseGroupList extends StatelessWidget {
         fieldController: fieldController,
       )..add(const DatabaseGroupEvent.initial()),
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
+        buildWhen: (previous, current) => true,
         builder: (context, state) {
-          final cells = state.fieldContexts.map((fieldInfo) {
+          final cells = state.fieldInfos.map((fieldInfo) {
             Widget cell = _GridGroupCell(
               fieldInfo: fieldInfo,
               onSelected: () => onDismissed(),
@@ -71,9 +74,9 @@ class _GridGroupCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? rightIcon;
     if (fieldInfo.isGroupField) {
-      rightIcon = Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: svgWidget("grid/checkmark"),
+      rightIcon = const Padding(
+        padding: EdgeInsets.all(2.0),
+        child: FlowySvg(FlowySvgs.check_s),
       );
     }
 
@@ -85,8 +88,8 @@ class _GridGroupCell extends StatelessWidget {
           fieldInfo.name,
           color: AFThemeExtension.of(context).textColor,
         ),
-        leftIcon: svgWidget(
-          fieldInfo.fieldType.iconName(),
+        leftIcon: FlowySvg(
+          fieldInfo.fieldType.icon(),
           color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: rightIcon,

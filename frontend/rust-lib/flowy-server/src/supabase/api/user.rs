@@ -2,6 +2,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::Error;
+use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
 use flowy_user_deps::cloud::*;
@@ -10,6 +11,7 @@ use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::supabase::api::request::FetchObjectUpdateAction;
 use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
@@ -17,17 +19,17 @@ use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
 
-pub struct RESTfulSupabaseUserAuthServiceImpl<T> {
+pub struct SupabaseUserServiceImpl<T> {
   server: T,
 }
 
-impl<T> RESTfulSupabaseUserAuthServiceImpl<T> {
+impl<T> SupabaseUserServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self { server }
   }
 }
 
-impl<T> UserService for RESTfulSupabaseUserAuthServiceImpl<T>
+impl<T> UserService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -89,6 +91,7 @@ where
         is_new: is_new_user,
         email: Some(user_profile.email),
         token: None,
+        device_id: params.device_id,
       })
     })
   }
@@ -115,6 +118,7 @@ where
         user_workspaces,
         email: None,
         token: None,
+        device_id: params.device_id,
       })
     })
   }
@@ -198,6 +202,24 @@ where
     _workspace_id: String,
   ) -> FutureResult<(), Error> {
     todo!()
+  }
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let awareness_id = uid.to_string();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let postgrest = try_get_postgrest?;
+          let action =
+            FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
+          action.run_with_fix_interval(5, 10).await
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
   }
 }
 

@@ -1,7 +1,7 @@
-use anyhow::Error;
 use std::ops::Deref;
 use std::sync::Arc;
 
+use anyhow::Error;
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
@@ -14,7 +14,6 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use flowy_document2::document::MutexDocument;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
-
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -82,7 +81,8 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
+  builder.set_sync_device(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
 

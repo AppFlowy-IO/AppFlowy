@@ -26,7 +26,7 @@ import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';

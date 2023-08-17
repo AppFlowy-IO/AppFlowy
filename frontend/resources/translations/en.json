@@ -33,6 +33,7 @@
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
     "loginAsGuestButtonText": "Get Started",
+    "continueAnonymousUser": "Continue in an anonymous session",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
@@ -227,11 +228,12 @@
       "logoutPrompt": "Are you sure to logout?",
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
-      "historicalUserList": "User history",
-      "historicalUserListTooltip": "This list shows your login history. You can click to login if it's a local user",
-      "openHistoricalUser": "Click to open user"
+      "historicalUserList": "User login history",
+      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
+      "openHistoricalUser": "Click to open the anonymous account"
     },
     "appearance": {
+      "resetSetting": "Reset this setting",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -402,12 +404,13 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column"
     },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "deleteSort": "Delete sort",
+      "deleteAllSorts": "Delete all sorts",
       "addSort": "Add sort"
     },
     "row": {

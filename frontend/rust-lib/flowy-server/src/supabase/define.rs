@@ -1,4 +1,4 @@
-use collab_plugins::cloud_storage::CollabType;
+pub use collab_plugins::cloud_storage::CollabType;
 
 pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
 pub const AF_COLLAB_KEY_COLUMN: &str = "key";
@@ -28,6 +28,7 @@ pub fn table_name(ty: &CollabType) -> String {
     CollabType::Database => format!("{}_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::WorkspaceDatabase => format!("{}_w_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::Folder => format!("{}_folder", AF_COLLAB_UPDATE_TABLE),
+    CollabType::UserAwareness => format!("{}_user_awareness", AF_COLLAB_UPDATE_TABLE),
   }
 }
 

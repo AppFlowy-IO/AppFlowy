@@ -94,6 +94,13 @@ const expectedMarkdown = r'''
 1. Keyboard shortcuts [guide](https://appflowy.gitbook.io/docs/essential-documentation/shortcuts)
 1. Markdown [reference](https://appflowy.gitbook.io/docs/essential-documentation/markdown)
 1. Type `/code` to insert a code block
+```rust
+// This is the main function.
+fn main() {
+    // Print text to the console.
+    println!("Hello World!");
+}
+```
 
 ## Have a question❓
 > Click `?` at the bottom right for help and support.

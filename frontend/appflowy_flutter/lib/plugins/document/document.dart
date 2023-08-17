@@ -1,5 +1,6 @@
 library document_plugin;
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -29,7 +30,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  String get menuIcon => "editor/documents";
+  FlowySvgData get icon => FlowySvgs.documents_s;
 
   @override
   PluginType get pluginType => PluginType.editor;

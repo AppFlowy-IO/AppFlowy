@@ -6,7 +6,7 @@ use flowy_user_deps::entities::*;
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
-use crate::services::HistoricalUser;
+use crate::services::entities::HistoricalUser;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -226,6 +226,9 @@ pub struct HistoricalUserPB {
 
   #[pb(index = 4)]
   pub auth_type: AuthTypePB,
+
+  #[pb(index = 5)]
+  pub device_id: String,
 }
 
 impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
@@ -246,6 +249,7 @@ impl From<HistoricalUser> for HistoricalUserPB {
       user_name: historical_user.user_name,
       last_time: historical_user.sign_in_timestamp,
       auth_type: historical_user.auth_type.into(),
+      device_id: historical_user.device_id,
     }
   }
 }

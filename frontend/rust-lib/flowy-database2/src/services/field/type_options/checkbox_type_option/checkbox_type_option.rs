@@ -11,9 +11,10 @@ use flowy_error::FlowyResult;
 use crate::entities::{CheckboxFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, CheckboxCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform,
+  CheckboxCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform,
 };
+use crate::services::sort::SortCondition;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CheckboxTypeOption {
@@ -68,7 +69,7 @@ impl From<CheckboxTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for CheckboxTypeOption {
+impl TypeOptionCellDataSerde for CheckboxTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -135,16 +136,32 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_check(), other_cell_data.is_check()) {
-      (true, true) => Ordering::Equal,
-      (true, false) => Ordering::Greater,
-      (false, true) => Ordering::Less,
-      (false, false) => default_order(),
-    }
+    let order = cell_data.is_check().cmp(&other_cell_data.is_check());
+    sort_condition.evaluate_order(order)
   }
 
-  fn exempt_from_cmp(&self, _: &<Self as TypeOption>::CellData) -> bool {
-    false
+  /// Compares two cell data using a specified sort condition and accounts for uninitialized cells.
+  ///
+  /// This function checks if either `cell_data` or `other_cell_data` is checked (i.e., has the `is_check` property set).
+  /// If the right cell is checked and the left cell isn't, the function will return `Ordering::Less`. Conversely, if the
+  /// left cell is checked and the right one isn't, the function will return `Ordering::Greater`. In all other cases, it returns
+  /// `Ordering::Equal`.
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    sort_condition: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(right_cell_data)) if right_cell_data.is_check() => {
+        sort_condition.evaluate_order(Ordering::Less)
+      },
+      (Some(left_cell_data), None) if left_cell_data.is_check() => {
+        sort_condition.evaluate_order(Ordering::Greater)
+      },
+      _ => Ordering::Equal,
+    }
   }
 }

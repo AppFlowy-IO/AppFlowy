@@ -3,8 +3,9 @@ use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::{CollabType, RemoteCollabStorage, YrsDocAction};
-use parking_lot::RwLock;
+use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
+use parking_lot::{Mutex, RwLock};
+use serde_json::Value;
 use serde_repr::*;
 
 use flowy_database_deps::cloud::*;
@@ -63,6 +64,7 @@ impl Display for ServerProviderType {
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
+  device_id: Mutex<String>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
   supabase_config: RwLock<Option<SupabaseConfiguration>>,
   store_preferences: Weak<StorePreferences>,
@@ -78,10 +80,15 @@ impl AppFlowyServerProvider {
     Self {
       config,
       provider_type: RwLock::new(provider_type),
+      device_id: Default::default(),
       providers: RwLock::new(HashMap::new()),
       supabase_config: RwLock::new(supabase_config),
       store_preferences,
     }
+  }
+
+  pub fn set_sync_device(&self, device_id: &str) {
+    *self.device_id.lock() = device_id.to_string();
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -127,6 +134,7 @@ impl AppFlowyServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(config)))
       },
     }?;
+    server.set_sync_device_id(&self.device_id.lock());
 
     self
       .providers
@@ -134,10 +142,17 @@ impl AppFlowyServerProvider {
       .insert(provider_type.clone(), server.clone());
     Ok(server)
   }
+
+  pub fn handle_realtime_event(&self, json: Value) {
+    let provider_type = self.provider_type.read().clone();
+    if let Some(server) = self.providers.read().get(&provider_type) {
+      server.handle_realtime_event(json);
+    }
+  }
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
-  fn update_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
+  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
     self
       .supabase_config
       .write()
@@ -170,6 +185,10 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
         }
       },
     }
+  }
+
+  fn set_device_id(&self, device_id: &str) {
+    *self.device_id.lock() = device_id.to_string();
   }
 
   /// Returns the [UserService] base on the current [ServerProviderType].
@@ -326,14 +345,18 @@ impl CollabStorageProvider for AppFlowyServerProvider {
     self.provider_type().into()
   }
 
-  fn get_storage(&self, storage_type: &CollabStorageType) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn get_storage(
+    &self,
+    collab_object: &CollabObject,
+    storage_type: &CollabStorageType,
+  ) -> Option<Arc<dyn RemoteCollabStorage>> {
     match storage_type {
       CollabStorageType::Local => None,
       CollabStorageType::AWS => None,
       CollabStorageType::Supabase => self
         .get_provider(&ServerProviderType::Supabase)
         .ok()
-        .and_then(|provider| provider.collab_storage()),
+        .and_then(|provider| provider.collab_storage(collab_object)),
     }
   }
 

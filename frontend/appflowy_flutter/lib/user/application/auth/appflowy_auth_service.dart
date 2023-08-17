@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
 
 import '../../../generated/locale_keys.g.dart';
+import 'device_id.dart';
 
 class AppFlowyAuthService implements AuthService {
   @override
@@ -22,7 +23,8 @@ class AppFlowyAuthService implements AuthService {
     final request = SignInPayloadPB.create()
       ..email = email
       ..password = password
-      ..authType = authType;
+      ..authType = authType
+      ..deviceId = await getDeviceId();
     final response = UserEventSignIn(request).send();
     return response.then((value) => value.swap());
   }
@@ -39,7 +41,8 @@ class AppFlowyAuthService implements AuthService {
       ..name = name
       ..email = email
       ..password = password
-      ..authType = authType;
+      ..authType = authType
+      ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
           (value) => value.swap(),
         );

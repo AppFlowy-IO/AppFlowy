@@ -11,6 +11,7 @@ pub struct SignInResponse {
   pub user_workspaces: Vec<UserWorkspace>,
   pub email: Option<String>,
   pub token: Option<String>,
+  pub device_id: String,
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -19,8 +20,7 @@ pub struct SignInParams {
   pub password: String,
   pub name: String,
   pub auth_type: AuthType,
-  // Currently, the uid only used in local sign in.
-  pub uid: Option<i64>,
+  pub device_id: String,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -29,6 +29,7 @@ pub struct SignUpParams {
   pub name: String,
   pub password: String,
   pub auth_type: AuthType,
+  pub device_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -40,6 +41,7 @@ pub struct SignUpResponse {
   pub is_new: bool,
   pub email: Option<String>,
   pub token: Option<String>,
+  pub device_id: String,
 }
 
 #[derive(Clone, Debug)]
@@ -190,4 +192,5 @@ impl From<i32> for AuthType {
 pub struct ThirdPartyParams {
   pub uuid: Uuid,
   pub email: String,
+  pub device_id: String,
 }

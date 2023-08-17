@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -5,7 +6,6 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -209,7 +209,7 @@ class TabBarItemButton extends StatelessWidget {
               controller.show();
             },
             leftIcon: FlowySvg(
-              name: view.iconName,
+              view.iconData,
               size: const Size(14, 14),
               color: color,
             ),
@@ -272,9 +272,9 @@ enum TabBarViewAction implements ActionCell {
   Widget icon(Color iconColor) {
     switch (this) {
       case TabBarViewAction.rename:
-        return const FlowySvg(name: 'editor/edit');
+        return const FlowySvg(FlowySvgs.edit_s);
       case TabBarViewAction.delete:
-        return const FlowySvg(name: 'editor/delete');
+        return const FlowySvg(FlowySvgs.delete_s);
     }
   }
 

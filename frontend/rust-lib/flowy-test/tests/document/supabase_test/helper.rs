@@ -91,7 +91,7 @@ impl Deref for FlowySupabaseDocumentTest {
 
 pub fn assert_document_data_equal(collab_update: &[u8], doc_id: &str, expected: DocumentData) {
   let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
-  collab.lock().with_transact_mut(|txn| {
+  collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);
   });
