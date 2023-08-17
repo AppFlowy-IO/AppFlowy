@@ -58,9 +58,13 @@ class BlockAddButton extends StatelessWidget {
           final path = isAltPressed ? node.path : node.path.next;
 
           transaction.insertNode(path, paragraphNode());
-          transaction.afterSelection = Selection.collapse(path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: path, offset: 0),
+          );
         } else {
-          transaction.afterSelection = Selection.collapse(node.path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: node.path, offset: 0),
+          );
         }
 
         // show the slash menu.
