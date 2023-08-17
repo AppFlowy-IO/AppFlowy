@@ -69,7 +69,7 @@ impl TryInto<(String, Vec<String>)> for FieldIdsPB {
     let field_ids = self
       .field_ids
       .deref()
-      .into_iter()
+      .iter()
       .map(|field_id| field_id.field_id.clone())
       .collect();
 

@@ -1433,7 +1433,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       Some(field_settings) => {
         let mut field_settings = field_settings.first().unwrap().clone();
         field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
-        field_settings.clone()
+        field_settings
       },
       None => {
         let layout_ty = self.get_layout_for_view(view_id);

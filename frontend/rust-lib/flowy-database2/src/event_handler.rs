@@ -906,8 +906,7 @@ pub(crate) async fn get_field_settings_handler(
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
-    .collect::<Vec<FieldSettingsPB>>()
-    .into();
+    .collect::<Vec<FieldSettingsPB>>();
   data_result_ok(RepeatedFieldSettingsPB {
     items: field_settings,
   })
