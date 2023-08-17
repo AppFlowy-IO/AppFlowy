@@ -232,7 +232,8 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         leftIconSize: const Size.square(18),
         onTap: () => TemplateService().saveTemplate(widget.editorState),
         useIntrinsicWidth: true,
-        leftIcon: const FlowySvg(name: 'editor/image'),
+        // leftIcon: const FlowySvg(name: 'editor/image'),
+        leftIcon: const FlowySvg(FlowySvgs.image_s),
         text: const FlowyText.regular(
           "Convert to JSON",
         ),
