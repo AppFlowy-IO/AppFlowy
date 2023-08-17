@@ -196,8 +196,19 @@ async fn supabase_duplicate_updates_test() {
   }
 }
 
+/// The state vector of doc;
+/// ```json
+///   "map": {},
+///   "array": []
+/// ```
+/// The old version of doc:
+/// ```json
+///  "map": {}
+/// ```
+///
+/// Try to apply the updates from doc to old version doc and check the result.
 #[tokio::test]
-async fn supabase_diff_state_vec_test() {
+async fn supabase_diff_state_vector_test() {
   if get_supabase_ci_config().is_none() {
     return;
   }
@@ -283,7 +294,7 @@ async fn print_folder_snapshot_object_test() {
   if get_supabase_dev_config().is_none() {
     return;
   }
-  // let secret = Some("OGi9o4TQaFwFaSxjYsRlJQvUyNqCih$frCAdfPi8tVDbkRW+xb5Aw==".to_string());
-  let secret = None;
-  print_encryption_folder_snapshot("7f592754-e299-4dbe-823f-920fcdc7fbd2", secret).await;
+  let secret = Some("NTXRXrDSybqFEm32jwMBDzbxvCtgjU$8np3TGywbBdJAzHtu1QIyQ==".to_string());
+  // let secret = None;
+  print_encryption_folder_snapshot("12533251-bdd4-41f4-995f-ff12fceeaa42", secret).await;
 }

@@ -5,6 +5,7 @@ pub const AF_COLLAB_KEY_COLUMN: &str = "key";
 pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
 pub const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+pub const AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN: &str = "encrypt";
 pub const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
 pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";

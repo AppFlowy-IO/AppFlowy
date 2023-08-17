@@ -16,7 +16,7 @@ use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder, SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
@@ -124,13 +124,14 @@ pub async fn create_snapshot(
   snapshot: Vec<u8>,
 ) -> Result<i64, Error> {
   let value_size = snapshot.len() as i32;
-  let snapshot = format!("\\x{}", hex::encode(snapshot));
+  let (snapshot, encrypt) = SupabaseBinaryColumnEncoder::encode(&snapshot, &postgrest.secret())?;
   postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .insert(
       InsertParamsBuilder::new()
         .insert(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.object_id.clone())
         .insert("name", object.ty.to_string())
+        .insert(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN, encrypt)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
         .build(),
@@ -150,10 +151,11 @@ pub async fn get_latest_snapshot_from_server(
   let json = postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .select(format!(
-      "{},{},{}",
+      "{},{},{},{}",
       AF_COLLAB_SNAPSHOT_ID_COLUMN,
       AF_COLLAB_SNAPSHOT_BLOB_COLUMN,
-      AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN
+      AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN,
+      AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN
     ))
     .order(format!("{}.desc", AF_COLLAB_SNAPSHOT_ID_COLUMN))
     .limit(1)
@@ -168,8 +170,12 @@ pub async fn get_latest_snapshot_from_server(
     .and_then(|array| array.first())
     .and_then(|snapshot| {
       let blob = match (
-        snapshot.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
-        snapshot.get("blob").and_then(|value| value.as_str()),
+        snapshot
+          .get(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN)
+          .and_then(|encrypt| encrypt.as_i64()),
+        snapshot
+          .get(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)
+          .and_then(|value| value.as_str()),
       ) {
         (Some(encrypt), Some(value)) => {
           SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, &postgrest.secret()).ok()
