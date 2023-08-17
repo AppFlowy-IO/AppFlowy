@@ -1,6 +1,6 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -50,14 +50,14 @@ class AppFlowyCalendar extends StatelessWidget {
         titleTextStyle: textStyle,
         leftChevronMargin: EdgeInsets.zero,
         leftChevronPadding: EdgeInsets.zero,
-        leftChevronIcon: svgWidget(
-          "home/arrow_left",
+        leftChevronIcon: FlowySvg(
+          FlowySvgs.arrow_left_s,
           color: Theme.of(context).iconTheme.color,
         ),
         rightChevronPadding: EdgeInsets.zero,
         rightChevronMargin: EdgeInsets.zero,
-        rightChevronIcon: svgWidget(
-          "home/arrow_right",
+        rightChevronIcon: FlowySvg(
+          FlowySvgs.arrow_right_s,
           color: Theme.of(context).iconTheme.color,
         ),
         headerMargin: const EdgeInsets.only(bottom: 8.0),

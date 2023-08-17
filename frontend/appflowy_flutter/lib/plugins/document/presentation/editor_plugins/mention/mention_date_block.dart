@@ -1,10 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,7 +69,7 @@ class MentionDateBlock extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 FlowySvg(
-                  name: isReminder ? 'grid/clock' : 'editor/date',
+                  isReminder ? FlowySvgs.clock_alarm_s : FlowySvgs.date_s,
                   size: const Size.square(18.0),
                 ),
                 const HSpace(2),

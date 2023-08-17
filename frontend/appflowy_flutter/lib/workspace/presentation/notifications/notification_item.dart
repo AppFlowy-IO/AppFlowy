@@ -1,4 +1,4 @@
-import 'package:flowy_infra/image.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -44,11 +44,7 @@ class _NotificationItemState extends State<NotificationItem> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const FlowySvg(
-                  name: 'editor/time',
-                  size: Size.square(20),
-                  alignment: Alignment.topCenter,
-                ),
+                const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
                 const HSpace(10),
                 const Expanded(
                   child: Column(
@@ -83,9 +79,7 @@ class _NotificationItemState extends State<NotificationItem> {
                     widget.onDelete?.call();
                     // TODO(Xazin): Delete notification event
                   },
-                  icon: const FlowySvg(
-                    name: 'home/trash',
-                  ),
+                  icon: const FlowySvg(FlowySvgs.delete_s),
                 )
               ],
             ),
