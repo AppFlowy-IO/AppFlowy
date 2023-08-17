@@ -219,7 +219,8 @@ class TemplateModel {
   factory TemplateModel.fromJson(Map<String, dynamic> json) => TemplateModel(
         templateName: json["templateName"],
         documents: List<DocumentModel>.from(
-            json["documents"].map((x) => DocumentModel.fromJson(x))),
+          json["documents"].map((x) => DocumentModel.fromJson(x)),
+        ),
       );
 
   Map<String, dynamic> toJson() => {
