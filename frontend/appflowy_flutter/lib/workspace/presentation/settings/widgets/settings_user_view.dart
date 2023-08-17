@@ -134,7 +134,7 @@ class SettingsUserView extends StatelessWidget {
 
   String logoutPromptMessage() {
     switch (user.encryptionType) {
-      case EncryptionTypePB.SelfEncryption:
+      case EncryptionTypePB.Symmetric:
         return LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr();
       default:
         return LocaleKeys.settings_menu_logoutPrompt.tr();

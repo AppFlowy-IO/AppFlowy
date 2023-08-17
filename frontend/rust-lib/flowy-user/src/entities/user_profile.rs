@@ -53,7 +53,7 @@ pub struct UserProfilePB {
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum EncryptionTypePB {
   NoEncryption = 0,
-  SelfEncryption = 1,
+  Symmetric = 1,
 }
 
 impl Default for EncryptionTypePB {
@@ -66,7 +66,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
     let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
-      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::SelfEncryption),
+      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
     };
     Self {
       id: user_profile.uid,

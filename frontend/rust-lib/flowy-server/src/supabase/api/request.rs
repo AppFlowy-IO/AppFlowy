@@ -312,11 +312,11 @@ fn parser_updates_form_json(
       for value in values {
         updates.push(parser_update_from_json(value, encryption_secret)?);
       }
-      debug_assert_eq!(
-        updates.len(),
-        expected_update_len,
-        "The length of the updates does not match the length of the expected updates, indicating that some updates failed to parse."
-      );
+      if updates.len() != expected_update_len {
+        return Err(anyhow::anyhow!(
+          "The length of the updates does not match the length of the expected updates, indicating that some updates failed to parse."
+        ));
+      }
     },
   }
 

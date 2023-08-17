@@ -20,11 +20,14 @@ pub fn remove_cloud_config(store_preference: &Arc<StorePreferences>) {
 }
 
 pub fn save_cloud_config(
+  uid: i64,
   store_preference: &Arc<StorePreferences>,
   config: UserCloudConfig,
 ) -> FlowyResult<()> {
+  let encrypt_secret = config.encrypt_secret.clone();
   let key = cache_key_for_cloud_config();
   store_preference.set_object(&key, config)?;
+  store_preference.set_object(&format!("{}-encrypt-secret", uid), encrypt_secret)?;
   Ok(())
 }
 

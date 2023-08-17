@@ -61,7 +61,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
   ) async {
     result.fold(
       (user) async {
-        if (user.encryptionType == EncryptionTypePB.SelfEncryption) {
+        if (user.encryptionType == EncryptionTypePB.Symmetric) {
           getIt<AuthRouter>().pushEncryptionScreen(context, user);
         } else {
           didLogin();

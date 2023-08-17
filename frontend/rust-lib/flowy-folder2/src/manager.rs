@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
+use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB, YrsDocAction};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_folder::core::{
@@ -145,6 +145,13 @@ impl FolderManager {
 
       let folder = match initial_data {
         FolderInitializeData::Empty => {
+          let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
+          if !is_exist {
+            return Err(FlowyError::new(
+              ErrorCode::RecordNotFound,
+              "Can't find any workspace data",
+            ));
+          }
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
           Folder::open(collab, Some(folder_notifier))
         },
@@ -1172,4 +1179,14 @@ pub enum FolderInitializeData {
   Raw(CollabRawData),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   Data(FolderData),
+}
+
+fn is_exist_in_local_disk(user: &Arc<dyn FolderUser>, doc_id: &str) -> FlowyResult<bool> {
+  let uid = user.user_id()?;
+  if let Some(collab_db) = user.collab_db(uid)?.upgrade() {
+    let read_txn = collab_db.read_txn();
+    Ok(read_txn.is_exist(uid, doc_id))
+  } else {
+    Ok(false)
+  }
 }

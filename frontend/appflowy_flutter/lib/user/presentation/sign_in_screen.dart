@@ -56,7 +56,7 @@ class SignInScreen extends StatelessWidget {
   ) {
     result.fold(
       (user) {
-        if (user.encryptionType == EncryptionTypePB.SelfEncryption) {
+        if (user.encryptionType == EncryptionTypePB.Symmetric) {
           router.pushEncryptionScreen(context, user);
         } else {
           router.pushHomeScreen(context, user);

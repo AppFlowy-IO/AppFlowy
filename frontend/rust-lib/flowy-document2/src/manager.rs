@@ -11,7 +11,7 @@ use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
 use flowy_document_deps::cloud::DocumentCloudService;
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
@@ -108,6 +108,12 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
+        if document_updates.is_empty() {
+          return Err(FlowyError::new(
+            ErrorCode::UnexpectedEmptyCollabUpdates,
+            "Can't not read the document data",
+          ));
+        }
         updates = document_updates;
       } else {
         return Err(

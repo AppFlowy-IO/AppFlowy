@@ -196,7 +196,7 @@ pub async fn set_encrypt_secret_handler(
     EncryptionTypePB::NoEncryption => {
       tracing::error!("Encryption type is NoEncryption, but set encrypt secret");
     },
-    EncryptionTypePB::SelfEncryption => {
+    EncryptionTypePB::Symmetric => {
       manager.check_encryption_sign_with_secret(
         data.user_id,
         &data.encryption_sign,
@@ -215,7 +215,7 @@ pub async fn set_encrypt_secret_handler(
     },
   }
 
-  save_cloud_config(&store_preferences, config)?;
+  save_cloud_config(data.user_id, &store_preferences, config)?;
   manager.resume_sign_up().await?;
   Ok(())
 }
@@ -283,7 +283,7 @@ pub async fn set_cloud_config_handler(
   }
 
   let config_pb = UserCloudConfigPB::from(config.clone());
-  save_cloud_config(&store_preferences, config)?;
+  save_cloud_config(session.user_id, &store_preferences, config)?;
   send_notification(
     &session.user_id.to_string(),
     UserNotification::DidUpdateCloudConfig,

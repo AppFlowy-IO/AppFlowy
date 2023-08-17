@@ -166,6 +166,7 @@ pub struct UserWorkspace {
   pub id: String,
   pub name: String,
   pub created_at: DateTime<Utc>,
+  /// The database storage id is used indexing all the database in current workspace.
   pub database_storage_id: String,
 }
 
