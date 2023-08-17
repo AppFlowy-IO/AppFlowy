@@ -17,6 +17,7 @@ pub const USER_EMAIL: &str = "email";
 pub const USER_TABLE: &str = "af_user";
 pub const WORKSPACE_TABLE: &str = "af_workspace";
 pub const USER_PROFILE_VIEW: &str = "af_user_profile_view";
+pub const USER_DEVICE_ID: &str = "device_id";
 
 pub(crate) const WORKSPACE_ID: &str = "workspace_id";
 pub(crate) const WORKSPACE_NAME: &str = "workspace_name";

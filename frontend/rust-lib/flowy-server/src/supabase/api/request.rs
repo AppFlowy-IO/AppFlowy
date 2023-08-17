@@ -125,7 +125,7 @@ pub async fn create_snapshot(
 ) -> Result<i64, Error> {
   let value_size = snapshot.len() as i32;
   let (snapshot, encrypt) = SupabaseBinaryColumnEncoder::encode(&snapshot, &postgrest.secret())?;
-  postgrest
+  let ret: Value = postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .insert(
       InsertParamsBuilder::new()
@@ -138,10 +138,16 @@ pub async fn create_snapshot(
     )
     .execute()
     .await?
-    .success()
+    .get_json()
     .await?;
 
-  Ok(1)
+  let snapshot_id = ret
+    .as_array()
+    .and_then(|array| array.first())
+    .and_then(|value| value.get("sid"))
+    .and_then(|value| value.as_i64())
+    .unwrap_or(0);
+  Ok(snapshot_id)
 }
 
 pub async fn get_snapshots_from_server(

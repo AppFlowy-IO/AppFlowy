@@ -112,7 +112,7 @@ pub struct UserCloudConfigPB {
   enable_encrypt: bool,
 
   #[pb(index = 3)]
-  encrypt_secret: String,
+  pub encrypt_secret: String,
 }
 
 #[derive(Default, ProtoBuf)]

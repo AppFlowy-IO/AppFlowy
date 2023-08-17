@@ -11,7 +11,8 @@ use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
   collab_service, folder_service, get_supabase_ci_config, get_supabase_dev_config,
-  print_encryption_folder, print_encryption_folder_snapshot, sign_up_param, user_auth_service,
+  print_encryption_folder, print_encryption_folder_snapshot, third_party_sign_up_param,
+  user_auth_service,
 };
 
 #[tokio::test]
@@ -36,7 +37,7 @@ async fn supabase_get_folder_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
@@ -110,7 +111,7 @@ async fn supabase_duplicate_updates_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
@@ -217,7 +218,7 @@ async fn supabase_diff_state_vector_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {

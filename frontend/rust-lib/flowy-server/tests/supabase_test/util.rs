@@ -12,7 +12,7 @@ use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
-use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
@@ -111,12 +111,13 @@ pub fn appflowy_server(
   (SupabaseServerServiceImpl::new(server), encryption_impl)
 }
 
-pub fn sign_up_param(uuid: String) -> HashMap<String, String> {
+pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
   let mut params = HashMap::new();
   params.insert(USER_UUID.to_string(), uuid);
   params.insert(
     USER_EMAIL.to_string(),
     format!("{}@test.com", Uuid::new_v4()),
   );
+  params.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
   params
 }

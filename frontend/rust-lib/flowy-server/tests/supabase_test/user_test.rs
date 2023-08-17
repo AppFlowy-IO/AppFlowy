@@ -4,7 +4,9 @@ use flowy_encrypt::{encrypt_string, generate_encrypt_secret};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::supabase_test::util::{get_supabase_ci_config, sign_up_param, user_auth_service};
+use crate::supabase_test::util::{
+  get_supabase_ci_config, third_party_sign_up_param, user_auth_service,
+};
 
 // ‼️‼️‼️ Warning: this test will create a table in the database
 #[tokio::test]
@@ -14,7 +16,7 @@ async fn supabase_user_sign_up_test() {
   }
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
   assert!(!user.latest_workspace.id.is_empty());
   assert!(!user.user_workspaces.is_empty());
@@ -28,7 +30,7 @@ async fn supabase_user_sign_up_with_existing_uuid_test() {
   }
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let _user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
@@ -46,7 +48,7 @@ async fn supabase_update_user_profile_test() {
   }
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
@@ -84,7 +86,7 @@ async fn supabase_get_user_profile_test() {
   }
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
@@ -120,7 +122,7 @@ async fn user_encryption_sign_test() {
   }
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   // generate encryption sign

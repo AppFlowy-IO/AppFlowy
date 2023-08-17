@@ -5,6 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
+use collab_folder::core::FolderData;
 
 use flowy_folder2::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
 use flowy_folder2::event_map::FolderEvent::GetFolderSnapshots;
@@ -27,6 +28,11 @@ impl FlowySupabaseFolderTest {
   pub async fn get_collab_json(&self) -> JsonValue {
     let folder = self.folder_manager.get_mutex_folder().lock();
     folder.as_ref().unwrap().to_json_value()
+  }
+
+  pub async fn get_local_folder_data(&self) -> FolderData {
+    let folder = self.folder_manager.get_mutex_folder().lock();
+    folder.as_ref().unwrap().get_folder_data().unwrap()
   }
 
   pub async fn get_folder_snapshots(&self, workspace_id: &str) -> Vec<FolderSnapshotPB> {

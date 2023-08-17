@@ -52,8 +52,16 @@ jobs:
           workspaces: |
             frontend/rust-lib
 
-      - name: Create .env file
+      - name: Create .env file in flowy-server
         working-directory: frontend/rust-lib/flowy-server
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+
+      - name: Create .env file in flowy-test
+        working-directory: frontend/rust-lib/flowy-test
         run: |
           touch .env.ci
           echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
