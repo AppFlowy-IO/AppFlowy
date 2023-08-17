@@ -33,7 +33,8 @@ pub(crate) async fn create_document_handler(
 ) -> FlowyResult<()> {
   let manager = upgrade_document(manager)?;
   let params: CreateDocumentParams = data.into_inner().try_into()?;
-  manager.create_document(&params.document_id, params.initial_data)?;
+  let uid = manager.user.user_id()?;
+  manager.create_document(uid, &params.document_id, params.initial_data)?;
   Ok(())
 }
 

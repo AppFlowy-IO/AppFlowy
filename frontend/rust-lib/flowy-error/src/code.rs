@@ -223,6 +223,9 @@ pub enum ErrorCode {
 
   #[error("Invalid decryption secret")]
   InvalidEncryptSecret = 74,
+
+  #[error("Unexpected empty collab updates")]
+  UnexpectedEmptyCollabUpdates = 75,
 }
 
 impl ErrorCode {

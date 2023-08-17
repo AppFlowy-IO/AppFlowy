@@ -167,9 +167,11 @@ impl UserManager {
       .sign_in(params)
       .await?;
     let session = Session::from(&response);
+    self.set_collab_config(&session);
+
     let latest_workspace = response.latest_workspace.clone();
     let user_profile = UserProfile::from((&response, &auth_type));
-    self.prepare_user(&response, &auth_type).await?;
+    self.save_auth_data(&response, &auth_type, &session).await?;
     let _ = self
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
@@ -248,7 +250,7 @@ impl UserManager {
       .resumable_sign_up
       .lock()
       .await
-      .take()
+      .clone()
       .ok_or(FlowyError::new(
         ErrorCode::Internal,
         "No resumable sign up data",
@@ -259,6 +261,7 @@ impl UserManager {
     Ok(())
   }
 
+  #[tracing::instrument(level = "info", skip_all, err)]
   async fn continue_sign_up(
     &self,
     user_profile: &UserProfile,
@@ -266,13 +269,14 @@ impl UserManager {
     response: SignUpResponse,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
-    self.prepare_user(&response, auth_type).await?;
+    let new_session = Session::from(&response);
+    self.set_collab_config(&new_session);
+
     let user_awareness_source = if response.is_new_user {
       UserAwarenessDataSource::Local
     } else {
       UserAwarenessDataSource::Remote
     };
-    let new_session = Session::from(&response);
     let mut sign_up_context = SignUpContext {
       is_new: response.is_new_user,
       local_folder: None,
@@ -309,7 +313,10 @@ impl UserManager {
         &new_session.user_workspace,
         &new_session.device_id,
       )
-      .await;
+      .await?;
+    self
+      .save_auth_data(&response, auth_type, &new_session)
+      .await?;
     Ok(())
   }
 
@@ -517,12 +524,12 @@ impl UserManager {
     }
   }
 
-  async fn prepare_user(
+  async fn save_auth_data(
     &self,
     response: &impl UserAuthResponse,
     auth_type: &AuthType,
+    session: &Session,
   ) -> Result<(), FlowyError> {
-    let session = Session::from(response);
     let user_profile = UserProfile::from((response, auth_type));
     let uid = user_profile.uid;
     self.add_historical_user(
@@ -536,8 +543,7 @@ impl UserManager {
     self
       .save_user(uid, (user_profile, auth_type.clone()).into())
       .await?;
-    self.set_collab_config(&session);
-    self.set_current_session(Some(session))?;
+    self.set_current_session(Some(session.clone()))?;
     Ok(())
   }
 

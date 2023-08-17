@@ -203,6 +203,7 @@ pub struct HistoricalUser {
 }
 const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;
 
+#[derive(Clone)]
 pub(crate) struct ResumableSignUp {
   pub user_profile: UserProfile,
   pub response: SignUpResponse,

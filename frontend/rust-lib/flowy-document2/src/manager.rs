@@ -23,7 +23,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentManager {
-  user: Arc<dyn DocumentUser>,
+  pub(crate) user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
@@ -59,11 +59,12 @@ impl DocumentManager {
   /// if the data is None, will create a document with default data.
   pub fn create_document(
     &self,
+    uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(doc_id, vec![])?;
+    let collab = self.collab_for_document(uid, doc_id, vec![])?;
     let data = data.unwrap_or_else(default_document_data);
     let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
     Ok(document)
@@ -114,8 +115,8 @@ impl DocumentManager {
         );
       }
     }
-
-    let collab = self.collab_for_document(doc_id, updates)?;
+    let uid = self.user.user_id()?;
+    let collab = self.collab_for_document(uid, doc_id, updates)?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -163,10 +164,10 @@ impl DocumentManager {
 
   fn collab_for_document(
     &self,
+    uid: i64,
     doc_id: &str,
     updates: Vec<Vec<u8>>,
   ) -> FlowyResult<Arc<MutexCollab>> {
-    let uid = self.user.user_id()?;
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder

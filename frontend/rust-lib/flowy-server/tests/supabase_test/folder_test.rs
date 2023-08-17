@@ -274,8 +274,8 @@ async fn print_folder_object_test() {
   if get_supabase_dev_config().is_none() {
     return;
   }
-  let secret = Some("OGi9o4TQaFwFaSxjYsRlJQvUyNqCih$frCAdfPi8tVDbkRW+xb5Aw==".to_string());
-  print_encryption_folder("7f592754-e299-4dbe-823f-920fcdc7fbd2", secret).await;
+  let secret = Some("43bSxEPHeNkk5ZxxEYOfAjjd7sK2DJ$vVnxwuNc5ru0iKFvhs8wLg==".to_string());
+  print_encryption_folder("f8b14b84-e8ec-4cf4-a318-c1e008ecfdfa", secret).await;
 }
 
 #[tokio::test]

@@ -149,6 +149,12 @@ impl FolderManager {
           Folder::open(collab, Some(folder_notifier))
         },
         FolderInitializeData::Raw(raw_data) => {
+          if raw_data.is_empty() {
+            return Err(FlowyError::new(
+              ErrorCode::UnexpectedEmptyCollabUpdates,
+              "The updates of the folder should not be empty",
+            ));
+          }
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
           Folder::open(collab, Some(folder_notifier))
         },
@@ -207,7 +213,7 @@ impl FolderManager {
       .get_folder_updates(workspace_id, user_id)
       .await?;
 
-    tracing::trace!(
+    tracing::info!(
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
       folder_updates.len()
@@ -238,12 +244,8 @@ impl FolderManager {
     if is_new {
       let folder_data = match folder_data {
         None => {
-          DefaultFolderBuilder::build(
-            self.user.user_id()?,
-            workspace_id.to_string(),
-            &self.operation_handlers,
-          )
-          .await
+          DefaultFolderBuilder::build(user_id, workspace_id.to_string(), &self.operation_handlers)
+            .await
         },
         Some(folder_data) => folder_data,
       };
@@ -256,19 +258,18 @@ impl FolderManager {
         )
         .await?;
     } else {
-      // The folder data is loaded through the [FolderCloudService]. If the cloud service in use is
-      // [LocalServerFolderCloudServiceImpl], the folder data will be None because the Folder will load
-      // the data directly from the disk. If any other cloud service is in use, the folder data will be loaded remotely.
+      // The folder updates should not be empty, as the folder data is stored
+      // when the user signs up for the first time.
       let folder_updates = self
         .cloud_service
         .get_folder_updates(workspace_id, user_id)
         .await?;
-      if !folder_updates.is_empty() {
-        tracing::trace!(
-          "Get folder updates via {}",
-          self.cloud_service.service_name()
-        );
-      }
+
+      tracing::info!(
+        "Get folder updates via {}, number of updates: {}",
+        self.cloud_service.service_name(),
+        folder_updates.len()
+      );
       self
         .initialize(
           user_id,
@@ -779,9 +780,16 @@ impl FolderManager {
 
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id();
+    let uid = self.user.user_id()?;
     if let Some(data) = import_data.data {
       handler
-        .import_from_bytes(&view_id, &import_data.name, import_data.import_type, data)
+        .import_from_bytes(
+          uid,
+          &view_id,
+          &import_data.name,
+          import_data.import_type,
+          data,
+        )
         .await?;
     }
 
