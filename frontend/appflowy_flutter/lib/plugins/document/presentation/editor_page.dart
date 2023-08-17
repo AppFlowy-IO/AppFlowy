@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
