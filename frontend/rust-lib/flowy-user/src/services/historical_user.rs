@@ -7,11 +7,26 @@ use flowy_user_deps::entities::{AuthType, UserWorkspace};
 use lib_infra::util::timestamp;
 
 use crate::manager::UserManager;
+use crate::migrations::MigrationUser;
 use crate::services::entities::{HistoricalUser, HistoricalUsers, Session};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 const HISTORICAL_USER: &str = "af_historical_users";
 impl UserManager {
+  pub async fn get_migration_user(&self, auth_type: &AuthType) -> Option<MigrationUser> {
+    // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
+    // auth type is not [AuthType::Local].
+    let session = self.get_session().ok()?;
+    let user_profile = self.get_user_profile(session.user_id, false).await.ok()?;
+    if user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
+      Some(MigrationUser {
+        user_profile,
+        session,
+      })
+    } else {
+      None
+    }
+  }
   /// Logs a user's details for historical tracking.
   ///
   /// This function adds a user's details to a local historical tracking system, useful for
@@ -24,7 +39,7 @@ impl UserManager {
   /// - `auth_type`: The type of authentication used.
   /// - `storage_path`: Path where user data is stored.
   ///
-  pub fn log_historical_user(
+  pub fn add_historical_user(
     &self,
     uid: i64,
     device_id: &str,
@@ -67,12 +82,14 @@ impl UserManager {
   /// This function facilitates the re-opening of a user's session from historical tracking.
   /// It retrieves the user's workspace and establishes a new session for the user.
   ///
-  pub fn open_historical_user(
+  pub async fn open_historical_user(
     &self,
     uid: i64,
     device_id: String,
     auth_type: AuthType,
   ) -> FlowyResult<()> {
+    debug_assert!(auth_type.is_local());
+    self.update_auth_type(&auth_type).await;
     let conn = self.db_connection(uid)?;
     let row = user_workspace_table::dsl::user_workspace_table
       .filter(user_workspace_table::uid.eq(uid))
@@ -83,8 +100,6 @@ impl UserManager {
       device_id,
       user_workspace,
     };
-    debug_assert!(auth_type.is_local());
-    self.cloud_services.set_auth_type(auth_type);
     self.set_current_session(Some(session))?;
     Ok(())
   }

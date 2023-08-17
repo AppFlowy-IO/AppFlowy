@@ -1,3 +1,19 @@
+use std::format;
+use std::str::FromStr;
+use std::sync::Arc;
+
+use chrono::{
+  DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
+};
+use chrono_tz::Tz;
+use collab_database::database::timestamp;
+use collab_database::fields::Field;
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
+
+use flowy_error::FlowyResult;
+
 use crate::entities::{
   DateCellDataPB, FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
   RowMetaPB,
@@ -12,19 +28,6 @@ use crate::services::group::controller::{
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
 };
-use chrono::{
-  DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
-};
-use chrono_tz::Tz;
-use collab_database::database::timestamp;
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::format;
-use std::str::FromStr;
-use std::sync::Arc;
 
 pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
   fn from_json(s: &str) -> Result<Self, serde_json::Error>;
@@ -46,20 +49,15 @@ impl GroupConfigurationContentSerde for DateGroupConfiguration {
   }
 }
 
-#[derive(Serialize_repr, Deserialize_repr)]
+#[derive(Default, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum DateCondition {
+  #[default]
   Relative = 0,
   Day = 1,
   Week = 2,
   Month = 3,
   Year = 4,
-}
-
-impl std::default::Default for DateCondition {
-  fn default() -> Self {
-    DateCondition::Relative
-  }
 }
 
 pub type DateGroupController = BaseGroupController<
@@ -245,7 +243,7 @@ impl GroupController for DateGroupController {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, _)) => {
-        let date = DateTime::parse_from_str(&group_id, GROUP_ID_DATE_FORMAT).unwrap();
+        let date = DateTime::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
         let cell = insert_date_cell(date.timestamp(), None, field);
         cells.insert(field.id.clone(), cell);
       },
@@ -299,7 +297,7 @@ impl GroupsBuilder for DateGroupGenerator {
 fn make_group_from_date_cell(
   cell_data: &DateCellData,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> Group {
   let group_id = group_id(cell_data, type_option, setting_content);
   Group::new(
@@ -308,12 +306,12 @@ fn make_group_from_date_cell(
   )
 }
 
-const GROUP_ID_DATE_FORMAT: &'static str = "%Y/%m/%d";
+const GROUP_ID_DATE_FORMAT: &str = "%Y/%m/%d";
 
 fn group_id(
   cell_data: &DateCellData,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> String {
   let binding = DateTypeOption::default();
   let type_option = type_option.unwrap_or(&binding);
@@ -343,11 +341,11 @@ fn group_id(
         now.checked_add_signed(Duration::days(-1))
       } else if diff == 1 {
         now.checked_add_signed(Duration::days(1))
-      } else if diff >= -7 && diff < -1 {
+      } else if (-7..-1).contains(&diff) {
         now.checked_add_signed(Duration::days(-7))
       } else if diff > 1 && diff <= 7 {
         now.checked_add_signed(Duration::days(2))
-      } else if diff >= -30 && diff < -7 {
+      } else if (-30..-7).contains(&diff) {
         now.checked_add_signed(Duration::days(-30))
       } else if diff > 7 && diff <= 30 {
         now.checked_add_signed(Duration::days(8))
@@ -374,9 +372,9 @@ fn group_id(
 }
 
 fn group_name_from_id(
-  group_id: &String,
+  group_id: &str,
   type_option: Option<&DateTypeOption>,
-  setting_content: &String,
+  setting_content: &str,
 ) -> String {
   let binding = DateTypeOption::default();
   let type_option = type_option.unwrap_or(&binding);
@@ -386,12 +384,7 @@ fn group_name_from_id(
   let tmp;
   match config.condition {
     DateCondition::Day => {
-      tmp = format!(
-        "{} {}, {}",
-        date.format("%b").to_string(),
-        date.day(),
-        date.year(),
-      );
+      tmp = format!("{} {}, {}", date.format("%b"), date.day(), date.year(),);
       tmp
     },
     DateCondition::Week => {
@@ -406,15 +399,15 @@ fn group_name_from_id(
 
       tmp = format!(
         "Week of {} {}-{} {}",
-        date.format("%b").to_string(),
-        begin_of_week.to_string(),
-        end_of_week.to_string(),
+        date.format("%b"),
+        begin_of_week,
+        end_of_week,
         date.year()
       );
       tmp
     },
     DateCondition::Month => {
-      tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
+      tmp = format!("{} {}", date.format("%b"), date.year(),);
       tmp
     },
     DateCondition::Year => date.year().to_string(),
@@ -431,7 +424,7 @@ fn group_name_from_id(
         -30 => "Last 30 days",
         8 => "Next 30 days",
         _ => {
-          tmp = format!("{} {}", date.format("%b").to_string(), date.year(),);
+          tmp = format!("{} {}", date.format("%b"), date.year(),);
           &tmp
         },
       };
@@ -441,7 +434,7 @@ fn group_name_from_id(
   }
 }
 
-fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> DateTime<Local> {
+fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &str) -> DateTime<Local> {
   match timestamp {
     Some(timestamp) => {
       let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
@@ -458,14 +451,17 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &String) -> Dat
 
 #[cfg(test)]
 mod tests {
+  use std::vec;
+
+  use chrono::{offset, Days, Duration, NaiveDateTime};
+
+  use crate::entities::FieldType;
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
     group::controller_impls::date_controller::{
       group_id, group_name_from_id, GROUP_ID_DATE_FORMAT,
     },
   };
-  use chrono::{offset, Days, Duration, NaiveDateTime};
-  use std::vec;
 
   #[test]
   fn group_id_name_test() {
@@ -485,9 +481,9 @@ mod tests {
     let today = offset::Local::now();
     let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
 
-    let mut local_date_type_option = DateTypeOption::default();
+    let mut local_date_type_option = DateTypeOption::new(FieldType::DateTime);
     local_date_type_option.timezone_id = today.offset().to_string();
-    let mut default_date_type_option = DateTypeOption::default();
+    let mut default_date_type_option = DateTypeOption::new(FieldType::DateTime);
     default_date_type_option.timezone_id = "".to_string();
 
     let tests = vec![
@@ -552,7 +548,7 @@ mod tests {
         exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
-        cell_data: mar_14_2022_cd.clone(),
+        cell_data: mar_14_2022_cd,
         type_option: &local_date_type_option,
         setting_content: r#"{"condition": 4, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/01/01".to_string(),
@@ -588,7 +584,7 @@ mod tests {
       );
       assert_eq!(test.exp_group_id, group_id, "test {}", i);
 
-      if test.exp_group_name != "" {
+      if !test.exp_group_name.is_empty() {
         let group_name =
           group_name_from_id(&group_id, Some(test.type_option), &test.setting_content);
         assert_eq!(test.exp_group_name, group_name, "test {}", i);

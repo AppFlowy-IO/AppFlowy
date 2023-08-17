@@ -1,14 +1,17 @@
-use crate::database::group_test::script::DatabaseGroupTest;
-use crate::database::group_test::script::GroupScript::*;
+use std::collections::HashMap;
+use std::vec;
+
 use chrono::NaiveDateTime;
 use chrono::{offset, Duration};
 use collab_database::database::gen_row_id;
 use collab_database::rows::CreateRowParams;
+
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::CellBuilder;
 use flowy_database2::services::field::DateCellData;
-use std::collections::HashMap;
-use std::vec;
+
+use crate::database::group_test::script::DatabaseGroupTest;
+use crate::database::group_test::script::GroupScript::*;
 
 #[tokio::test]
 async fn group_by_date_test() {
@@ -197,7 +200,7 @@ async fn change_date_on_moving_row_to_another_group() {
     .get_rows()
     .await
     .into_iter()
-    .find(|r| r.row.id.to_string() == row_id.to_string())
+    .find(|r| r.row.id.to_string() == *row_id)
     .unwrap();
   let cell = row_detail.row.cells.get(&date_field.id.clone()).unwrap();
   let date_cell = DateCellData::from(cell);

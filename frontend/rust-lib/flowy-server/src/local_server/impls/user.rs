@@ -39,10 +39,11 @@ impl UserService for LocalServerUserAuthServiceImpl {
         name: user_name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
-        is_new: true,
+        is_new_user: true,
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
+        encryption_type: EncryptionType::NoEncryption,
       })
     })
   }
@@ -64,6 +65,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
+        encryption_type: EncryptionType::NoEncryption,
       })
     })
   }

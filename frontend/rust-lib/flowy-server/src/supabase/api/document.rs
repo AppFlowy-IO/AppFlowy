@@ -8,13 +8,16 @@ use tokio::sync::oneshot::channel;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use lib_infra::future::FutureResult;
 
-use crate::supabase::api::request::{get_latest_snapshot_from_server, FetchObjectUpdateAction};
+use crate::supabase::api::request::{get_snapshots_from_server, FetchObjectUpdateAction};
 use crate::supabase::api::SupabaseServerService;
 
-pub struct SupabaseDocumentServiceImpl<T>(T);
+pub struct SupabaseDocumentServiceImpl<T> {
+  server: T,
+}
+
 impl<T> SupabaseDocumentServiceImpl<T> {
   pub fn new(server: T) -> Self {
-    Self(server)
+    Self { server }
   }
 }
 
@@ -23,7 +26,7 @@ where
   T: SupabaseServerService,
 {
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let try_get_postgrest = self.0.try_get_weak_postgrest();
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {
@@ -39,28 +42,31 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    let try_get_postgrest = self.0.try_get_postgrest();
+    limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    let try_get_postgrest = self.server.try_get_postgrest();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let snapshot = get_latest_snapshot_from_server(&document_id, postgrest)
+      let snapshots = get_snapshots_from_server(&document_id, postgrest, limit)
         .await?
+        .into_iter()
         .map(|snapshot| DocumentSnapshot {
           snapshot_id: snapshot.sid,
           document_id: snapshot.oid,
           data: snapshot.blob,
           created_at: snapshot.created_at,
-        });
-      Ok(snapshot)
+        })
+        .collect::<Vec<_>>();
+      Ok(snapshots)
     })
   }
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
-    let try_get_postgrest = self.0.try_get_weak_postgrest();
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {

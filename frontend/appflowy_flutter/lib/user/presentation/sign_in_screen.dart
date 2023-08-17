@@ -1,13 +1,13 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/background.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,8 +15,6 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -57,7 +55,13 @@ class SignInScreen extends StatelessWidget {
     BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushHomeScreen(context, user),
+      (user) {
+        if (user.encryptionType == EncryptionTypePB.Symmetric) {
+          router.pushEncryptionScreen(context, user);
+        } else {
+          router.pushHomeScreen(context, user);
+        }
+      },
       (error) => showSnapBar(context, error.msg),
     );
   }
@@ -205,10 +209,7 @@ class SignInAsGuestButton extends StatelessWidget {
         listenWhen: (previous, current) =>
             previous.openedHistoricalUser != current.openedHistoricalUser,
         listener: (context, state) async {
-          await FlowyRunner.run(
-            FlowyApp(),
-            integrationEnv(),
-          );
+          await runAppFlowy();
         },
         child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
           builder: (context, state) {

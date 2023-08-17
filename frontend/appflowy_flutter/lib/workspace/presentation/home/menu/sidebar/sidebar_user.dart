@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
@@ -120,21 +119,13 @@ class SidebarUser extends StatelessWidget {
                   didLogout: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();
-
-                    await FlowyRunner.run(
-                      FlowyApp(),
-                      integrationEnv(),
-                    );
+                    await runAppFlowy();
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
                   didOpenUser: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();
-
-                    await FlowyRunner.run(
-                      FlowyApp(),
-                      integrationEnv(),
-                    );
+                    await runAppFlowy();
                   },
                 ),
               );

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::{Mutex, RwLock};
@@ -17,7 +17,7 @@ use crate::supabase::api::{
   SupabaseUserServiceImpl,
 };
 use crate::supabase::entities::RealtimeCollabUpdateEvent;
-use crate::AppFlowyServer;
+use crate::{AppFlowyEncryption, AppFlowyServer};
 
 /// https://www.pgbouncer.org/features.html
 /// Only support session mode.
@@ -60,13 +60,21 @@ pub struct SupabaseServer {
   device_id: Mutex<String>,
   update_tx: RwLock<HashMap<String, RemoteUpdateSender>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
+  encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl SupabaseServer {
-  pub fn new(config: SupabaseConfiguration) -> Self {
+  pub fn new(
+    config: SupabaseConfiguration,
+    enable_sync: bool,
+    encryption: Weak<dyn AppFlowyEncryption>,
+  ) -> Self {
     let update_tx = RwLock::new(HashMap::new());
-    let restful_postgres = if config.enable_sync {
-      Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
+    let restful_postgres = if enable_sync {
+      Some(Arc::new(RESTfulPostgresServer::new(
+        config.clone(),
+        encryption.clone(),
+      )))
     } else {
       None
     };
@@ -75,6 +83,7 @@ impl SupabaseServer {
       device_id: Default::default(),
       update_tx,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
+      encryption,
     }
   }
 
@@ -83,8 +92,8 @@ impl SupabaseServer {
       if self.restful_postgres.read().is_some() {
         return;
       }
-      *self.restful_postgres.write() =
-        Some(Arc::new(RESTfulPostgresServer::new(self.config.clone())));
+      let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
+      *self.restful_postgres.write() = Some(Arc::new(postgres));
     } else {
       *self.restful_postgres.write() = None;
     }
@@ -92,7 +101,7 @@ impl SupabaseServer {
 }
 
 impl AppFlowyServer for SupabaseServer {
-  fn enable_sync(&self, enable: bool) {
+  fn set_enable_sync(&self, enable: bool) {
     tracing::info!("supabase sync: {}", enable);
     self.set_enable_sync(enable);
   }
@@ -134,6 +143,7 @@ impl AppFlowyServer for SupabaseServer {
     Some(Arc::new(SupabaseCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
       Some(rx),
+      self.encryption.clone(),
     )))
   }
 
