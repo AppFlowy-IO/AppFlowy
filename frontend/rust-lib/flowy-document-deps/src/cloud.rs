@@ -9,10 +9,11 @@ use lib_infra::future::FutureResult;
 pub trait DocumentCloudService: Send + Sync + 'static {
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error>;
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error>;
+    limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error>;
 
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error>;
 }

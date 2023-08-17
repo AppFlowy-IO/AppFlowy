@@ -887,6 +887,6 @@ pub(crate) async fn get_snapshots_handler(
 ) -> DataResult<RepeatedDatabaseSnapshotPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let view_id = data.into_inner().value;
-  let snapshots = manager.get_database_snapshots(&view_id).await?;
+  let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
 }

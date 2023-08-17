@@ -23,7 +23,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentManager {
-  pub(crate) user: Arc<dyn DocumentUser>,
+  pub user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
@@ -143,21 +143,20 @@ impl DocumentManager {
   pub async fn get_document_snapshots(
     &self,
     document_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_document_latest_snapshot(document_id)
+      .get_document_snapshots(document_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| DocumentSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }

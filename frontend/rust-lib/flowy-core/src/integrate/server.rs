@@ -240,16 +240,17 @@ impl FolderCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error> {
+    limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_provider(&self.provider_type.read());
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_latest_snapshot(&workspace_id)
+        .get_folder_snapshots(&workspace_id, limit)
         .await
     })
   }
@@ -303,16 +304,17 @@ impl DatabaseCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_collab_latest_snapshot(
+  fn get_collab_snapshots(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
+    limit: usize,
+  ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_latest_snapshot(&database_id)
+        .get_collab_snapshots(&database_id, limit)
         .await
     })
   }
@@ -330,16 +332,17 @@ impl DocumentCloudService for AppFlowyServerProvider {
     })
   }
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
+    limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     let server = self.get_provider(&self.provider_type.read());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_latest_snapshot(&document_id)
+        .get_document_snapshots(&document_id, limit)
         .await
     })
   }

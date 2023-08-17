@@ -13,7 +13,7 @@ use flowy_folder_deps::cloud::{
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
-  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
+  get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
 use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::SupabaseServerService;
@@ -88,23 +88,26 @@ where
     })
   }
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error> {
+    limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let snapshot = get_latest_snapshot_from_server(&workspace_id, postgrest)
+      let snapshots = get_snapshots_from_server(&workspace_id, postgrest, limit)
         .await?
+        .into_iter()
         .map(|snapshot| FolderSnapshot {
           snapshot_id: snapshot.sid,
           database_id: snapshot.oid,
           data: snapshot.blob,
           created_at: snapshot.created_at,
-        });
-      Ok(snapshot)
+        })
+        .collect::<Vec<_>>();
+      Ok(snapshots)
     })
   }
 

@@ -4,7 +4,6 @@ use collab_plugins::cloud_storage::CollabType;
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
-
 use lib_infra::future::FutureResult;
 
 pub(crate) struct SelfHostedDatabaseCloudServiceImpl();
@@ -26,10 +25,11 @@ impl DatabaseCloudService for SelfHostedDatabaseCloudServiceImpl {
     FutureResult::new(async move { Ok(CollabObjectUpdateByOid::default()) })
   }
 
-  fn get_collab_latest_snapshot(
+  fn get_collab_snapshots(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 }

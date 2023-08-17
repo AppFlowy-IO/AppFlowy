@@ -303,7 +303,7 @@ impl UserManager {
       .initialize_user_awareness(&new_session, user_awareness_source)
       .await;
 
-    let _ = self
+    self
       .user_status_callback
       .read()
       .await

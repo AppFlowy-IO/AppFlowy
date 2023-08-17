@@ -86,7 +86,11 @@ pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<
 
 pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret: Option<String>) {
   let (cloud_service, _encryption) = encryption_collab_service(encryption_secret);
-  let snapshot = cloud_service.get_latest_snapshot(folder_id).await.unwrap();
+  let snapshot = cloud_service
+    .get_snapshots(folder_id, 1)
+    .await
+    .pop()
+    .unwrap();
   let collab = Arc::new(
     MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
       .unwrap(),

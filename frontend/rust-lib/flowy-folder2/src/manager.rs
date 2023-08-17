@@ -152,7 +152,7 @@ impl FolderManager {
           if raw_data.is_empty() {
             return Err(FlowyError::new(
               ErrorCode::UnexpectedEmptyCollabUpdates,
-              "The updates of the folder should not be empty",
+              "Can't fetch the workspace data from server",
             ));
           }
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
@@ -897,21 +897,20 @@ impl FolderManager {
   pub async fn get_folder_snapshots(
     &self,
     workspace_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<FolderSnapshotPB>> {
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_folder_latest_snapshot(workspace_id)
+      .get_folder_snapshots(workspace_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| FolderSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }

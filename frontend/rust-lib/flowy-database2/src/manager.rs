@@ -307,22 +307,21 @@ impl DatabaseManager {
   pub async fn get_database_snapshots(
     &self,
     view_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<DatabaseSnapshotPB>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_collab_latest_snapshot(&database_id)
+      .get_collab_snapshots(&database_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| DatabaseSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }

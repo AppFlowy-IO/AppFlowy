@@ -1,10 +1,11 @@
 use std::sync::{Arc, Weak};
 
+use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
 use crate::entities::*;
 use crate::manager::FolderManager;
 use crate::share::ImportParams;
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 fn upgrade_folder(
   folder_manager: AFPluginState<Weak<FolderManager>>,
@@ -319,7 +320,7 @@ pub(crate) async fn get_folder_snapshots_handler(
 ) -> DataResult<RepeatedFolderSnapshotPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   if let Some(workspace_id) = &data.value {
-    let snapshots = folder.get_folder_snapshots(workspace_id).await?;
+    let snapshots = folder.get_folder_snapshots(workspace_id, 10).await?;
     data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
   } else {
     data_result_ok(RepeatedFolderSnapshotPB { items: vec![] })

@@ -15,8 +15,8 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
 use crate::supabase::api::request::{
-  create_snapshot, get_latest_snapshot_from_server, get_updates_from_server,
-  FetchObjectUpdateAction, UpdateItem,
+  create_snapshot, get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
+  UpdateItem,
 };
 use crate::supabase::api::util::{
   ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnEncoder,
@@ -69,11 +69,25 @@ where
     Ok(updates)
   }
 
-  async fn get_latest_snapshot(&self, object_id: &str) -> Option<RemoteCollabSnapshot> {
-    let postgrest = self.server.try_get_postgrest().ok()?;
-    get_latest_snapshot_from_server(object_id, postgrest)
-      .await
-      .ok()?
+  async fn get_snapshots(&self, object_id: &str, limit: usize) -> Vec<RemoteCollabSnapshot> {
+    match self.server.try_get_postgrest() {
+      Ok(postgrest) => match get_snapshots_from_server(object_id, postgrest, limit).await {
+        Ok(snapshots) => snapshots,
+        Err(err) => {
+          tracing::error!(
+            "🔴fetch snapshots by oid:{} with limit: {} failed: {:?}",
+            object_id,
+            limit,
+            err
+          );
+          vec![]
+        },
+      },
+      Err(err) => {
+        tracing::error!("🔴get postgrest failed: {:?}", err);
+        vec![]
+      },
+    }
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {

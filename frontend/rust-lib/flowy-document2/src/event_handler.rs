@@ -176,7 +176,7 @@ pub(crate) async fn get_snapshot_handler(
   let manager = upgrade_document(manager)?;
   let params: OpenDocumentParams = data.into_inner().try_into()?;
   let doc_id = params.document_id;
-  let snapshots = manager.get_document_snapshots(&doc_id).await?;
+  let snapshots = manager.get_document_snapshots(&doc_id, 10).await?;
   data_result_ok(RepeatedDocumentSnapshotPB { items: snapshots })
 }
 

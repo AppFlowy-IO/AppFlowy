@@ -144,11 +144,12 @@ pub async fn create_snapshot(
   Ok(1)
 }
 
-pub async fn get_latest_snapshot_from_server(
+pub async fn get_snapshots_from_server(
   object_id: &str,
   postgrest: Arc<PostgresWrapper>,
-) -> Result<Option<RemoteCollabSnapshot>, Error> {
-  let json = postgrest
+  limit: usize,
+) -> Result<Vec<RemoteCollabSnapshot>, Error> {
+  let json: Value = postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .select(format!(
       "{},{},{},{}",
@@ -158,47 +159,65 @@ pub async fn get_latest_snapshot_from_server(
       AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN
     ))
     .order(format!("{}.desc", AF_COLLAB_SNAPSHOT_ID_COLUMN))
-    .limit(1)
+    .limit(limit)
     .eq(AF_COLLAB_SNAPSHOT_OID_COLUMN, object_id)
     .execute()
     .await?
     .get_json()
     .await?;
 
-  let snapshot = json
-    .as_array()
-    .and_then(|array| array.first())
-    .and_then(|snapshot| {
-      let blob = match (
-        snapshot
-          .get(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN)
-          .and_then(|encrypt| encrypt.as_i64()),
-        snapshot
-          .get(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)
-          .and_then(|value| value.as_str()),
-      ) {
-        (Some(encrypt), Some(value)) => {
-          SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, &postgrest.secret()).ok()
-        },
-        _ => None,
-      }?;
+  let mut snapshots = vec![];
+  let secret = postgrest.secret();
+  match json.as_array() {
+    None => {
+      if let Some(snapshot) = parser_snapshot(object_id, &json, &secret) {
+        snapshots.push(snapshot);
+      }
+    },
+    Some(snapshot_values) => {
+      for snapshot_value in snapshot_values {
+        if let Some(snapshot) = parser_snapshot(object_id, snapshot_value, &secret) {
+          snapshots.push(snapshot);
+        }
+      }
+    },
+  }
+  Ok(snapshots)
+}
 
-      let sid = snapshot.get("sid").and_then(|id| id.as_i64())?;
-      let created_at = snapshot.get("created_at").and_then(|created_at| {
-        created_at
-          .as_str()
-          .map(|id| DateTime::<Utc>::from_str(id).ok())
-          .and_then(|date| date)
-      })?;
+fn parser_snapshot(
+  object_id: &str,
+  snapshot: &Value,
+  secret: &Option<String>,
+) -> Option<RemoteCollabSnapshot> {
+  let blob = match (
+    snapshot
+      .get(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN)
+      .and_then(|encrypt| encrypt.as_i64()),
+    snapshot
+      .get(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)
+      .and_then(|value| value.as_str()),
+  ) {
+    (Some(encrypt), Some(value)) => {
+      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, secret).ok()
+    },
+    _ => None,
+  }?;
 
-      Some(RemoteCollabSnapshot {
-        sid,
-        oid: object_id.to_string(),
-        blob,
-        created_at: created_at.timestamp(),
-      })
-    });
-  Ok(snapshot)
+  let sid = snapshot.get("sid").and_then(|id| id.as_i64())?;
+  let created_at = snapshot.get("created_at").and_then(|created_at| {
+    created_at
+      .as_str()
+      .map(|id| DateTime::<Utc>::from_str(id).ok())
+      .and_then(|date| date)
+  })?;
+
+  Some(RemoteCollabSnapshot {
+    sid,
+    oid: object_id.to_string(),
+    blob,
+    created_at: created_at.timestamp(),
+  })
 }
 
 pub async fn batch_get_updates_from_server(
