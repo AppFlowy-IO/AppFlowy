@@ -4,6 +4,7 @@ use crate::services::field_settings::FieldSettings;
 
 use crate::services::field_settings::default_is_visible;
 
+/// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {
   field_settings: FieldSettings,
 }

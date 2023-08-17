@@ -343,6 +343,8 @@ pub fn make_no_date_test_grid() -> DatabaseData {
   DatabaseData { view, fields, rows }
 }
 
+/// helper function to convert a map of field_id to FieldSettingsMap
+/// to a FieldSettingsByFieldIdMap
 pub fn anymap_from_hashmap(map: HashMap<String, FieldSettingsMap>) -> FieldSettingsByFieldIdMap {
   let mut field_settings_by_field_id = FieldSettingsByFieldIdMapBuilder::new();
   for (field_id, field_settings) in map.into_iter() {

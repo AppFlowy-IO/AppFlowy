@@ -6,6 +6,8 @@ use collab_database::views::{DatabaseLayout, FieldSettingsMap, FieldSettingsMapB
 
 use crate::services::field_settings::IS_VISIBLE;
 
+/// Creates a map of the database layout and the default field settings for fields
+/// in a view of that database layout
 pub fn default_field_settings_by_layout_map() -> HashMap<DatabaseLayout, FieldSettingsMap> {
   let mut template = HashMap::new();
   for layout_ty in DatabaseLayout::iter() {
@@ -15,6 +17,7 @@ pub fn default_field_settings_by_layout_map() -> HashMap<DatabaseLayout, FieldSe
   template
 }
 
+/// Returns the default FieldSettingsMap for the given database layout
 pub fn default_field_settings_by_layout(layout_ty: DatabaseLayout) -> FieldSettingsMap {
   let is_visible = default_is_visible(layout_ty);
   FieldSettingsMapBuilder::new()
@@ -22,6 +25,7 @@ pub fn default_field_settings_by_layout(layout_ty: DatabaseLayout) -> FieldSetti
     .build()
 }
 
+/// Returns the default visibility of a field for the given database layout
 pub fn default_is_visible(layout_ty: DatabaseLayout) -> bool {
   match layout_ty {
     DatabaseLayout::Grid => true,

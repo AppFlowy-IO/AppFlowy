@@ -2,6 +2,7 @@ use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::views::{FieldSettingsMap, FieldSettingsMapBuilder};
 
+/// Stores the field settings for a single field
 #[derive(Debug, Clone)]
 pub struct FieldSettings {
   pub field_id: String,
@@ -35,6 +36,8 @@ impl From<FieldSettings> for FieldSettingsMap {
   }
 }
 
+/// Contains the changeset to a field's settings.
+/// A `Some` value for constitutes a change in that particular setting
 pub struct FieldSettingsChangesetParams {
   pub view_id: String,
   pub field_id: String,

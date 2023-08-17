@@ -6,6 +6,7 @@ use crate::entities::parser::NotEmptyStr;
 use crate::entities::RepeatedFieldIdPB;
 use crate::services::field_settings::{FieldSettings, FieldSettingsChangesetParams};
 
+/// Defines the field settings for a field in a view.
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct FieldSettingsPB {
   #[pb(index = 1)]
@@ -33,6 +34,7 @@ pub struct FieldIdsPB {
   pub field_ids: RepeatedFieldIdPB,
 }
 
+/// Defines a set of fields in a database view, identified by their `field_ids`
 pub struct FieldIdsParams {
   pub view_id: String,
   pub field_ids: Vec<String>,
