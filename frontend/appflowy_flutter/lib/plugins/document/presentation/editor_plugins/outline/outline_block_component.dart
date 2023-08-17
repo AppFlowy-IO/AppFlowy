@@ -183,9 +183,8 @@ class OutlineItemWidget extends StatelessWidget {
   void updateBlockSelection(BuildContext context) async {
     final editorState = context.read<EditorState>();
     editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection.collapse(
-      node.path,
-      node.delta?.length ?? 0,
+    editorState.selection = Selection.collapsed(
+      Position(path: node.path, offset: node.delta?.length ?? 0),
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       editorState.selectionType = null;
