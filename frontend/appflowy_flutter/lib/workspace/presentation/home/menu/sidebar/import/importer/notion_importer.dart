@@ -100,7 +100,7 @@ class NotionImporter {
     // if main page contains any subpages then those sub pages along with the
     // assets in those subpages will be considered level 2 and if any of those
     // subpages contains any subpage that would be level 3 and so on. But we
-    // have already imported the main page this while loop wil start from level 
+    // have already imported the main page this while loop wil start from level
     // 2
     while (unzipFiles.isNotEmpty) {
       final List<ArchiveFile> files = [];

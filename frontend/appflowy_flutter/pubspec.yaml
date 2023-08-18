@@ -263,6 +263,7 @@ flutter:
     - assets/flowy_icons/40x/
     - assets/images/emoji/
     - assets/images/login/
+    - assets/images/external/
     - assets/translations/
 
     # The following assets will be excluded in release.

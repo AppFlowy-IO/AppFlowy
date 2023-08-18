@@ -1,4 +1,3 @@
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -39,7 +38,7 @@ class ImportFromNotionWidget extends StatelessWidget {
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyButton(
         leftIcon: FlowySvg(
-          const FlowySvgData('notion_logo'),
+          const FlowySvgData('external/notion-logo'),
           color: Theme.of(context).colorScheme.tertiary,
         ),
         leftIconSize: const Size.square(20),

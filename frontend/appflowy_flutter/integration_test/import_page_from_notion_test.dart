@@ -29,10 +29,12 @@ void main() {
       await tester.tapAddViewButton();
       await tester.tapImportButton();
 
-      final paths = [p.join(
-        context.applicationDataDirectory,
-        'import_page_from_notion_test.zip',
-      )];
+      final paths = [
+        p.join(
+          context.applicationDataDirectory,
+          'import_page_from_notion_test.zip',
+        )
+      ];
       final ByteData data = await rootBundle
           .load('assets/test/workspaces/import_page_from_notion_test.zip');
       final file = File(paths[0]);
@@ -41,11 +43,18 @@ void main() {
       );
 
       await tester.tapButtonWithName(
-          LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),);
-      expect(find.widgetWithText(Card, LocaleKeys.importPanel_fromMarkdownZip.tr()), findsOneWidget);
-      await tester.tapButtonWithName(LocaleKeys.importPanel_fromMarkdownZip.tr());
-      expect(find.text(LocaleKeys.importPanel_importFromNotionMarkdownZip.tr()),
+        LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),
+      );
+      expect(
+          find.widgetWithText(
+              Card, LocaleKeys.importPanel_fromMarkdownZip.tr(),),
           findsOneWidget,);
+      await tester
+          .tapButtonWithName(LocaleKeys.importPanel_fromMarkdownZip.tr());
+      expect(
+        find.text(LocaleKeys.importPanel_importFromNotionMarkdownZip.tr()),
+        findsOneWidget,
+      );
       await mockPickFilePaths(
         paths: paths,
       );
