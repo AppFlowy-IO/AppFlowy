@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -400,6 +401,10 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             case ViewMoreActionType.openInNewTab:
               context.read<TabsBloc>().openTab(widget.view);
               break;
+            case ViewMoreActionType.splitDown:
+              context.read<PanesCubit>().splitDown(widget.view);
+            case ViewMoreActionType.splitRight:
+              context.read<PanesCubit>().splitRight(widget.view);
             default:
               throw UnsupportedError('$action is not supported');
           }

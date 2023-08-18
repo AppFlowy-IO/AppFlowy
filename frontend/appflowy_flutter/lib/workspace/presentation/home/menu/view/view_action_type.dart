@@ -12,6 +12,8 @@ enum ViewMoreActionType {
   rename,
   moveTo, // not supported yet.
   openInNewTab,
+  splitRight,
+  splitDown,
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
@@ -33,6 +35,10 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return LocaleKeys.disclosureAction_moveTo.tr();
       case ViewMoreActionType.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
+      case ViewMoreActionType.splitDown:
+        return 'Split Down';
+      case ViewMoreActionType.splitRight:
+        return 'Split Right';
     }
   }
 
@@ -54,6 +60,10 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return const Icon(Icons.move_to_inbox);
       case ViewMoreActionType.openInNewTab:
         return const FlowySvg(name: 'grid/expander');
+      case ViewMoreActionType.splitDown:
+        return const Icon(Icons.vertical_split);
+      case ViewMoreActionType.splitRight:
+        return const Icon(Icons.horizontal_split);
     }
   }
 }
