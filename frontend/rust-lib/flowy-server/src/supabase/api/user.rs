@@ -2,6 +2,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
@@ -13,7 +14,7 @@ use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::FetchObjectUpdateAction;
 use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
+use crate::supabase::api::{send_update, PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
@@ -218,6 +219,42 @@ where
           let action =
             FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
           action.run_with_fix_interval(3, 3).await
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
+  }
+
+  fn create_collab_object(
+    &self,
+    collab_object: &CollabObject,
+    data: Vec<u8>,
+  ) -> FutureResult<(), Error> {
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let cloned_collab_object = collab_object.clone();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let workspace_id = cloned_collab_object
+            .get_workspace_id()
+            .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+
+          let postgrest = try_get_postgrest?
+            .upgrade()
+            .ok_or(anyhow::anyhow!("postgrest is not available"))?;
+
+          let encryption_secret = postgrest.secret();
+          send_update(
+            workspace_id,
+            &cloned_collab_object,
+            data,
+            &postgrest,
+            &encryption_secret,
+          )
+          .await?;
+          Ok(())
         }
         .await,
       )

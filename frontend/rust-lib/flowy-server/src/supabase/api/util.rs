@@ -200,18 +200,10 @@ impl SupabaseBinaryColumnDecoder {
 
 /// A decoder specifically tailored for realtime event binary columns in Supabase.
 ///
-/// Decodes the realtime event binary column data using the standard Supabase binary column decoder.
 pub struct SupabaseRealtimeEventBinaryColumnDecoder;
 
 impl SupabaseRealtimeEventBinaryColumnDecoder {
-  /// Decodes a realtime event binary column string from Supabase into binary data.
-  ///
-  /// # Parameters
-  /// - `value`: The string representation from a Supabase realtime event binary column.
-  ///
-  /// # Returns
-  /// Returns an `Option` containing the decoded binary data if decoding is successful.
-  /// Otherwise, returns `None`.
+  /// The realtime event binary column string is encoded twice. So it needs to be decoded twice.
   pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
     let s = value.as_ref().strip_prefix("\\x")?;
     let bytes = hex::decode(s).ok()?;
