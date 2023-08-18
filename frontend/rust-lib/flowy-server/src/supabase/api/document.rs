@@ -6,6 +6,7 @@ use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{get_snapshots_from_server, FetchObjectUpdateAction};
@@ -35,9 +36,9 @@ where
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
           let updates = action.run_with_fix_interval(5, 10).await?;
-          // if updates.is_empty() {
-          //   return Err(FlowyError::collab_not_sync().into());
-          // }
+          if updates.is_empty() {
+            return Err(FlowyError::collab_not_sync().into());
+          }
           Ok(updates)
         }
         .await,

@@ -65,9 +65,12 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => {
-          let items = get_updates_from_server(&object_id, &object_ty, postgrest).await?;
-          Ok(items.into_iter().map(|item| item.value).collect())
+        Some(postgrest) => match get_updates_from_server(&object_id, &object_ty, postgrest).await {
+          Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+          Err(err) => {
+            tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+            Err(err)
+          },
         },
       }
     })
@@ -112,7 +115,19 @@ impl Action for BatchFetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgrest.upgrade() {
         None => Ok(CollabObjectUpdateByOid::default()),
-        Some(server) => batch_get_updates_from_server(object_ids, &object_ty, server).await,
+        Some(server) => {
+          match batch_get_updates_from_server(object_ids.clone(), &object_ty, server).await {
+            Ok(updates_by_oid) => Ok(updates_by_oid),
+            Err(err) => {
+              tracing::error!(
+                "Batch get object with given ids:{:?} failed with error: {:?}",
+                object_ids,
+                err
+              );
+              Err(err)
+            },
+          }
+        },
       }
     })
   }
