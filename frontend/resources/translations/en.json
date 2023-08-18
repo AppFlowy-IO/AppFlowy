@@ -422,6 +422,7 @@
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "titlePlaceholder": "Untitled",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
