@@ -48,10 +48,6 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
-    final childWidth = min(size.width - iconPadding.horizontal,
-        size.height - iconPadding.vertical);
-    final childSize = Size(childWidth, childWidth);
-
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(
         width: size.width,
@@ -85,7 +81,9 @@ class FlowyIconButton extends StatelessWidget {
             ),
             child: Padding(
               padding: iconPadding,
-              child: SizedBox.fromSize(size: childSize, child: child),
+              child: Center(
+                child: child,
+              ),
             ),
           ),
         ),
