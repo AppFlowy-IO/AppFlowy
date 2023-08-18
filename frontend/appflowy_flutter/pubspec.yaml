@@ -107,6 +107,7 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  super_clipboard: ^0.6.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
