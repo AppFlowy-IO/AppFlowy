@@ -89,14 +89,14 @@ class EventCard extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: constraints.maxWidth - 16.0,
         ),
-        child: Container(
+        child: DecoratedBox(
           decoration: decoration.copyWith(
             color: AFThemeExtension.of(context).lightGreyHover,
           ),
           child: card,
         ),
       ),
-      child: Container(
+      child: DecoratedBox(
         decoration: decoration,
         child: card,
       ),
