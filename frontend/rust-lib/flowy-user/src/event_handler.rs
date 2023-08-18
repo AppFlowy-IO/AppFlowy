@@ -388,7 +388,6 @@ pub async fn open_historical_users_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn push_realtime_event_handler(
   payload: AFPluginData<RealtimePayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
