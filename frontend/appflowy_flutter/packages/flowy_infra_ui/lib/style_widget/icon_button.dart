@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_svg/flowy_svg.dart';
