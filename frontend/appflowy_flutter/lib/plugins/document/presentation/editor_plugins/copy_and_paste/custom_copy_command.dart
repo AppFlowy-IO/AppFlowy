@@ -39,7 +39,7 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
 
   () async {
     await getIt<ClipboardService>().setData(
-      ClipboardData(
+      ClipboardServiceData(
         plainText: text,
         html: html,
         inAppJson: inAppJson,

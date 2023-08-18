@@ -3,7 +3,14 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension PasteFromHtml on EditorState {
   Future<void> pasteHtml(String html) async {
-    final nodes = htmlToDocument(html).root.children;
+    final nodes = htmlToDocument(html).root.children.toList();
+    // remove the front and back empty line
+    while (nodes.isNotEmpty && nodes.first.delta?.isEmpty == true) {
+      nodes.removeAt(0);
+    }
+    while (nodes.isNotEmpty && nodes.last.delta?.isEmpty == true) {
+      nodes.removeLast();
+    }
     if (nodes.isEmpty) {
       return;
     }

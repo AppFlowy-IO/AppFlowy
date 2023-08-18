@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -23,8 +24,8 @@ final inAppJsonFormat = CustomValueFormat<String>(
   },
 );
 
-class ClipboardData {
-  const ClipboardData({
+class ClipboardServiceData {
+  const ClipboardServiceData({
     this.plainText,
     this.html,
     this.image,
@@ -38,12 +39,11 @@ class ClipboardData {
 }
 
 class ClipboardService {
-  Future<void> setData(ClipboardData data) async {
+  Future<void> setData(ClipboardServiceData data) async {
     final plainText = data.plainText;
     final html = data.html;
     final inAppJson = data.inAppJson;
-
-    assert(data.image == null, 'not support image yet');
+    final image = data.image;
 
     final item = DataWriterItem();
     if (plainText != null) {
@@ -55,11 +55,34 @@ class ClipboardService {
     if (inAppJson != null) {
       item.add(inAppJsonFormat(inAppJson));
     }
+    if (image != null && image.$2?.isNotEmpty == true) {
+      switch (image.$1) {
+        case 'png':
+          item.add(Formats.png(image.$2!));
+          break;
+        case 'jpeg':
+          item.add(Formats.jpeg(image.$2!));
+          break;
+        case 'gif':
+          item.add(Formats.gif(image.$2!));
+          break;
+        default:
+          throw Exception('unsupported image format: ${image.$1}');
+      }
+    }
     await ClipboardWriter.instance.write([item]);
   }
 
-  Future<ClipboardData> getData() async {
+  Future<ClipboardServiceData> getData() async {
     final reader = await ClipboardReader.readClipboard();
+
+    for (final item in reader.items) {
+      final availableFormats = await item.rawReader!.getAvailableFormats();
+      Log.debug(
+        'availableFormats: $availableFormats',
+      );
+    }
+
     final plainText = await reader.readValue(Formats.plainText);
     final html = await reader.readValue(Formats.htmlText);
     final inAppJson = await reader.readValue(inAppJsonFormat);
@@ -72,7 +95,7 @@ class ClipboardService {
       image = ('gif', await reader.readFile(Formats.gif));
     }
 
-    return ClipboardData(
+    return ClipboardServiceData(
       plainText: plainText,
       html: html,
       image: image,

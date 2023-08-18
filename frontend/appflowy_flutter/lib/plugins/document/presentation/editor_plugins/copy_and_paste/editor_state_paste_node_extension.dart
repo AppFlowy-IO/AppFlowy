@@ -15,7 +15,16 @@ extension PasteNodes on EditorState {
     final insertedDelta = insertedNode.delta;
     // if the node is empty, replace it with the inserted node.
     if (delta.isEmpty || insertedDelta == null) {
-      transaction.insertNode(selection.end.path.next, insertedNode);
+      transaction.insertNode(
+        selection.end.path.next,
+        node.copyWith(
+          type: node.type,
+          attributes: {
+            ...node.attributes,
+            ...insertedNode.attributes,
+          },
+        ),
+      );
       transaction.deleteNode(node);
       transaction.afterSelection = Selection.collapsed(
         Position(
@@ -51,16 +60,20 @@ extension PasteNodes on EditorState {
         delta.slice(0, selection.startIndex),
         insertAfter: false,
       );
+
+      nodes.last.insertDelta(
+        delta.slice(selection.endIndex),
+        insertAfter: true,
+      );
+    }
+
+    if (delta.isEmpty && node.type != ParagraphBlockKeys.type) {
       nodes[0] = nodes.first.copyWith(
         type: node.type,
         attributes: {
           ...node.attributes,
           ...nodes.first.attributes,
         },
-      );
-      nodes.last.insertDelta(
-        delta.slice(selection.endIndex),
-        insertAfter: true,
       );
     }
 
