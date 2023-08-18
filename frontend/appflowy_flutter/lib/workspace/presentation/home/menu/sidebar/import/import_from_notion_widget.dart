@@ -1,9 +1,10 @@
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,7 +39,7 @@ class ImportFromNotionWidget extends StatelessWidget {
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyButton(
         leftIcon: FlowySvg(
-          name: 'notion_logo',
+          const FlowySvgData('notion_logo'),
           color: Theme.of(context).colorScheme.tertiary,
         ),
         leftIconSize: const Size.square(20),
