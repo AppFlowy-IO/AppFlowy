@@ -1,20 +1,24 @@
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Weak};
 
-use collab_plugins::cloud_storage::RemoteCollabStorage;
-use parking_lot::RwLock;
+use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
+use parking_lot::{Mutex, RwLock};
+use serde_json::Value;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_encrypt::decrypt_bytes;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
 
 use crate::supabase::api::{
-  RESTfulPostgresServer, RESTfulSupabaseUserAuthServiceImpl, SupabaseCollabStorageImpl,
-  SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl,
-  SupabaseServerServiceImpl,
+  RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
+  SupabaseDocumentServiceImpl, SupabaseFolderServiceImpl, SupabaseServerServiceImpl,
+  SupabaseUserServiceImpl,
 };
-use crate::AppFlowyServer;
+use crate::supabase::entities::RealtimeCollabUpdateEvent;
+use crate::{AppFlowyEncryption, AppFlowyServer};
 
 /// https://www.pgbouncer.org/features.html
 /// Only support session mode.
@@ -54,19 +58,34 @@ impl PgPoolMode {
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
+  /// did represents as the device id is used to identify the device that is currently using the app.
+  did: Mutex<String>,
+  update_tx: RwLock<HashMap<String, RemoteUpdateSender>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
+  encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl SupabaseServer {
-  pub fn new(config: SupabaseConfiguration) -> Self {
-    let restful_postgres = if config.enable_sync {
-      Some(Arc::new(RESTfulPostgresServer::new(config.clone())))
+  pub fn new(
+    config: SupabaseConfiguration,
+    enable_sync: bool,
+    encryption: Weak<dyn AppFlowyEncryption>,
+  ) -> Self {
+    let update_tx = RwLock::new(HashMap::new());
+    let restful_postgres = if enable_sync {
+      Some(Arc::new(RESTfulPostgresServer::new(
+        config.clone(),
+        encryption.clone(),
+      )))
     } else {
       None
     };
     Self {
       config,
+      did: Default::default(),
+      update_tx,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
+      encryption,
     }
   }
 
@@ -75,8 +94,8 @@ impl SupabaseServer {
       if self.restful_postgres.read().is_some() {
         return;
       }
-      *self.restful_postgres.write() =
-        Some(Arc::new(RESTfulPostgresServer::new(self.config.clone())));
+      let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
+      *self.restful_postgres.write() = Some(Arc::new(postgres));
     } else {
       *self.restful_postgres.write() = None;
     }
@@ -84,15 +103,19 @@ impl SupabaseServer {
 }
 
 impl AppFlowyServer for SupabaseServer {
-  fn enable_sync(&self, enable: bool) {
+  fn set_enable_sync(&self, enable: bool) {
     tracing::info!("supabase sync: {}", enable);
     self.set_enable_sync(enable);
   }
 
+  fn set_sync_device_id(&self, device_id: &str) {
+    *self.did.lock() = device_id.to_string();
+  }
+
   fn user_service(&self) -> Arc<dyn UserService> {
-    Arc::new(RESTfulSupabaseUserAuthServiceImpl::new(
-      SupabaseServerServiceImpl(self.restful_postgres.clone()),
-    ))
+    Arc::new(SupabaseUserServiceImpl::new(SupabaseServerServiceImpl(
+      self.restful_postgres.clone(),
+    )))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
@@ -113,9 +136,56 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn collab_storage(&self) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+    self
+      .update_tx
+      .write()
+      .insert(collab_object.object_id.clone(), tx);
     Some(Arc::new(SupabaseCollabStorageImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
+      Some(rx),
+      self.encryption.clone(),
     )))
+  }
+
+  fn handle_realtime_event(&self, json: Value) {
+    match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
+      Ok(event) => {
+        if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
+          tracing::trace!(
+            "current device: {}, event device: {}",
+            self.did.lock().as_str(),
+            event.payload.did.as_str()
+          );
+
+          if self.did.lock().as_str() != event.payload.did.as_str() {
+            tracing::trace!("Did receive realtime event: {}", event);
+            let value = if event.payload.encrypt == 1 {
+              match self
+                .encryption
+                .upgrade()
+                .and_then(|encryption| encryption.get_secret())
+              {
+                None => vec![],
+                Some(secret) => decrypt_bytes(event.payload.value, &secret).unwrap_or_default(),
+              }
+            } else {
+              event.payload.value
+            };
+
+            if !value.is_empty() {
+              tracing::trace!("Parse payload with len: {} success", value.len());
+              if let Err(e) = tx.send(value) {
+                tracing::trace!("send realtime update error: {}", e);
+              }
+            }
+          }
+        }
+      },
+      Err(e) => {
+        tracing::error!("parser realtime event error: {}", e);
+      },
+    }
   }
 }

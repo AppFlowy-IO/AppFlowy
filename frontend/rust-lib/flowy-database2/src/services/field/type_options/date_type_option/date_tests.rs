@@ -9,7 +9,8 @@ mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
   use crate::services::field::{
-    DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat, TypeOptionCellData,
+    DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat,
+    TypeOptionCellDataSerde,
   };
 
   #[test]

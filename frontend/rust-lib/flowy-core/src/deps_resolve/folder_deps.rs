@@ -23,20 +23,20 @@ use flowy_folder2::view_operation::{
 };
 use flowy_folder2::ViewLayout;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_user::services::UserSession;
+use flowy_user::manager::UserManager;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::future::FutureResult;
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
   pub async fn resolve(
-    user_session: Weak<UserSession>,
+    user_manager: Weak<UserManager>,
     document_manager: &Arc<DocumentManager>,
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     folder_cloud: Arc<dyn FolderCloudService>,
   ) -> Arc<FolderManager> {
-    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_session.clone()));
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl(user_manager.clone()));
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
@@ -63,7 +63,7 @@ fn folder_operation_handlers(
   Arc::new(map)
 }
 
-struct FolderUserImpl(Weak<UserSession>);
+struct FolderUserImpl(Weak<UserManager>);
 impl FolderUser for FolderUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
@@ -94,6 +94,7 @@ struct DocumentFolderOperation(Arc<DocumentManager>);
 impl FolderOperationHandler for DocumentFolderOperation {
   fn create_workspace_view(
     &self,
+    uid: i64,
     workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
@@ -109,7 +110,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
           let json_str = include_str!("../../assets/read_me.json");
           let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
           manager
-            .create_document(&view.parent_view.id, Some(document_pb.into()))
+            .create_document(uid, &view.parent_view.id, Some(document_pb.into()))
             .unwrap();
           view
         })
@@ -152,7 +153,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
 
   fn create_view_with_view_data(
     &self,
-    _user_id: i64,
+    user_id: i64,
     view_id: &str,
     _name: &str,
     data: Vec<u8>,
@@ -164,7 +165,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(data))?;
-      manager.create_document(&view_id, Some(data.into()))?;
+      manager.create_document(user_id, &view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -172,7 +173,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
   /// Create a view with built-in data.
   fn create_built_in_view(
     &self,
-    _user_id: i64,
+    user_id: i64,
     view_id: &str,
     _name: &str,
     layout: ViewLayout,
@@ -181,13 +182,14 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(&view_id, None)?;
+      manager.create_document(user_id, &view_id, None)?;
       Ok(())
     })
   }
 
   fn import_from_bytes(
     &self,
+    uid: i64,
     view_id: &str,
     _name: &str,
     _import_type: ImportType,
@@ -197,7 +199,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager.create_document(&view_id, Some(data.into()))?;
+      manager.create_document(uid, &view_id, Some(data.into()))?;
       Ok(())
     })
   }
@@ -315,6 +317,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   fn import_from_bytes(
     &self,
+    _uid: i64,
     view_id: &str,
     _name: &str,
     import_type: ImportType,

@@ -116,7 +116,7 @@ pub fn make_test_grid() -> DatabaseData {
     }
   }
 
-  for i in 0..6 {
+  for i in 0..7 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
@@ -166,9 +166,9 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
-            FieldType::MultiSelect => {
-              row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
-            },
+            FieldType::MultiSelect => row_builder.insert_multi_select_cell(|mut options| {
+              vec![options.remove(1), options.remove(0), options.remove(0)]
+            }),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             _ => "".to_owned(),
           };
@@ -201,7 +201,8 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
-
+            FieldType::MultiSelect => row_builder
+              .insert_multi_select_cell(|mut options| vec![options.remove(1), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             _ => "".to_owned(),
           };
@@ -218,10 +219,16 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
+            FieldType::MultiSelect => {
+              row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
+            },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
             _ => "".to_owned(),
           };
         }
+      },
+      6 => {
+        row_builder.insert_text_cell("CB");
       },
       _ => {},
     }

@@ -1,11 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -84,7 +83,10 @@ class SidebarUser extends StatelessWidget {
         borderRadius: Corners.s5Border,
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          child: svgWidget('emoji/$iconUrl'),
+          child: FlowySvg(
+            FlowySvgData('emoji/$iconUrl'),
+            blendMode: null,
+          ),
         ),
       ),
     );
@@ -117,21 +119,13 @@ class SidebarUser extends StatelessWidget {
                   didLogout: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();
-
-                    await FlowyRunner.run(
-                      FlowyApp(),
-                      integrationEnv(),
-                    );
+                    await runAppFlowy();
                   },
                   dismissDialog: () => Navigator.of(context).pop(),
                   didOpenUser: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();
-
-                    await FlowyRunner.run(
-                      FlowyApp(),
-                      integrationEnv(),
-                    );
+                    await runAppFlowy();
                   },
                 ),
               );
@@ -140,8 +134,8 @@ class SidebarUser extends StatelessWidget {
         },
         icon: SizedBox.square(
           dimension: 20,
-          child: svgWidget(
-            'home/settings',
+          child: FlowySvg(
+            FlowySvgs.settings_m,
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ),

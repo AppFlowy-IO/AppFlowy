@@ -1,7 +1,7 @@
-use anyhow::Error;
 use std::ops::Deref;
 use std::sync::Arc;
 
+use anyhow::Error;
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
 use collab_document::blocks::DocumentData;
@@ -14,7 +14,6 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use flowy_document2::document::MutexDocument;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
-
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -82,7 +81,8 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
+  builder.set_sync_device(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
 
@@ -90,9 +90,11 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
-
+  let uid = test.user.user_id().unwrap();
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone())).unwrap();
+  _ = test
+    .create_document(uid, &doc_id, Some(data.clone()))
+    .unwrap();
 
   let document = test.get_document(&doc_id).await.unwrap();
 
@@ -114,11 +116,12 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     _document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {

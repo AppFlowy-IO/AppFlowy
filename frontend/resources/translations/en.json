@@ -33,6 +33,7 @@
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
     "loginAsGuestButtonText": "Get Started",
+    "continueAnonymousUser": "Continue in an anonymous session",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
@@ -225,13 +226,20 @@
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
+      "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
-      "historicalUserList": "User history",
-      "historicalUserListTooltip": "This list shows your login history. You can click to login if it's a local user",
-      "openHistoricalUser": "Click to open user"
+      "enableEncrypt": "Encrypt data",
+      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
+      "inputEncryptPrompt": "Please enter your encryption secret for",
+      "clickToCopySecret": "Click to copy secret",
+      "inputTextFieldHint": "Your secret",
+      "historicalUserList": "User login history",
+      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
+      "openHistoricalUser": "Click to open the anonymous account"
     },
     "appearance": {
+      "resetSetting": "Reset this setting",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -402,12 +410,13 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column"
     },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "deleteSort": "Delete sort",
+      "deleteAllSorts": "Delete all sorts",
       "addSort": "Add sort"
     },
     "row": {

@@ -1,7 +1,9 @@
-use crate::services::session_serde::Session;
 use flowy_user_deps::entities::UserProfile;
 
-pub struct UserMigrationContext {
+use crate::services::entities::Session;
+
+#[derive(Clone)]
+pub struct MigrationUser {
   pub user_profile: UserProfile,
   pub session: Session,
 }

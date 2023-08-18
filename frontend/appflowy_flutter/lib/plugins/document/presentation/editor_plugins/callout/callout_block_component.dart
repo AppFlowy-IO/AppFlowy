@@ -1,7 +1,9 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../base/emoji_picker_button.dart';
 
 // defining the keys of the callout block's attributes for easy access
@@ -26,16 +28,16 @@ class CalloutBlockKeys {
   static const String icon = 'icon';
 }
 
-// creating a new callout node
+// The one is inserted through selection menu
 Node calloutNode({
   Delta? delta,
   String emoji = '📌',
-  String backgroundColor = '#F0F0F0',
+  Color? defaultColor,
 }) {
   final attributes = {
     CalloutBlockKeys.delta: (delta ?? Delta()).toJson(),
     CalloutBlockKeys.icon: emoji,
-    CalloutBlockKeys.backgroundColor: backgroundColor,
+    CalloutBlockKeys.backgroundColor: defaultColor?.toHex() ?? '#f2f2f2',
   };
   return Node(
     type: CalloutBlockKeys.type,
@@ -43,12 +45,13 @@ Node calloutNode({
   );
 }
 
-// defining the callout block menu item for selection
+// defining the callout block menu item in selection menu
 SelectionMenuItem calloutItem = SelectionMenuItem.node(
   name: 'Callout',
   iconData: Icons.note,
-  keywords: ['callout'],
-  nodeBuilder: (editorState) => calloutNode(),
+  keywords: [CalloutBlockKeys.type],
+  nodeBuilder: (editorState, context) =>
+      calloutNode(defaultColor: AFThemeExtension.of(context).calloutBGColor),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (_, path, __, ___) {
     return Selection.single(path: path, startOffset: 0);
@@ -59,10 +62,13 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
 class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   CalloutBlockComponentBuilder({
     this.configuration = const BlockComponentConfiguration(),
+    required this.defaultColor,
   });
 
   @override
   final BlockComponentConfiguration configuration;
+
+  final Color defaultColor;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -70,6 +76,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
     return CalloutBlockComponentWidget(
       key: node.key,
       node: node,
+      defaultColor: defaultColor,
       configuration: configuration,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
@@ -96,7 +103,10 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
     super.showActions,
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
+    required this.defaultColor,
   });
+
+  final Color defaultColor;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -128,17 +138,8 @@ class _CalloutBlockComponentWidgetState
   // get the background color of the note block from the node's attributes
   Color get backgroundColor {
     final colorString =
-        node.attributes[CalloutBlockKeys.backgroundColor] as String?;
-    if (colorString == null) {
-      return Colors.transparent;
-    }
-
-    final brightness = Theme.of(context).brightness;
-    final bool isDarkMode = brightness == Brightness.dark;
-
-    final Color bgColor = colorString.toColor();
-
-    return isDarkMode ? bgColor.withOpacity(0.3) : bgColor;
+        node.attributes[CalloutBlockKeys.backgroundColor] as String;
+    return colorString.toColor() ?? Colors.transparent;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
@@ -162,9 +163,9 @@ class _CalloutBlockComponentWidgetState
           // the emoji picker button for the note
           Padding(
             padding: const EdgeInsets.only(
-              top: 6.0,
-              left: 2.0,
-              right: 2.0,
+              top: 8.0,
+              left: 4.0,
+              right: 4.0,
             ),
             child: EmojiPickerButton(
               key: ValueKey(
@@ -183,7 +184,7 @@ class _CalloutBlockComponentWidgetState
               child: buildCalloutBlockComponent(context),
             ),
           ),
-          const VSpace(10),
+          const HSpace(8.0),
         ],
       ),
     );
@@ -230,9 +231,8 @@ class _CalloutBlockComponentWidgetState
       ..updateNode(node, {
         CalloutBlockKeys.icon: emoji,
       })
-      ..afterSelection = Selection.collapse(
-        node.path,
-        node.delta?.length ?? 0,
+      ..afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
   }

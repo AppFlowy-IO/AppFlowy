@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +27,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
             emit(
               state.copyWith(
                 fields: value.fields
-                    .where((element) => element.visibility)
+                    .where((element) => element.field.visibility)
                     .toList(),
               ),
             );

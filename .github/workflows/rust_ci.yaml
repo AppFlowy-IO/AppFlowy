@@ -25,6 +25,7 @@ env:
 
 jobs:
   test-on-ubuntu:
+    environment: SUPABASE_CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -49,7 +50,23 @@ jobs:
         with:
           prefix-key: 'ubuntu-latest'
           workspaces: |
-            frontend/rust-lib 
+            frontend/rust-lib
+
+      - name: Create .env file in flowy-server
+        working-directory: frontend/rust-lib/flowy-server
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+
+      - name: Create .env file in flowy-test
+        working-directory: frontend/rust-lib/flowy-test
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
@@ -60,5 +77,5 @@ jobs:
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --features="rev-sqlite"
+        run: cargo clippy --all
         working-directory: frontend/rust-lib

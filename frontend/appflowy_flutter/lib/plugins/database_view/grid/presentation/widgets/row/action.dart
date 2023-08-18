@@ -1,8 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_action_sheet_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -80,8 +81,8 @@ class _ActionCell extends StatelessWidget {
             action.performAction(context);
           }
         },
-        leftIcon: svgWidget(
-          action.iconName(),
+        leftIcon: FlowySvg(
+          action.icon(),
           color: Theme.of(context).iconTheme.color,
         ),
       ),
@@ -95,12 +96,12 @@ enum _RowAction {
 }
 
 extension _RowActionExtension on _RowAction {
-  String iconName() {
+  FlowySvgData icon() {
     switch (this) {
       case _RowAction.duplicate:
-        return 'grid/duplicate';
+        return FlowySvgs.copy_s;
       case _RowAction.delete:
-        return 'grid/delete';
+        return FlowySvgs.delete_s;
     }
   }
 

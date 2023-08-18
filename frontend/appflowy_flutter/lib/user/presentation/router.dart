@@ -13,6 +13,8 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 
+import 'encrypt_secret_screen.dart';
+
 const routerNameRoot = '/';
 const routerNameSignUp = '/signUp';
 const routerNameSignIn = '/signIn';
@@ -67,6 +69,23 @@ class AuthRouter {
         workspaceSettingPB,
       ),
       (r) => pushWelcomeScreen(context, userProfile),
+    );
+  }
+
+  Future<void> pushEncryptionScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) async {
+    Navigator.push(
+      context,
+      PageRoutes.fade(
+        () => EncryptSecretScreen(
+          user: userProfile,
+          key: ValueKey(userProfile.id),
+        ),
+        const RouteSettings(name: routerNameWelcome),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
     );
   }
 }

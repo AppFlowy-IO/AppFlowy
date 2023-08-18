@@ -1,10 +1,13 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/background.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -12,12 +15,9 @@ import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -55,7 +55,13 @@ class SignInScreen extends StatelessWidget {
     BuildContext context,
   ) {
     result.fold(
-      (user) => router.pushHomeScreen(context, user),
+      (user) {
+        if (user.encryptionType == EncryptionTypePB.Symmetric) {
+          router.pushEncryptionScreen(context, user);
+        } else {
+          router.pushHomeScreen(context, user);
+        }
+      },
       (error) => showSnapBar(context, error.msg),
     );
   }
@@ -118,7 +124,18 @@ class SignInForm extends StatelessWidget {
               : [
                   const VSpace(indicatorMinHeight * 2.0)
                 ], // add the same space when there's no loading status.
-          const VSpace(20)
+          // ConstrainedBox(
+          //   constraints: const BoxConstraints(maxHeight: 140),
+          //   child: HistoricalUserList(
+          //     didOpenUser: () async {
+          //       await FlowyRunner.run(
+          //         FlowyApp(),
+          //         integrationEnv(),
+          //       );
+          //     },
+          //   ),
+          // ),
+          const VSpace(20),
         ],
       ),
     );
@@ -183,14 +200,46 @@ class SignInAsGuestButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextButton(
-      title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
-      height: 48,
-      borderRadius: Corners.s6Border,
-      onPressed: () {
-        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
-        context.read<SignInBloc>().add(const SignInEvent.signedInAsGuest());
-      },
+    return BlocProvider(
+      create: (context) => HistoricalUserBloc()
+        ..add(
+          const HistoricalUserEvent.initial(),
+        ),
+      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
+        listenWhen: (previous, current) =>
+            previous.openedHistoricalUser != current.openedHistoricalUser,
+        listener: (context, state) async {
+          await runAppFlowy();
+        },
+        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+          builder: (context, state) {
+            if (state.historicalUsers.isEmpty) {
+              return RoundedTextButton(
+                title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
+                height: 48,
+                borderRadius: Corners.s6Border,
+                onPressed: () {
+                  getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
+                  context
+                      .read<SignInBloc>()
+                      .add(const SignInEvent.signedInAsGuest());
+                },
+              );
+            } else {
+              return RoundedTextButton(
+                title: LocaleKeys.signIn_continueAnonymousUser.tr(),
+                height: 48,
+                borderRadius: Corners.s6Border,
+                onPressed: () {
+                  final bloc = context.read<HistoricalUserBloc>();
+                  final user = bloc.state.historicalUsers.first;
+                  bloc.add(HistoricalUserEvent.openHistoricalUser(user));
+                },
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 }
@@ -233,8 +282,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(FlowySvgs.hide_m),
+          obscureHideIcon: const FlowySvg(FlowySvgs.show_m),
           hintText: LocaleKeys.signIn_passwordHint.tr(),
           errorText: context
               .read<SignInBloc>()
@@ -309,7 +358,7 @@ class ThirdPartySignInButton extends StatelessWidget {
     required this.onPressed,
   }) : super(key: key);
 
-  final String icon;
+  final FlowySvgData icon;
   final VoidCallback onPressed;
 
   @override
@@ -320,8 +369,9 @@ class ThirdPartySignInButton extends StatelessWidget {
       iconPadding: const EdgeInsets.all(8.0),
       radius: Corners.s10Border,
       onPressed: onPressed,
-      icon: svgWidget(
+      icon: FlowySvg(
         icon,
+        blendMode: null,
       ),
     );
   }
@@ -340,7 +390,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: [
         ThirdPartySignInButton(
-          icon: 'login/google-mark',
+          icon: FlowySvgs.google_mark_xl,
           onPressed: () {
             getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
             context.read<SignInBloc>().add(

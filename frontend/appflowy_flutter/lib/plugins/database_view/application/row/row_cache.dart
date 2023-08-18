@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../cell/cell_service.dart';
-import '../field/field_controller.dart';
 import 'row_list.dart';
 import 'row_service.dart';
 part 'row_cache.freezed.dart';
@@ -15,7 +15,7 @@ typedef RowUpdateCallback = void Function();
 
 /// A delegate that provides the fields of the row.
 abstract class RowFieldsDelegate {
-  UnmodifiableListView<FieldInfo> get fields;
+  UnmodifiableListView<FieldInfo> get fieldInfos;
   void onFieldsChanged(void Function(List<FieldInfo>) callback);
 }
 
@@ -244,12 +244,12 @@ class RowCache {
   CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
     // ignore: prefer_collection_literals
     final cellContextMap = CellContextByFieldId();
-    for (final field in _fieldDelegate.fields) {
-      if (field.visibility) {
-        cellContextMap[field.id] = DatabaseCellContext(
+    for (final fieldInfo in _fieldDelegate.fieldInfos) {
+      if (fieldInfo.field.visibility) {
+        cellContextMap[fieldInfo.id] = DatabaseCellContext(
           rowMeta: rowMeta,
           viewId: viewId,
-          fieldInfo: field,
+          fieldInfo: fieldInfo,
         );
       }
     }
@@ -259,7 +259,7 @@ class RowCache {
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {
     return RowInfo(
       viewId: viewId,
-      fields: _fieldDelegate.fields,
+      fields: _fieldDelegate.fieldInfos,
       rowId: rowMetaPB.id,
       rowMeta: rowMetaPB,
     );

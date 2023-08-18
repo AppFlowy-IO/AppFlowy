@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import useOutsideClick from '$app/components/_shared/useOutsideClick';
 
 export const PopupWindow = ({
@@ -7,12 +7,14 @@ export const PopupWindow = ({
   onOutsideClick,
   left,
   top,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   onOutsideClick: () => void;
   left: number;
   top: number;
+  style?: CSSProperties;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -20,22 +22,30 @@ export const PopupWindow = ({
 
   const [adjustedTop, setAdjustedTop] = useState(-100);
   const [adjustedLeft, setAdjustedLeft] = useState(-100);
+  const [stickToBottom, setStickToBottom] = useState(false);
+  const [stickToRight, setStickToRight] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
-    const { height, width } = ref.current.getBoundingClientRect();
 
-    if (top + height > window.innerHeight) {
-      setAdjustedTop(window.innerHeight - height);
-    } else {
+    new ResizeObserver(() => {
+      if (!ref.current) return;
+      const { height, width } = ref.current.getBoundingClientRect();
+
       setAdjustedTop(top);
-    }
+      if (top + height > window.innerHeight) {
+        setStickToBottom(true);
+      } else {
+        setStickToBottom(false);
+      }
 
-    if (left + width > window.innerWidth) {
-      setAdjustedLeft(window.innerWidth - width);
-    } else {
       setAdjustedLeft(left);
-    }
+      if (left + width > window.innerWidth) {
+        setStickToRight(true);
+      } else {
+        setStickToRight(false);
+      }
+    }).observe(ref.current);
   }, [ref, left, top]);
 
   return (
@@ -46,7 +56,11 @@ export const PopupWindow = ({
         (adjustedTop === -100 && adjustedLeft === -100 ? 'opacity-0 ' : 'opacity-100 ') +
         (className ?? '')
       }
-      style={{ top: `${adjustedTop}px`, left: `${adjustedLeft}px` }}
+      style={{
+        [stickToBottom ? 'bottom' : 'top']: `${stickToBottom ? '0' : adjustedTop}px`,
+        [stickToRight ? 'right' : 'left']: `${stickToRight ? '0' : adjustedLeft}px`,
+        ...style,
+      }}
     >
       {children}
     </div>

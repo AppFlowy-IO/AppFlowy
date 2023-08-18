@@ -1,11 +1,14 @@
-use crate::services::session_serde::Session;
+use std::sync::Arc;
+
 use appflowy_integrate::RocksCollabDB;
 use chrono::NaiveDateTime;
 use diesel::{RunQueryDsl, SqliteConnection};
+
 use flowy_error::FlowyResult;
 use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
-use std::sync::Arc;
+
+use crate::services::entities::Session;
 
 pub struct UserLocalDataMigration {
   session: Session,

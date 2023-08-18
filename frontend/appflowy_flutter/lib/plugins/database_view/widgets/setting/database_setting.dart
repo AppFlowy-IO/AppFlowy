@@ -1,5 +1,5 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -65,8 +65,8 @@ class DatabaseSettingItem extends StatelessWidget {
           color: AFThemeExtension.of(context).textColor,
         ),
         onTap: () => onAction(action),
-        leftIcon: svgWidget(
-          action.iconName(),
+        leftIcon: FlowySvg(
+          action.iconData(),
           color: Theme.of(context).iconTheme.color,
         ),
       ),

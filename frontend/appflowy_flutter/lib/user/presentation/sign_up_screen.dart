@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_up_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
@@ -14,7 +15,6 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -148,8 +148,8 @@ class PasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(FlowySvgs.hide_m),
+          obscureHideIcon: const FlowySvg(FlowySvgs.show_m),
           hintText: LocaleKeys.signUp_passwordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,
@@ -181,8 +181,8 @@ class RepeatPasswordTextField extends StatelessWidget {
       builder: (context, state) {
         return RoundedInputField(
           obscureText: true,
-          obscureIcon: svgWidget("home/hide"),
-          obscureHideIcon: svgWidget("home/show"),
+          obscureIcon: const FlowySvg(FlowySvgs.hide_m),
+          obscureHideIcon: const FlowySvg(FlowySvgs.show_m),
           hintText: LocaleKeys.signUp_repeatPasswordHint.tr(),
           normalBorderColor: Theme.of(context).colorScheme.outline,
           errorBorderColor: Theme.of(context).colorScheme.error,

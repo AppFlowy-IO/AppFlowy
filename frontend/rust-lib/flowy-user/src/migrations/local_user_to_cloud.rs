@@ -6,15 +6,16 @@ use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
 use collab_folder::core::{Folder, FolderData};
 
-use crate::migrations::UserMigrationContext;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+
+use crate::migrations::MigrationUser;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.
 pub fn migration_user_to_cloud(
-  old_user: &UserMigrationContext,
+  old_user: &MigrationUser,
   old_collab_db: &Arc<RocksCollabDB>,
-  new_user: &UserMigrationContext,
+  new_user: &MigrationUser,
   new_collab_db: &Arc<RocksCollabDB>,
 ) -> FlowyResult<Option<FolderData>> {
   let mut folder_data = None;
@@ -72,7 +73,7 @@ fn migrate_database_storage<'a, W>(
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let origin = CollabOrigin::Client(CollabClient::new(old_uid, ""));
+  let origin = CollabOrigin::Client(CollabClient::new(old_uid, "phantom"));
   match Collab::new_with_raw_data(origin, old_object_id, updates, vec![]) {
     Ok(collab) => {
       let txn = collab.transact();
@@ -94,7 +95,7 @@ fn migrate_object<'a, W>(
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let origin = CollabOrigin::Client(CollabClient::new(old_uid, ""));
+  let origin = CollabOrigin::Client(CollabClient::new(old_uid, "phantom"));
   match Collab::new_with_raw_data(origin, object_id, updates, vec![]) {
     Ok(collab) => {
       let txn = collab.transact();
@@ -112,7 +113,7 @@ fn migrate_folder(
   new_workspace_id: &str,
   updates: CollabRawData,
 ) -> Option<FolderData> {
-  let origin = CollabOrigin::Client(CollabClient::new(old_uid, ""));
+  let origin = CollabOrigin::Client(CollabClient::new(old_uid, "phantom"));
   let old_folder_collab = Collab::new_with_raw_data(origin, old_object_id, updates, vec![]).ok()?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(old_folder_collab));
   let old_folder = Folder::open(mutex_collab, None);

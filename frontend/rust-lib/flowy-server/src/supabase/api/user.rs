@@ -2,6 +2,8 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
+use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
 use flowy_user_deps::cloud::*;
@@ -10,24 +12,25 @@ use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::supabase::api::request::FetchObjectUpdateAction;
 use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
+use crate::supabase::api::{send_update, PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 use crate::supabase::entities::GetUserProfileParams;
 use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
 
-pub struct RESTfulSupabaseUserAuthServiceImpl<T> {
+pub struct SupabaseUserServiceImpl<T> {
   server: T,
 }
 
-impl<T> RESTfulSupabaseUserAuthServiceImpl<T> {
+impl<T> SupabaseUserServiceImpl<T> {
   pub fn new(server: T) -> Self {
     Self { server }
   }
 }
 
-impl<T> UserService for RESTfulSupabaseUserAuthServiceImpl<T>
+impl<T> UserService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
@@ -86,9 +89,11 @@ where
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
-        is_new: is_new_user,
+        is_new_user,
         email: Some(user_profile.email),
         token: None,
+        device_id: params.device_id,
+        encryption_type: EncryptionType::from_sign(&user_profile.encryption_sign),
       })
     })
   }
@@ -99,22 +104,24 @@ where
       let postgrest = try_get_postgrest?;
       let params = third_party_params_from_box_any(params)?;
       let uuid = params.uuid;
-      let user_profile = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
+      let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
         .unwrap();
-      let user_workspaces = get_user_workspaces(postgrest.clone(), user_profile.uid).await?;
+      let user_workspaces = get_user_workspaces(postgrest.clone(), response.uid).await?;
       let latest_workspace = user_workspaces
         .iter()
-        .find(|user_workspace| user_workspace.id == user_profile.latest_workspace_id)
+        .find(|user_workspace| user_workspace.id == response.latest_workspace_id)
         .cloned();
 
       Ok(SignInResponse {
-        user_id: user_profile.uid,
+        user_id: response.uid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
         email: None,
         token: None,
+        device_id: params.device_id,
+        encryption_type: EncryptionType::from_sign(&response.encryption_sign),
       })
     })
   }
@@ -150,15 +157,16 @@ where
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
       match user_profile_resp {
         None => Ok(None),
-        Some(user_profile_resp) => Ok(Some(UserProfile {
-          id: user_profile_resp.uid,
-          email: user_profile_resp.email,
-          name: user_profile_resp.name,
+        Some(response) => Ok(Some(UserProfile {
+          uid: response.uid,
+          email: response.email,
+          name: response.name,
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
-          workspace_id: user_profile_resp.latest_workspace_id,
+          workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
+          encryption_type: EncryptionType::from_sign(&response.encryption_sign),
         })),
       }
     })
@@ -199,6 +207,60 @@ where
   ) -> FutureResult<(), Error> {
     todo!()
   }
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let awareness_id = uid.to_string();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let postgrest = try_get_postgrest?;
+          let action =
+            FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
+          action.run_with_fix_interval(3, 3).await
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
+  }
+
+  fn create_collab_object(
+    &self,
+    collab_object: &CollabObject,
+    data: Vec<u8>,
+  ) -> FutureResult<(), Error> {
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let cloned_collab_object = collab_object.clone();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let workspace_id = cloned_collab_object
+            .get_workspace_id()
+            .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+
+          let postgrest = try_get_postgrest?
+            .upgrade()
+            .ok_or(anyhow::anyhow!("postgrest is not available"))?;
+
+          let encryption_secret = postgrest.secret();
+          send_update(
+            workspace_id,
+            &cloned_collab_object,
+            data,
+            &postgrest,
+            &encryption_secret,
+          )
+          .await?;
+          Ok(())
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
+  }
 }
 
 async fn get_user_profile(
@@ -207,7 +269,7 @@ async fn get_user_profile(
 ) -> Result<Option<UserProfileResponse>, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
-    .select("uid, email, name, latest_workspace_id");
+    .select("uid, email, name, encryption_sign, latest_workspace_id");
 
   match params {
     GetUserProfileParams::Uid(uid) => builder = builder.eq("uid", uid.to_string()),
@@ -223,7 +285,10 @@ async fn get_user_profile(
   match profiles.len() {
     0 => Ok(None),
     1 => Ok(Some(profiles.swap_remove(0))),
-    _ => unreachable!(),
+    _ => {
+      tracing::error!("multiple user profile found");
+      Ok(None)
+    },
   }
 }
 
@@ -254,7 +319,7 @@ async fn update_user_profile(
   let exists = !postgrest
     .from(USER_TABLE)
     .select("uid")
-    .eq("uid", params.id.to_string())
+    .eq("uid", params.uid.to_string())
     .execute()
     .await?
     .error_for_status()?
@@ -262,9 +327,8 @@ async fn update_user_profile(
     .await?
     .is_empty();
   if !exists {
-    anyhow::bail!("user uid {} does not exist", params.id);
+    anyhow::bail!("user uid {} does not exist", params.uid);
   }
-
   let mut update_params = serde_json::Map::new();
   if let Some(name) = params.name {
     update_params.insert("name".to_string(), serde_json::json!(name));
@@ -272,18 +336,24 @@ async fn update_user_profile(
   if let Some(email) = params.email {
     update_params.insert("email".to_string(), serde_json::json!(email));
   }
-  let update_payload = serde_json::to_string(&update_params).unwrap();
+  if let Some(encrypt_sign) = params.encryption_sign {
+    update_params.insert(
+      "encryption_sign".to_string(),
+      serde_json::json!(encrypt_sign),
+    );
+  }
 
+  let update_payload = serde_json::to_string(&update_params).unwrap();
   let resp = postgrest
     .from(USER_TABLE)
     .update(update_payload)
-    .eq("uid", params.id.to_string())
+    .eq("uid", params.uid.to_string())
     .execute()
     .await?
     .success_with_body()
     .await?;
 
-  tracing::debug!("update user profile resp: {:?}", resp);
+  tracing::trace!("update user profile resp: {:?}", resp);
   Ok(())
 }
 

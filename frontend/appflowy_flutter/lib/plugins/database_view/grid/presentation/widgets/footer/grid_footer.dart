@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,8 @@ class GridAddRowButton extends StatelessWidget {
       ),
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
-      leftIcon: svgWidget(
-        "home/add",
+      leftIcon: FlowySvg(
+        FlowySvgs.add_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );
