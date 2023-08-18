@@ -1,4 +1,5 @@
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserService;
@@ -126,6 +127,15 @@ impl UserService for SelfHostedUserAuthServiceImpl {
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(vec![]) })
+  }
+
+  fn create_collab_object(
+    &self,
+    _collab_object: &CollabObject,
+    _data: Vec<u8>,
+  ) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
   }
 }
 

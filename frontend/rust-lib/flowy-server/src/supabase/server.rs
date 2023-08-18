@@ -152,31 +152,28 @@ impl AppFlowyServer for SupabaseServer {
   fn handle_realtime_event(&self, json: Value) {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
-        match (
+        if let (Some(tx), Some(secret)) = (
           self.update_tx.read().get(event.payload.oid.as_str()),
           self
             .encryption
             .upgrade()
             .and_then(|encryption| encryption.get_secret()),
         ) {
-          (Some(tx), Some(secret)) => {
-            if self.did.lock().as_str() != event.payload.did.as_str() {
-              tracing::trace!("Did receive realtime event: {}", event);
-              let value = if event.payload.encrypt == 1 {
-                decrypt_bytes(event.payload.value, &secret).unwrap_or_default()
-              } else {
-                event.payload.value
-              };
+          if self.did.lock().as_str() != event.payload.did.as_str() {
+            tracing::trace!("Did receive realtime event: {}", event);
+            let value = if event.payload.encrypt == 1 {
+              decrypt_bytes(event.payload.value, &secret).unwrap_or_default()
+            } else {
+              event.payload.value
+            };
 
-              if !value.is_empty() {
-                tracing::trace!("Parse payload with len: {} success", value.len());
-                if let Err(e) = tx.send(value) {
-                  tracing::trace!("send realtime update error: {}", e);
-                }
+            if !value.is_empty() {
+              tracing::trace!("Parse payload with len: {} success", value.len());
+              if let Err(e) = tx.send(value) {
+                tracing::trace!("send realtime update error: {}", e);
               }
             }
-          },
-          _ => {},
+          }
         }
       },
       Err(e) => {

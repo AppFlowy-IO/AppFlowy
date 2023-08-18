@@ -116,14 +116,14 @@ where
           })?;
 
           let current_edit_count = value.get("current_edit_count").and_then(|id| id.as_i64())?;
-          let last_snapshot_edit_count = value
-            .get("last_snapshot_edit_count")
+          let snapshot_edit_count = value
+            .get("snapshot_edit_count")
             .and_then(|id| id.as_i64())?;
 
           Some(RemoteCollabState {
             current_edit_count,
-            last_snapshot_edit_count,
-            last_snapshot_created_at: created_at.timestamp(),
+            snapshot_edit_count,
+            snapshot_created_at: created_at.timestamp(),
           })
         }),
     )
@@ -215,7 +215,7 @@ where
   }
 }
 
-async fn send_update(
+pub(crate) async fn send_update(
   workspace_id: String,
   object: &CollabObject,
   update: Vec<u8>,
