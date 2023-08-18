@@ -6,7 +6,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::{UserCloudConfig, UserService};
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
@@ -74,6 +74,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_init(
     &self,
     user_id: i64,
+    cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     device_id: &str,
   ) -> Fut<FlowyResult<()>>;
@@ -145,6 +146,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_init(
     &self,
     _user_id: i64,
+    _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
   ) -> Fut<FlowyResult<()>> {

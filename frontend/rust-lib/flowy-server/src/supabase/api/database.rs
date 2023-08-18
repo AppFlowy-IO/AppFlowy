@@ -5,7 +5,6 @@ use tokio::sync::oneshot::channel;
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
-use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
@@ -42,9 +41,6 @@ where
           let updates = FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
             .run_with_fix_interval(5, 10)
             .await?;
-          if updates.is_empty() {
-            return Err(FlowyError::collab_not_sync().into());
-          }
           Ok(updates)
         }
         .await,

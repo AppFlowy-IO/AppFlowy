@@ -24,7 +24,7 @@ use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 };
-use flowy_user_deps::cloud::{UserCloudConfig, UserService};
+use flowy_user_deps::cloud::UserService;
 use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
@@ -75,25 +75,15 @@ impl AppFlowyServerProvider {
   pub fn new(
     config: AppFlowyCoreConfig,
     provider_type: ServerProviderType,
-    cloud_config: Option<UserCloudConfig>,
     store_preferences: Weak<StorePreferences>,
   ) -> Self {
-    let enable_sync = cloud_config
-      .as_ref()
-      .map(|config| config.enable_sync)
-      .unwrap_or(true);
-    let encryption = EncryptionImpl::new(
-      cloud_config
-        .as_ref()
-        .map(|config| config.encrypt_secret.clone()),
-    );
-
+    let encryption = EncryptionImpl::new(None);
     Self {
       config,
       provider_type: RwLock::new(provider_type),
       device_id: Default::default(),
       providers: RwLock::new(HashMap::new()),
-      enable_sync: RwLock::new(enable_sync),
+      enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
     }
@@ -177,6 +167,7 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
   }
 
   fn set_encrypt_secret(&self, secret: String) {
+    tracing::info!("🔑Set encrypt secret");
     self.encryption.write().set_secret(secret);
   }
 

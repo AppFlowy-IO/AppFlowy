@@ -364,7 +364,13 @@ fn parser_update_from_json(
     json.get("value").and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret).ok()
+      match SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret) {
+        Ok(value) => Some(value),
+        Err(err) => {
+          tracing::error!("Decode value column failed: {:?}", err);
+          None
+        },
+      }
     },
     _ => None,
   };
@@ -386,9 +392,12 @@ fn parser_update_from_json(
     }
     Ok(UpdateItem { key, value })
   } else {
+    let keys = json
+      .as_object()
+      .map(|map| map.iter().map(|(key, _)| key).collect::<Vec<&String>>());
     Err(anyhow::anyhow!(
-      "missing key or value column in json: {:?}",
-      json
+      "missing key or value column. Current keys:: {:?}",
+      keys
     ))
   }
 }

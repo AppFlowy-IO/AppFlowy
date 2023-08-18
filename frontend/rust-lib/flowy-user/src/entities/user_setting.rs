@@ -149,7 +149,7 @@ impl From<UserCloudConfig> for UserCloudConfigPB {
   fn from(value: UserCloudConfig) -> Self {
     Self {
       enable_sync: value.enable_sync,
-      enable_encrypt: value.enable_encrypt,
+      enable_encrypt: value.enable_encrypt(),
       encrypt_secret: value.encrypt_secret,
     }
   }
