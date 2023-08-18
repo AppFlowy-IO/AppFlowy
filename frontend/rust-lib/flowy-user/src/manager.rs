@@ -25,7 +25,7 @@ use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
 use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
 use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::MigrationUser;
-use crate::services::cloud_config::remove_cloud_config;
+use crate::services::cloud_config::get_cloud_config;
 use crate::services::database::UserDB;
 use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
@@ -121,8 +121,14 @@ impl UserManager {
       self
         .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
         .await;
+      let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       if let Err(e) = user_status_callback
-        .did_init(session.user_id, &session.user_workspace, &session.device_id)
+        .did_init(
+          session.user_id,
+          &cloud_config,
+          &session.user_workspace,
+          &session.device_id,
+        )
         .await
       {
         tracing::error!("Failed to call did_init callback: {:?}", e);
@@ -213,7 +219,6 @@ impl UserManager {
     auth_type: AuthType,
     params: BoxAny,
   ) -> Result<UserProfile, FlowyError> {
-    remove_cloud_config(&self.store_preferences);
     self.update_auth_type(&auth_type).await;
 
     let migration_user = self.get_migration_user(&auth_type).await;
@@ -325,7 +330,6 @@ impl UserManager {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
     self.set_current_session(None)?;
-    remove_cloud_config(&self.store_preferences);
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {

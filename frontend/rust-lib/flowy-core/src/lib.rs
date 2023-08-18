@@ -22,7 +22,7 @@ use flowy_sqlite::kv::StorePreferences;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
 use flowy_user::manager::{UserManager, UserSessionConfig};
-use flowy_user::services::cloud_config::get_cloud_config;
+use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -150,7 +150,6 @@ impl AppFlowyCore {
     let server_provider = Arc::new(AppFlowyServerProvider::new(
       config.clone(),
       provider_type,
-      get_cloud_config(&store_preference),
       Arc::downgrade(&store_preference),
     ));
 
@@ -293,6 +292,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   fn did_init(
     &self,
     user_id: i64,
+    cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
@@ -302,6 +302,17 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
+
+    if let Some(cloud_config) = cloud_config {
+      self
+        .server_provider
+        .set_enable_sync(cloud_config.enable_sync);
+      if cloud_config.enable_encrypt() {
+        self
+          .server_provider
+          .set_encrypt_secret(cloud_config.encrypt_secret.clone());
+      }
+    }
 
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());

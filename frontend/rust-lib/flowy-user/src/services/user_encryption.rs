@@ -37,7 +37,7 @@ impl UserManager {
         "Failed to get store preference",
       ))?;
 
-    let encrypt_secret = get_encrypt_secret(&store_preference).ok_or(FlowyError::new(
+    let encrypt_secret = get_encrypt_secret(uid, &store_preference).ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Encrypt secret is not set",
     ))?;

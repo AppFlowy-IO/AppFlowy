@@ -152,17 +152,24 @@ impl AppFlowyServer for SupabaseServer {
   fn handle_realtime_event(&self, json: Value) {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
-        if let (Some(tx), Some(secret)) = (
-          self.update_tx.read().get(event.payload.oid.as_str()),
-          self
-            .encryption
-            .upgrade()
-            .and_then(|encryption| encryption.get_secret()),
-        ) {
+        if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
+          tracing::trace!(
+            "current device: {}, event device: {}",
+            self.did.lock().as_str(),
+            event.payload.did.as_str()
+          );
+
           if self.did.lock().as_str() != event.payload.did.as_str() {
             tracing::trace!("Did receive realtime event: {}", event);
             let value = if event.payload.encrypt == 1 {
-              decrypt_bytes(event.payload.value, &secret).unwrap_or_default()
+              match self
+                .encryption
+                .upgrade()
+                .and_then(|encryption| encryption.get_secret())
+              {
+                None => vec![],
+                Some(secret) => decrypt_bytes(event.payload.value, &secret).unwrap_or_default(),
+              }
             } else {
               event.payload.value
             };

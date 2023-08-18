@@ -38,9 +38,10 @@ where
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
+          let updates = FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
             .run_with_fix_interval(5, 10)
-            .await
+            .await?;
+          Ok(updates)
         }
         .await,
       )

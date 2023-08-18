@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
@@ -18,7 +19,7 @@ use crate::entities::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCloudConfig {
   pub enable_sync: bool,
-  pub enable_encrypt: bool,
+  enable_encrypt: bool,
   // The secret used to encrypt the user's data
   pub encrypt_secret: String,
 }
@@ -30,6 +31,27 @@ impl UserCloudConfig {
       enable_encrypt: false,
       encrypt_secret,
     }
+  }
+
+  pub fn enable_encrypt(&self) -> bool {
+    self.enable_encrypt
+  }
+
+  pub fn with_enable_encrypt(mut self, enable_encrypt: bool) -> Self {
+    self.enable_encrypt = enable_encrypt;
+    // When the enable_encrypt is true, the encrypt_secret should not be empty
+    debug_assert!(!self.encrypt_secret.is_empty());
+    self
+  }
+}
+
+impl Display for UserCloudConfig {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "enable_sync: {}, enable_encrypt: {}",
+      self.enable_sync, self.enable_encrypt
+    )
   }
 }
 
