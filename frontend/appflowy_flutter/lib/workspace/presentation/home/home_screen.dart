@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -40,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<PanesCubit>(create: (context) => PanesCubit()),
         BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
