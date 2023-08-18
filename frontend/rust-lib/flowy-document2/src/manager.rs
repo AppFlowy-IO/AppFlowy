@@ -110,15 +110,13 @@ impl DocumentManager {
       if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
         if document_updates.is_empty() {
           return Err(FlowyError::new(
-            ErrorCode::UnexpectedEmptyCollabUpdates,
+            ErrorCode::CollabDataNotSync,
             "Can't not read the document data",
           ));
         }
         updates = document_updates;
       } else {
-        return Err(
-          FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
-        );
+        return Err(FlowyError::collab_not_sync());
       }
     }
     let uid = self.user.user_id()?;

@@ -224,8 +224,8 @@ pub enum ErrorCode {
   #[error("Invalid decryption secret")]
   InvalidEncryptSecret = 74,
 
-  #[error("Unexpected empty collab updates")]
-  UnexpectedEmptyCollabUpdates = 75,
+  #[error("It appears that the collaboration object's data has not been fully synchronized")]
+  CollabDataNotSync = 75,
 }
 
 impl ErrorCode {

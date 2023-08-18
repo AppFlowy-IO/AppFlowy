@@ -158,8 +158,8 @@ impl FolderManager {
         FolderInitializeData::Raw(raw_data) => {
           if raw_data.is_empty() {
             return Err(FlowyError::new(
-              ErrorCode::UnexpectedEmptyCollabUpdates,
-              "Can't fetch the workspace data from server",
+              ErrorCode::CollabDataNotSync,
+              "Can't fetch the workspace from server",
             ));
           }
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
