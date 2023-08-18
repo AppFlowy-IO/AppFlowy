@@ -70,7 +70,6 @@ class SupbaseRealtimeService {
           (payload, [ref]) {
             try {
               final jsonStr = jsonEncode(payload);
-              Log.info("Realtime payload: $jsonStr");
               final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
               UserEventPushRealtimeEvent(pb).send();
             } catch (e) {

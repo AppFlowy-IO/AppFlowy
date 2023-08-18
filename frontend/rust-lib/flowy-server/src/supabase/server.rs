@@ -7,6 +7,7 @@ use serde_json::Value;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_encrypt::decrypt_bytes;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_user_deps::cloud::UserService;
@@ -57,7 +58,8 @@ impl PgPoolMode {
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  device_id: Mutex<String>,
+  /// did represents as the device id is used to identify the device that is currently using the app.
+  did: Mutex<String>,
   update_tx: RwLock<HashMap<String, RemoteUpdateSender>>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
   encryption: Weak<dyn AppFlowyEncryption>,
@@ -80,7 +82,7 @@ impl SupabaseServer {
     };
     Self {
       config,
-      device_id: Default::default(),
+      did: Default::default(),
       update_tx,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
       encryption,
@@ -107,7 +109,7 @@ impl AppFlowyServer for SupabaseServer {
   }
 
   fn set_sync_device_id(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
+    *self.did.lock() = device_id.to_string();
   }
 
   fn user_service(&self) -> Arc<dyn UserService> {
@@ -150,12 +152,31 @@ impl AppFlowyServer for SupabaseServer {
   fn handle_realtime_event(&self, json: Value) {
     match serde_json::from_value::<RealtimeCollabUpdateEvent>(json) {
       Ok(event) => {
-        if let Some(tx) = self.update_tx.read().get(event.payload.oid.as_str()) {
-          if self.device_id.lock().as_str() != event.payload.did.as_str() {
-            if let Err(e) = tx.send(event.payload.value) {
-              tracing::trace!("send realtime update error: {}", e);
+        match (
+          self.update_tx.read().get(event.payload.oid.as_str()),
+          self
+            .encryption
+            .upgrade()
+            .and_then(|encryption| encryption.get_secret()),
+        ) {
+          (Some(tx), Some(secret)) => {
+            if self.did.lock().as_str() != event.payload.did.as_str() {
+              tracing::trace!("Did receive realtime event: {}", event);
+              let value = if event.payload.encrypt == 1 {
+                decrypt_bytes(event.payload.value, &secret).unwrap_or_default()
+              } else {
+                event.payload.value
+              };
+
+              if !value.is_empty() {
+                tracing::trace!("Parse payload with len: {} success", value.len());
+                if let Err(e) = tx.send(value) {
+                  tracing::trace!("send realtime update error: {}", e);
+                }
+              }
             }
-          }
+          },
+          _ => {},
         }
       },
       Err(e) => {
