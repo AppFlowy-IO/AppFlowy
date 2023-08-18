@@ -11,7 +11,7 @@ use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
 use flowy_document_deps::cloud::DocumentCloudService;
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
@@ -71,6 +71,7 @@ impl DocumentManager {
   }
 
   /// Return the document
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
@@ -78,16 +79,9 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      match self.cloud_service.get_document_updates(doc_id).await {
-        Ok(document_updates) => updates = document_updates,
-        Err(e) => {
-          tracing::error!("Get document data failed: {:?}", e);
-          return Err(FlowyError::internal().context("Can't not read the document data"));
-        },
-      }
+      updates = self.cloud_service.get_document_updates(doc_id).await?;
     }
 
-    tracing::debug!("open_document: {:?}", doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db(uid)?;
     let collab = self
@@ -108,12 +102,6 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
-        if document_updates.is_empty() {
-          return Err(FlowyError::new(
-            ErrorCode::CollabDataNotSync,
-            "Can't not read the document data",
-          ));
-        }
         updates = document_updates;
       } else {
         return Err(FlowyError::collab_not_sync());

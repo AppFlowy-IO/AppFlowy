@@ -34,7 +34,11 @@ where
         async move {
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
-          action.run_with_fix_interval(5, 10).await
+          let updates = action.run_with_fix_interval(5, 10).await?;
+          // if updates.is_empty() {
+          //   return Err(FlowyError::collab_not_sync().into());
+          // }
+          Ok(updates)
         }
         .await,
       )
