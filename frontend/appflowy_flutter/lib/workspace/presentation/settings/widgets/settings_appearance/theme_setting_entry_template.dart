@@ -36,7 +36,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
             key: resetButtonKey,
             width: 24,
             icon: FlowySvg(
-              FlowySvgs.reload_s,
+              FlowySvgs.restore_s,
               color: Theme.of(context).iconTheme.color,
             ),
             iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
