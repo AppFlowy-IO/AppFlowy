@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_auth_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'auth/auth_service.dart';
 
 /// A service to manage realtime interactions with Supabase.
 ///
@@ -15,34 +19,32 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// accordingly.
 class SupbaseRealtimeService {
   final Supabase supabase;
+  final _authStateListener = UserAuthStateListener();
+
   RealtimeChannel? channel;
   StreamSubscription<AuthState>? authStateSubscription;
 
   SupbaseRealtimeService({required this.supabase}) {
     _subscribeAuthState();
+    _subscribeTablesChanges();
+
+    _authStateListener.start(
+      didSignIn: () {
+        _subscribeTablesChanges();
+      },
+      onForceLogout: (message) async {
+        await getIt<AuthService>().signOut();
+        channel?.unsubscribe();
+        channel = null;
+        await runAppFlowy();
+      },
+    );
   }
 
   void _subscribeAuthState() {
     final auth = Supabase.instance.client.auth;
-    if (channel == null) {
-      _subscribeTablesChanges();
-    }
-
     authStateSubscription = auth.onAuthStateChange.listen((state) async {
-      Log.debug("Supabase auth state change: ${state.event}");
-      switch (state.event) {
-        case AuthChangeEvent.signedIn:
-          _subscribeTablesChanges();
-          break;
-        case AuthChangeEvent.signedOut:
-          channel?.unsubscribe();
-          break;
-        case AuthChangeEvent.tokenRefreshed:
-          _subscribeTablesChanges();
-          break;
-        default:
-          break;
-      }
+      Log.info("Supabase auth state change: ${state.event}");
     });
   }
 
@@ -78,6 +80,7 @@ class SupbaseRealtimeService {
       );
 
       const ops = RealtimeChannelConfig(ack: true);
+      channel?.unsubscribe();
       channel = supabase.client.channel("table-db-changes", opts: ops);
       for (final filter in filters) {
         channel?.on(
@@ -103,5 +106,11 @@ class SupbaseRealtimeService {
         },
       );
     });
+  }
+
+  Future<void> dispose() async {
+    await _authStateListener.stop();
+    await authStateSubscription?.cancel();
+    await channel?.unsubscribe();
   }
 }

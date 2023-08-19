@@ -18,7 +18,7 @@ use flowy_user_deps::cloud::UserUpdate;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
 };
@@ -213,9 +213,10 @@ impl UserManager {
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
     }
-    send_sign_in_notification()
-      .payload::<UserProfilePB>(user_profile.clone().into())
-      .send();
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateSignIn,
+    })
+    .send();
     Ok(user_profile)
   }
 
@@ -344,6 +345,11 @@ impl UserManager {
     self
       .save_auth_data(&response, auth_type, &new_session)
       .await?;
+
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateSignIn,
+    })
+    .send();
     Ok(())
   }
 
@@ -595,7 +601,10 @@ impl UserManager {
       // If the local user profile's encryption sign is not equal to the user update's encryption sign,
       // which means the user enable encryption in another device, we should logout the current user.
       if user_profile.encryption_type.sign() != user_update.encryption_sign {
-        send_notification(&user_update.uid.to_string(), UserNotification::ForceSignOut).send();
+        send_auth_state_notification(AuthStateChangedPB {
+          state: AuthStatePB::AuthStateForceSignOut,
+        })
+        .send();
         return Ok(());
       }
 
