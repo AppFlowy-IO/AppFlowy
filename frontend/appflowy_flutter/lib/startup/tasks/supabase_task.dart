@@ -40,6 +40,7 @@ class InitSupabaseTask extends LaunchTask {
       debug: kDebugMode,
       localStorage: const SupabaseLocalStorage(),
     );
+
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
     supabase = initializedSupabase;
 

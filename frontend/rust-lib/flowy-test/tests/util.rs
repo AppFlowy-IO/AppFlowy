@@ -112,7 +112,7 @@ pub fn database_service() -> Arc<dyn DatabaseCloudService> {
 
 pub fn user_auth_service() -> Arc<dyn UserService> {
   let (server, _encryption_impl) = appflowy_server(None);
-  Arc::new(SupabaseUserServiceImpl::new(server))
+  Arc::new(SupabaseUserServiceImpl::new(server, vec![]))
 }
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {

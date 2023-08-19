@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use flowy_sqlite::schema::user_table;
+use flowy_user_deps::cloud::UserUpdate;
 use flowy_user_deps::entities::*;
 
 /// The order of the fields in the struct must be the same as the order of the fields in the table.
@@ -99,6 +100,17 @@ impl UserTableChangeset {
       icon_url: Some(user_profile.icon_url),
       openai_key: Some(user_profile.openai_key),
       encryption_type: Some(encryption_type),
+    }
+  }
+}
+
+impl From<UserUpdate> for UserTableChangeset {
+  fn from(value: UserUpdate) -> Self {
+    UserTableChangeset {
+      id: value.uid.to_string(),
+      name: Some(value.name),
+      email: Some(value.email),
+      ..Default::default()
     }
   }
 }

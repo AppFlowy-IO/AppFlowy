@@ -1,7 +1,6 @@
 use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
-use serde_json::Value;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -97,7 +96,6 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   fn did_update_network(&self, _reachable: bool) {}
-  fn receive_realtime_event(&self, _json: Value) {}
 }
 
 /// The user cloud service provider.

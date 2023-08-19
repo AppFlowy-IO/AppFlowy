@@ -24,7 +24,12 @@ class SupbaseRealtimeService {
 
   void _subscribeAuthState() {
     final auth = Supabase.instance.client.auth;
+    if (channel == null) {
+      _subscribeTablesChanges();
+    }
+
     authStateSubscription = auth.onAuthStateChange.listen((state) async {
+      Log.debug("Supabase auth state change: ${state.event}");
       switch (state.event) {
         case AuthChangeEvent.signedIn:
           _subscribeTablesChanges();
@@ -44,19 +49,30 @@ class SupbaseRealtimeService {
   Future<void> _subscribeTablesChanges() async {
     final result = await UserBackendService.getCurrentUserProfile();
     result.fold((l) => null, (userProfile) {
-      Log.info("Start listening to table changes");
+      Log.info("Start listening supabase table changes");
       // https://supabase.com/docs/guides/realtime/postgres-changes
-      final filters = [
+      final List<ChannelFilter> filters = [
         "document",
         "folder",
         "database",
         "database_row",
         "w_database",
-      ].map(
-        (name) => ChannelFilter(
-          event: 'INSERT',
+      ]
+          .map(
+            (name) => ChannelFilter(
+              event: 'INSERT',
+              schema: 'public',
+              table: "af_collab_update_$name",
+              filter: 'uid=eq.${userProfile.id}',
+            ),
+          )
+          .toList();
+
+      filters.add(
+        ChannelFilter(
+          event: 'UPDATE',
           schema: 'public',
-          table: "af_collab_update_$name",
+          table: "af_user",
           filter: 'uid=eq.${userProfile.id}',
         ),
       );

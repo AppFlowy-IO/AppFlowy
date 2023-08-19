@@ -5,7 +5,6 @@ use std::sync::{Arc, Weak};
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
 use parking_lot::{Mutex, RwLock};
-use serde_json::Value;
 use serde_repr::*;
 
 use flowy_database_deps::cloud::*;
@@ -69,6 +68,7 @@ pub struct AppFlowyServerProvider {
   enable_sync: RwLock<bool>,
   encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   store_preferences: Weak<StorePreferences>,
+  cache_user_service: RwLock<HashMap<ServerProviderType, Arc<dyn UserService>>>,
 }
 
 impl AppFlowyServerProvider {
@@ -86,6 +86,7 @@ impl AppFlowyServerProvider {
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
+      cache_user_service: Default::default(),
     }
   }
 
@@ -146,13 +147,6 @@ impl AppFlowyServerProvider {
       .insert(provider_type.clone(), server.clone());
     Ok(server)
   }
-
-  pub fn handle_realtime_event(&self, json: Value) {
-    let provider_type = self.provider_type.read().clone();
-    if let Some(server) = self.providers.read().get(&provider_type) {
-      server.handle_realtime_event(json);
-    }
-  }
 }
 
 impl UserCloudServiceProvider for AppFlowyServerProvider {
@@ -201,11 +195,21 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
   /// Returns the [UserService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
-    Ok(
-      self
-        .get_provider(&self.provider_type.read())?
-        .user_service(),
-    )
+    if let Some(user_service) = self
+      .cache_user_service
+      .read()
+      .get(&self.provider_type.read())
+    {
+      return Ok(user_service.clone());
+    }
+
+    let provider_type = self.provider_type.read().clone();
+    let user_service = self.get_provider(&provider_type)?.user_service();
+    self
+      .cache_user_service
+      .write()
+      .insert(provider_type, user_service.clone());
+    Ok(user_service)
   }
 
   fn service_name(&self) -> String {

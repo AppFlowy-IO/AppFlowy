@@ -100,7 +100,7 @@ impl UserManager {
       device_id,
       user_workspace,
     };
-    self.set_current_session(Some(session))?;
+    self.set_session(Some(session))?;
     Ok(())
   }
 }

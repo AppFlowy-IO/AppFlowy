@@ -211,13 +211,18 @@ impl EncryptionType {
       EncryptionType::SelfEncryption(sign.to_owned())
     }
   }
-}
 
-impl EncryptionType {
   pub fn is_need_encrypt_secret(&self) -> bool {
     match self {
       EncryptionType::NoEncryption => false,
       EncryptionType::SelfEncryption(sign) => !sign.is_empty(),
+    }
+  }
+
+  pub fn sign(&self) -> String {
+    match self {
+      EncryptionType::NoEncryption => "".to_owned(),
+      EncryptionType::SelfEncryption(sign) => sign.to_owned(),
     }
   }
 }
