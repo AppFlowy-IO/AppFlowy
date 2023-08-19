@@ -28,14 +28,14 @@ use crate::AppFlowyEncryption;
 pub struct SupabaseUserServiceImpl<T> {
   server: T,
   realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-  user_update_tx: UserUpdateSender,
+  user_update_tx: Option<UserUpdateSender>,
 }
 
 impl<T> SupabaseUserServiceImpl<T> {
   pub fn new(
     server: T,
     realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
-    user_update_tx: UserUpdateSender,
+    user_update_tx: Option<UserUpdateSender>,
   ) -> Self {
     Self {
       server,
@@ -258,7 +258,10 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    Some(self.user_update_tx.subscribe())
+    self
+      .user_update_tx
+      .as_ref()
+      .and_then(|tx| Some(tx.subscribe()))
   }
 
   fn create_collab_object(

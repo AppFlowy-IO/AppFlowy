@@ -128,7 +128,7 @@ impl AppFlowyServer for SupabaseServer {
     Arc::new(SupabaseUserServiceImpl::new(
       SupabaseServerServiceImpl(self.restful_postgres.clone()),
       handlers,
-      user_update_tx,
+      Some(user_update_tx),
     ))
   }
 
