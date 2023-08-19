@@ -89,7 +89,10 @@ class CheckboxCellCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(FlowySvgs.check_filled_s);
+    return const FlowySvg(
+      FlowySvgs.check_filled_s,
+      blendMode: BlendMode.dst,
+    );
   }
 }
 

@@ -382,7 +382,8 @@ Widget? _buildHeaderIcon(GroupData customData) {
     case FieldType.Checkbox:
       final group = customData.asCheckboxGroup()!;
       if (group.isCheck) {
-        widget = const FlowySvg(FlowySvgs.check_filled_s);
+        widget =
+            const FlowySvg(FlowySvgs.check_filled_s, blendMode: BlendMode.dst,);
       } else {
         widget = const FlowySvg(FlowySvgs.uncheck_s);
       }
