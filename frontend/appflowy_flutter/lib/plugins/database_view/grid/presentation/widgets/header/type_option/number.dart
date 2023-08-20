@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,7 +61,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               margin: GridSize.typeOptionContentInsets,
-              rightIcon: const FlowySvg(name: 'grid/more'),
+              rightIcon: const FlowySvg(FlowySvgs.more_s),
               text: FlowyText.regular(
                 state.typeOption.format.title(),
               ),
@@ -181,9 +182,7 @@ class NumberFormatCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = const FlowySvg(
-        name: 'grid/checkmark',
-      );
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     return SizedBox(

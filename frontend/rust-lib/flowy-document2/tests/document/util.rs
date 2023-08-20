@@ -81,7 +81,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), None);
+  let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
   builder.set_sync_device(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
@@ -90,9 +90,11 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
-
+  let uid = test.user.user_id().unwrap();
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone())).unwrap();
+  _ = test
+    .create_document(uid, &doc_id, Some(data.clone()))
+    .unwrap();
 
   let document = test.get_document(&doc_id).await.unwrap();
 
@@ -114,11 +116,12 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     _document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {

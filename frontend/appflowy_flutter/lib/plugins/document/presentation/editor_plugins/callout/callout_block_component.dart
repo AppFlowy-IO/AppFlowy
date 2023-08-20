@@ -3,6 +3,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../base/emoji_picker_button.dart';
 
 // defining the keys of the callout block's attributes for easy access
@@ -138,7 +139,7 @@ class _CalloutBlockComponentWidgetState
   Color get backgroundColor {
     final colorString =
         node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return colorString.toColor();
+    return colorString.toColor() ?? Colors.transparent;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
@@ -230,9 +231,8 @@ class _CalloutBlockComponentWidgetState
       ..updateNode(node, {
         CalloutBlockKeys.icon: emoji,
       })
-      ..afterSelection = Selection.collapse(
-        node.path,
-        node.delta?.length ?? 0,
+      ..afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
   }

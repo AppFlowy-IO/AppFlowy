@@ -1,3 +1,15 @@
+use std::cmp::Ordering;
+use std::str::FromStr;
+
+use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
+use chrono_tz::Tz;
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use serde::{Deserialize, Serialize};
+
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+
 use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
@@ -6,16 +18,6 @@ use crate::services::field::{
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use chrono::format::strftime::StrftimeItems;
-use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
-use chrono_tz::Tz;
-use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::str::FromStr;
 
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
@@ -121,9 +123,9 @@ impl DateTypeOption {
         let date_time = DateTime::<Local>::from_utc(naive, offset);
 
         let fmt = self.date_format.format_str();
-        let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+        let date = format!("{}", date_time.format(fmt));
         let fmt = self.time_format.format_str();
-        let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
+        let time = format!("{}", date_time.format(fmt));
 
         (date, time)
       },

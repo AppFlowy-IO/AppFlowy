@@ -220,6 +220,12 @@ pub enum ErrorCode {
 
   #[error("Conflict")]
   Conflict = 73,
+
+  #[error("Invalid decryption secret")]
+  InvalidEncryptSecret = 74,
+
+  #[error("It appears that the collaboration object's data has not been fully synchronized")]
+  CollabDataNotSync = 75,
 }
 
 impl ErrorCode {

@@ -30,6 +30,15 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             onViewUpdated: (result) {
               add(ViewEvent.viewDidUpdate(left(result)));
             },
+            onViewChildViewsUpdated: (result) async {
+              final view = await ViewBackendService.getView(
+                result.parentViewId,
+              );
+              view.fold(
+                (view) => add(ViewEvent.viewDidUpdate(left(view))),
+                (error) => add(ViewEvent.viewDidUpdate(right(error))),
+              );
+            },
           );
           final isExpanded = await _getViewIsExpanded(view);
           await _loadViewsWhenExpanded(emit, isExpanded);

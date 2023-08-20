@@ -23,7 +23,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub struct DocumentManager {
-  user: Arc<dyn DocumentUser>,
+  pub user: Arc<dyn DocumentUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
@@ -59,17 +59,19 @@ impl DocumentManager {
   /// if the data is None, will create a document with default data.
   pub fn create_document(
     &self,
+    uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(doc_id, vec![])?;
+    let collab = self.collab_for_document(uid, doc_id, vec![])?;
     let data = data.unwrap_or_else(default_document_data);
     let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
     Ok(document)
   }
 
   /// Return the document
+  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
@@ -77,16 +79,9 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      match self.cloud_service.get_document_updates(doc_id).await {
-        Ok(document_updates) => updates = document_updates,
-        Err(e) => {
-          tracing::error!("Get document data failed: {:?}", e);
-          return Err(FlowyError::internal().context("Can't not read the document data"));
-        },
-      }
+      updates = self.cloud_service.get_document_updates(doc_id).await?;
     }
 
-    tracing::debug!("open_document: {:?}", doc_id);
     let uid = self.user.user_id()?;
     let db = self.user.collab_db(uid)?;
     let collab = self
@@ -109,13 +104,11 @@ impl DocumentManager {
       if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
         updates = document_updates;
       } else {
-        return Err(
-          FlowyError::record_not_found().context(format!("document: {} is not exist", doc_id)),
-        );
+        return Err(FlowyError::collab_not_sync());
       }
     }
-
-    let collab = self.collab_for_document(doc_id, updates)?;
+    let uid = self.user.user_id()?;
+    let collab = self.collab_for_document(uid, doc_id, updates)?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -142,31 +135,30 @@ impl DocumentManager {
   pub async fn get_document_snapshots(
     &self,
     document_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_document_latest_snapshot(document_id)
+      .get_document_snapshots(document_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| DocumentSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }
 
   fn collab_for_document(
     &self,
+    uid: i64,
     doc_id: &str,
     updates: Vec<Vec<u8>>,
   ) -> FlowyResult<Arc<MutexCollab>> {
-    let uid = self.user.user_id()?;
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder

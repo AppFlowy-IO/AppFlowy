@@ -26,12 +26,13 @@ packages:
     source: hosted
     version: "2.0.7"
   app_links:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: app_links
-      sha256: "16725e716afd0634a5441654b1dda2b6c5557aa230884b5e1f41a5aa546a4cb6"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f897e1d
+      resolved-ref: f897e1d81a3d9fcea632588479bc2814d493f7b5
+      url: "https://github.com/LucasXu0/app_links"
+    source: git
     version: "3.4.3"
   appflowy_backend:
     dependency: "direct main"
@@ -52,10 +53,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      name: appflowy_editor
-      sha256: "6886c32ab8c3f5385ec9eb333f3fca596fe5f5ee94da84484c7f56a322a026e7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "56474e8b"
+      resolved-ref: "56474e8bd9f08be7090495c255eea20a694ab1f3"
+      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
+    source: git
     version: "1.2.3"
   appflowy_popover:
     dependency: "direct main"
@@ -76,10 +78,10 @@ packages:
     dependency: transitive
     description:
       name: args
-      sha256: c372bb384f273f0c2a8aaaa226dad84dc27c8519a691b888725dec59518ad53a
+      sha256: eef6c46b622e0494a36c5a12d10d77fb4e855501a91c1b9ef9339326e58f0596
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.1"
+    version: "2.4.2"
   async:
     dependency: transitive
     description:
@@ -460,6 +462,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  flowy_svg:
+    dependency: "direct main"
+    description:
+      path: "packages/flowy_svg"
+      relative: true
+    source: path
+    version: "0.1.0+1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -520,10 +529,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: "6ff8c902c8056af9736de2689f63f81c42e2d642b9f4c79dbf8790ae48b63012"
+      sha256: "8c5d68a82add3ca76d792f058b186a0599414f279f00ece4830b9b231b570338"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.6"
+    version: "2.0.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -607,10 +616,10 @@ packages:
     dependency: transitive
     description:
       name: gotrue
-      sha256: "214d5050a68ce68a55da1a6d9d7a2e07e039b359f99f1a17ec685320c9101aa6"
+      sha256: "6ba95e38c06af30d4a365112b433567df70f83d5853923274cb894ea9702c5fa"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.4"
+    version: "1.11.2"
   graphs:
     dependency: transitive
     description:
@@ -700,10 +709,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: a509a2ada4d12c4dc70f9ca35c2fddf75f8b402409ac1a9e1b3dd8065681986b
+      sha256: "0d38f605f292321c0729f8c0632b845be77aa12d272b7bc5e3022bb670a7309e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.3"
+    version: "2.8.4"
   io:
     dependency: transitive
     description:
@@ -804,10 +813,10 @@ packages:
     dependency: transitive
     description:
       name: markdown
-      sha256: "8e332924094383133cee218b676871f42db2514f1f6ac617b6cf6152a7faab8e"
+      sha256: acf35edccc0463a9d7384e437c015a3535772e09714cf60e07eeef3a15870dcd
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.0"
+    version: "7.1.1"
   matcher:
     dependency: transitive
     description:
@@ -1028,10 +1037,10 @@ packages:
     dependency: transitive
     description:
       name: postgrest
-      sha256: "78fd180ecd2274df7b04c406746495b5c627248856458f8f537bf5348de9c817"
+      sha256: d6cc0f60c7dc761f84d1c6d11d9e02b3ad90399bd84639a28c1c024adbaa9bde
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.2"
+    version: "1.5.0"
   process:
     dependency: transitive
     description:
@@ -1076,10 +1085,10 @@ packages:
     dependency: transitive
     description:
       name: realtime_client
-      sha256: "0342f73f42345f3547e3cdcc804a0ed108fcd9142d1537d159aead94a213e248"
+      sha256: ff743de9bb0f46fcfffcfe64ae93062702dcd0f83a2ce8adc40d5fb7f542af90
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.3"
   reorderables:
     dependency: "direct main"
     description:
@@ -1401,18 +1410,19 @@ packages:
     dependency: transitive
     description:
       name: supabase
-      sha256: "5f5e47fcac99a496e15274d5f6944e1323519df9f8929b4ab9eef8711abeb5f3"
+      sha256: "291e065aa8c9be06a0348743c184beafd038e109960bc3da201affd3eda811fc"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.4"
+    version: "1.10.0"
   supabase_flutter:
     dependency: "direct main"
     description:
-      name: supabase_flutter
-      sha256: "1ebe89b83b992123d40dcf5aa88b87d6c2d0a3c62052380cfc94de2337aac469"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.10.4"
+      path: "packages/supabase_flutter"
+      ref: e882842
+      resolved-ref: e8828421720896c0e1600de18f0db54f9f96a3b3
+      url: "https://github.com/LucasXu0/supabase-flutter"
+    source: git
+    version: "1.10.12"
   sync_http:
     dependency: transitive
     description:
@@ -1513,10 +1523,10 @@ packages:
     dependency: transitive
     description:
       name: universal_io
-      sha256: "06866290206d196064fd61df4c7aea1ffe9a4e7c4ccaa8fcded42dd41948005d"
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.2"
   universal_platform:
     dependency: transitive
     description:
@@ -1610,26 +1620,26 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: b96f10cbdfcbd03a65758633a43e7d04574438f059b1043104b5d61b23d38a4f
+      sha256: "670f6e07aca990b4a2bcdc08a784193c4ccdd1932620244c3a86bb72a0eac67f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.1.7"
   vector_graphics_codec:
     dependency: transitive
     description:
       name: vector_graphics_codec
-      sha256: "57a8e6e24662a3bdfe3b3d61257db91768700c0b8f844e235877b56480f31c69"
+      sha256: "7451721781d967db9933b63f5733b1c4533022c0ba373a01bdd79d1a5457f69f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.1.7"
   vector_graphics_compiler:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "7430f5d834d0db4560d7b19863362cd892f1e52b43838553a3c5cdfc9ab28e5b"
+      sha256: "80a13c613c8bde758b1464a1755a7b3a8f2b6cec61fbf0f5a53c94c30f03ba2e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.1.7"
   vector_math:
     dependency: transitive
     description:

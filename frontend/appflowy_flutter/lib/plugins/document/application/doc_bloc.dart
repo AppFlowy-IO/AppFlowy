@@ -1,22 +1,30 @@
+import 'dart:async';
+
+import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/util/json_print.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
-import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, LogLevel, TransactionTime, Selection, paragraphNode;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show
+        EditorState,
+        LogLevel,
+        TransactionTime,
+        Selection,
+        Position,
+        paragraphNode;
+import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
-import 'dart:async';
+
 part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
@@ -198,7 +206,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (document.root.children.isEmpty) {
       final transaction = editorState.transaction;
       transaction.insertNode([0], paragraphNode());
-      transaction.afterSelection = Selection.collapse([0], 0);
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: [0], offset: 0),
+      );
       await editorState.apply(transaction);
     }
   }

@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_user_deps::cloud::UserCloudConfig;
+
+use crate::entities::EncryptionTypePB;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -104,40 +104,53 @@ impl std::default::Default for AppearanceSettingsPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct SupabaseConfigPB {
+pub struct UserCloudConfigPB {
   #[pb(index = 1)]
-  supabase_url: String,
+  enable_sync: bool,
 
   #[pb(index = 2)]
-  key: String,
+  enable_encrypt: bool,
 
   #[pb(index = 3)]
-  jwt_secret: String,
+  pub encrypt_secret: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateCloudConfigPB {
+  #[pb(index = 1, one_of)]
+  pub enable_sync: Option<bool>,
+
+  #[pb(index = 2, one_of)]
+  pub enable_encrypt: Option<bool>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserSecretPB {
+  #[pb(index = 1)]
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub encryption_secret: String,
+
+  #[pb(index = 3)]
+  pub encryption_type: EncryptionTypePB,
 
   #[pb(index = 4)]
-  enable_sync: bool,
+  pub encryption_sign: String,
 }
 
-impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
-  type Error = FlowyError;
-
-  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
-    Ok(SupabaseConfiguration {
-      url: config.supabase_url,
-      anon_key: config.key,
-      jwt_secret: config.jwt_secret,
-      enable_sync: config.enable_sync,
-    })
-  }
+#[derive(Default, ProtoBuf)]
+pub struct UserEncryptionSecretCheckPB {
+  #[pb(index = 1)]
+  pub is_need_secret: bool,
 }
 
-impl From<SupabaseConfiguration> for SupabaseConfigPB {
-  fn from(value: SupabaseConfiguration) -> Self {
+impl From<UserCloudConfig> for UserCloudConfigPB {
+  fn from(value: UserCloudConfig) -> Self {
     Self {
-      supabase_url: value.url,
-      key: value.anon_key,
-      jwt_secret: value.jwt_secret,
       enable_sync: value.enable_sync,
+      enable_encrypt: value.enable_encrypt(),
+      encrypt_secret: value.encrypt_secret,
     }
   }
 }

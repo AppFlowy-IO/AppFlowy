@@ -1,6 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -108,8 +109,11 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
   @override
   Widget build(BuildContext context) {
     final icon = widget.option.isSelected
-        ? svgWidget('editor/editor_check')
-        : svgWidget('editor/editor_uncheck');
+        ? const FlowySvg(
+            FlowySvgs.check_filled_s,
+            blendMode: BlendMode.dst,
+          )
+        : const FlowySvg(FlowySvgs.uncheck_s);
     return _wrapPopover(
       SizedBox(
         height: GridSize.popoverItemHeight,
@@ -141,8 +145,8 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
       width: 20,
       onPressed: () => _popoverController.show(),
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-      icon: svgWidget(
-        "editor/details",
+      icon: FlowySvg(
+        FlowySvgs.details_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );

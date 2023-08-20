@@ -1,5 +1,5 @@
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/personal_folder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -25,11 +25,12 @@ class SidebarFolder extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // favorite
-            if (favoriteViews.isNotEmpty)
+            if (favoriteViews.isNotEmpty) ...[
               FavoriteFolder(
                 views: favoriteViews,
               ),
-            const VSpace(10),
+              const VSpace(10),
+            ],
             // personal
             PersonalFolder(views: views),
           ],

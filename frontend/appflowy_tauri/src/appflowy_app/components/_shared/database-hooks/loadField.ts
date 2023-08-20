@@ -54,6 +54,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         title: field.name,
         fieldType: field.field_type,
         visible: field.visibility,
+        width: field.width,
         fieldOptions: {
           selectOptions,
         },
@@ -66,6 +67,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         fieldId: field.id,
         title: field.name,
         visible: field.visibility,
+        width: field.width,
         fieldType: field.field_type,
         fieldOptions: {
           numberFormat: typeOption.format,
@@ -79,6 +81,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         fieldId: field.id,
         title: field.name,
         visible: field.visibility,
+        width: field.width,
         fieldType: field.field_type,
         fieldOptions: {
           dateFormat: typeOption.date_format,
@@ -92,6 +95,7 @@ export default async function (viewId: string, fieldInfo: FieldInfo, dispatch?: 
         fieldId: field.id,
         title: field.name,
         visible: field.visibility,
+        width: field.width,
         fieldType: field.field_type,
       };
     }

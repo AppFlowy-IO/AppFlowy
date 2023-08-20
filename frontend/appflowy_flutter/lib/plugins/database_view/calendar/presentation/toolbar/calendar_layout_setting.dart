@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
@@ -9,7 +10,7 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -250,9 +251,9 @@ class LayoutDateField extends StatelessWidget {
                         onUpdated(fieldInfo.id);
                         popoverMutex.close();
                       },
-                      leftIcon: const FlowySvg(name: 'grid/field/date'),
+                      leftIcon: const FlowySvg(FlowySvgs.grid_s),
                       rightIcon: fieldInfo.id == fieldId
-                          ? const FlowySvg(name: 'grid/checkmark')
+                          ? const FlowySvg(FlowySvgs.check_s)
                           : null,
                     ),
                   );
@@ -442,7 +443,7 @@ class StartFromButton extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(title),
         onTap: () => onTap(dayIndex),
-        rightIcon: isSelected ? const FlowySvg(name: 'grid/checkmark') : null,
+        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
       ),
     );
   }

@@ -62,16 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
           body: MultiBlocListener(
             listeners: [
               BlocListener<HomeBloc, HomeState>(
-                listenWhen: (p, c) => p.unauthorized != c.unauthorized,
-                listener: (context, state) {
-                  if (state.unauthorized) {
-                    Log.error(
-                      "Push to login screen when user token was invalid",
-                    );
-                  }
-                },
-              ),
-              BlocListener<HomeBloc, HomeState>(
                 listenWhen: (p, c) => p.latestView != c.latestView,
                 listener: (context, state) {
                   final view = state.latestView;

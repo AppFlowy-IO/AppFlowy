@@ -58,7 +58,7 @@ export const CheckListPopup = ({
   return (
     <PopupWindow className={'text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
       <div className={'min-w-[320px]'}>
-        <div className={'px-4 pt-8 pb-4'}>
+        <div className={'px-4 pb-4 pt-8'}>
           <CheckListProgress completed={selectedOptionsCount} max={allOptionsCount} />
         </div>
 
@@ -87,7 +87,7 @@ export const CheckListPopup = ({
             ></NewCheckListOption>
           ))}
         </div>
-        <div className={'h-[1px] bg-shade-6'}></div>
+        <div className={'h-[1px] bg-line-divider'}></div>
         <div className={'p-2'}>
           <NewCheckListButton newOptions={newOptions} setNewOptions={setNewOptions}></NewCheckListButton>
         </div>

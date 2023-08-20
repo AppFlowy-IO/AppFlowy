@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
@@ -39,10 +40,11 @@ impl UserService for LocalServerUserAuthServiceImpl {
         name: user_name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
-        is_new: true,
+        is_new_user: true,
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
+        encryption_type: EncryptionType::NoEncryption,
       })
     })
   }
@@ -64,6 +66,7 @@ impl UserService for LocalServerUserAuthServiceImpl {
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
+        encryption_type: EncryptionType::NoEncryption,
       })
     })
   }
@@ -107,6 +110,18 @@ impl UserService for LocalServerUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
+  }
+
+  fn create_collab_object(
+    &self,
+    _collab_object: &CollabObject,
+    _data: Vec<u8>,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/material.dart';
 SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedGrid.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    name: 'editor/grid',
+    data: FlowySvgs.grid_s,
     isSelected: onSelected,
     style: style,
   ),
@@ -28,7 +29,7 @@ SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
 SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedBoard.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    name: 'editor/board',
+    data: FlowySvgs.board_s,
     isSelected: onSelected,
     style: style,
   ),
@@ -47,7 +48,7 @@ SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
 SelectionMenuItem referencedCalendarMenuItem = SelectionMenuItem(
   name: LocaleKeys.document_plugins_referencedCalendar.tr(),
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
-    name: 'editor/calendar',
+    data: FlowySvgs.date_s,
     isSelected: onSelected,
     style: style,
   ),
