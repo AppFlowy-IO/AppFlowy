@@ -109,7 +109,10 @@ class _ChecklistOptionCellState extends State<_ChecklistOptionCell> {
   @override
   Widget build(BuildContext context) {
     final icon = widget.option.isSelected
-        ? const FlowySvg(FlowySvgs.check_filled_s)
+        ? const FlowySvg(
+            FlowySvgs.check_filled_s,
+            blendMode: BlendMode.dst,
+          )
         : const FlowySvg(FlowySvgs.uncheck_s);
     return _wrapPopover(
       SizedBox(

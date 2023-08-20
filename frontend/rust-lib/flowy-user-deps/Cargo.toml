@@ -15,3 +15,4 @@ serde_json = {version = "1.0"}
 serde_repr = "0.1"
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 anyhow = "1.0.71"
+tokio = { version = "1.26", features = ["sync"] }

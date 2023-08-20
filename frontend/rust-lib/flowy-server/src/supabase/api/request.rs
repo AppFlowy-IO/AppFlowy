@@ -16,7 +16,8 @@ use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder, SupabaseBinaryColumnEncoder,
+  BinaryColumnDecoder, ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
@@ -220,7 +221,8 @@ fn parser_snapshot(
       .and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, secret).ok()
+      SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(value, encrypt as i32, secret)
+        .ok()
     },
     _ => None,
   }?;
@@ -364,7 +366,11 @@ fn parser_update_from_json(
     json.get("value").and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      match SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret) {
+      match SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(
+        value,
+        encrypt as i32,
+        encryption_secret,
+      ) {
         Ok(value) => Some(value),
         Err(err) => {
           tracing::error!("Decode value column failed: {:?}", err);

@@ -26,7 +26,7 @@ class SidebarUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) => getIt<MenuUserBloc>(param1: user)
+      create: (context) => MenuUserBloc(user)
         ..add(
           const MenuUserEvent.initial(),
         ),
@@ -34,25 +34,23 @@ class SidebarUser extends StatelessWidget {
         builder: (context, state) => Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildAvatar(context),
+            _buildAvatar(context, state),
             const HSpace(10),
             Expanded(
-              child: _buildUserName(context),
+              child: _buildUserName(context, state),
             ),
-            _buildSettingsButton(context),
+            _buildSettingsButton(context, state),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAvatar(BuildContext context) {
-    String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
+  Widget _buildAvatar(BuildContext context, MenuUserState state) {
+    String iconUrl = state.userProfile.iconUrl;
     if (iconUrl.isEmpty) {
       iconUrl = defaultUserAvatar;
-      final String name = _userName(
-        context.read<MenuUserBloc>().state.userProfile,
-      );
+      final String name = _userName(state.userProfile);
       final Color color = ColorGenerator().generateColorFromString(name);
       const initialsCount = 2;
       // Taking the first letters of the name components and limiting to 2 elements
@@ -92,10 +90,8 @@ class SidebarUser extends StatelessWidget {
     );
   }
 
-  Widget _buildUserName(BuildContext context) {
-    final String name = _userName(
-      context.read<MenuUserBloc>().state.userProfile,
-    );
+  Widget _buildUserName(BuildContext context, MenuUserState state) {
+    final String name = _userName(state.userProfile);
     return FlowyText.medium(
       name,
       overflow: TextOverflow.ellipsis,
@@ -103,8 +99,8 @@ class SidebarUser extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsButton(BuildContext context) {
-    final userProfile = context.read<MenuUserBloc>().state.userProfile;
+  Widget _buildSettingsButton(BuildContext context, MenuUserState state) {
+    final userProfile = state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(

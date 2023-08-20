@@ -5,6 +5,7 @@ use std::str::FromStr;
 use anyhow::Error;
 use collab_define::CollabObject;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -103,11 +104,27 @@ pub trait UserService: Send + Sync {
 
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 
+  fn receive_realtime_event(&self, _json: Value) {}
+
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    None
+  }
+
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
   ) -> FutureResult<(), Error>;
+}
+
+pub type UserUpdateReceiver = tokio::sync::broadcast::Receiver<UserUpdate>;
+pub type UserUpdateSender = tokio::sync::broadcast::Sender<UserUpdate>;
+#[derive(Debug, Clone)]
+pub struct UserUpdate {
+  pub uid: i64,
+  pub name: String,
+  pub email: String,
+  pub encryption_sign: String,
 }
 
 pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {

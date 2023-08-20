@@ -95,8 +95,9 @@ pub async fn get_user_profile_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_profile: UserProfilePB = manager.get_user_profile(uid, true).await?.into();
-  data_result_ok(user_profile)
+  let user_profile = manager.get_user_profile(uid).await?;
+  let _ = manager.refresh_user_profile(&user_profile).await;
+  data_result_ok(user_profile.into())
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
@@ -222,7 +223,7 @@ pub async fn check_encrypt_secret_handler(
 ) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let profile = manager.get_user_profile(uid, false).await?;
+  let profile = manager.get_user_profile(uid).await?;
 
   let is_need_secret = match profile.encryption_type {
     EncryptionType::NoEncryption => false,
