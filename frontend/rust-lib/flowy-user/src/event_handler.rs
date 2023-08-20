@@ -96,7 +96,15 @@ pub async fn get_user_profile_handler(
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let user_profile = manager.get_user_profile(uid).await?;
-  let _ = manager.refresh_user_profile(&user_profile).await;
+
+  let weak_manager = Arc::downgrade(&manager);
+  let cloned_user_profile = user_profile.clone();
+  tokio::spawn(async move {
+    if let Some(manager) = weak_manager.upgrade() {
+      let _ = manager.refresh_user_profile(&cloned_user_profile).await;
+    }
+  });
+
   data_result_ok(user_profile.into())
 }
 
