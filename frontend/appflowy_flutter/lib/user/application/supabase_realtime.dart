@@ -21,6 +21,8 @@ class SupbaseRealtimeService {
   final Supabase supabase;
   final _authStateListener = UserAuthStateListener();
 
+  bool isLoggingOut = false;
+
   RealtimeChannel? channel;
   StreamSubscription<AuthState>? authStateSubscription;
 
@@ -31,12 +33,15 @@ class SupbaseRealtimeService {
     _authStateListener.start(
       didSignIn: () {
         _subscribeTablesChanges();
+        isLoggingOut = false;
       },
       onForceLogout: (message) async {
         await getIt<AuthService>().signOut();
         channel?.unsubscribe();
         channel = null;
-        await runAppFlowy();
+        if (!isLoggingOut) {
+          await runAppFlowy();
+        }
       },
     );
   }

@@ -263,10 +263,7 @@ where
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
-    self
-      .user_update_tx
-      .as_ref()
-      .and_then(|tx| Some(tx.subscribe()))
+    self.user_update_tx.as_ref().map(|tx| tx.subscribe())
   }
 
   fn create_collab_object(
@@ -487,7 +484,7 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
             self.device_id.read(),
             collab_update.did.as_str()
           );
-          if (&*self.device_id.read()) != collab_update.did.as_str() {
+          if *self.device_id.read() != collab_update.did.as_str() {
             let encryption_secret = self
               .encryption
               .upgrade()

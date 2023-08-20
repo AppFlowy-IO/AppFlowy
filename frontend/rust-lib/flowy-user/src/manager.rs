@@ -416,6 +416,7 @@ impl UserManager {
     Ok(user)
   }
 
+  #[tracing::instrument(level = "info", skip_all)]
   pub async fn refresh_user_profile(
     &self,
     old_user_profile: &UserProfile,
@@ -428,7 +429,7 @@ impl UserManager {
       .await?
       .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
 
-    if !is_user_encryption_sign_valid(&old_user_profile, &new_user_profile.encryption_type.sign()) {
+    if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign()) {
       return Err(FlowyError::new(
         ErrorCode::InvalidEncryptSecret,
         "Invalid encryption sign",
