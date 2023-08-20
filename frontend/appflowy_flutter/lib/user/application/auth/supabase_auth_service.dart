@@ -107,6 +107,11 @@ class SupabaseAuthService implements AuthService {
     if (!isSupabaseEnabled) {
       return _appFlowyAuthService.signUpWithOAuth(platform: platform);
     }
+    // Before signing in, sign out any existing users. Otherwise, the callback will be triggered even if the user doesn't click the 'Sign In' button on the website
+    if (_auth.currentUser != null) {
+      await _auth.signOut();
+    }
+
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {

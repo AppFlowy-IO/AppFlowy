@@ -48,7 +48,7 @@ pub fn database_service() -> Arc<dyn DatabaseCloudService> {
 
 pub fn user_auth_service() -> Arc<dyn UserService> {
   let (server, _encryption_impl) = appflowy_server(None);
-  Arc::new(SupabaseUserServiceImpl::new(server))
+  Arc::new(SupabaseUserServiceImpl::new(server, vec![], None))
 }
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {
@@ -65,6 +65,7 @@ pub fn encryption_folder_service(
   (service, encryption_impl)
 }
 
+#[allow(dead_code)]
 pub fn encryption_collab_service(
   secret: Option<String>,
 ) -> (Arc<dyn RemoteCollabStorage>, Arc<dyn AppFlowyEncryption>) {
@@ -77,6 +78,7 @@ pub fn encryption_collab_service(
   (service, encryption_impl)
 }
 
+#[allow(dead_code)]
 pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<String>) {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
   let folder_data = cloud_service.get_folder_data(folder_id).await.unwrap();
@@ -84,6 +86,7 @@ pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
+#[allow(dead_code)]
 pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret: Option<String>) {
   let (cloud_service, _encryption) = encryption_collab_service(encryption_secret);
   let snapshot = cloud_service

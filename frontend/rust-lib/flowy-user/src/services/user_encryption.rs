@@ -1,4 +1,4 @@
-use flowy_encrypt::{decrypt_string, encrypt_string};
+use flowy_encrypt::{decrypt_text, encrypt_text};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_deps::entities::{EncryptionType, UpdateUserProfileParams, UserCredentials};
 
@@ -24,7 +24,7 @@ impl UserManager {
   }
 
   pub fn generate_encryption_sign(&self, uid: i64, encrypt_secret: &str) -> FlowyResult<String> {
-    let encrypt_sign = encrypt_string(uid.to_string(), encrypt_secret)?;
+    let encrypt_sign = encrypt_text(uid.to_string(), encrypt_secret)?;
     Ok(encrypt_sign)
   }
 
@@ -37,7 +37,7 @@ impl UserManager {
         "Failed to get store preference",
       ))?;
 
-    let encrypt_secret = get_encrypt_secret(&store_preference).ok_or(FlowyError::new(
+    let encrypt_secret = get_encrypt_secret(uid, &store_preference).ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Encrypt secret is not set",
     ))?;
@@ -51,7 +51,7 @@ impl UserManager {
     encrypt_sign: &str,
     encryption_secret: &str,
   ) -> FlowyResult<()> {
-    let decrypt_str = decrypt_string(encrypt_sign, encryption_secret)
+    let decrypt_str = decrypt_text(encrypt_sign, encryption_secret)
       .map_err(|_| FlowyError::new(ErrorCode::InvalidEncryptSecret, "Invalid decryption secret"))?;
     if uid.to_string() == decrypt_str {
       Ok(())

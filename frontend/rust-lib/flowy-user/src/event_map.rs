@@ -1,12 +1,11 @@
 use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
-use serde_json::Value;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::{UserCloudConfig, UserService};
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
@@ -74,6 +73,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_init(
     &self,
     user_id: i64,
+    cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     device_id: &str,
   ) -> Fut<FlowyResult<()>>;
@@ -96,7 +96,6 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   fn did_update_network(&self, _reachable: bool) {}
-  fn receive_realtime_event(&self, _json: Value) {}
 }
 
 /// The user cloud service provider.
@@ -145,6 +144,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_init(
     &self,
     _user_id: i64,
+    _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
   ) -> Fut<FlowyResult<()>> {

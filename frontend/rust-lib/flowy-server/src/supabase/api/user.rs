@@ -1,7 +1,10 @@
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
+use parking_lot::RwLock;
+use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
@@ -12,20 +15,34 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::FetchObjectUpdateAction;
-use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
-use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
+use crate::supabase::api::util::{
+  ExtendedResponse, InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
+};
+use crate::supabase::api::{send_update, PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
-use crate::supabase::entities::GetUserProfileParams;
-use crate::supabase::entities::UidResponse;
 use crate::supabase::entities::UserProfileResponse;
+use crate::supabase::entities::{GetUserProfileParams, RealtimeUserEvent};
+use crate::supabase::entities::{RealtimeCollabUpdateEvent, RealtimeEvent, UidResponse};
+use crate::supabase::CollabUpdateSenderByOid;
+use crate::AppFlowyEncryption;
 
 pub struct SupabaseUserServiceImpl<T> {
   server: T,
+  realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
+  user_update_tx: Option<UserUpdateSender>,
 }
 
 impl<T> SupabaseUserServiceImpl<T> {
-  pub fn new(server: T) -> Self {
-    Self { server }
+  pub fn new(
+    server: T,
+    realtime_event_handlers: Vec<Box<dyn RealtimeEventHandler>>,
+    user_update_tx: Option<UserUpdateSender>,
+  ) -> Self {
+    Self {
+      server,
+      realtime_event_handlers,
+      user_update_tx,
+    }
   }
 }
 
@@ -66,7 +83,11 @@ where
       }
 
       // Query the user profile and workspaces
-      tracing::debug!("user uuid: {}", params.uuid);
+      tracing::debug!(
+        "user uuid: {}, device_id: {}",
+        params.uuid,
+        params.device_id
+      );
       let user_profile =
         get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
           .await?
@@ -224,6 +245,62 @@ where
     });
     FutureResult::new(async { rx.await? })
   }
+
+  fn receive_realtime_event(&self, json: Value) {
+    match serde_json::from_value::<RealtimeEvent>(json) {
+      Ok(event) => {
+        tracing::trace!("Realtime event: {}", event);
+        for handler in &self.realtime_event_handlers {
+          if event.table.as_str().starts_with(handler.table_name()) {
+            handler.handler_event(&event);
+          }
+        }
+      },
+      Err(e) => {
+        tracing::error!("parser realtime event error: {}", e);
+      },
+    }
+  }
+
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    self.user_update_tx.as_ref().map(|tx| tx.subscribe())
+  }
+
+  fn create_collab_object(
+    &self,
+    collab_object: &CollabObject,
+    data: Vec<u8>,
+  ) -> FutureResult<(), Error> {
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let cloned_collab_object = collab_object.clone();
+    let (tx, rx) = channel();
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let workspace_id = cloned_collab_object
+            .get_workspace_id()
+            .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+
+          let postgrest = try_get_postgrest?
+            .upgrade()
+            .ok_or(anyhow::anyhow!("postgrest is not available"))?;
+
+          let encryption_secret = postgrest.secret();
+          send_update(
+            workspace_id,
+            &cloned_collab_object,
+            data,
+            &postgrest,
+            &encryption_secret,
+          )
+          .await?;
+          Ok(())
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
+  }
 }
 
 async fn get_user_profile(
@@ -346,4 +423,96 @@ async fn check_user(
     anyhow::bail!("user does not exist, uid: {:?}, uuid: {:?}", uid, uuid);
   }
   Ok(())
+}
+
+pub trait RealtimeEventHandler: Send + Sync + 'static {
+  fn table_name(&self) -> &str;
+
+  fn handler_event(&self, event: &RealtimeEvent);
+}
+
+pub struct RealtimeUserHandler(pub UserUpdateSender);
+impl RealtimeEventHandler for RealtimeUserHandler {
+  fn table_name(&self) -> &str {
+    "af_user"
+  }
+
+  fn handler_event(&self, event: &RealtimeEvent) {
+    if let Ok(user_event) = serde_json::from_value::<RealtimeUserEvent>(event.new.clone()) {
+      let _ = self.0.send(UserUpdate {
+        uid: user_event.uid,
+        name: user_event.name,
+        email: user_event.email,
+        encryption_sign: user_event.encryption_sign,
+      });
+    }
+  }
+}
+
+pub struct RealtimeCollabUpdateHandler {
+  sender_by_oid: Weak<CollabUpdateSenderByOid>,
+  device_id: Arc<RwLock<String>>,
+  encryption: Weak<dyn AppFlowyEncryption>,
+}
+
+impl RealtimeCollabUpdateHandler {
+  pub fn new(
+    sender_by_oid: Weak<CollabUpdateSenderByOid>,
+    device_id: Arc<RwLock<String>>,
+    encryption: Weak<dyn AppFlowyEncryption>,
+  ) -> Self {
+    Self {
+      sender_by_oid,
+      device_id,
+      encryption,
+    }
+  }
+}
+impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
+  fn table_name(&self) -> &str {
+    "af_collab_update"
+  }
+
+  fn handler_event(&self, event: &RealtimeEvent) {
+    if let Ok(collab_update) =
+      serde_json::from_value::<RealtimeCollabUpdateEvent>(event.new.clone())
+    {
+      if let Some(sender_by_oid) = self.sender_by_oid.upgrade() {
+        if let Some(sender) = sender_by_oid.read().get(collab_update.oid.as_str()) {
+          tracing::trace!(
+            "current device: {}, event device: {}",
+            self.device_id.read(),
+            collab_update.did.as_str()
+          );
+          if *self.device_id.read() != collab_update.did.as_str() {
+            let encryption_secret = self
+              .encryption
+              .upgrade()
+              .and_then(|encryption| encryption.get_secret());
+
+            tracing::trace!(
+              "Parse collab update with len: {}, encrypt: {}",
+              collab_update.value.len(),
+              collab_update.encrypt,
+            );
+
+            match SupabaseBinaryColumnDecoder::decode::<_, RealtimeBinaryColumnDecoder>(
+              collab_update.value.as_str(),
+              collab_update.encrypt,
+              &encryption_secret,
+            ) {
+              Ok(value) => {
+                if let Err(e) = sender.send(value) {
+                  tracing::debug!("send realtime update error: {}", e);
+                }
+              },
+              Err(err) => {
+                tracing::error!("decode collab update error: {}", err);
+              },
+            }
+          }
+        }
+      }
+    }
+  }
 }

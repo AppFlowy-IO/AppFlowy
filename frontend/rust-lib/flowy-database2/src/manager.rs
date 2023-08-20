@@ -175,7 +175,7 @@ impl DatabaseManager {
     let database = wdb
       .get_database(database_id)
       .await
-      .ok_or_else(FlowyError::record_not_found)?;
+      .ok_or_else(FlowyError::collab_not_sync)?;
 
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     editors.insert(database_id.to_string(), editor.clone());

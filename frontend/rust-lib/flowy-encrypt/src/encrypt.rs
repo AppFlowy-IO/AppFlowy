@@ -10,19 +10,34 @@ use rand::distributions::Alphanumeric;
 use rand::Rng;
 use sha2::Sha256;
 
+/// The length of the salt in bytes.
 const SALT_LENGTH: usize = 16;
+
+/// The length of the derived encryption key in bytes.
 const KEY_LENGTH: usize = 32;
+
+/// The number of iterations for the PBKDF2 key derivation.
 const ITERATIONS: u32 = 1000;
+
+/// The length of the nonce for AES-GCM encryption.
 const NONCE_LENGTH: usize = 12;
+
+/// Delimiter used to concatenate the passphrase and salt.
 const CONCATENATED_DELIMITER: &str = "$";
 
-pub fn generate_encrypt_secret() -> String {
-  let passphrase = generate_passphrase();
-  let salt = generate_salt();
-  concatenate_passphrase_and_salt(&passphrase, &salt)
+/// Generate a new encryption secret consisting of a passphrase and a salt.
+pub fn generate_encryption_secret() -> String {
+  let passphrase = generate_random_passphrase();
+  let salt = generate_random_salt();
+  combine_passphrase_and_salt(&passphrase, &salt)
 }
 
-pub fn encrypt_bytes<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<Vec<u8>> {
+/// Encrypt a byte slice using AES-GCM.
+///
+/// # Arguments
+/// * `data`: The data to encrypt.
+/// * `combined_passphrase_salt`: The concatenated passphrase and salt.
+pub fn encrypt_data<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<Vec<u8>> {
   let (passphrase, salt) = split_passphrase_and_salt(combined_passphrase_salt)?;
   let key = derive_key(passphrase, &salt)?;
   let cipher = Aes256Gcm::new(GenericArray::from_slice(&key));
@@ -34,7 +49,12 @@ pub fn encrypt_bytes<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) ->
   Ok(nonce.into_iter().chain(ciphertext).collect())
 }
 
-pub fn decrypt_bytes<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<Vec<u8>> {
+/// Decrypt a byte slice using AES-GCM.
+///
+/// # Arguments
+/// * `data`: The data to decrypt.
+/// * `combined_passphrase_salt`: The concatenated passphrase and salt.
+pub fn decrypt_data<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<Vec<u8>> {
   if data.as_ref().len() <= NONCE_LENGTH {
     return Err(anyhow::anyhow!("Ciphertext too short to include nonce."));
   }
@@ -47,18 +67,43 @@ pub fn decrypt_bytes<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) ->
     .map_err(|e| anyhow::anyhow!("Decryption error: {:?}", e))
 }
 
-pub fn encrypt_string<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<String> {
-  let encrypted = encrypt_bytes(data.as_ref(), combined_passphrase_salt)?;
+/// Encrypt a string using AES-GCM and return the result as a base64 encoded string.
+///
+/// # Arguments
+/// * `data`: The string data to encrypt.
+/// * `combined_passphrase_salt`: The concatenated passphrase and salt.
+pub fn encrypt_text<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<String> {
+  let encrypted = encrypt_data(data.as_ref(), combined_passphrase_salt)?;
   Ok(STANDARD.encode(encrypted))
 }
 
-pub fn decrypt_string<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<String> {
+/// Decrypt a base64 encoded string using AES-GCM.
+///
+/// # Arguments
+/// * `data`: The base64 encoded string to decrypt.
+/// * `combined_passphrase_salt`: The concatenated passphrase and salt.
+pub fn decrypt_text<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> Result<String> {
   let encrypted = STANDARD.decode(data)?;
-  let decrypted = decrypt_bytes(encrypted, combined_passphrase_salt)?;
+  let decrypted = decrypt_data(encrypted, combined_passphrase_salt)?;
   Ok(String::from_utf8(decrypted)?)
 }
 
-fn generate_passphrase() -> String {
+/// Generates a random passphrase consisting of alphanumeric characters.
+///
+/// This function creates a passphrase with both uppercase and lowercase letters
+/// as well as numbers. The passphrase is 30 characters in length.
+///
+/// # Returns
+///
+/// A `String` representing the generated passphrase.
+///
+/// # Security Considerations
+///
+///   The passphrase is derived from the `Alphanumeric` character set which includes 62 possible
+///   characters (26 lowercase letters, 26 uppercase letters, 10 numbers). This results in a total
+///   of `62^30` possible combinations, making it strong against brute force attacks.
+///
+fn generate_random_passphrase() -> String {
   rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(30) // e.g., 30 characters
@@ -66,13 +111,13 @@ fn generate_passphrase() -> String {
         .collect()
 }
 
-fn generate_salt() -> [u8; SALT_LENGTH] {
+fn generate_random_salt() -> [u8; SALT_LENGTH] {
   let mut rng = rand::thread_rng();
   let salt: [u8; SALT_LENGTH] = rng.gen();
   salt
 }
 
-fn concatenate_passphrase_and_salt(passphrase: &str, salt: &[u8; SALT_LENGTH]) -> String {
+fn combine_passphrase_and_salt(passphrase: &str, salt: &[u8; SALT_LENGTH]) -> String {
   let salt_base64 = STANDARD.encode(salt);
   format!("{}{}{}", passphrase, CONCATENATED_DELIMITER, salt_base64)
 }
@@ -103,16 +148,25 @@ mod tests {
   use super::*;
 
   #[test]
-  fn test_encrypt_decrypt() {
-    let secret = generate_encrypt_secret();
+  fn encrypt_decrypt_test() {
+    let secret = generate_encryption_secret();
     let data = b"hello world";
-    let encrypted = encrypt_bytes(data, &secret).unwrap();
-    let decrypted = decrypt_bytes(encrypted, &secret).unwrap();
+    let encrypted = encrypt_data(data, &secret).unwrap();
+    let decrypted = decrypt_data(encrypted, &secret).unwrap();
     assert_eq!(data, decrypted.as_slice());
 
     let s = "123".to_string();
-    let encrypted = encrypt_string(&s, &secret).unwrap();
-    let decrypted_str = decrypt_string(encrypted, &secret).unwrap();
+    let encrypted = encrypt_text(&s, &secret).unwrap();
+    let decrypted_str = decrypt_text(encrypted, &secret).unwrap();
     assert_eq!(s, decrypted_str);
+  }
+
+  #[test]
+  fn decrypt_with_invalid_secret_test() {
+    let secret = generate_encryption_secret();
+    let data = b"hello world";
+    let encrypted = encrypt_data(data, &secret).unwrap();
+    let decrypted = decrypt_data(encrypted, "invalid secret");
+    assert!(decrypted.is_err())
   }
 }

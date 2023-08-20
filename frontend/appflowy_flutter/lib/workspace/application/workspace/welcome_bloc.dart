@@ -1,4 +1,3 @@
-import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
@@ -11,18 +10,11 @@ part 'welcome_bloc.freezed.dart';
 
 class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   final UserBackendService userService;
-  final UserWorkspaceListener userWorkspaceListener;
-  WelcomeBloc({required this.userService, required this.userWorkspaceListener})
-      : super(WelcomeState.initial()) {
+  WelcomeBloc({required this.userService}) : super(WelcomeState.initial()) {
     on<WelcomeEvent>(
       (event, emit) async {
         await event.map(
           initial: (e) async {
-            userWorkspaceListener.start(
-              onWorkspacesUpdated: (result) =>
-                  add(WelcomeEvent.workspacesReveived(result)),
-            );
-            //
             await _fetchWorkspaces(emit);
           },
           openWorkspace: (e) async {
@@ -45,12 +37,6 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await userWorkspaceListener.stop();
-    super.close();
   }
 
   Future<void> _fetchWorkspaces(Emitter<WelcomeState> emit) async {

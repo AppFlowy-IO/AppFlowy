@@ -88,6 +88,7 @@ impl FlowyError {
     unexpect_calendar_field_type,
     ErrorCode::UnexpectedCalendarFieldType
   );
+  static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

@@ -16,7 +16,8 @@ use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder, SupabaseBinaryColumnEncoder,
+  BinaryColumnDecoder, ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
@@ -65,9 +66,12 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => {
-          let items = get_updates_from_server(&object_id, &object_ty, postgrest).await?;
-          Ok(items.into_iter().map(|item| item.value).collect())
+        Some(postgrest) => match get_updates_from_server(&object_id, &object_ty, postgrest).await {
+          Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+          Err(err) => {
+            tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+            Err(err)
+          },
         },
       }
     })
@@ -112,7 +116,19 @@ impl Action for BatchFetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgrest.upgrade() {
         None => Ok(CollabObjectUpdateByOid::default()),
-        Some(server) => batch_get_updates_from_server(object_ids, &object_ty, server).await,
+        Some(server) => {
+          match batch_get_updates_from_server(object_ids.clone(), &object_ty, server).await {
+            Ok(updates_by_oid) => Ok(updates_by_oid),
+            Err(err) => {
+              tracing::error!(
+                "Batch get object with given ids:{:?} failed with error: {:?}",
+                object_ids,
+                err
+              );
+              Err(err)
+            },
+          }
+        },
       }
     })
   }
@@ -205,7 +221,8 @@ fn parser_snapshot(
       .and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, secret).ok()
+      SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(value, encrypt as i32, secret)
+        .ok()
     },
     _ => None,
   }?;
@@ -349,7 +366,17 @@ fn parser_update_from_json(
     json.get("value").and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret).ok()
+      match SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(
+        value,
+        encrypt as i32,
+        encryption_secret,
+      ) {
+        Ok(value) => Some(value),
+        Err(err) => {
+          tracing::error!("Decode value column failed: {:?}", err);
+          None
+        },
+      }
     },
     _ => None,
   };
@@ -371,9 +398,12 @@ fn parser_update_from_json(
     }
     Ok(UpdateItem { key, value })
   } else {
+    let keys = json
+      .as_object()
+      .map(|map| map.iter().map(|(key, _)| key).collect::<Vec<&String>>());
     Err(anyhow::anyhow!(
-      "missing key or value column in json: {:?}",
-      json
+      "missing key or value column. Current keys:: {:?}",
+      keys
     ))
   }
 }

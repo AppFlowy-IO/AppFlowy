@@ -371,6 +371,7 @@ class ThirdPartySignInButton extends StatelessWidget {
       onPressed: onPressed,
       icon: FlowySvg(
         icon,
+        blendMode: null,
       ),
     );
   }
