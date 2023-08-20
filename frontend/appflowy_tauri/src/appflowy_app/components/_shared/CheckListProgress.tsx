@@ -7,7 +7,7 @@ export const CheckListProgress = ({ completed, max }: { completed: number; max: 
             {completed > 0 && filledCheckListBars({ amount: completed })}
             {max - completed > 0 && emptyCheckListBars({ amount: max - completed })}
           </div>
-          <div className={'text-xs text-shade-4'}>{((100 * completed) / max).toFixed(0)}%</div>
+          <div className={'text-xs text-text-caption'}>{((100 * completed) / max).toFixed(0)}%</div>
         </>
       )}
     </div>
@@ -17,11 +17,11 @@ export const CheckListProgress = ({ completed, max }: { completed: number; max: 
 const filledCheckListBars = ({ amount }: { amount: number }) => {
   return Array(amount)
     .fill(0)
-    .map((item, index) => <div key={index} className={'h-[4px] flex-1 flex-shrink-0 rounded bg-main-accent'}></div>);
+    .map((item, index) => <div key={index} className={'h-[4px] flex-1 flex-shrink-0 rounded bg-fill-hover'}></div>);
 };
 
 const emptyCheckListBars = ({ amount }: { amount: number }) => {
   return Array(amount)
     .fill(0)
-    .map((item, index) => <div key={index} className={'h-[4px] flex-1 flex-shrink-0 rounded bg-tint-9'}></div>);
+    .map((item, index) => <div key={index} className={'bg-tint-9 h-[4px] flex-1 flex-shrink-0 rounded'}></div>);
 };

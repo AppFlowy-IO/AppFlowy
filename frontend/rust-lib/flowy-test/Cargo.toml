@@ -11,8 +11,12 @@ flowy-user = { path = "../flowy-user"}
 flowy-user-deps = { path = "../flowy-user-deps"}
 flowy-net = { path = "../flowy-net"}
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
+flowy-folder-deps = { path = "../flowy-folder-deps" }
 flowy-database2 = { path = "../flowy-database2" }
+flowy-database-deps = { path = "../flowy-database-deps" }
 flowy-document2 = { path = "../flowy-document2" }
+flowy-document-deps = { path = "../flowy-document-deps" }
+flowy-encrypt = { path = "../flowy-encrypt" }
 lib-dispatch = { path = "../lib-dispatch" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-server = { path = "../flowy-server" }

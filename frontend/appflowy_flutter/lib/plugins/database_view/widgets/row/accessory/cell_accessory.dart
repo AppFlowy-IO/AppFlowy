@@ -1,5 +1,6 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,8 +73,8 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
         height: 26,
         child: Padding(
           padding: const EdgeInsets.all(3.0),
-          child: svgWidget(
-            "grid/expander",
+          child: FlowySvg(
+            FlowySvgs.full_view_s,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),

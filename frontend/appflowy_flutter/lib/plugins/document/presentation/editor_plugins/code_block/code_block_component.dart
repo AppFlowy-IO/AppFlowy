@@ -286,9 +286,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       ..updateNode(node, {
         CodeBlockKeys.language: language == 'auto' ? null : language,
       })
-      ..afterSelection = Selection.collapse(
-        node.path,
-        node.delta?.length ?? 0,
+      ..afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
   }

@@ -157,6 +157,7 @@ pub trait FolderOperationHandler {
   /// Only called once when the user is created.
   fn create_workspace_view(
     &self,
+    _uid: i64,
     _workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
@@ -209,6 +210,7 @@ pub trait FolderOperationHandler {
   /// Create a view by importing data
   fn import_from_bytes(
     &self,
+    uid: i64,
     view_id: &str,
     name: &str,
     import_type: ImportType,

@@ -1,8 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,7 +71,7 @@ class HistoricalUserItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = isSelected ? const FlowySvg(name: "grid/checkmark") : null;
+    final icon = isSelected ? const FlowySvg(FlowySvgs.check_s) : null;
     final isDisabled = isSelected || user.authType != AuthTypePB.Local;
     final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
     final date =

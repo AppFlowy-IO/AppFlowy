@@ -34,13 +34,15 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3881ba" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
 
 #collab = { path = "../../../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
@@ -48,6 +50,8 @@ collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev =
 #collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
 #appflowy-integrate = { path = "../../../../AppFlowy-Collab/appflowy-integrate" }
 #collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
+#collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
+#collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
 
 
 

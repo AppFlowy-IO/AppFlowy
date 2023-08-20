@@ -1,5 +1,6 @@
 library flowy_plugin;
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -45,7 +46,7 @@ abstract class PluginBuilder {
 
   String get menuName;
 
-  String get menuIcon;
+  FlowySvgData get icon;
 
   /// The type of this [Plugin]. Each [Plugin] should have a unique [PluginType]
   PluginType get pluginType;

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'deps_resolver.dart';
+import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
@@ -21,6 +22,13 @@ class FlowyRunnerContext {
   final Directory applicationDataDirectory;
 
   FlowyRunnerContext({required this.applicationDataDirectory});
+}
+
+Future<void> runAppFlowy() async {
+  await FlowyRunner.run(
+    FlowyApp(),
+    integrationEnv(),
+  );
 }
 
 class FlowyRunner {

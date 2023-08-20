@@ -93,9 +93,8 @@ void main() {
 
       // Press the enter key
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          'Hello '.length,
+        Selection.collapsed(
+          Position(path: [0], offset: 'Hello '.length),
         ),
       );
       await tester.ime.insertCharacter('\n');
@@ -129,9 +128,8 @@ void main() {
 
       // Press the enter key
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          'Hello '.length,
+        Selection.collapsed(
+          Position(path: [0], offset: 'Hello '.length),
         ),
       );
       await tester.ime.insertCharacter('\n');
@@ -170,9 +168,8 @@ void main() {
       await tester.tapButton(toggleListIcon);
 
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          0,
+        Selection.collapsed(
+          Position(path: [0], offset: 0),
         ),
       );
       await tester.ime.insertCharacter('\n');
@@ -202,9 +199,8 @@ void main() {
       expectToggleListOpened();
 
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          0,
+        Selection.collapsed(
+          Position(path: [0], offset: 0),
         ),
       );
       await tester.simulateKeyEvent(

@@ -17,7 +17,7 @@ export const BoardUrlCell = ({
 
   return (
     <>
-      <a className={'text-main-accent hover:underline'} href={(data as URLCellDataPB)?.url ?? ''} target={'_blank'}>
+      <a className={'text-fill-hover hover:underline'} href={(data as URLCellDataPB)?.url ?? ''} target={'_blank'}>
         {(data as URLCellDataPB)?.content ?? ''}&nbsp;
       </a>
     </>

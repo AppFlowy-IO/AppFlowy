@@ -21,12 +21,11 @@ import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/menu/prelude.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -116,7 +115,6 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
       userService: UserBackendService(userId: user.id),
-      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -139,10 +137,6 @@ void _resolveFolderDeps(GetIt getIt) {
     (view, _) => ViewBloc(
       view: view,
     ),
-  );
-
-  getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
-    (user, _) => MenuUserBloc(user),
   );
 
   //Settings

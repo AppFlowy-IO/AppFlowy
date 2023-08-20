@@ -8,14 +8,14 @@ use collab_folder::core::{Folder, FolderData};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::migrations::UserMigrationContext;
+use crate::migrations::MigrationUser;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.
 pub fn migration_user_to_cloud(
-  old_user: &UserMigrationContext,
+  old_user: &MigrationUser,
   old_collab_db: &Arc<RocksCollabDB>,
-  new_user: &UserMigrationContext,
+  new_user: &MigrationUser,
   new_collab_db: &Arc<RocksCollabDB>,
 ) -> FlowyResult<Option<FolderData>> {
   let mut folder_data = None;

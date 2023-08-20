@@ -13,7 +13,7 @@ use crate::view_operation::{
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
   pub async fn build(
-    _uid: i64,
+    uid: i64,
     workspace_id: String,
     handlers: &FolderOperationHandlers,
   ) -> FolderData {
@@ -21,7 +21,7 @@ impl DefaultFolderBuilder {
       Arc::new(RwLock::new(WorkspaceViewBuilder::new(workspace_id.clone())));
     for handler in handlers.values() {
       let _ = handler
-        .create_workspace_view(workspace_view_builder.clone())
+        .create_workspace_view(uid, workspace_view_builder.clone())
         .await;
     }
 
