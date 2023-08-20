@@ -3,7 +3,7 @@ use anyhow::Result;
 use reqwest::{Response, StatusCode};
 use serde_json::Value;
 
-use flowy_encrypt::{decrypt_bytes, encrypt_bytes};
+use flowy_encrypt::{decrypt_data, encrypt_data};
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::{to_fut, Fut};
 
@@ -148,7 +148,7 @@ impl SupabaseBinaryColumnEncoder {
     let value = match encryption_secret {
       None => hex::encode(value),
       Some(encryption_secret) => {
-        let encrypt_data = encrypt_bytes(value, encryption_secret)?;
+        let encrypt_data = encrypt_data(value, encryption_secret)?;
         hex::encode(encrypt_data)
       },
     };
@@ -191,7 +191,7 @@ impl SupabaseBinaryColumnDecoder {
         )),
         Some(encryption_secret) => {
           let encrypt_data = D::decode(s)?;
-          decrypt_bytes(encrypt_data, encryption_secret)
+          decrypt_data(encrypt_data, encryption_secret)
         },
       }
     }
