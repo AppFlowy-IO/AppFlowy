@@ -382,23 +382,8 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params.clone());
     let session = self.get_session()?;
-    self
-      .save_user_profile_change(session.user_id, changeset)
-      .await?;
+    save_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
     self.update_user(session.user_id, None, params).await?;
-    Ok(())
-  }
-
-  async fn save_user_profile_change(
-    &self,
-    uid: i64,
-    changeset: UserTableChangeset,
-  ) -> FlowyResult<()> {
-    diesel_update_table!(user_table, changeset, &*self.db_connection(uid)?);
-    let new_user_profile = self.get_user_profile(uid, false).await?;
-    send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
-      .payload(UserProfilePB::from(new_user_profile))
-      .send();
     Ok(())
   }
 
@@ -422,44 +407,37 @@ impl UserManager {
   }
 
   /// Fetches the user profile for the given user ID.
-  ///
-  /// This function retrieves the user profile from the local database. If the `refresh` flag is set to `true`,
-  /// it also attempts to update the user profile from a cloud service, and then sends a notification about the
-  /// profile update.
-  pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
-    let user_id = uid.to_string();
-    let user = user_table::dsl::user_table
-      .filter(user_table::id.eq(&user_id))
-      .first::<UserTable>(&*(self.db_connection(uid)?))?;
+  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+    let user: UserProfile = user_table::dsl::user_table
+      .filter(user_table::id.eq(&uid.to_string()))
+      .first::<UserTable>(&*(self.db_connection(uid)?))?
+      .into();
 
-    if refresh {
-      let weak_auth_service = Arc::downgrade(&self.cloud_services.get_user_service()?);
-      let weak_pool = Arc::downgrade(&self.database.get_pool(uid)?);
-      tokio::spawn(async move {
-        if let (Some(auth_service), Some(pool)) = (weak_auth_service.upgrade(), weak_pool.upgrade())
-        {
-          if let Ok(Some(user_profile)) = auth_service
-            .get_user_profile(UserCredentials::from_uid(uid))
-            .await
-          {
-            let changeset = UserTableChangeset::from_user_profile(user_profile.clone());
-            if let Ok(conn) = pool.get() {
-              let filter =
-                user_table::dsl::user_table.filter(user_table::dsl::id.eq(changeset.id.clone()));
-              let _ = diesel::update(filter).set(changeset).execute(&*conn);
+    Ok(user)
+  }
 
-              // Send notification to the client
-              let user_profile_pb: UserProfilePB = user_profile.into();
-              send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
-                .payload(user_profile_pb)
-                .send();
-            }
-          }
-        }
-      });
+  pub async fn refresh_user_profile(
+    &self,
+    old_user_profile: &UserProfile,
+  ) -> FlowyResult<UserProfile> {
+    let uid = old_user_profile.uid;
+    let new_user_profile: UserProfile = self
+      .cloud_services
+      .get_user_service()?
+      .get_user_profile(UserCredentials::from_uid(uid))
+      .await?
+      .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
+
+    if !is_user_encryption_sign_valid(&old_user_profile, &new_user_profile.encryption_type.sign()) {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidEncryptSecret,
+        "Invalid encryption sign",
+      ));
     }
 
-    Ok(user.into())
+    let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
+    let _ = save_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
+    Ok(new_user_profile)
   }
 
   pub fn user_dir(&self, uid: i64) -> String {
@@ -596,22 +574,18 @@ impl UserManager {
     let session = self.get_session()?;
     if session.user_id == user_update.uid {
       tracing::debug!("Receive user update: {:?}", user_update);
-      let user_profile = self.get_user_profile(user_update.uid, false).await?;
+      let user_profile = self.get_user_profile(user_update.uid).await?;
 
-      // If the local user profile's encryption sign is not equal to the user update's encryption sign,
-      // which means the user enable encryption in another device, we should logout the current user.
-      if user_profile.encryption_type.sign() != user_update.encryption_sign {
-        send_auth_state_notification(AuthStateChangedPB {
-          state: AuthStatePB::AuthStateForceSignOut,
-        })
-        .send();
+      if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
 
       // Save the user profile change
-      self
-        .save_user_profile_change(user_update.uid, UserTableChangeset::from(user_update))
-        .await?;
+      save_user_profile_change(
+        user_update.uid,
+        self.db_pool(user_update.uid)?,
+        UserTableChangeset::from(user_update),
+      )?;
     }
 
     Ok(())
@@ -633,4 +607,34 @@ impl UserManager {
     )?;
     Ok(folder_data)
   }
+}
+
+fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+  // If the local user profile's encryption sign is not equal to the user update's encryption sign,
+  // which means the user enable encryption in another device, we should logout the current user.
+  let is_valid = user_profile.encryption_type.sign() == encryption_sign;
+  if !is_valid {
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateForceSignOut,
+    })
+    .send();
+  }
+  is_valid
+}
+
+fn save_user_profile_change(
+  uid: i64,
+  pool: Arc<ConnectionPool>,
+  changeset: UserTableChangeset,
+) -> FlowyResult<()> {
+  let conn = pool.get()?;
+  diesel_update_table!(user_table, changeset, &*conn);
+  let user: UserProfile = user_table::dsl::user_table
+    .filter(user_table::id.eq(&uid.to_string()))
+    .first::<UserTable>(&*conn)?
+    .into();
+  send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
+    .payload(UserProfilePB::from(user))
+    .send();
+  Ok(())
 }

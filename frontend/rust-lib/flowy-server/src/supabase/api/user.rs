@@ -3,6 +3,7 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use collab_plugins::cloud_storage::CollabObject;
+use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
@@ -82,7 +83,11 @@ where
       }
 
       // Query the user profile and workspaces
-      tracing::debug!("user uuid: {}", params.uuid);
+      tracing::debug!(
+        "user uuid: {}, device_id: {}",
+        params.uuid,
+        params.device_id
+      );
       let user_profile =
         get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(params.uuid))
           .await?
@@ -449,14 +454,14 @@ impl RealtimeEventHandler for RealtimeUserHandler {
 
 pub struct RealtimeCollabUpdateHandler {
   sender_by_oid: Weak<CollabUpdateSenderByOid>,
-  device_id: String,
+  device_id: Arc<RwLock<String>>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl RealtimeCollabUpdateHandler {
   pub fn new(
     sender_by_oid: Weak<CollabUpdateSenderByOid>,
-    device_id: String,
+    device_id: Arc<RwLock<String>>,
     encryption: Weak<dyn AppFlowyEncryption>,
   ) -> Self {
     Self {
@@ -479,10 +484,10 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
         if let Some(sender) = sender_by_oid.read().get(collab_update.oid.as_str()) {
           tracing::trace!(
             "current device: {}, event device: {}",
-            self.device_id,
+            self.device_id.read(),
             collab_update.did.as_str()
           );
-          if self.device_id != collab_update.did.as_str() {
+          if (&*self.device_id.read()) != collab_update.did.as_str() {
             let encryption_secret = self
               .encryption
               .upgrade()

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -58,7 +58,7 @@ pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
   /// did represents as the device id is used to identify the device that is currently using the app.
-  device_id: Mutex<String>,
+  device_id: Arc<RwLock<String>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
   encryption: Weak<dyn AppFlowyEncryption>,
@@ -68,6 +68,7 @@ impl SupabaseServer {
   pub fn new(
     config: SupabaseConfiguration,
     enable_sync: bool,
+    device_id: Arc<RwLock<String>>,
     encryption: Weak<dyn AppFlowyEncryption>,
   ) -> Self {
     let collab_update_sender = Default::default();
@@ -81,7 +82,7 @@ impl SupabaseServer {
     };
     Self {
       config,
-      device_id: Default::default(),
+      device_id,
       collab_update_sender,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
       encryption,
@@ -107,17 +108,13 @@ impl AppFlowyServer for SupabaseServer {
     self.set_enable_sync(enable);
   }
 
-  fn set_sync_device_id(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
-  }
-
   fn user_service(&self) -> Arc<dyn UserService> {
     // handle the realtime collab update event.
     let (user_update_tx, _) = tokio::sync::broadcast::channel(100);
 
     let collab_update_handler = Box::new(RealtimeCollabUpdateHandler::new(
       Arc::downgrade(&self.collab_update_sender),
-      self.device_id.lock().clone(),
+      self.device_id.clone(),
       self.encryption.clone(),
     ));
 

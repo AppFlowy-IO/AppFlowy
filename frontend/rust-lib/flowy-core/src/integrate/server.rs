@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_database_deps::cloud::*;
@@ -63,7 +63,7 @@ impl Display for ServerProviderType {
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
-  device_id: Mutex<String>,
+  device_id: Arc<RwLock<String>>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
   enable_sync: RwLock<bool>,
   encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
@@ -91,7 +91,7 @@ impl AppFlowyServerProvider {
   }
 
   pub fn set_sync_device(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
+    *self.device_id.write() = device_id.to_string();
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -135,11 +135,11 @@ impl AppFlowyServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
           config,
           *self.enable_sync.read(),
+          self.device_id.clone(),
           encryption,
         )))
       },
     }?;
-    server.set_sync_device_id(&self.device_id.lock());
 
     self
       .providers
@@ -189,7 +189,7 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
   }
 
   fn set_device_id(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
+    *self.device_id.write() = device_id.to_string();
   }
 
   /// Returns the [UserService] base on the current [ServerProviderType].

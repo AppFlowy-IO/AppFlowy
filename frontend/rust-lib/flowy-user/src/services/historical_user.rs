@@ -17,7 +17,7 @@ impl UserManager {
     // Only migrate the data if the user is login in as a guest and sign up as a new user if the current
     // auth type is not [AuthType::Local].
     let session = self.get_session().ok()?;
-    let user_profile = self.get_user_profile(session.user_id, false).await.ok()?;
+    let user_profile = self.get_user_profile(session.user_id).await.ok()?;
     if user_profile.auth_type == AuthType::Local && !auth_type.is_local() {
       Some(MigrationUser {
         user_profile,
