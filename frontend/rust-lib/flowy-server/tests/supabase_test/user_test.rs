@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use flowy_encrypt::{encrypt_string, generate_encrypt_secret};
+use flowy_encrypt::{encrypt_text, generate_encryption_secret};
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
@@ -126,8 +126,8 @@ async fn user_encryption_sign_test() {
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   // generate encryption sign
-  let secret = generate_encrypt_secret();
-  let sign = encrypt_string(user.user_id.to_string(), &secret).unwrap();
+  let secret = generate_encryption_secret();
+  let sign = encrypt_text(user.user_id.to_string(), &secret).unwrap();
 
   user_service
     .update_user(

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use flowy_encrypt::generate_encrypt_secret;
+use flowy_encrypt::generate_encryption_secret;
 use flowy_error::FlowyResult;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_deps::cloud::UserCloudConfig;
@@ -8,7 +8,7 @@ use flowy_user_deps::cloud::UserCloudConfig;
 const CLOUD_CONFIG_KEY: &str = "af_user_cloud_config";
 
 fn generate_cloud_config(uid: i64, store_preference: &Arc<StorePreferences>) -> UserCloudConfig {
-  let config = UserCloudConfig::new(generate_encrypt_secret());
+  let config = UserCloudConfig::new(generate_encryption_secret());
   let key = cache_key_for_cloud_config(uid);
   store_preference.set_object(&key, config.clone()).unwrap();
   config
