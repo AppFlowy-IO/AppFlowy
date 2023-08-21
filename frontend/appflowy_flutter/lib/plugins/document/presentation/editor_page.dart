@@ -50,6 +50,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
+    customCopyCommand,
+    customPasteCommand,
     ...standardCommandShortcutEvents,
   ];
 

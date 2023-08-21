@@ -318,10 +318,10 @@ packages:
     dependency: "direct main"
     description:
       name: device_info_plus
-      sha256: "499c61743e13909c13374a8c209075385858c614b9c0f2487b5f9995eeaf7369"
+      sha256: "86add5ef97215562d2e090535b0a16f197902b10c369c558a100e74ea06e8659"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.1"
+    version: "9.0.3"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -721,6 +721,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  irondash_engine_context:
+    dependency: transitive
+    description:
+      name: irondash_engine_context
+      sha256: "6431b11844472574a90803c02f1e55221e6a390a872786735f6757a67dacd678"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
+  irondash_message_channel:
+    dependency: transitive
+    description:
+      name: irondash_message_channel
+      sha256: "4114739083d1c63e6a1a8b93f09dd69b3cf9a9d6ee215ae7f23079307197ebba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   isolates:
     dependency: transitive
     description:
@@ -1001,6 +1017,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
+  pixel_snap:
+    dependency: transitive
+    description:
+      name: pixel_snap
+      sha256: "5de3662b926c9bc189578cf90f9d5b350ee61bc8e20e8a91fa1dfdd26c9f5ece"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   platform:
     dependency: transitive
     description:
@@ -1423,6 +1447,22 @@ packages:
       url: "https://github.com/LucasXu0/supabase-flutter"
     source: git
     version: "1.10.12"
+  super_clipboard:
+    dependency: "direct main"
+    description:
+      name: super_clipboard
+      sha256: "204284b1a721d33a65bcab077b191a3b7379b46a231f05688d17220153338ede"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
+  super_native_extensions:
+    dependency: transitive
+    description:
+      name: super_native_extensions
+      sha256: "1f15e9b1adb0bc59cf9b889a0b248f3c192fa17e2d5c923aeeec6d4fa2eeffd6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   sync_http:
     dependency: transitive
     description:
