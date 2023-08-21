@@ -19,7 +19,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../application/calendar_bloc.dart';
 import 'calendar_page.dart';
 
-@visibleForTesting
 class EventCard extends StatelessWidget {
   final CalendarDayEvent event;
   final String viewId;
