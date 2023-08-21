@@ -36,78 +36,84 @@ class NotificationDialog extends StatelessWidget {
     return BlocProvider<ReminderBloc>.value(
       value: getIt<ReminderBloc>(),
       child: BlocBuilder<ReminderBloc, ReminderState>(
-        builder: (context, state) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
+        builder: (context, state) {
+          final shownReminders = state.reminders
+              .where((reminder) => reminder.isBefore(DateTime.now()))
+              .sorted((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Theme.of(context).dividerColor,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 10,
+                          ),
+                          child: FlowyText.semibold(
+                            LocaleKeys.notificationHub_title.tr(),
+                            fontSize: 16,
                           ),
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 10,
-                        ),
-                        child: FlowyText.semibold(
-                          LocaleKeys.notificationHub_title.tr(),
-                          fontSize: 16,
-                        ),
+                    ),
+                  ],
+                ),
+                const VSpace(4),
+                if (state.reminders.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: FlowyText.regular(
+                        LocaleKeys.notificationHub_empty.tr(),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const VSpace(4),
-              if (state.reminders.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Center(
-                    child: FlowyText.regular(
-                      LocaleKeys.notificationHub_empty.tr(),
-                    ),
-                  ),
-                )
-              else
-                ...state.reminders
-                    .where((reminder) => reminder.isBefore(DateTime.now()))
-                    .sorted((a, b) => b.scheduledAt.compareTo(a.scheduledAt))
-                    .map((reminder) {
-                  return NotificationItem(
-                    key: ValueKey(reminder.id),
-                    title: reminder.title,
-                    scheduled: reminder.scheduledAt,
-                    body: reminder.message,
-                    onDelete: () => context
-                        .read<ReminderBloc>()
-                        .add(ReminderEvent.remove(reminderId: reminder.id)),
-                    onAction: () {
-                      final view = views.firstWhereOrNull(
-                        (view) => view.id == reminder.reminderObjectId,
-                      );
+                  )
+                else
+                  ...shownReminders.map((reminder) {
+                    return NotificationItem(
+                      key: ValueKey(reminder.id),
+                      title: reminder.title,
+                      scheduled: reminder.scheduledAt,
+                      body: reminder.message,
+                      onDelete: () => context
+                          .read<ReminderBloc>()
+                          .add(ReminderEvent.remove(reminderId: reminder.id)),
+                      onAction: () {
+                        final view = views.firstWhereOrNull(
+                          (view) => view.id == reminder.reminderObjectId,
+                        );
 
-                      if (view == null) {
-                        return;
-                      }
+                        if (view == null) {
+                          return;
+                        }
 
-                      getIt<TabsBloc>().add(
-                        TabsEvent.openPlugin(plugin: view.plugin(), view: view),
-                      );
+                        getIt<TabsBloc>().add(
+                          TabsEvent.openPlugin(
+                            plugin: view.plugin(),
+                            view: view,
+                          ),
+                        );
 
-                      mutex.close();
-                    },
-                  );
-                }),
-            ],
-          ),
-        ),
+                        mutex.close();
+                      },
+                    );
+                  }),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
