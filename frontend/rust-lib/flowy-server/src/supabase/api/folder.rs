@@ -72,7 +72,7 @@ where
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest).await?;
+      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
       let updates = updates
         .into_iter()
         .map(|item| item.value)

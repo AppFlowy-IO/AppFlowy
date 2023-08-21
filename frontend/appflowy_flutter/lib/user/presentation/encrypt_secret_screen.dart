@@ -1,8 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -49,9 +48,8 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
                       (unit) async {
                         await runAppFlowy();
                       },
-                      (err) {
-                        Log.error(err);
-                        showSnackBarMessage(context, err.msg);
+                      (error) {
+                        handleOpenWorkspaceError(context, error);
                       },
                     );
                   },

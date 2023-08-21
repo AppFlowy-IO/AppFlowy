@@ -129,6 +129,11 @@ impl UserService for SelfHostedUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
   fn create_collab_object(
     &self,
     _collab_object: &CollabObject,

@@ -35,7 +35,7 @@ impl DatabaseUser for DatabaseUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
@@ -43,7 +43,7 @@ impl DatabaseUser for DatabaseUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .token()
   }
 
@@ -51,7 +51,7 @@ impl DatabaseUser for DatabaseUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
   }
 }

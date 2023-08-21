@@ -422,9 +422,9 @@ impl LocalServerDB for LocalServerDBImpl {
   fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {
     let collab_db = open_collab_db(&self.storage_path, uid)?;
     let read_txn = collab_db.read_txn();
-    let updates = read_txn
-      .get_all_updates(uid, object_id)
-      .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
+    let updates = read_txn.get_all_updates(uid, object_id).map_err(|e| {
+      FlowyError::internal().with_context(format!("Failed to open collab db: {:?}", e))
+    })?;
 
     Ok(updates)
   }

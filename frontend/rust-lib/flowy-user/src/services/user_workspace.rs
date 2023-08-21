@@ -1,12 +1,14 @@
 use std::convert::TryFrom;
 use std::sync::Arc;
 
+use appflowy_integrate::{CollabObject, CollabType};
+
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
 use flowy_user_deps::entities::UserWorkspace;
 
-use crate::entities::RepeatedUserWorkspacePB;
+use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
@@ -83,6 +85,20 @@ impl UserManager {
       }
     }
     Ok(rows.into_iter().map(UserWorkspace::from).collect())
+  }
+
+  /// Reset the remote workspace using local workspace data. This is useful when a user wishes to
+  /// open a workspace on a new device that hasn't fully synchronized with the server.
+  pub async fn reset_workspace(&self, reset: ResetWorkspacePB) -> FlowyResult<()> {
+    let collab_object =
+      CollabObject::new(reset.uid, reset.workspace_id.clone(), CollabType::Folder)
+        .with_workspace_id(reset.workspace_id);
+    self
+      .cloud_services
+      .get_user_service()?
+      .reset_workspace(collab_object)
+      .await?;
+    Ok(())
   }
 }
 

@@ -2,23 +2,29 @@ use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::CollabObject;
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use uuid::Uuid;
 
+use flowy_folder_deps::cloud::{Folder, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
 
-use crate::supabase::api::request::FetchObjectUpdateAction;
+use crate::supabase::api::request::{get_updates_from_server, FetchObjectUpdateAction};
 use crate::supabase::api::util::{
   ExtendedResponse, InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
 };
-use crate::supabase::api::{send_update, PostgresWrapper, SupabaseServerService};
+use crate::supabase::api::{
+  flush_collab_with_update, send_update, PostgresWrapper, SupabaseServerService,
+};
 use crate::supabase::define::*;
 use crate::supabase::entities::UserProfileResponse;
 use crate::supabase::entities::{GetUserProfileParams, RealtimeUserEvent};
@@ -264,6 +270,39 @@ where
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
     self.user_update_tx.as_ref().map(|tx| tx.subscribe())
+  }
+
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
+    let collab_object = collab_object.clone();
+
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
+    let (tx, rx) = channel();
+    let init_update = empty_workspace_update(&collab_object);
+    tokio::spawn(async move {
+      tx.send(
+        async move {
+          let postgrest = try_get_postgrest?
+            .upgrade()
+            .ok_or(anyhow::anyhow!("postgrest is not available"))?;
+
+          let updates =
+            get_updates_from_server(&collab_object.object_id, &collab_object.ty, &postgrest)
+              .await?;
+
+          flush_collab_with_update(
+            &collab_object,
+            updates,
+            &postgrest,
+            init_update,
+            postgrest.secret(),
+          )
+          .await?;
+          Ok(())
+        }
+        .await,
+      )
+    });
+    FutureResult::new(async { rx.await? })
   }
 
   fn create_collab_object(
@@ -515,4 +554,22 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
       }
     }
   }
+}
+
+fn empty_workspace_update(collab_object: &CollabObject) -> Vec<u8> {
+  let workspace_id = collab_object.object_id.clone();
+  let collab = Arc::new(MutexCollab::new(
+    CollabOrigin::Empty,
+    &collab_object.object_id,
+    vec![],
+  ));
+  let folder = Folder::create(collab.clone(), None, None);
+  folder.workspaces.create_workspace(Workspace {
+    id: workspace_id.clone(),
+    name: "My workspace".to_string(),
+    child_views: Default::default(),
+    created_at: timestamp(),
+  });
+  folder.set_current_workspace(&workspace_id);
+  collab.encode_as_update_v1().0
 }

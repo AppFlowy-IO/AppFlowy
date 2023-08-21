@@ -118,6 +118,10 @@ impl UserService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
   fn create_collab_object(
     &self,
     _collab_object: &CollabObject,

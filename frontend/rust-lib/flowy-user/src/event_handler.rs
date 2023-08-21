@@ -3,7 +3,7 @@ use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::*;
@@ -20,7 +20,7 @@ use crate::services::cloud_config::{
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
   let manager = manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The user session is already drop"))?;
+    .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;
   Ok(manager)
 }
 
@@ -29,7 +29,7 @@ fn upgrade_store_preferences(
 ) -> FlowyResult<Arc<StorePreferences>> {
   let store = store
     .upgrade()
-    .ok_or(FlowyError::internal().context("The store preferences is already drop"))?;
+    .ok_or(FlowyError::internal().with_context("The store preferences is already drop"))?;
   Ok(store)
 }
 
@@ -96,7 +96,15 @@ pub async fn get_user_profile_handler(
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let user_profile = manager.get_user_profile(uid).await?;
-  let _ = manager.refresh_user_profile(&user_profile).await;
+
+  let weak_manager = Arc::downgrade(&manager);
+  let cloned_user_profile = user_profile.clone();
+  tokio::spawn(async move {
+    if let Some(manager) = weak_manager.upgrade() {
+      let _ = manager.refresh_user_profile(&cloned_user_profile).await;
+    }
+  });
+
   data_result_ok(user_profile.into())
 }
 
@@ -250,7 +258,7 @@ pub async fn set_cloud_config_handler(
   let update = data.into_inner();
   let store_preferences = upgrade_store_preferences(store_preferences)?;
   let mut config = get_cloud_config(session.user_id, &store_preferences)
-    .ok_or(FlowyError::internal().context("Can't find any cloud config"))?;
+    .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
 
   if let Some(enable_sync) = update.enable_sync {
     manager.cloud_services.set_enable_sync(enable_sync);
@@ -428,4 +436,21 @@ pub async fn get_all_reminder_event_handler(
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
   data_result_ok(reminders.into())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn reset_workspace_handler(
+  data: AFPluginData<ResetWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let reset_pb = data.into_inner();
+  if reset_pb.workspace_id.is_empty() {
+    return Err(FlowyError::new(
+      ErrorCode::WorkspaceIdInvalid,
+      "The workspace id is empty",
+    ));
+  }
+  manager.reset_workspace(reset_pb).await?;
+  Ok(())
 }
