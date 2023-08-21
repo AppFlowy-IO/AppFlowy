@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
@@ -36,18 +39,33 @@ class AuthRouter {
     UserProfilePB profile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => HomeScreen(
-          profile,
-          workspaceSetting,
-          key: ValueKey(profile.id),
+    if (Platform.isAndroid || Platform.isIOS) {
+      Navigator.pushAndRemoveUntil<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => MobileHomePage(
+            profile,
+            workspaceSetting,
+            key: ValueKey(profile.id),
+          ),
         ),
-        const RouteSettings(name: HomeScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
+        // pop up all the pages until [SplashScreen]
+        (route) => route.isFirst,
+      );
+    } else {
+      Navigator.push(
+        context,
+        PageRoutes.fade(
+          () => HomeScreen(
+            profile,
+            workspaceSetting,
+            key: ValueKey(profile.id),
+          ),
+          const RouteSettings(name: HomeScreen.routeName),
+          RouteDurations.slow.inMilliseconds * .001,
+        ),
+      );
+    }
   }
 
   Future<void> pushHomeOrWorkspaceStartScreen(
@@ -133,20 +151,35 @@ class SplashRouter {
     UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => HomeScreen(
-          userProfile,
-          workspaceSetting,
-          key: ValueKey(userProfile.id),
+    if (Platform.isAndroid || Platform.isIOS) {
+      Navigator.pushAndRemoveUntil<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => MobileHomePage(
+            userProfile,
+            workspaceSetting,
+            key: ValueKey(userProfile.id),
+          ),
         ),
-        const RouteSettings(
-          name: WorkspaceStartScreen.routeName,
+        // pop up all the pages until [SplashScreen]
+        (route) => route.isFirst,
+      );
+    } else {
+      Navigator.push(
+        context,
+        PageRoutes.fade(
+          () => HomeScreen(
+            userProfile,
+            workspaceSetting,
+            key: ValueKey(userProfile.id),
+          ),
+          const RouteSettings(
+            name: HomeScreen.routeName,
+          ),
+          RouteDurations.slow.inMilliseconds * .001,
         ),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
+      );
+    }
   }
 
   void pushSignInScreen(BuildContext context) {

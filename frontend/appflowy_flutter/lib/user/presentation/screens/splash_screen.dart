@@ -147,7 +147,8 @@ class Body extends StatelessWidget {
                     width: size.width,
                     height: size.height,
                     image: const AssetImage(
-                        'assets/images/appflowy_launch_splash.jpg'),
+                      'assets/images/appflowy_launch_splash.jpg',
+                    ),
                   ),
                   const CircularProgressIndicator.adaptive(),
                 ],

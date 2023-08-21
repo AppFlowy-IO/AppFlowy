@@ -36,12 +36,3 @@ class WorkspaceStartScreen extends StatelessWidget {
     );
   }
 }
-
-void _onCreateNewWorkspace(BuildContext context) {
-  context.read<WorkspaceBloc>().add(
-        WorkspaceEvent.createWorkspace(
-          LocaleKeys.workspace_hint.tr(),
-          "",
-        ),
-      );
-}
