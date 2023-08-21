@@ -1,13 +1,19 @@
 import 'package:appflowy/date/date_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nanoid/nanoid.dart';
 
 class ReminderReferenceService {
   ReminderReferenceService(this.context) {
@@ -132,6 +138,11 @@ class ReminderReferenceService {
         .substring(0, index)
         .lastIndexOf(inlineActionCharacter);
 
+    final viewId = context.read<DocumentBloc>().view.id;
+    final reminder = _reminderFromDate(date, viewId);
+
+    context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+
     final transaction = editorState.transaction
       ..replaceText(
         node,
@@ -142,6 +153,7 @@ class ReminderReferenceService {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.reminder.name,
             MentionBlockKeys.date: date.toIso8601String(),
+            MentionBlockKeys.uid: reminder.id,
           }
         },
       );
@@ -194,6 +206,17 @@ class ReminderReferenceService {
         editorState,
         date,
       ),
+    );
+  }
+
+  ReminderPB _reminderFromDate(DateTime date, String viewId) {
+    return ReminderPB(
+      id: nanoid(),
+      title: LocaleKeys.reminderNotification_title.tr(),
+      message: LocaleKeys.reminderNotification_message.tr(),
+      reminderObjectId: viewId,
+      scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
+      isAck: date.isBefore(DateTime.now()),
     );
   }
 }

@@ -456,3 +456,16 @@ pub async fn reset_workspace_handler(
   manager.reset_workspace(reset_pb).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn remove_reminder_event_handler(
+  data: AFPluginData<ReminderIdentifierPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+
+  let params = data.into_inner();
+  let _ = manager.remove_reminder(params.id.as_str()).await;
+
+  Ok(())
+}

@@ -65,3 +65,9 @@ impl From<Vec<ReminderPB>> for RepeatedReminderPB {
     Self { items: value }
   }
 }
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct ReminderIdentifierPB {
+  #[pb(index = 1)]
+  pub id: String,
+}

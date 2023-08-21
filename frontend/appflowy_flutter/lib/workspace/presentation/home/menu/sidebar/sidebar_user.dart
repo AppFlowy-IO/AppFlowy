@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -20,9 +21,11 @@ class SidebarUser extends StatelessWidget {
   const SidebarUser({
     super.key,
     required this.user,
+    required this.views,
   });
 
   final UserProfilePB user;
+  final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,7 @@ class SidebarUser extends StatelessWidget {
             ),
             _buildSettingsButton(context),
             const HSpace(4),
-            const NotificationButton(),
+            NotificationButton(views: views),
           ],
         ),
       ),

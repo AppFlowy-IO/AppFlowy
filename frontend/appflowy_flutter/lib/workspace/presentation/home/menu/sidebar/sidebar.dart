@@ -88,7 +88,7 @@ class HomeSideBar extends StatelessWidget {
             // top menu
             const SidebarTopMenu(),
             // user, setting
-            SidebarUser(user: user),
+            SidebarUser(user: user, views: views),
             const VSpace(20),
             // scrollable document list
             Expanded(

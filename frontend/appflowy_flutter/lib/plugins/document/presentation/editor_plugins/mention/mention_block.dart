@@ -25,6 +25,7 @@ enum MentionType {
 class MentionBlockKeys {
   const MentionBlockKeys._();
 
+  static const uid = 'uid'; // UniqueID
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';

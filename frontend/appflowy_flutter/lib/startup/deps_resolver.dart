@@ -15,6 +15,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
@@ -134,6 +135,8 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
+
+  getIt.registerLazySingleton<ReminderBloc>(() => ReminderBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

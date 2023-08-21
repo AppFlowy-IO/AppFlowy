@@ -65,6 +65,18 @@ impl UserManager {
     }
   }
 
+  /// Removes a specific reminder for the user by its id
+  ///
+  pub async fn remove_reminder(&self, reminder_id: &str) -> FlowyResult<()> {
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.remove_reminder(reminder_id)
+      })
+      .await;
+
+    Ok(())
+  }
+
   /// Initializes the user's awareness based on the specified data source.
   ///
   /// This asynchronous function attempts to initialize the user's awareness from either a local or remote data source.

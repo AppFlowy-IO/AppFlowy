@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
@@ -40,6 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ReminderBloc>(
+          create: (context) =>
+              getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+        ),
         BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {

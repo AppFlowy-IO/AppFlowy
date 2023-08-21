@@ -721,6 +721,11 @@
     "oneWeek": "1 week"
   },
   "notificationHub": {
-    "title": "Notifications"
+    "title": "Notifications",
+    "empty": "Nothing to see here!"
+  },
+  "reminderNotification": {
+    "title": "Reminder",
+    "message": "Remember to check out {} before you forget!"
   }
 }

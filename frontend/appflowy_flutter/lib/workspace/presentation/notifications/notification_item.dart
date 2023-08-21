@@ -1,16 +1,27 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+DateFormat _dateFormat(BuildContext context) => DateFormat('MMM d, y');
 
 class NotificationItem extends StatefulWidget {
   const NotificationItem({
     super.key,
+    required this.title,
+    required this.scheduled,
+    required this.body,
     this.onAction,
     this.onDelete,
   });
+
+  final String title;
+  final Int64 scheduled;
+  final String body;
 
   final VoidCallback? onAction;
   final VoidCallback? onDelete;
@@ -46,7 +57,7 @@ class _NotificationItemState extends State<NotificationItem> {
               children: [
                 const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
                 const HSpace(10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -54,31 +65,25 @@ class _NotificationItemState extends State<NotificationItem> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Flexible(
-                            child: FlowyText.semibold('Reminder'),
-                          ),
+                          Flexible(child: FlowyText.semibold(widget.title)),
                           FlowyText.regular(
-                            '15:00 17/07/2023',
+                            _scheduledString(widget.scheduled),
                             fontSize: 10,
                           ),
                         ],
                       ),
-                      VSpace(5),
+                      const VSpace(5),
                       FlowyText.regular(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris placerat est ut eros facilisis pretium. Aliquam eget velit ut erat facilisis hendrerit vel.',
+                        widget.body,
                         maxLines: 4,
                       ),
-                      // TODO(Xazin): Body max length around 155 characters
                     ],
                   ),
                 ),
                 const HSpace(10),
                 FlowyIconButton(
                   width: 20,
-                  onPressed: () {
-                    widget.onDelete?.call();
-                    // TODO(Xazin): Delete notification event
-                  },
+                  onPressed: () => widget.onDelete?.call(),
                   icon: const FlowySvg(FlowySvgs.delete_s),
                 )
               ],
@@ -88,6 +93,11 @@ class _NotificationItemState extends State<NotificationItem> {
       ),
     );
   }
+
+  String _scheduledString(Int64 secondsSinceEpoch) =>
+      _dateFormat(context).format(
+        DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
+      );
 
   void _onHover(bool isHovering) => setState(() => _isHovering = isHovering);
 }

@@ -54,6 +54,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
+    .event(UserEvent::RemoveReminder, remove_reminder_event_handler)
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
 }
 
@@ -262,8 +263,9 @@ pub enum UserEvent {
   #[event(input = "HistoricalUserPB")]
   OpenHistoricalUser = 26,
 
-  /// Push a realtime event to the user. Currently, the realtime event is only used
-  /// when the auth type is: [AuthType::Supabase].
+  /// Push a realtime event to the user. Currently, the realtime event
+  /// is only used when the auth type is: [AuthType::Supabase].
+  ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
 
@@ -273,6 +275,9 @@ pub enum UserEvent {
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
 
+  #[event(input = "ReminderIdentifierPB")]
+  RemoveReminder = 30,
+
   #[event(input = "ResetWorkspacePB")]
-  ResetWorkspace = 30,
+  ResetWorkspace = 31,
 }
