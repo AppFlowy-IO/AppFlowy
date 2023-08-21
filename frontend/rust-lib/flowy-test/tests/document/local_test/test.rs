@@ -1,3 +1,4 @@
+use collab_document::blocks::json_str_to_hashmap;
 use flowy_document2::entities::*;
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::document::utils::*;
@@ -97,7 +98,8 @@ async fn update_block_test() {
   let block = test.get_block(&view.id, &block_id).await;
   assert!(block.is_some());
   let block = block.unwrap();
-  assert_eq!(block.data, serde_json::to_string(&data).unwrap());
+  let block_data = json_str_to_hashmap(&block.data).ok().unwrap();
+  assert_eq!(block_data, data);
 }
 
 #[tokio::test]

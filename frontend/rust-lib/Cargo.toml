@@ -49,14 +49,14 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
+collab = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-folder = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-document = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-database = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+appflowy-integrate = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-plugins = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-user = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
+collab-define = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }

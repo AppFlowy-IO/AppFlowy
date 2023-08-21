@@ -34,15 +34,15 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
+collab = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-folder = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-persistence = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-document = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-database = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+appflowy-integrate = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-plugins = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-user = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
+collab-define = { git = "https://github.com/qinluhe/AppFlowy-Collab", rev = "4945564e6f436e86eac438b8acac5b51f25ed7de" }
 
 #collab = { path = "../../../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
