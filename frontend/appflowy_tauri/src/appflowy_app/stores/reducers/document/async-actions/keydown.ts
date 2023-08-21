@@ -64,7 +64,6 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
 
       const res = await deltaOperator.mergeText(prevLineId, id);
 
-      console.log('res', res);
       if (!res) return;
       const caret = {
         id: res.id,
