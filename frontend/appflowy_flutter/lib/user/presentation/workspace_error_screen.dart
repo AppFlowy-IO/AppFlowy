@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,41 +30,50 @@ class WorkspaceErrorScreen extends StatelessWidget {
           userFolder: userFolder,
           error: error,
         )..add(const WorkspaceErrorEvent.init()),
-        child: BlocListener<WorkspaceErrorBloc, WorkspaceErrorState>(
-          listenWhen: (previous, current) =>
-              previous.workspaceState != current.workspaceState,
-          listener: (context, state) async {
-            await state.workspaceState.when(
-              initial: () {},
-              logout: () async {
-                await getIt<AuthService>().signOut();
-                await runAppFlowy();
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<WorkspaceErrorBloc, WorkspaceErrorState>(
+              listenWhen: (previous, current) =>
+                  previous.workspaceState != current.workspaceState,
+              listener: (context, state) async {
+                await state.workspaceState.when(
+                  initial: () {},
+                  logout: () async {
+                    await getIt<AuthService>().signOut();
+                    await runAppFlowy();
+                  },
+                  reset: () async {
+                    await getIt<AuthService>().signOut();
+                    await runAppFlowy();
+                  },
+                  restoreFromSnapshot: () {},
+                  createNewWorkspace: () {},
+                );
               },
-              reset: () async {
-                await getIt<AuthService>().signOut();
-                await runAppFlowy();
+            ),
+            BlocListener<WorkspaceErrorBloc, WorkspaceErrorState>(
+              listenWhen: (previous, current) =>
+                  previous.loadingState != current.loadingState,
+              listener: (context, state) async {
+                state.loadingState?.when(
+                  loading: () {},
+                  finish: (error) {
+                    error.fold(
+                      (_) {},
+                      (err) {
+                        showSnapBar(context, err.msg);
+                      },
+                    );
+                  },
+                );
               },
-              restoreFromSnapshot: () {},
-              createNewWorkspace: () {},
-            );
-          },
+            ),
+          ],
           child: BlocBuilder<WorkspaceErrorBloc, WorkspaceErrorState>(
             builder: (context, state) {
               final List<Widget> children = [
                 WorkspaceErrorDescription(error: error),
               ];
-
-              // if (state.snapshots.isNotEmpty) {
-              //   children.add(
-              //     ConstrainedBox(
-              //       constraints: const BoxConstraints(
-              //         maxHeight: 200,
-              //         maxWidth: 200,
-              //       ),
-              //       child: const WorkspaceSnapshotList(),
-              //     ),
-              //   );
-              // }
 
               children.addAll([
                 const VSpace(50),
@@ -121,35 +132,6 @@ class WorkspaceErrorDescription extends StatelessWidget {
   }
 }
 
-class WorkspaceSnapshotList extends StatelessWidget {
-  const WorkspaceSnapshotList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WorkspaceErrorBloc, WorkspaceErrorState>(
-      builder: (context, state) {
-        return ListView.builder(
-          itemCount: state.snapshots.length,
-          itemBuilder: (context, index) {
-            final snapshot = state.snapshots[index];
-
-            final outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
-            final date = DateTime.fromMillisecondsSinceEpoch(
-              snapshot.createdAt.toInt() * 1000,
-            );
-
-            return ListTile(
-              title: Text(snapshot.snapshotDesc),
-              subtitle: Text(outputFormat.format(date)),
-              onTap: () {},
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
 
@@ -159,7 +141,6 @@ class LogoutButton extends StatelessWidget {
       height: 40,
       width: 200,
       child: FlowyButton(
-        useIntrinsicWidth: true,
         text: FlowyText.medium(
           LocaleKeys.settings_menu_logout.tr(),
           textAlign: TextAlign.center,
@@ -180,17 +161,34 @@ class ResetWorkspaceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
       width: 200,
-      child: FlowyButton(
-        text: FlowyText.medium(
-          LocaleKeys.workspace_reset.tr(),
-          textAlign: TextAlign.center,
-        ),
-        onTap: () {
-          context.read<WorkspaceErrorBloc>().add(
-                const WorkspaceErrorEvent.resetWorkspace(),
-              );
+      height: 40,
+      child: BlocBuilder<WorkspaceErrorBloc, WorkspaceErrorState>(
+        builder: (context, state) {
+          final isLoading = state.loadingState?.isLoading() ?? false;
+          final icon = isLoading
+              ? const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                )
+              : null;
+
+          return FlowyButton(
+            text: FlowyText.medium(
+              LocaleKeys.workspace_reset.tr(),
+              textAlign: TextAlign.center,
+            ),
+            onTap: () {
+              NavigatorAlertDialog(
+                title: LocaleKeys.workspace_resetWorkspacePrompt.tr(),
+                confirm: () {
+                  context.read<WorkspaceErrorBloc>().add(
+                        const WorkspaceErrorEvent.resetWorkspace(),
+                      );
+                },
+              ).show(context);
+            },
+            rightIcon: icon,
+          );
         },
       ),
     );
