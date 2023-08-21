@@ -69,7 +69,7 @@ impl FolderUser for FolderUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
@@ -77,7 +77,7 @@ impl FolderUser for FolderUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .token()
   }
 
@@ -85,7 +85,7 @@ impl FolderUser for FolderUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
   }
 }
@@ -305,7 +305,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       ViewLayout::Calendar => make_default_calendar(view_id, &name),
       ViewLayout::Document => {
         return FutureResult::new(async move {
-          Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
+          Err(FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)))
         });
       },
     };
@@ -332,7 +332,8 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       _ => CSVFormat::Original,
     };
     FutureResult::new(async move {
-      let content = String::from_utf8(bytes).map_err(|err| FlowyError::internal().context(err))?;
+      let content =
+        String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))?;
       database_manager
         .import_csv(view_id, content, format)
         .await?;
@@ -359,7 +360,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     let database_layout = match new.layout {
       ViewLayout::Document => {
         return FutureResult::new(async {
-          Err(FlowyError::internal().context("Can't handle document layout type"))
+          Err(FlowyError::internal().with_context("Can't handle document layout type"))
         });
       },
       ViewLayout::Grid => DatabaseLayoutPB::Grid,

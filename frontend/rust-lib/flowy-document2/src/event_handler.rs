@@ -22,7 +22,7 @@ fn upgrade_document(
 ) -> FlowyResult<Arc<DocumentManager>> {
   let manager = document_manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The document manager is already dropped"))?;
+    .ok_or(FlowyError::internal().with_context("The document manager is already dropped"))?;
   Ok(manager)
 }
 

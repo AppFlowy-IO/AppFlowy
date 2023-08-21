@@ -54,6 +54,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
+    .event(UserEvent::ResetWorkspace, reset_workspace_handler)
 }
 
 pub struct SignUpContext {
@@ -271,4 +272,7 @@ pub enum UserEvent {
 
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 30,
 }

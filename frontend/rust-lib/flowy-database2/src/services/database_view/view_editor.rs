@@ -418,7 +418,7 @@ impl DatabaseViewEditor {
       .as_ref()
       .and_then(|group| group.get_group(group_id))
     {
-      None => Err(FlowyError::record_not_found().context("Can't find the group")),
+      None => Err(FlowyError::record_not_found().with_context("Can't find the group")),
       Some((_, group)) => Ok(GroupPB::from(group)),
     }
   }

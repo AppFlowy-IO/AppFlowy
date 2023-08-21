@@ -45,6 +45,7 @@
   },
   "workspace": {
     "create": "Create workspace",
+    "reset": "Reset workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found"
   },

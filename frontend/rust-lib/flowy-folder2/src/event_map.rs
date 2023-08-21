@@ -37,8 +37,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RestoreAllTrash, restore_all_trash_handler)
     .event(FolderEvent::DeleteAllTrash, delete_all_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
-      .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
-      .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
+    .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
+    .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
 }
@@ -134,7 +134,7 @@ pub enum FolderEvent {
   #[event(input = "ImportPB")]
   ImportData = 30,
 
-  #[event()]
+  #[event(input = "WorkspaceIdPB", output = "RepeatedFolderSnapshotPB")]
   GetFolderSnapshots = 31,
   /// Moves a nested view to a new location in the hierarchy.
   ///

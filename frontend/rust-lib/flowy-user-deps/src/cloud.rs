@@ -110,6 +110,8 @@ pub trait UserService: Send + Sync {
     None
   }
 
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error>;
+
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,

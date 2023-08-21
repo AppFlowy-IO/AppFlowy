@@ -1,5 +1,6 @@
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -81,7 +82,7 @@ class AppFlowyAuthService implements AuthService {
   }) async {
     return left(
       FlowyError.create()
-        ..code = 0
+        ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",
     );
   }
@@ -98,7 +99,7 @@ class AppFlowyAuthService implements AuthService {
   }) async {
     return left(
       FlowyError.create()
-        ..code = 0
+        ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",
     );
   }

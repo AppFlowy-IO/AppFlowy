@@ -66,12 +66,14 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => match get_updates_from_server(&object_id, &object_ty, postgrest).await {
-          Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
-          Err(err) => {
-            tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
-            Err(err)
-          },
+        Some(postgrest) => {
+          match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
+            Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+            Err(err) => {
+              tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+              Err(err)
+            },
+          }
         },
       }
     })
@@ -285,7 +287,7 @@ pub async fn batch_get_updates_from_server(
 pub async fn get_updates_from_server(
   object_id: &str,
   object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
+  postgrest: &Arc<PostgresWrapper>,
 ) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))

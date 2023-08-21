@@ -1,5 +1,6 @@
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
@@ -80,9 +81,8 @@ class SplashScreen extends StatelessWidget {
                 workspaceSetting,
               );
             },
-            (error) async {
-              Log.error(error);
-              getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+            (error) {
+              handleOpenWorkspaceError(context, error);
             },
           );
         }

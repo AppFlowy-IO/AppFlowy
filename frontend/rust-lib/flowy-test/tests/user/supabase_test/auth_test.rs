@@ -103,7 +103,7 @@ async fn third_party_sign_up_with_duplicated_email() {
       .await
       .err()
       .unwrap();
-    assert_eq!(error.code, ErrorCode::Conflict.value());
+    assert_eq!(error.code, ErrorCode::Conflict);
   };
 }
 
@@ -198,7 +198,7 @@ async fn check_not_exist_user_test() {
       .check_user_with_uuid(&uuid::Uuid::new_v4().to_string())
       .await
       .unwrap_err();
-    assert_eq!(err.code, ErrorCode::RecordNotFound.value());
+    assert_eq!(err.code, ErrorCode::RecordNotFound);
   }
 }
 
@@ -256,6 +256,6 @@ async fn update_user_profile_with_existing_email_test() {
       )
       .await
       .unwrap();
-    assert_eq!(error.code, ErrorCode::Conflict.value());
+    assert_eq!(error.code, ErrorCode::Conflict);
   }
 }
