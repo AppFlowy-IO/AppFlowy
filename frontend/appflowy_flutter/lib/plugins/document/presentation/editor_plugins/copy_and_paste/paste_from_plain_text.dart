@@ -7,6 +7,12 @@ RegExp _hrefRegex = RegExp(
 
 extension PasteFromPlainText on EditorState {
   Future<void> pastePlainText(String plainText) async {
+    if (await pasteHtmlIfAvailable(plainText)) {
+      return;
+    }
+
+    await deleteSelectionIfNeeded();
+
     final nodes = plainText
         .split('\n')
         .map(
@@ -32,5 +38,27 @@ extension PasteFromPlainText on EditorState {
     } else {
       await pasteMultiLineNodes(nodes.toList());
     }
+  }
+
+  Future<bool> pasteHtmlIfAvailable(String plainText) async {
+    final selection = this.selection;
+    if (selection == null ||
+        !selection.isSingle ||
+        selection.isCollapsed ||
+        !_hrefRegex.hasMatch(plainText)) {
+      return false;
+    }
+
+    final node = getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return false;
+    }
+
+    final transaction = this.transaction;
+    transaction.formatText(node, selection.startIndex, selection.length, {
+      AppFlowyRichTextKeys.href: plainText,
+    });
+    await apply(transaction);
+    return true;
   }
 }

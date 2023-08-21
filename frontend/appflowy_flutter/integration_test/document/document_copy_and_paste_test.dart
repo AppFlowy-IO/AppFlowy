@@ -195,11 +195,43 @@ void main() {
     //   expect(node.attributes[ImageBlockKeys.url], isNotNull);
     // });
   });
+
+  testWidgets(
+    'format the selected text to href when pasting url if available',
+    (tester) async {
+      const text = 'appflowy';
+      const url = 'https://appflowy.io';
+      await tester.pasteContent(
+        plainText: url,
+        beforeTest: (editorState) async {
+          await tester.ime.insertText(text);
+          await tester.editor.updateSelection(
+            Selection.single(
+              path: [0],
+              startOffset: 0,
+              endOffset: text.length,
+            ),
+          );
+        },
+        (editorState) {
+          final node = editorState.getNodeAtPath([0])!;
+          expect(node.type, ParagraphBlockKeys.type);
+          expect(node.delta!.toJson(), [
+            {
+              'insert': text,
+              'attributes': {'href': url}
+            }
+          ]);
+        },
+      );
+    },
+  );
 }
 
 extension on WidgetTester {
   Future<void> pasteContent(
     void Function(EditorState editorState) test, {
+    Future<void> Function(EditorState editorState)? beforeTest,
     String? plainText,
     String? html,
     (String, Uint8List?)? image,
@@ -209,6 +241,8 @@ extension on WidgetTester {
 
     // create a new document
     await createNewPageWithName();
+
+    await beforeTest?.call(editor.getCurrentEditorState());
 
     // mock the clipboard
     getIt<ClipboardService>().setData(
@@ -227,7 +261,6 @@ extension on WidgetTester {
     );
     await pumpAndSettle();
 
-    final editorState = editor.getCurrentEditorState();
-    test(editorState);
+    test(editor.getCurrentEditorState());
   }
 }
