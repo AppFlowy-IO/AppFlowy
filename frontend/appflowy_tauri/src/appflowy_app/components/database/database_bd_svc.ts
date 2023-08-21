@@ -400,6 +400,9 @@ export async function createSelectOption(viewId: string, fieldId: string, option
   return result.unwrap();
 }
 
+/**
+ * @param [rowId] If pass the rowId, the cell will select this option after insert or update.
+ */
 export async function insertOrUpdateSelectOption(
   viewId: string,
   fieldId: string,

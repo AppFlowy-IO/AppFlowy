@@ -17,10 +17,20 @@ const toDateCellData = (pb: DateCellDataPB): Database.DateTimeCellData => ({
   includeTime: pb.include_time,
 });
 
-const toSelectCellData = (pb: SelectOptionCellDataPB): Database.SelectCellData => ({
-  options: pb.options,
-  selectOptions: pb.select_options,
-});
+const toSelectCellData = (pb: SelectOptionCellDataPB): Database.SelectCellData => {
+  return {
+    options: pb.options.map(option => ({
+      id: option.id,
+      name: option.name,
+      color: option.color,
+    })),
+    selectOptions: pb.select_options.map(option => ({
+      id: option.id,
+      name: option.name,
+      color: option.color,
+    })),
+  };
+};
 
 const toURLCellData = (pb: URLCellDataPB): Database.UrlCellData => ({
   url: pb.url,
