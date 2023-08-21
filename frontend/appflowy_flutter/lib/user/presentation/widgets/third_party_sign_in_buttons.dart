@@ -1,8 +1,10 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +23,13 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
+    // final isDarkMode =
+    //     MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Column(
       children: [
         _ThirdPartySignInButton(
           icon: FlowySvgs.google_mark_xl,
-          labelText: 'Log in with Google',
+          labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
           contentAlignment: contentAlignment,
           onPressed: () {
             getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
@@ -36,34 +38,34 @@ class ThirdPartySignInButtons extends StatelessWidget {
                 );
           },
         ),
-        const SizedBox(height: 8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.github_mark_white_xl
-              : FlowySvgs.github_mark_black_xl,
-          labelText: 'Log in with GitHub',
-          contentAlignment: contentAlignment,
-          onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context
-                .read<SignInBloc>()
-                .add(const SignInEvent.signedInWithOAuth('github'));
-          },
-        ),
-        const SizedBox(height: 8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.discord_mark_white_xl
-              : FlowySvgs.discord_mark_blurple_xl,
-          labelText: 'Log in with Discord',
-          contentAlignment: contentAlignment,
-          onPressed: () {
-            // getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            // context
-            //     .read<SignInBloc>()
-            //     .add(const SignInEvent.signedInWithOAuth('discord'));
-          },
-        ),
+        // const SizedBox(height: 8),
+        // _ThirdPartySignInButton(
+        //   icon: isDarkMode
+        //       ? FlowySvgs.github_mark_white_xl
+        //       : FlowySvgs.github_mark_black_xl,
+        //   labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
+        //   contentAlignment: contentAlignment,
+        //   onPressed: () {
+        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        //     context
+        //         .read<SignInBloc>()
+        //         .add(const SignInEvent.signedInWithOAuth('github'));
+        //   },
+        // ),
+        // const SizedBox(height: 8),
+        // _ThirdPartySignInButton(
+        //   icon: isDarkMode
+        //       ? FlowySvgs.discord_mark_white_xl
+        //       : FlowySvgs.discord_mark_blurple_xl,
+        //   labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
+        //   contentAlignment: contentAlignment,
+        //   onPressed: () {
+        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        //     context
+        //         .read<SignInBloc>()
+        //         .add(const SignInEvent.signedInWithOAuth('discord'));
+        //   },
+        // ),
       ],
     );
   }
