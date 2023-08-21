@@ -118,7 +118,7 @@ impl DocumentEventTest {
   pub async fn apply_text_delta(&self, payload: TextDeltaPayloadPB) {
     let core = &self.inner;
     EventBuilder::new(core.clone())
-      .event(DocumentEvent::ApplyTextDelta)
+      .event(DocumentEvent::ApplyTextDeltaEvent)
       .payload(payload)
       .async_send()
       .await;

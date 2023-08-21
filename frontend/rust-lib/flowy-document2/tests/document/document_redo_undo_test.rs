@@ -37,9 +37,11 @@ async fn undo_redo_test() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
+      block: Some(text_block),
       parent_id: Some(page_id),
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.apply_action(vec![insert_text_action]);
