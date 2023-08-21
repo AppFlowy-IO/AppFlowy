@@ -14,7 +14,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
   final bool isMobile;
   final Alignment contentAlignment;
 
-  /// For desktop and mobile
+  /// Used in DesktopSignInScreen and MobileSignInScreen
   const ThirdPartySignInButtons({
     Key? key,
     required this.isMobile,
@@ -23,21 +23,32 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Leave for future implementation
     // final isDarkMode =
     //     MediaQuery.of(context).platformBrightness == Brightness.dark;
+    if (isMobile) {
+      return _ThirdPartySignInButton(
+        isMobile: true,
+        icon: FlowySvgs.google_mark_xl,
+        labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
+        onPressed: () {
+          _signInWithGoogle(context);
+        },
+        contentAlignment: contentAlignment,
+      );
+    }
     return Column(
       children: [
         _ThirdPartySignInButton(
+          isMobile: false,
           icon: FlowySvgs.google_mark_xl,
           labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
           contentAlignment: contentAlignment,
           onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context.read<SignInBloc>().add(
-                  const SignInEvent.signedInWithOAuth('google'),
-                );
+            _signInWithGoogle(context);
           },
         ),
+        // Leave for future implementation
         // const SizedBox(height: 8),
         // _ThirdPartySignInButton(
         //   icon: isDarkMode
@@ -74,12 +85,14 @@ class ThirdPartySignInButtons extends StatelessWidget {
 class _ThirdPartySignInButton extends StatelessWidget {
   const _ThirdPartySignInButton({
     Key? key,
+    required this.isMobile,
     required this.icon,
     required this.labelText,
     required this.onPressed,
     required this.contentAlignment,
   }) : super(key: key);
 
+  final bool isMobile;
   final FlowySvgData icon;
   final String labelText;
   final Alignment contentAlignment;
@@ -88,6 +101,24 @@ class _ThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
+    if (isMobile) {
+      return SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton.icon(
+          icon: FlowySvg(
+            icon,
+            size: const Size.square(18),
+            blendMode: null,
+          ),
+          label: Text(labelText),
+          style: ButtonStyle(
+            alignment: contentAlignment,
+          ),
+          onPressed: onPressed,
+        ),
+      );
+    }
     return SizedBox(
       height: 48,
       width: double.infinity,
@@ -126,4 +157,11 @@ class _ThirdPartySignInButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _signInWithGoogle(BuildContext context) {
+  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+  context.read<SignInBloc>().add(
+        const SignInEvent.signedInWithOAuth('google'),
+      );
 }
