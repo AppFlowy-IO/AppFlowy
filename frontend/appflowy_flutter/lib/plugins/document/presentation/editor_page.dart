@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -67,6 +68,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     linkItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
+    ...textDirectionItems
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -162,6 +164,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       footer: const VSpace(200),
     );
 
+    final layoutDirection =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                LayoutDirection.rtlLayout
+            ? TextDirection.rtl
+            : TextDirection.ltr;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
@@ -173,7 +181,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           items: toolbarItems,
           editorState: widget.editorState,
           scrollController: effectiveScrollController,
-          child: editor,
+          child: Directionality(
+            textDirection: layoutDirection,
+            child: editor,
+          ),
         ),
       ),
     );

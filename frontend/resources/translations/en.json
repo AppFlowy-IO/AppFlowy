@@ -252,6 +252,17 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
+      "layoutDirection": {
+        "label": "Layout Direction",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Default text direction",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO"
+      },
       "themeUpload": {
         "button": "Upload",
         "description": "Upload your own AppFlowy theme using the button below.",
