@@ -19,8 +19,6 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/prelude.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
