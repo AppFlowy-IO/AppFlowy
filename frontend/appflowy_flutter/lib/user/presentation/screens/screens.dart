@@ -1,4 +1,4 @@
-export 'sign_in_screen.dart';
+export 'sign_in_screen/sign_in_screen.dart';
 export 'skip_log_in_screen.dart';
 export 'splash_screen.dart';
 export 'sign_up_screen.dart';

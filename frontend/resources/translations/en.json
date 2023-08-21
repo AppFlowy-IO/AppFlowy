@@ -32,8 +32,8 @@
   "signIn": {
     "loginTitle": "Login to @:appName",
     "loginButtonText": "Login",
-    "loginAsGuestButtonText": "Get Started",
-    "continueAnonymousUser": "Continue in an anonymous session",
+    "loginStartWithAnonymous": "Start with an anonymous session",
+    "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
