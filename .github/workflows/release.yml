@@ -394,7 +394,7 @@ jobs:
         if: ${{ matrix.job.target == 'aarch64-unknown-linux-gnu' }}
         working-directory: frontend
         run: |
-          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libgtk-3-0
 
       - name: Build AppFlowy
         working-directory: frontend
@@ -410,12 +410,7 @@ jobs:
         working-directory: frontend
         run: |
           sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_NAME }}
-
-      - name: Build Linux package (.AppImage)
-        working-directory: frontend
-        run: |
-          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
-
+      
       - name: Upload Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -425,17 +420,6 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
           asset_name: ${{ env.LINUX_ZIP_NAME }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload AppImage
-        id: upload-appimage-package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: frontend/AppFlowy-${{ github.ref_name }}-x86_64.AppImage
-          asset_name: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
           asset_content_type: application/octet-stream
 
       - name: Upload Debian package
