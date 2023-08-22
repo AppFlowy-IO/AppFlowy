@@ -29,6 +29,14 @@ extension AppFlowySettings on WidgetTester {
     return;
   }
 
+  Future<void> expectNoSettingsPage(SettingsPage page) async {
+    final button = find.byWidgetPredicate(
+      (widget) => widget is SettingsMenuElement && widget.page == page,
+    );
+    expect(button, findsNothing);
+    return;
+  }
+
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
     final button =

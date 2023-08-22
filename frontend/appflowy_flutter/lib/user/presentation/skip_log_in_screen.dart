@@ -108,7 +108,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Future<void> _relaunchAppAndAutoRegister() async {
     await FlowyRunner.run(
       FlowyApp(),
-      integrationEnv(),
+      integrationMode(),
       config: const LaunchConfiguration(
         autoRegistrationSupported: true,
       ),

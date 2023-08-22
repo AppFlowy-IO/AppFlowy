@@ -222,46 +222,59 @@ class SignInAsGuestButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HistoricalUserBloc()
-        ..add(
-          const HistoricalUserEvent.initial(),
-        ),
-      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
-        listenWhen: (previous, current) =>
-            previous.openedHistoricalUser != current.openedHistoricalUser,
-        listener: (context, state) async {
-          await runAppFlowy();
-        },
-        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
-          builder: (context, state) {
-            if (state.historicalUsers.isEmpty) {
-              return RoundedTextButton(
-                title: LocaleKeys.signIn_loginAsGuestButtonText.tr(),
-                height: 48,
-                borderRadius: Corners.s6Border,
-                onPressed: () {
-                  getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
-                  context
-                      .read<SignInBloc>()
-                      .add(const SignInEvent.signedInAsGuest());
-                },
-              );
-            } else {
-              return RoundedTextButton(
-                title: LocaleKeys.signIn_continueAnonymousUser.tr(),
-                height: 48,
-                borderRadius: Corners.s6Border,
-                onPressed: () {
-                  final bloc = context.read<HistoricalUserBloc>();
-                  final user = bloc.state.historicalUsers.first;
-                  bloc.add(HistoricalUserEvent.openHistoricalUser(user));
-                },
-              );
-            }
-          },
-        ),
-      ),
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, signInState) {
+        return BlocProvider(
+          create: (context) => HistoricalUserBloc()
+            ..add(
+              const HistoricalUserEvent.initial(),
+            ),
+          child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
+            listenWhen: (previous, current) =>
+                previous.openedHistoricalUser != current.openedHistoricalUser,
+            listener: (context, state) async {
+              await runAppFlowy();
+            },
+            child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+              builder: (context, state) {
+                final text = state.historicalUsers.isEmpty
+                    ? FlowyText.medium(
+                        LocaleKeys.signIn_loginAsGuestButtonText.tr(),
+                        textAlign: TextAlign.center,
+                      )
+                    : FlowyText.medium(
+                        LocaleKeys.signIn_continueAnonymousUser.tr(),
+                        textAlign: TextAlign.center,
+                      );
+
+                final onTap = state.historicalUsers.isEmpty
+                    ? () {
+                        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
+                        context
+                            .read<SignInBloc>()
+                            .add(const SignInEvent.signedInAsGuest());
+                      }
+                    : () {
+                        final bloc = context.read<HistoricalUserBloc>();
+                        final user = bloc.state.historicalUsers.first;
+                        bloc.add(HistoricalUserEvent.openHistoricalUser(user));
+                      };
+
+                return SizedBox(
+                  height: 48,
+                  child: FlowyButton(
+                    isSelected: true,
+                    disable: signInState.isSubmitting,
+                    text: text,
+                    radius: Corners.s6Border,
+                    onTap: onTap,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -410,16 +423,8 @@ class ThirdPartySignInButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: mainAxisAlignment,
-      children: [
-        ThirdPartySignInButton(
-          icon: FlowySvgs.google_mark_xl,
-          onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context.read<SignInBloc>().add(
-                  const SignInEvent.signedInWithOAuth('google'),
-                );
-          },
-        ),
+      children: const [
+        GoogleSignUpButton(),
         // const SizedBox(width: 20),
         // ThirdPartySignInButton(
         //   icon: 'login/github-mark',
@@ -441,6 +446,23 @@ class ThirdPartySignInButtons extends StatelessWidget {
         //   },
         // ),
       ],
+    );
+  }
+}
+
+class GoogleSignUpButton extends StatelessWidget {
+  const GoogleSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.google_mark_xl,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context.read<SignInBloc>().add(
+              const SignInEvent.signedInWithOAuth('google'),
+            );
+      },
     );
   }
 }

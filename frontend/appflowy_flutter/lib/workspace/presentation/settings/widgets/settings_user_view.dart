@@ -82,8 +82,7 @@ class SettingsUserView extends StatelessWidget {
         );
       }
     }
-
-    return _renderLogoutButton(context);
+    return SettingLogoutButton(user: user, didLogout: didLogout);
   }
 
   Widget _renderUserNameInput(BuildContext context) {
@@ -105,40 +104,6 @@ class SettingsUserView extends StatelessWidget {
     final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
-  }
-
-  Widget _renderLogoutButton(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 160,
-        child: FlowyButton(
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
-          text: FlowyText.medium(
-            LocaleKeys.settings_menu_logout.tr(),
-            fontSize: 13,
-            textAlign: TextAlign.center,
-          ),
-          onTap: () async {
-            NavigatorAlertDialog(
-              title: logoutPromptMessage(),
-              confirm: () async {
-                await getIt<AuthService>().signOut();
-                didLogout();
-              },
-            ).show(context);
-          },
-        ),
-      ),
-    );
-  }
-
-  String logoutPromptMessage() {
-    switch (user.encryptionType) {
-      case EncryptionTypePB.Symmetric:
-        return LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr();
-      default:
-        return LocaleKeys.settings_menu_logoutPrompt.tr();
-    }
   }
 }
 
@@ -407,5 +372,50 @@ class IconOption extends StatelessWidget {
         blendMode: null,
       ),
     );
+  }
+}
+
+class SettingLogoutButton extends StatelessWidget {
+  final UserProfilePB user;
+  final VoidCallback didLogout;
+  const SettingLogoutButton({
+    required this.user,
+    required this.didLogout,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 160,
+        child: FlowyButton(
+          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+          text: FlowyText.medium(
+            LocaleKeys.settings_menu_logout.tr(),
+            fontSize: 13,
+            textAlign: TextAlign.center,
+          ),
+          onTap: () async {
+            NavigatorAlertDialog(
+              title: logoutPromptMessage(),
+              confirm: () async {
+                await getIt<AuthService>().signOut();
+                didLogout();
+              },
+            ).show(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  String logoutPromptMessage() {
+    switch (user.encryptionType) {
+      case EncryptionTypePB.Symmetric:
+        return LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr();
+      default:
+        return LocaleKeys.settings_menu_logoutPrompt.tr();
+    }
   }
 }

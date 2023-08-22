@@ -18,7 +18,7 @@ abstract class AuthService {
     required String email,
     required String password,
     AuthTypePB authType,
-    Map<String, String> map,
+    Map<String, String> params,
   });
 
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
@@ -27,25 +27,25 @@ abstract class AuthService {
     required String email,
     required String password,
     AuthTypePB authType,
-    Map<String, String> map,
+    Map<String, String> params,
   });
 
   ///
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType,
-    Map<String, String> map,
+    Map<String, String> params,
   });
 
   /// Returns a default [UserProfilePB]
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType,
-    Map<String, String> map,
+    Map<String, String> params,
   });
 
   Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
     required String email,
-    Map<String, String> map,
+    Map<String, String> params,
   });
 
   ///

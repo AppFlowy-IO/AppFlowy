@@ -19,7 +19,7 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignInPayloadPB.create()
       ..email = email
@@ -36,7 +36,7 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignUpPayloadPB.create()
       ..name = name
@@ -53,7 +53,7 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     await UserEventSignOut().send();
     return;
@@ -62,7 +62,7 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) {
     const password = "Guest!@123456";
     final uid = uuid();
@@ -78,7 +78,7 @@ class AppFlowyAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     return left(
       FlowyError.create()
@@ -95,7 +95,7 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
     required String email,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     return left(
       FlowyError.create()
