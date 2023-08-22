@@ -4,6 +4,7 @@ import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -19,7 +20,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
@@ -289,21 +289,52 @@ class GoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTextButton(
-      LocaleKeys.letsGoButtonText.tr(),
-      constraints: const BoxConstraints(
-        maxWidth: 340,
-        maxHeight: 48,
+    return BlocProvider(
+      create: (context) => HistoricalUserBloc()
+        ..add(
+          const HistoricalUserEvent.initial(),
+        ),
+      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
+        listenWhen: (previous, current) =>
+            previous.openedHistoricalUser != current.openedHistoricalUser,
+        listener: (context, state) async {
+          await runAppFlowy();
+        },
+        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+          builder: (context, state) {
+            final text = state.historicalUsers.isEmpty
+                ? LocaleKeys.letsGoButtonText.tr()
+                : LocaleKeys.signIn_continueAnonymousUser.tr();
+
+            final textWidget = FlowyText.medium(
+              text,
+              textAlign: TextAlign.center,
+              fontSize: 14,
+            );
+
+            return SizedBox(
+              width: 340,
+              height: 48,
+              child: FlowyButton(
+                isSelected: true,
+                text: textWidget,
+                radius: Corners.s6Border,
+                onTap: () {
+                  if (state.historicalUsers.isNotEmpty) {
+                    final bloc = context.read<HistoricalUserBloc>();
+                    final historicalUser = state.historicalUsers.first;
+                    bloc.add(
+                      HistoricalUserEvent.openHistoricalUser(historicalUser),
+                    );
+                  } else {
+                    onPressed();
+                  }
+                },
+              ),
+            );
+          },
+        ),
       ),
-      radius: BorderRadius.circular(12),
-      mainAxisAlignment: MainAxisAlignment.center,
-      fontSize: FontSizes.s14,
-      fontFamily: GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,
-      padding: const EdgeInsets.symmetric(vertical: 14.0),
-      onPressed: onPressed,
-      fillColor: Theme.of(context).colorScheme.primary,
-      fontColor: Theme.of(context).colorScheme.onPrimary,
-      hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 }
