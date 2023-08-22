@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
