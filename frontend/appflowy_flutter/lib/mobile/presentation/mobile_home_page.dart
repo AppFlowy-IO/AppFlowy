@@ -4,13 +4,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 
-class MobileHomePage extends StatelessWidget {
-  const MobileHomePage(
+class MobileHomeScreen extends StatelessWidget {
+  const MobileHomeScreen(
     this.user,
     this.workspaceSetting, {
     super.key,
   });
-  static const routeName = "/MobileHomePage";
+  static const routeName = "/MobileHomeScreen";
   final UserProfilePB user;
   final WorkspaceSettingPB workspaceSetting;
 
@@ -18,7 +18,7 @@ class MobileHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("MobileHomePage"),
+        title: const Text("MobileHomeScreen"),
       ),
       // TODO(yijing): implement home page later
       body: Center(

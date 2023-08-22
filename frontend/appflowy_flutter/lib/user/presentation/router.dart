@@ -43,7 +43,7 @@ class AuthRouter {
       Navigator.pushAndRemoveUntil<void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => MobileHomePage(
+          builder: (BuildContext context) => MobileHomeScreen(
             profile,
             workspaceSetting,
             key: ValueKey(profile.id),
@@ -157,7 +157,7 @@ class SplashRouter {
       Navigator.pushAndRemoveUntil<void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => MobileHomePage(
+          builder: (BuildContext context) => MobileHomeScreen(
             userProfile,
             workspaceSetting,
             key: ValueKey(userProfile.id),
