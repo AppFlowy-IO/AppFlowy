@@ -53,7 +53,6 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
       await editorState.deleteSelectionIfNeeded();
       await editorState.pasteImage(image.$1, image.$2!);
     } else if (plainText != null && plainText.isNotEmpty) {
-      await editorState.deleteSelectionIfNeeded();
       await editorState.pastePlainText(plainText);
     }
   }();
