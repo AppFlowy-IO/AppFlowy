@@ -1,12 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/presentation/screens/workspace_start_screen/util/pop_to_workspace.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/util/util.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
 class MobileWorkspaceStartScreen extends StatefulWidget {
