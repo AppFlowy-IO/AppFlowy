@@ -14,3 +14,5 @@ sh scripts/linux_distribution/deb/build_deb.sh [LINUX_PRODUCTION_RELEASE_PATH] [
 # for example
 sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/0.2.9/linux/Release 0.2.9 AppFlowy_0.2.9.deb
 ```
+
+The deb file will be located in '[LINUX_PRODUCTION_RELEASE_PATH]/[PACKAGE_NAME]'
