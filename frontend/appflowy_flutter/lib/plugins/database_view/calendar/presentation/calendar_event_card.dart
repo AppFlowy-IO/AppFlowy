@@ -115,7 +115,7 @@ class EventCard extends StatelessWidget {
               .fieldInfo
               .isPrimary;
           final text = isTitle && cellData.isEmpty
-              ? LocalKeys.grid_row_titlePlaceholder.tr()
+              ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;
 
           if (text.isEmpty) {
