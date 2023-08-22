@@ -26,7 +26,6 @@ jobs:
           cat CHANGELOG.md | sed -e '/./{H;$!d;}' -e "x;/##\ Version\ ${{ github.ref_name }}/"'!d;' >> ${{ env.RELEASE_NOTES_PATH }}
 
       - name: Create release
-        if: github.run_number == 1
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -403,14 +402,19 @@ jobs:
           flutter config --enable-linux-desktop
           dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
-      - name: Archive Assert
+      - name: Archive Asset
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
 
-      - name: Build Linux package (deb)
+      - name: Build Linux package (.deb)
         working-directory: frontend
         run: |
-          sh scripts/linux_distribution/deb/build_deb.sh ${{ env.LINUX_APP_RELEASE_PATH }} ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_NAME }}
+          sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_NAME }}
+
+      - name: Build Linux package (.AppImage)
+        working-directory: frontend
+        run: |
+          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -423,7 +427,18 @@ jobs:
           asset_name: ${{ env.LINUX_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Asset Install Package
+      - name: Upload AppImage
+        id: upload-appimage-package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: frontend/AppFlowy-${{ github.ref_name }}-x86_64.AppImage
+          asset_name: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
+          asset_content_type: application/octet-stream
+
+      - name: Upload Debian package
         id: upload-release-asset-install-package
         uses: actions/upload-release-asset@v1
         env:
