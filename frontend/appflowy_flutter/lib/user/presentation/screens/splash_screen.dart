@@ -29,6 +29,7 @@ class SplashScreen extends StatelessWidget {
     required this.autoRegister,
   }) : super(key: key);
 
+  static const routeName = '/SplashScreen';
   final bool autoRegister;
 
   @override

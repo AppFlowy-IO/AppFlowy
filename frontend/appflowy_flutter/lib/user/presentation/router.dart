@@ -162,7 +162,7 @@ class SplashRouter {
           ),
         ),
         // pop up all the pages until [SplashScreen]
-        (route) => route.isFirst,
+        (route) => route.settings.name == SplashScreen.routeName,
       );
     } else {
       Navigator.push(

@@ -40,6 +40,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
     return Column(
       children: [
         _ThirdPartySignInButton(
+          key: const Key('signInWithGoogleButton'),
           isMobile: false,
           icon: FlowySvgs.google_mark_xl,
           labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
