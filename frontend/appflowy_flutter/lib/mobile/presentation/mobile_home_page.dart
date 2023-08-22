@@ -1,3 +1,5 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,14 @@ class MobileHomePage extends StatelessWidget {
             Text(
               user.toString(),
             ),
-            Text('Workspace name: ${workspaceSetting.workspace.name}')
+            Text('Workspace name: ${workspaceSetting.workspace.name}'),
+            ElevatedButton(
+              onPressed: () {
+                getIt<AuthService>().signOut();
+                runAppFlowy();
+              },
+              child: const Text('Logout'),
+            )
           ],
         ),
       ),
