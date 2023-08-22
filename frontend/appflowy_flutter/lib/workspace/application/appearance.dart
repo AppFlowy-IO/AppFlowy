@@ -22,11 +22,13 @@ const _white = Color(0xFFFFFFFF);
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
-  AppearanceSettingsCubit(AppearanceSettingsPB setting)
-      : _setting = setting,
+  AppearanceSettingsCubit(
+    AppearanceSettingsPB setting,
+    AppTheme appTheme,
+  )   : _setting = setting,
         super(
           AppearanceSettingsState.initial(
-            setting.theme,
+            appTheme,
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
@@ -203,7 +205,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
-    String themeName,
+    AppTheme appTheme,
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
@@ -212,7 +214,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fallback,
+      appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
