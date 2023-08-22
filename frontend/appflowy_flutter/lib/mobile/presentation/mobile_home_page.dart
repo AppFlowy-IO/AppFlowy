@@ -32,9 +32,8 @@ class MobileHomePage extends StatelessWidget {
             ),
             Text('Workspace name: ${workspaceSetting.workspace.name}'),
             ElevatedButton(
-              onPressed: () {
-                getIt<AuthService>().signOut();
-                Navigator.of(context).popUntil((route) => route.isFirst);
+              onPressed: () async {
+                await getIt<AuthService>().signOut();
                 runAppFlowy();
               },
               child: const Text('Logout'),
