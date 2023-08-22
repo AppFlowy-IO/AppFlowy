@@ -30,8 +30,8 @@ class EventCard extends StatelessWidget {
     required this.viewId,
     required this.rowCache,
     required this.constraints,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +114,10 @@ class EventCard extends StatelessWidget {
               .cellController
               .fieldInfo
               .isPrimary;
-          String text = cellData;
-          if (isTitle && text.isEmpty) {
-            text = LocaleKeys.grid_row_titlePlaceholder.tr();
-          }
+          final text = isTitle && cellData.isEmpty
+              ? LocalKeys.grid_row_titlePlaceholder.tr()
+              : cellData;
+
           if (text.isEmpty) {
             return const SizedBox.shrink();
           }
