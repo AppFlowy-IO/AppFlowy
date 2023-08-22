@@ -410,16 +410,8 @@ class ThirdPartySignInButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: mainAxisAlignment,
-      children: [
-        ThirdPartySignInButton(
-          icon: FlowySvgs.google_mark_xl,
-          onPressed: () {
-            getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-            context.read<SignInBloc>().add(
-                  const SignInEvent.signedInWithOAuth('google'),
-                );
-          },
-        ),
+      children: const [
+        GoogleSignUpButton(),
         // const SizedBox(width: 20),
         // ThirdPartySignInButton(
         //   icon: 'login/github-mark',
@@ -441,6 +433,23 @@ class ThirdPartySignInButtons extends StatelessWidget {
         //   },
         // ),
       ],
+    );
+  }
+}
+
+class GoogleSignUpButton extends StatelessWidget {
+  const GoogleSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.google_mark_xl,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context.read<SignInBloc>().add(
+              const SignInEvent.signedInWithOAuth('google'),
+            );
+      },
     );
   }
 }

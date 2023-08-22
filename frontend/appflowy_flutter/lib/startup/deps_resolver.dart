@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/ser
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -38,7 +39,7 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
-    _resolveUserDeps(getIt);
+    _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
@@ -86,9 +87,13 @@ void _resolveCommonService(
   );
 }
 
-void _resolveUserDeps(GetIt getIt) {
+void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   if (isSupabaseEnabled) {
-    getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+    if (mode.isIntegrationTest) {
+      getIt.registerFactory<AuthService>(() => MockAuthService());
+    } else {
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+    }
   } else {
     getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
   }
