@@ -238,14 +238,8 @@ class SignInAsGuestButton extends StatelessWidget {
             child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
               builder: (context, state) {
                 final text = state.historicalUsers.isEmpty
-                    ? FlowyText.medium(
-                        LocaleKeys.signIn_loginAsGuestButtonText.tr(),
-                        textAlign: TextAlign.center,
-                      )
-                    : FlowyText.medium(
-                        LocaleKeys.signIn_continueAnonymousUser.tr(),
-                        textAlign: TextAlign.center,
-                      );
+                    ? LocaleKeys.signIn_loginAsGuestButtonText.tr()
+                    : LocaleKeys.signIn_continueAnonymousUser.tr();
 
                 final onTap = state.historicalUsers.isEmpty
                     ? () {
@@ -265,7 +259,10 @@ class SignInAsGuestButton extends StatelessWidget {
                   child: FlowyButton(
                     isSelected: true,
                     disable: signInState.isSubmitting,
-                    text: text,
+                    text: FlowyText.medium(
+                      text,
+                      textAlign: TextAlign.center,
+                    ),
                     radius: Corners.s6Border,
                     onTap: onTap,
                   ),
