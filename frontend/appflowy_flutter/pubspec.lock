@@ -1451,18 +1451,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "204284b1a721d33a65bcab077b191a3b7379b46a231f05688d17220153338ede"
+      sha256: ba484eb42ce621b69241d18d2a8494109589e8796eb6a3399e6c8f9cdaab8303
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "0.6.3"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: "1f15e9b1adb0bc59cf9b889a0b248f3c192fa17e2d5c923aeeec6d4fa2eeffd6"
+      sha256: dfe0a1c74430db946be973878da3f8611b8f124137f1dcbdf883e4605db40bd8
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "0.6.3"
   sync_http:
     dependency: transitive
     description:
