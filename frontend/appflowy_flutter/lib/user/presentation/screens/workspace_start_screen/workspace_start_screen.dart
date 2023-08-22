@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/desktop_workspace_start_screen.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/mobile_workspace_start_screen.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,12 +26,25 @@ class WorkspaceStartScreen extends StatelessWidget {
         ..add(const WorkspaceEvent.initial()),
       child: BlocBuilder<WorkspaceBloc, WorkspaceState>(
         builder: (context, state) {
-          if (Platform.isAndroid || Platform.isIOS) {
-            return const MobileWorkspaceStartScreen();
-          }
-          return DesktopWorkspaceStartScreen(
-            workspaceState: state,
+          final resultScreen = state.successOrFailure.fold(
+            (_) {
+              // show corresponding screen when success
+              if (Platform.isAndroid || Platform.isIOS) {
+                return MobileWorkspaceStartScreen(
+                  workspaceState: state,
+                );
+              }
+              return DesktopWorkspaceStartScreen(
+                workspaceState: state,
+              );
+            },
+            // show error scrren when failure
+            (error) => FlowyErrorPage.message(
+              error.toString(),
+              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+            ),
           );
+          return resultScreen;
         },
       ),
     );

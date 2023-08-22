@@ -34,6 +34,7 @@ class MobileHomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 getIt<AuthService>().signOut();
+                Navigator.of(context).popUntil((route) => route.isFirst);
                 runAppFlowy();
               },
               child: const Text('Logout'),
