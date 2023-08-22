@@ -29,6 +29,7 @@ grep -rl "\[CHANGE_THIS\]" $DEBIAN/control | xargs sed -i "s/\[CHANGE_THIS\]/$VE
 
 cp -fR $LINUX_RELEASE_PRODUCTION/AppFlowy $LIB
 cp ./scripts/linux_distribution/packaging/launcher.sh $LIB/AppFlowy
+chmod +x $LIB/AppFlowy/launcher.sh
 
 cp ./scripts/linux_distribution/deb/AppFlowy.desktop $APPLICATIONS
 cp ./scripts/linux_distribution/packaging/io.appflowy.AppFlowy.launcher.desktop $APPLICATIONS

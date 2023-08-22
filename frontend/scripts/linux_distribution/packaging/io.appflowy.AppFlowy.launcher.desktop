@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=AppFlowy Launcher
-Exec=sh /usr/bin/AppFlowyLauncher.sh %u
+Exec=AppFlowyLauncher.sh %u
 MimeType=x-scheme-handler/appflowy-flutter;
 NoDisplay=true
