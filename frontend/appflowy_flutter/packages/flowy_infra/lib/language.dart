@@ -55,6 +55,8 @@ String languageFromLocale(Locale locale) {
       return "Svenska";
     case "tr":
       return "Türkçe";
+    case "fa":
+      return "فارسی";
 
     // If not found then the language code will be displayed
     default:
