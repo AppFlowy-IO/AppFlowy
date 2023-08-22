@@ -25,18 +25,18 @@ import '../widgets/edit_panel/edit_panel.dart';
 import 'home_layout.dart';
 import 'home_stack.dart';
 
-class HomeScreen extends StatefulWidget {
-  static const routeName = '/HomeScreen';
+class DesktopHomeScreen extends StatefulWidget {
+  static const routeName = '/DesktopHomeScreen';
   final UserProfilePB user;
   final WorkspaceSettingPB workspaceSetting;
-  const HomeScreen(this.user, this.workspaceSetting, {Key? key})
+  const DesktopHomeScreen(this.user, this.workspaceSetting, {Key? key})
       : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final layout = HomeLayout(context, constraints);
         final homeStack = HomeStack(
           layout: layout,
-          delegate: HomeScreenStackAdaptor(
+          delegate: DesktopHomeScreenStackAdaptor(
             buildContext: context,
           ),
         );
@@ -256,10 +256,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class HomeScreenStackAdaptor extends HomeStackDelegate {
+class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
   final BuildContext buildContext;
 
-  HomeScreenStackAdaptor({
+  DesktopHomeScreenStackAdaptor({
     required this.buildContext,
   });
 

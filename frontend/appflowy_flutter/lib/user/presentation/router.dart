@@ -56,12 +56,14 @@ class AuthRouter {
       Navigator.push(
         context,
         PageRoutes.fade(
-          () => HomeScreen(
+          () => DesktopHomeScreen(
             profile,
             workspaceSetting,
             key: ValueKey(profile.id),
           ),
-          const RouteSettings(name: HomeScreen.routeName),
+          const RouteSettings(
+            name: DesktopHomeScreen.routeName,
+          ),
           RouteDurations.slow.inMilliseconds * .001,
         ),
       );
@@ -168,13 +170,13 @@ class SplashRouter {
       Navigator.push(
         context,
         PageRoutes.fade(
-          () => HomeScreen(
+          () => DesktopHomeScreen(
             userProfile,
             workspaceSetting,
             key: ValueKey(userProfile.id),
           ),
           const RouteSettings(
-            name: HomeScreen.routeName,
+            name: DesktopHomeScreen.routeName,
           ),
           RouteDurations.slow.inMilliseconds * .001,
         ),
