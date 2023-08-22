@@ -119,6 +119,7 @@ class _OrDivider extends StatelessWidget {
   }
 }
 
+// The following code is migrated from previous signInScreen.dart(for desktop)
 // We may need this later when sign up&in feature is ready
 // class SignUpPrompt extends StatelessWidget {
 //   const SignUpPrompt({
@@ -170,7 +171,6 @@ class _OrDivider extends StatelessWidget {
 //     );
 //   }
 // }
-
 // class ForgetPasswordButton extends StatelessWidget {
 //   const ForgetPasswordButton({
 //     Key? key,
