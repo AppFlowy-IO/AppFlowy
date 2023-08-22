@@ -1,5 +1,5 @@
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
 class FlowyColorOption {
@@ -54,7 +54,7 @@ class FlowyColorPicker extends StatelessWidget {
   ) {
     Widget? checkmark;
     if (selected == option.color) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(FlowySvgData("grid/checkmark"));
     }
 
     final colorIcon = SizedBox.square(

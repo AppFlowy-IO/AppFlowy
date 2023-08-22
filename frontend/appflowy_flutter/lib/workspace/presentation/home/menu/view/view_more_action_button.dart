@@ -1,7 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flowy_infra/image.dart';
 
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -42,7 +42,7 @@ class ViewMoreActionButton extends StatelessWidget {
           hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(2),
           width: 26,
-          icon: const FlowySvg(name: 'editor/details'),
+          icon: const FlowySvg(FlowySvgs.details_s),
           onPressed: () {
             onEditing(true);
             popover.show();

@@ -1,6 +1,6 @@
 use anyhow::Error;
-use flowy_document_deps::cloud::*;
 
+use flowy_document_deps::cloud::*;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct SelfHostedDocumentCloudServiceImpl();
@@ -10,11 +10,12 @@ impl DocumentCloudService for SelfHostedDocumentCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_document_latest_snapshot(
+  fn get_document_snapshots(
     &self,
     _document_id: &str,
-  ) -> FutureResult<Option<DocumentSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {

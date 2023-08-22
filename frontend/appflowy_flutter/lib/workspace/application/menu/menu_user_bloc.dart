@@ -26,9 +26,6 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
       await event.when(
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
-          _userWorkspaceListener.start(
-            onWorkspacesUpdated: _workspaceListUpdated,
-          );
           await _initUser();
         },
         fetchWorkspaces: () async {
@@ -62,17 +59,15 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   }
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+    if (isClosed) {
+      return;
+    }
     userProfileOrFailed.fold(
-      (newUserProfile) =>
-          add(MenuUserEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) => add(
+        MenuUserEvent.didReceiveUserProfile(newUserProfile),
+      ),
       (err) => Log.error(err),
     );
-  }
-
-  void _workspaceListUpdated(
-    Either<List<WorkspacePB>, FlowyError> workspacesOrFailed,
-  ) {
-    // Do nothing by now
   }
 }
 

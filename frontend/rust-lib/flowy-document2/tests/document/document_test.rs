@@ -13,7 +13,10 @@ async fn restore_document() {
   // create a document
   let doc_id: String = gen_document_id();
   let data = default_document_data();
-  let document_a = test.create_document(&doc_id, Some(data.clone())).unwrap();
+  let uid = test.user.user_id().unwrap();
+  let document_a = test
+    .create_document(uid, &doc_id, Some(data.clone()))
+    .unwrap();
   let data_a = document_a.lock().get_document_data().unwrap();
   assert_eq!(data_a, data);
 
@@ -30,7 +33,7 @@ async fn restore_document() {
   assert_eq!(data_b, data);
 
   // restore
-  _ = test.create_document(&doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone()));
   // open a document
   let data_b = test
     .get_document(&doc_id)
@@ -48,11 +51,12 @@ async fn restore_document() {
 #[tokio::test]
 async fn document_apply_insert_action() {
   let test = DocumentTest::new();
+  let uid = test.user.user_id().unwrap();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone()));
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -99,10 +103,11 @@ async fn document_apply_insert_action() {
 async fn document_apply_update_page_action() {
   let test = DocumentTest::new();
   let doc_id: String = gen_document_id();
+  let uid = test.user.user_id().unwrap();
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone()));
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -138,11 +143,12 @@ async fn document_apply_update_page_action() {
 #[tokio::test]
 async fn document_apply_update_action() {
   let test = DocumentTest::new();
+  let uid = test.user.user_id().unwrap();
   let doc_id: String = gen_document_id();
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone()));
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();

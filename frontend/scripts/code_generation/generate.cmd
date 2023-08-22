@@ -22,6 +22,8 @@ cd freezed
 REM Allow execution permissions on CI
 chmod +x generate_freezed.cmd
 call generate_freezed.cmd %*
+
+REM Return to the main script directory
 cd ..
 
 echo Generating env files using build_runner
@@ -29,6 +31,15 @@ cd env
 REM Allow execution permissions on CI
 chmod +x generate_env.cmd
 call generate_env.cmd %*
+
+REM Return to the main script directory
+cd ..
+
+echo Generating svg files using flowy_svg
+cd flowy_icons
+REM Allow execution permissions on CI
+chmod +x generate_flowy_icons.cmd
+call generate_flowy_icons.cmd %*
 
 REM Return to the original directory
 cd /d "%original_dir%"

@@ -1,9 +1,8 @@
-pub use collab_folder::core::{Folder, FolderData, Workspace};
-
 pub use anyhow::Error;
+pub use collab_folder::core::{Folder, FolderData, Workspace};
+use uuid::Uuid;
 
 use lib_infra::future::FutureResult;
-use uuid::Uuid;
 
 /// [FolderCloudService] represents the cloud service for folder.
 pub trait FolderCloudService: Send + Sync + 'static {
@@ -11,10 +10,11 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error>;
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error>;
+    limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error>;
 
   fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 

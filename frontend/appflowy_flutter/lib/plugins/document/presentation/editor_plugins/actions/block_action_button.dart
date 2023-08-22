@@ -1,18 +1,18 @@
 import 'dart:io';
 
-import 'package:flowy_infra/image.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 
 class BlockActionButton extends StatelessWidget {
   const BlockActionButton({
     super.key,
-    required this.svgName,
+    required this.svg,
     required this.richMessage,
     required this.onTap,
   });
 
-  final String svgName;
+  final FlowySvgData svg;
   final InlineSpan richMessage;
   final VoidCallback onTap;
 
@@ -31,8 +31,8 @@ class BlockActionButton extends StatelessWidget {
             child: GestureDetector(
               onTap: onTap,
               behavior: HitTestBehavior.deferToChild,
-              child: svgWidget(
-                svgName,
+              child: FlowySvg(
+                svg,
                 size: const Size.square(18.0),
                 color: Theme.of(context).iconTheme.color,
               ),

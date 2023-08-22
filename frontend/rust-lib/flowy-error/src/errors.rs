@@ -1,6 +1,7 @@
+use std::convert::TryInto;
 use std::fmt::Debug;
 
-use anyhow::Result;
+use protobuf::ProtobufError;
 use thiserror::Error;
 
 use flowy_derive::ProtoBuf;
@@ -13,10 +14,13 @@ pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 #[error("{code:?}: {msg}")]
 pub struct FlowyError {
   #[pb(index = 1)]
-  pub code: i32,
+  pub code: ErrorCode,
 
   #[pb(index = 2)]
   pub msg: String,
+
+  #[pb(index = 3)]
+  pub payload: Vec<u8>,
 }
 
 macro_rules! static_flowy_error {
@@ -31,17 +35,23 @@ macro_rules! static_flowy_error {
 impl FlowyError {
   pub fn new<T: ToString>(code: ErrorCode, msg: T) -> Self {
     Self {
-      code: code.value(),
+      code,
       msg: msg.to_string(),
+      payload: vec![],
     }
   }
-  pub fn context<T: Debug>(mut self, error: T) -> Self {
+  pub fn with_context<T: Debug>(mut self, error: T) -> Self {
     self.msg = format!("{:?}", error);
     self
   }
 
+  pub fn with_payload<T: TryInto<Vec<u8>, Error = ProtobufError>>(mut self, payload: T) -> Self {
+    self.payload = payload.try_into().unwrap_or_default();
+    self
+  }
+
   pub fn is_record_not_found(&self) -> bool {
-    self.code == ErrorCode::RecordNotFound.value()
+    self.code == ErrorCode::RecordNotFound
   }
 
   static_flowy_error!(internal, ErrorCode::Internal);
@@ -88,13 +98,16 @@ impl FlowyError {
     unexpect_calendar_field_type,
     ErrorCode::UnexpectedCalendarFieldType
   );
+  static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
   fn from(code: ErrorCode) -> Self {
+    let msg = format!("{}", code);
     FlowyError {
-      code: code.value(),
-      msg: format!("{}", code),
+      code,
+      msg,
+      payload: vec![],
     }
   }
 }
@@ -103,18 +116,18 @@ pub fn internal_error<T>(e: T) -> FlowyError
 where
   T: std::fmt::Debug,
 {
-  FlowyError::internal().context(e)
+  FlowyError::internal().with_context(e)
 }
 
 impl std::convert::From<std::io::Error> for FlowyError {
   fn from(error: std::io::Error) -> Self {
-    FlowyError::internal().context(error)
+    FlowyError::internal().with_context(error)
   }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   fn from(e: protobuf::ProtobufError) -> Self {
-    FlowyError::internal().context(e)
+    FlowyError::internal().with_context(e)
   }
 }
 

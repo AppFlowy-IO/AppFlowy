@@ -1,12 +1,12 @@
 use std::convert::TryInto;
 
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_deps::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
-use crate::services::HistoricalUser;
+use crate::services::entities::HistoricalUser;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -42,18 +42,46 @@ pub struct UserProfilePB {
 
   #[pb(index = 7)]
   pub auth_type: AuthTypePB,
+
+  #[pb(index = 8)]
+  pub encryption_sign: String,
+
+  #[pb(index = 9)]
+  pub encryption_type: EncryptionTypePB,
+
+  #[pb(index = 10)]
+  pub workspace_id: String,
+}
+
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
+pub enum EncryptionTypePB {
+  NoEncryption = 0,
+  Symmetric = 1,
+}
+
+impl Default for EncryptionTypePB {
+  fn default() -> Self {
+    Self::NoEncryption
+  }
 }
 
 impl std::convert::From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
+    let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
+      EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
+      EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
+    };
     Self {
-      id: user_profile.id,
+      id: user_profile.uid,
       email: user_profile.email,
       name: user_profile.name,
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
       auth_type: user_profile.auth_type.into(),
+      encryption_sign,
+      encryption_type: encryption_ty,
+      workspace_id: user_profile.workspace_id,
     }
   }
 }
@@ -77,9 +105,6 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
-
-  #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -146,13 +171,13 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
     };
 
     Ok(UpdateUserProfileParams {
-      id: self.id,
-      auth_type: self.auth_type.into(),
+      uid: self.id,
       name,
       email,
       password,
       icon_url,
       openai_key,
+      encryption_sign: None,
     })
   }
 }
@@ -252,4 +277,13 @@ impl From<HistoricalUser> for HistoricalUserPB {
       device_id: historical_user.device_id,
     }
   }
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct ResetWorkspacePB {
+  #[pb(index = 1)]
+  pub uid: i64,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }

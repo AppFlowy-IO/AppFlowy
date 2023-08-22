@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -218,8 +219,8 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
-      child: svgWidget(
-        "editor/edit",
+      child: FlowySvg(
+        FlowySvgs.edit_s,
         color: AFThemeExtension.of(context).textColor,
       ),
       popupBuilder: (BuildContext popoverContext) {
@@ -259,8 +260,8 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return _URLAccessoryIconContainer(
-        child: svgWidget(
-          "editor/copy",
+        child: FlowySvg(
+          FlowySvgs.copy_s,
           color: AFThemeExtension.of(context).textColor,
         ),
       );
@@ -301,8 +302,8 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return _URLAccessoryIconContainer(
-        child: svgWidget(
-          "editor/link",
+        child: FlowySvg(
+          FlowySvgs.attach_s,
           color: AFThemeExtension.of(context).textColor,
         ),
       );

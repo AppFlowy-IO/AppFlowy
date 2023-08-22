@@ -78,7 +78,7 @@ export const EditCheckListPopup = ({
             onKeyDown={onKeyDown}
             onBlur={() => onBlur()}
           />
-          <div className={'text-shade-3 font-mono'}>{value.length}/30</div>
+          <div className={'font-mono text-text-caption'}>{value.length}/30</div>
         </div>
         <button
           onClick={() => onDeleteOptionClick()}

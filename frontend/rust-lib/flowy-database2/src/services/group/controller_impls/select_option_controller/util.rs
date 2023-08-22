@@ -1,10 +1,13 @@
+use chrono::NaiveDateTime;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowDetail};
 
 use crate::entities::{
   FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB, SelectOptionCellDataPB,
 };
-use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
+use crate::services::cell::{
+  insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
+};
 use crate::services::field::{SelectOption, CHECK};
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
@@ -168,6 +171,13 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
     },
     FieldType::URL => {
       let cell = insert_url_cell(group_id.to_owned(), field);
+      Some(cell)
+    },
+    FieldType::DateTime => {
+      let date =
+        NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
+          .unwrap();
+      let cell = insert_date_cell(date.timestamp(), None, field);
       Some(cell)
     },
     _ => {

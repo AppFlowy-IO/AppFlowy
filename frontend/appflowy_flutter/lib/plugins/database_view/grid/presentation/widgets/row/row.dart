@@ -1,10 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -191,8 +192,8 @@ class InsertRowButton extends StatelessWidget {
       height: 30,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget(
-        'home/add',
+      icon: FlowySvg(
+        FlowySvgs.add_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );
@@ -232,8 +233,8 @@ class _RowMenuButtonState extends State<RowMenuButton> {
       height: 30,
       onPressed: () => widget.openMenu(),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget(
-        'editor/details',
+      icon: FlowySvg(
+        FlowySvgs.details_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );

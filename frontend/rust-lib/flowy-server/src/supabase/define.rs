@@ -5,6 +5,7 @@ pub const AF_COLLAB_KEY_COLUMN: &str = "key";
 pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
 pub const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+pub const AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN: &str = "encrypt";
 pub const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
 pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
@@ -16,6 +17,7 @@ pub const USER_EMAIL: &str = "email";
 pub const USER_TABLE: &str = "af_user";
 pub const WORKSPACE_TABLE: &str = "af_workspace";
 pub const USER_PROFILE_VIEW: &str = "af_user_profile_view";
+pub const USER_DEVICE_ID: &str = "device_id";
 
 pub(crate) const WORKSPACE_ID: &str = "workspace_id";
 pub(crate) const WORKSPACE_NAME: &str = "workspace_name";
@@ -28,6 +30,7 @@ pub fn table_name(ty: &CollabType) -> String {
     CollabType::Database => format!("{}_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::WorkspaceDatabase => format!("{}_w_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::Folder => format!("{}_folder", AF_COLLAB_UPDATE_TABLE),
+    CollabType::UserAwareness => format!("{}_user_awareness", AF_COLLAB_UPDATE_TABLE),
   }
 }
 

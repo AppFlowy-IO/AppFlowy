@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
+flowy-encrypt = { path = "../flowy-encrypt" }
 flowy-error = { path = "../flowy-error", features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
@@ -17,6 +18,7 @@ appflowy-integrate = { version = "0.1.0" }
 collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
+collab-user = { version = "0.1.0" }
 flowy-user-deps = { path = "../flowy-user-deps" }
 
 tracing = { version = "0.1", features = ["log"] }

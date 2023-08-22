@@ -3,6 +3,8 @@ export 'actions/option_action.dart';
 export 'callout/callout_block_component.dart';
 export 'code_block/code_block_component.dart';
 export 'code_block/code_block_shortcut_event.dart';
+export 'copy_and_paste/custom_copy_command.dart';
+export 'copy_and_paste/custom_paste_command.dart';
 export 'database/database_view_block_component.dart';
 export 'database/inline_database_menu_item.dart';
 export 'database/referenced_database_menu_item.dart';

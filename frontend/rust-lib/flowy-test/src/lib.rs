@@ -9,6 +9,7 @@ use nanoid::nanoid;
 use parking_lot::RwLock;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
+use uuid::Uuid;
 
 use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_database2::entities::*;
@@ -20,8 +21,10 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
-use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
+use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
+use flowy_user::entities::{
+  AuthTypePB, ThirdPartyAuthPB, UpdateCloudConfigPB, UserCloudConfigPB, UserProfilePB,
+};
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
@@ -77,6 +80,34 @@ impl FlowyCoreTest {
     }
   }
 
+  pub async fn enable_encryption(&self) -> String {
+    let config = EventBuilder::new(self.clone())
+      .event(GetCloudConfig)
+      .async_send()
+      .await
+      .parse::<UserCloudConfigPB>();
+    let update = UpdateCloudConfigPB {
+      enable_sync: None,
+      enable_encrypt: Some(true),
+    };
+    let error = EventBuilder::new(self.clone())
+      .event(SetCloudConfig)
+      .payload(update)
+      .async_send()
+      .await
+      .error();
+    assert!(error.is_none());
+    config.encrypt_secret
+  }
+
+  pub async fn get_user_profile(&self) -> Result<UserProfilePB, FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(GetUserProfile)
+      .async_send()
+      .await
+      .try_parse::<UserProfilePB>()
+  }
+
   pub async fn new_with_guest_user() -> Self {
     let test = Self::default();
     test.sign_up_as_guest().await;
@@ -87,9 +118,8 @@ impl FlowyCoreTest {
     async_sign_up(self.inner.dispatcher(), AuthTypePB::Local).await
   }
 
-  pub async fn supabase_party_sign_up(&self, uuid: &str) -> UserProfilePB {
-    let mut map = HashMap::new();
-    map.insert("uuid".to_string(), uuid.to_string());
+  pub async fn supabase_party_sign_up(&self) -> UserProfilePB {
+    let map = third_party_sign_up_param(Uuid::new_v4().to_string());
     let payload = ThirdPartyAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
@@ -125,6 +155,7 @@ impl FlowyCoreTest {
   ) -> FlowyResult<UserProfilePB> {
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid.to_string());
+    map.insert(USER_DEVICE_ID.to_string(), uuid.to_string());
     map.insert(
       USER_EMAIL.to_string(),
       email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(10))),
@@ -836,4 +867,15 @@ impl Drop for Cleaner {
   fn drop(&mut self) {
     Self::cleanup(&self.0)
   }
+}
+
+pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
+  let mut params = HashMap::new();
+  params.insert(USER_UUID.to_string(), uuid);
+  params.insert(
+    USER_EMAIL.to_string(),
+    format!("{}@test.com", Uuid::new_v4()),
+  );
+  params.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
+  params
 }

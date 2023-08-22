@@ -4,6 +4,7 @@ extern crate flowy_sqlite;
 pub mod entities;
 mod event_handler;
 pub mod event_map;
+pub mod manager;
 mod migrations;
 mod notification;
 pub mod protobuf;

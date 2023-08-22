@@ -1,10 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -22,24 +23,24 @@ enum OptionAction {
   divider,
   align;
 
-  String get assetName {
+  FlowySvgData get svg {
     switch (this) {
       case OptionAction.delete:
-        return 'editor/delete';
+        return FlowySvgs.delete_s;
       case OptionAction.duplicate:
-        return 'editor/duplicate';
+        return FlowySvgs.copy_s;
       case OptionAction.turnInto:
-        return 'editor/turn_into';
+        return const FlowySvgData('editor/turn_into');
       case OptionAction.moveUp:
-        return 'editor/move_up';
+        return const FlowySvgData('editor/move_up');
       case OptionAction.moveDown:
-        return 'editor/move_down';
+        return const FlowySvgData('editor/move_down');
       case OptionAction.color:
-        return 'editor/color';
+        return const FlowySvgData('editor/color');
       case OptionAction.divider:
-        return 'editor/divider';
+        return const FlowySvgData('editor/divider');
       case OptionAction.align:
-        return 'editor/align/center';
+        return FlowySvgs.align_center_s;
     }
   }
 
@@ -83,14 +84,14 @@ enum OptionAlignType {
     }
   }
 
-  String get assetName {
+  FlowySvgData get svg {
     switch (this) {
       case OptionAlignType.left:
-        return 'editor/align/left';
+        return FlowySvgs.align_left_s;
       case OptionAlignType.center:
-        return 'editor/align/center';
+        return FlowySvgs.align_center_s;
       case OptionAlignType.right:
-        return 'editor/align/right';
+        return FlowySvgs.align_right_s;
     }
   }
 
@@ -126,7 +127,7 @@ class AlignOptionAction extends PopoverActionCell {
   @override
   Widget? leftIcon(Color iconColor) {
     return FlowySvg(
-      name: align.assetName,
+      align.svg,
       size: const Size.square(12),
     ).padding(all: 2.0);
   }
@@ -218,7 +219,7 @@ class ColorOptionAction extends PopoverActionCell {
   @override
   Widget? leftIcon(Color iconColor) {
     return const FlowySvg(
-      name: 'editor/color_formatter',
+      FlowySvgs.color_format_m,
       size: Size.square(12),
     ).padding(all: 2.0);
   }
@@ -287,7 +288,7 @@ class OptionActionWrapper extends ActionCell {
   final OptionAction inner;
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(name: inner.assetName);
+  Widget? leftIcon(Color iconColor) => FlowySvg(inner.svg);
 
   @override
   String get name => inner.description;
@@ -299,7 +300,7 @@ class OptionAlignWrapper extends ActionCell {
   final OptionAlignType inner;
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(name: inner.assetName);
+  Widget? leftIcon(Color iconColor) => FlowySvg(inner.svg);
 
   @override
   String get name => inner.description;

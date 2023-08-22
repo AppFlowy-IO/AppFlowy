@@ -32,7 +32,7 @@ impl TypeCellData {
   pub fn from_json_str(s: &str) -> FlowyResult<Self> {
     let type_cell_data: TypeCellData = serde_json::from_str(s).map_err(|err| {
       let msg = format!("Deserialize {} to type cell data failed.{}", s, err);
-      FlowyError::internal().context(msg)
+      FlowyError::internal().with_context(msg)
     })?;
     Ok(type_cell_data)
   }

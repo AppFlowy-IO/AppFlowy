@@ -1,12 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use std::fmt;
-
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::EnumIter;
 
 use flowy_error::{internal_error, FlowyResult};
@@ -77,6 +76,15 @@ impl From<&Cell> for DateCellData {
     Self {
       timestamp,
       include_time,
+    }
+  }
+}
+
+impl From<&DateCellDataPB> for DateCellData {
+  fn from(data: &DateCellDataPB) -> Self {
+    Self {
+      timestamp: Some(data.timestamp),
+      include_time: data.include_time,
     }
   }
 }
