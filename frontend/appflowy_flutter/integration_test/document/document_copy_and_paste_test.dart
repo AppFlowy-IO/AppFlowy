@@ -245,7 +245,7 @@ extension on WidgetTester {
     await beforeTest?.call(editor.getCurrentEditorState());
 
     // mock the clipboard
-    getIt<ClipboardService>().setData(
+    await getIt<ClipboardService>().setData(
       ClipboardServiceData(
         plainText: plainText,
         html: html,

@@ -52,6 +52,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ...codeBlockCommands,
     customCopyCommand,
     customPasteCommand,
+    customCutCommand,
     ...standardCommandShortcutEvents,
   ];
 

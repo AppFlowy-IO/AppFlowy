@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -65,7 +65,7 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
-  /// Renders either a login or logout button based on the user's authentication status.
+  /// Renders either a login or logout button based on the user's authentication status, or nothing if Supabase is not enabled.
   ///
   /// This function checks the current user's authentication type and Supabase
   /// configuration to determine whether to render a third-party login button
@@ -74,14 +74,17 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (isSupabaseEnabled) {
-      // If the user is logged in locally, render a third-party login button.
-      if (state.userProfile.authType == AuthTypePB.Local) {
-        return SettingThirdPartyLogin(
-          didLogin: didLogin,
-        );
-      }
+    if (!isSupabaseEnabled) {
+      return const SizedBox.shrink();
     }
+
+    // If the user is logged in locally, render a third-party login button.
+    if (state.userProfile.authType == AuthTypePB.Local) {
+      return SettingThirdPartyLogin(
+        didLogin: didLogin,
+      );
+    }
+
     return SettingLogoutButton(user: user, didLogout: didLogout);
   }
 
