@@ -8,6 +8,7 @@ import 'package:appflowy/user/application/splash_bloc.dart';
 import 'package:appflowy/user/domain/auth_state.dart';
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,9 @@ class SplashScreen extends StatelessWidget {
       child: Scaffold(
         body: BlocListener<SplashBloc, SplashState>(
           listener: (context, state) {
-            Log.info('Splash State: ${state.auth.toString()}');
+            Log.debug(
+              'SplashScreen -> SplashState/AuthState: ${state.auth.toString()}',
+            );
 
             state.auth.map(
               authenticated: (r) => _handleAuthenticated(context, r),
@@ -109,7 +112,9 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
-    Log.info('Supabase is enabled: $isSupabaseEnabled');
+    Log.debug(
+      '_handleUnauthenticated -> Supabase is enabled: $isSupabaseEnabled',
+    );
     // if the env is not configured, we will skip to the 'skip login screen'.
     if (isSupabaseEnabled) {
       getIt<SplashRouter>().pushSignInScreen(context);
@@ -130,33 +135,41 @@ class Body extends StatelessWidget {
   const Body({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    final isMobilePlatform = Platform.isIOS || Platform.isAndroid;
-
     return Container(
       alignment: Alignment.center,
-      child: isMobilePlatform
+      child: PlatformExtension.isMobile
           ? const FlowySvg(
               FlowySvgs.flowy_logo_xl,
               blendMode: null,
             )
-          : SingleChildScrollView(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image(
-                    fit: BoxFit.cover,
-                    width: size.width,
-                    height: size.height,
-                    image: const AssetImage(
-                      'assets/images/appflowy_launch_splash.jpg',
-                    ),
-                  ),
-                  const CircularProgressIndicator.adaptive(),
-                ],
-              ),
+          : const _DesktopSplashBody(),
+    );
+  }
+}
+
+class _DesktopSplashBody extends StatelessWidget {
+  const _DesktopSplashBody({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return SingleChildScrollView(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image(
+            fit: BoxFit.cover,
+            width: size.width,
+            height: size.height,
+            image: const AssetImage(
+              'assets/images/appflowy_launch_splash.jpg',
             ),
+          ),
+          const CircularProgressIndicator.adaptive(),
+        ],
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
@@ -75,7 +76,7 @@ class AuthRouter {
   ) async {
     // retrieve user's workspace
     final result = await FolderEventGetCurrentWorkspace().send();
-    // Log.info("pushHomeOrWorkspaceStartScreen: $result");
+    Log.debug('pushHomeOrWorkspaceStartScreen -> current workspace:$result');
     result.fold(
       // if user has workspace, push [HomeScreen]
       (workspaceSettingPB) => pushHomeScreen(
