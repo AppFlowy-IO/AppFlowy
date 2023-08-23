@@ -10,6 +10,8 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
+import 'package:appflowy/workspace/application/open_ai/open_ai_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -92,10 +94,23 @@ class SidebarUser extends StatelessWidget {
 
   Widget _buildUserName(BuildContext context, MenuUserState state) {
     final String name = _userName(state.userProfile);
-    return FlowyText.medium(
-      name,
-      overflow: TextOverflow.ellipsis,
-      color: Theme.of(context).colorScheme.tertiary,
+    return GestureDetector(
+      onTap: () async {
+        // FIXME: just a sample to test the open ai service
+        final result = await OpenAIService.requestTextCompletion(
+          prompt: 'tell a story',
+        );
+        debugPrint("resut $result  ");
+        result.fold(
+          (value) => debugPrint(value.choices.toString()),
+          (error) => debugPrint(error.toString()),
+        );
+      },
+      child: FlowyText.medium(
+        name,
+        overflow: TextOverflow.ellipsis,
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
     );
   }
 

@@ -1,3 +1,7 @@
-// lib.rs
-pub mod api;
-pub mod prompt;
+pub mod entities;
+pub mod event_handler;
+pub mod event_map;
+pub mod notification;
+pub mod protobuf;
+
+mod parse;
