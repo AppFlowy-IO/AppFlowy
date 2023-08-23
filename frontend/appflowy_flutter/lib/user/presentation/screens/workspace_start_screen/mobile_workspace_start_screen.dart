@@ -5,8 +5,10 @@ import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 
+// TODO(yijing): needs refactor when multiple workspaces are supported
 class MobileWorkspaceStartScreen extends StatefulWidget {
   const MobileWorkspaceStartScreen({
     super.key,
@@ -28,6 +30,7 @@ class _MobileWorkspaceStartScreenState
     final style = Theme.of(context);
     final size = MediaQuery.of(context).size;
     const double spacing = 16.0;
+    final TextEditingController controller = TextEditingController();
     final List<DropdownMenuEntry<WorkspacePB>> workspaceEntries =
         <DropdownMenuEntry<WorkspacePB>>[];
     for (final WorkspacePB workspace in widget.workspaceState.workspaces) {
@@ -38,61 +41,91 @@ class _MobileWorkspaceStartScreenState
         ),
       );
     }
-    // set initial selection when user didn't select anything from dropdown menu
-    selectedWorkspace ??= workspaceEntries.first.value;
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(50, 0, 50, 30),
-        child: Column(
-          children: [
-            const Spacer(),
-            const FlowySvg(
-              FlowySvgs.flowy_logo_xl,
-              size: Size.square(64),
-              blendMode: null,
-            ),
-            const VSpace(spacing * 2),
-            Text(
-              LocaleKeys.workspace_chooseWorkspace.tr(),
-              style: style.textTheme.displaySmall,
-              textAlign: TextAlign.center,
-            ),
-            const VSpace(spacing * 4),
-            DropdownMenu<WorkspacePB>(
-              width: size.width - 100,
-              initialSelection: workspaceEntries.first.value,
-              label: const Text('Workspace'),
-              dropdownMenuEntries: workspaceEntries,
-              onSelected: (WorkspacePB? workspace) {
-                setState(() {
-                  selectedWorkspace = workspace;
-                });
-              },
-            ),
-            const Spacer(),
-            TextButton(
-              child: Text(
-                LocaleKeys.workspace_create.tr(),
-                style: style.textTheme.labelMedium,
+
+// render the workspace dropdown menu if success, otherwise render error page
+    final body = widget.workspaceState.successOrFailure.fold(
+      (_) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(50, 0, 50, 30),
+          child: Column(
+            children: [
+              const Spacer(),
+              const FlowySvg(
+                FlowySvgs.flowy_logo_xl,
+                size: Size.square(64),
+                blendMode: null,
+              ),
+              const VSpace(spacing * 2),
+              Text(
+                LocaleKeys.workspace_chooseWorkspace.tr(),
+                style: style.textTheme.displaySmall,
                 textAlign: TextAlign.center,
               ),
-              onPressed: () => createWorkspace(context),
-            ),
-            const VSpace(spacing / 2),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
+              const VSpace(spacing * 4),
+              DropdownMenu<WorkspacePB>(
+                width: size.width - 100,
+                // TODO(yijing): The following code cause the bad state error, need to fix it
+                // initialSelection: widget.workspaceState.workspaces.first,
+                label: const Text('Workspace'),
+                controller: controller,
+                dropdownMenuEntries: workspaceEntries,
+                onSelected: (WorkspacePB? workspace) {
+                  setState(() {
+                    selectedWorkspace = workspace;
+                  });
+                },
               ),
-              onPressed: () => popToWorkspace(
-                context,
-                selectedWorkspace!,
+              const Spacer(),
+              // TODO(yijing): needs to implement create workspace in the future
+              // TextButton(
+              //   child: Text(
+              //     LocaleKeys.workspace_create.tr(),
+              //     style: style.textTheme.labelMedium,
+              //     textAlign: TextAlign.center,
+              //   ),
+              //   onPressed: () {
+              //     setState(() {
+              //       createWorkspace(context);
+              //     });
+              //   },
+              // ),
+              const VSpace(spacing / 2),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                ),
+                onPressed: () {
+                  if (selectedWorkspace == null) {
+                    // If user didn't choose any workspace, pop to the initial workspace(first workspace)
+                    popToWorkspace(
+                      context,
+                      widget.workspaceState.workspaces.first,
+                    );
+                    return;
+                  }
+                  // pop to the selected workspace
+                  popToWorkspace(
+                    context,
+                    selectedWorkspace!,
+                  );
+                },
+                child: Text(LocaleKeys.signUp_getStartedText.tr()),
               ),
-              child: Text(LocaleKeys.signUp_getStartedText.tr()),
-            ),
-            const VSpace(spacing),
-          ],
-        ),
-      ),
+              const VSpace(spacing),
+            ],
+          ),
+        );
+      },
+      (error) {
+        return FlowyErrorPage.message(
+          error.toString(),
+          howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+        );
+      },
+    );
+
+    return Scaffold(
+      body: body,
     );
   }
 }

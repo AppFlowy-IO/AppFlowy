@@ -26,25 +26,14 @@ class WorkspaceStartScreen extends StatelessWidget {
         ..add(const WorkspaceEvent.initial()),
       child: BlocBuilder<WorkspaceBloc, WorkspaceState>(
         builder: (context, state) {
-          final resultScreen = state.successOrFailure.fold(
-            (_) {
-              // show corresponding screen when success
-              if (Platform.isAndroid || Platform.isIOS) {
-                return MobileWorkspaceStartScreen(
-                  workspaceState: state,
-                );
-              }
-              return DesktopWorkspaceStartScreen(
-                workspaceState: state,
-              );
-            },
-            // show error scrren when failure
-            (error) => FlowyErrorPage.message(
-              error.toString(),
-              howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-            ),
+          if (Platform.isAndroid || Platform.isIOS) {
+            return MobileWorkspaceStartScreen(
+              workspaceState: state,
+            );
+          }
+          return DesktopWorkspaceStartScreen(
+            workspaceState: state,
           );
-          return resultScreen;
         },
       ),
     );
