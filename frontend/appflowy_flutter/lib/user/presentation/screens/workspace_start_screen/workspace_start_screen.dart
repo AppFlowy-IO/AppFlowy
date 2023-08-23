@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/desktop_workspace_start_screen.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/mobile_workspace_start_screen.dart';

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
