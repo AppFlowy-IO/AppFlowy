@@ -14,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy/util/platform_extension.dart';
 
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
@@ -39,7 +40,7 @@ class AuthRouter {
     UserProfilePB profile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformExtension.isMobile) {
       Navigator.pushAndRemoveUntil<void>(
         context,
         MaterialPageRoute<void>(
@@ -153,7 +154,7 @@ class SplashRouter {
     UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformExtension.isMobile) {
       Navigator.pushAndRemoveUntil<void>(
         context,
         MaterialPageRoute<void>(

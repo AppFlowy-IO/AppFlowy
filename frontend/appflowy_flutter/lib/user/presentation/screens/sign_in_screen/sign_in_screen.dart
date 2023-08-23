@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
@@ -36,7 +37,7 @@ class SignInScreen extends StatelessWidget {
           );
         },
         builder: (_, __) {
-          if (Platform.isAndroid || Platform.isIOS) {
+          if (PlatformExtension.isMobile) {
             return const MobileSignInScreen();
           }
           return const DesktopSignInScreen();

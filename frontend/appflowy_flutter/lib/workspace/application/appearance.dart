@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
@@ -283,7 +283,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       MaterialState.dragged,
     };
 
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (PlatformExtension.isMobile) {
       // Mobile version has only one theme(light mode) for now.
       // The desktop theme and the mobile theme are independent.
       final mobileThemeData = getMobileThemeData();
