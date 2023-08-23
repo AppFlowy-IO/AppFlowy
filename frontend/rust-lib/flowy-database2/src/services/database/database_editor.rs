@@ -1441,7 +1441,11 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     self.database.lock().update_field_settings(
       view_id,
       Some(vec![field_id.to_string()]),
-      new_field_settings,
-    )
+      new_field_settings.clone(),
+    );
+
+    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
+      .payload(FieldSettingsPB::from(new_field_settings))
+      .send()
   }
 }
