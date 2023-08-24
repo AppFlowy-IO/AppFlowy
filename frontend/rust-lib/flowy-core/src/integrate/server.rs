@@ -23,7 +23,7 @@ use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 };
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
@@ -59,7 +59,7 @@ impl Display for ServerProviderType {
 /// The [AppFlowyServerProvider] provides list of [AppFlowyServer] base on the [AuthType]. Using
 /// the auth type, the [AppFlowyServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserService], etc.
+/// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
@@ -68,7 +68,7 @@ pub struct AppFlowyServerProvider {
   enable_sync: RwLock<bool>,
   encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   store_preferences: Weak<StorePreferences>,
-  cache_user_service: RwLock<HashMap<ServerProviderType, Arc<dyn UserService>>>,
+  cache_user_service: RwLock<HashMap<ServerProviderType, Arc<dyn UserCloudService>>>,
 }
 
 impl AppFlowyServerProvider {
@@ -192,9 +192,9 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
     *self.device_id.write() = device_id.to_string();
   }
 
-  /// Returns the [UserService] base on the current [ServerProviderType].
+  /// Returns the [UserCloudService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     if let Some(user_service) = self
       .cache_user_service
       .read()

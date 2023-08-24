@@ -2,7 +2,7 @@ use anyhow::Error;
 use collab_plugins::cloud_storage::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -20,7 +20,7 @@ impl SelfHostedUserAuthServiceImpl {
   }
 }
 
-impl UserService for SelfHostedUserAuthServiceImpl {
+impl UserCloudService for SelfHostedUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
