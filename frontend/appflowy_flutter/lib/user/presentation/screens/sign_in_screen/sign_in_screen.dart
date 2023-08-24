@@ -34,11 +34,17 @@ class SignInScreen extends StatelessWidget {
             (result) => _handleSuccessOrFail(result, context),
           );
         },
-        builder: (_, __) {
+        builder: (context, state) {
+          // When user is logining through 3rd party, a loading widget will appear on the screen. [isLoading] is used to control it is on or not.
+          final isLoading = context.read<SignInBloc>().state.isSubmitting;
           if (PlatformExtension.isMobile) {
-            return const MobileSignInScreen();
+            return MobileSignInScreen(
+              isLoading: isLoading,
+            );
           }
-          return const DesktopSignInScreen();
+          return DesktopSignInScreen(
+            isLoading: isLoading,
+          );
         },
       ),
     );
@@ -53,7 +59,7 @@ class SignInScreen extends StatelessWidget {
         if (user.encryptionType == EncryptionTypePB.Symmetric) {
           router.pushEncryptionScreen(context, user);
         } else {
-          router.pushWorkspaceStartScreen(context, user);
+          router.pushHomeOrWorkspaceStartScreen(context, user);
         }
       },
       (error) {

@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// For future use
 class WorkspaceStartScreen extends StatelessWidget {
   final UserProfilePB userProfile;
   static const routeName = "/WorkspaceStartScreen";

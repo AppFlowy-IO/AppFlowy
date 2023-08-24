@@ -1,30 +1,23 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileSignInScreen extends StatefulWidget {
-  const MobileSignInScreen({super.key});
+class MobileSignInScreen extends StatelessWidget {
+  const MobileSignInScreen({super.key, required this.isLoading});
+  final bool isLoading;
 
-  @override
-  State<MobileSignInScreen> createState() => _MobileSignInScreenState();
-}
-
-class _MobileSignInScreenState extends State<MobileSignInScreen> {
   @override
   Widget build(BuildContext context) {
-    final isSubmitting = context.read<SignInBloc>().state.isSubmitting;
     const spacing = 16;
     // Welcome to Appflowy
     final welcomeString = LocaleKeys.welcomeText.tr();
     final style = Theme.of(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: isSubmitting
+      body: isLoading
           ? // TODO(yijing): improve loading effect in the future
           const Center(
               child: Column(

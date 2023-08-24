@@ -1,24 +1,18 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DesktopSignInScreen extends StatefulWidget {
-  const DesktopSignInScreen({super.key});
+class DesktopSignInScreen extends StatelessWidget {
+  const DesktopSignInScreen({super.key, required this.isLoading});
 
-  @override
-  State<DesktopSignInScreen> createState() => _DesktopSignInScreenState();
-}
+  final bool isLoading;
 
-class _DesktopSignInScreenState extends State<DesktopSignInScreen> {
   @override
   Widget build(BuildContext context) {
-    final isSubmitting = context.read<SignInBloc>().state.isSubmitting;
     const indicatorMinHeight = 4.0;
     return Scaffold(
       appBar: const PreferredSize(
@@ -61,7 +55,7 @@ class _DesktopSignInScreenState extends State<DesktopSignInScreen> {
             ),
             const VSpace(20),
             // loading status
-            ...isSubmitting
+            ...isLoading
                 ? [
                     const VSpace(indicatorMinHeight),
                     const LinearProgressIndicator(
