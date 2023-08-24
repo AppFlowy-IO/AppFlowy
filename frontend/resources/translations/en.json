@@ -548,6 +548,11 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
       }
     },
     "textBlock": {
