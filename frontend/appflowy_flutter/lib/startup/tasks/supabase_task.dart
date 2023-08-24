@@ -51,14 +51,6 @@ class InitSupabaseTask extends LaunchTask {
     if (Platform.isWindows) {
       // register deep link for Windows
       registerProtocolHandler(appflowyDeepLinkSchema);
-    } else if (Platform.isLinux) {
-      // register deep link for Linux
-      await SupabaseAuth.instance.registerDBusService(
-        // these values should be compatible with the values in the desktop file
-        // dbus-interface.xml
-        '/io/appflowy/AppFlowy/Object',
-        'io.appflowy.AppFlowy',
-      );
     }
   }
 }
