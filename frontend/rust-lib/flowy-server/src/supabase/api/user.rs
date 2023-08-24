@@ -52,7 +52,7 @@ impl<T> SupabaseUserServiceImpl<T> {
   }
 }
 
-impl<T> UserService for SupabaseUserServiceImpl<T>
+impl<T> UserCloudService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {

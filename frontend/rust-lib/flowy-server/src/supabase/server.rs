@@ -8,7 +8,7 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 
 use crate::supabase::api::{
   RESTfulPostgresServer, RealtimeCollabUpdateHandler, RealtimeEventHandler, RealtimeUserHandler,
@@ -108,7 +108,7 @@ impl AppFlowyServer for SupabaseServer {
     self.set_enable_sync(enable);
   }
 
-  fn user_service(&self) -> Arc<dyn UserService> {
+  fn user_service(&self) -> Arc<dyn UserCloudService> {
     // handle the realtime collab update event.
     let (user_update_tx, _) = tokio::sync::broadcast::channel(100);
 
