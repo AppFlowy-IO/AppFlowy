@@ -36,7 +36,7 @@ class AuthRouter {
 
   void pushHomeScreen(
     BuildContext context,
-    UserProfilePB profile,
+    UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
@@ -44,9 +44,9 @@ class AuthRouter {
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => MobileHomeScreen(
-            profile,
-            workspaceSetting,
-            key: ValueKey(profile.id),
+            key: ValueKey(userProfile.id),
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
           ),
         ),
         // pop up all the pages until [SplashScreen]
@@ -57,9 +57,9 @@ class AuthRouter {
         context,
         PageRoutes.fade(
           () => DesktopHomeScreen(
-            profile,
-            workspaceSetting,
-            key: ValueKey(profile.id),
+            key: ValueKey(userProfile.id),
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
           ),
           const RouteSettings(
             name: DesktopHomeScreen.routeName,
@@ -158,9 +158,9 @@ class SplashRouter {
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => MobileHomeScreen(
-            userProfile,
-            workspaceSetting,
             key: ValueKey(userProfile.id),
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
           ),
         ),
         // pop up all the pages until [SplashScreen]
@@ -171,8 +171,8 @@ class SplashRouter {
         context,
         PageRoutes.fade(
           () => DesktopHomeScreen(
-            userProfile,
-            workspaceSetting,
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
             key: ValueKey(userProfile.id),
           ),
           const RouteSettings(

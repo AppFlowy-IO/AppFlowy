@@ -5,13 +5,14 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class MobileHomeScreen extends StatelessWidget {
-  const MobileHomeScreen(
-    this.user,
-    this.workspaceSetting, {
-    super.key,
-  });
+  const MobileHomeScreen({
+    Key? key,
+    required this.userProfile,
+    required this.workspaceSetting,
+  }) : super(key: key);
+
   static const routeName = "/MobileHomeScreen";
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
 
   @override
@@ -28,7 +29,7 @@ class MobileHomeScreen extends StatelessWidget {
               'User',
             ),
             Text(
-              user.toString(),
+              userProfile.toString(),
             ),
             Text('Workspace name: ${workspaceSetting.workspace.name}'),
             ElevatedButton(

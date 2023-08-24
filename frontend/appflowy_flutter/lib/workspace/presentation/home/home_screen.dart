@@ -27,10 +27,13 @@ import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatefulWidget {
   static const routeName = '/DesktopHomeScreen';
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
-  const DesktopHomeScreen(this.user, this.workspaceSetting, {Key? key})
-      : super(key: key);
+  const DesktopHomeScreen({
+    Key? key,
+    required this.userProfile,
+    required this.workspaceSetting,
+  }) : super(key: key);
 
   @override
   State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();
@@ -44,14 +47,14 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
         BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
-            return HomeBloc(widget.user, widget.workspaceSetting)
+            return HomeBloc(widget.userProfile, widget.workspaceSetting)
               ..add(const HomeEvent.initial());
           },
         ),
         BlocProvider<HomeSettingBloc>(
           create: (context) {
             return HomeSettingBloc(
-              widget.user,
+              widget.userProfile,
               widget.workspaceSetting,
               context.read<AppearanceSettingsCubit>(),
             )..add(const HomeSettingEvent.initial());
@@ -137,7 +140,7 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   }) {
     final workspaceSetting = widget.workspaceSetting;
     final homeMenu = HomeSideBar(
-      user: widget.user,
+      user: widget.userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
