@@ -56,10 +56,6 @@ class SplashScreen extends StatelessWidget {
       child: Scaffold(
         body: BlocListener<SplashBloc, SplashState>(
           listener: (context, state) {
-            Log.debug(
-              'SplashScreen -> SplashState/AuthState: ${state.auth.toString()}',
-            );
-
             state.auth.map(
               authenticated: (r) => _handleAuthenticated(context, r),
               unauthenticated: (r) => _handleUnauthenticated(context, r),
