@@ -134,7 +134,9 @@ impl DatabaseEditor {
       let field = database.fields.get_field(field_id);
       if let Some(field) = field {
         let group_setting = default_group_setting(&field);
-        database.insert_group_setting(view_id, group_setting);
+        database.views.update_database_view(view_id, |view| {
+          view.set_groups(vec![group_setting.into()]);
+        });
       }
     }
 
@@ -671,7 +673,7 @@ impl DatabaseEditor {
         Some(field) => Ok(field),
         None => {
           let msg = format!("Field with id:{} not found", &field_id);
-          Err(FlowyError::internal().context(msg))
+          Err(FlowyError::internal().with_context(msg))
         },
       }?;
       (field, database.get_cell(field_id, &row_id).cell)
@@ -765,7 +767,8 @@ impl DatabaseEditor {
       .fields
       .get_field(field_id)
       .ok_or_else(|| {
-        FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id))
+        FlowyError::record_not_found()
+          .with_context(format!("Field with id:{} not found", &field_id))
       })?;
     debug_assert!(FieldType::from(field.field_type).is_select_option());
 
@@ -800,7 +803,7 @@ impl DatabaseEditor {
       Some(field) => Ok(field),
       None => {
         let msg = format!("Field with id:{} not found", &field_id);
-        Err(FlowyError::internal().context(msg))
+        Err(FlowyError::internal().with_context(msg))
       },
     }?;
     let mut type_option = select_type_option_from_field(&field)?;
@@ -866,7 +869,8 @@ impl DatabaseEditor {
       .fields
       .get_field(field_id)
       .ok_or_else(|| {
-        FlowyError::record_not_found().context(format!("Field with id:{} not found", &field_id))
+        FlowyError::record_not_found()
+          .with_context(format!("Field with id:{} not found", &field_id))
       })?;
     debug_assert!(FieldType::from(field.field_type).is_checklist());
 
@@ -1045,11 +1049,10 @@ impl DatabaseEditor {
     &self,
     view_id: &str,
   ) -> FlowyResult<DatabaseViewSettingPB> {
-    let view = self
-      .database
-      .lock()
-      .get_view(view_id)
-      .ok_or_else(|| FlowyError::record_not_found().context("Can't find the database view"))?;
+    let view =
+      self.database.lock().get_view(view_id).ok_or_else(|| {
+        FlowyError::record_not_found().with_context("Can't find the database view")
+      })?;
     Ok(database_view_setting_pb_from_view(view))
   }
 

@@ -73,7 +73,7 @@ impl DatabaseManager {
     &self,
     uid: i64,
     _workspace_id: String,
-    workspace_database_id: String,
+    database_storage_id: String,
   ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
@@ -84,28 +84,30 @@ impl DatabaseManager {
     let mut collab_raw_data = CollabRawData::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &workspace_database_id) {
+    if !self.is_collab_exist(uid, &collab_db, &database_storage_id) {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&workspace_database_id, CollabType::WorkspaceDatabase)
+        .get_collab_update(&database_storage_id, CollabType::WorkspaceDatabase)
         .await
       {
-        Ok(updates) => collab_raw_data = updates,
+        Ok(updates) => {
+          collab_raw_data = updates;
+        },
         Err(err) => {
-          return Err(FlowyError::record_not_found().context(format!(
+          return Err(FlowyError::record_not_found().with_context(format!(
             "get workspace database :{} failed: {}",
-            workspace_database_id, err,
+            database_storage_id, err,
           )));
         },
       }
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &workspace_database_id);
+    tracing::trace!("open workspace database: {}", &database_storage_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &workspace_database_id,
+      &database_storage_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,
@@ -154,7 +156,7 @@ impl DatabaseManager {
     let wdb = self.get_workspace_database().await?;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
-        .context(format!("The database for view id: {} not found", view_id))
+        .with_context(format!("The database for view id: {} not found", view_id))
     })
   }
 
@@ -173,7 +175,7 @@ impl DatabaseManager {
     let database = wdb
       .get_database(database_id)
       .await
-      .ok_or_else(FlowyError::record_not_found)?;
+      .ok_or_else(FlowyError::collab_not_sync)?;
 
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     editors.insert(database_id.to_string(), editor.clone());
@@ -307,22 +309,21 @@ impl DatabaseManager {
   pub async fn get_database_snapshots(
     &self,
     view_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<DatabaseSnapshotPB>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_collab_latest_snapshot(&database_id)
+      .get_collab_snapshots(&database_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| DatabaseSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }
@@ -330,7 +331,7 @@ impl DatabaseManager {
   async fn get_workspace_database(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
     let database = self.workspace_database.read().await;
     match &*database {
-      None => Err(FlowyError::internal().context("Workspace database not initialized")),
+      None => Err(FlowyError::internal().with_context("Workspace database not initialized")),
       Some(user_database) => Ok(user_database.clone()),
     }
   }

@@ -1,8 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 
@@ -155,8 +156,8 @@ class OptionActionButton extends StatelessWidget {
           child: GestureDetector(
             onTap: onTap,
             behavior: HitTestBehavior.deferToChild,
-            child: svgWidget(
-              'editor/option',
+            child: FlowySvg(
+              FlowySvgs.drag_element_s,
               size: const Size.square(24.0),
               color: Theme.of(context).iconTheme.color,
             ),

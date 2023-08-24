@@ -87,7 +87,7 @@ export const DateTypeOptions = ({
 
   return (
     <div className={'flex flex-col'}>
-      <hr className={'border-shade-6 -mx-2 my-2'} />
+      <hr className={'border-line-divider -mx-2 my-2'} />
       <button
         onClick={_onDateFormatClick}
         className={

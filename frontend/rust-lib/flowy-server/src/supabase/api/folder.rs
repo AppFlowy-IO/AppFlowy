@@ -13,17 +13,19 @@ use flowy_folder_deps::cloud::{
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
-  get_latest_snapshot_from_server, get_updates_from_server, FetchObjectUpdateAction,
+  get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
 use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
 use crate::supabase::api::SupabaseServerService;
 use crate::supabase::define::*;
 
-pub struct SupabaseFolderServiceImpl<T>(T);
+pub struct SupabaseFolderServiceImpl<T> {
+  server: T,
+}
 
 impl<T> SupabaseFolderServiceImpl<T> {
   pub fn new(server: T) -> Self {
-    Self(server)
+    Self { server }
   }
 }
 
@@ -32,7 +34,7 @@ where
   T: SupabaseServerService,
 {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let try_get_postgrest = self.0.try_get_postgrest();
+    let try_get_postgrest = self.server.try_get_postgrest();
     let name = name.to_string();
     let new_workspace_id = gen_workspace_id().to_string();
     FutureResult::new(async move {
@@ -66,44 +68,51 @@ where
   }
 
   fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
-    let try_get_postgrest = self.0.try_get_postgrest();
+    let try_get_postgrest = self.server.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest)
-        .await
-        .map(|updates| {
-          let updates = updates.into_iter().map(|item| item.value).collect();
-          let folder =
-            Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])
-              .ok()?;
-          folder.get_folder_data()
-        })
+      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
+      let updates = updates
+        .into_iter()
+        .map(|item| item.value)
+        .collect::<Vec<_>>();
+
+      if updates.is_empty() {
+        return Ok(None);
+      }
+
+      let folder =
+        Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+      Ok(folder.get_folder_data())
     })
   }
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error> {
-    let try_get_postgrest = self.0.try_get_postgrest();
+    limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
+    let try_get_postgrest = self.server.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let snapshot = get_latest_snapshot_from_server(&workspace_id, postgrest)
+      let snapshots = get_snapshots_from_server(&workspace_id, postgrest, limit)
         .await?
+        .into_iter()
         .map(|snapshot| FolderSnapshot {
           snapshot_id: snapshot.sid,
           database_id: snapshot.oid,
           data: snapshot.blob,
           created_at: snapshot.created_at,
-        });
-      Ok(snapshot)
+        })
+        .collect::<Vec<_>>();
+      Ok(snapshots)
     })
   }
 
   fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let try_get_postgrest = self.0.try_get_weak_postgrest();
+    let try_get_postgrest = self.server.try_get_weak_postgrest();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();
     tokio::spawn(async move {

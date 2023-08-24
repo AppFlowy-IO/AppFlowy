@@ -102,7 +102,7 @@ pub fn assert_database_collab_content(
   expected: JsonValue,
 ) {
   let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![]);
-  collab.lock().with_transact_mut(|txn| {
+  collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);
   });

@@ -7,7 +7,7 @@ import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../grid/presentation/widgets/filter/filter_info.dart';
-import 'field/field_controller.dart';
+import 'field/field_info.dart';
 import 'row/row_cache.dart';
 import 'row/row_service.dart';
 
@@ -38,4 +38,7 @@ class LoadingState with _$LoadingState {
   const factory LoadingState.finish(
     Either<Unit, FlowyError> successOrFail,
   ) = _Finish;
+
+  const LoadingState._();
+  isLoading() => this is _Loading;
 }

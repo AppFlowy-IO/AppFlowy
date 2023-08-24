@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -15,7 +16,7 @@ class BlankPluginBuilder extends PluginBuilder {
   String get menuName => "Blank";
 
   @override
-  String get menuIcon => "";
+  FlowySvgData get icon => const FlowySvgData('');
 
   @override
   PluginType get pluginType => PluginType.blank;

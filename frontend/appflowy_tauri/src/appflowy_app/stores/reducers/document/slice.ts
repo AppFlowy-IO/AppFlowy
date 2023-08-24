@@ -14,6 +14,7 @@ import { temporarySlice } from '$app_reducers/document/temporary_slice';
 import { DOCUMENT_NAME, RANGE_NAME, RECT_RANGE_NAME, SLASH_COMMAND_NAME } from '$app/constants/document/name';
 import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 import { Op } from 'quill-delta';
+import { mentionSlice } from '$app_reducers/document/mention_slice';
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -386,6 +387,7 @@ export const documentReducers = {
   [slashCommandSlice.name]: slashCommandSlice.reducer,
   [temporarySlice.name]: temporarySlice.reducer,
   [blockEditSlice.name]: blockEditSlice.reducer,
+  [mentionSlice.name]: mentionSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;

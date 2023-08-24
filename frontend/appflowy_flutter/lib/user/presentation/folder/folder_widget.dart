@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
@@ -86,7 +86,7 @@ class FolderOptionsWidget extends StatelessWidget {
       builder: (context, result) {
         final subtitle = result.hasData ? result.data! : '';
         return _FolderCard(
-          icon: const FlowySvg(name: 'common/archive'),
+          icon: const FlowySvg(FlowySvgs.archive_m),
           title: LocaleKeys.settings_files_defineWhereYourDataIsStored.tr(),
           subtitle: subtitle,
           trailing: _buildTextButton(
@@ -216,7 +216,7 @@ Widget _buildTextButton(
 ) {
   return SecondaryTextButton(
     title,
-    mode: SecondaryTextButtonMode.small,
+    mode: TextButtonMode.small,
     onPressed: onPressed,
   );
 }

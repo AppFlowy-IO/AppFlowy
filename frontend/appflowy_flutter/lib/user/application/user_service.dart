@@ -62,12 +62,30 @@ class UserBackendService {
     throw UnimplementedError();
   }
 
-  Future<Either<Unit, FlowyError>> signOut() {
+  static Future<Either<Unit, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
 
   Future<Either<Unit, FlowyError>> initUser() async {
     return UserEventInitUser().send();
+  }
+
+  static Future<Either<List<HistoricalUserPB>, FlowyError>>
+      loadHistoricalUsers() async {
+    return UserEventGetHistoricalUsers().send().then(
+      (result) {
+        return result.fold(
+          (historicalUsers) => left(historicalUsers.items),
+          (error) => right(error),
+        );
+      },
+    );
+  }
+
+  static Future<Either<Unit, FlowyError>> openHistoricalUser(
+    HistoricalUserPB user,
+  ) async {
+    return UserEventOpenHistoricalUser(user).send();
   }
 
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {

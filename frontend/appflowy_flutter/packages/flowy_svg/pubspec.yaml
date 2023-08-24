@@ -1,0 +1,18 @@
+name: flowy_svg
+description: AppFlowy Svgs
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: 3.10.0
+
+dependencies:
+  args: ^2.4.2
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.7
+  path: ^1.8.3
+
+dev_dependencies:
+  very_good_analysis: ^5.0.0

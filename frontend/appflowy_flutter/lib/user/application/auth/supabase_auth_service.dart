@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:appflowy/env/env.dart';
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -12,9 +13,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_error.dart';
-
-// can't use underscore here.
-const loginCallback = 'io.appflowy.appflowy-flutter://login-callback';
 
 class SupabaseAuthService implements AuthService {
   SupabaseAuthService();
@@ -30,16 +28,8 @@ class SupabaseAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signUp(
-        name: name,
-        email: email,
-        password: password,
-      );
-    }
-
     // fetch the uuid from supabase.
     final response = await _auth.signUp(
       email: email,
@@ -56,7 +46,7 @@ class SupabaseAuthService implements AuthService {
       email: email,
       password: password,
       authType: authType,
-      map: {
+      params: {
         AuthServiceMapKeys.uuid: uuid,
       },
     );
@@ -67,15 +57,8 @@ class SupabaseAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signIn(
-        email: email,
-        password: password,
-      );
-    }
-
     try {
       final response = await _auth.signInWithPassword(
         email: email,
@@ -89,7 +72,7 @@ class SupabaseAuthService implements AuthService {
         email: email,
         password: password,
         authType: authType,
-        map: {
+        params: {
           AuthServiceMapKeys.uuid: uuid,
         },
       );
@@ -103,18 +86,21 @@ class SupabaseAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signUpWithOAuth(platform: platform);
+    // Before signing in, sign out any existing users. Otherwise, the callback will be triggered even if the user doesn't click the 'Sign In' button on the website
+    if (_auth.currentUser != null) {
+      await _auth.signOut();
     }
+
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await setupAuth(
+        return await _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
-            AuthServiceMapKeys.email: userEmail
+            AuthServiceMapKeys.email: userEmail,
+            AuthServiceMapKeys.deviceId: await getDeviceId()
           },
         );
       },
@@ -123,7 +109,7 @@ class SupabaseAuthService implements AuthService {
     final response = await _auth.signInWithOAuth(
       provider,
       queryParams: queryParamsForProvider(provider),
-      redirectTo: loginCallback,
+      redirectTo: supabaseLoginCallback,
     );
     if (!response) {
       completer.complete(left(AuthError.supabaseSignInWithOauthError));
@@ -135,9 +121,7 @@ class SupabaseAuthService implements AuthService {
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Supabase,
   }) async {
-    if (isSupabaseEnabled) {
-      await _auth.signOut();
-    }
+    await _auth.signOut();
     await _appFlowyAuthService.signOut(
       authType: authType,
     );
@@ -146,7 +130,7 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.
     // so, just forward to our backend.
@@ -156,14 +140,15 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
     required String email,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await setupAuth(
+        return await _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
-            AuthServiceMapKeys.email: userEmail
+            AuthServiceMapKeys.email: userEmail,
+            AuthServiceMapKeys.deviceId: await getDeviceId()
           },
         );
       },
@@ -171,7 +156,7 @@ class SupabaseAuthService implements AuthService {
 
     await _auth.signInWithOtp(
       email: email,
-      emailRedirectTo: kIsWeb ? null : loginCallback,
+      emailRedirectTo: kIsWeb ? null : supabaseLoginCallback,
     );
     return completer.future;
   }
@@ -189,7 +174,7 @@ class SupabaseAuthService implements AuthService {
     return Right(user);
   }
 
-  Future<Either<FlowyError, UserProfilePB>> setupAuth({
+  Future<Either<FlowyError, UserProfilePB>> _setupAuth({
     required Map<String, String> map,
   }) async {
     final payload = ThirdPartyAuthPB(
@@ -217,6 +202,22 @@ extension on String {
   }
 }
 
+/// Creates a completer that listens to Supabase authentication state changes and
+/// completes when a user signs in.
+///
+/// This function sets up a listener on Supabase's authentication state. When a user
+/// signs in, it triggers the provided [onSuccess] callback with the user's `id` and
+/// `email`. Once the [onSuccess] callback is executed and a response is received,
+/// the completer completes with the response, and the listener is canceled.
+///
+/// Parameters:
+/// - [onSuccess]: A callback function that's executed when a user signs in. It
+///   should take in a user's `id` and `email` and return a `Future` containing either
+///   a `FlowyError` or a `UserProfilePB`.
+///
+/// Returns:
+/// A completer of type `Either<FlowyError, UserProfilePB>`. This completer completes
+/// with the response from the [onSuccess] callback when a user signs in.
 Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
   required Future<Either<FlowyError, UserProfilePB>> Function(
     String userId,
@@ -229,16 +230,15 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
 
   subscription = auth.onAuthStateChange.listen((event) async {
     final user = event.session?.user;
-    if (event.event != AuthChangeEvent.signedIn || user == null) {
-      completer.complete(left(AuthError.supabaseSignInWithOauthError));
-    } else {
+    if (event.event == AuthChangeEvent.signedIn && user != null) {
       final response = await onSuccess(
         user.id,
         user.email ?? user.newEmail ?? '',
       );
+      // Only cancel the subscription if the Event is signedIn.
+      subscription.cancel();
       completer.complete(response);
     }
-    subscription.cancel();
   });
   return completer;
 }

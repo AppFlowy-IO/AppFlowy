@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
@@ -6,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.d
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -32,29 +34,29 @@ class _SettingButtonState extends State<SettingButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 26,
-      child: AppFlowyPopover(
-        controller: _popoverController,
-        constraints: BoxConstraints.loose(const Size(200, 400)),
-        direction: PopoverDirection.bottomWithLeftAligned,
-        offset: const Offset(0, 8),
-        margin: EdgeInsets.zero,
-        triggerActions: PopoverTriggerFlags.none,
-        child: FlowyTextButton(
-          LocaleKeys.settings_title.tr(),
-          fontColor: AFThemeExtension.of(context).textColor,
-          fillColor: Colors.transparent,
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          padding: GridSize.typeOptionContentInsets,
-          onPressed: () => _popoverController.show(),
-        ),
-        popupBuilder: (BuildContext context) {
-          return _DatabaseSettingListPopover(
-            databaseController: widget.databaseController,
-          );
-        },
+    return AppFlowyPopover(
+      controller: _popoverController,
+      constraints: BoxConstraints.loose(const Size(200, 400)),
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 8),
+      margin: EdgeInsets.zero,
+      triggerActions: PopoverTriggerFlags.none,
+      child: FlowyTextButton(
+        LocaleKeys.settings_title.tr(),
+        fontColor: AFThemeExtension.of(context).textColor,
+        fontSize: FontSizes.s11,
+        fontWeight: FontWeight.w400,
+        fillColor: Colors.transparent,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        padding: GridSize.toolbarSettingButtonInsets,
+        radius: Corners.s4Border,
+        onPressed: () => _popoverController.show(),
       ),
+      popupBuilder: (BuildContext context) {
+        return _DatabaseSettingListPopover(
+          databaseController: widget.databaseController,
+        );
+      },
     );
   }
 }
@@ -152,16 +154,16 @@ enum DatabaseSettingAction {
 }
 
 extension DatabaseSettingActionExtension on DatabaseSettingAction {
-  String iconName() {
+  FlowySvgData iconData() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return 'grid/setting/properties';
+        return FlowySvgs.properties_s;
       case DatabaseSettingAction.showLayout:
-        return 'grid/setting/database_layout';
+        return FlowySvgs.database_layout_m;
       case DatabaseSettingAction.showGroup:
-        return 'grid/setting/group';
+        return FlowySvgs.group_s;
       case DatabaseSettingAction.showCalendarLayout:
-        return 'grid/setting/calendar_layout';
+        return FlowySvgs.calendar_layout_m;
     }
   }
 

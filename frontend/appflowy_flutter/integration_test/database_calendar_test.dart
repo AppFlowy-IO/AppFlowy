@@ -50,7 +50,7 @@ void main() {
       await tester.tapFirstDayOfWeekStartFromMonday();
 
       // Open the other page and open the new calendar page again
-      await tester.openPage(gettingStated);
+      await tester.openPage(gettingStarted);
       await tester.pumpAndSettle(const Duration(milliseconds: 300));
       await tester.openPage(name, layout: ViewLayoutPB.Calendar);
 

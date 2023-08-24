@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use nanoid::nanoid;
 
+use flowy_encrypt::decrypt_text;
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -35,6 +36,23 @@ async fn third_party_sign_up_test() {
       .await
       .parse::<UserProfilePB>();
     dbg!(&response);
+  }
+}
+
+#[tokio::test]
+async fn third_party_sign_up_with_encrypt_test() {
+  if get_supabase_config().is_some() {
+    let test = FlowyCoreTest::new();
+    test.supabase_party_sign_up().await;
+    let user_profile = test.get_user_profile().await.unwrap();
+    assert!(user_profile.encryption_sign.is_empty());
+
+    let secret = test.enable_encryption().await;
+    let user_profile = test.get_user_profile().await.unwrap();
+    assert!(!user_profile.encryption_sign.is_empty());
+
+    let decryption_sign = decrypt_text(user_profile.encryption_sign, &secret).unwrap();
+    assert_eq!(decryption_sign, user_profile.id.to_string());
   }
 }
 
@@ -85,7 +103,7 @@ async fn third_party_sign_up_with_duplicated_email() {
       .await
       .err()
       .unwrap();
-    assert_eq!(error.code, ErrorCode::Conflict.value());
+    assert_eq!(error.code, ErrorCode::Conflict);
   };
 }
 
@@ -180,7 +198,7 @@ async fn check_not_exist_user_test() {
       .check_user_with_uuid(&uuid::Uuid::new_v4().to_string())
       .await
       .unwrap_err();
-    assert_eq!(err.code, ErrorCode::RecordNotFound.value());
+    assert_eq!(err.code, ErrorCode::RecordNotFound);
   }
 }
 
@@ -238,6 +256,6 @@ async fn update_user_profile_with_existing_email_test() {
       )
       .await
       .unwrap();
-    assert_eq!(error.code, ErrorCode::Conflict.value());
+    assert_eq!(error.code, ErrorCode::Conflict);
   }
 }

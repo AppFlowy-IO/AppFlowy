@@ -125,10 +125,17 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(
-              widget.title,
-              fontSize: FontSizes.s16,
-              color: Theme.of(context).colorScheme.tertiary,
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 400,
+                maxHeight: 260,
+              ),
+              child: FlowyText.medium(
+                widget.title,
+                fontSize: FontSizes.s16,
+                color: Theme.of(context).colorScheme.tertiary,
+                maxLines: null,
+              ),
             ),
           ],
           if (widget.confirm != null) ...[
@@ -216,6 +223,7 @@ class OkCancelButton extends StatelessWidget {
   final String? cancelTitle;
   final double? minHeight;
   final MainAxisAlignment alignment;
+  final TextButtonMode mode;
 
   const OkCancelButton({
     Key? key,
@@ -225,6 +233,7 @@ class OkCancelButton extends StatelessWidget {
     this.cancelTitle,
     this.minHeight,
     this.alignment = MainAxisAlignment.spaceAround,
+    this.mode = TextButtonMode.big,
   }) : super(key: key);
 
   @override
@@ -238,14 +247,14 @@ class OkCancelButton extends StatelessWidget {
             SecondaryTextButton(
               cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: onCancelPressed,
-              mode: SecondaryTextButtonMode.big,
+              mode: mode,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
               okTitle ?? LocaleKeys.button_OK.tr(),
               onPressed: onOkPressed,
-              bigMode: true,
+              mode: mode,
             ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -5,19 +6,20 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+typedef ViewItemOnSelected = void Function(ViewPB);
 
 class ViewItem extends StatelessWidget {
   const ViewItem({
@@ -28,6 +30,7 @@ class ViewItem extends StatelessWidget {
     required this.level,
     this.leftPadding = 10,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
@@ -46,7 +49,11 @@ class ViewItem extends StatelessWidget {
   // the left padding of the each level = level * leftPadding
   final double leftPadding;
 
-  final void Function(ViewPB) onSelected;
+  // Selected by normal conventions
+  final ViewItemOnSelected onSelected;
+
+  // Selected by middle mouse button
+  final ViewItemOnSelected? onTertiarySelected;
 
   // used for indicating the first child of the parent view, so that we can
   // add top border to the first child
@@ -62,7 +69,12 @@ class ViewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
+      child: BlocConsumer<ViewBloc, ViewState>(
+        listenWhen: (p, c) =>
+            c.lastCreatedView != null &&
+            p.lastCreatedView?.id != c.lastCreatedView!.id,
+        listener: (context, state) =>
+            context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
           // don't remove this code. it's related to the backend service.
           view.childViews
@@ -78,6 +90,7 @@ class ViewItem extends StatelessWidget {
             showActions: state.isEditing,
             isExpanded: state.isExpanded,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
@@ -101,6 +114,7 @@ class InnerViewItem extends StatelessWidget {
     required this.leftPadding,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
     this.isFirstChild = false,
     required this.isFeedback,
   });
@@ -120,7 +134,8 @@ class InnerViewItem extends StatelessWidget {
   final double leftPadding;
 
   final bool showActions;
-  final void Function(ViewPB) onSelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +146,7 @@ class InnerViewItem extends StatelessWidget {
       showActions: showActions,
       categoryType: categoryType,
       onSelected: onSelected,
+      onTertiarySelected: onTertiarySelected,
       isExpanded: isExpanded,
       isDraggable: isDraggable,
       leftPadding: leftPadding,
@@ -148,6 +164,7 @@ class InnerViewItem extends StatelessWidget {
           view: childView,
           level: level + 1,
           onSelected: onSelected,
+          onTertiarySelected: onTertiarySelected,
           isDraggable: isDraggable,
           leftPadding: leftPadding,
           isFeedback: isFeedback,
@@ -176,6 +193,7 @@ class InnerViewItem extends StatelessWidget {
             categoryType: categoryType,
             level: level,
             onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
             isDraggable: false,
             leftPadding: leftPadding,
             isFeedback: true,
@@ -206,6 +224,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.categoryType,
     required this.showActions,
     required this.onSelected,
+    this.onTertiarySelected,
     required this.isFeedback,
   });
 
@@ -220,7 +239,8 @@ class SingleInnerViewItem extends StatefulWidget {
 
   final bool isDraggable;
   final bool showActions;
-  final void Function(ViewPB) onSelected;
+  final ViewItemOnSelected onSelected;
+  final ViewItemOnSelected? onTertiarySelected;
   final FolderCategoryType categoryType;
 
   @override
@@ -279,6 +299,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
+      onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
       child: SizedBox(
         height: 26,
         child: Padding(
@@ -299,11 +320,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return const _DotIconWidget();
     }
 
-    final name =
-        widget.isExpanded ? 'home/drop_down_show' : 'home/drop_down_hide';
+    final svg = widget.isExpanded
+        ? FlowySvgs.drop_menu_show_m
+        : FlowySvgs.drop_menu_hide_m;
     return GestureDetector(
       child: FlowySvg(
-        name: name,
+        svg,
         size: const Size.square(16.0),
       ),
       onTap: () => context
@@ -377,12 +399,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().add(
-                    TabsEvent.openTab(
-                      plugin: widget.view.plugin(),
-                      view: widget.view,
-                    ),
-                  );
+              context.read<TabsBloc>().openTab(widget.view);
               break;
             default:
               throw UnsupportedError('$action is not supported');

@@ -1,17 +1,18 @@
 use std::sync::{Arc, Weak};
 
+use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+
 use crate::entities::*;
 use crate::manager::FolderManager;
 use crate::share::ImportParams;
-use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 fn upgrade_folder(
   folder_manager: AFPluginState<Weak<FolderManager>>,
 ) -> FlowyResult<Arc<FolderManager>> {
   let folder = folder_manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The folder manager is already dropped"))?;
+    .ok_or(FlowyError::internal().with_context("The folder manager is already dropped"))?;
   Ok(folder)
 }
 
@@ -44,10 +45,10 @@ pub(crate) async fn open_workspace_handler(
   let folder = upgrade_folder(folder)?;
   let params: WorkspaceIdPB = data.into_inner();
   match params.value {
-    None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
+    None => Err(FlowyError::workspace_id().with_context("workspace id should not be empty")),
     Some(workspace_id) => {
       if workspace_id.is_empty() {
-        Err(FlowyError::workspace_id().context("workspace id should not be empty"))
+        Err(FlowyError::workspace_id().with_context("workspace id should not be empty"))
       } else {
         let workspace = folder.open_workspace(&workspace_id).await?;
         let views = folder.get_workspace_views(&workspace_id).await?;
@@ -319,7 +320,7 @@ pub(crate) async fn get_folder_snapshots_handler(
 ) -> DataResult<RepeatedFolderSnapshotPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   if let Some(workspace_id) = &data.value {
-    let snapshots = folder.get_folder_snapshots(workspace_id).await?;
+    let snapshots = folder.get_folder_snapshots(workspace_id, 10).await?;
     data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
   } else {
     data_result_ok(RepeatedFolderSnapshotPB { items: vec![] })

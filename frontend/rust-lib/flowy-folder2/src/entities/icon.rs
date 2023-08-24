@@ -21,9 +21,9 @@ impl std::convert::From<ViewIconTypePB> for IconType {
   }
 }
 
-impl Into<ViewIconTypePB> for IconType {
-  fn into(self) -> ViewIconTypePB {
-    match self {
+impl From<IconType> for ViewIconTypePB {
+  fn from(val: IconType) -> Self {
+    match val {
       IconType::Emoji => ViewIconTypePB::Emoji,
       IconType::Url => ViewIconTypePB::Url,
       IconType::Icon => ViewIconTypePB::Icon,
@@ -48,11 +48,11 @@ impl std::convert::From<ViewIconPB> for ViewIcon {
   }
 }
 
-impl Into<ViewIconPB> for ViewIcon {
-  fn into(self) -> ViewIconPB {
+impl From<ViewIcon> for ViewIconPB {
+  fn from(val: ViewIcon) -> Self {
     ViewIconPB {
-      ty: self.ty.into(),
-      value: self.value,
+      ty: val.ty.into(),
+      value: val.value,
     }
   }
 }

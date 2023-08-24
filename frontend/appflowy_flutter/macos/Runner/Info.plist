@@ -34,7 +34,7 @@
 			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>io.appflowy.appflowy-flutter</string>
+				<string>appflowy-flutter</string>
 			</array>
 		</dict>
 	</array>

@@ -25,7 +25,10 @@ void main() {
 
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'default theme',
-      build: () => AppearanceSettingsCubit(appearanceSetting),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        AppTheme.fallback,
+      ),
       verify: (bloc) {
         // expect(bloc.state.appTheme.info.name, "light");
         expect(bloc.state.font, 'Poppins');
@@ -36,7 +39,10 @@ void main() {
 
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'save key/value',
-      build: () => AppearanceSettingsCubit(appearanceSetting),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        AppTheme.fallback,
+      ),
       act: (bloc) {
         bloc.setKeyValue("123", "456");
       },
@@ -47,7 +53,10 @@ void main() {
 
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'remove key/value',
-      build: () => AppearanceSettingsCubit(appearanceSetting),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        AppTheme.fallback,
+      ),
       act: (bloc) {
         bloc.setKeyValue("123", null);
       },
@@ -58,7 +67,10 @@ void main() {
 
     blocTest<AppearanceSettingsCubit, AppearanceSettingsState>(
       'initial state uses fallback theme',
-      build: () => AppearanceSettingsCubit(appearanceSetting),
+      build: () => AppearanceSettingsCubit(
+        appearanceSetting,
+        AppTheme.fallback,
+      ),
       verify: (bloc) {
         expect(bloc.state.appTheme.themeName, AppTheme.fallback.themeName);
       },

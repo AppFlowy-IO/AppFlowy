@@ -1,13 +1,13 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -166,14 +166,13 @@ class _CalendarPageState extends State<CalendarPage> {
                     return const Center(
                       child: CircularProgressIndicator.adaptive(),
                     );
-                  } else {
-                    return _buildCalendar(
-                      context,
-                      _eventController,
-                      state.settings
-                          .foldLeft(0, (previous, a) => a.firstDayOfWeek),
-                    );
                   }
+                  return _buildCalendar(
+                    context,
+                    _eventController,
+                    state.settings
+                        .foldLeft(0, (previous, a) => a.firstDayOfWeek),
+                  );
                 },
               );
             },
@@ -189,20 +188,23 @@ class _CalendarPageState extends State<CalendarPage> {
     int firstDayOfWeek,
   ) {
     return Padding(
-      padding: GridSize.contentInsets,
+      padding: CalendarSize.contentInsets,
       child: LayoutBuilder(
         // must specify MonthView width for useAvailableVerticalSpace to work properly
-        builder: (context, constraints) => MonthView(
-          key: _calendarState,
-          controller: _eventController,
-          width: constraints.maxWidth,
-          cellAspectRatio: 0.6,
-          startDay: _weekdayFromInt(firstDayOfWeek),
-          borderColor: Theme.of(context).dividerColor,
-          headerBuilder: _headerNavigatorBuilder,
-          weekDayBuilder: _headerWeekDayBuilder,
-          cellBuilder: _calendarDayBuilder,
-          useAvailableVerticalSpace: widget.shrinkWrap,
+        builder: (context, constraints) => ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: MonthView(
+            key: _calendarState,
+            controller: _eventController,
+            width: constraints.maxWidth,
+            cellAspectRatio: 0.6,
+            startDay: _weekdayFromInt(firstDayOfWeek),
+            borderColor: Theme.of(context).dividerColor,
+            headerBuilder: _headerNavigatorBuilder,
+            weekDayBuilder: _headerWeekDayBuilder,
+            cellBuilder: _calendarDayBuilder,
+            useAvailableVerticalSpace: widget.shrinkWrap,
+          ),
         ),
       ),
     );
@@ -219,7 +221,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: const FlowySvg(name: 'home/arrow_left'),
+          icon: const FlowySvg(FlowySvgs.arrow_left_s),
           tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -237,7 +239,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: const FlowySvg(name: 'home/arrow_right'),
+          icon: const FlowySvg(FlowySvgs.arrow_right_s),
           tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
@@ -283,10 +285,7 @@ class _CalendarPageState extends State<CalendarPage> {
       rowCache: _calendarBloc.rowCache,
       onCreateEvent: (date) {
         _calendarBloc.add(
-          CalendarEvent.createEvent(
-            date,
-            LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-          ),
+          CalendarEvent.createEvent(date),
         );
       },
     );

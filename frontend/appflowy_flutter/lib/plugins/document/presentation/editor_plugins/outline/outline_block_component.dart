@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ SelectionMenuItem outlineItem = SelectionMenuItem.node(
   name: LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
-  nodeBuilder: (editorState) => outlineBlockNode(),
+  nodeBuilder: (editorState, _) => outlineBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 
@@ -84,7 +84,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     if (colorString == null) {
       return Colors.transparent;
     }
-    return colorString.toColor();
+    return colorString.toColor() ?? Colors.transparent;
   }
 
   late EditorState editorState = context.read<EditorState>();
@@ -180,14 +180,15 @@ class OutlineItemWidget extends StatelessWidget {
     );
   }
 
-  void updateBlockSelection(BuildContext context) {
+  void updateBlockSelection(BuildContext context) async {
     final editorState = context.read<EditorState>();
     editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection.collapse(
-      node.path,
-      node.delta?.length ?? 0,
+    editorState.selection = Selection.collapsed(
+      Position(path: node.path, offset: node.delta?.length ?? 0),
     );
-    editorState.selectionType = null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      editorState.selectionType = null;
+    });
   }
 }
 

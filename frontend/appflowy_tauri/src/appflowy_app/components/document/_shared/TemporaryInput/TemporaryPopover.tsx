@@ -17,6 +17,7 @@ function TemporaryPopover() {
   const anchorPosition = useMemo(() => temporaryState?.popoverPosition, [temporaryState]);
   const open = Boolean(anchorPosition);
   const id = temporaryState?.id;
+  const type = temporaryState?.type;
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
 

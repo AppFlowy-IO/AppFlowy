@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'deps_resolver.dart';
+import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
 import 'tasks/prelude.dart';
@@ -21,6 +22,13 @@ class FlowyRunnerContext {
   final Directory applicationDataDirectory;
 
   FlowyRunnerContext({required this.applicationDataDirectory});
+}
+
+Future<void> runAppFlowy() async {
+  await FlowyRunner.run(
+    FlowyApp(),
+    integrationMode(),
+  );
 }
 
 class FlowyRunner {
@@ -78,7 +86,7 @@ class FlowyRunner {
 
 Future<void> initGetIt(
   GetIt getIt,
-  IntegrationMode env,
+  IntegrationMode mode,
   EntryPoint f,
   LaunchConfiguration config,
 ) async {
@@ -90,14 +98,14 @@ Future<void> initGetIt(
     () => AppLauncher(
       context: LaunchContext(
         getIt,
-        env,
+        mode,
         config,
       ),
     ),
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await DependencyResolver.resolve(getIt, env);
+  await DependencyResolver.resolve(getIt, mode);
 }
 
 class LaunchContext {
@@ -163,7 +171,7 @@ enum IntegrationMode {
   bool get isDevelop => this == IntegrationMode.develop;
 }
 
-IntegrationMode integrationEnv() {
+IntegrationMode integrationMode() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     return IntegrationMode.unitTest;
   }

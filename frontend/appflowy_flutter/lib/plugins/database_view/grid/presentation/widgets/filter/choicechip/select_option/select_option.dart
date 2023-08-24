@@ -144,7 +144,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.name,
+              state.filterInfo.fieldInfo.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),

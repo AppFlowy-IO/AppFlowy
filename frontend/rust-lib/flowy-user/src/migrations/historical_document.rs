@@ -10,7 +10,7 @@ use collab_folder::core::Folder;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::migrations::migration::UserDataMigration;
-use crate::services::session_serde::Session;
+use crate::services::entities::Session;
 
 /// Migrate the first level documents of the workspace by inserting documents
 pub struct HistoricalEmptyDocumentMigration;
@@ -23,7 +23,7 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
   fn run(&self, session: &Session, collab_db: &Arc<RocksCollabDB>) -> FlowyResult<()> {
     let write_txn = collab_db.write_txn();
     if let Ok(updates) = write_txn.get_all_updates(session.user_id, &session.user_workspace.id) {
-      let origin = CollabOrigin::Client(CollabClient::new(session.user_id, ""));
+      let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
       // Deserialize the folder from the raw data
       let folder =
         Folder::from_collab_raw_data(origin.clone(), updates, &session.user_workspace.id, vec![])?;

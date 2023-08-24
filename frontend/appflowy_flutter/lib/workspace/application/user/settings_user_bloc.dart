@@ -21,8 +21,8 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     on<SettingsUserEvent>((event, emit) async {
       await event.when(
         initial: () async {
+          _loadUserProfile();
           _userListener.start(onProfileUpdated: _profileUpdated);
-          await _initUser();
         },
         didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
@@ -51,6 +51,12 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
+        didLoadHistoricalUsers: (List<HistoricalUserPB> historicalUsers) {
+          emit(state.copyWith(historicalUsers: historicalUsers));
+        },
+        openHistoricalUser: (HistoricalUserPB historicalUser) async {
+          await UserBackendService.openHistoricalUser(historicalUser);
+        },
       );
     });
   }
@@ -61,15 +67,26 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     super.close();
   }
 
-  Future<void> _initUser() async {
-    final result = await _userService.initUser();
-    result.fold((l) => null, (error) => Log.error(error));
+  void _loadUserProfile() {
+    UserBackendService.getCurrentUserProfile().then((result) {
+      if (isClosed) {
+        return;
+      }
+
+      result.fold(
+        (err) => Log.error(err),
+        (userProfile) => add(
+          SettingsUserEvent.didReceiveUserProfile(userProfile),
+        ),
+      );
+    });
   }
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) =>
-          add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) {
+        add(SettingsUserEvent.didReceiveUserProfile(newUserProfile));
+      },
       (err) => Log.error(err),
     );
   }
@@ -86,18 +103,26 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
+  const factory SettingsUserEvent.didLoadHistoricalUsers(
+    List<HistoricalUserPB> historicalUsers,
+  ) = _DidLoadHistoricalUsers;
+  const factory SettingsUserEvent.openHistoricalUser(
+    HistoricalUserPB historicalUser,
+  ) = _OpenHistoricalUser;
 }
 
 @freezed
 class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
     required UserProfilePB userProfile,
+    required List<HistoricalUserPB> historicalUsers,
     required Either<Unit, String> successOrFailure,
   }) = _SettingsUserState;
 
   factory SettingsUserState.initial(UserProfilePB userProfile) =>
       SettingsUserState(
         userProfile: userProfile,
+        historicalUsers: [],
         successOrFailure: left(unit),
       );
 }
