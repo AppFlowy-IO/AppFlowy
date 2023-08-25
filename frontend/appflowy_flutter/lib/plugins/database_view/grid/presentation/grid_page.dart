@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
