@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -8,9 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:flowy_infra/uuid.dart';
 
 import '../util/mock/mock_file_picker.dart';
 import '../util/util.dart';
@@ -19,28 +15,55 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('document template test', () {
-    testWidgets('export a template with referenced grid', (tester) async {
+    testWidgets('export a template tree', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await insertReferenceDatabase(tester, ViewLayoutPB.Grid);
-      await tester.openPage("template");
+      await tester.createNewPageWithName(
+        name: 'parentDoc',
+        layout: ViewLayoutPB.Document,
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText("# Parent Doc");
+
+      await tester.createNewPageWithName(
+        name: "childDoc",
+        parentName: "parentDoc",
+        layout: ViewLayoutPB.Document,
+      );
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText("# Child Doc");
+
+      await tester.createNewPageWithName(
+        name: "childGrid",
+        parentName: "parentDoc",
+        layout: ViewLayoutPB.Grid,
+      );
+
+      await tester.openPage(gettingStarted);
 
       await tester.editor.hoverOnCoverToolbar();
       await tester.tapButtonWithName("Convert to JSON");
 
       final tempDir = await getApplicationDocumentsDirectory();
-      debugPrint("$tempDir");
 
       expect(await Directory("${tempDir.path}/template").exists(), isTrue);
 
       expect(
-        await File("${tempDir.path}/template/template.json").exists(),
+        await File("${tempDir.path}/template/config.json").exists(),
         isTrue,
       );
-
       expect(
-        await File("${tempDir.path}/template/db1.csv").exists(),
+        await File("${tempDir.path}/template/parentDoc.json").exists(),
+        isTrue,
+      );
+      expect(
+        await File("${tempDir.path}/template/childDoc.json").exists(),
+        isTrue,
+      );
+      expect(
+        await File("${tempDir.path}/template/childGrid.csv").exists(),
         isTrue,
       );
     });
@@ -68,52 +91,30 @@ void main() {
       await tester.expandPage(gettingStarted);
 
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(seconds: 2));
 
-      // expect to see the template files
-      tester.expectToSeePageName("doc1", parentName: gettingStarted);
-      tester.expectToSeePageName("doc2", parentName: gettingStarted);
+      // Expand all pages
+      final List<String> toExpand = [
+        "TestTemplate",
+        "Level1_1",
+        "Level1_2",
+        "Level2_1",
+      ];
 
-      // expect to see the db files 
-      tester.expectToSeeText("db1");
-      tester.expectToSeeText("db2");
+      for (final e in toExpand) {
+        await tester.expandPage(e);
+      }
 
+      await tester.pumpAndSettle();
+
+      tester.expectToSeePageName("TestTemplate", parentName: gettingStarted);
+
+      tester.expectToSeePageName("Level1_1", parentName: "TestTemplate");
+      tester.expectToSeePageName("Level2_1", parentName: "Level1_1");
+      tester.expectToSeePageName("Level3_1", parentName: "Level2_1");
+
+      tester.expectToSeePageName("Level1_2", parentName: "TestTemplate");
+      tester.expectToSeePageName("Level2_2", parentName: "Level1_2");
+      tester.expectToSeeText("Level2_Grid");
     });
   });
-}
-
-/// Insert a referenced database of [layout] into the document
-Future<void> insertReferenceDatabase(
-  WidgetTester tester,
-  ViewLayoutPB layout,
-) async {
-  // create a new grid
-  final id = uuid();
-  final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
-    name: name,
-    layout: layout,
-  );
-
-  // create a new document
-  await tester.createNewPageWithName(
-    name: 'template',
-    layout: ViewLayoutPB.Document,
-  );
-  // tap the first line of the document
-  await tester.editor.tapLineOfEditorAt(0);
-  // insert a referenced view
-  await tester.editor.showSlashMenu();
-  await tester.editor.tapSlashMenuItemWithName(
-    layout.referencedMenuName,
-  );
-
-  final linkToPageMenu = find.byType(LinkToPageMenu);
-  expect(linkToPageMenu, findsOneWidget);
-  final referencedDatabase = find.descendant(
-    of: linkToPageMenu,
-    matching: find.findTextInFlowyText(name),
-  );
-  expect(referencedDatabase, findsOneWidget);
-  await tester.tapButton(referencedDatabase);
 }

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/template_service.dart';
+import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -101,6 +101,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             editorState: widget.editorState,
             hasCover: hasCover,
             hasIcon: hasIcon,
+            view: widget.view,
           ),
         ),
         if (hasCover)
@@ -170,6 +171,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
 class DocumentHeaderToolbar extends StatefulWidget {
   final Node node;
   final EditorState editorState;
+  final ViewPB view;
   final bool hasCover;
   final bool hasIcon;
 
@@ -179,6 +181,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   const DocumentHeaderToolbar({
     required this.node,
     required this.editorState,
+    required this.view,
     required this.hasCover,
     required this.hasIcon,
     required this.onCoverChanged,
@@ -226,20 +229,18 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     }
     final List<Widget> children = [];
 
-
     children.add(
       FlowyButton(
         leftIconSize: const Size.square(18),
-        onTap: () => TemplateService().saveTemplate(widget.editorState),
+        onTap: () =>
+            TemplateService().saveTemplate(widget.editorState, widget.view),
         useIntrinsicWidth: true,
-        // leftIcon: const FlowySvg(name: 'editor/image'),
         leftIcon: const FlowySvg(FlowySvgs.image_s),
         text: const FlowyText.regular(
           "Convert to JSON",
         ),
       ),
     );
-
 
     if (!widget.hasCover) {
       children.add(
