@@ -257,59 +257,38 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    if (Platform.isWindows) {
-      // Workaround: On Windows, the focusing of the text cell is not working
-      // properly when the list is reorderable. So using the ListView instead.
-      return ListView.builder(
-        controller: scrollController.verticalController,
-        itemCount: rowInfos.length + 1, // the extra item is the footer
-        itemBuilder: (context, index) {
-          if (index < rowInfos.length) {
-            final rowInfo = rowInfos[index];
-            return _renderRow(
-              context,
-              rowInfo.rowId,
-              isDraggable: false,
-              index: index,
-            );
-          }
-          return const GridRowBottomBar(key: Key('gridFooter'));
-        },
-      );
-    } else {
-      return ReorderableListView.builder(
-        /// TODO(Xazin): Resolve inconsistent scrollbar behavior
-        ///  This is a workaround related to
-        ///  https://github.com/flutter/flutter/issues/25652
-        cacheExtent: 5000,
-        scrollController: scrollController.verticalController,
-        buildDefaultDragHandles: false,
-        proxyDecorator: (child, index, animation) => Material(
-          color: Colors.white.withOpacity(.1),
-          child: Opacity(opacity: .5, child: child),
-        ),
-        onReorder: (fromIndex, newIndex) {
-          final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-          if (fromIndex == toIndex) {
-            return;
-          }
-          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
-        },
-        itemCount: rowInfos.length + 1, // the extra item is the footer
-        itemBuilder: (context, index) {
-          if (index < rowInfos.length) {
-            final rowInfo = rowInfos[index];
-            return _renderRow(
-              context,
-              rowInfo.rowId,
-              isDraggable: state.reorderable,
-              index: index,
-            );
-          }
-          return const GridRowBottomBar(key: Key('gridFooter'));
-        },
-      );
-    }
+    return ReorderableListView.builder(
+      /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+      ///  This is a workaround related to
+      ///  https://github.com/flutter/flutter/issues/25652
+      cacheExtent: 5000,
+      scrollController: scrollController.verticalController,
+      buildDefaultDragHandles: false,
+      proxyDecorator: (child, index, animation) => Material(
+        color: Colors.white.withOpacity(.1),
+        child: Opacity(opacity: .5, child: child),
+      ),
+      onReorder: (fromIndex, newIndex) {
+        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+        if (fromIndex == toIndex) {
+          return;
+        }
+        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
+      },
+      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemBuilder: (context, index) {
+        if (index < rowInfos.length) {
+          final rowInfo = rowInfos[index];
+          return _renderRow(
+            context,
+            rowInfo.rowId,
+            isDraggable: state.reorderable,
+            index: index,
+          );
+        }
+        return const GridRowBottomBar(key: Key('gridFooter'));
+      },
+    );
   }
 
   Widget _renderRow(
