@@ -1,4 +1,5 @@
 use anyhow::Error;
+
 use flowy_folder_deps::cloud::{
   gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
 };
@@ -24,11 +25,12 @@ impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(None) })
   }
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     _workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_folder_updates(

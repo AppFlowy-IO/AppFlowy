@@ -32,7 +32,7 @@ impl DocumentUser for DocumentUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
@@ -40,7 +40,7 @@ impl DocumentUser for DocumentUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .token()
   }
 
@@ -48,7 +48,7 @@ impl DocumentUser for DocumentUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
   }
 }

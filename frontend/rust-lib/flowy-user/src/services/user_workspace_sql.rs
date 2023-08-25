@@ -21,10 +21,10 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
 
   fn try_from(value: (i64, &UserWorkspace)) -> Result<Self, Self::Error> {
     if value.1.id.is_empty() {
-      return Err(FlowyError::invalid_data().context("The id is empty"));
+      return Err(FlowyError::invalid_data().with_context("The id is empty"));
     }
     if value.1.database_storage_id.is_empty() {
-      return Err(FlowyError::invalid_data().context("The database storage id is empty"));
+      return Err(FlowyError::invalid_data().with_context("The database storage id is empty"));
     }
 
     Ok(Self {

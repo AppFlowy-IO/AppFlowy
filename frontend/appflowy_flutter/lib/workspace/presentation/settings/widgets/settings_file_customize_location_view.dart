@@ -167,7 +167,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
       message: LocaleKeys.settings_files_changeLocationTooltips.tr(),
       child: SecondaryTextButton(
         LocaleKeys.settings_files_change.tr(),
-        mode: SecondaryTextButtonMode.small,
+        mode: TextButtonMode.small,
         onPressed: () async {
           // pick the new directory and reload app
           final path = await getIt<FilePickerService>().getDirectoryPath();
@@ -177,7 +177,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           await context.read<SettingsLocationCubit>().setCustomPath(path);
           await FlowyRunner.run(
             FlowyApp(),
-            integrationEnv(),
+            integrationMode(),
             config: const LaunchConfiguration(
               autoRegistrationSupported: true,
             ),
@@ -236,9 +236,9 @@ class _RecoverDefaultStorageButtonState
     return FlowyIconButton(
       hoverColor: Theme.of(context).colorScheme.secondaryContainer,
       tooltipText: LocaleKeys.settings_files_recoverLocationTooltips.tr(),
-      icon: FlowySvg(
+      icon: const FlowySvg(
         FlowySvgs.restore_s,
-        color: Theme.of(context).iconTheme.color,
+        size: Size.square(24),
       ),
       onPressed: () async {
         // reset to the default directory and reload app
@@ -252,7 +252,7 @@ class _RecoverDefaultStorageButtonState
             .resetDataStoragePathToApplicationDefault();
         await FlowyRunner.run(
           FlowyApp(),
-          integrationEnv(),
+          integrationMode(),
           config: const LaunchConfiguration(
             autoRegistrationSupported: true,
           ),

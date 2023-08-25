@@ -62,7 +62,7 @@ class RowDocumentBloc extends Bloc<RowDocumentEvent, RowDocumentState> {
         viewsOrError.fold(
           (view) => add(RowDocumentEvent.didReceiveRowDocument(view)),
           (error) async {
-            if (error.code == ErrorCode.RecordNotFound.value) {
+            if (error.code == ErrorCode.RecordNotFound) {
               // By default, the document of the row is not exist. So creating a
               // new document for the given document id of the row.
               final documentView =

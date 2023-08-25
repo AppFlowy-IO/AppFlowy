@@ -9,7 +9,7 @@ edition = "2021"
 tracing = { version = "0.1" }
 futures = "0.3.26"
 futures-util = "0.3.26"
-reqwest = "0.11.14"
+reqwest = { version = "0.11.14", features = ["native-tls-vendored"] }
 hyper = "0.14"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -36,6 +36,7 @@ flowy-database-deps = { path = "../flowy-database-deps" }
 flowy-document-deps = { path = "../flowy-document-deps" }
 flowy-error = { path = "../flowy-error", features = ["impl_from_postgres", "impl_from_serde", "impl_from_reqwest"] }
 flowy-server-config = { path = "../flowy-server-config" }
+flowy-encrypt = { path = "../flowy-encrypt" }
 
 [dev-dependencies]
 uuid = { version = "1.3.3", features = ["v4"] }

@@ -22,7 +22,7 @@ fn upgrade_manager(
 ) -> FlowyResult<Arc<DatabaseManager>> {
   let manager = database_manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The database manager is already dropped"))?;
+    .ok_or(FlowyError::internal().with_context("The database manager is already dropped"))?;
   Ok(manager)
 }
 
@@ -459,7 +459,7 @@ pub(crate) async fn create_row_handler(
     .create_row(&view_id, group_id, params)
     .await?
   {
-    None => Err(FlowyError::internal().context("Create row fail")),
+    None => Err(FlowyError::internal().with_context("Create row fail")),
     Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
   }
 }
@@ -510,9 +510,10 @@ pub(crate) async fn new_select_option_handler(
     .create_select_option(&params.field_id, params.option_name)
     .await;
   match result {
-    None => {
-      Err(FlowyError::record_not_found().context("Create select option fail. Can't find the field"))
-    },
+    None => Err(
+      FlowyError::record_not_found()
+        .with_context("Create select option fail. Can't find the field"),
+    ),
     Some(pb) => data_result_ok(pb),
   }
 }
@@ -887,6 +888,6 @@ pub(crate) async fn get_snapshots_handler(
 ) -> DataResult<RepeatedDatabaseSnapshotPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let view_id = data.into_inner().value;
-  let snapshots = manager.get_database_snapshots(&view_id).await?;
+  let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
 }

@@ -1,5 +1,6 @@
-use anyhow::Error;
 use std::sync::Arc;
+
+use anyhow::Error;
 
 use flowy_folder_deps::cloud::{
   gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
@@ -30,11 +31,12 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(None) })
   }
 
-  fn get_folder_latest_snapshot(
+  fn get_folder_snapshots(
     &self,
     _workspace_id: &str,
-  ) -> FutureResult<Option<FolderSnapshot>, Error> {
-    FutureResult::new(async move { Ok(None) })
+    _limit: usize,
+  ) -> FutureResult<Vec<FolderSnapshot>, Error> {
+    FutureResult::new(async move { Ok(vec![]) })
   }
 
   fn get_folder_updates(&self, workspace_id: &str, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {

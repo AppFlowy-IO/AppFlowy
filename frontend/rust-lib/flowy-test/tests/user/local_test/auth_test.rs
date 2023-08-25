@@ -27,7 +27,7 @@ async fn sign_up_with_invalid_email() {
         .error()
         .unwrap()
         .code,
-      ErrorCode::EmailFormatInvalid.value()
+      ErrorCode::EmailFormatInvalid
     );
   }
 }
@@ -51,7 +51,7 @@ async fn sign_up_with_long_password() {
       .error()
       .unwrap()
       .code,
-    ErrorCode::PasswordTooLong.value()
+    ErrorCode::PasswordTooLong
   );
 }
 
@@ -76,7 +76,7 @@ async fn sign_in_with_invalid_email() {
         .error()
         .unwrap()
         .code,
-      ErrorCode::EmailFormatInvalid.value()
+      ErrorCode::EmailFormatInvalid
     );
   }
 }

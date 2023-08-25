@@ -1,7 +1,20 @@
+use std::str::FromStr;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use uuid::Uuid;
+
+pub trait UserAuthResponse {
+  fn user_id(&self) -> i64;
+  fn user_name(&self) -> &str;
+  fn latest_workspace(&self) -> &UserWorkspace;
+  fn user_workspaces(&self) -> &[UserWorkspace];
+  fn device_id(&self) -> &str;
+  fn user_token(&self) -> Option<String>;
+  fn user_email(&self) -> Option<String>;
+  fn encryption_type(&self) -> EncryptionType;
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SignInResponse {
@@ -12,6 +25,41 @@ pub struct SignInResponse {
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+  pub encryption_type: EncryptionType,
+}
+
+impl UserAuthResponse for SignInResponse {
+  fn user_id(&self) -> i64 {
+    self.user_id
+  }
+
+  fn user_name(&self) -> &str {
+    &self.name
+  }
+
+  fn latest_workspace(&self) -> &UserWorkspace {
+    &self.latest_workspace
+  }
+
+  fn user_workspaces(&self) -> &[UserWorkspace] {
+    &self.user_workspaces
+  }
+
+  fn device_id(&self) -> &str {
+    &self.device_id
+  }
+
+  fn user_token(&self) -> Option<String> {
+    self.token.clone()
+  }
+
+  fn user_email(&self) -> Option<String> {
+    self.email.clone()
+  }
+
+  fn encryption_type(&self) -> EncryptionType {
+    self.encryption_type.clone()
+  }
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -38,10 +86,45 @@ pub struct SignUpResponse {
   pub name: String,
   pub latest_workspace: UserWorkspace,
   pub user_workspaces: Vec<UserWorkspace>,
-  pub is_new: bool,
+  pub is_new_user: bool,
   pub email: Option<String>,
   pub token: Option<String>,
   pub device_id: String,
+  pub encryption_type: EncryptionType,
+}
+
+impl UserAuthResponse for SignUpResponse {
+  fn user_id(&self) -> i64 {
+    self.user_id
+  }
+
+  fn user_name(&self) -> &str {
+    &self.name
+  }
+
+  fn latest_workspace(&self) -> &UserWorkspace {
+    &self.latest_workspace
+  }
+
+  fn user_workspaces(&self) -> &[UserWorkspace] {
+    &self.user_workspaces
+  }
+
+  fn device_id(&self) -> &str {
+    &self.device_id
+  }
+
+  fn user_token(&self) -> Option<String> {
+    self.token.clone()
+  }
+
+  fn user_email(&self) -> Option<String> {
+    self.email.clone()
+  }
+
+  fn encryption_type(&self) -> EncryptionType {
+    self.encryption_type.clone()
+  }
 }
 
 #[derive(Clone, Debug)]
@@ -83,6 +166,7 @@ pub struct UserWorkspace {
   pub id: String,
   pub name: String,
   pub created_at: DateTime<Utc>,
+  /// The database storage id is used indexing all the database in current workspace.
   pub database_storage_id: String,
 }
 
@@ -99,7 +183,8 @@ impl UserWorkspace {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct UserProfile {
-  pub id: i64,
+  #[serde(rename = "id")]
+  pub uid: i64,
   pub email: String,
   pub name: String,
   pub token: String,
@@ -107,42 +192,119 @@ pub struct UserProfile {
   pub openai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
+  // If the encryption_sign is not empty, which means the user has enabled the encryption.
+  pub encryption_type: EncryptionType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
+pub enum EncryptionType {
+  #[default]
+  NoEncryption,
+  SelfEncryption(String),
+}
+
+impl EncryptionType {
+  pub fn from_sign(sign: &str) -> Self {
+    if sign.is_empty() {
+      EncryptionType::NoEncryption
+    } else {
+      EncryptionType::SelfEncryption(sign.to_owned())
+    }
+  }
+
+  pub fn is_need_encrypt_secret(&self) -> bool {
+    match self {
+      EncryptionType::NoEncryption => false,
+      EncryptionType::SelfEncryption(sign) => !sign.is_empty(),
+    }
+  }
+
+  pub fn sign(&self) -> String {
+    match self {
+      EncryptionType::NoEncryption => "".to_owned(),
+      EncryptionType::SelfEncryption(sign) => sign.to_owned(),
+    }
+  }
+}
+
+impl FromStr for EncryptionType {
+  type Err = serde_json::Error;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    serde_json::from_str(s)
+  }
+}
+
+impl<T> From<(&T, &AuthType)> for UserProfile
+where
+  T: UserAuthResponse,
+{
+  fn from(params: (&T, &AuthType)) -> Self {
+    let (value, auth_type) = params;
+    Self {
+      uid: value.user_id(),
+      email: value.user_email().unwrap_or_default(),
+      name: value.user_name().to_owned(),
+      token: value.user_token().unwrap_or_default(),
+      icon_url: "".to_owned(),
+      openai_key: "".to_owned(),
+      workspace_id: value.latest_workspace().id.to_owned(),
+      auth_type: auth_type.clone(),
+      encryption_type: value.encryption_type(),
+    }
+  }
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct UpdateUserProfileParams {
-  pub id: i64,
-  pub auth_type: AuthType,
+  pub uid: i64,
   pub name: Option<String>,
   pub email: Option<String>,
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub encryption_sign: Option<String>,
 }
 
 impl UpdateUserProfileParams {
-  pub fn name(mut self, name: &str) -> Self {
+  pub fn new(uid: i64) -> Self {
+    Self {
+      uid,
+      ..Default::default()
+    }
+  }
+
+  pub fn with_name(mut self, name: &str) -> Self {
     self.name = Some(name.to_owned());
     self
   }
 
-  pub fn email(mut self, email: &str) -> Self {
+  pub fn with_email(mut self, email: &str) -> Self {
     self.email = Some(email.to_owned());
     self
   }
 
-  pub fn password(mut self, password: &str) -> Self {
+  pub fn with_password(mut self, password: &str) -> Self {
     self.password = Some(password.to_owned());
     self
   }
 
-  pub fn icon_url(mut self, icon_url: &str) -> Self {
+  pub fn with_icon_url(mut self, icon_url: &str) -> Self {
     self.icon_url = Some(icon_url.to_owned());
     self
   }
 
-  pub fn openai_key(mut self, openai_key: &str) -> Self {
+  pub fn with_openai_key(mut self, openai_key: &str) -> Self {
     self.openai_key = Some(openai_key.to_owned());
+    self
+  }
+
+  pub fn with_encryption_type(mut self, encryption_type: EncryptionType) -> Self {
+    let sign = match encryption_type {
+      EncryptionType::NoEncryption => "".to_string(),
+      EncryptionType::SelfEncryption(sign) => sign,
+    };
+    self.encryption_sign = Some(sign);
     self
   }
 
@@ -152,6 +314,7 @@ impl UpdateUserProfileParams {
       && self.password.is_none()
       && self.icon_url.is_none()
       && self.openai_key.is_none()
+      && self.encryption_sign.is_none()
   }
 }
 

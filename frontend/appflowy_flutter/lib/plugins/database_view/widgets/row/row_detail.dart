@@ -91,7 +91,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
 
               if (fieldInfo != null) {
                 final style = GridTextCellStyle(
-                  placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+                  placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
                   textStyle: Theme.of(context).textTheme.titleLarge,
                   showEmoji: false,
                   autofocus: true,

@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
@@ -15,25 +15,39 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
 use crate::supabase::api::request::{
-  create_snapshot, get_latest_snapshot_from_server, get_updates_from_server,
-  FetchObjectUpdateAction, UpdateItem,
+  create_snapshot, get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
+  UpdateItem,
 };
 use crate::supabase::api::util::{
   ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
+use crate::AppFlowyEncryption;
 
 pub struct SupabaseCollabStorageImpl<T> {
   server: T,
   rx: Mutex<Option<RemoteUpdateReceiver>>,
+  encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl<T> SupabaseCollabStorageImpl<T> {
-  pub fn new(server: T, rx: Option<RemoteUpdateReceiver>) -> Self {
+  pub fn new(
+    server: T,
+    rx: Option<RemoteUpdateReceiver>,
+    encryption: Weak<dyn AppFlowyEncryption>,
+  ) -> Self {
     Self {
       server,
       rx: Mutex::new(rx),
+      encryption,
+    }
+  }
+
+  pub fn secret(&self) -> Option<String> {
+    match self.encryption.upgrade() {
+      None => None,
+      Some(encryption) => encryption.get_secret(),
     }
   }
 }
@@ -55,11 +69,25 @@ where
     Ok(updates)
   }
 
-  async fn get_latest_snapshot(&self, object_id: &str) -> Option<RemoteCollabSnapshot> {
-    let postgrest = self.server.try_get_postgrest().ok()?;
-    get_latest_snapshot_from_server(object_id, postgrest)
-      .await
-      .ok()?
+  async fn get_snapshots(&self, object_id: &str, limit: usize) -> Vec<RemoteCollabSnapshot> {
+    match self.server.try_get_postgrest() {
+      Ok(postgrest) => match get_snapshots_from_server(object_id, postgrest, limit).await {
+        Ok(snapshots) => snapshots,
+        Err(err) => {
+          tracing::error!(
+            "🔴fetch snapshots by oid:{} with limit: {} failed: {:?}",
+            object_id,
+            limit,
+            err
+          );
+          vec![]
+        },
+      },
+      Err(err) => {
+        tracing::error!("🔴get postgrest failed: {:?}", err);
+        vec![]
+      },
+    }
   }
 
   async fn get_collab_state(&self, object_id: &str) -> Result<Option<RemoteCollabState>, Error> {
@@ -88,14 +116,14 @@ where
           })?;
 
           let current_edit_count = value.get("current_edit_count").and_then(|id| id.as_i64())?;
-          let last_snapshot_edit_count = value
-            .get("last_snapshot_edit_count")
+          let snapshot_edit_count = value
+            .get("snapshot_edit_count")
             .and_then(|id| id.as_i64())?;
 
           Some(RemoteCollabState {
             current_edit_count,
-            last_snapshot_edit_count,
-            last_snapshot_created_at: created_at.timestamp(),
+            snapshot_edit_count,
+            snapshot_created_at: created_at.timestamp(),
           })
         }),
     )
@@ -116,7 +144,7 @@ where
       let workspace_id = object
         .get_workspace_id()
         .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-      send_update(workspace_id, object, update, &postgrest).await?;
+      send_update(workspace_id, object, update, &postgrest, &self.secret()).await?;
     }
 
     Ok(())
@@ -133,37 +161,20 @@ where
       .get_workspace_id()
       .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
 
-    let update_items =
-      get_updates_from_server(&object.object_id, &object.ty, postgrest.clone()).await?;
+    let update_items = get_updates_from_server(&object.object_id, &object.ty, &postgrest).await?;
 
     // If the update_items is empty, we can send the init_update directly
     if update_items.is_empty() {
-      send_update(workspace_id, object, init_update, &postgrest).await?;
+      send_update(
+        workspace_id,
+        object,
+        init_update,
+        &postgrest,
+        &self.secret(),
+      )
+      .await?;
     } else {
-      // 2.Merge the updates into one and then delete the merged updates
-      let merge_result = spawn_blocking(move || merge_updates(update_items, init_update)).await??;
-      tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
-
-      let value_size = merge_result.new_update.len() as i32;
-      let md5 = md5(&merge_result.new_update);
-      let new_update = format!("\\x{}", hex::encode(merge_result.new_update));
-      let params = InsertParamsBuilder::new()
-        .insert("oid", object.object_id.clone())
-        .insert("new_value", new_update)
-        .insert("md5", md5)
-        .insert("value_size", value_size)
-        .insert("partition_key", partition_key(&object.ty))
-        .insert("uid", object.uid)
-        .insert("workspace_id", workspace_id)
-        .insert("removed_keys", merge_result.merged_keys)
-        .insert("did", object.get_device_id())
-        .build();
-
-      postgrest
-        .rpc("flush_collab_updates_v2", params)
-        .execute()
-        .await?
-        .success()
+      flush_collab_with_update(object, update_items, &postgrest, init_update, self.secret())
         .await?;
     }
     Ok(())
@@ -178,19 +189,64 @@ where
   }
 }
 
-async fn send_update(
+pub(crate) async fn flush_collab_with_update(
+  object: &CollabObject,
+  update_items: Vec<UpdateItem>,
+  postgrest: &Arc<PostgresWrapper>,
+  update: Vec<u8>,
+  secret: Option<String>,
+) -> Result<(), Error> {
+  // 2.Merge the updates into one and then delete the merged updates
+  let merge_result = spawn_blocking(move || merge_updates(update_items, update)).await??;
+  tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
+
+  let workspace_id = object
+    .get_workspace_id()
+    .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+
+  let value_size = merge_result.new_update.len() as i32;
+  let md5 = md5(&merge_result.new_update);
+
+  tracing::trace!("Flush collab id:{} type:{}", object.object_id, object.ty);
+  let (new_update, encrypt) =
+    SupabaseBinaryColumnEncoder::encode(merge_result.new_update, &secret)?;
+  let params = InsertParamsBuilder::new()
+    .insert("oid", object.object_id.clone())
+    .insert("new_value", new_update)
+    .insert("encrypt", encrypt)
+    .insert("md5", md5)
+    .insert("value_size", value_size)
+    .insert("partition_key", partition_key(&object.ty))
+    .insert("uid", object.uid)
+    .insert("workspace_id", workspace_id)
+    .insert("removed_keys", merge_result.merged_keys)
+    .insert("did", object.get_device_id())
+    .build();
+
+  postgrest
+    .rpc("flush_collab_updates_v3", params)
+    .execute()
+    .await?
+    .success()
+    .await?;
+  Ok(())
+}
+
+pub(crate) async fn send_update(
   workspace_id: String,
   object: &CollabObject,
   update: Vec<u8>,
   postgrest: &Arc<PostgresWrapper>,
+  encryption_secret: &Option<String>,
 ) -> Result<(), Error> {
   let value_size = update.len() as i32;
   let md5 = md5(&update);
-  let update = SupabaseBinaryColumnEncoder::encode(update);
+  let (update, encrypt) = SupabaseBinaryColumnEncoder::encode(update, encryption_secret)?;
   let builder = InsertParamsBuilder::new()
     .insert("oid", object.object_id.clone())
     .insert("partition_key", partition_key(&object.ty))
     .insert("value", update)
+    .insert("encrypt", encrypt)
     .insert("uid", object.uid)
     .insert("md5", md5)
     .insert("workspace_id", workspace_id)

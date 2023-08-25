@@ -4,18 +4,11 @@ import { UserNotificationParser } from './parser';
 import { Ok, Result } from 'ts-results';
 
 declare type OnUserProfileUpdate = (result: Result<UserProfilePB, FlowyError>) => void;
-declare type OnUserSignIn = (result: Result<UserProfilePB, FlowyError>) => void;
 
 export class UserNotificationListener extends AFNotificationObserver<UserNotification> {
   onProfileUpdate?: OnUserProfileUpdate;
-  onUserSignIn?: OnUserSignIn;
 
-  constructor(params: {
-    userId?: string;
-    onUserSignIn?: OnUserSignIn;
-    onProfileUpdate?: OnUserProfileUpdate;
-    onError?: OnNotificationError;
-  }) {
+  constructor(params: { userId?: string; onProfileUpdate?: OnUserProfileUpdate; onError?: OnNotificationError }) {
     const parser = new UserNotificationParser({
       callback: (notification, result) => {
         switch (notification) {
@@ -24,13 +17,6 @@ export class UserNotificationListener extends AFNotificationObserver<UserNotific
               this.onProfileUpdate?.(Ok(UserProfilePB.deserializeBinary(result.val)));
             } else {
               this.onProfileUpdate?.(result);
-            }
-            break;
-          case UserNotification.DidUserSignIn:
-            if (result.ok) {
-              this.onUserSignIn?.(Ok(UserProfilePB.deserializeBinary(result.val)));
-            } else {
-              this.onUserSignIn?.(result);
             }
             break;
           default:
@@ -42,6 +28,5 @@ export class UserNotificationListener extends AFNotificationObserver<UserNotific
     });
     super(parser);
     this.onProfileUpdate = params.onProfileUpdate;
-    this.onUserSignIn = params.onUserSignIn;
   }
 }

@@ -41,7 +41,10 @@ class _CheckboxCardCellState extends State<CheckboxCardCell> {
             previous.isSelected != current.isSelected,
         builder: (context, state) {
           final icon = state.isSelected
-              ? const FlowySvg(FlowySvgs.check_filled_s)
+              ? const FlowySvg(
+                  FlowySvgs.check_filled_s,
+                  blendMode: BlendMode.dst,
+                )
               : const FlowySvg(FlowySvgs.uncheck_s);
           return Align(
             alignment: Alignment.centerLeft,

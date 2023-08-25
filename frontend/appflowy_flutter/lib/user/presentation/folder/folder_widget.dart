@@ -216,7 +216,7 @@ Widget _buildTextButton(
 ) {
   return SecondaryTextButton(
     title,
-    mode: SecondaryTextButtonMode.small,
+    mode: TextButtonMode.small,
     onPressed: onPressed,
   );
 }

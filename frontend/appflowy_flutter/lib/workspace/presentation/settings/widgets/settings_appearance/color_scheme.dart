@@ -31,7 +31,6 @@ class ColorSchemeSetting extends StatelessWidget {
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
         ColorSchemeUploadOverlayButton(bloc: bloc),
-        const SizedBox(width: 4),
         ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
       ],
     );
@@ -49,6 +48,7 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
       width: 24,
       icon: const FlowySvg(
         FlowySvgs.folder_m,
+        size: Size.square(16),
       ),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
       onPressed: () => Dialogs.show(

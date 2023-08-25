@@ -1,6 +1,6 @@
-use anyhow::Error;
 use std::collections::HashMap;
 
+use anyhow::Error;
 use collab_plugins::cloud_storage::CollabType;
 
 use lib_infra::future::FutureResult;
@@ -24,10 +24,11 @@ pub trait DatabaseCloudService: Send + Sync {
     object_ty: CollabType,
   ) -> FutureResult<CollabObjectUpdateByOid, Error>;
 
-  fn get_collab_latest_snapshot(
+  fn get_collab_snapshots(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, Error>;
+    limit: usize,
+  ) -> FutureResult<Vec<DatabaseSnapshot>, Error>;
 }
 
 pub struct DatabaseSnapshot {
