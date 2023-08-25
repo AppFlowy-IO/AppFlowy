@@ -18,8 +18,10 @@ appflowy-integrate = { version = "0.1.0" }
 collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
+collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
 flowy-user-deps = { path = "../flowy-user-deps" }
+anyhow = "1.0.75"
 
 tracing = { version = "0.1", features = ["log"] }
 bytes = "1.4"

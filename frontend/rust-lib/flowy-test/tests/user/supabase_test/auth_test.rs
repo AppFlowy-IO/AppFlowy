@@ -1,9 +1,15 @@
 use std::collections::HashMap;
 
+use assert_json_diff::assert_json_eq;
+use collab_document::blocks::DocumentData;
+use collab_folder::core::FolderData;
 use nanoid::nanoid;
+use serde_json::json;
 
+use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{
@@ -258,4 +264,261 @@ async fn update_user_profile_with_existing_email_test() {
       .unwrap();
     assert_eq!(error.code, ErrorCode::Conflict);
   }
+}
+
+#[tokio::test]
+async fn migrate_anon_document_on_cloud_signup() {
+  if get_supabase_config().is_some() {
+    let test = FlowyCoreTest::new();
+    let user_profile = test.sign_up_as_guest().await.user_profile;
+
+    let view = test
+      .create_view(&user_profile.workspace_id, "My first view".to_string())
+      .await;
+    let document_event = DocumentEventTest::new_with_core(test.clone());
+    let block_id = document_event
+      .insert_index(&view.id, "hello world", 1, None)
+      .await;
+
+    let _ = test.supabase_party_sign_up().await;
+
+    // After sign up, the documents should be migrated to the cloud
+    // So, we can get the document data from the cloud
+    let data: DocumentData = test
+      .document_manager
+      .get_cloud_service()
+      .get_document_data(&view.id)
+      .await
+      .unwrap()
+      .unwrap();
+    let block = data.blocks.get(&block_id).unwrap();
+    assert_json_eq!(
+      block.data,
+      json!({
+        "delta": [
+          {
+            "insert": "hello world"
+          }
+        ]
+      })
+    );
+  }
+}
+
+#[tokio::test]
+async fn migrate_anon_data_on_cloud_signup() {
+  if get_supabase_config().is_some() {
+    let (cleaner, user_db_path) = unzip_history_user_db(
+      "./tests/user/supabase_test/history_user_db",
+      "workspace_sync",
+    )
+    .unwrap();
+    let test = FlowyCoreTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
+    let user_profile = test.supabase_party_sign_up().await;
+
+    // Get the folder data from remote
+    let folder_data: FolderData = test
+      .folder_manager
+      .get_cloud_service()
+      .get_folder_data(&user_profile.workspace_id)
+      .await
+      .unwrap()
+      .unwrap();
+    let expected_folder_data = expected_workspace_sync_folder_data();
+
+    assert_eq!(
+      folder_data.workspaces.len(),
+      expected_folder_data.workspaces.len()
+    );
+    assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
+    assert_eq!(folder_data.current_view, expected_folder_data.current_view);
+
+    drop(cleaner);
+  }
+}
+
+fn expected_workspace_sync_folder_data() -> FolderData {
+  serde_json::from_value::<FolderData>(json!({
+    "current_view": "82c5c683-5486-42c4-b4cb-92b114c6cf92",
+    "current_workspace_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e",
+    "views": [
+      {
+        "children": {
+          "items": [
+            {
+              "id": "f0a76fd1-b769-42e8-829b-3cc33b088871"
+            },
+            {
+              "id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8"
+            }
+          ]
+        },
+        "created_at": 1692884814,
+        "desc": "",
+        "icon": null,
+        "id": "82c5c683-5486-42c4-b4cb-92b114c6cf92",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "⭐️ Getting started",
+        "parent_view_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e"
+      },
+      {
+        "children": {
+          "items": [
+            {
+              "id": "028a34a6-0138-4aae-8116-896dd5ac8cb3"
+            }
+          ]
+        },
+        "created_at": 1692884817,
+        "desc": "",
+        "icon": null,
+        "id": "f0a76fd1-b769-42e8-829b-3cc33b088871",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "document 1",
+        "parent_view_id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1692884946,
+        "desc": "",
+        "icon": null,
+        "id": "028a34a6-0138-4aae-8116-896dd5ac8cb3",
+        "is_favorite": false,
+        "layout": 1,
+        "name": "Untitled",
+        "parent_view_id": "f0a76fd1-b769-42e8-829b-3cc33b088871"
+      },
+      {
+        "children": {
+          "items": [
+            {
+              "id": "9841041b-c7b0-4568-885c-24069b6d1d22"
+            }
+          ]
+        },
+        "created_at": 1692884827,
+        "desc": "",
+        "icon": null,
+        "id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "document 2",
+        "parent_view_id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1692884969,
+        "desc": "",
+        "icon": null,
+        "id": "9841041b-c7b0-4568-885c-24069b6d1d22",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "Untitled",
+        "parent_view_id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8"
+      },
+      {
+        "children": {
+          "items": [
+            {
+              "id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+            },
+            {
+              "id": "e167e197-2822-4981-9391-86dff16fb261"
+            }
+          ]
+        },
+        "created_at": 1692884854,
+        "desc": "",
+        "icon": null,
+        "id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "database",
+        "parent_view_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e"
+      },
+      {
+        "children": {
+          "items": [
+            {
+              "id": "b416d4a8-68d0-4a47-ba1f-091cbffaf9bf"
+            },
+            {
+              "id": "c0d91451-fed0-4500-99a1-1ada9fe8aaaa"
+            }
+          ]
+        },
+        "created_at": 1692884857,
+        "desc": "",
+        "icon": null,
+        "id": "6891352a-185c-4c0e-b66f-f7cb25a66033",
+        "is_favorite": false,
+        "layout": 1,
+        "name": "My first database",
+        "parent_view_id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1692884875,
+        "desc": "",
+        "icon": null,
+        "id": "b416d4a8-68d0-4a47-ba1f-091cbffaf9bf",
+        "is_favorite": false,
+        "layout": 3,
+        "name": "calendar",
+        "parent_view_id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1692884877,
+        "desc": "",
+        "icon": null,
+        "id": "c0d91451-fed0-4500-99a1-1ada9fe8aaaa",
+        "is_favorite": false,
+        "layout": 2,
+        "name": "board",
+        "parent_view_id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1692884883,
+        "desc": "",
+        "icon": null,
+        "id": "e167e197-2822-4981-9391-86dff16fb261",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "database description",
+        "parent_view_id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+      }
+    ],
+    "workspaces": [
+      {
+        "child_views": {
+          "items": [
+            {
+              "id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
+            },
+            {
+              "id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+            }
+          ]
+        },
+        "created_at": 1692884814,
+        "id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e",
+        "name": "Workspace"
+      }
+    ]
+  }))
+  .unwrap()
 }

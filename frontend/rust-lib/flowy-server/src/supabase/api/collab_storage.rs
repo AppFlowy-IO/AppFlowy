@@ -141,9 +141,9 @@ where
     update: Vec<u8>,
   ) -> Result<(), Error> {
     if let Some(postgrest) = self.server.get_postgrest() {
-      let workspace_id = object
-        .get_workspace_id()
-        .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
+      let workspace_id = object.get_workspace_id().ok_or(anyhow::anyhow!(
+        "Can't get the workspace id in CollabObject"
+      ))?;
       send_update(workspace_id, object, update, &postgrest, &self.secret()).await?;
     }
 
@@ -198,7 +198,6 @@ pub(crate) async fn flush_collab_with_update(
 ) -> Result<(), Error> {
   // 2.Merge the updates into one and then delete the merged updates
   let merge_result = spawn_blocking(move || merge_updates(update_items, update)).await??;
-  tracing::trace!("Merged updates count: {}", merge_result.merged_keys.len());
 
   let workspace_id = object
     .get_workspace_id()
@@ -207,7 +206,12 @@ pub(crate) async fn flush_collab_with_update(
   let value_size = merge_result.new_update.len() as i32;
   let md5 = md5(&merge_result.new_update);
 
-  tracing::trace!("Flush collab id:{} type:{}", object.object_id, object.ty);
+  tracing::trace!(
+    "Flush collab id:{} type:{} is_encrypt: {}",
+    object.object_id,
+    object.ty,
+    secret.is_some()
+  );
   let (new_update, encrypt) =
     SupabaseBinaryColumnEncoder::encode(merge_result.new_update, &secret)?;
   let params = InsertParamsBuilder::new()

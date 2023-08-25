@@ -143,7 +143,7 @@ impl FolderManager {
     &self,
     uid: i64,
     workspace_id: &str,
-    initial_data: FolderInitializeData,
+    initial_data: FolderInitializeDataSource,
   ) -> FlowyResult<()> {
     *self.workspace_id.write() = Some(workspace_id.to_string());
     let workspace_id = workspace_id.to_string();
@@ -156,25 +156,39 @@ impl FolderManager {
       };
 
       let folder = match initial_data {
-        FolderInitializeData::Empty => {
+        FolderInitializeDataSource::LocalDisk {
+          create_if_not_exist,
+        } => {
           let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
-          if !is_exist {
-            return Err(FlowyError::new(
-              ErrorCode::RecordNotFound,
-              "Can't find any workspace data",
-            ));
+          if is_exist {
+            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            Folder::open(collab, Some(folder_notifier))
+          } else {
+            if create_if_not_exist {
+              let folder_data = DefaultFolderBuilder::build(
+                uid,
+                workspace_id.to_string(),
+                &self.operation_handlers,
+              )
+              .await;
+              let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+              Folder::create(collab, Some(folder_notifier), Some(folder_data))
+            } else {
+              return Err(FlowyError::new(
+                ErrorCode::RecordNotFound,
+                "Can't find any workspace data",
+              ));
+            }
           }
-          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
-          Folder::open(collab, Some(folder_notifier))
         },
-        FolderInitializeData::Raw(raw_data) => {
+        FolderInitializeDataSource::Cloud(raw_data) => {
           if raw_data.is_empty() {
             return Err(workspace_data_not_sync_error(uid, &workspace_id));
           }
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
           Folder::open(collab, Some(folder_notifier))
         },
-        FolderInitializeData::Data(folder_data) => {
+        FolderInitializeDataSource::FolderData(folder_data) => {
           let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
           Folder::create(collab, Some(folder_notifier), Some(folder_data))
         },
@@ -239,7 +253,7 @@ impl FolderManager {
       .initialize(
         user_id,
         workspace_id,
-        FolderInitializeData::Raw(folder_updates),
+        FolderInitializeDataSource::Cloud(folder_updates),
       )
       .await?;
     Ok(())
@@ -252,27 +266,13 @@ impl FolderManager {
     user_id: i64,
     _token: &str,
     is_new: bool,
-    folder_data: Option<FolderData>,
+    data_source: FolderInitializeDataSource,
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
     tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
     if is_new {
-      let folder_data = match folder_data {
-        None => {
-          DefaultFolderBuilder::build(user_id, workspace_id.to_string(), &self.operation_handlers)
-            .await
-        },
-        Some(folder_data) => folder_data,
-      };
-
-      self
-        .initialize(
-          user_id,
-          workspace_id,
-          FolderInitializeData::Data(folder_data),
-        )
-        .await?;
+      self.initialize(user_id, workspace_id, data_source).await?;
     } else {
       // The folder updates should not be empty, as the folder data is stored
       // when the user signs up for the first time.
@@ -290,7 +290,7 @@ impl FolderManager {
         .initialize(
           user_id,
           workspace_id,
-          FolderInitializeData::Raw(folder_updates),
+          FolderInitializeDataSource::Cloud(folder_updates),
         )
         .await?;
     }
@@ -1238,13 +1238,13 @@ impl Deref for MutexFolder {
 unsafe impl Sync for MutexFolder {}
 unsafe impl Send for MutexFolder {}
 
-pub enum FolderInitializeData {
+pub enum FolderInitializeDataSource {
   /// It means using the data stored on local disk to initialize the folder
-  Empty,
+  LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
-  Raw(CollabRawData),
+  Cloud(CollabRawData),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
-  Data(FolderData),
+  FolderData(FolderData),
 }
 
 fn is_exist_in_local_disk(user: &Arc<dyn FolderUser>, doc_id: &str) -> FlowyResult<bool> {

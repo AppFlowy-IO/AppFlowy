@@ -3,7 +3,6 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
 use appflowy_integrate::RocksCollabDB;
-use collab_folder::core::FolderData;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
@@ -19,11 +18,9 @@ use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
-use crate::event_map::{
-  DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
-};
+use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
 use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
-use crate::migrations::local_user_to_cloud::migration_user_to_cloud;
+use crate::migrations::local_user_to_cloud::{migration_local_user_data, sync_user_data_to_cloud};
 use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
@@ -305,10 +302,7 @@ impl UserManager {
     } else {
       UserAwarenessDataSource::Remote
     };
-    let mut sign_up_context = SignUpContext {
-      is_new: response.is_new_user,
-      local_folder: None,
-    };
+
     if response.is_new_user {
       if let Some(old_user) = migration_user {
         let new_user = MigrationUser {
@@ -320,10 +314,9 @@ impl UserManager {
           old_user.user_profile.uid,
           new_user.user_profile.uid
         );
-        match self.migrate_local_user_to_cloud(&old_user, &new_user).await {
-          Ok(folder_data) => sign_up_context.local_folder = folder_data,
-          Err(e) => tracing::error!("{:?}", e),
-        }
+        self
+          .migrate_local_user_to_cloud(&old_user, &new_user)
+          .await?;
         let _ = self.database.close(old_user.session.user_id);
       }
     }
@@ -336,7 +329,7 @@ impl UserManager {
       .read()
       .await
       .did_sign_up(
-        sign_up_context,
+        response.is_new_user,
         user_profile,
         &new_session.user_workspace,
         &new_session.device_id,
@@ -596,17 +589,28 @@ impl UserManager {
     &self,
     old_user: &MigrationUser,
     new_user: &MigrationUser,
-  ) -> Result<Option<FolderData>, FlowyError> {
+  ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    let folder_data = migration_user_to_cloud(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_local_user_data(old_user, &old_collab_db, new_user, &new_collab_db)?;
+
+    if let Err(err) = sync_user_data_to_cloud(
+      self.cloud_services.get_user_service()?,
+      new_user,
+      &new_collab_db,
+    )
+    .await
+    {
+      tracing::error!("Sync user data to cloud failed: {:?}", err);
+    }
+
     // Save the old user workspace setting.
     save_user_workspaces(
       old_user.session.user_id,
       self.database.get_pool(old_user.session.user_id)?,
       &[old_user.session.user_workspace.clone()],
     )?;
-    Ok(folder_data)
+    Ok(())
   }
 }
 

@@ -22,9 +22,7 @@ use crate::supabase::api::request::{get_updates_from_server, FetchObjectUpdateAc
 use crate::supabase::api::util::{
   ExtendedResponse, InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
 };
-use crate::supabase::api::{
-  flush_collab_with_update, send_update, PostgresWrapper, SupabaseServerService,
-};
+use crate::supabase::api::{flush_collab_with_update, PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 use crate::supabase::entities::UserProfileResponse;
 use crate::supabase::entities::{GetUserProfileParams, RealtimeUserEvent};
@@ -308,7 +306,7 @@ where
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,
-    data: Vec<u8>,
+    update: Vec<u8>,
   ) -> FutureResult<(), Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
@@ -316,23 +314,13 @@ where
     tokio::spawn(async move {
       tx.send(
         async move {
-          let workspace_id = cloned_collab_object
-            .get_workspace_id()
-            .ok_or(anyhow::anyhow!("Invalid workspace id"))?;
-
           let postgrest = try_get_postgrest?
             .upgrade()
             .ok_or(anyhow::anyhow!("postgrest is not available"))?;
 
-          let encryption_secret = postgrest.secret();
-          send_update(
-            workspace_id,
-            &cloned_collab_object,
-            data,
-            &postgrest,
-            &encryption_secret,
-          )
-          .await?;
+          let secret = postgrest.secret();
+          flush_collab_with_update(&cloned_collab_object, vec![], &postgrest, update, secret)
+            .await?;
           Ok(())
         }
         .await,
