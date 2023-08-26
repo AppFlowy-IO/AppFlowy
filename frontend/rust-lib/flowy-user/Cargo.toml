@@ -10,6 +10,7 @@ flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true }
 flowy-encrypt = { path = "../flowy-encrypt" }
 flowy-error = { path = "../flowy-error", features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
+flowy-folder-deps = { path = "../flowy-folder-deps" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-notification = { path = "../flowy-notification" }
 flowy-server-config = { path = "../flowy-server-config" }

@@ -1742,6 +1742,7 @@ dependencies = [
  "flowy-derive",
  "flowy-encrypt",
  "flowy-error",
+ "flowy-folder-deps",
  "flowy-notification",
  "flowy-server-config",
  "flowy-sqlite",

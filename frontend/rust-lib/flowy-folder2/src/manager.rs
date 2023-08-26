@@ -16,7 +16,7 @@ use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -31,9 +31,7 @@ use crate::notification::{
 };
 use crate::share::ImportParams;
 use crate::user_default::DefaultFolderBuilder;
-use crate::view_operation::{
-  create_view, gen_view_id, FolderOperationHandler, FolderOperationHandlers,
-};
+use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 /// [FolderUser] represents the user for folder.
 pub trait FolderUser: Send + Sync {
@@ -686,7 +684,7 @@ impl FolderManager {
       desc: view.desc.clone(),
       layout: view.layout.clone().into(),
       initial_data: view_data.to_vec(),
-      view_id: gen_view_id(),
+      view_id: gen_view_id().to_string(),
       meta: Default::default(),
       set_as_current: true,
       index,
@@ -843,7 +841,7 @@ impl FolderManager {
     }
 
     let handler = self.get_handler(&import_data.view_layout)?;
-    let view_id = gen_view_id();
+    let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
     if let Some(data) = import_data.data {
       handler

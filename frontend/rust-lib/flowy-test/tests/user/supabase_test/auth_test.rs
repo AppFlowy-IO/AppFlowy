@@ -331,7 +331,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       expected_folder_data.workspaces.len()
     );
     assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
-    assert_eq!(folder_data.current_view, expected_folder_data.current_view);
+    assert_ne!(folder_data.current_view, expected_folder_data.current_view);
 
     drop(cleaner);
   }

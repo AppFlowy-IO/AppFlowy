@@ -20,8 +20,9 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
 use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
-use crate::migrations::local_user_to_cloud::{migration_local_user_data, sync_user_data_to_cloud};
+use crate::migrations::migrate_to_new_user::migration_local_user_on_sign_up;
 use crate::migrations::migration::UserLocalDataMigration;
+use crate::migrations::sync_new_user::sync_user_data_to_cloud;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::database::UserDB;
@@ -592,7 +593,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    migration_local_user_data(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    let _ = migration_local_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,
