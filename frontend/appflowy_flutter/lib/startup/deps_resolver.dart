@@ -12,6 +12,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -126,6 +127,7 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
+  getIt.registerLazySingleton<PanesCubit>(() => PanesCubit());
 }
 
 void _resolveFolderDeps(GetIt getIt) {
