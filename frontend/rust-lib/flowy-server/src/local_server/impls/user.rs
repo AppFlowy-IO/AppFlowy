@@ -5,7 +5,7 @@ use collab_plugins::cloud_storage::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
@@ -23,7 +23,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
   pub db: Arc<dyn LocalServerDB>,
 }
 
-impl UserService for LocalServerUserAuthServiceImpl {
+impl UserCloudService for LocalServerUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
@@ -116,6 +116,10 @@ impl UserService for LocalServerUserAuthServiceImpl {
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async { Ok(vec![]) })
+  }
+
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
   }
 
   fn create_collab_object(

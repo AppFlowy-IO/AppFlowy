@@ -50,6 +50,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
+    customCopyCommand,
+    customPasteCommand,
+    customCutCommand,
     ...standardCommandShortcutEvents,
   ];
 
@@ -156,6 +159,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      contextMenuItems: customContextMenuItems,
       header: widget.header,
       footer: const VSpace(200),
     );

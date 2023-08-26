@@ -1,12 +1,11 @@
 use std::sync::{Arc, Weak};
 
 use collab_folder::core::FolderData;
-use serde_json::Value;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserService};
+use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
@@ -55,6 +54,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
+    .event(UserEvent::ResetWorkspace, reset_workspace_handler)
 }
 
 pub struct SignUpContext {
@@ -97,7 +97,6 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
   fn did_update_network(&self, _reachable: bool) {}
-  fn receive_realtime_event(&self, _json: Value) {}
 }
 
 /// The user cloud service provider.
@@ -107,7 +106,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn set_encrypt_secret(&self, secret: String);
   fn set_auth_type(&self, auth_type: AuthType);
   fn set_device_id(&self, device_id: &str);
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
   fn service_name(&self) -> String;
 }
 
@@ -131,7 +130,7 @@ where
     (**self).set_device_id(device_id)
   }
 
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     (**self).get_user_service()
   }
 
@@ -273,4 +272,7 @@ pub enum UserEvent {
 
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 30,
 }

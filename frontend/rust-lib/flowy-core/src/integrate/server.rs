@@ -4,8 +4,7 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
-use parking_lot::{Mutex, RwLock};
-use serde_json::Value;
+use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_database_deps::cloud::*;
@@ -24,7 +23,7 @@ use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 };
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::future::FutureResult;
 
@@ -60,15 +59,16 @@ impl Display for ServerProviderType {
 /// The [AppFlowyServerProvider] provides list of [AppFlowyServer] base on the [AuthType]. Using
 /// the auth type, the [AppFlowyServerProvider] will create a new [AppFlowyServer] if it doesn't
 /// exist.
-/// Each server implements the [AppFlowyServer] trait, which provides the [UserService], etc.
+/// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
-  device_id: Mutex<String>,
+  device_id: Arc<RwLock<String>>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
   enable_sync: RwLock<bool>,
   encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   store_preferences: Weak<StorePreferences>,
+  cache_user_service: RwLock<HashMap<ServerProviderType, Arc<dyn UserCloudService>>>,
 }
 
 impl AppFlowyServerProvider {
@@ -86,11 +86,12 @@ impl AppFlowyServerProvider {
       enable_sync: RwLock::new(true),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
+      cache_user_service: Default::default(),
     }
   }
 
   pub fn set_sync_device(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
+    *self.device_id.write() = device_id.to_string();
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -134,24 +135,17 @@ impl AppFlowyServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
           config,
           *self.enable_sync.read(),
+          self.device_id.clone(),
           encryption,
         )))
       },
     }?;
-    server.set_sync_device_id(&self.device_id.lock());
 
     self
       .providers
       .write()
       .insert(provider_type.clone(), server.clone());
     Ok(server)
-  }
-
-  pub fn handle_realtime_event(&self, json: Value) {
-    let provider_type = self.provider_type.read().clone();
-    if let Some(server) = self.providers.read().get(&provider_type) {
-      server.handle_realtime_event(json);
-    }
   }
 }
 
@@ -195,17 +189,27 @@ impl UserCloudServiceProvider for AppFlowyServerProvider {
   }
 
   fn set_device_id(&self, device_id: &str) {
-    *self.device_id.lock() = device_id.to_string();
+    *self.device_id.write() = device_id.to_string();
   }
 
-  /// Returns the [UserService] base on the current [ServerProviderType].
+  /// Returns the [UserCloudService] base on the current [ServerProviderType].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
-    Ok(
-      self
-        .get_provider(&self.provider_type.read())?
-        .user_service(),
-    )
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
+    if let Some(user_service) = self
+      .cache_user_service
+      .read()
+      .get(&self.provider_type.read())
+    {
+      return Ok(user_service.clone());
+    }
+
+    let provider_type = self.provider_type.read().clone();
+    let user_service = self.get_provider(&provider_type)?.user_service();
+    self
+      .cache_user_service
+      .write()
+      .insert(provider_type, user_service.clone());
+    Ok(user_service)
   }
 
   fn service_name(&self) -> String {
@@ -418,9 +422,9 @@ impl LocalServerDB for LocalServerDBImpl {
   fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError> {
     let collab_db = open_collab_db(&self.storage_path, uid)?;
     let read_txn = collab_db.read_txn();
-    let updates = read_txn
-      .get_all_updates(uid, object_id)
-      .map_err(|e| FlowyError::internal().context(format!("Failed to open collab db: {:?}", e)))?;
+    let updates = read_txn.get_all_updates(uid, object_id).map_err(|e| {
+      FlowyError::internal().with_context(format!("Failed to open collab db: {:?}", e))
+    })?;
 
     Ok(updates)
   }

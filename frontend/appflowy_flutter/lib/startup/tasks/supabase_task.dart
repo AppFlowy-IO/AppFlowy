@@ -40,20 +40,17 @@ class InitSupabaseTask extends LaunchTask {
       debug: kDebugMode,
       localStorage: const SupabaseLocalStorage(),
     );
+
+    if (realtimeService != null) {
+      await realtimeService?.dispose();
+      realtimeService = null;
+    }
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
     supabase = initializedSupabase;
 
     if (Platform.isWindows) {
       // register deep link for Windows
       registerProtocolHandler(appflowyDeepLinkSchema);
-    } else if (Platform.isLinux) {
-      // register deep link for Linux
-      await SupabaseAuth.instance.registerDBusService(
-        // these values should be compatible with the values in the desktop file
-        // dbus-interface.xml
-        '/io/appflowy/AppFlowy/Object',
-        'io.appflowy.AppFlowy',
-      );
     }
   }
 }

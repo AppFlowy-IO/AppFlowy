@@ -43,30 +43,26 @@ class FlowyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!disable) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        onSecondaryTap: onSecondaryTap,
-        child: FlowyHover(
-          style: HoverStyle(
-            borderRadius: radius ?? Corners.s6Border,
-            hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
-          ),
-          onHover: onHover,
-          isSelected: () => isSelected,
-          builder: (context, onHover) => _render(),
+    final color = hoverColor ?? Theme.of(context).colorScheme.secondary;
+    final alpha = (255 * disableOpacity).toInt();
+    color.withAlpha(alpha);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: disable ? null : onTap,
+      onSecondaryTap: disable ? null : onSecondaryTap,
+      child: FlowyHover(
+        cursor:
+            disable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+        style: HoverStyle(
+          borderRadius: radius ?? Corners.s6Border,
+          hoverColor: color,
         ),
-      );
-    } else {
-      return Opacity(
-        opacity: disableOpacity,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.forbidden,
-          child: _render(),
-        ),
-      );
-    }
+        onHover: disable ? null : onHover,
+        isSelected: () => isSelected,
+        builder: (context, onHover) => _render(),
+      ),
+    );
   }
 
   Widget _render() {

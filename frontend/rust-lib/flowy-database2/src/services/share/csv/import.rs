@@ -1,13 +1,15 @@
-use crate::entities::FieldType;
+use std::{fs::File, io::prelude::*};
 
-use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
-use crate::services::share::csv::CSVFormat;
 use collab_database::database::{gen_database_id, gen_field_id, gen_row_id};
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, CreateRowParams};
 use collab_database::views::{CreateDatabaseParams, DatabaseLayout};
+
 use flowy_error::{FlowyError, FlowyResult};
-use std::{fs::File, io::prelude::*};
+
+use crate::entities::FieldType;
+use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
+use crate::services::share::csv::CSVFormat;
 
 #[derive(Default)]
 pub struct CSVImporter;
@@ -41,7 +43,7 @@ impl CSVImporter {
   fn get_fields_and_rows(&self, content: String) -> Result<FieldsRows, FlowyError> {
     let mut fields: Vec<String> = vec![];
     if content.is_empty() {
-      return Err(FlowyError::invalid_data().context("Import content is empty"));
+      return Err(FlowyError::invalid_data().with_context("Import content is empty"));
     }
 
     let mut reader = csv::Reader::from_reader(content.as_bytes());
@@ -50,7 +52,7 @@ impl CSVImporter {
         fields.push(header.to_string());
       }
     } else {
-      return Err(FlowyError::invalid_data().context("Header not found"));
+      return Err(FlowyError::invalid_data().with_context("Header not found"));
     }
 
     let rows = reader
@@ -164,8 +166,9 @@ pub struct ImportResult {
 
 #[cfg(test)]
 mod tests {
-  use crate::services::share::csv::{CSVFormat, CSVImporter};
   use collab_database::database::gen_database_view_id;
+
+  use crate::services::share::csv::{CSVFormat, CSVImporter};
 
   #[test]
   fn test_import_csv_from_str() {

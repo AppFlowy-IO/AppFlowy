@@ -19,7 +19,7 @@ use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB, UserCredentia
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::AuthType;
 
 pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
@@ -110,9 +110,9 @@ pub fn database_service() -> Arc<dyn DatabaseCloudService> {
   Arc::new(SupabaseDatabaseServiceImpl::new(server))
 }
 
-pub fn user_auth_service() -> Arc<dyn UserService> {
+pub fn user_auth_service() -> Arc<dyn UserCloudService> {
   let (server, _encryption_impl) = appflowy_server(None);
-  Arc::new(SupabaseUserServiceImpl::new(server))
+  Arc::new(SupabaseUserServiceImpl::new(server, vec![], None))
 }
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {

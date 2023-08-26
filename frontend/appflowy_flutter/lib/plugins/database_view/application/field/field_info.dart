@@ -19,6 +19,8 @@ class FieldInfo with _$FieldInfo {
 
   String get name => field.name;
 
+  bool get isPrimary => field.isPrimary;
+
   factory FieldInfo.initial(FieldPB field) => FieldInfo(
         field: field,
         hasFilter: false,

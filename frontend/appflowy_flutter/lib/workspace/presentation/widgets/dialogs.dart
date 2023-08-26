@@ -127,8 +127,8 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
           ...[
             ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 300,
-                maxHeight: 100,
+                maxWidth: 400,
+                maxHeight: 260,
               ),
               child: FlowyText.medium(
                 widget.title,

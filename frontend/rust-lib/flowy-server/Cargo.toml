@@ -9,7 +9,7 @@ edition = "2021"
 tracing = { version = "0.1" }
 futures = "0.3.26"
 futures-util = "0.3.26"
-reqwest = "0.11.14"
+reqwest = { version = "0.11.14", features = ["native-tls-vendored"] }
 hyper = "0.14"
 config = { version = "0.10.1", default-features = false, features = ["yaml"] }
 serde = { version = "1.0", features = ["derive"] }

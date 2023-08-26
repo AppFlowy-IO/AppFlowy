@@ -154,3 +154,24 @@ pub struct UserStatePB {
   #[pb(index = 1)]
   pub auth_type: AuthTypePB,
 }
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct AuthStateChangedPB {
+  #[pb(index = 1)]
+  pub state: AuthStatePB,
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone)]
+pub enum AuthStatePB {
+  // adding AuthState prefix to avoid conflict with other enums
+  AuthStateUnknown = 0,
+  AuthStateSignIn = 1,
+  AuthStateSignOut = 2,
+  AuthStateForceSignOut = 3,
+}
+
+impl Default for AuthStatePB {
+  fn default() -> Self {
+    Self::AuthStateUnknown
+  }
+}

@@ -95,7 +95,7 @@ impl DatabaseManager {
           collab_raw_data = updates;
         },
         Err(err) => {
-          return Err(FlowyError::record_not_found().context(format!(
+          return Err(FlowyError::record_not_found().with_context(format!(
             "get workspace database :{} failed: {}",
             database_storage_id, err,
           )));
@@ -156,7 +156,7 @@ impl DatabaseManager {
     let wdb = self.get_workspace_database().await?;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
-        .context(format!("The database for view id: {} not found", view_id))
+        .with_context(format!("The database for view id: {} not found", view_id))
     })
   }
 
@@ -331,7 +331,7 @@ impl DatabaseManager {
   async fn get_workspace_database(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
     let database = self.workspace_database.read().await;
     match &*database {
-      None => Err(FlowyError::internal().context("Workspace database not initialized")),
+      None => Err(FlowyError::internal().with_context("Workspace database not initialized")),
       Some(user_database) => Ok(user_database.clone()),
     }
   }

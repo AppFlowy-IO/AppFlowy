@@ -5,6 +5,7 @@ use std::str::FromStr;
 use anyhow::Error;
 use collab_define::CollabObject;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -57,7 +58,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserService: Send + Sync {
+pub trait UserCloudService: Send + Sync {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
@@ -103,11 +104,29 @@ pub trait UserService: Send + Sync {
 
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 
+  fn receive_realtime_event(&self, _json: Value) {}
+
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    None
+  }
+
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error>;
+
   fn create_collab_object(
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
   ) -> FutureResult<(), Error>;
+}
+
+pub type UserUpdateReceiver = tokio::sync::broadcast::Receiver<UserUpdate>;
+pub type UserUpdateSender = tokio::sync::broadcast::Sender<UserUpdate>;
+#[derive(Debug, Clone)]
+pub struct UserUpdate {
+  pub uid: i64,
+  pub name: String,
+  pub email: String,
+  pub encryption_sign: String,
 }
 
 pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {

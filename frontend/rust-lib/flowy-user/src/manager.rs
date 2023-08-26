@@ -14,10 +14,11 @@ use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
 use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_user_deps::cloud::UserUpdate;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
-use crate::entities::{UserProfilePB, UserSettingPB};
+use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{
   DefaultUserStatusCallback, SignUpContext, UserCloudServiceProvider, UserStatusCallback,
 };
@@ -61,6 +62,7 @@ pub struct UserManager {
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   resumable_sign_up: Mutex<Option<ResumableSignUp>>,
+  current_session: parking_lot::RwLock<Option<Session>>,
 }
 
 impl UserManager {
@@ -69,11 +71,12 @@ impl UserManager {
     cloud_services: Arc<dyn UserCloudServiceProvider>,
     store_preferences: Arc<StorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
-  ) -> Self {
+  ) -> Arc<Self> {
     let database = UserDB::new(&session_config.root_dir);
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
-    Self {
+
+    let user_manager = Arc::new(Self {
       database,
       session_config,
       cloud_services,
@@ -82,7 +85,25 @@ impl UserManager {
       user_status_callback,
       collab_builder,
       resumable_sign_up: Default::default(),
+      current_session: Default::default(),
+    });
+
+    let weak_user_manager = Arc::downgrade(&user_manager);
+    if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
+      if let Some(mut rx) = user_service.subscribe_user_update() {
+        tokio::spawn(async move {
+          while let Ok(update) = rx.recv().await {
+            if let Some(user_manager) = weak_user_manager.upgrade() {
+              if let Err(err) = user_manager.handler_user_update(update).await {
+                tracing::error!("handler_user_update failed: {:?}", err);
+              }
+            }
+          }
+        });
+      }
     }
+
+    user_manager
   }
 
   pub fn get_store_preferences(&self) -> Weak<StorePreferences> {
@@ -121,6 +142,7 @@ impl UserManager {
       self
         .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
         .await;
+
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       if let Err(e) = user_status_callback
         .did_init(
@@ -191,9 +213,10 @@ impl UserManager {
     {
       tracing::error!("Failed to call did_sign_in callback: {:?}", e);
     }
-    send_sign_in_notification()
-      .payload::<UserProfilePB>(user_profile.clone().into())
-      .send();
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateSignIn,
+    })
+    .send();
     Ok(user_profile)
   }
 
@@ -322,6 +345,11 @@ impl UserManager {
     self
       .save_auth_data(&response, auth_type, &new_session)
       .await?;
+
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateSignIn,
+    })
+    .send();
     Ok(())
   }
 
@@ -329,7 +357,7 @@ impl UserManager {
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     let session = self.get_session()?;
     self.database.close(session.user_id)?;
-    self.set_current_session(None)?;
+    self.set_session(None)?;
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {
@@ -352,27 +380,10 @@ impl UserManager {
     &self,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
-    let old_user_profile = self.get_user_profile(params.uid, false).await?;
-    let auth_type = old_user_profile.auth_type.clone();
-    let session = self.get_session()?;
     let changeset = UserTableChangeset::new(params.clone());
-    diesel_update_table!(
-      user_table,
-      changeset,
-      &*self.db_connection(session.user_id)?
-    );
-
     let session = self.get_session()?;
-    let new_user_profile = self.get_user_profile(session.user_id, false).await?;
-    send_notification(
-      &session.user_id.to_string(),
-      UserNotification::DidUpdateUserProfile,
-    )
-    .payload(UserProfilePB::from(new_user_profile))
-    .send();
-    self
-      .update_user(&auth_type, session.user_id, None, params)
-      .await?;
+    save_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
+    self.update_user(session.user_id, None, params).await?;
     Ok(())
   }
 
@@ -396,44 +407,38 @@ impl UserManager {
   }
 
   /// Fetches the user profile for the given user ID.
-  ///
-  /// This function retrieves the user profile from the local database. If the `refresh` flag is set to `true`,
-  /// it also attempts to update the user profile from a cloud service, and then sends a notification about the
-  /// profile update.
-  pub async fn get_user_profile(&self, uid: i64, refresh: bool) -> Result<UserProfile, FlowyError> {
-    let user_id = uid.to_string();
-    let user = user_table::dsl::user_table
-      .filter(user_table::id.eq(&user_id))
-      .first::<UserTable>(&*(self.db_connection(uid)?))?;
+  pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
+    let user: UserProfile = user_table::dsl::user_table
+      .filter(user_table::id.eq(&uid.to_string()))
+      .first::<UserTable>(&*(self.db_connection(uid)?))?
+      .into();
 
-    if refresh {
-      let weak_auth_service = Arc::downgrade(&self.cloud_services.get_user_service()?);
-      let weak_pool = Arc::downgrade(&self.database.get_pool(uid)?);
-      tokio::spawn(async move {
-        if let (Some(auth_service), Some(pool)) = (weak_auth_service.upgrade(), weak_pool.upgrade())
-        {
-          if let Ok(Some(user_profile)) = auth_service
-            .get_user_profile(UserCredentials::from_uid(uid))
-            .await
-          {
-            let changeset = UserTableChangeset::from_user_profile(user_profile.clone());
-            if let Ok(conn) = pool.get() {
-              let filter =
-                user_table::dsl::user_table.filter(user_table::dsl::id.eq(changeset.id.clone()));
-              let _ = diesel::update(filter).set(changeset).execute(&*conn);
+    Ok(user)
+  }
 
-              // Send notification to the client
-              let user_profile_pb: UserProfilePB = user_profile.into();
-              send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
-                .payload(user_profile_pb)
-                .send();
-            }
-          }
-        }
-      });
+  #[tracing::instrument(level = "info", skip_all)]
+  pub async fn refresh_user_profile(
+    &self,
+    old_user_profile: &UserProfile,
+  ) -> FlowyResult<UserProfile> {
+    let uid = old_user_profile.uid;
+    let new_user_profile: UserProfile = self
+      .cloud_services
+      .get_user_service()?
+      .get_user_profile(UserCredentials::from_uid(uid))
+      .await?
+      .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
+
+    if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign()) {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidEncryptSecret,
+        "Invalid encryption sign",
+      ));
     }
 
-    Ok(user.into())
+    let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
+    let _ = save_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
+    Ok(new_user_profile)
   }
 
   pub fn user_dir(&self, uid: i64) -> String {
@@ -458,7 +463,6 @@ impl UserManager {
 
   async fn update_user(
     &self,
-    _auth_type: &AuthType,
     uid: i64,
     token: Option<String>,
     params: UpdateUserProfileParams,
@@ -490,32 +494,18 @@ impl UserManager {
     Ok(())
   }
 
-  pub(crate) fn set_current_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    tracing::debug!("Set current user: {:?}", session);
-    match &session {
-      None => self
-        .store_preferences
-        .remove(&self.session_config.session_cache_key),
-      Some(session) => {
-        self
-          .store_preferences
-          .set_object(&self.session_config.session_cache_key, session.clone())
-          .map_err(internal_error)?;
-      },
-    }
-    Ok(())
-  }
-
   pub async fn receive_realtime_event(&self, json: Value) {
-    self
-      .user_status_callback
-      .read()
-      .await
-      .receive_realtime_event(json);
+    if let Ok(user_service) = self.cloud_services.get_user_service() {
+      user_service.receive_realtime_event(json)
+    }
   }
 
   /// Returns the current user session.
   pub fn get_session(&self) -> Result<Session, FlowyError> {
+    if let Some(session) = (self.current_session.read()).clone() {
+      return Ok(session);
+    }
+
     match self
       .store_preferences
       .get_object::<Session>(&self.session_config.session_cache_key)
@@ -524,8 +514,31 @@ impl UserManager {
         ErrorCode::RecordNotFound,
         "User is not logged in",
       )),
-      Some(session) => Ok(session),
+      Some(session) => {
+        self.current_session.write().replace(session.clone());
+        Ok(session)
+      },
     }
+  }
+
+  pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
+    tracing::debug!("Set current user: {:?}", session);
+    match &session {
+      None => {
+        self.current_session.write().take();
+        self
+          .store_preferences
+          .remove(&self.session_config.session_cache_key)
+      },
+      Some(session) => {
+        self.current_session.write().replace(session.clone());
+        self
+          .store_preferences
+          .set_object(&self.session_config.session_cache_key, session.clone())
+          .map_err(internal_error)?;
+      },
+    }
+    Ok(())
   }
 
   async fn save_auth_data(
@@ -547,7 +560,7 @@ impl UserManager {
     self
       .save_user(uid, (user_profile, auth_type.clone()).into())
       .await?;
-    self.set_current_session(Some(session.clone()))?;
+    self.set_session(Some(session.clone()))?;
     Ok(())
   }
 
@@ -556,6 +569,27 @@ impl UserManager {
     collab_builder.set_sync_device(session.device_id.clone());
     collab_builder.initialize(session.user_workspace.id.clone());
     self.cloud_services.set_device_id(&session.device_id);
+  }
+
+  async fn handler_user_update(&self, user_update: UserUpdate) -> FlowyResult<()> {
+    let session = self.get_session()?;
+    if session.user_id == user_update.uid {
+      tracing::debug!("Receive user update: {:?}", user_update);
+      let user_profile = self.get_user_profile(user_update.uid).await?;
+
+      if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
+        return Ok(());
+      }
+
+      // Save the user profile change
+      save_user_profile_change(
+        user_update.uid,
+        self.db_pool(user_update.uid)?,
+        UserTableChangeset::from(user_update),
+      )?;
+    }
+
+    Ok(())
   }
 
   async fn migrate_local_user_to_cloud(
@@ -574,4 +608,34 @@ impl UserManager {
     )?;
     Ok(folder_data)
   }
+}
+
+fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+  // If the local user profile's encryption sign is not equal to the user update's encryption sign,
+  // which means the user enable encryption in another device, we should logout the current user.
+  let is_valid = user_profile.encryption_type.sign() == encryption_sign;
+  if !is_valid {
+    send_auth_state_notification(AuthStateChangedPB {
+      state: AuthStatePB::AuthStateForceSignOut,
+    })
+    .send();
+  }
+  is_valid
+}
+
+fn save_user_profile_change(
+  uid: i64,
+  pool: Arc<ConnectionPool>,
+  changeset: UserTableChangeset,
+) -> FlowyResult<()> {
+  let conn = pool.get()?;
+  diesel_update_table!(user_table, changeset, &*conn);
+  let user: UserProfile = user_table::dsl::user_table
+    .filter(user_table::id.eq(&uid.to_string()))
+    .first::<UserTable>(&*conn)?
+    .into();
+  send_notification(&uid.to_string(), UserNotification::DidUpdateUserProfile)
+    .payload(UserProfilePB::from(user))
+    .send();
+  Ok(())
 }

@@ -15,7 +15,7 @@ use flowy_server::supabase::api::{
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 
 use crate::setup_log;
 
@@ -46,9 +46,9 @@ pub fn database_service() -> Arc<dyn DatabaseCloudService> {
   Arc::new(SupabaseDatabaseServiceImpl::new(server))
 }
 
-pub fn user_auth_service() -> Arc<dyn UserService> {
+pub fn user_auth_service() -> Arc<dyn UserCloudService> {
   let (server, _encryption_impl) = appflowy_server(None);
-  Arc::new(SupabaseUserServiceImpl::new(server))
+  Arc::new(SupabaseUserServiceImpl::new(server, vec![], None))
 }
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {

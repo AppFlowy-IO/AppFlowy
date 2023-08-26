@@ -54,15 +54,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
-    if (widget.controller != null) {
-      controller = widget.controller!;
-    } else {
-      controller = TextEditingController();
-      controller.text = widget.text;
-    }
+    controller = widget.controller ?? TextEditingController();
+    controller.text = widget.text;
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
+        controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length));
       });
     }
     super.initState();

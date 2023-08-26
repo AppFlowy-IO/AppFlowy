@@ -45,6 +45,8 @@
   },
   "workspace": {
     "create": "Create workspace",
+    "reset": "Reset workspace",
+    "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found"
   },
@@ -422,6 +424,7 @@
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "titlePlaceholder": "Untitled",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
@@ -545,6 +548,11 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
       }
     },
     "textBlock": {

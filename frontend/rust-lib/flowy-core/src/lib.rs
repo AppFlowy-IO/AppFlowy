@@ -11,7 +11,6 @@ use std::{
 };
 
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
-use serde_json::Value;
 use tokio::sync::RwLock;
 
 use flowy_database2::DatabaseManager;
@@ -268,12 +267,12 @@ fn mk_user_session(
   collab_builder: Weak<AppFlowyCollabBuilder>,
 ) -> Arc<UserManager> {
   let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
-  Arc::new(UserManager::new(
+  UserManager::new(
     user_config,
     user_cloud_service_provider,
     storage_preference.clone(),
     collab_builder,
-  ))
+  )
 }
 
 struct UserStatusCallbackImpl {
@@ -438,10 +437,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn did_update_network(&self, reachable: bool) {
     self.collab_builder.update_network(reachable);
-  }
-
-  fn receive_realtime_event(&self, json: Value) {
-    self.server_provider.handle_realtime_event(json);
   }
 }
 

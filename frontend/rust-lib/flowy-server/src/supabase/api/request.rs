@@ -16,7 +16,8 @@ use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder, SupabaseBinaryColumnEncoder,
+  BinaryColumnDecoder, ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
@@ -65,12 +66,14 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => match get_updates_from_server(&object_id, &object_ty, postgrest).await {
-          Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
-          Err(err) => {
-            tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
-            Err(err)
-          },
+        Some(postgrest) => {
+          match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
+            Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+            Err(err) => {
+              tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+              Err(err)
+            },
+          }
         },
       }
     })
@@ -220,7 +223,8 @@ fn parser_snapshot(
       .and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, secret).ok()
+      SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(value, encrypt as i32, secret)
+        .ok()
     },
     _ => None,
   }?;
@@ -283,7 +287,7 @@ pub async fn batch_get_updates_from_server(
 pub async fn get_updates_from_server(
   object_id: &str,
   object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
+  postgrest: &Arc<PostgresWrapper>,
 ) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))
@@ -364,7 +368,11 @@ fn parser_update_from_json(
     json.get("value").and_then(|value| value.as_str()),
   ) {
     (Some(encrypt), Some(value)) => {
-      match SupabaseBinaryColumnDecoder::decode(value, encrypt as i32, encryption_secret) {
+      match SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(
+        value,
+        encrypt as i32,
+        encryption_secret,
+      ) {
         Ok(value) => Some(value),
         Err(err) => {
           tracing::error!("Decode value column failed: {:?}", err);

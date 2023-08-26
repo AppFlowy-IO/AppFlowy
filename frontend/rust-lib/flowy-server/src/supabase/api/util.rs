@@ -3,7 +3,7 @@ use anyhow::Result;
 use reqwest::{Response, StatusCode};
 use serde_json::Value;
 
-use flowy_encrypt::{decrypt_bytes, encrypt_bytes};
+use flowy_encrypt::{decrypt_data, encrypt_data};
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::{to_fut, Fut};
 
@@ -148,7 +148,7 @@ impl SupabaseBinaryColumnEncoder {
     let value = match encryption_secret {
       None => hex::encode(value),
       Some(encryption_secret) => {
-        let encrypt_data = encrypt_bytes(value, encryption_secret)?;
+        let encrypt_data = encrypt_data(value, encryption_secret)?;
         hex::encode(encrypt_data)
       },
     };
@@ -171,7 +171,7 @@ impl SupabaseBinaryColumnDecoder {
   /// # Returns
   /// Returns an `Option` containing the decoded binary data if decoding is successful.
   /// Otherwise, returns `None`.
-  pub fn decode<T: AsRef<str>>(
+  pub fn decode<T: AsRef<str>, D: HexDecoder>(
     value: T,
     encrypt: i32,
     encryption_secret: &Option<String>,
@@ -182,7 +182,7 @@ impl SupabaseBinaryColumnDecoder {
       .ok_or(anyhow::anyhow!("Value is not start with: \\x",))?;
 
     if encrypt == 0 {
-      let bytes = hex::decode(s)?;
+      let bytes = D::decode(s)?;
       Ok(bytes)
     } else {
       match encryption_secret {
@@ -190,23 +190,32 @@ impl SupabaseBinaryColumnDecoder {
           "encryption_secret is None, but encrypt is 1"
         )),
         Some(encryption_secret) => {
-          let encrypt_data = hex::decode(s)?;
-          decrypt_bytes(encrypt_data, encryption_secret)
+          let encrypt_data = D::decode(s)?;
+          decrypt_data(encrypt_data, encryption_secret)
         },
       }
     }
   }
 }
 
-/// A decoder specifically tailored for realtime event binary columns in Supabase.
-///
-pub struct SupabaseRealtimeEventBinaryColumnDecoder;
+pub trait HexDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error>;
+}
 
-impl SupabaseRealtimeEventBinaryColumnDecoder {
-  /// The realtime event binary column string is encoded twice. So it needs to be decoded twice.
-  pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
-    let s = value.as_ref().strip_prefix("\\x")?;
-    let bytes = hex::decode(s).ok()?;
-    hex::decode(bytes).ok()
+pub struct RealtimeBinaryColumnDecoder;
+impl HexDecoder for RealtimeBinaryColumnDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error> {
+    // The realtime event binary column string is encoded twice. So it needs to be decoded twice.
+    let bytes = hex::decode(data)?;
+    let bytes = hex::decode(bytes)?;
+    Ok(bytes)
+  }
+}
+
+pub struct BinaryColumnDecoder;
+impl HexDecoder for BinaryColumnDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error> {
+    let bytes = hex::decode(data)?;
+    Ok(bytes)
   }
 }
