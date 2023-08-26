@@ -41,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<PanesCubit>(create: (context) => PanesCubit()),
-        BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
+        BlocProvider<PanesCubit>.value(value: getIt<PanesCubit>()),
+        // BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
             return HomeBloc(widget.user, widget.workspaceSetting)
@@ -80,15 +80,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (view != null) {
                     // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
                     // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                    final currentPageManager =
-                        context.read<TabsBloc>().state.currentPageManager;
+                    final currentPageManager = context
+                        .read<PanesCubit>()
+                        .state
+                        .activePane
+                        .tabs
+                        .currentPageManager;
 
                     if (currentPageManager.plugin.pluginType ==
                         PluginType.blank) {
-                      getIt<TabsBloc>().add(
-                        TabsEvent.openPlugin(
-                          plugin: view.plugin(listenOnViewChanged: true),
-                        ),
+                      // getIt<TabsBloc>().add(
+                      //   TabsEvent.openPlugin(
+                      //     plugin: view.plugin(listenOnViewChanged: true),
+                      //   ),
+                      // );
+                      getIt<PanesCubit>().openPlugin(
+                        plugin: view.plugin(listenOnViewChanged: true),
                       );
                     }
                   }
@@ -287,17 +294,21 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
               lastView = views[index - 1];
             }
 
-            getIt<TabsBloc>().add(
-              TabsEvent.openPlugin(
-                plugin: lastView.plugin(listenOnViewChanged: true),
-              ),
-            );
+            // getIt<TabsBloc>().add(
+            //   TabsEvent.openPlugin(
+            //     plugin: lastView.plugin(listenOnViewChanged: true),
+            //   ),
+            // );
+            getIt<PanesCubit>()
+                .openPlugin(plugin: lastView.plugin(listenOnViewChanged: true));
           } else {
-            getIt<TabsBloc>().add(
-              TabsEvent.openPlugin(
-                plugin: BlankPagePlugin(),
-              ),
-            );
+            // getIt<TabsBloc>().add(
+            //   TabsEvent.openPlugin(
+            //     plugin: BlankPagePlugin(),
+            //   ),
+            // );
+
+            getIt<PanesCubit>().openPlugin(plugin: BlankPagePlugin());
           }
         },
         (err) => Log.error(err),

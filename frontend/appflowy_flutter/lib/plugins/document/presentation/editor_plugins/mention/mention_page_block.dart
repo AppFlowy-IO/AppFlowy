@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -108,12 +108,16 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       Log.error('Page($pageId) not found');
       return;
     }
-    getIt<TabsBloc>().add(
-      TabsEvent.openPlugin(
-        plugin: view.plugin(),
-        view: view,
-      ),
+    getIt<PanesCubit>().openTab(
+      plugin: view.plugin(),
+      view: view,
     );
+    // getIt<TabsBloc>().add(
+    //   TabsEvent.openPlugin(
+    //     plugin: view.plugin(),
+    //     view: view,
+    //   ),
+    // );
   }
 
   Future<ViewPB?> fetchView(String pageId) async {

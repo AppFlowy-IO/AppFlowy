@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -7,37 +7,38 @@ class PaneNode extends Equatable {
   final PaneNode? parent;
   final Axis? axis;
   final String paneId;
-  final ViewPB? view;
+  final Tabs tabs;
 
-  const PaneNode({
+  PaneNode({
     required this.paneId,
     required this.children,
     this.parent,
-    this.view,
     this.axis,
-  });
+    Tabs? tabs,
+  }) : tabs = tabs ?? Tabs();
 
   PaneNode copyWith({
     PaneNode? parent,
     List<PaneNode>? children,
     Axis? axis,
     String? paneId,
-    ViewPB? view,
+    Tabs? tabs,
   }) {
     return PaneNode(
       parent: parent ?? this.parent,
       axis: axis ?? this.axis,
       children: children ?? this.children,
       paneId: paneId ?? this.paneId,
+      tabs: tabs ?? this.tabs,
     );
   }
 
   @override
-  List<Object?> get props => [view, paneId, axis, children, parent];
+  List<Object?> get props => [paneId, axis, children, parent, tabs];
 
   @override
   String toString() {
-    return '${(paneId, axis)} =>  Children($children) \n/n';
+    return '${(paneId, axis)} =>  Children($children) \n';
   }
 }
 

@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -9,11 +11,13 @@ import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
   final PageManager pageManager;
+  final PaneNode paneNode;
   final bool isCurrent;
 
   const FlowyTab({
     super.key,
     required this.pageManager,
+    required this.paneNode,
     required this.isCurrent,
   });
 
@@ -90,6 +94,6 @@ class _FlowyTabState extends State<FlowyTab> {
   }
 
   void _closeTab([TapUpDetails? details]) => context
-      .read<TabsBloc>()
-      .add(TabsEvent.closeTab(widget.pageManager.plugin.id));
+      .read<PanesCubit>()
+      .closeTab(pluginId: widget.pageManager.plugin.id, pane: widget.paneNode);
 }

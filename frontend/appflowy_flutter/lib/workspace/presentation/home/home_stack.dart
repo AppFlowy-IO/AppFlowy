@@ -4,7 +4,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
@@ -40,52 +40,54 @@ class HomeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pageController = PageController();
-
     return BlocConsumer<PanesCubit, PanesState>(
       listener: (contest, state) {
         Log.warn(state.root.toString());
       },
       builder: (context, state) {
-        return _buildTabs(pageController, state.root, context);
+        return _buildTabs(state.root, context);
       },
     );
   }
 
-  Widget _buildTabs(
-      PageController pageController, PaneNode root, BuildContext context) {
+  Widget _buildTabs(PaneNode root, BuildContext context) {
     if (root.children.isEmpty) {
-      return BlocProvider<TabsBloc>.value(
-        value: getIt<TabsBloc>(),
-        child: BlocBuilder<TabsBloc, TabsState>(
-          builder: (context, state) {
-            return GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                context.read<PanesCubit>().setActivePane(root);
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  TabsManager(pageController: pageController),
-                  state.currentPageManager
-                      .stackTopBar(layout: layout, paneId: root.paneId),
-                  Expanded(
-                    child: PageView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: pageController,
-                      children: state.pageManagers
-                          .map(
-                            (pm) =>
-                                PageStack(pageManager: pm, delegate: delegate),
-                          )
-                          .toList(),
-                    ),
+      final pageController = PageController();
+      return ChangeNotifierProvider<Tabs>(
+        create: (context) => root.tabs,
+        child: Consumer<Tabs>(
+          builder: (context, value, child) => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              context.read<PanesCubit>().setActivePane(root);
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TabsManager(
+                  pane: root,
+                  pageController: pageController,
+                  tabs: value,
+                ),
+                value.currentPageManager
+                    .stackTopBar(layout: layout, paneId: root.paneId),
+                Expanded(
+                  child: PageView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: pageController,
+                    children: value.pageManagers
+                        .map(
+                          (pm) => PageStack(
+                            pageManager: pm,
+                            delegate: delegate,
+                          ),
+                        )
+                        .toList(),
                   ),
-                ],
-              ),
-            );
-          },
+                ),
+              ],
+            ),
+          ),
         ),
       );
     } else {
@@ -93,16 +95,14 @@ class HomeStack extends StatelessWidget {
         return Row(
           key: ValueKey(root.paneId),
           children: root.children
-              .map((e) =>
-                  Expanded(child: _buildTabs(pageController, e, context)))
+              .map((e) => Expanded(child: _buildTabs(e, context)))
               .toList(),
         );
       } else {
         return Column(
           key: ValueKey(root.paneId),
           children: root.children
-              .map((e) =>
-                  Expanded(child: _buildTabs(pageController, e, context)))
+              .map((e) => Expanded(child: _buildTabs(e, context)))
               .toList(),
         );
       }

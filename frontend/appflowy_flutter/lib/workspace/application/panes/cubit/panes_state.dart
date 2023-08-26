@@ -13,6 +13,7 @@ class PanesState extends Equatable {
 
   factory PanesState.initial() {
     final pane = PaneNode(
+      tabs: Tabs(),
       children: const [],
       paneId: UniqueKey().toString(),
       axis: null,
