@@ -1,14 +1,19 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
-//The hanlders will be condensed into a common handler
+enum Direction { front, back }
 
 class PanesService {
-  PaneNode splitRightHandler(
+  PaneNode splitHandler(
     PaneNode node,
     String targetPaneId,
     ViewPB view,
+    Direction direction,
+    Axis axis,
   ) {
     // This is a recursive handler, following condition checks if passed node is our target node
     if (node.paneId == targetPaneId) {
@@ -16,206 +21,62 @@ class PanesService {
       final newNode = PaneNode(
         paneId: UniqueKey().toString(),
         children: const [],
-        axis: Axis.vertical,
+        axis: axis,
       );
       return newNode.copyWith(
         children: [
           node.copyWith(
             parent: newNode,
             axis: null,
+            tabs: Tabs(
+              currentIndex: node.tabs.currentIndex,
+              pageManagers: node.tabs.pageManagers,
+            ),
           ),
           PaneNode(
             paneId: UniqueKey().toString(),
             children: const [],
             parent: newNode,
             axis: null,
-            view: view,
+            tabs: Tabs(pageManagers: [PageManager()..setPlugin(view.plugin())]),
           )
         ],
       );
     } else {
       // if we haven't found our target node there is a possibility that our target node is a child of an already existing vertical holder node (which can only contain horizontal nodes), we do a quick lookup at children of current node, if we find target in children, we just append a new child at correct location and return
-      if (node.axis == Axis.vertical) {
+      if (node.axis == axis) {
         for (int i = 0; i < node.children.length; i++) {
           if (node.children[i].paneId == targetPaneId) {
-            final newNode = PaneNode(
-              paneId: UniqueKey().toString(),
-              children: const [],
-              parent: node.parent,
-              view: view,
-            );
-            if (i == node.children.length) {
-              node.children.add(newNode);
+            if (direction == Direction.front) {
+              final newNode = PaneNode(
+                paneId: UniqueKey().toString(),
+                children: const [],
+                parent: node.parent,
+              );
+              if (i == node.children.length) {
+                node.children.add(newNode);
+              } else {
+                node.children.insert(i + 1, newNode);
+              }
+              return node;
             } else {
-              node.children.insert(i + 1, newNode);
+              node.children.insert(
+                i,
+                PaneNode(
+                  paneId: UniqueKey().toString(),
+                  children: const [],
+                  parent: node.parent,
+                ),
+              );
             }
-            return node;
           }
         }
       }
 
       //if we couldn't find target in children of current node or if current node isn't right holder we proceed recursively to dfs remaingin children
       final newChildren = node.children
-          .map((e) => splitRightHandler(e, targetPaneId, view))
+          .map((e) => splitHandler(e, targetPaneId, view, direction, axis))
           .toList();
-      return node.copyWith(
-        children: newChildren,
-      );
-    }
-  }
-
-  PaneNode splitLeftHandler(
-    PaneNode node,
-    String targetPaneId,
-    ViewPB view,
-  ) {
-    if (node.paneId == targetPaneId) {
-      final newNode = PaneNode(
-        paneId: UniqueKey().toString(),
-        children: const [],
-        axis: Axis.vertical,
-      );
-      return newNode.copyWith(
-        children: [
-          PaneNode(
-            paneId: UniqueKey().toString(),
-            children: const [],
-            parent: newNode,
-            axis: null,
-            view: view,
-          ),
-          node.copyWith(
-            parent: newNode,
-            axis: null,
-          ),
-        ],
-      );
-    } else {
-      if (node.axis == Axis.vertical) {
-        for (final element in node.children) {
-          if (element.paneId == targetPaneId) {
-            node.children.insert(
-              node.children.indexOf(element),
-              PaneNode(
-                paneId: UniqueKey().toString(),
-                children: const [],
-                parent: node.parent,
-                view: view,
-              ),
-            );
-            return node;
-          }
-        }
-      }
-      final newChildren = node.children
-          .map((e) => splitRightHandler(e, targetPaneId, view))
-          .toList();
-      return node.copyWith(
-        children: newChildren,
-      );
-    }
-  }
-
-  PaneNode splitDownHandler(
-    PaneNode node,
-    String targetPaneId,
-    ViewPB view,
-  ) {
-    if (node.paneId == targetPaneId) {
-      final newNode = PaneNode(
-        paneId: UniqueKey().toString(),
-        children: const [],
-        axis: Axis.horizontal,
-      );
-      return newNode.copyWith(
-        children: [
-          node.copyWith(
-            parent: newNode,
-            axis: null,
-          ),
-          PaneNode(
-            paneId: UniqueKey().toString(),
-            children: const [],
-            parent: newNode,
-            axis: null,
-            view: view,
-          )
-        ],
-      );
-    } else {
-      if (node.axis == Axis.horizontal) {
-        for (int i = 0; i < node.children.length; i++) {
-          if (node.children[i].paneId == targetPaneId) {
-            final newNode = PaneNode(
-              paneId: UniqueKey().toString(),
-              children: const [],
-              parent: node.parent,
-              view: view,
-            );
-            if (i == node.children.length) {
-              node.children.add(newNode);
-            } else {
-              node.children.insert(i + 1, newNode);
-            }
-            return node;
-          }
-        }
-      }
-
-      final newChildren = node.children.map((e) {
-        return splitDownHandler(e, targetPaneId, view);
-      }).toList();
-      return node.copyWith(
-        children: newChildren,
-      );
-    }
-  }
-
-  PaneNode splitUpHandler(
-    PaneNode node,
-    String targetPaneId,
-    ViewPB view,
-  ) {
-    if (node.paneId == targetPaneId) {
-      final newNode = PaneNode(
-        paneId: UniqueKey().toString(),
-        children: const [],
-        axis: Axis.horizontal,
-      );
-      return newNode.copyWith(
-        children: [
-          PaneNode(
-            paneId: UniqueKey().toString(),
-            children: const [],
-            parent: newNode,
-            axis: null,
-            view: view,
-          ),
-          node.copyWith(
-            parent: newNode,
-            axis: null,
-          ),
-        ],
-      );
-    } else {
-      for (final element in node.children) {
-        if (element.paneId == targetPaneId && node.axis == Axis.horizontal) {
-          node.children.insert(
-            node.children.indexOf(element),
-            PaneNode(
-              paneId: UniqueKey().toString(),
-              children: const [],
-              parent: node.parent,
-              view: view,
-            ),
-          );
-          return node;
-        }
-      }
-
-      final newChildren = node.children.map((e) {
-        return splitUpHandler(e, targetPaneId, view);
-      }).toList();
       return node.copyWith(
         children: newChildren,
       );
