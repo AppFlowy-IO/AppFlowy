@@ -1,9 +1,3 @@
-// #![allow(clippy::all)]
-// #![allow(dead_code)]
-// #![allow(unused_imports)]
-
-use std::collections::HashMap;
-
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
 use flowy_database2::services::field_settings::default_field_settings_by_layout;
@@ -19,14 +13,12 @@ use flowy_database2::services::field::{
 use crate::database::database_editor::TestRowBuilder;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 
-use super::anymap_from_hashmap;
-
 // Kanban board unit test mock data
 pub fn make_test_board() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
   // Iterate through the FieldType to create the corresponding Field.
-  let mut field_settings = HashMap::new();
+  let field_settings = default_field_settings_by_layout(DatabaseLayout::Board);
   for field_type in FieldType::iter() {
     match field_type {
       FieldType::RichText => {
@@ -122,10 +114,6 @@ pub fn make_test_board() -> DatabaseData {
         fields.push(checklist_field);
       },
     }
-    field_settings.insert(
-      fields.last().unwrap().id.clone(),
-      default_field_settings_by_layout(DatabaseLayout::Board),
-    );
   }
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
@@ -248,7 +236,7 @@ pub fn make_test_board() -> DatabaseData {
     field_orders: vec![],
     created_at: 0,
     modified_at: 0,
-    field_settings: anymap_from_hashmap(field_settings),
+    field_settings,
   };
   DatabaseData { view, fields, rows }
 }
