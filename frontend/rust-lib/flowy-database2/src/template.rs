@@ -7,6 +7,7 @@ use crate::services::cell::{insert_select_option_cell, insert_text_cell};
 use crate::services::field::{
   FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use crate::services::field_settings::default_field_settings_by_layout;
 use crate::services::setting::CalendarLayoutSetting;
 
 pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
@@ -41,6 +42,7 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
       CreateRowParams::new(gen_row_id()),
     ],
     fields: vec![text_field, single_select, checkbox_field],
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Grid),
   }
 }
 
@@ -92,6 +94,7 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
     sorts: vec![],
     created_rows: rows,
     fields: vec![text_field, single_select],
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Board),
   }
 }
 
@@ -133,5 +136,6 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
     sorts: vec![],
     created_rows: vec![],
     fields: vec![text_field, date_field, multi_select_field],
+    field_settings: default_field_settings_by_layout(DatabaseLayout::Calendar),
   }
 }

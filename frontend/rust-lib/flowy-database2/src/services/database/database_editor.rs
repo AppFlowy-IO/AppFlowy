@@ -27,6 +27,10 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, type_option_to_pb, DateCellData, SelectOptionCellChangeset,
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
+use crate::services::field_settings::{
+  default_field_settings_by_layout, default_field_settings_by_layout_map, FieldSettings,
+  FieldSettingsChangesetParams,
+};
 use crate::services::filter::Filter;
 use crate::services::group::{
   default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
@@ -474,15 +478,17 @@ impl DatabaseEditor {
       None => default_type_option_data_from_type(field_type),
       Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
     };
-    let (index, field) =
-      self
-        .database
-        .lock()
-        .create_field_with_mut(view_id, name, field_type.into(), |field| {
-          field
-            .type_options
-            .insert(field_type.to_string(), type_option_data.clone());
-        });
+    let (index, field) = self.database.lock().create_field_with_mut(
+      view_id,
+      name,
+      field_type.into(),
+      |field| {
+        field
+          .type_options
+          .insert(field_type.to_string(), type_option_data.clone());
+      },
+      default_field_settings_by_layout_map(),
+    );
 
     let _ = self
       .notify_did_insert_database_field(field.clone(), index)
@@ -1101,6 +1107,35 @@ impl DatabaseEditor {
     Ok(csv)
   }
 
+  pub async fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_get_field_settings(field_ids).await
+  }
+
+  pub async fn get_all_field_settings(
+    &self,
+    view_id: &str,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_get_all_field_settings().await
+  }
+
+  pub async fn update_field_settings_with_changeset(
+    &self,
+    params: FieldSettingsChangesetParams,
+  ) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(&params.view_id).await?;
+    view
+      .v_update_field_settings(&params.view_id, &params.field_id, params.visibility)
+      .await?;
+
+    Ok(())
+  }
+
   fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
     self
       .database
@@ -1188,6 +1223,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
           .type_options
           .insert(field_type.to_string(), type_option_data);
       },
+      default_field_settings_by_layout_map(),
     );
     to_fut(async move { field })
   }
@@ -1352,5 +1388,69 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
     TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
       .get_type_option_cell_data_handler(field_type)
+  }
+
+  fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let field_settings_map = self
+      .database
+      .lock()
+      .get_field_settings(view_id, Some(field_ids));
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    field_settings
+  }
+
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    field_settings
+  }
+
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) {
+    let field_settings = self
+      .get_field_settings(view_id, vec![field_id.to_string()])
+      .ok();
+
+    let new_field_settings = match field_settings {
+      Some(field_settings) => {
+        let mut field_settings = field_settings.first().unwrap().clone();
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+        field_settings
+      },
+      None => {
+        let layout_ty = self.get_layout_for_view(view_id);
+        let mut field_settings = FieldSettings::try_from_anymap(
+          field_id.to_string(),
+          default_field_settings_by_layout(layout_ty),
+        )
+        .unwrap();
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+        field_settings
+      },
+    };
+
+    self.database.lock().update_field_settings(
+      view_id,
+      Some(vec![field_id.to_string()]),
+      new_field_settings,
+    )
   }
 }
