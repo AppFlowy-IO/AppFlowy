@@ -8,7 +8,7 @@ use serde_json::json;
 
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
-use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{CollabType, USER_EMAIL, USER_UUID};
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
@@ -326,12 +326,66 @@ async fn migrate_anon_data_on_cloud_signup() {
       .unwrap();
     let expected_folder_data = expected_workspace_sync_folder_data();
 
+    if folder_data.workspaces.len() != expected_folder_data.workspaces.len() {
+      dbg!(&folder_data.workspaces);
+    }
+
     assert_eq!(
       folder_data.workspaces.len(),
       expected_folder_data.workspaces.len()
     );
     assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
+
+    // After migration, the ids of the folder_data should be different from the expected_folder_data
+    for i in 0..folder_data.views.len() {
+      let left_view = &folder_data.views[i];
+      let right_view = &expected_folder_data.views[i];
+      assert_ne!(left_view.id, right_view.id);
+      assert_ne!(left_view.parent_view_id, right_view.parent_view_id);
+      assert_eq!(left_view.name, right_view.name);
+    }
+
+    assert_ne!(
+      folder_data.current_workspace_id,
+      expected_folder_data.current_workspace_id
+    );
     assert_ne!(folder_data.current_view, expected_folder_data.current_view);
+
+    let database_views = folder_data
+      .views
+      .iter()
+      .filter(|view| view.layout.is_database())
+      .collect::<Vec<_>>();
+
+    // Try to load the database from the cloud.
+    for database_view in database_views {
+      let cloud_service = test.database_manager.get_cloud_service();
+      let database_id = test
+        .database_manager
+        .get_database_id_with_view_id(&database_view.id)
+        .await
+        .unwrap();
+      let editor = test
+        .database_manager
+        .get_database(&database_id)
+        .await
+        .unwrap();
+
+      // The database view setting should be loaded by the view id
+      let _ = editor
+        .get_database_view_setting(&database_view.id)
+        .await
+        .unwrap();
+
+      let new_rows = editor.get_rows(&database_view.id).await;
+
+      tracing::warn!("new_rows: {:?}", new_rows);
+
+      assert!(cloud_service
+        .get_collab_update(&database_id, CollabType::Database)
+        .await
+        .is_ok());
+    }
 
     drop(cleaner);
   }

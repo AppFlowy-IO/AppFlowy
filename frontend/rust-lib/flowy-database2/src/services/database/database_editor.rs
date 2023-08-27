@@ -524,6 +524,7 @@ impl DatabaseEditor {
   }
 
   pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
+    tracing::debug!("get rows for view:{}", view_id);
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     Ok(view_editor.v_get_rows().await)
   }

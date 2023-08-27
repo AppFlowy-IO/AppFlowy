@@ -326,6 +326,9 @@ impl UserManager {
       .await;
 
     self
+      .save_auth_data(&response, auth_type, &new_session)
+      .await?;
+    self
       .user_status_callback
       .read()
       .await
@@ -335,9 +338,6 @@ impl UserManager {
         &new_session.user_workspace,
         &new_session.device_id,
       )
-      .await?;
-    self
-      .save_auth_data(&response, auth_type, &new_session)
       .await?;
 
     send_auth_state_notification(AuthStateChangedPB {
