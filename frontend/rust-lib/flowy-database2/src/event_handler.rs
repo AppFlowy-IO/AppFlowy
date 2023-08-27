@@ -460,7 +460,7 @@ pub(crate) async fn create_row_handler(
     .await?
   {
     None => Err(FlowyError::internal().with_context("Create row fail")),
-    Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
+    Some(row) => data_result_ok(RowMetaPB::from(row)),
   }
 }
 

@@ -8,6 +8,7 @@ use appflowy_integrate::{CollabObject, CollabType, PersistenceError, RocksCollab
 use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
+use collab_database::rows::database_row_document_id_from_row_id;
 use collab_database::user::{get_database_with_views, DatabaseWithViews};
 use collab_folder::core::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
@@ -104,6 +105,7 @@ fn sync_views(
         // sync database's row
         for row_id in row_ids {
           tracing::debug!("sync row: {}", row_id);
+          let document_id = database_row_document_id_from_row_id(&row_id);
 
           let database_row_collab_object = CollabObject::new(uid, row_id, CollabType::DatabaseRow)
             .with_workspace_id(workspace_id.to_string());
@@ -117,6 +119,22 @@ fn sync_views(
           user_service
             .create_collab_object(&database_row_collab_object, database_row_update)
             .await?;
+
+          let database_row_document = CollabObject::new(uid, document_id, CollabType::Document)
+            .with_workspace_id(workspace_id.to_string());
+          // sync document in the row if exist
+          if let Ok(document_update) =
+            get_collab_init_update(uid, &database_row_document, &collab_db)
+          {
+            tracing::info!(
+              "sync database row document: {} with update: {}",
+              database_row_document,
+              document_update.len()
+            );
+            user_service
+              .create_collab_object(&database_row_document, document_update)
+              .await?;
+          }
         }
       },
     }

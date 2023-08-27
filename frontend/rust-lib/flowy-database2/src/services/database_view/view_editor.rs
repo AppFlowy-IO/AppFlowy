@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id, MutexDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId, RowMeta};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::{broadcast, RwLock};
 
@@ -200,8 +200,8 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_meta: &RowMeta) {
-    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_meta.clone());
+  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
+    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
     let changeset = RowsChangePB::from_update(update_row.into());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
@@ -218,7 +218,7 @@ impl DatabaseViewEditor {
     // Send the group notification if the current view has groups
     match group_id.as_ref() {
       None => {
-        let row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32);
+        let row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
         changes = RowsChangePB::from_insert(row);
       },
       Some(group_id) => {
@@ -230,7 +230,7 @@ impl DatabaseViewEditor {
           .await;
 
         let inserted_row = InsertedRowPB {
-          row_meta: RowMetaPB::from(&row_detail.meta),
+          row_meta: RowMetaPB::from(row_detail),
           index: Some(index as i32),
           is_new: true,
         };
@@ -774,7 +774,7 @@ impl DatabaseViewEditor {
 
     let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_meta: RowMetaPB::from(&row_detail.meta),
+      row_meta: RowMetaPB::from(row_detail.as_ref()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -837,7 +837,7 @@ impl DatabaseViewEditor {
 
       let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_meta: RowMetaPB::from(&row_detail.meta),
+        row_meta: RowMetaPB::from(row_detail.as_ref()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,

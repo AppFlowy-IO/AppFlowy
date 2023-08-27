@@ -407,8 +407,8 @@ impl DatabaseEditor {
 
   pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
     let database = self.database.lock();
-    if let (Some(row_meta), Some(from_index), Some(to_index)) = (
-      database.get_row_meta(&from),
+    if let (Some(row_detail), Some(from_index), Some(to_index)) = (
+      database.get_row_detail(&from),
       database.index_of_row(view_id, &from),
       database.index_of_row(view_id, &to),
     ) {
@@ -418,7 +418,7 @@ impl DatabaseEditor {
       drop(database);
 
       let delete_row_id = from.into_inner();
-      let insert_row = InsertedRowPB::new(RowMetaPB::from(&row_meta)).with_index(to_index as i32);
+      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(to_index as i32);
       let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
@@ -438,10 +438,8 @@ impl DatabaseEditor {
     let result = self.database.lock().create_row_in_view(view_id, params);
     if let Some((index, row_order)) = result {
       tracing::trace!("create row: {:?} at {}", row_order, index);
-      let row = self.database.lock().get_row(&row_order.id);
-      let row_meta = self.database.lock().get_row_meta(&row_order.id);
-      if let Some(meta) = row_meta {
-        let row_detail = RowDetail { row, meta };
+      let row_detail = self.database.lock().get_row_detail(&row_order.id);
+      if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row_detail, &group_id, index).await;
         }
@@ -524,7 +522,6 @@ impl DatabaseEditor {
   }
 
   pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
-    tracing::debug!("get rows for view:{}", view_id);
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     Ok(view_editor.v_get_rows().await)
   }
@@ -540,9 +537,10 @@ impl DatabaseEditor {
   pub fn get_row_meta(&self, view_id: &str, row_id: &RowId) -> Option<RowMetaPB> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
       let row_meta = self.database.lock().get_row_meta(row_id)?;
+      let row_document_id = self.database.lock().get_row_document_id(row_id)?;
       Some(RowMetaPB {
         id: row_id.clone().into_inner(),
-        document_id: row_meta.document_id,
+        document_id: row_document_id,
         icon: row_meta.icon_url,
         cover: row_meta.cover_url,
       })
@@ -554,9 +552,7 @@ impl DatabaseEditor {
 
   pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      let meta = self.database.lock().get_row_meta(row_id)?;
-      let row = self.database.lock().get_row(row_id);
-      Some(RowDetail { row, meta })
+      self.database.lock().get_row_detail(row_id)
     } else {
       tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
       None
@@ -582,15 +578,15 @@ impl DatabaseEditor {
     });
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
-    let row_meta = self.database.lock().get_row_meta(row_id);
-    if let Some(row_meta) = row_meta {
+    let row_detail = self.database.lock().get_row_detail(row_id);
+    if let Some(row_detail) = row_detail {
       for view in self.database_views.editors().await {
-        view.v_did_update_row_meta(row_id, &row_meta).await;
+        view.v_did_update_row_meta(row_id, &row_detail).await;
       }
 
       // Notifies the client that the row meta has been updated.
       send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
-        .payload(RowMetaPB::from(&row_meta))
+        .payload(RowMetaPB::from(&row_detail))
         .send();
     }
   }
@@ -1079,7 +1075,7 @@ impl DatabaseEditor {
 
     let rows = rows
       .into_iter()
-      .map(|row_detail| RowMetaPB::from(&row_detail.meta))
+      .map(|row_detail| RowMetaPB::from(row_detail.as_ref()))
       .collect::<Vec<RowMetaPB>>();
     Ok(DatabasePB {
       id: database_id,
@@ -1210,17 +1206,10 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
-    let row = self.database.lock().get_row(row_id);
-    let row_meta = self.database.lock().get_row_meta(row_id);
+    let row_detail = self.database.lock().get_row_detail(row_id);
     to_fut(async move {
-      match (index, row_meta) {
-        (Some(index), Some(row_meta)) => {
-          let row_detail = RowDetail {
-            row,
-            meta: row_meta,
-          };
-          Some((index, Arc::new(row_detail)))
-        },
+      match (index, row_detail) {
+        (Some(index), Some(row_detail)) => Some((index, Arc::new(row_detail))),
         _ => None,
       }
     })
@@ -1231,11 +1220,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let rows = database.get_rows_for_view(view_id);
     let row_details = rows
       .into_iter()
-      .flat_map(|row| {
-        database
-          .get_row_meta(&row.id)
-          .map(|meta| RowDetail { row, meta })
-      })
+      .flat_map(|row| database.get_row_detail(&row.id))
       .collect::<Vec<RowDetail>>();
 
     to_fut(async move { row_details.into_iter().map(Arc::new).collect() })

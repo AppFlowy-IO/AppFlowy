@@ -377,9 +377,14 @@ async fn migrate_anon_data_on_cloud_signup() {
         .await
         .unwrap();
 
-      let new_rows = editor.get_rows(&database_view.id).await;
+      let new_rows = editor.get_rows(&database_view.id).await.unwrap();
+      assert_eq!(new_rows.len(), 3);
 
-      tracing::warn!("new_rows: {:?}", new_rows);
+      // TODO: assert number of linked view of the database
+
+      // TODO: assert document in row
+
+      // TODO: assert remote database and row update
 
       assert!(cloud_service
         .get_collab_update(&database_id, CollabType::Database)

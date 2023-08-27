@@ -1,16 +1,18 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use appflowy_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
-use collab::core::collab::{CollabRawData, MutexCollab};
+use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
-use collab_database::database::{is_database_collab, reset_database_views, reset_inline_view_id};
-use collab_database::rows::{database_row_document_id_from_row_id, RowId};
+use collab_database::database::{
+  is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
+};
+use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseWithViewsArray;
 use collab_folder::core::Folder;
-use parking_lot::Mutex;
+use parking_lot::{Mutex, RwLock};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
@@ -28,44 +30,53 @@ pub fn migration_local_user_on_sign_up(
   let _ = new_collab_db
     .with_write_txn(|w_txn| {
       let old_read_txn = old_collab_db.read_txn();
-
-      let folder_update = old_read_txn.get_all_updates(
+      let folder_collab = Collab::new(
         old_user.session.user_id,
         &old_user.session.user_workspace.id,
-      )?;
-      tracing::debug!(
-        "migrate folder: {:?}, number of updates: {}",
-        old_user.session.user_workspace.id,
-        folder_update.len()
+        "phantom",
+        vec![],
       );
+      folder_collab.with_origin_transact_mut(|txn| {
+        old_read_txn.load_doc(
+          old_user.session.user_id,
+          &old_user.session.user_workspace.id,
+          txn,
+        )
+      })?;
 
       // Migrates the folder, replacing all existing view IDs with new ones.
       // This function handles the process of migrating folder data between two users. As a part of this migration,
       // all existing view IDs associated with the old user will be replaced by new IDs relevant to the new user.
       let old_to_new_id_map = Arc::new(Mutex::new(
         migrate_workspace_folder(
-          old_user.session.user_id,
           &old_user.session.user_workspace.id,
           new_user.session.user_id,
           &new_user.session.user_workspace.id,
-          folder_update,
+          folder_collab,
           w_txn,
         )
         .unwrap_or_default(),
       ));
 
-      let database_with_views_update = old_read_txn.get_all_updates(
+      let database_with_views_collab = Collab::new(
         old_user.session.user_id,
         &old_user.session.user_workspace.database_views_aggregate_id,
-      )?;
+        "phantom",
+        vec![],
+      );
+      database_with_views_collab.with_origin_transact_mut(|txn| {
+        old_read_txn.load_doc(
+          old_user.session.user_id,
+          &old_user.session.user_workspace.database_views_aggregate_id,
+          txn,
+        )
+      })?;
 
       migrate_database_with_views_object(
+        &database_with_views_collab,
         &mut old_to_new_id_map.lock(),
-        old_user.session.user_id,
-        &old_user.session.user_workspace.database_views_aggregate_id,
         new_user.session.user_id,
         &new_user.session.user_workspace.database_views_aggregate_id,
-        database_with_views_update,
         w_txn,
       );
 
@@ -96,61 +107,86 @@ pub fn migration_local_user_on_sign_up(
       // Migrate databases
       tracing::info!("migrate collab objects: {:?}", object_ids.len());
       let mut database_object_ids = vec![];
+      let database_row_object_ids = RwLock::new(HashSet::new());
+
       for object_id in &object_ids {
         if let Some(collab) = collab_by_oid.get(object_id) {
-          if is_database_collab(&collab) {
-            database_object_ids.push(object_id.clone());
-
-            reset_inline_view_id(&collab, |old_inline_view_id| {
-              old_to_new_id_map.lock().get_new_id(&old_inline_view_id)
-            });
-
-            reset_database_views(&collab, |database_view| {
-              let new_view_id = old_to_new_id_map.lock().get_new_id(&database_view.id);
-              let new_database_id = old_to_new_id_map
-                .lock()
-                .get_new_id(&database_view.database_id);
-
-              tracing::debug!(
-                "migrate database view id from: {}, to: {}",
-                database_view.id,
-                new_view_id,
-              );
-              tracing::debug!(
-                "migrate database view database id from: {}, to: {}",
-                database_view.database_id,
-                new_database_id,
-              );
-
-              database_view.id = new_view_id;
-              database_view.database_id = new_database_id;
-              database_view.row_orders.iter_mut().for_each(|row_order| {
-                let old_row_id = String::from(row_order.id.clone());
-                let old_row_document_id = database_row_document_id_from_row_id(&old_row_id);
-
-                let new_row_id = old_to_new_id_map.lock().get_new_id(&old_row_id);
-                let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
-
-                old_to_new_id_map
-                  .lock()
-                  .insert(old_row_document_id, new_row_document_id);
-                tracing::info!("migrate row id: {} to {}", row_order.id, new_row_id);
-                row_order.id = RowId::from(new_row_id);
-              });
-            });
-
-            let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
-            tracing::debug!(
-              "migrate database from: {}, to: {}",
-              object_id,
-              new_object_id,
-            );
-            migrate_collab_object(&collab, new_user.session.user_id, &new_object_id, w_txn);
+          if !is_database_collab(&collab) {
+            continue;
           }
+
+          database_object_ids.push(object_id.clone());
+          reset_inline_view_id(&collab, |old_inline_view_id| {
+            old_to_new_id_map.lock().get_new_id(&old_inline_view_id)
+          });
+
+          mut_database_views_with_collab(&collab, |database_view| {
+            let new_view_id = old_to_new_id_map.lock().get_new_id(&database_view.id);
+            let new_database_id = old_to_new_id_map
+              .lock()
+              .get_new_id(&database_view.database_id);
+
+            tracing::trace!(
+              "migrate database view id from: {}, to: {}",
+              database_view.id,
+              new_view_id,
+            );
+            tracing::trace!(
+              "migrate database view database id from: {}, to: {}",
+              database_view.database_id,
+              new_database_id,
+            );
+
+            database_view.id = new_view_id;
+            database_view.database_id = new_database_id;
+            database_view.row_orders.iter_mut().for_each(|row_order| {
+              let old_row_id = String::from(row_order.id.clone());
+              let old_row_document_id = database_row_document_id_from_row_id(&old_row_id);
+              let new_row_id = old_to_new_id_map.lock().get_new_id(&old_row_id);
+              let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
+              tracing::debug!("migrate row id: {} to {}", row_order.id, new_row_id);
+              tracing::debug!(
+                "migrate row document id: {} to {}",
+                old_row_document_id,
+                new_row_document_id
+              );
+              old_to_new_id_map
+                .lock()
+                .insert(old_row_document_id, new_row_document_id);
+
+              row_order.id = RowId::from(new_row_id);
+              database_row_object_ids.write().insert(old_row_id);
+            });
+          });
+
+          let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
+          tracing::debug!(
+            "migrate database from: {}, to: {}",
+            object_id,
+            new_object_id,
+          );
+          migrate_collab_object(&collab, new_user.session.user_id, &new_object_id, w_txn);
+        }
+      }
+      object_ids.retain(|id| !database_object_ids.contains(id));
+
+      let database_row_object_ids = database_row_object_ids.read();
+      for object_id in &*database_row_object_ids {
+        if let Some(collab) = collab_by_oid.get(object_id) {
+          let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
+          tracing::info!(
+            "migrate database row from: {}, to: {}",
+            object_id,
+            new_object_id,
+          );
+          mut_row_with_collab(collab, |row_update| {
+            row_update.set_row_id(RowId::from(new_object_id.clone()));
+          });
+          migrate_collab_object(&collab, new_user.session.user_id, &new_object_id, w_txn);
         }
       }
 
-      object_ids.retain(|id| !database_object_ids.contains(id));
+      object_ids.retain(|id| !database_row_object_ids.contains(id));
       // Migrate other collab objects
       for object_id in &object_ids {
         if let Some(collab) = collab_by_oid.get(object_id) {
@@ -198,41 +234,33 @@ impl DerefMut for OldToNewIdMap {
 }
 
 fn migrate_database_with_views_object<'a, W>(
+  collab: &Collab,
   old_to_new_id_map: &mut OldToNewIdMap,
-  old_uid: i64,
-  old_object_id: &str,
   new_uid: i64,
   new_object_id: &str,
-  updates: CollabRawData,
   w_txn: &'a W,
 ) where
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let origin = CollabOrigin::Client(CollabClient::new(old_uid, "phantom"));
-  match Collab::new_with_raw_data(origin, old_object_id, updates, vec![]) {
-    Ok(collab) => {
-      let array = DatabaseWithViewsArray::from_collab(&collab);
-      for database_view in array.get_all_databases() {
-        array.update_database(&database_view.database_id, |update| {
-          let new_linked_views = update
-            .linked_views
-            .iter()
-            .map(|view_id| old_to_new_id_map.get_new_id(&view_id))
-            .collect();
-          update.database_id = old_to_new_id_map.get_new_id(&update.database_id);
-          update.linked_views = new_linked_views;
-        })
-      }
-
-      let txn = collab.transact();
-      if let Err(err) = w_txn.create_new_doc(new_uid, new_object_id, &txn) {
-        tracing::error!("🔴migrate database storage failed: {:?}", err);
-      }
-      drop(txn);
-    },
-    Err(err) => tracing::error!("🔴construct migration database storage failed: {:?} ", err),
+  let array = DatabaseWithViewsArray::from_collab(collab);
+  for database_view in array.get_all_databases() {
+    array.update_database(&database_view.database_id, |update| {
+      let new_linked_views = update
+        .linked_views
+        .iter()
+        .map(|view_id| old_to_new_id_map.get_new_id(&view_id))
+        .collect();
+      update.database_id = old_to_new_id_map.get_new_id(&update.database_id);
+      update.linked_views = new_linked_views;
+    })
   }
+
+  let txn = collab.transact();
+  if let Err(err) = w_txn.create_new_doc(new_uid, new_object_id, &txn) {
+    tracing::error!("🔴migrate database storage failed: {:?}", err);
+  }
+  drop(txn);
 }
 
 fn migrate_collab_object<'a, W>(collab: &Collab, new_uid: i64, new_object_id: &str, w_txn: &'a W)
@@ -247,23 +275,19 @@ where
 }
 
 fn migrate_workspace_folder<'a, W>(
-  old_uid: i64,
   old_workspace_id: &str,
   new_uid: i64,
   new_workspace_id: &str,
-  updates: CollabRawData,
+  old_folder_collab: Collab,
   w_txn: &'a W,
 ) -> Option<OldToNewIdMap>
 where
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let origin = CollabOrigin::Client(CollabClient::new(old_uid, "phantom"));
-  let old_folder_collab =
-    Collab::new_with_raw_data(origin, old_workspace_id, updates, vec![]).ok()?;
   let old_folder = Folder::open(Arc::new(MutexCollab::from_collab(old_folder_collab)), None);
-
   let mut folder_data = old_folder.get_folder_data()?;
+
   let mut old_to_new_id_map: OldToNewIdMap = OldToNewIdMap::new();
   old_to_new_id_map
     .0

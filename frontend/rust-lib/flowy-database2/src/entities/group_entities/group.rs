@@ -97,7 +97,7 @@ impl std::convert::From<GroupData> for GroupPB {
       rows: group_data
         .rows
         .into_iter()
-        .map(|row_detail| RowMetaPB::from(row_detail.meta))
+        .map(|row_detail| RowMetaPB::from(row_detail))
         .collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
