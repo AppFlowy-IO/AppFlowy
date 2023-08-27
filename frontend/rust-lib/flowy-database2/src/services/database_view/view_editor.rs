@@ -14,9 +14,9 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
-  InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -32,6 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -123,6 +124,21 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     field: &Field,
     field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
+
+  fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  );
 }
 
 pub struct DatabaseViewEditor {
@@ -890,6 +906,30 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
       .send();
+  }
+
+  pub async fn v_get_field_settings(
+    &self,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_field_settings(&self.view_id, field_ids)
+  }
+
+  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_all_field_settings(&self.view_id)
+  }
+
+  pub async fn v_update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) -> FlowyResult<()> {
+    self
+      .delegate
+      .update_field_settings(view_id, field_id, visibility);
+
+    Ok(())
   }
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>
