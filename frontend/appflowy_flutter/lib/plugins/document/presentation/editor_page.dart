@@ -239,6 +239,28 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           ),
         ),
       ),
+      TableBlockKeys.type: TableBlockComponentBuilder(
+        menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+            TableMenu(
+          node: node,
+          editorState: editorState,
+          position: position,
+          dir: dir,
+          onBuild: onBuild,
+          onClose: onClose,
+        ),
+      ),
+      TableCellBlockKeys.type: TableCellBlockComponentBuilder(
+        menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+            TableMenu(
+          node: node,
+          editorState: editorState,
+          position: position,
+          dir: dir,
+          onBuild: onBuild,
+          onClose: onClose,
+        ),
+      ),
       DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
         configuration: configuration.copyWith(
           padding: (_) => const EdgeInsets.symmetric(vertical: 10),
@@ -336,7 +358,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
       ];
 
-      builder.showActions = (_) => true;
+      builder.showActions =
+          (node) => node.parent?.type != TableCellBlockKeys.type;
       builder.actionBuilder = (context, state) {
         final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type

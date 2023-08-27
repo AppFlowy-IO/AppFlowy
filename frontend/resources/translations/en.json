@@ -548,6 +548,14 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
+      },
+      "table": {
+        "addAfter": "Add after",
+        "addBefore": "Add before",
+        "delete": "Delete",
+        "clear": "Clear content",
+        "duplicate": "Duplicate",
+        "bgColor": "Background color"
       }
     },
     "textBlock": {

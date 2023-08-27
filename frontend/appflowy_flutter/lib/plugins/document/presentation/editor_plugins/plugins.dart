@@ -25,3 +25,5 @@ export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';
+export 'table/table_menu.dart';
+export 'table/table_option_action.dart';
