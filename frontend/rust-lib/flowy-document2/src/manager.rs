@@ -71,7 +71,7 @@ impl DocumentManager {
   }
 
   /// Return the document
-  #[tracing::instrument(level = "debug", skip_all)]
+  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
@@ -101,11 +101,7 @@ impl DocumentManager {
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
-        updates = document_updates;
-      } else {
-        return Err(FlowyError::collab_not_sync());
-      }
+      updates = self.cloud_service.get_document_updates(doc_id).await?;
     }
     let uid = self.user.user_id()?;
     let collab = self.collab_for_document(uid, doc_id, updates)?;
