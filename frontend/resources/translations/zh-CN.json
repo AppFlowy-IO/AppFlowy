@@ -2,7 +2,7 @@
   "appName": "Appflowy",
   "defaultUsername": "我",
   "welcomeText": "欢迎使用 @:appName",
-  "githubStarText": "Star on GitHub",
+  "githubStarText": "在 GitHub 点星",
   "subscribeNewsletterText": "消息订阅",
   "letsGoButtonText": "开始",
   "title": "标题",
@@ -549,5 +549,5 @@
   "unSupportBlock": "当前版本不支持该块。",
   "views.deleteContentTitle": "您确定要删除 {pageType} 吗？",
   "views.deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。",
-  "settings.shortcuts.shortcutsLabel": "快捷键"
+  "emoji.categories.smileys": "笑脸与情感"
 }
