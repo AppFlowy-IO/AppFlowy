@@ -16,6 +16,7 @@ async fn restore_document() {
   let uid = test.user.user_id().unwrap();
   let document_a = test
     .create_document(uid, &doc_id, Some(data.clone()))
+    .await
     .unwrap();
   let data_a = document_a.lock().get_document_data().unwrap();
   assert_eq!(data_a, data);
