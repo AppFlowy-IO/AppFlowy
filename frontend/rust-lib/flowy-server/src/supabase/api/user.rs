@@ -1,5 +1,9 @@
+use std::future::Future;
+use std::iter::Take;
+use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, Weak};
+use std::time::Duration;
 
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
@@ -8,6 +12,8 @@ use collab_plugins::cloud_storage::CollabObject;
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
+use tokio_retry::strategy::FixedInterval;
+use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
 use flowy_folder_deps::cloud::{Folder, Workspace};
@@ -18,7 +24,9 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
-use crate::supabase::api::request::{get_updates_from_server, FetchObjectUpdateAction};
+use crate::supabase::api::request::{
+  get_updates_from_server, FetchObjectUpdateAction, RetryCondition,
+};
 use crate::supabase::api::util::{
   ExtendedResponse, InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
 };
@@ -314,12 +322,8 @@ where
     tokio::spawn(async move {
       tx.send(
         async move {
-          let postgrest = try_get_postgrest?
-            .upgrade()
-            .ok_or(anyhow::anyhow!("postgrest is not available"))?;
-
-          let secret = postgrest.secret();
-          flush_collab_with_update(&cloned_collab_object, vec![], &postgrest, update, secret)
+          CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, update)
+            .run()
             .await?;
           Ok(())
         }
@@ -327,6 +331,61 @@ where
       )
     });
     FutureResult::new(async { rx.await? })
+  }
+}
+
+pub struct CreateCollabAction {
+  collab_object: CollabObject,
+  postgrest: Weak<PostgresWrapper>,
+  update: Vec<u8>,
+}
+
+impl CreateCollabAction {
+  pub fn new(
+    collab_object: CollabObject,
+    postgrest: Weak<PostgresWrapper>,
+    update: Vec<u8>,
+  ) -> Self {
+    Self {
+      collab_object,
+      postgrest,
+      update,
+    }
+  }
+
+  pub fn run(self) -> RetryIf<Take<FixedInterval>, CreateCollabAction, RetryCondition> {
+    let postgrest = self.postgrest.clone();
+    let retry_strategy = FixedInterval::new(Duration::from_secs(2)).take(3);
+    RetryIf::spawn(retry_strategy, self, RetryCondition(postgrest))
+  }
+}
+
+impl Action for CreateCollabAction {
+  type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
+  type Item = ();
+  type Error = anyhow::Error;
+
+  fn run(&mut self) -> Self::Future {
+    let weak_postgres = self.postgrest.clone();
+    let cloned_collab_object = self.collab_object.clone();
+    let cloned_update = self.update.clone();
+    Box::pin(async move {
+      match weak_postgres.upgrade() {
+        None => Ok(()),
+        Some(postgrest) => {
+          let secret = postgrest.secret();
+          flush_collab_with_update(
+            &cloned_collab_object,
+            vec![],
+            &postgrest,
+            cloned_update,
+            secret,
+          )
+          .await?;
+          Ok(())
+        },
+      }
+    })
   }
 }
 

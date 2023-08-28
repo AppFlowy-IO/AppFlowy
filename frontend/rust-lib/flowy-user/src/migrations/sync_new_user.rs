@@ -116,9 +116,10 @@ fn sync_views(
             database_row_collab_object,
             database_row_update.len()
           );
-          user_service
+
+          let _ = user_service
             .create_collab_object(&database_row_collab_object, database_row_update)
-            .await?;
+            .await;
 
           let database_row_document = CollabObject::new(uid, document_id, CollabType::Document)
             .with_workspace_id(workspace_id.to_string());
@@ -131,9 +132,9 @@ fn sync_views(
               database_row_document,
               document_update.len()
             );
-            user_service
+            let _ = user_service
               .create_collab_object(&database_row_document, document_update)
-              .await?;
+              .await;
           }
         }
       },
