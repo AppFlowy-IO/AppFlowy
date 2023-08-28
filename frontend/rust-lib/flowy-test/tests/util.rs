@@ -1,12 +1,17 @@
+use std::fs::{create_dir_all, File};
+use std::io::copy;
 use std::ops::Deref;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
 use collab_folder::core::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
+use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
+use zip::ZipArchive;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
@@ -14,6 +19,7 @@ use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_test::event_builder::EventBuilder;
+use flowy_test::Cleaner;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB, UserCredentialsPB};
 use flowy_user::errors::FlowyError;
@@ -169,4 +175,39 @@ pub fn appflowy_server(
   let encryption = Arc::downgrade(&encryption_impl);
   let server = Arc::new(RESTfulPostgresServer::new(config, encryption));
   (SupabaseServerServiceImpl::new(server), encryption_impl)
+}
+
+pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(Cleaner, PathBuf)> {
+  // Open the zip file
+  let zip_file_path = format!("{}/{}.zip", root, folder_name);
+  let reader = File::open(zip_file_path)?;
+  let output_folder_path = format!("{}/unit_test_{}", root, nanoid!(6));
+
+  // Create a ZipArchive from the file
+  let mut archive = ZipArchive::new(reader)?;
+
+  // Iterate through each file in the zip
+  for i in 0..archive.len() {
+    let mut file = archive.by_index(i)?;
+    let output_path = Path::new(&output_folder_path).join(file.mangled_name());
+
+    if file.name().ends_with('/') {
+      // Create directory
+      create_dir_all(&output_path)?;
+    } else {
+      // Write file
+      if let Some(p) = output_path.parent() {
+        if !p.exists() {
+          create_dir_all(p)?;
+        }
+      }
+      let mut outfile = File::create(&output_path)?;
+      copy(&mut file, &mut outfile)?;
+    }
+  }
+  let path = format!("{}/{}", output_folder_path, folder_name);
+  Ok((
+    Cleaner::new(PathBuf::from(output_folder_path)),
+    PathBuf::from(path),
+  ))
 }

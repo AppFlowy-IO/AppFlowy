@@ -17,15 +17,7 @@ extension PasteNodes on EditorState {
     if (delta.isEmpty) {
       transaction.insertNode(
         selection.end.path.next,
-        insertedDelta == null
-            ? node.copyWith(
-                type: node.type,
-                attributes: {
-                  ...node.attributes,
-                  ...insertedNode.attributes,
-                },
-              )
-            : insertedNode,
+        insertedNode,
       );
       transaction.deleteNode(node);
       final path = calculatePath(selection.end.path, [insertedNode]);

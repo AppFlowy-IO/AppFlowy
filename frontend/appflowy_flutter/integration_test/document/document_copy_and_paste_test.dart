@@ -226,6 +226,30 @@ void main() {
       );
     },
   );
+
+  // https://github.com/AppFlowy-IO/AppFlowy/issues/3263
+  testWidgets(
+    'paste the image from clipboard when html and image are both available',
+    (tester) async {
+      const html =
+          '''<meta charset='utf-8'><img src="https://user-images.githubusercontent.com/9403740/262918875-603f4adb-58dd-49b5-8201-341d354935fd.png" alt="image"/>''';
+      final image = await rootBundle.load('assets/test/images/sample.png');
+      final bytes = image.buffer.asUint8List();
+      await tester.pasteContent(
+        html: html,
+        image: ('png', bytes),
+        (editorState) {
+          expect(editorState.document.root.children.length, 2);
+          final node = editorState.getNodeAtPath([0])!;
+          expect(node.type, ImageBlockKeys.type);
+          expect(
+            node.attributes[ImageBlockKeys.url],
+            'https://user-images.githubusercontent.com/9403740/262918875-603f4adb-58dd-49b5-8201-341d354935fd.png',
+          );
+        },
+      );
+    },
+  );
 }
 
 extension on WidgetTester {

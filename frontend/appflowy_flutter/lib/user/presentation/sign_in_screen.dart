@@ -73,19 +73,27 @@ class SignInScreen extends StatelessWidget {
 }
 
 void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
-  if (error.code == ErrorCode.WorkspaceDataNotSync) {
-    final userFolder = UserFolderPB.fromBuffer(error.payload);
-    getIt<AuthRouter>().pushWorkspaceErrorScreen(context, userFolder, error);
-  } else {
-    Log.error(error);
-    showSnapBar(
-      context,
-      error.msg,
-      onClosed: () {
-        getIt<AuthService>().signOut();
-        runAppFlowy();
-      },
-    );
+  Log.error(error);
+  switch (error.code) {
+    case ErrorCode.WorkspaceDataNotSync:
+      final userFolder = UserFolderPB.fromBuffer(error.payload);
+      getIt<AuthRouter>().pushWorkspaceErrorScreen(context, userFolder, error);
+      break;
+    case ErrorCode.InvalidEncryptSecret:
+      showSnapBar(
+        context,
+        error.msg,
+      );
+      break;
+    default:
+      showSnapBar(
+        context,
+        error.msg,
+        onClosed: () {
+          getIt<AuthService>().signOut();
+          runAppFlowy();
+        },
+      );
   }
 }
 

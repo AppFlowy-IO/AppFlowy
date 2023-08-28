@@ -34,7 +34,9 @@ pub(crate) async fn create_document_handler(
   let manager = upgrade_document(manager)?;
   let params: CreateDocumentParams = data.into_inner().try_into()?;
   let uid = manager.user.user_id()?;
-  manager.create_document(uid, &params.document_id, params.initial_data)?;
+  manager
+    .create_document(uid, &params.document_id, params.initial_data)
+    .await?;
   Ok(())
 }
 

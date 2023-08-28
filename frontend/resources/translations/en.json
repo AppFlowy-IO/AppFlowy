@@ -41,6 +41,7 @@
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
+    "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "signInWith": "Sign in with:"
   },
   "workspace": {
@@ -54,6 +55,7 @@
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copy Link"
   },
   "moreAction": {
@@ -304,6 +306,7 @@
     },
     "user": {
       "name": "Name",
+      "email": "Email",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
@@ -556,6 +559,11 @@
         "clear": "Clear content",
         "duplicate": "Duplicate",
         "bgColor": "Background color"
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
       }
     },
     "textBlock": {

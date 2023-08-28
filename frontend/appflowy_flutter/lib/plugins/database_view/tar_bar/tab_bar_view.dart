@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/tar_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -212,4 +213,16 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   List<NavigationItem> get navigationItems => [this];
+
+  @override
+  Widget? get rightBarItem {
+    return Row(
+      children: [
+        DatabaseShareButton(
+          key: ValueKey(notifier.view.id),
+          view: notifier.view,
+        ),
+      ],
+    );
+  }
 }
