@@ -41,6 +41,7 @@
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
+    "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "signInWith": "Sign in with:"
   },
   "workspace": {

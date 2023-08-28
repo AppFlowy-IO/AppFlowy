@@ -415,7 +415,7 @@ pub struct UpdateItem {
   pub value: Vec<u8>,
 }
 
-pub struct RetryCondition(Weak<PostgresWrapper>);
+pub struct RetryCondition(pub Weak<PostgresWrapper>);
 impl Condition<anyhow::Error> for RetryCondition {
   fn should_retry(&mut self, _error: &anyhow::Error) -> bool {
     self.0.upgrade().is_some()

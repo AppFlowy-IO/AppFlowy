@@ -88,7 +88,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   /// Will be called after the user signed up.
   fn did_sign_up(
     &self,
-    context: SignUpContext,
+    is_new_user: bool,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -163,7 +163,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
 
   fn did_sign_up(
     &self,
-    _context: SignUpContext,
+    _is_new_user: bool,
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,

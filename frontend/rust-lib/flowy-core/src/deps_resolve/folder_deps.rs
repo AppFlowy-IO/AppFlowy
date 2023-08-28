@@ -111,6 +111,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
           let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
           manager
             .create_document(uid, &view.parent_view.id, Some(document_pb.into()))
+            .await
             .unwrap();
           view
         })
@@ -165,7 +166,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(data))?;
-      manager.create_document(user_id, &view_id, Some(data.into()))?;
+      manager
+        .create_document(user_id, &view_id, Some(data.into()))
+        .await?;
       Ok(())
     })
   }
@@ -182,7 +185,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let view_id = view_id.to_string();
     let manager = self.0.clone();
     FutureResult::new(async move {
-      manager.create_document(user_id, &view_id, None)?;
+      manager.create_document(user_id, &view_id, None).await?;
       Ok(())
     })
   }
@@ -199,7 +202,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
     let manager = self.0.clone();
     FutureResult::new(async move {
       let data = DocumentDataPB::try_from(Bytes::from(bytes))?;
-      manager.create_document(uid, &view_id, Some(data.into()))?;
+      manager
+        .create_document(uid, &view_id, Some(data.into()))
+        .await?;
       Ok(())
     })
   }
