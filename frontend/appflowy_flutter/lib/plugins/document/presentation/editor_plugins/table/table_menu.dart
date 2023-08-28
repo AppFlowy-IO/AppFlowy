@@ -12,6 +12,7 @@ const tableActions = <TableOptionAction>[
   TableOptionAction.delete,
   TableOptionAction.duplicate,
   TableOptionAction.clear,
+  TableOptionAction.bgColor,
 ];
 
 class TableMenu extends StatelessWidget {
@@ -34,13 +35,25 @@ class TableMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actions = tableActions.map((action) {
+      switch (action) {
+        case TableOptionAction.bgColor:
+          return TableColorOptionAction(
+            node: node,
+            editorState: editorState,
+            position: position,
+            dir: dir,
+          );
+        default:
+          return TableOptionActionWrapper(action);
+      }
+    }).toList();
+
     return PopoverActionList<PopoverAction>(
       direction: dir == TableDirection.col
           ? PopoverDirection.bottomWithCenterAligned
           : PopoverDirection.rightWithTopAligned,
-      actions: tableActions
-          .map((action) => TableOptionActionWrapper(action))
-          .toList(),
+      actions: actions,
       onPopupBuilder: onBuild,
       onClosed: onClose,
       onSelected: (action, controller) {
