@@ -1074,7 +1074,6 @@ dependencies = [
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
- "flowy-net",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
@@ -1392,7 +1391,6 @@ dependencies = [
  "flowy-error",
  "flowy-folder-deps",
  "flowy-folder2",
- "flowy-net",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1604,17 +1602,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-net"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-codegen",
- "lib-dispatch",
- "protobuf",
- "tracing",
-]
-
-[[package]]
 name = "flowy-notification"
 version = "0.1.0"
 dependencies = [
@@ -1752,7 +1739,6 @@ dependencies = [
  "flowy-encrypt",
  "flowy-folder-deps",
  "flowy-folder2",
- "flowy-net",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",

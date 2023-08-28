@@ -28,6 +28,12 @@ impl UserManager {
   pub async fn add_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
     let reminder = Reminder::from(reminder_pb);
     self
+      .collab_interact
+      .read()
+      .await
+      .add_reminder(&reminder)
+      .await?;
+    self
       .with_awareness((), |user_awareness| {
         user_awareness.add_reminder(reminder);
       })
@@ -69,11 +75,16 @@ impl UserManager {
   ///
   pub async fn remove_reminder(&self, reminder_id: &str) -> FlowyResult<()> {
     self
+      .collab_interact
+      .read()
+      .await
+      .remove_reminder(reminder_id)
+      .await?;
+    self
       .with_awareness((), |user_awareness| {
-        user_awareness.remove_reminder(reminder_id)
+        user_awareness.remove_reminder(reminder_id);
       })
       .await;
-
     Ok(())
   }
 

@@ -9,7 +9,6 @@ edition = "2018"
 flowy-core = { path = "../flowy-core" }
 flowy-user = { path = "../flowy-user"}
 flowy-user-deps = { path = "../flowy-user-deps"}
-flowy-net = { path = "../flowy-net"}
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
 flowy-folder-deps = { path = "../flowy-folder-deps" }
 flowy-database2 = { path = "../flowy-database2" }

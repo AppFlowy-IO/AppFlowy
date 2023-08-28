@@ -1,14 +1,5 @@
 #![allow(clippy::type_complexity)]
-use crate::{
-  connect::{WSConnectionFuture, WSStream},
-  errors::WSError,
-  WSChannel, WebSocketRawMessage,
-};
-use dashmap::DashMap;
-use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
-use futures_core::{ready, Stream};
-use lib_infra::retry::{Action, FixedInterval, Retry};
-use pin_project::pin_project;
+
 use std::{
   fmt::Formatter,
   future::Future,
@@ -17,10 +8,23 @@ use std::{
   task::{Context, Poll},
   time::Duration,
 };
+
+use dashmap::DashMap;
+use futures_channel::mpsc::{UnboundedReceiver, UnboundedSender};
+use futures_core::{ready, Stream};
+use pin_project::pin_project;
 use tokio::sync::{broadcast, oneshot, RwLock};
+use tokio_retry::strategy::FixedInterval;
+use tokio_retry::{Action, Retry};
 use tokio_tungstenite::tungstenite::{
   protocol::{frame::coding::CloseCode, CloseFrame},
   Message,
+};
+
+use crate::{
+  connect::{WSConnectionFuture, WSStream},
+  errors::WSError,
+  WSChannel, WebSocketRawMessage,
 };
 
 pub type MsgReceiver = UnboundedReceiver<Message>;

@@ -23,7 +23,6 @@ tracing = { version = "0.1", features = ["log"] }
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
-flowy-net = { path = "../../rust-lib/flowy-net" }
 
 [features]
 # by default Tauri runs in production mode

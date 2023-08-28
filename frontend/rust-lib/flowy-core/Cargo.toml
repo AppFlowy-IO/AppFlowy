@@ -10,7 +10,6 @@ lib-dispatch = { path = "../lib-dispatch" }
 lib-log = { path = "../lib-log" }
 flowy-user = { path = "../flowy-user" }
 flowy-user-deps = { path = "../flowy-user-deps" }
-flowy-net = { path = "../flowy-net" }
 flowy-ai = { path = "../flowy-ai" }
 flowy-folder2 = { path = "../flowy-folder2" }
 flowy-folder-deps = { path = "../flowy-folder-deps" }
@@ -49,7 +48,6 @@ native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
-    "flowy-net/dart",
     "flowy-ai/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
@@ -58,7 +56,6 @@ dart = [
 ]
 ts = [
     "flowy-user/ts",
-    "flowy-net/ts",
     "flowy-ai/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",

@@ -26,6 +26,7 @@ protobuf = {version = "2.28.0"}
 strum_macros = "0.21"
 parking_lot = "0.12.1"
 dashmap = "5"
+tokio-retry = "0.3.0"
 
 [dev-dependencies]
 tokio = { version = "1.26", features = ["full"]}
