@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use assert_json_diff::assert_json_eq;
+use collab_database::rows::database_row_document_id_from_row_id;
 use collab_document::blocks::DocumentData;
 use collab_folder::core::FolderData;
 use nanoid::nanoid;
@@ -324,6 +325,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       .await
       .unwrap()
       .unwrap();
+
     let expected_folder_data = expected_workspace_sync_folder_data();
 
     if folder_data.workspaces.len() != expected_folder_data.workspaces.len() {
@@ -358,7 +360,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       .collect::<Vec<_>>();
 
     // Try to load the database from the cloud.
-    for database_view in database_views {
+    for (i, database_view) in database_views.iter().enumerate() {
       let cloud_service = test.database_manager.get_cloud_service();
       let database_id = test
         .database_manager
@@ -377,14 +379,42 @@ async fn migrate_anon_data_on_cloud_signup() {
         .await
         .unwrap();
 
-      let new_rows = editor.get_rows(&database_view.id).await.unwrap();
-      assert_eq!(new_rows.len(), 3);
+      let rows = editor.get_rows(&database_view.id).await.unwrap();
+      assert_eq!(rows.len(), 3);
 
-      // TODO: assert number of linked view of the database
+      if i == 0 {
+        let first_row = rows.first().unwrap().as_ref();
+        let icon_url = first_row.meta.icon_url.clone().unwrap();
+        assert_eq!(icon_url, "😄");
 
-      // TODO: assert document in row
+        let document_id = database_row_document_id_from_row_id(&first_row.row.id);
+        let document_data: DocumentData = test
+          .document_manager
+          .get_cloud_service()
+          .get_document_data(&document_id)
+          .await
+          .unwrap()
+          .unwrap();
 
-      // TODO: assert remote database and row update
+        let editor = test
+          .document_manager
+          .get_document(&document_id)
+          .await
+          .unwrap();
+        let expected_document_data = editor.lock().get_document_data().unwrap();
+
+        // let expected_document_data = test
+        //   .document_manager
+        //   .get_document_data(&document_id)
+        //   .await
+        //   .unwrap();
+        assert_eq!(document_data, expected_document_data);
+        let json = json!(document_data);
+        assert_eq!(
+          json["blocks"]["LPMpo0Qaab"]["data"]["delta"][0]["insert"],
+          json!("Row document")
+        );
+      }
 
       assert!(cloud_service
         .get_collab_update(&database_id, CollabType::Database)
@@ -398,167 +428,87 @@ async fn migrate_anon_data_on_cloud_signup() {
 
 fn expected_workspace_sync_folder_data() -> FolderData {
   serde_json::from_value::<FolderData>(json!({
-    "current_view": "82c5c683-5486-42c4-b4cb-92b114c6cf92",
-    "current_workspace_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e",
+    "current_view": "e0811131-9928-4541-a174-20b7553d9e4c",
+    "current_workspace_id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3",
     "views": [
       {
         "children": {
           "items": [
             {
-              "id": "f0a76fd1-b769-42e8-829b-3cc33b088871"
+              "id": "e0811131-9928-4541-a174-20b7553d9e4c"
             },
             {
-              "id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8"
+              "id": "53333949-c262-447b-8597-107589697059"
             }
           ]
         },
-        "created_at": 1692884814,
+        "created_at": 1693147093,
         "desc": "",
         "icon": null,
-        "id": "82c5c683-5486-42c4-b4cb-92b114c6cf92",
+        "id": "e203afb3-de5d-458a-8380-33cd788a756e",
         "is_favorite": false,
         "layout": 0,
         "name": "⭐️ Getting started",
-        "parent_view_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e"
+        "parent_view_id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3"
       },
       {
         "children": {
           "items": [
             {
-              "id": "028a34a6-0138-4aae-8116-896dd5ac8cb3"
-            }
-          ]
-        },
-        "created_at": 1692884817,
-        "desc": "",
-        "icon": null,
-        "id": "f0a76fd1-b769-42e8-829b-3cc33b088871",
-        "is_favorite": false,
-        "layout": 0,
-        "name": "document 1",
-        "parent_view_id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
-      },
-      {
-        "children": {
-          "items": []
-        },
-        "created_at": 1692884946,
-        "desc": "",
-        "icon": null,
-        "id": "028a34a6-0138-4aae-8116-896dd5ac8cb3",
-        "is_favorite": false,
-        "layout": 1,
-        "name": "Untitled",
-        "parent_view_id": "f0a76fd1-b769-42e8-829b-3cc33b088871"
-      },
-      {
-        "children": {
-          "items": [
-            {
-              "id": "9841041b-c7b0-4568-885c-24069b6d1d22"
-            }
-          ]
-        },
-        "created_at": 1692884827,
-        "desc": "",
-        "icon": null,
-        "id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8",
-        "is_favorite": false,
-        "layout": 0,
-        "name": "document 2",
-        "parent_view_id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
-      },
-      {
-        "children": {
-          "items": []
-        },
-        "created_at": 1692884969,
-        "desc": "",
-        "icon": null,
-        "id": "9841041b-c7b0-4568-885c-24069b6d1d22",
-        "is_favorite": false,
-        "layout": 0,
-        "name": "Untitled",
-        "parent_view_id": "35067716-ddaa-4b18-a7f6-4c7ffd6753e8"
-      },
-      {
-        "children": {
-          "items": [
-            {
-              "id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+              "id": "11c697ba-5ed1-41c0-adfc-576db28ad27b"
             },
             {
-              "id": "e167e197-2822-4981-9391-86dff16fb261"
+              "id": "4a5c25e2-a734-440c-973b-4c0e7ab0039c"
             }
           ]
         },
-        "created_at": 1692884854,
+        "created_at": 1693147096,
         "desc": "",
         "icon": null,
-        "id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3",
+        "id": "e0811131-9928-4541-a174-20b7553d9e4c",
         "is_favorite": false,
-        "layout": 0,
+        "layout": 1,
         "name": "database",
-        "parent_view_id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e"
-      },
-      {
-        "children": {
-          "items": [
-            {
-              "id": "b416d4a8-68d0-4a47-ba1f-091cbffaf9bf"
-            },
-            {
-              "id": "c0d91451-fed0-4500-99a1-1ada9fe8aaaa"
-            }
-          ]
-        },
-        "created_at": 1692884857,
-        "desc": "",
-        "icon": null,
-        "id": "6891352a-185c-4c0e-b66f-f7cb25a66033",
-        "is_favorite": false,
-        "layout": 1,
-        "name": "My first database",
-        "parent_view_id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+        "parent_view_id": "e203afb3-de5d-458a-8380-33cd788a756e"
       },
       {
         "children": {
           "items": []
         },
-        "created_at": 1692884875,
+        "created_at": 1693147124,
         "desc": "",
         "icon": null,
-        "id": "b416d4a8-68d0-4a47-ba1f-091cbffaf9bf",
+        "id": "11c697ba-5ed1-41c0-adfc-576db28ad27b",
         "is_favorite": false,
         "layout": 3,
         "name": "calendar",
-        "parent_view_id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+        "parent_view_id": "e0811131-9928-4541-a174-20b7553d9e4c"
       },
       {
         "children": {
           "items": []
         },
-        "created_at": 1692884877,
+        "created_at": 1693147125,
         "desc": "",
         "icon": null,
-        "id": "c0d91451-fed0-4500-99a1-1ada9fe8aaaa",
+        "id": "4a5c25e2-a734-440c-973b-4c0e7ab0039c",
         "is_favorite": false,
         "layout": 2,
         "name": "board",
-        "parent_view_id": "6891352a-185c-4c0e-b66f-f7cb25a66033"
+        "parent_view_id": "e0811131-9928-4541-a174-20b7553d9e4c"
       },
       {
         "children": {
           "items": []
         },
-        "created_at": 1692884883,
+        "created_at": 1693147133,
         "desc": "",
         "icon": null,
-        "id": "e167e197-2822-4981-9391-86dff16fb261",
+        "id": "53333949-c262-447b-8597-107589697059",
         "is_favorite": false,
         "layout": 0,
-        "name": "database description",
-        "parent_view_id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+        "name": "document",
+        "parent_view_id": "e203afb3-de5d-458a-8380-33cd788a756e"
       }
     ],
     "workspaces": [
@@ -566,15 +516,12 @@ fn expected_workspace_sync_folder_data() -> FolderData {
         "child_views": {
           "items": [
             {
-              "id": "82c5c683-5486-42c4-b4cb-92b114c6cf92"
-            },
-            {
-              "id": "e53a478c-5911-4e82-9b24-3e8b01b8c3f3"
+              "id": "e203afb3-de5d-458a-8380-33cd788a756e"
             }
           ]
         },
-        "created_at": 1692884814,
-        "id": "aaeb4fdd-6a06-489a-bde9-89e43a54302e",
+        "created_at": 1693147093,
+        "id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3",
         "name": "Workspace"
       }
     ]

@@ -57,7 +57,7 @@ impl DocumentManager {
   ///
   /// if the document already exists, return the existing document.
   /// if the data is None, will create a document with default data.
-  pub fn create_document(
+  pub async fn create_document(
     &self,
     uid: i64,
     doc_id: &str,
@@ -65,9 +65,15 @@ impl DocumentManager {
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
     let collab = self.collab_for_document(uid, doc_id, vec![])?;
-    let data = data.unwrap_or_else(default_document_data);
-    let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
-    Ok(document)
+
+    match self.get_document(doc_id).await {
+      Ok(document) => Ok(document),
+      Err(_) => {
+        let data = data.unwrap_or_else(default_document_data);
+        let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
+        Ok(document)
+      },
+    }
   }
 
   /// Return the document
@@ -83,10 +89,7 @@ impl DocumentManager {
     }
 
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let collab = self
-      .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+    let collab = self.collab_for_document(uid, doc_id, updates)?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
