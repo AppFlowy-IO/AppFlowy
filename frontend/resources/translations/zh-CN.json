@@ -550,5 +550,10 @@
   "views.deleteContentTitle": "您确定要删除 {pageType} 吗？",
   "views.deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。",
   "emoji.categories.smileys": "笑脸与情感",
-  "colors.default": "预设"
+  "colors.default": "预设",
+  "document.mention.page.tooltip": "点击以打开页面",
+  "document.plugins.contextMenu.paste": "贴上",
+  "document.plugins.contextMenu.copy": "复制",
+  "grid.row.titlePlaceholder": "无标题",
+  "settings.appearance.resetSetting": "重置此设定"
 }

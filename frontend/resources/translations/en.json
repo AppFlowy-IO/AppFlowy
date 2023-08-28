@@ -689,5 +689,8 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
-  }
+  },
+  "settings.menu.supabaseSetting": "Supabase Setting",
+  "grid.sort.deleteSort": "Delete Order",
+  "grid.settings.Properties": "Properties"
 }
