@@ -1,6 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/presentation/screens/workspace_start_screen/util/util.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DesktopWorkspaceStartScreen extends StatelessWidget {
   const DesktopWorkspaceStartScreen({super.key, required this.workspaceState});
@@ -48,7 +47,7 @@ Widget _renderList(List<WorkspacePB> workspaces) {
         final workspace = workspaces[index];
         return _WorkspaceItem(
           workspace: workspace,
-          onPressed: (workspace) => popToWorkspace(context, workspace),
+          onPressed: (workspace) => _popToWorkspace(context, workspace),
         );
       },
       itemCount: workspaces.length,
@@ -86,7 +85,22 @@ Widget _renderCreateButton(BuildContext context) {
       LocaleKeys.workspace_create.tr(),
       fontSize: 14,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      onPressed: () => createWorkspace(context),
+      onPressed: () {
+        // same method as in mobile
+        context.read<WorkspaceBloc>().add(
+              WorkspaceEvent.createWorkspace(
+                LocaleKeys.workspace_hint.tr(),
+                "",
+              ),
+            );
+      },
     ),
   );
+}
+
+// same method as in mobile
+void _popToWorkspace(BuildContext context, WorkspacePB workspace) {
+  context.read<WorkspaceBloc>().add(WorkspaceEvent.openWorkspace(workspace));
+
+  Navigator.of(context).pop(workspace.id);
 }

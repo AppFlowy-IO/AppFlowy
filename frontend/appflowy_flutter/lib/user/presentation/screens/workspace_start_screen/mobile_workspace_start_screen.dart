@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/presentation/screens/workspace_start_screen/util/util.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // TODO(yijing): needs refactor when multiple workspaces are supported
 class MobileWorkspaceStartScreen extends StatefulWidget {
@@ -85,7 +85,13 @@ class _MobileWorkspaceStartScreenState
               //   ),
               //   onPressed: () {
               //     setState(() {
-              //       createWorkspace(context);
+              //          // same method as in desktop
+              // context.read<WorkspaceBloc>().add(
+              //       WorkspaceEvent.createWorkspace(
+              //         LocaleKeys.workspace_hint.tr(),
+              //         "",
+              //       ),
+              //     );
               //     });
               //   },
               // ),
@@ -97,14 +103,14 @@ class _MobileWorkspaceStartScreenState
                 onPressed: () {
                   if (selectedWorkspace == null) {
                     // If user didn't choose any workspace, pop to the initial workspace(first workspace)
-                    popToWorkspace(
+                    _popToWorkspace(
                       context,
                       widget.workspaceState.workspaces.first,
                     );
                     return;
                   }
                   // pop to the selected workspace
-                  popToWorkspace(
+                  _popToWorkspace(
                     context,
                     selectedWorkspace!,
                   );
@@ -128,4 +134,11 @@ class _MobileWorkspaceStartScreenState
       body: body,
     );
   }
+}
+
+// same method as in desktop
+void _popToWorkspace(BuildContext context, WorkspacePB workspace) {
+  context.read<WorkspaceBloc>().add(WorkspaceEvent.openWorkspace(workspace));
+
+  Navigator.of(context).pop(workspace.id);
 }

@@ -142,9 +142,7 @@ class Body extends StatelessWidget {
 }
 
 class _DesktopSplashBody extends StatelessWidget {
-  const _DesktopSplashBody({
-    super.key,
-  });
+  const _DesktopSplashBody();
 
   @override
   Widget build(BuildContext context) {
