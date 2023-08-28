@@ -69,19 +69,19 @@ pub fn migration_local_user_on_sign_up(
       // all existing view IDs associated with the old user will be replaced by new IDs relevant to the new user.
       migrate_workspace_folder(
         &mut old_to_new_id_map.lock(),
-        &old_user,
+        old_user,
         &old_collab_r_txn,
-        &new_user,
+        new_user,
         new_collab_w_txn,
       )?;
 
       // Migrate other collab objects
       for object_id in &object_ids {
         if let Some(collab) = collab_by_oid.get(object_id) {
-          let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
+          let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
           tracing::debug!("migrate from: {}, to: {}", object_id, new_object_id,);
           migrate_collab_object(
-            &collab,
+            collab,
             new_user.session.user_id,
             &new_object_id,
             new_collab_w_txn,
@@ -160,7 +160,7 @@ where
       let new_linked_views = update
         .linked_views
         .iter()
-        .map(|view_id| old_to_new_id_map.get_new_id(&view_id))
+        .map(|view_id| old_to_new_id_map.get_new_id(view_id))
         .collect();
       update.database_id = old_to_new_id_map.get_new_id(&update.database_id);
       update.linked_views = new_linked_views;
@@ -315,16 +315,16 @@ where
 
   for object_id in &mut *object_ids {
     if let Some(collab) = collab_by_oid.get(object_id) {
-      if !is_database_collab(&collab) {
+      if !is_database_collab(collab) {
         continue;
       }
 
       database_object_ids.push(object_id.clone());
-      reset_inline_view_id(&collab, |old_inline_view_id| {
+      reset_inline_view_id(collab, |old_inline_view_id| {
         old_to_new_id_map.lock().get_new_id(&old_inline_view_id)
       });
 
-      mut_database_views_with_collab(&collab, |database_view| {
+      mut_database_views_with_collab(collab, |database_view| {
         let new_view_id = old_to_new_id_map.lock().get_new_id(&database_view.id);
         let new_database_id = old_to_new_id_map
           .lock()
@@ -363,14 +363,14 @@ where
         });
       });
 
-      let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
+      let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
       tracing::debug!(
         "migrate database from: {}, to: {}",
         object_id,
         new_object_id,
       );
       migrate_collab_object(
-        &collab,
+        collab,
         new_user.session.user_id,
         &new_object_id,
         new_collab_w_txn,
@@ -382,7 +382,7 @@ where
   let database_row_object_ids = database_row_object_ids.read();
   for object_id in &*database_row_object_ids {
     if let Some(collab) = collab_by_oid.get(object_id) {
-      let new_object_id = old_to_new_id_map.lock().get_new_id(&object_id);
+      let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
       tracing::info!(
         "migrate database row from: {}, to: {}",
         object_id,
@@ -392,7 +392,7 @@ where
         row_update.set_row_id(RowId::from(new_object_id.clone()));
       });
       migrate_collab_object(
-        &collab,
+        collab,
         new_user.session.user_id,
         &new_object_id,
         new_collab_w_txn,
@@ -415,7 +415,7 @@ where
 {
   let mut collab_by_oid = HashMap::new();
   for object_id in object_ids {
-    let collab = Collab::new(old_user.session.user_id, &object_id, "phantom", vec![]);
+    let collab = Collab::new(old_user.session.user_id, object_id, "phantom", vec![]);
     match collab.with_origin_transact_mut(|txn| {
       old_collab_r_txn.load_doc(old_user.session.user_id, &object_id, txn)
     }) {

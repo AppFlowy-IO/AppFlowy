@@ -200,7 +200,7 @@ where
     }
     no_status_group
       .rows
-      .retain(|row_detail| !deleted_row_ids.contains(&row_detail.row.id.to_string()));
+      .retain(|row_detail| !deleted_row_ids.contains(&row_detail.row.id));
     changeset.deleted_rows.extend(deleted_row_ids);
     Some(changeset)
   }

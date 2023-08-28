@@ -279,7 +279,7 @@ where
   }
 
   fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
-    let collab_object = collab_object.clone();
+    let collab_object = collab_object;
 
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();

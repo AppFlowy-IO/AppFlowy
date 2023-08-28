@@ -3,6 +3,7 @@ use flowy_database2::services::field_settings::FieldSettingsChangesetParams;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
+#[allow(clippy::enum_variant_names)]
 pub enum FieldSettingsScript {
   AssertFieldSettings {
     field_id: String,

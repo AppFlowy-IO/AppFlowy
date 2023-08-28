@@ -593,7 +593,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    let _ = migration_local_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_local_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,

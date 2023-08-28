@@ -127,10 +127,9 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(
-      || vec![],
-      |folder| get_workspace_view_pbs(workspace_id, folder),
-    );
+    let views = self.with_folder(std::vec::Vec::new, |folder| {
+      get_workspace_view_pbs(workspace_id, folder)
+    });
 
     Ok(views)
   }
@@ -161,22 +160,17 @@ impl FolderManager {
           if is_exist {
             let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
             Folder::open(collab, Some(folder_notifier))
+          } else if create_if_not_exist {
+            let folder_data =
+              DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
+                .await;
+            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            Folder::create(collab, Some(folder_notifier), Some(folder_data))
           } else {
-            if create_if_not_exist {
-              let folder_data = DefaultFolderBuilder::build(
-                uid,
-                workspace_id.to_string(),
-                &self.operation_handlers,
-              )
-              .await;
-              let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
-              Folder::create(collab, Some(folder_notifier), Some(folder_data))
-            } else {
-              return Err(FlowyError::new(
-                ErrorCode::RecordNotFound,
-                "Can't find any workspace data",
-              ));
-            }
+            return Err(FlowyError::new(
+              ErrorCode::RecordNotFound,
+              "Can't find any workspace data",
+            ));
           }
         },
         FolderInitializeDataSource::Cloud(raw_data) => {
@@ -374,7 +368,9 @@ impl FolderManager {
   }
 
   pub async fn get_all_workspaces(&self) -> Vec<Workspace> {
-    self.with_folder(|| vec![], |folder| folder.workspaces.get_all_workspaces())
+    self.with_folder(std::vec::Vec::new, |folder| {
+      folder.workspaces.get_all_workspaces()
+    })
   }
 
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
@@ -626,10 +622,9 @@ impl FolderManager {
   /// Return a list of views that belong to the given parent view id.
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
   pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
-    let views = self.with_folder(
-      || vec![],
-      |folder| folder.views.get_views_belong_to(parent_view_id),
-    );
+    let views = self.with_folder(std::vec::Vec::new, |folder| {
+      folder.views.get_views_belong_to(parent_view_id)
+    });
     Ok(views)
   }
 
@@ -755,25 +750,22 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
-    self.with_folder(
-      || vec![],
-      |folder| {
-        let trash_ids = folder
-          .get_all_trash()
-          .into_iter()
-          .map(|trash| trash.id)
-          .collect::<Vec<String>>();
+    self.with_folder(std::vec::Vec::new, |folder| {
+      let trash_ids = folder
+        .get_all_trash()
+        .into_iter()
+        .map(|trash| trash.id)
+        .collect::<Vec<String>>();
 
-        let mut views = folder.get_all_favorites();
-        views.retain(|view| !trash_ids.contains(&view.id));
-        views
-      },
-    )
+      let mut views = folder.get_all_favorites();
+      views.retain(|view| !trash_ids.contains(&view.id));
+      views
+    })
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(|| vec![], |folder| folder.get_all_trash())
+    self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -802,7 +794,7 @@ impl FolderManager {
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    let deleted_trash = self.with_folder(|| vec![], |folder| folder.get_all_trash());
+    let deleted_trash = self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
