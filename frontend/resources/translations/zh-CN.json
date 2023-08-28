@@ -15,7 +15,7 @@
     "emptyPasswordError": "密码不能为空",
     "repeatPasswordEmptyError": "确认密码不能为空",
     "unmatchedPasswordError": "两次密码输入不一致",
-    "alreadyHaveAnAccount": "已有账户?",
+    "alreadyHaveAnAccount": "已经有账号了吗?",
     "emailHint": "邮箱",
     "passwordHint": "密码",
     "repeatPasswordHint": "确认密码"
