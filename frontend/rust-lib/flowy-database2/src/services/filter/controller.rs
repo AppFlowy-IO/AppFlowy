@@ -161,9 +161,9 @@ impl FilterController {
       ) {
         if is_visible {
           if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
-            notification
-              .visible_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32))
+            notification.visible_rows.push(
+              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32),
+            )
           }
         } else {
           notification.invisible_rows.push(row_id);
@@ -197,7 +197,7 @@ impl FilterController {
         &self.cell_filter_cache,
       ) {
         if is_visible {
-          let row_meta = RowMetaPB::from(&row_detail.meta);
+          let row_meta = RowMetaPB::from(row_detail.as_ref());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
           invisible_rows.push(row_id);

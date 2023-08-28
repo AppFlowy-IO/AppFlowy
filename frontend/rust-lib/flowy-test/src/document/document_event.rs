@@ -1,10 +1,11 @@
-use crate::document::utils::{gen_id, gen_text_block_data};
-use crate::event_builder::EventBuilder;
-use crate::FlowyCoreTest;
 use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
+
+use crate::document::utils::{gen_id, gen_text_block_data};
+use crate::event_builder::EventBuilder;
+use crate::FlowyCoreTest;
 
 const TEXT_BLOCK_TY: &str = "paragraph";
 
@@ -138,6 +139,7 @@ impl DocumentEventTest {
   }
 
   /// Insert a new text block at the index of parent's children.
+  /// return the new block id.
   pub async fn insert_index(
     &self,
     document_id: &str,

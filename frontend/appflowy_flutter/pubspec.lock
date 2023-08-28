@@ -29,8 +29,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: f897e1d
-      resolved-ref: f897e1d81a3d9fcea632588479bc2814d493f7b5
+      ref: c64ce17
+      resolved-ref: c64ce174586267dbab1185ef9acb19b7c49fc7bd
       url: "https://github.com/LucasXu0/app_links"
     source: git
     version: "3.4.3"
@@ -54,11 +54,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "28c5adf"
-      resolved-ref: "28c5adf0f94c22e74a260c8a0bf5b20cb6e5a12d"
+      ref: a9af2bb
+      resolved-ref: a9af2bbd373a6a478f1bd63d6037817e81d23de2
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "1.2.3"
+    version: "1.2.4"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -628,6 +628,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  gtk:
+    dependency: transitive
+    description:
+      name: gtk
+      sha256: e8ce9ca4b1df106e4d72dad201d345ea1a036cc12c360f1a7d5a758f78ffa42c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   highlight:
     dependency: "direct main"
     description:
@@ -1109,10 +1117,10 @@ packages:
     dependency: transitive
     description:
       name: realtime_client
-      sha256: ff743de9bb0f46fcfffcfe64ae93062702dcd0f83a2ce8adc40d5fb7f542af90
+      sha256: b4b7bb293417dafc73943ed639209b2dcb796db8495e56bba29a4e26fadef5cd
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.3"
+    version: "1.2.1"
   reorderables:
     dependency: "direct main"
     description:
@@ -1434,19 +1442,19 @@ packages:
     dependency: transitive
     description:
       name: supabase
-      sha256: "291e065aa8c9be06a0348743c184beafd038e109960bc3da201affd3eda811fc"
+      sha256: c48671b62720f15067f6b31abe964950bf1405b7eec367a97f683dee25715a77
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0"
+    version: "1.11.1"
   supabase_flutter:
     dependency: "direct main"
     description:
       path: "packages/supabase_flutter"
-      ref: e882842
-      resolved-ref: e8828421720896c0e1600de18f0db54f9f96a3b3
+      ref: "852119e"
+      resolved-ref: "852119e110224cce83b332e8681bc6f216a56c05"
       url: "https://github.com/LucasXu0/supabase-flutter"
     source: git
-    version: "1.10.12"
+    version: "1.10.14"
   super_clipboard:
     dependency: "direct main"
     description:

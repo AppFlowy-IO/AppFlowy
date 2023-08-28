@@ -94,6 +94,7 @@ pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocumen
   // create a document
   _ = test
     .create_document(uid, &doc_id, Some(data.clone()))
+    .await
     .unwrap();
 
   let document = test.get_document(&doc_id).await.unwrap();

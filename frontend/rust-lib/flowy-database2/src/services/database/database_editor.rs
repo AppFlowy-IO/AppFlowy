@@ -27,6 +27,10 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, type_option_to_pb, DateCellData, SelectOptionCellChangeset,
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
+use crate::services::field_settings::{
+  default_field_settings_by_layout, default_field_settings_by_layout_map, FieldSettings,
+  FieldSettingsChangesetParams,
+};
 use crate::services::filter::Filter;
 use crate::services::group::{
   default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
@@ -407,8 +411,8 @@ impl DatabaseEditor {
 
   pub async fn move_row(&self, view_id: &str, from: RowId, to: RowId) {
     let database = self.database.lock();
-    if let (Some(row_meta), Some(from_index), Some(to_index)) = (
-      database.get_row_meta(&from),
+    if let (Some(row_detail), Some(from_index), Some(to_index)) = (
+      database.get_row_detail(&from),
       database.index_of_row(view_id, &from),
       database.index_of_row(view_id, &to),
     ) {
@@ -418,7 +422,7 @@ impl DatabaseEditor {
       drop(database);
 
       let delete_row_id = from.into_inner();
-      let insert_row = InsertedRowPB::new(RowMetaPB::from(&row_meta)).with_index(to_index as i32);
+      let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(to_index as i32);
       let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
       send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changes)
@@ -438,10 +442,8 @@ impl DatabaseEditor {
     let result = self.database.lock().create_row_in_view(view_id, params);
     if let Some((index, row_order)) = result {
       tracing::trace!("create row: {:?} at {}", row_order, index);
-      let row = self.database.lock().get_row(&row_order.id);
-      let row_meta = self.database.lock().get_row_meta(&row_order.id);
-      if let Some(meta) = row_meta {
-        let row_detail = RowDetail { row, meta };
+      let row_detail = self.database.lock().get_row_detail(&row_order.id);
+      if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
           view.v_did_create_row(&row_detail, &group_id, index).await;
         }
@@ -474,15 +476,17 @@ impl DatabaseEditor {
       None => default_type_option_data_from_type(field_type),
       Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
     };
-    let (index, field) =
-      self
-        .database
-        .lock()
-        .create_field_with_mut(view_id, name, field_type.into(), |field| {
-          field
-            .type_options
-            .insert(field_type.to_string(), type_option_data.clone());
-        });
+    let (index, field) = self.database.lock().create_field_with_mut(
+      view_id,
+      name,
+      field_type.into(),
+      |field| {
+        field
+          .type_options
+          .insert(field_type.to_string(), type_option_data.clone());
+      },
+      default_field_settings_by_layout_map(),
+    );
 
     let _ = self
       .notify_did_insert_database_field(field.clone(), index)
@@ -539,9 +543,10 @@ impl DatabaseEditor {
   pub fn get_row_meta(&self, view_id: &str, row_id: &RowId) -> Option<RowMetaPB> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
       let row_meta = self.database.lock().get_row_meta(row_id)?;
+      let row_document_id = self.database.lock().get_row_document_id(row_id)?;
       Some(RowMetaPB {
         id: row_id.clone().into_inner(),
-        document_id: row_meta.document_id,
+        document_id: row_document_id,
         icon: row_meta.icon_url,
         cover: row_meta.cover_url,
       })
@@ -553,9 +558,7 @@ impl DatabaseEditor {
 
   pub fn get_row_detail(&self, view_id: &str, row_id: &RowId) -> Option<RowDetail> {
     if self.database.lock().views.is_row_exist(view_id, row_id) {
-      let meta = self.database.lock().get_row_meta(row_id)?;
-      let row = self.database.lock().get_row(row_id);
-      Some(RowDetail { row, meta })
+      self.database.lock().get_row_detail(row_id)
     } else {
       tracing::warn!("the row:{} is exist in view:{}", row_id.as_str(), view_id);
       None
@@ -581,15 +584,15 @@ impl DatabaseEditor {
     });
 
     // Use the temporary row meta to get rid of the lock that not implement the `Send` or 'Sync' trait.
-    let row_meta = self.database.lock().get_row_meta(row_id);
-    if let Some(row_meta) = row_meta {
+    let row_detail = self.database.lock().get_row_detail(row_id);
+    if let Some(row_detail) = row_detail {
       for view in self.database_views.editors().await {
-        view.v_did_update_row_meta(row_id, &row_meta).await;
+        view.v_did_update_row_meta(row_id, &row_detail).await;
       }
 
       // Notifies the client that the row meta has been updated.
       send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
-        .payload(RowMetaPB::from(&row_meta))
+        .payload(RowMetaPB::from(&row_detail))
         .send();
     }
   }
@@ -1078,7 +1081,7 @@ impl DatabaseEditor {
 
     let rows = rows
       .into_iter()
-      .map(|row_detail| RowMetaPB::from(&row_detail.meta))
+      .map(|row_detail| RowMetaPB::from(row_detail.as_ref()))
       .collect::<Vec<RowMetaPB>>();
     Ok(DatabasePB {
       id: database_id,
@@ -1099,6 +1102,35 @@ impl DatabaseEditor {
     .await
     .map_err(internal_error)??;
     Ok(csv)
+  }
+
+  pub async fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_get_field_settings(field_ids).await
+  }
+
+  pub async fn get_all_field_settings(
+    &self,
+    view_id: &str,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_get_all_field_settings().await
+  }
+
+  pub async fn update_field_settings_with_changeset(
+    &self,
+    params: FieldSettingsChangesetParams,
+  ) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(&params.view_id).await?;
+    view
+      .v_update_field_settings(&params.view_id, &params.field_id, params.visibility)
+      .await?;
+
+    Ok(())
   }
 
   fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
@@ -1188,6 +1220,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
           .type_options
           .insert(field_type.to_string(), type_option_data);
       },
+      default_field_settings_by_layout_map(),
     );
     to_fut(async move { field })
   }
@@ -1209,17 +1242,10 @@ impl DatabaseViewData for DatabaseViewDataImpl {
 
   fn get_row(&self, view_id: &str, row_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>> {
     let index = self.database.lock().index_of_row(view_id, row_id);
-    let row = self.database.lock().get_row(row_id);
-    let row_meta = self.database.lock().get_row_meta(row_id);
+    let row_detail = self.database.lock().get_row_detail(row_id);
     to_fut(async move {
-      match (index, row_meta) {
-        (Some(index), Some(row_meta)) => {
-          let row_detail = RowDetail {
-            row,
-            meta: row_meta,
-          };
-          Some((index, Arc::new(row_detail)))
-        },
+      match (index, row_detail) {
+        (Some(index), Some(row_detail)) => Some((index, Arc::new(row_detail))),
         _ => None,
       }
     })
@@ -1230,11 +1256,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     let rows = database.get_rows_for_view(view_id);
     let row_details = rows
       .into_iter()
-      .flat_map(|row| {
-        database
-          .get_row_meta(&row.id)
-          .map(|meta| RowDetail { row, meta })
-      })
+      .flat_map(|row| database.get_row_detail(&row.id))
       .collect::<Vec<RowDetail>>();
 
     to_fut(async move { row_details.into_iter().map(Arc::new).collect() })
@@ -1352,5 +1374,69 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
     TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
       .get_type_option_cell_data_handler(field_type)
+  }
+
+  fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let field_settings_map = self
+      .database
+      .lock()
+      .get_field_settings(view_id, Some(field_ids));
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    field_settings
+  }
+
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+
+    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+      .into_iter()
+      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+      .collect();
+
+    field_settings
+  }
+
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) {
+    let field_settings = self
+      .get_field_settings(view_id, vec![field_id.to_string()])
+      .ok();
+
+    let new_field_settings = match field_settings {
+      Some(field_settings) => {
+        let mut field_settings = field_settings.first().unwrap().clone();
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+        field_settings
+      },
+      None => {
+        let layout_ty = self.get_layout_for_view(view_id);
+        let mut field_settings = FieldSettings::try_from_anymap(
+          field_id.to_string(),
+          default_field_settings_by_layout(layout_ty),
+        )
+        .unwrap();
+        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+        field_settings
+      },
+    };
+
+    self.database.lock().update_field_settings(
+      view_id,
+      Some(vec![field_id.to_string()]),
+      new_field_settings,
+    )
   }
 }

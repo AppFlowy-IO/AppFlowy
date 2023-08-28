@@ -13,13 +13,27 @@ void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
     getIt<AuthRouter>().pushWorkspaceErrorScreen(context, userFolder, error);
   } else {
     Log.error(error);
-    showSnapBar(
-      context,
-      error.msg,
-      onClosed: () {
-        getIt<AuthService>().signOut();
-        runAppFlowy();
-      },
-    );
+    switch (error.code) {
+      case ErrorCode.WorkspaceDataNotSync:
+        final userFolder = UserFolderPB.fromBuffer(error.payload);
+        getIt<AuthRouter>()
+            .pushWorkspaceErrorScreen(context, userFolder, error);
+        break;
+      case ErrorCode.InvalidEncryptSecret:
+        showSnapBar(
+          context,
+          error.msg,
+        );
+        break;
+      default:
+        showSnapBar(
+          context,
+          error.msg,
+          onClosed: () {
+            getIt<AuthService>().signOut();
+            runAppFlowy();
+          },
+        );
+    }
   }
 }
