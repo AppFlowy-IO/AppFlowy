@@ -614,5 +614,8 @@
   "settings.menu.selfEncryptionLogoutPrompt": "你確定要登出嗎？請確保你已經複製了加密密鑰。",
   "settings.menu.inputTextFieldHint": "你的密鑰",
   "settings.menu.clickToCopySecret": "點擊以複製密鑰",
-  "settings.menu.enableEncryptPrompt": "使用此密鑰啟用加密以保護你的資料。請安全妥善地保存它。一旦啟用，無法關閉加密。如果遺失，你的資料將無法恢復。點擊以複製。"
+  "settings.menu.enableEncryptPrompt": "使用此密鑰啟用加密以保護你的資料。請安全妥善地保存它。一旦啟用，無法關閉加密。如果遺失，你的資料將無法恢復。點擊以複製。",
+  "grid.field.newColumn": "新增欄位",
+  "signUp.signUpWith": "使用以下方式註冊:",
+  "signIn.signInWith": "使用以下方式登入:"
 }
