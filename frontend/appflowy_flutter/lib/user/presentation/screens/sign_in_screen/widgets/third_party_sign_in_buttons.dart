@@ -16,10 +16,10 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   /// Used in DesktopSignInScreen and MobileSignInScreen
   const ThirdPartySignInButtons({
-    Key? key,
+    super.key,
     required this.isMobile,
     this.contentAlignment = Alignment.center,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +85,13 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
 class _ThirdPartySignInButton extends StatelessWidget {
   const _ThirdPartySignInButton({
-    Key? key,
+    super.key,
     required this.isMobile,
     required this.icon,
     required this.labelText,
     required this.onPressed,
     required this.contentAlignment,
-  }) : super(key: key);
+  });
 
   final bool isMobile;
   final FlowySvgData icon;

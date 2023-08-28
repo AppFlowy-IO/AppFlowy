@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
   const AuthFormContainer({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

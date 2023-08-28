@@ -8,10 +8,10 @@ class FlowyLogoTitle extends StatelessWidget {
   final String title;
   final Size logoSize;
   const FlowyLogoTitle({
-    Key? key,
+    super.key,
     required this.title,
     this.logoSize = const Size.square(40),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -15,9 +15,9 @@ class SignInAnonymousButton extends StatelessWidget {
 
   /// Used in DesktopSignInScreen and MobileSignInScreen
   const SignInAnonymousButton({
-    Key? key,
+    super.key,
     required this.isMobile,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

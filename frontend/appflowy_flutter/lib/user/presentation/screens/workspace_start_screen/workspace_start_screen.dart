@@ -12,9 +12,9 @@ class WorkspaceStartScreen extends StatelessWidget {
   final UserProfilePB userProfile;
   static const routeName = "/WorkspaceStartScreen";
   const WorkspaceStartScreen({
-    Key? key,
+    super.key,
     required this.userProfile,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

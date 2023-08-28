@@ -31,10 +31,10 @@ class SkipLogInScreen extends StatefulWidget {
   static const routeName = '/SkipLogInScreen';
 
   const SkipLogInScreen({
-    Key? key,
+    super.key,
     required this.router,
     required this.authService,
-  }) : super(key: key);
+  });
 
   @override
   State<SkipLogInScreen> createState() => _SkipLogInScreenState();

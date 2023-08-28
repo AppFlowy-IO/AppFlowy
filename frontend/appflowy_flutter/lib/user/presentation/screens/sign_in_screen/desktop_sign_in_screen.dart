@@ -86,9 +86,7 @@ class DesktopSignInScreen extends StatelessWidget {
 }
 
 class _OrDivider extends StatelessWidget {
-  const _OrDivider({
-    Key? key,
-  }) : super(key: key);
+  const _OrDivider();
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +117,7 @@ class _OrDivider extends StatelessWidget {
 //   const SignUpPrompt({
 //     Key? key,
 //     required this.router,
-//   }) : super(key: key);
+//   }) ;
 
 //   final AuthRouter router;
 
@@ -151,7 +149,7 @@ class _OrDivider extends StatelessWidget {
 // class LoginButton extends StatelessWidget {
 //   const LoginButton({
 //     Key? key,
-//   }) : super(key: key);
+//   }) ;
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -169,7 +167,7 @@ class _OrDivider extends StatelessWidget {
 //   const ForgetPasswordButton({
 //     Key? key,
 //     required this.router,
-//   }) : super(key: key);
+//   }) ;
 
 //   final AuthRouter router;
 
@@ -193,7 +191,7 @@ class _OrDivider extends StatelessWidget {
 // class PasswordTextField extends StatelessWidget {
 //   const PasswordTextField({
 //     Key? key,
-//   }) : super(key: key);
+//   }) ;
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -223,7 +221,7 @@ class _OrDivider extends StatelessWidget {
 // class EmailTextField extends StatelessWidget {
 //   const EmailTextField({
 //     Key? key,
-//   }) : super(key: key);
+//   }) ;
 
 //   @override
 //   Widget build(BuildContext context) {

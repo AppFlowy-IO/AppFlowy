@@ -55,8 +55,8 @@ class SignUpScreen extends StatelessWidget {
 
 class SignUpForm extends StatelessWidget {
   const SignUpForm({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +90,8 @@ class SignUpForm extends StatelessWidget {
 
 class SignUpPrompt extends StatelessWidget {
   const SignUpPrompt({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +119,8 @@ class SignUpPrompt extends StatelessWidget {
 
 class SignUpButton extends StatelessWidget {
   const SignUpButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +138,8 @@ class SignUpButton extends StatelessWidget {
 
 class PasswordTextField extends StatelessWidget {
   const PasswordTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -171,8 +171,8 @@ class PasswordTextField extends StatelessWidget {
 
 class RepeatPasswordTextField extends StatelessWidget {
   const RepeatPasswordTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -204,8 +204,8 @@ class RepeatPasswordTextField extends StatelessWidget {
 
 class EmailTextField extends StatelessWidget {
   const EmailTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

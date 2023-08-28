@@ -24,9 +24,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
-    Key? key,
+    super.key,
     required this.autoRegister,
-  }) : super(key: key);
+  });
 
   static const routeName = '/SplashScreen';
   final bool autoRegister;
@@ -126,7 +126,7 @@ class SplashScreen extends StatelessWidget {
 }
 
 class Body extends StatelessWidget {
-  const Body({Key? key}) : super(key: key);
+  const Body({super.key});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -143,8 +143,8 @@ class Body extends StatelessWidget {
 
 class _DesktopSplashBody extends StatelessWidget {
   const _DesktopSplashBody({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
