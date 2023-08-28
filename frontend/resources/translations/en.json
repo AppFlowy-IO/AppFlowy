@@ -305,6 +305,7 @@
     },
     "user": {
       "name": "Name",
+      "email": "Email",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
