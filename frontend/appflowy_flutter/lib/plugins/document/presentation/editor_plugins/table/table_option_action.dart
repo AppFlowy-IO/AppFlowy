@@ -136,7 +136,7 @@ class TableColorOptionAction extends PopoverActionCell {
           ),
           onTap: (color, index) async {
             final transaction = editorState.transaction;
-            final backgroundColor = color.toHex();
+            final backgroundColor = selectedColor != color ? color.toHex() : "";
             TableActions.setBgColor(
               node,
               position,
