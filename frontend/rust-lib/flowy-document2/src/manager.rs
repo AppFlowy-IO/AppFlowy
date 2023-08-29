@@ -16,6 +16,7 @@ use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
+use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -57,6 +58,15 @@ impl DocumentManager {
     self.initialize(uid, workspace_id).await?;
     Ok(())
   }
+
+  pub async fn handle_reminder_action(&self, action: DocumentReminderAction) {
+    match action {
+      DocumentReminderAction::Add { reminder } => {},
+      DocumentReminderAction::Remove { reminder_id } => {},
+      DocumentReminderAction::Update { reminder } => {},
+    }
+  }
+
   /// Create a new document.
   ///
   /// if the document already exists, return the existing document.

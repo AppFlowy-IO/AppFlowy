@@ -92,7 +92,7 @@ class NotificationDialog extends StatelessWidget {
                           .add(ReminderEvent.remove(reminderId: reminder.id)),
                       onAction: () {
                         final view = views.firstWhereOrNull(
-                          (view) => view.id == reminder.reminderObjectId,
+                          (view) => view.id == reminder.objectId,
                         );
 
                         if (view == null) {

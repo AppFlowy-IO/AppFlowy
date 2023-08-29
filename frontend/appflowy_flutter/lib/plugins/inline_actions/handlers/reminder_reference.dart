@@ -212,9 +212,10 @@ class ReminderReferenceService {
   ReminderPB _reminderFromDate(DateTime date, String viewId) {
     return ReminderPB(
       id: nanoid(),
+      objectId: viewId,
       title: LocaleKeys.reminderNotification_title.tr(),
       message: LocaleKeys.reminderNotification_message.tr(),
-      reminderObjectId: viewId,
+      meta: {"document_id": viewId},
       scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
       isAck: date.isBefore(DateTime.now()),
     );

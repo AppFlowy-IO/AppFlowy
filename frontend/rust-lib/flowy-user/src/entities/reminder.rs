@@ -1,4 +1,7 @@
-use appflowy_integrate::reminder::{ObjectType, Reminder};
+use std::collections::HashMap;
+
+use collab_define::reminder::{ObjectType, Reminder, ReminderMeta};
+
 use flowy_derive::ProtoBuf;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -7,13 +10,13 @@ pub struct ReminderPB {
   pub id: String,
 
   #[pb(index = 2)]
-  pub scheduled_at: i64,
+  pub object_id: String,
 
   #[pb(index = 3)]
-  pub is_ack: bool,
+  pub scheduled_at: i64,
 
   #[pb(index = 4)]
-  pub ty: i64,
+  pub is_ack: bool,
 
   #[pb(index = 5)]
   pub title: String,
@@ -22,7 +25,7 @@ pub struct ReminderPB {
   pub message: String,
 
   #[pb(index = 7)]
-  pub reminder_object_id: String,
+  pub meta: HashMap<String, String>,
 }
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -40,8 +43,8 @@ impl From<ReminderPB> for Reminder {
       ty: ObjectType::Document,
       title: value.title,
       message: value.message,
-      meta: Default::default(),
-      object_id: value.reminder_object_id,
+      meta: ReminderMeta::from(value.meta),
+      object_id: value.object_id,
     }
   }
 }
@@ -50,12 +53,12 @@ impl From<Reminder> for ReminderPB {
   fn from(value: Reminder) -> Self {
     Self {
       id: value.id,
+      object_id: value.object_id,
       scheduled_at: value.scheduled_at,
       is_ack: value.is_ack,
-      ty: value.ty as i64,
       title: value.title,
       message: value.message,
-      reminder_object_id: value.object_id,
+      meta: value.meta.into_inner(),
     }
   }
 }

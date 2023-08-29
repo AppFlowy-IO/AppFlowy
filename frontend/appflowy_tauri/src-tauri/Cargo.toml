@@ -20,9 +20,16 @@ tauri = { version = "1.2", features = ["fs-all", "shell-open"] }
 tauri-utils = "1.2"
 bytes = { version = "1.4" }
 tracing = { version = "0.1", features = ["log"] }
-lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
-flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
-flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
+lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
+    "use_serde",
+] }
+flowy-core = { path = "../../rust-lib/flowy-core", features = [
+    "rev-sqlite",
+    "ts",
+] }
+flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
+    "ts",
+] }
 
 [features]
 # by default Tauri runs in production mode
@@ -51,7 +58,3 @@ collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = 
 #collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
 #collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
-
-
-
-
