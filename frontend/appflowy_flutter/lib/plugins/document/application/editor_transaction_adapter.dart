@@ -61,11 +61,11 @@ extension on Operation {
 }
 
 extension on InsertOperation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
+  List<BlockActionPB> toBlockAction(
+    EditorState editorState, {
+    Node? previousNode,
+  }) {
     final List<BlockActionPB> actions = [];
-    // store the previous node for continuous insertion.
-    // because the backend needs to know the previous node's id.
-    Node? previousNode;
     for (final node in nodes) {
       final parentId =
           node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
@@ -89,10 +89,14 @@ extension on InsertOperation {
           ..payload = payload,
       );
       if (node.children.isNotEmpty) {
-        final childrenActions = node.children
-            .map((e) => InsertOperation(e.path, [e]).toBlockAction(editorState))
-            .expand((element) => element);
-        actions.addAll(childrenActions);
+        for (var i = 0; i < node.children.length; i++) {
+          final n = node.childAtIndexOrNull(i)!;
+          final prevNode = i == 0 ? node : node.childAtIndexOrNull(i - 1);
+          actions.addAll(
+            InsertOperation(n.path, [n])
+                .toBlockAction(editorState, previousNode: prevNode),
+          );
+        }
       }
       previousNode = node;
     }
