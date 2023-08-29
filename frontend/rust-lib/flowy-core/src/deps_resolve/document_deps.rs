@@ -7,17 +7,17 @@ use flowy_database2::DatabaseManager;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_user::services::UserSession;
+use flowy_user::manager::UserManager;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
   pub fn resolve(
-    user_session: Weak<UserSession>,
+    user_manager: Weak<UserManager>,
     _database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
   ) -> Arc<DocumentManager> {
-    let user: Arc<dyn DocumentUser> = Arc::new(DocumentUserImpl(user_session));
+    let user: Arc<dyn DocumentUser> = Arc::new(DocumentUserImpl(user_manager));
     Arc::new(DocumentManager::new(
       user.clone(),
       collab_builder,
@@ -26,13 +26,13 @@ impl DocumentDepsResolver {
   }
 }
 
-struct DocumentUserImpl(Weak<UserSession>);
+struct DocumentUserImpl(Weak<UserManager>);
 impl DocumentUser for DocumentUserImpl {
   fn user_id(&self) -> Result<i64, FlowyError> {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .user_id()
   }
 
@@ -40,7 +40,7 @@ impl DocumentUser for DocumentUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .token()
   }
 
@@ -48,7 +48,7 @@ impl DocumentUser for DocumentUserImpl {
     self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().context("Unexpected error: UserSession is None"))?
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
       .get_collab_db(uid)
   }
 }

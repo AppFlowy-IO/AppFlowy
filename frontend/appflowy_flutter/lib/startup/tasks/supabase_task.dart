@@ -32,11 +32,6 @@ class InitSupabaseTask extends LaunchTask {
       return;
     }
 
-    // register deep link for Windows
-    if (Platform.isWindows) {
-      registerProtocolHandler(appflowyDeepLinkSchema);
-    }
-
     supabase?.dispose();
     supabase = null;
     final initializedSupabase = await Supabase.initialize(
@@ -45,8 +40,18 @@ class InitSupabaseTask extends LaunchTask {
       debug: kDebugMode,
       localStorage: const SupabaseLocalStorage(),
     );
+
+    if (realtimeService != null) {
+      await realtimeService?.dispose();
+      realtimeService = null;
+    }
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
     supabase = initializedSupabase;
+
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
+    }
   }
 }
 

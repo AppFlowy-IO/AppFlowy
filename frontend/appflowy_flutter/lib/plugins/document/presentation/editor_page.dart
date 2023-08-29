@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -50,6 +50,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
+    customCopyCommand,
+    customPasteCommand,
+    customCutCommand,
     ...standardCommandShortcutEvents,
   ];
 
@@ -156,6 +159,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      contextMenuItems: customContextMenuItems,
       header: widget.header,
       footer: const VSpace(200),
     );
@@ -386,14 +390,24 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   (bool, Selection?) _computeAutoFocusParameters() {
     if (widget.editorState.document.isEmpty) {
-      return (true, Selection.collapse([0], 0));
+      return (
+        true,
+        Selection.collapsed(
+          Position(path: [0], offset: 0),
+        ),
+      );
     }
     final nodes = widget.editorState.document.root.children
         .where((element) => element.delta != null);
     final isAllEmpty =
         nodes.isNotEmpty && nodes.every((element) => element.delta!.isEmpty);
     if (isAllEmpty) {
-      return (true, Selection.collapse(nodes.first.path, 0));
+      return (
+        true,
+        Selection.collapsed(
+          Position(path: nodes.first.path, offset: 0),
+        )
+      );
     }
     return const (false, null);
   }

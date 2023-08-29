@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
@@ -153,16 +154,16 @@ enum DatabaseSettingAction {
 }
 
 extension DatabaseSettingActionExtension on DatabaseSettingAction {
-  String iconName() {
+  FlowySvgData iconData() {
     switch (this) {
       case DatabaseSettingAction.showProperties:
-        return 'grid/setting/properties';
+        return FlowySvgs.properties_s;
       case DatabaseSettingAction.showLayout:
-        return 'grid/setting/database_layout';
+        return FlowySvgs.database_layout_m;
       case DatabaseSettingAction.showGroup:
-        return 'grid/setting/group';
+        return FlowySvgs.group_s;
       case DatabaseSettingAction.showCalendarLayout:
-        return 'grid/setting/calendar_layout';
+        return FlowySvgs.calendar_layout_m;
     }
   }
 

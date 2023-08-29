@@ -25,6 +25,9 @@ use crate::entities::{
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
+use crate::services::field_settings::{
+  default_field_settings_by_layout, default_field_settings_by_layout_map,
+};
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser: Send + Sync {
@@ -73,7 +76,7 @@ impl DatabaseManager {
     &self,
     uid: i64,
     _workspace_id: String,
-    workspace_database_id: String,
+    database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
@@ -84,28 +87,30 @@ impl DatabaseManager {
     let mut collab_raw_data = CollabRawData::default();
 
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &workspace_database_id) {
+    if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
       tracing::trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&workspace_database_id, CollabType::WorkspaceDatabase)
+        .get_collab_update(&database_views_aggregate_id, CollabType::WorkspaceDatabase)
         .await
       {
-        Ok(updates) => collab_raw_data = updates,
+        Ok(updates) => {
+          collab_raw_data = updates;
+        },
         Err(err) => {
-          return Err(FlowyError::record_not_found().context(format!(
+          return Err(FlowyError::record_not_found().with_context(format!(
             "get workspace database :{} failed: {}",
-            workspace_database_id, err,
+            database_views_aggregate_id, err,
           )));
         },
       }
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &workspace_database_id);
+    tracing::trace!("open workspace database: {}", &database_views_aggregate_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &workspace_database_id,
+      &database_views_aggregate_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       collab_raw_data,
@@ -125,10 +130,10 @@ impl DatabaseManager {
     &self,
     user_id: i64,
     workspace_id: String,
-    database_storage_id: String,
+    database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
     self
-      .initialize(user_id, workspace_id, database_storage_id)
+      .initialize(user_id, workspace_id, database_views_aggregate_id)
       .await?;
     Ok(())
   }
@@ -154,7 +159,7 @@ impl DatabaseManager {
     let wdb = self.get_workspace_database().await?;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
-        .context(format!("The database for view id: {} not found", view_id))
+        .with_context(format!("The database for view id: {} not found", view_id))
     })
   }
 
@@ -173,7 +178,7 @@ impl DatabaseManager {
     let database = wdb
       .get_database(database_id)
       .await
-      .ok_or_else(FlowyError::record_not_found)?;
+      .ok_or_else(FlowyError::collab_not_sync)?;
 
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     editors.insert(database_id.to_string(), editor.clone());
@@ -247,12 +252,18 @@ impl DatabaseManager {
     database_view_id: String,
   ) -> FlowyResult<()> {
     let wdb = self.get_workspace_database().await?;
-    let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
+    let mut params = CreateViewParams::new(
+      database_id.clone(),
+      database_view_id,
+      name,
+      layout,
+      default_field_settings_by_layout(layout),
+    );
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
         .resolve_deps_when_create_database_linked_view();
       if let Some(field) = field {
-        params = params.with_deps_fields(vec![field]);
+        params = params.with_deps_fields(vec![field], default_field_settings_by_layout_map())
       }
       if let Some(layout_setting) = layout_setting {
         params = params.with_layout_setting(layout_setting);
@@ -307,22 +318,21 @@ impl DatabaseManager {
   pub async fn get_database_snapshots(
     &self,
     view_id: &str,
+    limit: usize,
   ) -> FlowyResult<Vec<DatabaseSnapshotPB>> {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
-    let mut snapshots = vec![];
-    if let Some(snapshot) = self
+    let snapshots = self
       .cloud_service
-      .get_collab_latest_snapshot(&database_id)
+      .get_collab_snapshots(&database_id, limit)
       .await?
+      .into_iter()
       .map(|snapshot| DatabaseSnapshotPB {
         snapshot_id: snapshot.snapshot_id,
         snapshot_desc: "".to_string(),
         created_at: snapshot.created_at,
         data: snapshot.data,
       })
-    {
-      snapshots.push(snapshot);
-    }
+      .collect::<Vec<_>>();
 
     Ok(snapshots)
   }
@@ -330,7 +340,7 @@ impl DatabaseManager {
   async fn get_workspace_database(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
     let database = self.workspace_database.read().await;
     match &*database {
-      None => Err(FlowyError::internal().context("Workspace database not initialized")),
+      None => Err(FlowyError::internal().with_context("Workspace database not initialized")),
       Some(user_database) => Ok(user_database.clone()),
     }
   }

@@ -41,10 +41,13 @@
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
+    "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "signInWith": "Sign in with:"
   },
   "workspace": {
     "create": "Create workspace",
+    "reset": "Reset workspace",
+    "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
     "notFoundError": "Workspace not found"
   },
@@ -52,6 +55,7 @@
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copy Link"
   },
   "moreAction": {
@@ -226,13 +230,20 @@
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
+      "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "enableSync": "Enable sync",
+      "enableEncrypt": "Encrypt data",
+      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
+      "inputEncryptPrompt": "Please enter your encryption secret for",
+      "clickToCopySecret": "Click to copy secret",
+      "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account"
     },
     "appearance": {
+      "resetSetting": "Reset this setting",
       "fontFamily": {
         "label": "Font Family",
         "search": "Search"
@@ -295,6 +306,7 @@
     },
     "user": {
       "name": "Name",
+      "email": "Email",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
@@ -403,17 +415,19 @@
       "addOption": "Add option",
       "editProperty": "Edit property",
       "newProperty": "New property",
-      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column"
     },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "deleteSort": "Delete sort",
+      "deleteAllSorts": "Delete all sorts",
       "addSort": "Add sort"
     },
     "row": {
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "titlePlaceholder": "Untitled",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
@@ -538,6 +552,11 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
       }
     },
     "textBlock": {

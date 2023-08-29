@@ -311,6 +311,13 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
   }
 }
 
+impl From<Vec<String>> for RepeatedFieldIdPB {
+  fn from(value: Vec<String>) -> Self {
+    let field_ids = value.into_iter().map(FieldIdPB::from).collect();
+    RepeatedFieldIdPB { items: field_ids }
+  }
+}
+
 /// [TypeOptionChangesetPB] is used to update the type-option data.
 #[derive(ProtoBuf, Default)]
 pub struct TypeOptionChangesetPB {

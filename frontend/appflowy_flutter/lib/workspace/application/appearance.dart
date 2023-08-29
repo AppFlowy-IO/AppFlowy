@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,11 +22,13 @@ const _white = Color(0xFFFFFFFF);
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
-  AppearanceSettingsCubit(AppearanceSettingsPB setting)
-      : _setting = setting,
+  AppearanceSettingsCubit(
+    AppearanceSettingsPB setting,
+    AppTheme appTheme,
+  )   : _setting = setting,
         super(
           AppearanceSettingsState.initial(
-            setting.theme,
+            appTheme,
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
@@ -43,12 +46,20 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
 
+  /// Reset the current user selected theme back to the default
+  Future<void> resetTheme() =>
+      setTheme(DefaultAppearanceSettings.kDefaultThemeName);
+
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
     _setting.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
     emit(state.copyWith(themeMode: themeMode));
   }
+
+  /// Resets the current brightness setting
+  void resetThemeMode() =>
+      setThemeMode(DefaultAppearanceSettings.kDefaultThemeMode);
 
   /// Toggle the theme mode
   void toggleThemeMode() {
@@ -65,6 +76,10 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveAppearanceSettings();
     emit(state.copyWith(font: fontFamilyName));
   }
+
+  /// Resets the current font family for the user preferences
+  void resetFontFamily() =>
+      setFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
 
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
@@ -190,7 +205,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
-    String themeName,
+    AppTheme appTheme,
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
@@ -199,7 +214,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fallback,
+      appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),

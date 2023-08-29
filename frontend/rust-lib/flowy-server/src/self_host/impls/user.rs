@@ -1,6 +1,8 @@
 use anyhow::Error;
+use collab_plugins::cloud_storage::CollabObject;
+
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -18,7 +20,7 @@ impl SelfHostedUserAuthServiceImpl {
   }
 }
 
-impl UserService for SelfHostedUserAuthServiceImpl {
+impl UserCloudService for SelfHostedUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
@@ -117,6 +119,25 @@ impl UserService for SelfHostedUserAuthServiceImpl {
     &self,
     _user_email: String,
     _workspace_id: String,
+  ) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(vec![]) })
+  }
+
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+    // TODO(nathan): implement the RESTful API for this
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn create_collab_object(
+    &self,
+    _collab_object: &CollabObject,
+    _data: Vec<u8>,
   ) -> FutureResult<(), Error> {
     // TODO(nathan): implement the RESTful API for this
     FutureResult::new(async { Ok(()) })

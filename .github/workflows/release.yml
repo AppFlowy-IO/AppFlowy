@@ -82,9 +82,12 @@ jobs:
 
       - name: Build Windows app
         working-directory: frontend
+        # the cargo make script has to be run separately because of file locking issues
         run: |
           flutter config --enable-windows-desktop
+          dart ./scripts/flutter_release_build/build_flowy.dart exclude-directives . ${{ github.ref_name }}
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
+          dart ./scripts/flutter_release_build/build_flowy.dart include-directives . ${{ github.ref_name }}
 
       - name: Archive Asset
         uses: vimtor/action-zip@v1
@@ -172,7 +175,17 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
+          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
+
+      - name: Codesign AppFlowy
+        run: |
+          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
+          security create-keychain -p action build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p action build.keychain
+          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
+          /usr/bin/codesign --force --options runtime --deep --sign "${{ secrets.MACOS_CODESIGN_ID }}" "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app" -v
 
       - name: Create macOS dmg
         run: |
@@ -187,6 +200,10 @@ jobs:
           --app-drop-link 458 249 \
           "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
           "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
+
+      - name: Notarize AppFlowy
+        run: |
+          xcrun notarytool submit ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }} -v -f "json" --wait
 
       - name: Archive Asset
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
@@ -264,6 +281,16 @@ jobs:
           flutter config --enable-macos-desktop
           sh scripts/flutter_release_build/build_universal_package_for_macos.sh
 
+      - name: Codesign AppFlowy
+        run: |
+          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
+          security create-keychain -p action build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p action build.keychain
+          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
+          /usr/bin/codesign --force --options runtime --deep --sign "${{ secrets.MACOS_CODESIGN_ID }}" "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app" -v
+
       - name: Create macOS dmg
         run: |
           brew install create-dmg
@@ -277,6 +304,10 @@ jobs:
           --app-drop-link 458 249 \
           "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
           "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
+
+      - name: Notarize AppFlowy
+        run: |
+          xcrun notarytool submit ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }} -v -f "json" --wait
 
       - name: Archive Asset
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
@@ -363,42 +394,23 @@ jobs:
         if: ${{ matrix.job.target == 'aarch64-unknown-linux-gnu' }}
         working-directory: frontend
         run: |
-          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libgtk-3-0
 
       - name: Build AppFlowy
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart . ${{ github.ref_name }}
+          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
-      - name: Archive Assert
+      - name: Archive Asset
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
 
-      - name: Configuring Linux Package
+      - name: Build Linux package (.deb)
         working-directory: frontend
         run: |
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
-          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
-          chmod 0755 {postinst,postrm}
-
-      - name: Build Linux package
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: |
-          mv AppFlowy package/opt/
-          cd package
-
-          # Update Exec & icon path in desktop entry
-          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
-          # Add desktop entry in package
-          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
-
-          # Build
-          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
-
+          sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_NAME }}
+      
       - name: Upload Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -410,7 +422,7 @@ jobs:
           asset_name: ${{ env.LINUX_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Asset Install Package
+      - name: Upload Debian package
         id: upload-release-asset-install-package
         uses: actions/upload-release-asset@v1
         env:

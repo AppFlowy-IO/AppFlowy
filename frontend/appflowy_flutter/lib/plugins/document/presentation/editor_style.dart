@@ -32,7 +32,6 @@ class EditorStyleCustomizer {
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     return EditorStyle.desktop(
       padding: padding,
-      backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
@@ -76,7 +75,6 @@ class EditorStyleCustomizer {
 
     return EditorStyle.desktop(
       padding: padding,
-      backgroundColor: theme.colorScheme.surface,
       cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(

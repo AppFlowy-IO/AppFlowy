@@ -1,7 +1,11 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
+use collab_define::CollabObject;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -13,9 +17,48 @@ use crate::entities::{
   UserProfile, UserWorkspace,
 };
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserCloudConfig {
+  pub enable_sync: bool,
+  enable_encrypt: bool,
+  // The secret used to encrypt the user's data
+  pub encrypt_secret: String,
+}
+
+impl UserCloudConfig {
+  pub fn new(encrypt_secret: String) -> Self {
+    Self {
+      enable_sync: true,
+      enable_encrypt: false,
+      encrypt_secret,
+    }
+  }
+
+  pub fn enable_encrypt(&self) -> bool {
+    self.enable_encrypt
+  }
+
+  pub fn with_enable_encrypt(mut self, enable_encrypt: bool) -> Self {
+    self.enable_encrypt = enable_encrypt;
+    // When the enable_encrypt is true, the encrypt_secret should not be empty
+    debug_assert!(!self.encrypt_secret.is_empty());
+    self
+  }
+}
+
+impl Display for UserCloudConfig {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "enable_sync: {}, enable_encrypt: {}",
+      self.enable_sync, self.enable_encrypt
+    )
+  }
+}
+
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserService: Send + Sync {
+pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
@@ -58,6 +101,32 @@ pub trait UserService: Send + Sync {
     user_email: String,
     workspace_id: String,
   ) -> FutureResult<(), Error>;
+
+  fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
+
+  fn receive_realtime_event(&self, _json: Value) {}
+
+  fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
+    None
+  }
+
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error>;
+
+  fn create_collab_object(
+    &self,
+    collab_object: &CollabObject,
+    data: Vec<u8>,
+  ) -> FutureResult<(), Error>;
+}
+
+pub type UserUpdateReceiver = tokio::sync::broadcast::Receiver<UserUpdate>;
+pub type UserUpdateSender = tokio::sync::broadcast::Sender<UserUpdate>;
+#[derive(Debug, Clone)]
+pub struct UserUpdate {
+  pub uid: i64,
+  pub name: String,
+  pub email: String,
+  pub encryption_sign: String,
 }
 
 pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {

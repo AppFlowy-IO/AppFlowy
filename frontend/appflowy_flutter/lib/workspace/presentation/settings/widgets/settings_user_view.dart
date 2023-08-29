@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -10,7 +11,6 @@ import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +50,12 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _renderUserNameInput(context),
+
+              if (isSupabaseEnabled) ...[
+                const VSpace(20),
+                UserEmailInput(user.email)
+              ],
+
               const VSpace(20),
               _renderCurrentIcon(context),
               const VSpace(20),
@@ -65,7 +71,7 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
-  /// Renders either a login or logout button based on the user's authentication status.
+  /// Renders either a login or logout button based on the user's authentication status, or nothing if Supabase is not enabled.
   ///
   /// This function checks the current user's authentication type and Supabase
   /// configuration to determine whether to render a third-party login button
@@ -74,16 +80,18 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (isSupabaseEnabled) {
-      // If the user is logged in locally, render a third-party login button.
-      if (state.userProfile.authType == AuthTypePB.Local) {
-        return SettingThirdPartyLogin(
-          didLogin: didLogin,
-        );
-      }
+    if (!isSupabaseEnabled) {
+      return const SizedBox.shrink();
     }
 
-    return _renderLogoutButton(context);
+    // If the user is logged in locally, render a third-party login button.
+    if (state.userProfile.authType == AuthTypePB.Local) {
+      return SettingThirdPartyLogin(
+        didLogin: didLogin,
+      );
+    }
+
+    return SettingLogoutButton(user: user, didLogout: didLogout);
   }
 
   Widget _renderUserNameInput(BuildContext context) {
@@ -105,28 +113,6 @@ class SettingsUserView extends StatelessWidget {
     final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
-  }
-
-  Widget _renderLogoutButton(BuildContext context) {
-    return Tooltip(
-      message: LocaleKeys.settings_user_clickToLogout.tr(),
-      child: FlowyButton(
-        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
-        text: FlowyText.medium(
-          LocaleKeys.settings_menu_logout.tr(),
-          fontSize: 13,
-        ),
-        onTap: () async {
-          NavigatorAlertDialog(
-            title: LocaleKeys.settings_menu_logoutPrompt.tr(),
-            confirm: () async {
-              await getIt<AuthService>().signOut();
-              didLogout();
-            },
-          ).show(context);
-        },
-      ),
-    );
   }
 }
 
@@ -182,6 +168,70 @@ class UserNameInputState extends State<UserNameInput> {
           context
               .read<SettingsUserViewBloc>()
               .add(SettingsUserEvent.updateUserName(val));
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+@visibleForTesting
+class UserEmailInput extends StatefulWidget {
+  final String email;
+
+  const UserEmailInput(
+    this.email, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  UserEmailInputState createState() => UserEmailInputState();
+}
+
+class UserEmailInputState extends State<UserEmailInput> {
+  late TextEditingController _controller;
+
+  Timer? _debounce;
+  final Duration _debounceDuration = const Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      decoration: InputDecoration(
+        labelText: LocaleKeys.settings_user_email.tr(),
+        labelStyle: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontWeight: FontWeight.w500),
+        enabledBorder: UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
+      ),
+      onChanged: (val) {
+        if (_debounce?.isActive ?? false) {
+          _debounce!.cancel();
+        }
+
+        _debounce = Timer(_debounceDuration, () {
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateUserEmail(val));
         });
       },
     );
@@ -302,7 +352,7 @@ class _CurrentIcon extends StatelessWidget {
                     LocaleKeys.settings_user_selectAnIcon.tr(),
                     fontSize: FontSizes.s16,
                   ),
-                  children: <Widget>[
+                  children: [
                     SizedBox(
                       height: 300,
                       width: 300,
@@ -315,9 +365,10 @@ class _CurrentIcon extends StatelessWidget {
           },
           child: Container(
             margin: const EdgeInsets.fromLTRB(0, 5, 5, 5),
-            child: svgWidget(
-              'emoji/$iconUrl',
+            child: FlowySvg(
+              FlowySvgData('emoji/$iconUrl'),
               size: _iconSize,
+              blendMode: null,
             ),
           ),
         ),
@@ -357,7 +408,11 @@ class IconGallery extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
             children: (snapshot.data ?? []).map((String iconUrl) {
-              return IconOption(iconUrl, setIcon);
+              return IconOption(
+                FlowySvgData('emoji/$iconUrl'),
+                iconUrl,
+                setIcon,
+              );
             }).toList(),
           );
         } else {
@@ -371,21 +426,69 @@ class IconGallery extends StatelessWidget {
 }
 
 class IconOption extends StatelessWidget {
+  final FlowySvgData emoji;
   final String iconUrl;
   final Function setIcon;
 
-  IconOption(this.iconUrl, this.setIcon, {Key? key})
-      : super(key: ValueKey(iconUrl));
+  IconOption(this.emoji, this.iconUrl, this.setIcon, {Key? key})
+      : super(key: ValueKey(emoji));
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: Corners.s6Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-      onTap: () {
-        setIcon(iconUrl);
-      },
-      child: svgWidget('emoji/$iconUrl', size: _iconSize),
+      onTap: () => setIcon(iconUrl),
+      child: FlowySvg(
+        emoji,
+        size: _iconSize,
+        blendMode: null,
+      ),
     );
+  }
+}
+
+class SettingLogoutButton extends StatelessWidget {
+  final UserProfilePB user;
+  final VoidCallback didLogout;
+  const SettingLogoutButton({
+    required this.user,
+    required this.didLogout,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 160,
+        child: FlowyButton(
+          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+          text: FlowyText.medium(
+            LocaleKeys.settings_menu_logout.tr(),
+            fontSize: 13,
+            textAlign: TextAlign.center,
+          ),
+          onTap: () async {
+            NavigatorAlertDialog(
+              title: logoutPromptMessage(),
+              confirm: () async {
+                await getIt<AuthService>().signOut();
+                didLogout();
+              },
+            ).show(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  String logoutPromptMessage() {
+    switch (user.encryptionType) {
+      case EncryptionTypePB.Symmetric:
+        return LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr();
+      default:
+        return LocaleKeys.settings_menu_logoutPrompt.tr();
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -18,7 +19,7 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.board_menuName.tr();
 
   @override
-  String get menuIcon => "editor/board";
+  FlowySvgData get icon => FlowySvgs.board_s;
 
   @override
   PluginType get pluginType => PluginType.board;

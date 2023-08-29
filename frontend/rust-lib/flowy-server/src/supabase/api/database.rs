@@ -8,7 +8,7 @@ use flowy_database_deps::cloud::{
 use lib_infra::future::FutureResult;
 
 use crate::supabase::api::request::{
-  get_latest_snapshot_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
+  get_snapshots_from_server, BatchFetchObjectUpdateAction, FetchObjectUpdateAction,
 };
 use crate::supabase::api::SupabaseServerService;
 
@@ -38,9 +38,10 @@ where
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
+          let updates = FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
             .run_with_fix_interval(5, 10)
-            .await
+            .await?;
+          Ok(updates)
         }
         .await,
       )
@@ -69,23 +70,27 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn get_collab_latest_snapshot(
+  fn get_collab_snapshots(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<DatabaseSnapshot>, Error> {
+    limit: usize,
+  ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let object_id = object_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let snapshot = get_latest_snapshot_from_server(&object_id, postgrest)
+      let snapshots = get_snapshots_from_server(&object_id, postgrest, limit)
         .await?
+        .into_iter()
         .map(|snapshot| DatabaseSnapshot {
           snapshot_id: snapshot.sid,
           database_id: snapshot.oid,
           data: snapshot.blob,
           created_at: snapshot.created_at,
-        });
-      Ok(snapshot)
+        })
+        .collect::<Vec<_>>();
+
+      Ok(snapshots)
     })
   }
 }

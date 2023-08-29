@@ -1,7 +1,9 @@
 use anyhow::Error;
+use anyhow::Result;
 use reqwest::{Response, StatusCode};
 use serde_json::Value;
 
+use flowy_encrypt::{decrypt_data, encrypt_data};
 use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::{to_fut, Fut};
 
@@ -138,8 +140,20 @@ impl SupabaseBinaryColumnEncoder {
   ///
   /// # Returns
   /// Returns the encoded string in the format: `\\xHEX_ENCODED_STRING`
-  pub fn encode<T: AsRef<[u8]>>(value: T) -> String {
-    format!("\\x{}", hex::encode(value))
+  pub fn encode<T: AsRef<[u8]>>(
+    value: T,
+    encryption_secret: &Option<String>,
+  ) -> Result<(String, i32)> {
+    let encrypt = if encryption_secret.is_some() { 1 } else { 0 };
+    let value = match encryption_secret {
+      None => hex::encode(value),
+      Some(encryption_secret) => {
+        let encrypt_data = encrypt_data(value, encryption_secret)?;
+        hex::encode(encrypt_data)
+      },
+    };
+
+    Ok((format!("\\x{}", value), encrypt))
   }
 }
 
@@ -157,28 +171,51 @@ impl SupabaseBinaryColumnDecoder {
   /// # Returns
   /// Returns an `Option` containing the decoded binary data if decoding is successful.
   /// Otherwise, returns `None`.
-  pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
-    let s = value.as_ref().strip_prefix("\\x")?;
-    hex::decode(s).ok()
+  pub fn decode<T: AsRef<str>, D: HexDecoder>(
+    value: T,
+    encrypt: i32,
+    encryption_secret: &Option<String>,
+  ) -> Result<Vec<u8>> {
+    let s = value
+      .as_ref()
+      .strip_prefix("\\x")
+      .ok_or(anyhow::anyhow!("Value is not start with: \\x",))?;
+
+    if encrypt == 0 {
+      let bytes = D::decode(s)?;
+      Ok(bytes)
+    } else {
+      match encryption_secret {
+        None => Err(anyhow::anyhow!(
+          "encryption_secret is None, but encrypt is 1"
+        )),
+        Some(encryption_secret) => {
+          let encrypt_data = D::decode(s)?;
+          decrypt_data(encrypt_data, encryption_secret)
+        },
+      }
+    }
   }
 }
 
-/// A decoder specifically tailored for realtime event binary columns in Supabase.
-///
-/// Decodes the realtime event binary column data using the standard Supabase binary column decoder.
-pub struct SupabaseRealtimeEventBinaryColumnDecoder;
+pub trait HexDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error>;
+}
 
-impl SupabaseRealtimeEventBinaryColumnDecoder {
-  /// Decodes a realtime event binary column string from Supabase into binary data.
-  ///
-  /// # Parameters
-  /// - `value`: The string representation from a Supabase realtime event binary column.
-  ///
-  /// # Returns
-  /// Returns an `Option` containing the decoded binary data if decoding is successful.
-  /// Otherwise, returns `None`.
-  pub fn decode<T: AsRef<str>>(value: T) -> Option<Vec<u8>> {
-    let bytes = SupabaseBinaryColumnDecoder::decode(value)?;
-    hex::decode(bytes).ok()
+pub struct RealtimeBinaryColumnDecoder;
+impl HexDecoder for RealtimeBinaryColumnDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error> {
+    // The realtime event binary column string is encoded twice. So it needs to be decoded twice.
+    let bytes = hex::decode(data)?;
+    let bytes = hex::decode(bytes)?;
+    Ok(bytes)
+  }
+}
+
+pub struct BinaryColumnDecoder;
+impl HexDecoder for BinaryColumnDecoder {
+  fn decode<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, Error> {
+    let bytes = hex::decode(data)?;
+    Ok(bytes)
   }
 }

@@ -107,7 +107,7 @@ class DateCellCalendarBloc
             }
           },
           (err) {
-            switch (ErrorCode.valueOf(err.code)!) {
+            switch (err.code) {
               case ErrorCode.InvalidDateTimeFormat:
                 if (isClosed) return;
                 add(

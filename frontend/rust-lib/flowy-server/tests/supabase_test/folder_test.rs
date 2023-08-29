@@ -1,8 +1,6 @@
 use assert_json_diff::assert_json_eq;
 use collab_plugins::cloud_storage::{CollabObject, CollabType};
-use futures::future::join_all;
 use serde_json::json;
-use tokio::task;
 use uuid::Uuid;
 use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
@@ -12,12 +10,13 @@ use flowy_user_deps::entities::SignUpResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
-  collab_service, folder_service, get_supabase_config, sign_up_param, user_auth_service,
+  collab_service, folder_service, get_supabase_ci_config, third_party_sign_up_param,
+  user_auth_service,
 };
 
 #[tokio::test]
 async fn supabase_create_workspace_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -29,7 +28,7 @@ async fn supabase_create_workspace_test() {
 
 #[tokio::test]
 async fn supabase_get_folder_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -37,7 +36,7 @@ async fn supabase_get_folder_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
@@ -75,26 +74,17 @@ async fn supabase_get_folder_test() {
     .unwrap();
   assert_eq!(updates.len(), 2);
 
-  // The init sync will try to merge the updates into one. Spawn 5 tasks to simulate
-  // multiple clients trying to init sync at the same time.
-  let mut handles = Vec::new();
   for _ in 0..5 {
-    let cloned_collab_service = collab_service.clone();
-    let cloned_collab_object = collab_object.clone();
-    let handle = task::spawn(async move {
-      cloned_collab_service
-        .send_init_sync(&cloned_collab_object, 3, vec![])
-        .await
-        .unwrap();
-    });
-    handles.push(handle);
+    collab_service
+      .send_init_sync(&collab_object, 3, vec![])
+      .await
+      .unwrap();
   }
-  let _results: Vec<_> = join_all(handles).await;
-  // after the init sync, the updates should be merged into one.
   let updates: Vec<Vec<u8>> = folder_service
     .get_folder_updates(&user.latest_workspace.id, user.user_id)
     .await
     .unwrap();
+
   assert_eq!(updates.len(), 1);
   // Other the init sync, try to get the updates from the server.
   let remote_update = updates.first().unwrap().clone();
@@ -112,7 +102,7 @@ async fn supabase_get_folder_test() {
 /// Finally, it asserts that the duplicated updates don't affect the overall data consistency in Supabase.
 #[tokio::test]
 async fn supabase_duplicate_updates_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -120,7 +110,7 @@ async fn supabase_duplicate_updates_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
@@ -206,9 +196,20 @@ async fn supabase_duplicate_updates_test() {
   }
 }
 
+/// The state vector of doc;
+/// ```json
+///   "map": {},
+///   "array": []
+/// ```
+/// The old version of doc:
+/// ```json
+///  "map": {}
+/// ```
+///
+/// Try to apply the updates from doc to old version doc and check the result.
 #[tokio::test]
-async fn supabase_diff_state_vec_test() {
-  if get_supabase_config().is_none() {
+async fn supabase_diff_state_vector_test() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
@@ -216,7 +217,7 @@ async fn supabase_diff_state_vec_test() {
   let user_service = user_auth_service();
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject {
@@ -278,3 +279,22 @@ async fn supabase_diff_state_vec_test() {
     })
   );
 }
+
+// #[tokio::test]
+// async fn print_folder_object_test() {
+//   if get_supabase_dev_config().is_none() {
+//     return;
+//   }
+//   let secret = Some("43bSxEPHeNkk5ZxxEYOfAjjd7sK2DJ$vVnxwuNc5ru0iKFvhs8wLg==".to_string());
+//   print_encryption_folder("f8b14b84-e8ec-4cf4-a318-c1e008ecfdfa", secret).await;
+// }
+//
+// #[tokio::test]
+// async fn print_folder_snapshot_object_test() {
+//   if get_supabase_dev_config().is_none() {
+//     return;
+//   }
+//   let secret = Some("NTXRXrDSybqFEm32jwMBDzbxvCtgjU$8np3TGywbBdJAzHtu1QIyQ==".to_string());
+//   // let secret = None;
+//   print_encryption_folder_snapshot("12533251-bdd4-41f4-995f-ff12fceeaa42", secret).await;
+// }

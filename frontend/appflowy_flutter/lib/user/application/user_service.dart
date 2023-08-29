@@ -62,7 +62,7 @@ class UserBackendService {
     throw UnimplementedError();
   }
 
-  Future<Either<Unit, FlowyError>> signOut() {
+  static Future<Either<Unit, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
 

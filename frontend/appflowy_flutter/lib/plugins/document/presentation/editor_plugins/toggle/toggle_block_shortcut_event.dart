@@ -57,7 +57,9 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
             paragraphNode(),
           )
           ..deleteNode(node)
-          ..afterSelection = Selection.collapse(selection.start.path, 0);
+          ..afterSelection = Selection.collapsed(
+            Position(path: selection.start.path, offset: 0),
+          );
       } else {
         // insert a toggle list block below the current toggle list block
         transaction
@@ -66,7 +68,9 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
             selection.start.path.next,
             toggleListBlockNode(collapsed: true, delta: slicedDelta),
           )
-          ..afterSelection = Selection.collapse(selection.start.path.next, 0);
+          ..afterSelection = Selection.collapsed(
+            Position(path: selection.start.path.next, offset: 0),
+          );
       }
     } else {
       // insert a paragraph block inside the current toggle list block
@@ -76,7 +80,9 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
           selection.start.path + [0],
           paragraphNode(delta: slicedDelta),
         )
-        ..afterSelection = Selection.collapse(selection.start.path + [0], 0);
+        ..afterSelection = Selection.collapsed(
+          Position(path: selection.start.path + [0], offset: 0),
+        );
     }
     await editorState.apply(transaction);
     return true;

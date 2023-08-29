@@ -21,9 +21,8 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     on<SettingsUserEvent>((event, emit) async {
       await event.when(
         initial: () async {
+          _loadUserProfile();
           _userListener.start(onProfileUpdated: _profileUpdated);
-          await _initUser();
-          _loadHistoricalUsers();
         },
         didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
@@ -58,6 +57,14 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
         openHistoricalUser: (HistoricalUserPB historicalUser) async {
           await UserBackendService.openHistoricalUser(historicalUser);
         },
+        updateUserEmail: (String email) {
+          _userService.updateUserProfile(email: email).then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
+        },
       );
     });
   }
@@ -68,26 +75,25 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     super.close();
   }
 
-  Future<void> _initUser() async {
-    final result = await _userService.initUser();
-    result.fold((l) => null, (error) => Log.error(error));
-  }
+  void _loadUserProfile() {
+    UserBackendService.getCurrentUserProfile().then((result) {
+      if (isClosed) {
+        return;
+      }
 
-  Future<void> _loadHistoricalUsers() async {
-    final result = await UserBackendService.loadHistoricalUsers();
-    result.fold(
-      (historicalUsers) {
-        add(SettingsUserEvent.didLoadHistoricalUsers(historicalUsers));
-      },
-      (error) => Log.error(error),
-    );
+      result.fold(
+        (err) => Log.error(err),
+        (userProfile) => add(
+          SettingsUserEvent.didReceiveUserProfile(userProfile),
+        ),
+      );
+    });
   }
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
       (newUserProfile) {
         add(SettingsUserEvent.didReceiveUserProfile(newUserProfile));
-        _loadHistoricalUsers();
       },
       (err) => Log.error(err),
     );
@@ -98,6 +104,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
+  const factory SettingsUserEvent.updateUserEmail(String email) = _UpdateEmail;
   const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
       _UpdateUserIcon;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =

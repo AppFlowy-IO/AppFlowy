@@ -159,7 +159,7 @@ impl HttpRequestBuilder {
 
 fn unexpected_empty_payload(url: &str) -> FlowyError {
   let msg = format!("Request: {} receives unexpected empty payload", url);
-  FlowyError::payload_none().context(msg)
+  FlowyError::payload_none().with_context(msg)
 }
 
 async fn flowy_response_from(original: Response) -> Result<HttpResponse, FlowyError> {
@@ -178,7 +178,7 @@ async fn get_response_data(original: Response) -> Result<Bytes, FlowyError> {
       Some(error) => Err(FlowyError::new(error.code, &error.msg)),
     }
   } else {
-    Err(FlowyError::http().context(original))
+    Err(FlowyError::http().with_context(original))
   }
 }
 

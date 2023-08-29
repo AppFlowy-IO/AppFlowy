@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -29,16 +28,8 @@ class SupabaseAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signUp(
-        name: name,
-        email: email,
-        password: password,
-      );
-    }
-
     // fetch the uuid from supabase.
     final response = await _auth.signUp(
       email: email,
@@ -55,7 +46,7 @@ class SupabaseAuthService implements AuthService {
       email: email,
       password: password,
       authType: authType,
-      map: {
+      params: {
         AuthServiceMapKeys.uuid: uuid,
       },
     );
@@ -66,15 +57,8 @@ class SupabaseAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signIn(
-        email: email,
-        password: password,
-      );
-    }
-
     try {
       final response = await _auth.signInWithPassword(
         email: email,
@@ -88,7 +72,7 @@ class SupabaseAuthService implements AuthService {
         email: email,
         password: password,
         authType: authType,
-        map: {
+        params: {
           AuthServiceMapKeys.uuid: uuid,
         },
       );
@@ -102,15 +86,17 @@ class SupabaseAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    if (!isSupabaseEnabled) {
-      return _appFlowyAuthService.signUpWithOAuth(platform: platform);
+    // Before signing in, sign out any existing users. Otherwise, the callback will be triggered even if the user doesn't click the 'Sign In' button on the website
+    if (_auth.currentUser != null) {
+      await _auth.signOut();
     }
+
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await setupAuth(
+        return await _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -135,9 +121,7 @@ class SupabaseAuthService implements AuthService {
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Supabase,
   }) async {
-    if (isSupabaseEnabled) {
-      await _auth.signOut();
-    }
+    await _auth.signOut();
     await _appFlowyAuthService.signOut(
       authType: authType,
     );
@@ -146,7 +130,7 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Supabase,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.
     // so, just forward to our backend.
@@ -156,11 +140,11 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
     required String email,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await setupAuth(
+        return await _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -190,7 +174,7 @@ class SupabaseAuthService implements AuthService {
     return Right(user);
   }
 
-  Future<Either<FlowyError, UserProfilePB>> setupAuth({
+  Future<Either<FlowyError, UserProfilePB>> _setupAuth({
     required Map<String, String> map,
   }) async {
     final payload = ThirdPartyAuthPB(

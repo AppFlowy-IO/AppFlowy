@@ -14,6 +14,7 @@ use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
 
@@ -22,7 +23,7 @@ fn upgrade_manager(
 ) -> FlowyResult<Arc<DatabaseManager>> {
   let manager = database_manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The database manager is already dropped"))?;
+    .ok_or(FlowyError::internal().with_context("The database manager is already dropped"))?;
   Ok(manager)
 }
 
@@ -459,8 +460,8 @@ pub(crate) async fn create_row_handler(
     .create_row(&view_id, group_id, params)
     .await?
   {
-    None => Err(FlowyError::internal().context("Create row fail")),
-    Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
+    None => Err(FlowyError::internal().with_context("Create row fail")),
+    Some(row) => data_result_ok(RowMetaPB::from(row)),
   }
 }
 
@@ -510,9 +511,10 @@ pub(crate) async fn new_select_option_handler(
     .create_select_option(&params.field_id, params.option_name)
     .await;
   match result {
-    None => {
-      Err(FlowyError::record_not_found().context("Create select option fail. Can't find the field"))
-    },
+    None => Err(
+      FlowyError::record_not_found()
+        .with_context("Create select option fail. Can't find the field"),
+    ),
     Some(pb) => data_result_ok(pb),
   }
 }
@@ -887,6 +889,39 @@ pub(crate) async fn get_snapshots_handler(
 ) -> DataResult<RepeatedDatabaseSnapshotPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let view_id = data.into_inner().value;
-  let snapshots = manager.get_database_snapshots(&view_id).await?;
+  let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_field_settings_handler(
+  data: AFPluginData<FieldIdsPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let (view_id, field_ids) = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  let field_settings = database_editor
+    .get_field_settings(&view_id, field_ids)
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect::<Vec<FieldSettingsPB>>();
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_field_settings_handler(
+  data: AFPluginData<FieldSettingsChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: FieldSettingsChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .update_field_settings_with_changeset(params)
+    .await?;
+  Ok(())
 }

@@ -1,5 +1,6 @@
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/presentation/sign_in_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +11,6 @@ import '../application/splash_bloc.dart';
 import '../domain/auth_state.dart';
 import 'router.dart';
 
-// [[diagram: splash screen]]
-// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
-// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
-// └────────────────┘           └──────────┘     └────────────┘     │
-//                                                                  │
-//                                                                  ▼
-//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
-//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
-//    └───────────┘            └─────────────┘                 └────────┘
-//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
     Key? key,
@@ -65,23 +56,39 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
+  /// Handles the authentication flow once a user is authenticated.
   Future<void> _handleAuthenticated(
     BuildContext context,
     Authenticated authenticated,
   ) async {
     final userProfile = authenticated.userProfile;
-    final result = await FolderEventGetCurrentWorkspace().send();
+
+    /// After a user is authenticated, this function checks if encryption is required.
+    final result = await UserEventCheckEncryptionSign().send();
     result.fold(
-      (workspaceSetting) {
-        getIt<SplashRoute>().pushHomeScreen(
-          context,
-          userProfile,
-          workspaceSetting,
-        );
+      (check) async {
+        /// If encryption is needed, the user is navigated to the encryption screen.
+        /// Otherwise, it fetches the current workspace for the user and navigates them
+        if (check.isNeedSecret) {
+          getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
+        } else {
+          final result = await FolderEventGetCurrentWorkspace().send();
+          result.fold(
+            (workspaceSetting) {
+              getIt<SplashRoute>().pushHomeScreen(
+                context,
+                userProfile,
+                workspaceSetting,
+              );
+            },
+            (error) {
+              handleOpenWorkspaceError(context, error);
+            },
+          );
+        }
       },
-      (error) async {
-        Log.error(error);
-        getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+      (err) {
+        Log.error(err);
       },
     );
   }

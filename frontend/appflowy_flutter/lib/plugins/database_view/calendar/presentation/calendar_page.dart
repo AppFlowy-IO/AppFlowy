@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
@@ -6,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.d
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -220,7 +221,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: const FlowySvg(name: 'home/arrow_left'),
+          icon: const FlowySvg(FlowySvgs.arrow_left_s),
           tooltipText: LocaleKeys.calendar_navigation_previousMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.previousPage(),
@@ -238,7 +239,7 @@ class _CalendarPageState extends State<CalendarPage> {
         FlowyIconButton(
           width: CalendarSize.navigatorButtonWidth,
           height: CalendarSize.navigatorButtonHeight,
-          icon: const FlowySvg(name: 'home/arrow_right'),
+          icon: const FlowySvg(FlowySvgs.arrow_right_s),
           tooltipText: LocaleKeys.calendar_navigation_nextMonth.tr(),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onPressed: () => _calendarState?.currentState?.nextPage(),
@@ -284,10 +285,7 @@ class _CalendarPageState extends State<CalendarPage> {
       rowCache: _calendarBloc.rowCache,
       onCreateEvent: (date) {
         _calendarBloc.add(
-          CalendarEvent.createEvent(
-            date,
-            LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-          ),
+          CalendarEvent.createEvent(date),
         );
       },
     );

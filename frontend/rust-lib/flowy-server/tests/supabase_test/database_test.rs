@@ -5,18 +5,19 @@ use flowy_user_deps::entities::SignUpResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
-  collab_service, database_service, get_supabase_config, sign_up_param, user_auth_service,
+  collab_service, database_service, get_supabase_ci_config, third_party_sign_up_param,
+  user_auth_service,
 };
 
 #[tokio::test]
 async fn supabase_create_workspace_test() {
-  if get_supabase_config().is_none() {
+  if get_supabase_ci_config().is_none() {
     return;
   }
 
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
-  let params = sign_up_param(uuid);
+  let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_service = collab_service();

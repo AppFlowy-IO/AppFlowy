@@ -20,7 +20,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -38,7 +39,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -56,7 +58,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -107,7 +110,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "group": {
         "kind": "build",
@@ -161,7 +165,7 @@
             ]
           }
         }
-      },
+      }
     },
     {
       "label": "AF: Generate Language Files",
@@ -185,6 +189,27 @@
       }
     },
     {
+      "label": "AF: Generate Svg Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/flowy_icons/generate_flowy_icons.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\flowy_icons\\generate_flowy_icons.cmd"
+            ]
+          }
+        }
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
       "label": "AF: Flutter Clean",
       "type": "shell",
       "command": "cargo make flutter_clean",
@@ -197,10 +222,7 @@
       "label": "AF: flutter build aar",
       "type": "flutter",
       "command": "flutter",
-      "args": [
-        "build",
-        "aar"
-      ],
+      "args": ["build", "aar"],
       "group": "build",
       "problemMatcher": [],
       "detail": "appflowy_flutter"
@@ -210,9 +232,7 @@
       "type": "shell",
       "isBackground": true,
       "command": "yarn",
-      "args": [
-        "dev"
-      ],
+      "args": ["dev"],
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
@@ -245,10 +265,7 @@
       "label": "AF: Tauri Clean + Dev",
       "type": "shell",
       "dependsOrder": "sequence",
-      "dependsOn": [
-        "AF: Tauri Clean",
-        "AF: Tauri UI Dev"
-      ],
+      "dependsOn": ["AF: Tauri Clean", "AF: Tauri UI Dev"],
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -262,12 +279,12 @@
       }
     },
     {
-      "label": "AF: Generate Env",
+      "label": "AF: Generate Env File",
       "type": "shell",
       "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
-    },
+    }
   ]
 }
