@@ -55,17 +55,14 @@ class DesktopSignInScreen extends StatelessWidget {
             ),
             const VSpace(20),
             // loading status
-            ...isLoading
-                ? [
-                    const VSpace(indicatorMinHeight),
-                    const LinearProgressIndicator(
-                      value: null,
-                      minHeight: indicatorMinHeight,
-                    ),
-                  ]
-                : [
-                    const VSpace(indicatorMinHeight * 2.0)
-                  ], // add the same space when there's no loading status.
+            const VSpace(indicatorMinHeight),
+            isLoading
+                ? const LinearProgressIndicator(
+                    value: null,
+                    minHeight: indicatorMinHeight,
+                  )
+                : const VSpace(indicatorMinHeight),
+            // add the same space when there's no loading status.
             // ConstrainedBox(
             //   constraints: const BoxConstraints(maxHeight: 140),
             //   child: HistoricalUserList(

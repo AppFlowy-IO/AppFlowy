@@ -41,7 +41,6 @@ class AuthRouter {
   ) {
     if (PlatformExtension.isMobile) {
       Navigator.of(context).pushAndRemoveUntil(
-        context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => MobileHomeScreen(
             key: ValueKey(userProfile.id),
