@@ -283,7 +283,17 @@ CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
 
 CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
   var selection = editorState.selection;
+
   if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  if (editorState.getNodesInSelection(selection).length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null || node.type != CodeBlockKeys.type) {
     return KeyEventResult.ignored;
   }
 
@@ -299,10 +309,6 @@ CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
   }
   assert(selection.isCollapsed);
 
-  final node = editorState.getNodeAtPath(selection.end.path);
-  if (node == null || node.type != CodeBlockKeys.type) {
-    return KeyEventResult.ignored;
-  }
   () async {
     final data = await AppFlowyClipboard.getData();
     final text = data.text;
