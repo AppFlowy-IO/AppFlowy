@@ -94,8 +94,9 @@ class SettingsDialog extends StatelessWidget {
                             child: SettingsMenu(
                               changeSelectedPage: (index) => context
                                   .read<SettingsDialogBloc>()
-                                  .add(SettingsDialogEvent.setSelectedPage(
-                                      index)),
+                                  .add(
+                                    SettingsDialogEvent.setSelectedPage(index),
+                                  ),
                               currentPage:
                                   context.read<SettingsDialogBloc>().state.page,
                             ),
