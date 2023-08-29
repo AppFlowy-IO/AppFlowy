@@ -40,7 +40,7 @@ class AuthRouter {
     WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
-      Navigator.pushAndRemoveUntil<void>(
+      Navigator.of(context).pushAndRemoveUntil(
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => MobileHomeScreen(
