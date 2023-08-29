@@ -30,8 +30,8 @@ class HomeStack extends StatelessWidget {
   const HomeStack({
     required this.delegate,
     required this.layout,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -108,13 +108,13 @@ class FadingIndexedStack extends StatefulWidget {
   final Duration duration;
 
   const FadingIndexedStack({
-    Key? key,
+    super.key,
     required this.index,
     required this.children,
     this.duration = const Duration(
       milliseconds: 250,
     ),
-  }) : super(key: key);
+  });
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();
@@ -253,7 +253,7 @@ class PageManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+  const HomeTopBar({super.key, required this.layout});
 
   final HomeLayout layout;
 

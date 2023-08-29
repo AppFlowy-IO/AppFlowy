@@ -115,7 +115,7 @@ class _OrDivider extends StatelessWidget {
 // We may need this later when sign up&in feature is ready
 // class SignUpPrompt extends StatelessWidget {
 //   const SignUpPrompt({
-//     Key? key,
+//     super.key,
 //     required this.router,
 //   }) ;
 
@@ -148,7 +148,7 @@ class _OrDivider extends StatelessWidget {
 
 // class LoginButton extends StatelessWidget {
 //   const LoginButton({
-//     Key? key,
+//     super.key
 //   }) ;
 
 //   @override
@@ -165,7 +165,7 @@ class _OrDivider extends StatelessWidget {
 // }
 // class ForgetPasswordButton extends StatelessWidget {
 //   const ForgetPasswordButton({
-//     Key? key,
+//     super.key
 //     required this.router,
 //   }) ;
 
@@ -190,7 +190,7 @@ class _OrDivider extends StatelessWidget {
 
 // class PasswordTextField extends StatelessWidget {
 //   const PasswordTextField({
-//     Key? key,
+//     super.key
 //   }) ;
 
 //   @override
@@ -220,7 +220,7 @@ class _OrDivider extends StatelessWidget {
 
 // class EmailTextField extends StatelessWidget {
 //   const EmailTextField({
-//     Key? key,
+//     super.key
 //   }) ;
 
 //   @override

@@ -30,10 +30,10 @@ class DesktopHomeScreen extends StatefulWidget {
   final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
   const DesktopHomeScreen({
-    Key? key,
+    super.key,
     required this.userProfile,
     required this.workspaceSetting,
-  }) : super(key: key);
+  });
 
   @override
   State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();

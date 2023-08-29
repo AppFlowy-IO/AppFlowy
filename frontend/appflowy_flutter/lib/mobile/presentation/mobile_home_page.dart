@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({
-    Key? key,
+    super.key,
     required this.userProfile,
     required this.workspaceSetting,
-  }) : super(key: key);
+  });
 
   static const routeName = "/MobileHomeScreen";
   final UserProfilePB userProfile;
