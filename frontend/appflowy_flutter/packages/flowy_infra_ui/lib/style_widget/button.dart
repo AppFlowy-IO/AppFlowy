@@ -122,6 +122,7 @@ class FlowyTextButton extends StatelessWidget {
   final BorderRadius? radius;
   final MainAxisAlignment mainAxisAlignment;
   final String? tooltip;
+  final InlineSpan? richTooltip;
   final BoxConstraints constraints;
 
   final TextDecoration? decoration;
@@ -144,10 +145,15 @@ class FlowyTextButton extends StatelessWidget {
     this.radius,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.tooltip,
+    this.richTooltip,
     this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
     this.decoration,
     this.fontFamily,
-  }) : super(key: key);
+  })  : assert(
+            ((tooltip == null) != (richTooltip == null)) ||
+                tooltip == null && richTooltip == null,
+            'tooltip and richTooltip cannot both have a value'),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -193,9 +199,10 @@ class FlowyTextButton extends StatelessWidget {
       child: child,
     );
 
-    if (tooltip != null) {
+    if (tooltip != null || richTooltip != null) {
       child = Tooltip(
-        message: tooltip!,
+        message: tooltip,
+        richMessage: richTooltip,
         child: child,
       );
     }

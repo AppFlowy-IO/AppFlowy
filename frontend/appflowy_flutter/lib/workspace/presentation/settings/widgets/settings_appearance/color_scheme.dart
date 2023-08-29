@@ -31,7 +31,7 @@ class ColorSchemeSetting extends StatelessWidget {
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
         ColorSchemeUploadOverlayButton(bloc: bloc),
-        ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
+        ColorSchemeSelectorPopover(currentTheme: currentTheme, bloc: bloc),
       ],
     );
   }
@@ -75,8 +75,8 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
   }
 }
 
-class ColorSchemeUploadPopover extends StatelessWidget {
-  const ColorSchemeUploadPopover({
+class ColorSchemeSelectorPopover extends StatelessWidget {
+  const ColorSchemeSelectorPopover({
     super.key,
     required this.currentTheme,
     required this.bloc,

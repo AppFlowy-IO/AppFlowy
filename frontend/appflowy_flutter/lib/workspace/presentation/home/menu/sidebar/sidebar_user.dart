@@ -117,7 +117,7 @@ class SidebarUser extends StatelessWidget {
                     Navigator.of(dialogContext).pop();
                     await runAppFlowy();
                   },
-                  dismissDialog: () => Navigator.of(context).pop(),
+                  dismissDialog: () => Navigator.of(dialogContext).pop(),
                   didOpenUser: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();

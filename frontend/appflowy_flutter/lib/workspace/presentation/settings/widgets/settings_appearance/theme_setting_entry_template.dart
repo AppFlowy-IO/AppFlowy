@@ -51,12 +51,14 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
 class ThemeValueDropDown extends StatefulWidget {
   const ThemeValueDropDown({
     super.key,
+    this.richTooltip,
     required this.currentValue,
     required this.popupBuilder,
     this.popoverKey,
     this.onClose,
   });
 
+  final InlineSpan? richTooltip;
   final String currentValue;
   final Key? popoverKey;
   final Widget Function(BuildContext) popupBuilder;
@@ -81,8 +83,10 @@ class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
       onClose: widget.onClose,
       child: FlowyTextButton(
         widget.currentValue,
+        richTooltip: widget.richTooltip,
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
+        onPressed: () {},
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
@@ -22,30 +22,22 @@ class SettingsMenuElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyHover(
-      resetHoverOnRebuild: false,
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.primary,
+    return FlowyButton(
+      decoration: BoxDecoration(
+        color:
+            page == selectedPage ? Theme.of(context).colorScheme.primary : null,
+        borderRadius: BorderRadius.circular(5),
       ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          size: 16,
-          color: page == selectedPage
-              ? Theme.of(context).colorScheme.onSurface
-              : null,
-        ),
-        onTap: () {
-          changeSelectedPage(page);
-        },
-        selected: page == selectedPage,
-        selectedColor: Theme.of(context).colorScheme.onSurface,
-        selectedTileColor: Theme.of(context).colorScheme.primary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        minLeadingWidth: 0,
-        title: FlowyText.semibold(
+      leftIcon: Icon(
+        icon,
+        size: 16,
+        color: page == selectedPage
+            ? Theme.of(context).colorScheme.onSurface
+            : null,
+      ),
+      text: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: FlowyText.semibold(
           label,
           fontSize: FontSizes.s14,
           overflow: TextOverflow.ellipsis,
@@ -54,6 +46,7 @@ class SettingsMenuElement extends StatelessWidget {
               : null,
         ),
       ),
+      onTap: () => changeSelectedPage(page),
     );
   }
 }

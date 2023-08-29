@@ -15,29 +15,27 @@ class BrightnessSetting extends StatelessWidget {
   const BrightnessSetting({required this.currentThemeMode, super.key});
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-        richMessage: themeModeTooltipTextSpan(
-          context,
-          LocaleKeys.settings_appearance_themeMode_label.tr(),
-        ),
-        child: ThemeSettingEntryTemplateWidget(
-          label: LocaleKeys.settings_appearance_themeMode_label.tr(),
-          onResetRequested:
-              context.read<AppearanceSettingsCubit>().resetThemeMode,
-          trailing: [
-            ThemeValueDropDown(
-              currentValue: _themeModeLabelText(currentThemeMode),
-              popupBuilder: (_) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _themeModeItemButton(context, ThemeMode.light),
-                  _themeModeItemButton(context, ThemeMode.dark),
-                  _themeModeItemButton(context, ThemeMode.system),
-                ],
-              ),
+  Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
+        label: LocaleKeys.settings_appearance_themeMode_label.tr(),
+        onResetRequested:
+            context.read<AppearanceSettingsCubit>().resetThemeMode,
+        trailing: [
+          ThemeValueDropDown(
+            richTooltip: themeModeTooltipTextSpan(
+              context,
+              LocaleKeys.settings_appearance_themeMode_label.tr(),
             ),
-          ],
-        ),
+            currentValue: _themeModeLabelText(currentThemeMode),
+            popupBuilder: (_) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _themeModeItemButton(context, ThemeMode.light),
+                _themeModeItemButton(context, ThemeMode.dark),
+                _themeModeItemButton(context, ThemeMode.system),
+              ],
+            ),
+          ),
+        ],
       );
 
   TextSpan themeModeTooltipTextSpan(BuildContext context, String hintText) =>

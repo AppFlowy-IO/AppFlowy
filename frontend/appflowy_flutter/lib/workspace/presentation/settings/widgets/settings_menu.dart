@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dar
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,6 +22,7 @@ class SettingsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const VSpace(12),
         SettingsMenuElement(
           page: SettingsPage.appearance,
           selectedPage: currentPage,
@@ -28,9 +30,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.brightness_4,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 6),
         SettingsMenuElement(
           page: SettingsPage.language,
           selectedPage: currentPage,
@@ -38,9 +38,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.translate,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 6),
         SettingsMenuElement(
           page: SettingsPage.files,
           selectedPage: currentPage,
@@ -48,9 +46,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.file_present_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 6),
         SettingsMenuElement(
           page: SettingsPage.user,
           selectedPage: currentPage,
@@ -70,9 +66,7 @@ class SettingsMenu extends StatelessWidget {
             icon: Icons.sync,
             changeSelectedPage: changeSelectedPage,
           ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 6),
         SettingsMenuElement(
           page: SettingsPage.shortcuts,
           selectedPage: currentPage,
