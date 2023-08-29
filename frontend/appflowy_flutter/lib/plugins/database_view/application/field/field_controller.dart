@@ -567,7 +567,6 @@ class FieldController {
     return _filterBackendSvc.getAllFilters().then((result) {
       return result.fold(
         (filterPBs) {
-          _updateFieldInfos();
           _filterNotifier?.filters = _filterInfoListFromPBs(filterPBs);
           return left(unit);
         },
@@ -581,7 +580,6 @@ class FieldController {
     return _sortBackendSvc.getAllSorts().then((result) {
       return result.fold(
         (sortPBs) {
-          _updateFieldInfos();
           _sortNotifier?.sorts = _sortInfoListFromPBs(sortPBs);
           return left(unit);
         },
