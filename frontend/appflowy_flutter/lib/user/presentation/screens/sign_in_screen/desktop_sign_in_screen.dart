@@ -87,18 +87,18 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        Flexible(
+        const Flexible(
           child: Divider(
             thickness: 1,
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: FlowyText.regular('OR'),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: FlowyText.regular(LocaleKeys.signIn_or.tr()),
         ),
-        Flexible(
+        const Flexible(
           child: Divider(
             thickness: 1,
           ),

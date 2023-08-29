@@ -42,6 +42,7 @@
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
+    "or": "OR",
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",

@@ -73,7 +73,7 @@ class MobileSignInScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
-                          'OR',
+                          LocaleKeys.signIn_or.tr(),
                           style: style.textTheme.bodyMedium,
                         ),
                       ),
