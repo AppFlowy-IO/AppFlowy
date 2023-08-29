@@ -11,6 +11,7 @@ import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
 import 'document_with_outline_block_test.dart' as document_with_outline_block;
 import 'document_copy_and_paste_test.dart' as document_copy_and_paste_test;
+import 'document_template_test.dart' as document_test_template;
 
 void startTesting() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -25,4 +26,5 @@ void startTesting() {
   document_with_outline_block.main();
   document_with_toggle_list_test.main();
   document_copy_and_paste_test.main();
+  document_test_template.main();
 }

@@ -415,7 +415,6 @@ extension CommonOperations on WidgetTester {
     final pageToggleButton = find.descendant(
       of: findPageName(name),
       matching: find.byWidgetPredicate(
-        // (widget) => widget is FlowySvg && widget.name == 'home/drop_down_hide',
         (widget) =>
             widget is FlowySvg && widget.svg == FlowySvgs.drop_menu_hide_m,
       ),
