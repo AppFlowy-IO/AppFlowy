@@ -430,26 +430,10 @@ class ThirdPartySignInButtons extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: const [
         GoogleSignUpButton(),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/github-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('github'));
-        //   },
-        // ),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/discord-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('discord'));
-        //   },
-        // ),
+        SizedBox(width: 20),
+        GitHubSignUpButton(),
+        SizedBox(width: 20),
+        DiscordSignUpButton(),
       ],
     );
   }
@@ -467,6 +451,40 @@ class GoogleSignUpButton extends StatelessWidget {
         context.read<SignInBloc>().add(
               const SignInEvent.signedInWithOAuth('google'),
             );
+      },
+    );
+  }
+}
+
+class GitHubSignUpButton extends StatelessWidget {
+  const GitHubSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.google_mark_xl,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context
+            .read<SignInBloc>()
+            .add(const SignInEvent.signedInWithOAuth('github'));
+      },
+    );
+  }
+}
+
+class DiscordSignUpButton extends StatelessWidget {
+  const DiscordSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.google_mark_xl,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context
+            .read<SignInBloc>()
+            .add(const SignInEvent.signedInWithOAuth('discord'));
       },
     );
   }
