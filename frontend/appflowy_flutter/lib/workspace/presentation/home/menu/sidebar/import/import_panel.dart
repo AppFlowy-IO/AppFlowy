@@ -20,6 +20,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:path/path.dart' as p;
 
+import 'importer/custom_parsers/subpage_import_parser.dart';
+import 'package:markdown/markdown.dart';
+
 typedef ImportCallback = void Function(
   ImportType? type,
   ImportFromNotionType? notionType,
@@ -114,10 +117,10 @@ class ImportPanel extends StatelessWidget {
                 parentViewId: parentViewId,
               );
               await notionImporter.importFromNotion(type, path);
+              importCallback(null, ImportFromNotionType.markdownZip, '', null);
               if (context.mounted) {
                 FlowyOverlay.pop(context);
               }
-              importCallback(null, ImportFromNotionType.markdownZip, '', null);
             }
           },
         ),
@@ -193,7 +196,11 @@ class ImportPanel extends StatelessWidget {
 Uint8List? documentDataFrom(ImportType importType, String data) {
   switch (importType) {
     case ImportType.markdownOrText:
-      final document = markdownToDocument(data);
+      final List<InlineSyntax> inlineSyntaxes = [
+        SubPageInlineSyntax(),
+      ];
+      final document =
+          markdownToDocument(data, customInlineSyntaxes: inlineSyntaxes);
       return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     case ImportType.historyDocument:
       final document = EditorMigration.migrateDocument(data);
