@@ -1373,6 +1373,7 @@ dependencies = [
  "flowy-folder-deps",
  "flowy-folder2",
  "flowy-net",
+ "flowy-plugins",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1604,6 +1605,23 @@ dependencies = [
  "protobuf",
  "serde",
  "tracing",
+]
+
+[[package]]
+name = "flowy-plugins"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "lib-dispatch",
+ "lib-infra",
+ "protobuf",
+ "serde",
+ "serde_json",
+ "strum_macros 0.21.1",
 ]
 
 [[package]]
