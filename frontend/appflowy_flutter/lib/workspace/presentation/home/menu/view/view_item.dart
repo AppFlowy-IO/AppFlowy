@@ -12,9 +12,9 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -254,19 +254,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return _buildViewItem(false);
     }
 
+    final isSelected = widget.showActions ||
+        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
       buildWhenOnHover: () => !widget.showActions,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+      builder: (_, onHover) => _buildViewItem(isSelected || onHover),
+      isSelected: () => isSelected,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool showHoverAction) {
     final children = [
       // expand icon
       _buildLeftIcon(),
@@ -286,7 +287,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     ];
 
     // hover action
-    if (widget.showActions || onHover) {
+    if (showHoverAction) {
       // ··· more action button
       children.add(_buildViewMoreActionButton(context));
       // only support add button for document layout
