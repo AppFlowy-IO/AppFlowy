@@ -18,7 +18,7 @@ enum TableOptionAction {
   duplicate,
   clear,
 
-  /// callout background color
+  /// row|cell background color
   bgColor;
 
   Widget icon(Color? color) {
@@ -108,11 +108,13 @@ class TableColorOptionAction extends PopoverActionCell {
               n.attributes[TableBlockKeys.colPosition] == col &&
               n.attributes[TableBlockKeys.rowPosition] == row,
         );
-        final bgColor =
-            cell?.attributes[TableBlockKeys.backgroundColor] as String?;
+        final key = dir == TableDirection.col
+            ? TableBlockKeys.colBackgroundColor
+            : TableBlockKeys.rowBackgroundColor;
+        final bgColor = cell?.attributes[key] as String?;
         final selectedColor = bgColor?.toColor();
         // get default background color from themeExtension
-        final defaultColor = AFThemeExtension.of(context).calloutBGColor;
+        final defaultColor = AFThemeExtension.of(context).tableCellBGColor;
         final colors = [
           // reset to default background color
           FlowyColorOption(
