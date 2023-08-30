@@ -89,25 +89,23 @@ class TableMenu extends StatelessWidget {
   }
 
   void _onSelectAction(TableOptionAction action) {
-    final transaction = editorState.transaction;
     switch (action) {
       case TableOptionAction.addAfter:
-        TableActions.add(node, position + 1, transaction, dir);
+        TableActions.add(node, position + 1, editorState, dir);
         break;
       case TableOptionAction.addBefore:
-        TableActions.add(node, position, transaction, dir);
+        TableActions.add(node, position, editorState, dir);
         break;
       case TableOptionAction.delete:
-        TableActions.delete(node, position, transaction, dir);
+        TableActions.delete(node, position, editorState, dir);
         break;
       case TableOptionAction.clear:
-        TableActions.clear(node, position, transaction, dir);
+        TableActions.clear(node, position, editorState, dir);
         break;
       case TableOptionAction.duplicate:
-        TableActions.duplicate(node, position, transaction, dir);
+        TableActions.duplicate(node, position, editorState, dir);
         break;
       default:
     }
-    editorState.apply(transaction);
   }
 }
