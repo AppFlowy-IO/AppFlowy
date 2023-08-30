@@ -105,12 +105,12 @@ class TableColorOptionAction extends PopoverActionCell {
 
         final cell = node.children.firstWhereOrNull(
           (n) =>
-              n.attributes[TableBlockKeys.colPosition] == col &&
-              n.attributes[TableBlockKeys.rowPosition] == row,
+              n.attributes[TableCellBlockKeys.colPosition] == col &&
+              n.attributes[TableCellBlockKeys.rowPosition] == row,
         );
         final key = dir == TableDirection.col
-            ? TableBlockKeys.colBackgroundColor
-            : TableBlockKeys.rowBackgroundColor;
+            ? TableCellBlockKeys.colBackgroundColor
+            : TableCellBlockKeys.rowBackgroundColor;
         final bgColor = cell?.attributes[key] as String?;
         final selectedColor = bgColor?.toColor();
         // get default background color from themeExtension
