@@ -51,7 +51,7 @@ class SettingsUserView extends StatelessWidget {
             children: [
               _renderUserNameInput(context),
 
-              if (user.email.isNotEmpty) ...[
+              if (isSupabaseEnabled) ...[
                 const VSpace(20),
                 UserEmailInput(user.email)
               ],
