@@ -29,21 +29,12 @@ abstract class Env {
     defaultValue: '',
   )
   static final String supabaseAnonKey = _Env.supabaseAnonKey;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_JWT_SECRET',
-    defaultValue: '',
-  )
-  static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
 }
 
 bool get isSupabaseEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
-    return Env.supabaseUrl.isNotEmpty &&
-        Env.supabaseAnonKey.isNotEmpty &&
-        Env.supabaseJwtSecret.isNotEmpty;
+    return Env.supabaseUrl.isNotEmpty && Env.supabaseAnonKey.isNotEmpty;
   } else {
     return false;
   }

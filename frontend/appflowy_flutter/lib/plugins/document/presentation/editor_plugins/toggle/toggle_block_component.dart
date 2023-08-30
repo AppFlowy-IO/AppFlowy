@@ -132,7 +132,7 @@ class _ToggleListBlockComponentWidgetState
   EdgeInsets get indentPadding => configuration.indentPadding(
         node,
         calculateTextDirection(
-          defaultTextDirection: Directionality.maybeOf(context),
+          layoutDirection: Directionality.maybeOf(context),
         ),
       );
 
@@ -148,7 +148,7 @@ class _ToggleListBlockComponentWidgetState
   @override
   Widget buildComponent(BuildContext context) {
     final textDirection = calculateTextDirection(
-      defaultTextDirection: Directionality.maybeOf(context),
+      layoutDirection: Directionality.maybeOf(context),
     );
 
     Widget child = Container(

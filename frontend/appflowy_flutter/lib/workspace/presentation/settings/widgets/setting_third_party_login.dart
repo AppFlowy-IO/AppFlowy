@@ -31,6 +31,14 @@ class SettingThirdPartyLogin extends StatelessWidget {
           final indicator = state.isSubmitting
               ? const CircularProgressIndicator.adaptive()
               : const SizedBox.shrink();
+
+          final promptMessage = state.isSubmitting
+              ? FlowyText.medium(
+                  LocaleKeys.signIn_syncPromptMessage.tr(),
+                  maxLines: null,
+                )
+              : const SizedBox.shrink();
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,9 +53,12 @@ class SettingThirdPartyLogin extends StatelessWidget {
                 ],
               ),
               const VSpace(6),
+              promptMessage,
+              const VSpace(6),
               const ThirdPartySignInButtons(
                 mainAxisAlignment: MainAxisAlignment.start,
               ),
+              const VSpace(6),
             ],
           );
         },

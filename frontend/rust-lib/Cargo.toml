@@ -39,14 +39,14 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "cff1b9" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }

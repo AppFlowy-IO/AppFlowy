@@ -1,15 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
+import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-
-import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
@@ -17,6 +16,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 
 import 'util.dart';
 
@@ -409,6 +409,14 @@ extension CommonOperations on WidgetTester {
     await gesture.moveTo(offset, timeStamp: const Duration(milliseconds: 400));
     await gesture.up();
     await pumpAndSettle();
+  }
+
+  // tap the button with [FlowySvgData]
+  Future<void> tapButtonWithFlowySvgData(FlowySvgData svg) async {
+    final button = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg.path == svg.path,
+    );
+    await tapButton(button);
   }
 
   Future<void> expandPage(String name) async {
