@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
@@ -408,6 +409,14 @@ extension CommonOperations on WidgetTester {
     await gesture.moveTo(offset, timeStamp: const Duration(milliseconds: 400));
     await gesture.up();
     await pumpAndSettle();
+  }
+
+  // tap the button with [FlowySvgData]
+  Future<void> tapButtonWithFlowySvgData(FlowySvgData svg) async {
+    final button = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg.path == svg.path,
+    );
+    await tapButton(button);
   }
 }
 

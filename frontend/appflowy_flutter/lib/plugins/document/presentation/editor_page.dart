@@ -66,6 +66,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     numberedListItem,
     inlineMathEquationItem,
     linkItem,
+    alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
   ];
