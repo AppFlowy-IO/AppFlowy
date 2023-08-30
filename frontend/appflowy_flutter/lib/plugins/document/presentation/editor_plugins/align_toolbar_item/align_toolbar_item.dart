@@ -19,16 +19,16 @@ final alignToolbarItem = ToolbarItem(
     }
 
     bool isHighlight = false;
-    FlowySvgData data = FlowySvgs.align_left_s;
+    FlowySvgData data = FlowySvgs.toolbar_align_left_s;
     if (isSatisfyCondition((value) => value == 'left')) {
       isHighlight = true;
-      data = FlowySvgs.align_left_s;
+      data = FlowySvgs.toolbar_align_left_s;
     } else if (isSatisfyCondition((value) => value == 'center')) {
       isHighlight = true;
-      data = FlowySvgs.align_center_s;
+      data = FlowySvgs.toolbar_align_center_s;
     } else if (isSatisfyCondition((value) => value == 'right')) {
       isHighlight = true;
-      data = FlowySvgs.align_right_s;
+      data = FlowySvgs.toolbar_align_right_s;
     }
 
     final child = FlowySvg(
@@ -96,17 +96,17 @@ class _AlignButtons extends StatelessWidget {
         children: [
           const HSpace(4),
           _AlignButton(
-            icon: FlowySvgs.align_left_s,
+            icon: FlowySvgs.toolbar_align_left_s,
             onTap: () => onAlignChanged('left'),
           ),
           const _Divider(),
           _AlignButton(
-            icon: FlowySvgs.align_center_s,
+            icon: FlowySvgs.toolbar_align_center_s,
             onTap: () => onAlignChanged('center'),
           ),
           const _Divider(),
           _AlignButton(
-            icon: FlowySvgs.align_right_s,
+            icon: FlowySvgs.toolbar_align_right_s,
             onTap: () => onAlignChanged('right'),
           ),
           const HSpace(4),
@@ -132,25 +132,6 @@ class _AlignButton extends StatelessWidget {
       child: FlowySvg(
         icon,
         size: const Size.square(16),
-      ),
-    );
-  }
-}
-
-class _ImageDeleteButton extends StatelessWidget {
-  const _ImageDeleteButton({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.delete_s,
-        size: Size.square(16),
       ),
     );
   }
