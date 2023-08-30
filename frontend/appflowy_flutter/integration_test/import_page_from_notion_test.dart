@@ -46,9 +46,12 @@ void main() {
         LocaleKeys.importPanel_importFromNotionMarkdownZip.tr(),
       );
       expect(
-          find.widgetWithText(
-              Card, LocaleKeys.importPanel_fromMarkdownZip.tr(),),
-          findsOneWidget,);
+        find.widgetWithText(
+          Card,
+          LocaleKeys.importPanel_fromMarkdownZip.tr(),
+        ),
+        findsOneWidget,
+      );
       await tester
           .tapButtonWithName(LocaleKeys.importPanel_fromMarkdownZip.tr());
       expect(
@@ -88,16 +91,32 @@ void main() {
         NumberedListBlockKeys.type,
       );
       expect(
-        mainPageEditorState.getNodeAtPath([10])!.type,
-        ParagraphBlockKeys.type,
+        mainPageEditorState.getNodeAtPath([9])!.type,
+        NumberedListBlockKeys.type,
       );
       expect(
-        mainPageEditorState.getNodeAtPath([11])!.type,
-        ParagraphBlockKeys.type,
+        mainPageEditorState
+            .getNodeAtPath([10])!
+            .attributes
+            .values
+            .elementAt(0)[0]['attributes']['mention']['type'],
+        'page',
       );
       expect(
-        mainPageEditorState.getNodeAtPath([12])!.type,
-        ParagraphBlockKeys.type,
+        mainPageEditorState
+            .getNodeAtPath([11])!
+            .attributes
+            .values
+            .elementAt(0)[0]['attributes']['mention']['type'],
+        'page',
+      );
+      expect(
+        mainPageEditorState
+            .getNodeAtPath([12])!
+            .attributes
+            .values
+            .elementAt(0)[0]['attributes']['mention']['type'],
+        'page',
       );
       //the below line get the href from the text
       final hrefFromText = mainPageEditorState
@@ -126,7 +145,7 @@ void main() {
         HeadingBlockKeys.type,
       );
       expect(
-        subPageOneEditorState.getNodeAtPath([0])!.type,
+        subPageOneEditorState.getNodeAtPath([1])!.type,
         HeadingBlockKeys.type,
       );
       expect(
@@ -141,10 +160,6 @@ void main() {
         HeadingBlockKeys.type,
       );
       expect(
-        subPageTwoEditorState.getNodeAtPath([0])!.type,
-        HeadingBlockKeys.type,
-      );
-      expect(
         subPageTwoEditorState.getNodeAtPath([1])!.type,
         ImageBlockKeys.type,
       );
@@ -153,8 +168,12 @@ void main() {
         ImageBlockKeys.type,
       );
       expect(
-        subPageTwoEditorState.getNodeAtPath([3])!.type,
-        ParagraphBlockKeys.type,
+        subPageTwoEditorState
+            .getNodeAtPath([3])!
+            .attributes
+            .values
+            .elementAt(0)[0]['attributes']['mention']['type'],
+        'page',
       );
       //test if subSubPage is imported correctly
       await tester.openPage(subSubPageName);
