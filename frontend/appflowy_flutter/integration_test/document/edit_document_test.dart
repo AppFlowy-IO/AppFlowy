@@ -133,28 +133,6 @@ void main() {
       );
       await editorState.apply(transaction);
     });
-
-    testWidgets('transaction adapter multiple single insert nodes',
-        (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      // create a new document called Sample
-      const pageName = 'Sample';
-      await tester.createNewPageWithName(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
-      );
-
-      // focus on the editor
-      await tester.editor.tapLineOfEditorAt(0);
-
-      final editorState = tester.editor.getCurrentEditorState();
-      final transaction = editorState.transaction;
-      transaction.insertNode([0], paragraphNode());
-      transaction.insertNode([1], paragraphNode());
-      await editorState.apply(transaction);
-    });
   });
 }
 

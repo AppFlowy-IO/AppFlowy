@@ -91,7 +91,7 @@ extension on InsertOperation {
       if (node.children.isNotEmpty) {
         for (var i = 0; i < node.children.length; i++) {
           final n = node.childAtIndexOrNull(i)!;
-          final prevNode = i == 0 ? node : node.childAtIndexOrNull(i - 1);
+          final prevNode = i == 0 ? null : node.childAtIndexOrNull(i - 1);
           actions.addAll(
             InsertOperation(n.path, [n])
                 .toBlockAction(editorState, previousNode: prevNode),
