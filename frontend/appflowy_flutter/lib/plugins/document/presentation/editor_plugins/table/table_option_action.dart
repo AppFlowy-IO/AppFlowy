@@ -1,15 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/extensions/flowy_tint_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 
 enum TableOptionAction {
   addAfter,
@@ -24,15 +24,15 @@ enum TableOptionAction {
   Widget icon(Color? color) {
     switch (this) {
       case TableOptionAction.addAfter:
-        return FlowySvg(FlowySvgs.add_s, color: color);
+        return const FlowySvg(FlowySvgs.add_s);
       case TableOptionAction.addBefore:
-        return FlowySvg(FlowySvgs.add_s, color: color);
+        return const FlowySvg(FlowySvgs.add_s);
       case TableOptionAction.delete:
-        return FlowySvg(FlowySvgs.delete_s, color: color);
+        return const FlowySvg(FlowySvgs.delete_s);
       case TableOptionAction.duplicate:
-        return FlowySvg(FlowySvgs.copy_s, color: color);
+        return const FlowySvg(FlowySvgs.copy_s);
       case TableOptionAction.clear:
-        return Icon(Icons.clear, color: color, size: 16.0);
+        return const FlowySvg(FlowySvgs.close_s);
       case TableOptionAction.bgColor:
         return const FlowySvg(
           FlowySvgs.color_format_m,
