@@ -1,4 +1,7 @@
+use bytes::Bytes;
 use serde::{Deserialize, Serialize};
+
+use flowy_storage::core::ObjectValue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -36,11 +39,7 @@ pub struct FileOptions {
 }
 
 impl FileOptions {
-  pub fn from_file_path(file_path: &str) -> Self {
-    let mime = mime_guess::from_path(file_path)
-      .first_or_octet_stream()
-      .to_string();
-
+  pub fn from_mime(mime: String) -> Self {
     Self {
       cache_control: "3600".to_string(),
       upsert: false,
@@ -71,5 +70,30 @@ pub struct DeleteObjects {
 impl DeleteObjects {
   pub fn new(prefixes: Vec<String>) -> Self {
     Self { prefixes }
+  }
+}
+
+pub enum RequestBody {
+  Empty,
+  File {
+    file_path: String,
+    options: FileOptions,
+  },
+  Bytes {
+    bytes: Bytes,
+    options: FileOptions,
+  },
+  Text {
+    text: String,
+  },
+}
+
+impl From<(FileOptions, ObjectValue)> for RequestBody {
+  fn from(params: (FileOptions, ObjectValue)) -> Self {
+    let (options, value) = params;
+    match value {
+      ObjectValue::File { file_path } => RequestBody::File { file_path, options },
+      ObjectValue::Bytes { bytes, mime: _ } => RequestBody::Bytes { bytes, options },
+    }
   }
 }
