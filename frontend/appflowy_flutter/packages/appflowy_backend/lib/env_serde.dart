@@ -27,13 +27,11 @@ class SupabaseConfiguration {
   final bool enable_sync;
   final String url;
   final String anon_key;
-  final String jwt_secret;
 
   SupabaseConfiguration({
     this.enable_sync = true,
     required this.url,
     required this.anon_key,
-    required this.jwt_secret,
   });
 
   factory SupabaseConfiguration.fromJson(Map<String, dynamic> json) =>
