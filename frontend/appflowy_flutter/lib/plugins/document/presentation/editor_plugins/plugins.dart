@@ -19,6 +19,7 @@ export 'image/image_menu.dart';
 export 'image/image_selection_menu.dart';
 export 'inline_math_equation/inline_math_equation.dart';
 export 'inline_math_equation/inline_math_equation_toolbar_item.dart';
+export 'align_toolbar_item/align_toolbar_item.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
