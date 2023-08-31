@@ -6,7 +6,7 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 pub const HEADER_TOKEN: &str = "token";
 
 #[derive(serde::Deserialize, Clone, Debug)]
-pub struct SelfHostedConfiguration {
+pub struct AFCloudConfiguration {
   #[serde(deserialize_with = "deserialize_number_from_string")]
   pub port: u16,
   pub host: String,
@@ -14,7 +14,7 @@ pub struct SelfHostedConfiguration {
   pub ws_scheme: String,
 }
 
-pub fn self_host_server_configuration() -> Result<SelfHostedConfiguration, config::ConfigError> {
+pub fn appflowy_cloud_server_configuration() -> Result<AFCloudConfiguration, config::ConfigError> {
   let mut settings = config::Config::default();
   let base = include_str!("./configuration/base.yaml");
   settings.merge(config::File::from_str(base, FileFormat::Yaml).required(true))?;
@@ -33,7 +33,7 @@ pub fn self_host_server_configuration() -> Result<SelfHostedConfiguration, confi
   settings.try_into()
 }
 
-impl SelfHostedConfiguration {
+impl AFCloudConfiguration {
   pub fn reset_host_with_port(&mut self, host: &str, port: u16) {
     self.host = host.to_owned();
     self.port = port;
