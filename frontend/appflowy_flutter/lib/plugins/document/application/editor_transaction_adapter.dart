@@ -46,7 +46,7 @@ class TransactionAdapter {
   }
 }
 
-extension on Operation {
+extension BlockAction on Operation {
   List<BlockActionPB> toBlockAction(EditorState editorState) {
     final op = this;
     if (op is InsertOperation) {
@@ -93,7 +93,7 @@ extension on InsertOperation {
           final n = node.childAtIndexOrNull(i)!;
           final prevNode = i == 0 ? null : node.childAtIndexOrNull(i - 1);
           actions.addAll(
-            InsertOperation(n.path, [n])
+            InsertOperation(path + n.path, [n])
                 .toBlockAction(editorState, previousNode: prevNode),
           );
         }
