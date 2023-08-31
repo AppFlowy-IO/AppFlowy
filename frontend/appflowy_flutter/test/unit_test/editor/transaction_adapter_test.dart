@@ -102,5 +102,51 @@ void main() {
         reason: '6 - prev id',
       );
     });
+
+    test('toBlockAction insert node before all children nodes', () {
+      final document = Document(
+        root: Node(
+          type: 'page',
+          children: [
+            paragraphNode(children: [paragraphNode(text: '1')])
+          ],
+        ),
+      );
+      final editorState = EditorState(document: document);
+
+      final transaction = editorState.transaction;
+      transaction.insertNodes([0, 0], [paragraphNode(), paragraphNode()]);
+
+      expect(transaction.operations.length, 1);
+      expect(transaction.operations[0] is InsertOperation, true);
+
+      final actions = transaction.operations[0].toBlockAction(editorState);
+
+      expect(actions.length, 2);
+      for (final action in actions) {
+        expect(action.action, BlockActionTypePB.Insert);
+      }
+
+      expect(
+        actions[0].payload.parentId,
+        editorState.document.root.children.first.id,
+        reason: '0 - parent id',
+      );
+      expect(
+        actions[0].payload.prevId,
+        '',
+        reason: '0 - prev id',
+      );
+      expect(
+        actions[1].payload.parentId,
+        editorState.document.root.children.first.id,
+        reason: '1 - parent id',
+      );
+      expect(
+        actions[1].payload.prevId,
+        actions[0].payload.block.id,
+        reason: '1 - prev id',
+      );
+    });
   });
 }

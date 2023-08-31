@@ -12,6 +12,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         DeleteOperation,
         PathExtensions,
         Node,
+        Path,
         composeAttributes;
 import 'package:collection/collection.dart';
 import 'dart:async';
@@ -65,15 +66,18 @@ extension on InsertOperation {
     EditorState editorState, {
     Node? previousNode,
   }) {
+    Path currentPath = path;
     final List<BlockActionPB> actions = [];
     for (final node in nodes) {
-      final parentId =
-          node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
+      final parentId = node.parent?.id ??
+          editorState.getNodeAtPath(currentPath.parent)?.id ??
+          '';
       var prevId = previousNode?.id ??
-          editorState.getNodeAtPath(path.previous)?.id ??
+          editorState.getNodeAtPath(currentPath.previous)?.id ??
           '';
       assert(parentId.isNotEmpty);
-      if (path.equals(path.previous) && !path.equals([0])) {
+      if (currentPath.equals(currentPath.previous) &&
+          !currentPath.equals([0])) {
         prevId = '';
       } else {
         assert(prevId.isNotEmpty && prevId != node.id);
@@ -93,12 +97,13 @@ extension on InsertOperation {
           final n = node.childAtIndexOrNull(i)!;
           final prevNode = i == 0 ? null : node.childAtIndexOrNull(i - 1);
           actions.addAll(
-            InsertOperation(path + n.path, [n])
+            InsertOperation(currentPath + n.path, [n])
                 .toBlockAction(editorState, previousNode: prevNode),
           );
         }
       }
       previousNode = node;
+      currentPath = currentPath.next;
     }
     return actions;
   }
