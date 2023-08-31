@@ -1619,6 +1619,7 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "protobuf",
+ "reqwest",
  "serde",
  "serde_json",
  "strum_macros 0.21.1",

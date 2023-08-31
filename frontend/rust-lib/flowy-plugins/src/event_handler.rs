@@ -58,7 +58,7 @@ pub(crate) async fn request_text_completion(
     .await?;
 
   // Extract index and content
-  let choice = response.choices[0];
+  let choice = &response.choices[0];
   println!("Index: {}", choice.index);
   println!("Content: {}", choice.message.content);
 
