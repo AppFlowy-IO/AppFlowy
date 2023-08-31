@@ -14,9 +14,7 @@ use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
-use crate::services::field_settings::{
-  default_field_settings_by_layout, FieldSettings, FieldSettingsChangesetParams,
-};
+use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
 
@@ -904,34 +902,14 @@ pub(crate) async fn get_field_settings_handler(
   let (view_id, field_ids) = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
 
-  let mut field_settings = database_editor
-    .get_field_settings(&view_id, field_ids.clone())
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_field_settings(&view_id, layout_ty, field_ids.clone())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
-    .collect::<Vec<FieldSettingsPB>>();
-  let fields_found = field_settings
-    .iter()
-    .map(|field_settings| field_settings.field_id.clone())
-    .collect::<Vec<String>>();
-
-  // Existing fields might not have field settings. Return the default field
-  // settings for the layout
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-  let default_field_settings = default_field_settings_by_layout(layout_ty);
-  let remaining_field_settings: Vec<FieldSettings> = database_editor
-    .get_fields(view_id.as_ref(), Some(field_ids))
-    .into_iter()
-    .filter(|field| !fields_found.contains(&field.id))
-    .map(|field| FieldSettings::try_from_anymap(field.id, default_field_settings.clone()))
-    .collect::<Result<Vec<FieldSettings>, anyhow::Error>>()?;
-
-  let remaining_field_settings: Vec<FieldSettingsPB> = remaining_field_settings
-    .into_iter()
-    .map(FieldSettingsPB::from)
     .collect();
-
-  field_settings.extend(remaining_field_settings);
 
   data_result_ok(RepeatedFieldSettingsPB {
     items: field_settings,
@@ -947,34 +925,14 @@ pub(crate) async fn get_all_field_settings_handler(
   let view_id = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
 
-  let mut field_settings = database_editor
-    .get_all_field_settings(view_id.as_ref())
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_all_field_settings(view_id.as_ref(), layout_ty)
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
-    .collect::<Vec<FieldSettingsPB>>();
-  let fields_found = field_settings
-    .iter()
-    .map(|field_settings| field_settings.field_id.clone())
-    .collect::<Vec<String>>();
-
-  // Existing fields might not have field settings. Return the default field
-  // settings for the layout
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-  let default_field_settings = default_field_settings_by_layout(layout_ty);
-  let remaining_field_settings: Vec<FieldSettings> = database_editor
-    .get_fields(view_id.as_ref(), None)
-    .into_iter()
-    .filter(|field| !fields_found.contains(&field.id))
-    .map(|field| FieldSettings::try_from_anymap(field.id, default_field_settings.clone()))
-    .collect::<Result<Vec<FieldSettings>, anyhow::Error>>()?;
-
-  let remaining_field_settings: Vec<FieldSettingsPB> = remaining_field_settings
-    .into_iter()
-    .map(FieldSettingsPB::from)
     .collect();
-
-  field_settings.extend(remaining_field_settings);
 
   data_result_ok(RepeatedFieldSettingsPB {
     items: field_settings,
