@@ -12,9 +12,9 @@ use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::*;
+use flowy_server::af_cloud::configuration::appflowy_cloud_server_configuration;
+use flowy_server::af_cloud::AFCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
-use flowy_server::self_host::configuration::self_host_server_configuration;
-use flowy_server::self_host::SelfHostServer;
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
@@ -117,7 +117,7 @@ impl AppFlowyServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerProviderType::AppFlowyCloud => {
-        let config = self_host_server_configuration().map_err(|e| {
+        let config = appflowy_cloud_server_configuration().map_err(|e| {
           FlowyError::new(
             ErrorCode::InvalidAuthConfig,
             format!(
@@ -126,7 +126,7 @@ impl AppFlowyServerProvider {
             ),
           )
         })?;
-        let server = Arc::new(SelfHostServer::new(config));
+        let server = Arc::new(AFCloudServer::new(config));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerProviderType::Supabase => {
