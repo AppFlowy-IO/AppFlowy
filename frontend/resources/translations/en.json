@@ -91,6 +91,10 @@
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
+  "newDocumentText": "New document",
+  "newGridText": "New grid",
+  "newCalendarText": "New calendar",
+  "newBoardText": "New board",
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
@@ -482,7 +486,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Outline"
+      "outline": "Outline",
+      "codeBlock": "Code Block"
     },
     "plugins": {
       "referencedBoard": "Referenced Board",

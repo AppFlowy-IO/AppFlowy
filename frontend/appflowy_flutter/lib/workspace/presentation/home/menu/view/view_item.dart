@@ -12,9 +12,9 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -350,13 +350,22 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           createNewView,
         ) {
           if (createNewView) {
-            context.read<ViewBloc>().add(
-                  ViewEvent.createView(
-                    name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                    pluginBuilder.layoutType!,
-                    openAfterCreated: openAfterCreated,
-                  ),
-                );
+            NavigatorTextFieldDialog(
+              title: _convertLayoutToHintText(pluginBuilder.layoutType!),
+              value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+              autoSelectAllText: true,
+              confirm: (value) {
+                if (value.isNotEmpty) {
+                  context.read<ViewBloc>().add(
+                        ViewEvent.createView(
+                          value,
+                          pluginBuilder.layoutType!,
+                          openAfterCreated: openAfterCreated,
+                        ),
+                      );
+                }
+              },
+            ).show(context);
           }
           context.read<ViewBloc>().add(
                 const ViewEvent.setIsExpanded(true),
@@ -407,6 +416,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         },
       ),
     );
+  }
+
+  String _convertLayoutToHintText(ViewLayoutPB layout) {
+    switch (layout) {
+      case ViewLayoutPB.Document:
+        return LocaleKeys.newDocumentText.tr();
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.newGridText.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.newBoardText.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.newCalendarText.tr();
+    }
+    return LocaleKeys.newPageText.tr();
   }
 }
 
