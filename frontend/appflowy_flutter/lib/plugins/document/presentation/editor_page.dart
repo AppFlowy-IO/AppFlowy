@@ -242,9 +242,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ),
       TableBlockKeys.type: TableBlockComponentBuilder(
-        configuration: configuration.copyWith(
-          padding: (_) => const EdgeInsets.only(top: 8.0),
-        ),
         menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
             TableMenu(
           node: node,
