@@ -3,9 +3,9 @@ use anyhow::Error;
 use flowy_document_deps::cloud::*;
 use lib_infra::future::FutureResult;
 
-pub(crate) struct SelfHostedDocumentCloudServiceImpl();
+pub(crate) struct AFCloudDocumentCloudServiceImpl();
 
-impl DocumentCloudService for SelfHostedDocumentCloudServiceImpl {
+impl DocumentCloudService for AFCloudDocumentCloudServiceImpl {
   fn get_document_updates(&self, _document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }

@@ -64,15 +64,14 @@ impl DocumentManager {
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(uid, doc_id, vec![])?;
 
-    match self.get_document(doc_id).await {
-      Ok(document) => Ok(document),
-      Err(_) => {
-        let data = data.unwrap_or_else(default_document_data);
-        let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
-        Ok(document)
-      },
+    if self.is_doc_exist(doc_id).unwrap_or(false) {
+      self.get_document(doc_id).await
+    } else {
+      let collab = self.collab_for_document(uid, doc_id, vec![])?;
+      let data = data.unwrap_or_else(default_document_data);
+      let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
+      Ok(document)
     }
   }
 
