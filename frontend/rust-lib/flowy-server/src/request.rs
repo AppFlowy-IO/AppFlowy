@@ -7,8 +7,8 @@ use tokio::sync::oneshot;
 
 use flowy_error::{internal_error, FlowyError};
 
+use crate::af_cloud::configuration::HEADER_TOKEN;
 use crate::response::HttpResponse;
-use crate::self_host::configuration::HEADER_TOKEN;
 
 pub trait ResponseMiddleware {
   fn receive_response(&self, token: &Option<String>, response: &HttpResponse);

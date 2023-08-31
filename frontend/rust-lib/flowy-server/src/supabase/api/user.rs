@@ -24,11 +24,12 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
   get_updates_from_server, FetchObjectUpdateAction, RetryCondition,
 };
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
+  InsertParamsBuilder, RealtimeBinaryColumnDecoder, SupabaseBinaryColumnDecoder,
 };
 use crate::supabase::api::{flush_collab_with_update, PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;

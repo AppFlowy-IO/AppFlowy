@@ -46,6 +46,7 @@ class InitSupabaseTask extends LaunchTask {
       realtimeService = null;
     }
     realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
+
     supabase = initializedSupabase;
 
     if (Platform.isWindows) {
