@@ -6,12 +6,14 @@ import 'package:dartz/dartz.dart';
 class OpenAIService {
   static Future<Either<TextCompletionDataPB, FlowyError>>
       requestTextCompletion({
-    String model = 'text-davinci-003',
+    required model,
     required prompt,
+    required openAIKey,
   }) {
     final payload = TextCompletionPayloadPB.create()
       ..model = model
-      ..prompt = prompt;
+      ..prompt = prompt
+      ..openAiKey = openAIKey;
 
     return OpenAIEventRequestTextCompletion(payload).send();
   }

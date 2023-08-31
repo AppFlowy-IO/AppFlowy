@@ -10,19 +10,24 @@ pub struct TextCompletionPayloadPB {
   #[pb(index = 1)]
   pub request_id: String,
 
-  // TODO: add comment
+  // Model: Either text-davinci-003 or gpt-3.5-turbo
   #[pb(index = 2)]
   pub model: String,
 
-  // TODO: add comment
+  // Prompt to query gpt
   #[pb(index = 3)]
   pub prompt: String,
+
+  // User open_ai_key for authentication
+  #[pb(index = 4)]
+  pub open_ai_key: String,
 }
 
 pub struct TextCompletionParams {
   pub request_id: String,
   pub model: String,
   pub prompt: String,
+  pub open_ai_key: String,
 }
 
 impl TryInto<TextCompletionParams> for TextCompletionPayloadPB {
@@ -33,30 +38,32 @@ impl TryInto<TextCompletionParams> for TextCompletionPayloadPB {
       request_id: self.request_id,
       model: self.model,
       prompt: self.prompt,
+      open_ai_key: self.open_ai_key,
     });
   }
 }
 
 /*
 {
-  "choices": [
-    {
-      "finish_reason": "length",
-      "index": 0,
-      "logprobs": null,
-      "text": "\n\n\"Let Your Sweet Tooth Run Wild at Our Creamy Ice Cream Shack"
-    }
-  ],
-  "created": 1683130927,
-  "id": "cmpl-7C9Wxi9Du4j1lQjdjhxBlO22M61LD",
-  "model": "text-davinci-003",
-  "object": "text_completion",
+  "id": "chatcmpl-123",
+  "object": "chat.completion",
+  "created": 1677652288,
+  "model": "gpt-3.5-turbo-0613",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "\n\nHello there, how may I assist you today?",
+    },
+    "finish_reason": "stop"
+  }],
   "usage": {
-    "completion_tokens": 16,
-    "prompt_tokens": 10,
-    "total_tokens": 26
+    "prompt_tokens": 9,
+    "completion_tokens": 12,
+    "total_tokens": 21
   }
 }
+
 */
 #[derive(Default, ProtoBuf)]
 pub struct TextCompletionDataPB {
@@ -65,7 +72,10 @@ pub struct TextCompletionDataPB {
 
   #[pb(index = 2)]
   pub model: String,
-  // TODO: implement
-  // choices
-  // ...
+
+  #[pb(index = 3)]
+  pub index: i32,
+
+  #[pb(index = 4)]
+  pub content: String,
 }

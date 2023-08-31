@@ -15,8 +15,9 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.28.0"}
 bytes = { version = "1.4" }
 strum_macros = "0.21"
+reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = {version = "1.0"}
+serde_json = "1.0"
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
