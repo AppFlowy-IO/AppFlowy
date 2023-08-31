@@ -4,8 +4,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/application/open_ai/open_ai_service.dart';
-import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/size.dart';
@@ -102,10 +100,11 @@ class SidebarUser extends StatelessWidget {
           openAIKey: state.userProfile.openaiKey,
           model: "gpt-3.5-turbo",
         );
-        debugPrint("OPEN AI KEY:" + state.userProfile.openaiKey);
+        debugPrint("OPEN AI KEY:${state.userProfile.openaiKey}");
         result.fold(
           (value) => debugPrint(
-              "Model: ${value.model} \n GPT Reply: ${value.content} "),
+            "Model: ${value.model} \n GPT Reply: ${value.content} ",
+          ),
           (error) => debugPrint(error.toString()),
         );
       },
