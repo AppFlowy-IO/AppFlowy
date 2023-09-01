@@ -362,8 +362,7 @@ class PageManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout, required this.paneId})
-      : super(key: key);
+  const HomeTopBar({super.key, required this.layout, required this.paneId});
 
   final HomeLayout layout;
   final String paneId;
