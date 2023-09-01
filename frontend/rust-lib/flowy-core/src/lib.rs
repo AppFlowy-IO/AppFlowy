@@ -16,10 +16,10 @@ use tokio::sync::RwLock;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
-use flowy_folder2::manager::{FolderInitializeData, FolderManager};
+use flowy_folder2::manager::{FolderInitializeDataSource, FolderManager};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::{SignUpContext, UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use flowy_user::manager::{UserManager, UserSessionConfig};
 use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
@@ -316,13 +316,19 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     to_fut(async move {
       collab_builder.initialize(user_workspace.id.clone());
       folder_manager
-        .initialize(user_id, &user_workspace.id, FolderInitializeData::Empty)
+        .initialize(
+          user_id,
+          &user_workspace.id,
+          FolderInitializeDataSource::LocalDisk {
+            create_if_not_exist: false,
+          },
+        )
         .await?;
       database_manager
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_views_aggregate_id,
         )
         .await?;
       document_manager
@@ -352,7 +358,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_views_aggregate_id,
         )
         .await?;
       document_manager
@@ -364,7 +370,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn did_sign_up(
     &self,
-    context: SignUpContext,
+    is_new_user: bool,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     _device_id: &str,
@@ -380,8 +386,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.uid,
           &user_profile.token,
-          context.is_new,
-          context.local_folder,
+          is_new_user,
+          FolderInitializeDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
           &user_workspace.id,
         )
         .await?;
@@ -389,7 +397,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.uid,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_views_aggregate_id,
         )
         .await?;
 
@@ -425,7 +433,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_storage_id,
+          user_workspace.database_views_aggregate_id,
         )
         .await?;
       document_manager

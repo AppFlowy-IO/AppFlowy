@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
+use flowy_database2::services::field_settings::default_field_settings_by_layout;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -12,6 +13,8 @@ use crate::database::database_editor::TestRowBuilder;
 pub fn make_test_calendar() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+  let field_settings = default_field_settings_by_layout(DatabaseLayout::Calendar);
+
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
@@ -25,7 +28,6 @@ pub fn make_test_calendar() -> DatabaseData {
     .name("Date")
     .visibility(true)
     .build();
-
   let date_field_id = date_field.id.clone();
   fields.push(date_field);
 
@@ -120,6 +122,7 @@ pub fn make_test_calendar() -> DatabaseData {
     field_orders: vec![],
     created_at: 0,
     modified_at: 0,
+    field_settings,
   };
 
   DatabaseData { view, fields, rows }

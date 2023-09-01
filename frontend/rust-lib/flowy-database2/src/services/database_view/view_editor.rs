@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_filter_id, gen_database_sort_id, MutexDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId, RowMeta};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::{broadcast, RwLock};
 
@@ -14,9 +14,9 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
-  InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -32,6 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -123,6 +124,21 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     field: &Field,
     field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
+
+  fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  );
 }
 
 pub struct DatabaseViewEditor {
@@ -200,8 +216,8 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_meta: &RowMeta) {
-    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_meta.clone());
+  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
+    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
     let changeset = RowsChangePB::from_update(update_row.into());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
@@ -218,7 +234,7 @@ impl DatabaseViewEditor {
     // Send the group notification if the current view has groups
     match group_id.as_ref() {
       None => {
-        let row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32);
+        let row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
         changes = RowsChangePB::from_insert(row);
       },
       Some(group_id) => {
@@ -230,7 +246,7 @@ impl DatabaseViewEditor {
           .await;
 
         let inserted_row = InsertedRowPB {
-          row_meta: RowMetaPB::from(&row_detail.meta),
+          row_meta: RowMetaPB::from(row_detail),
           index: Some(index as i32),
           is_new: true,
         };
@@ -774,7 +790,7 @@ impl DatabaseViewEditor {
 
     let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_meta: RowMetaPB::from(&row_detail.meta),
+      row_meta: RowMetaPB::from(row_detail.as_ref()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -837,7 +853,7 @@ impl DatabaseViewEditor {
 
       let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_meta: RowMetaPB::from(&row_detail.meta),
+        row_meta: RowMetaPB::from(row_detail.as_ref()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
@@ -890,6 +906,30 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
       .send();
+  }
+
+  pub async fn v_get_field_settings(
+    &self,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_field_settings(&self.view_id, field_ids)
+  }
+
+  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_all_field_settings(&self.view_id)
+  }
+
+  pub async fn v_update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) -> FlowyResult<()> {
+    self
+      .delegate
+      .update_field_settings(view_id, field_id, visibility);
+
+    Ok(())
   }
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>

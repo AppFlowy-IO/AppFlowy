@@ -1,5 +1,7 @@
-import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'dart:async';
+
 import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -12,10 +14,9 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         DeleteOperation,
         PathExtensions,
         Node,
+        Path,
         composeAttributes;
 import 'package:collection/collection.dart';
-import 'dart:async';
-
 import 'package:nanoid/nanoid.dart';
 
 /// Uses to adjust the data structure between the editor and the backend.
@@ -46,7 +47,7 @@ class TransactionAdapter {
   }
 }
 
-extension on Operation {
+extension BlockAction on Operation {
   List<BlockActionPB> toBlockAction(EditorState editorState) {
     final op = this;
     if (op is InsertOperation) {
@@ -61,19 +62,22 @@ extension on Operation {
 }
 
 extension on InsertOperation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
+  List<BlockActionPB> toBlockAction(
+    EditorState editorState, {
+    Node? previousNode,
+  }) {
+    Path currentPath = path;
     final List<BlockActionPB> actions = [];
-    // store the previous node for continuous insertion.
-    // because the backend needs to know the previous node's id.
-    Node? previousNode;
     for (final node in nodes) {
-      final parentId =
-          node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
+      final parentId = node.parent?.id ??
+          editorState.getNodeAtPath(currentPath.parent)?.id ??
+          '';
       var prevId = previousNode?.id ??
-          editorState.getNodeAtPath(path.previous)?.id ??
+          editorState.getNodeAtPath(currentPath.previous)?.id ??
           '';
       assert(parentId.isNotEmpty);
-      if (path.equals(path.previous) && !path.equals([0])) {
+      if (currentPath.equals(currentPath.previous) &&
+          !currentPath.equals([0])) {
         prevId = '';
       } else {
         assert(prevId.isNotEmpty && prevId != node.id);
@@ -89,12 +93,17 @@ extension on InsertOperation {
           ..payload = payload,
       );
       if (node.children.isNotEmpty) {
-        final childrenActions = node.children
-            .map((e) => InsertOperation(e.path, [e]).toBlockAction(editorState))
-            .expand((element) => element);
-        actions.addAll(childrenActions);
+        Node? prevChild;
+        for (final child in node.children) {
+          actions.addAll(
+            InsertOperation(currentPath + child.path, [child])
+                .toBlockAction(editorState, previousNode: prevChild),
+          );
+          prevChild = child;
+        }
       }
       previousNode = node;
+      currentPath = currentPath.next;
     }
     return actions;
   }

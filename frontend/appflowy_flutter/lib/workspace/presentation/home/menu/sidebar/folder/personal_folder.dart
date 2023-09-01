@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dar
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -123,13 +124,22 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
               width: iconSize,
               icon: const FlowySvg(FlowySvgs.add_s),
               onPressed: () {
-                context.read<MenuBloc>().add(
-                      MenuEvent.createApp(
-                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                        index: 0,
-                      ),
-                    );
-                widget.onAdded();
+                NavigatorTextFieldDialog(
+                  title: LocaleKeys.newPageText.tr(),
+                  value: '',
+                  confirm: (value) {
+                    if (value.isNotEmpty) {
+                      context.read<MenuBloc>().add(
+                            MenuEvent.createApp(
+                              value,
+                              index: 0,
+                            ),
+                          );
+
+                      widget.onAdded();
+                    }
+                  },
+                ).show(context);
               },
             ),
           ]

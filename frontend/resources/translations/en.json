@@ -41,6 +41,7 @@
     "dontHaveAnAccount": "Don't have an account?",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
+    "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "signInWith": "Sign in with:"
   },
   "workspace": {
@@ -54,6 +55,7 @@
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copy Link"
   },
   "moreAction": {
@@ -84,6 +86,10 @@
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
+  "newDocumentText": "New document",
+  "newGridText": "New grid",
+  "newCalendarText": "New calendar",
+  "newBoardText": "New board",
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",
@@ -304,6 +310,7 @@
     },
     "user": {
       "name": "Name",
+      "email": "Email",
       "icon": "Icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
@@ -474,7 +481,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Outline"
+      "outline": "Outline",
+      "codeBlock": "Code Block"
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
@@ -548,6 +556,14 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
+      },
+      "table": {
+        "addAfter": "Add after",
+        "addBefore": "Add before",
+        "delete": "Delete",
+        "clear": "Clear content",
+        "duplicate": "Duplicate",
+        "bgColor": "Background color"
       },
       "contextMenu": {
         "copy": "Copy",

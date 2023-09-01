@@ -42,8 +42,8 @@ async-trait = "0.1"
 chrono-tz = "0.8.2"
 csv = "1.1.6"
 
-strum = "0.21"
-strum_macros = "0.21"
+strum = "0.25"
+strum_macros = "0.25"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test", default-features = false }

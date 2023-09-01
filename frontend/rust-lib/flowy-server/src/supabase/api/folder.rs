@@ -12,10 +12,11 @@ use flowy_folder_deps::cloud::{
 };
 use lib_infra::future::FutureResult;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
   get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
-use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::util::InsertParamsBuilder;
 use crate::supabase::api::SupabaseServerService;
 use crate::supabase::define::*;
 

@@ -1,6 +1,7 @@
+pub use define::*;
+
 mod define;
 pub mod historical_document;
-pub mod local_user_to_cloud;
+pub mod migrate_to_new_user;
 pub mod migration;
-
-pub use define::*;
+pub mod sync_new_user;
