@@ -1,26 +1,19 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 final ToolbarItem smartEditItem = ToolbarItem(
   id: 'appflowy.editor.smart_edit',
   group: 0,
-  isActive: (editorState) {
-    final selection = editorState.selection;
-    if (selection == null) {
-      return false;
-    }
-    final nodes = editorState.getNodesInSelection(selection);
-    return nodes.every((element) => element.delta != null);
-  },
+  isActive: onlyShowInSingleSelectionAndTextType,
   builder: (context, editorState, _) => SmartEditActionList(
     editorState: editorState,
   ),
