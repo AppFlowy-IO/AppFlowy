@@ -7,20 +7,20 @@ use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::configuration::{AFCloudConfiguration, HEADER_TOKEN};
 use crate::request::HttpRequestBuilder;
-use crate::self_host::configuration::{SelfHostedConfiguration, HEADER_TOKEN};
 
-pub(crate) struct SelfHostedUserAuthServiceImpl {
-  config: SelfHostedConfiguration,
+pub(crate) struct AFCloudUserAuthServiceImpl {
+  config: AFCloudConfiguration,
 }
 
-impl SelfHostedUserAuthServiceImpl {
-  pub(crate) fn new(config: SelfHostedConfiguration) -> Self {
+impl AFCloudUserAuthServiceImpl {
+  pub(crate) fn new(config: AFCloudConfiguration) -> Self {
     Self { config }
   }
 }
 
-impl UserCloudService for SelfHostedUserAuthServiceImpl {
+impl UserCloudService for AFCloudUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let url = self.config.sign_up_url();
     FutureResult::new(async move {
