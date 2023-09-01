@@ -9,7 +9,8 @@ mod tests {
   use crate::entities::FieldType;
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
   use crate::services::field::{
-    DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat, TypeOptionCellData,
+    DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat,
+    TypeOptionCellDataSerde,
   };
 
   #[test]
@@ -27,6 +28,7 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
+              clear_flag: None,
             },
             None,
             "Mar 14, 2022",
@@ -40,6 +42,7 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
+              clear_flag: None,
             },
             None,
             "2022/03/14",
@@ -53,6 +56,7 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
+              clear_flag: None,
             },
             None,
             "2022-03-14",
@@ -66,6 +70,7 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
+              clear_flag: None,
             },
             None,
             "03/14/2022",
@@ -79,6 +84,7 @@ mod tests {
               date: Some("1647251762".to_owned()),
               time: None,
               include_time: None,
+              clear_flag: None,
             },
             None,
             "14/03/2022",
@@ -104,6 +110,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: None,
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 00:00",
@@ -115,6 +122,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 09:00",
@@ -126,6 +134,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 23:00",
@@ -139,6 +148,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: None,
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 12:00 AM",
@@ -150,6 +160,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 09:00 AM",
@@ -161,6 +172,7 @@ mod tests {
               date: Some("1653609600".to_owned()),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
+              clear_flag: None,
             },
             None,
             "May 27, 2022 11:23 PM",
@@ -182,6 +194,7 @@ mod tests {
         date: Some("abc".to_owned()),
         time: None,
         include_time: None,
+        clear_flag: None,
       },
       None,
       "",
@@ -202,6 +215,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
       None,
       "May 27, 2022 01:00",
@@ -222,6 +236,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
       None,
       "May 27, 2022 01:00",
@@ -240,6 +255,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
       None,
       "May 27, 2022 00:00",
@@ -260,6 +276,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
       None,
       "May 27, 2022 01:00 AM",
@@ -283,6 +300,7 @@ mod tests {
         date: Some("1653609600".to_owned()),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
       None,
       "May 27, 2022 08:00 PM",
@@ -330,6 +348,7 @@ mod tests {
         date: Some("1700006400".to_owned()),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
     );
     assert_date(
@@ -339,6 +358,7 @@ mod tests {
         date: Some("1701302400".to_owned()),
         time: None,
         include_time: None,
+        clear_flag: None,
       },
       Some(old_cell_data),
       "Nov 30, 2023 08:00",
@@ -356,6 +376,7 @@ mod tests {
         date: Some("1700006400".to_owned()),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
+        clear_flag: None,
       },
     );
     assert_date(
@@ -365,9 +386,38 @@ mod tests {
         date: None,
         time: Some("14:00".to_owned()),
         include_time: None,
+        clear_flag: None,
       },
       Some(old_cell_data),
       "Nov 15, 2023 14:00",
+    );
+  }
+
+  #[test]
+  fn clear_date() {
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+
+    let old_cell_data = initialize_date_cell(
+      &type_option,
+      DateCellChangeset {
+        date: Some("1700006400".to_owned()),
+        time: Some("08:00".to_owned()),
+        include_time: Some(true),
+        clear_flag: None,
+      },
+    );
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: None,
+        time: None,
+        include_time: Some(true),
+        clear_flag: Some(true),
+      },
+      Some(old_cell_data),
+      "",
     );
   }
 

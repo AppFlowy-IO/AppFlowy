@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
 use flowy_error::FlowyResult;
@@ -11,7 +11,6 @@ use crate::entities::{
   URLCellDataPB,
 };
 use crate::services::cell::insert_url_cell;
-use crate::services::database::RowDetail;
 use crate::services::field::{URLCellData, URLCellDataParser, URLTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
@@ -59,7 +58,7 @@ impl GroupCustomize for URLGroupController {
       let cell_data: URLCellData = _cell_data.clone().into();
       let group = make_group_from_url_cell(&cell_data);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(&row_detail.meta));
+      new_group.group.rows.push(RowMetaPB::from(row_detail));
       inserted_group = Some(new_group);
     }
 
@@ -100,7 +99,7 @@ impl GroupCustomize for URLGroupController {
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {

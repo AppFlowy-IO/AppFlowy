@@ -1,11 +1,15 @@
+use std::convert::TryInto;
+
+use collab::core::collab_state::SyncState;
+use collab_folder::core::Workspace;
+
+use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
+
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::view::ViewPB,
 };
-use collab_folder::core::Workspace;
-use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
-use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct WorkspacePB {
@@ -150,4 +154,58 @@ impl TryInto<UpdateWorkspaceParams> for UpdateWorkspacePayloadPB {
       desc: self.desc,
     })
   }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct RepeatedFolderSnapshotPB {
+  #[pb(index = 1)]
+  pub items: Vec<FolderSnapshotPB>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct FolderSnapshotPB {
+  #[pb(index = 1)]
+  pub snapshot_id: i64,
+
+  #[pb(index = 2)]
+  pub snapshot_desc: String,
+
+  #[pb(index = 3)]
+  pub created_at: i64,
+
+  #[pb(index = 4)]
+  pub data: Vec<u8>,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct FolderSnapshotStatePB {
+  #[pb(index = 1)]
+  pub new_snapshot_id: i64,
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct FolderSyncStatePB {
+  #[pb(index = 1)]
+  pub is_syncing: bool,
+
+  #[pb(index = 2)]
+  pub is_finish: bool,
+}
+
+impl From<SyncState> for FolderSyncStatePB {
+  fn from(value: SyncState) -> Self {
+    Self {
+      is_syncing: value.is_syncing(),
+      is_finish: value.is_sync_finished(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct UserFolderPB {
+  #[pb(index = 1)]
+  pub uid: i64,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }

@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
@@ -13,33 +16,45 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/disclosure_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_menu_item.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_menu.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/filter_button.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_layout.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/sort_button.dart';
-import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -48,53 +63,48 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/footer/grid_footer.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:path/path.dart' as p;
 import 'package:table_calendar/table_calendar.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
 import 'expectation.dart';
-import 'package:path/path.dart' as p;
-
 import 'mock/mock_file_picker.dart';
 
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
-    await initializeAppFlowy();
+    final context = await initializeAppFlowy();
     await tapGoButton();
 
     // expect to see a readme page
-    expectToSeePageName(readme);
+    expectToSeePageName(gettingStarted);
 
-    await tapAddButton();
+    await tapAddViewButton();
     await tapImportButton();
 
     final testFileNames = ['v020.afdb'];
-    final fileLocation = await currentFileLocation();
+    final paths = <String>[];
     for (final fileName in testFileNames) {
-      final str = await rootBundle.loadString(
-        p.join(
-          'assets/test/workspaces/database',
-          fileName,
-        ),
+      // Don't use the p.join to build the path that used in loadString. It
+      // is not working on windows.
+      final str = await rootBundle
+          .loadString("assets/test/workspaces/database/$fileName");
+
+      // Write the content to the file.
+      final path = p.join(
+        context.applicationDataDirectory,
+        fileName,
       );
-      File(p.join(fileLocation, fileName)).writeAsStringSync(str);
+      paths.add(path);
+      File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(testFileNames, name: 'import_files');
+    await mockPickFilePaths(
+      paths: paths,
+    );
     await tapDatabaseRawDataButton();
-    await openPage('v020');
+    await pumpAndSettle();
+    await openPage('v020', layout: ViewLayoutPB.Grid);
   }
 
   Future<void> hoverOnFirstRowOfGrid() async {
@@ -349,6 +359,16 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findNewDateFormat);
   }
 
+  Future<void> clearDate() async {
+    final findDateEditor = find.byType(DateCellEditor);
+    final findClearButton = find.byType(ClearDateButton);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findClearButton,
+    );
+    await tapButton(finder);
+  }
+
   Future<void> tapSelectOptionCellInGrid({
     required int rowIndex,
     required FieldType fieldType,
@@ -444,8 +464,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> dismissRowDetailPage() async {
-    await sendKeyEvent(LogicalKeyboardKey.escape);
+    // use tap empty area instead of clicking ESC to dismiss the row detail page
+    // sometimes, the ESC key is not working.
+    await simulateKeyEvent(LogicalKeyboardKey.escape);
     await pumpAndSettle();
+    final findRowDetailPage = find.byType(RowDetailPage);
+    if (findRowDetailPage.evaluate().isNotEmpty) {
+      await tapAt(const Offset(0, 0));
+      await pumpAndSettle();
+    }
   }
 
   Future<void> editTitleInRowDetailPage(String title) async {
@@ -977,9 +1004,20 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> scrollToToday() async {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && widget.isToday,
-      skipOffstage: false,
     );
-    await ensureVisible(todayCell);
+    final scrollable = find
+        .descendant(
+          of: find.byType(MonthView<CalendarDayEvent>),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable && widget.axis == Axis.vertical,
+          ),
+        )
+        .first;
+    await scrollUntilVisible(
+      todayCell,
+      300,
+      scrollable: scrollable,
+    );
     await pumpAndSettle(const Duration(milliseconds: 300));
   }
 
@@ -1011,7 +1049,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(findEvents, findsNWidgets(number));
   }
 
-  void assertNumberofEventsOnSpecificDay(
+  void assertNumberOfEventsOnSpecificDay(
     int number,
     DateTime date, {
     String? title,
@@ -1038,8 +1076,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final todayCell = find.byWidgetPredicate(
       (widget) => widget is CalendarDayCard && isSameDay(date, widget.date),
     );
-
-    await doubleTapButton(todayCell);
+    final location = getTopLeft(todayCell).translate(10, 10);
+    await doubleTapAt(location);
   }
 
   Future<void> openCalendarEvent({required index, DateTime? date}) async {
@@ -1169,6 +1207,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> tapDatabaseRawDataButton() async {
     await tapButtonWithName(LocaleKeys.importPanel_database.tr());
+  }
+
+  Future<void> tapAddSelectOptionButton() async {
+    await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
   }
 }
 

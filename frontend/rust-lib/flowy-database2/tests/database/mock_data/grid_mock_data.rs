@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
+use flowy_database2::services::field_settings::default_field_settings_by_layout;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -15,6 +16,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 pub fn make_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+  let field_settings = default_field_settings_by_layout(DatabaseLayout::Grid);
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -116,7 +118,7 @@ pub fn make_test_grid() -> DatabaseData {
     }
   }
 
-  for i in 0..6 {
+  for i in 0..7 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
       0 => {
@@ -166,9 +168,9 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
-            FieldType::MultiSelect => {
-              row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
-            },
+            FieldType::MultiSelect => row_builder.insert_multi_select_cell(|mut options| {
+              vec![options.remove(1), options.remove(0), options.remove(0)]
+            }),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             _ => "".to_owned(),
           };
@@ -201,7 +203,8 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
-
+            FieldType::MultiSelect => row_builder
+              .insert_multi_select_cell(|mut options| vec![options.remove(1), options.remove(1)]),
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             _ => "".to_owned(),
           };
@@ -218,10 +221,16 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
+            FieldType::MultiSelect => {
+              row_builder.insert_multi_select_cell(|mut options| vec![options.remove(1)])
+            },
             FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
             _ => "".to_owned(),
           };
         }
+      },
+      6 => {
+        row_builder.insert_text_cell("CB");
       },
       _ => {},
     }
@@ -231,10 +240,11 @@ pub fn make_test_grid() -> DatabaseData {
   }
 
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    id: gen_database_id(),
+    database_id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
+    field_settings,
     ..Default::default()
   };
 
@@ -244,6 +254,7 @@ pub fn make_test_grid() -> DatabaseData {
 pub fn make_no_date_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+  let field_settings = default_field_settings_by_layout(DatabaseLayout::Grid);
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -312,6 +323,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
+    field_settings,
     ..Default::default()
   };
 

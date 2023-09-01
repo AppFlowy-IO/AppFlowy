@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
-use crate::services::database::RowDetail;
 use crate::services::field::{
   CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOption, CHECK, UNCHECK,
 };
@@ -70,7 +69,7 @@ impl GroupCustomize for CheckboxGroupController {
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
             group.add_row(row_detail.clone());
           }
         }
@@ -88,7 +87,7 @@ impl GroupCustomize for CheckboxGroupController {
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
             group.add_row(row_detail.clone());
           }
         }

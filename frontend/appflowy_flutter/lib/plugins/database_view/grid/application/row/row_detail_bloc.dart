@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import '../../../application/cell/cell_service.dart';
 import '../../../application/field/field_service.dart';
-import '../../../application/row/row_data_controller.dart';
+import '../../../application/row/row_controller.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {

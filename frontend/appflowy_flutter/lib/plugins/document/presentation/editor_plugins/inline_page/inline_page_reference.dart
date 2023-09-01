@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 enum MentionType {
@@ -24,8 +23,6 @@ class MentionBlockKeys {
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
-  static const pageType = 'page_type';
-  static const pageName = 'page_name';
 }
 
 class InlinePageReferenceService {
@@ -100,23 +97,17 @@ class InlinePageReferenceService {
 
   Future<List<SelectionMenuItem>> generatePageItems(String character) async {
     final service = ViewBackendService();
-    final List<(ViewPB, List<ViewPB>)> pbViews = await service.fetchViews(
-      (_, __) => true,
-    );
-    if (pbViews.isEmpty) {
+    final views = await service.fetchViews();
+    if (views.isEmpty) {
       return [];
     }
     final List<SelectionMenuItem> pages = [];
-    final List<ViewPB> views = [];
-    for (final element in pbViews) {
-      views.addAll(element.$2);
-    }
     views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
 
     for (final view in views) {
       final SelectionMenuItem pageSelectionMenuItem = SelectionMenuItem(
         icon: (editorState, isSelected, style) => SelectableSvgWidget(
-          name: view.iconName,
+          data: view.iconData,
           isSelected: isSelected,
           style: style,
         ),

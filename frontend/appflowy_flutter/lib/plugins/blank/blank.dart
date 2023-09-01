@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -15,7 +16,7 @@ class BlankPluginBuilder extends PluginBuilder {
   String get menuName => "Blank";
 
   @override
-  String get menuIcon => "";
+  FlowySvgData get icon => const FlowySvgData('');
 
   @override
   PluginType get pluginType => PluginType.blank;
@@ -43,7 +44,11 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
-  Widget buildWidget({PluginContext? context}) => const BlankPage();
+  Widget tabBarItem(String pluginId) => leftBarItem;
+
+  @override
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
+      const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];

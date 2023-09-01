@@ -1,12 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use std::fmt;
-
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::EnumIter;
 
 use flowy_error::{internal_error, FlowyResult};
@@ -15,13 +14,14 @@ use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
   pub date: Option<String>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
+  pub clear_flag: Option<bool>,
 }
 
 impl DateCellChangeset {
@@ -61,6 +61,12 @@ impl DateCellData {
   }
 }
 
+impl TypeOptionCellData for DateCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.timestamp.is_none()
+  }
+}
+
 impl From<&Cell> for DateCellData {
   fn from(cell: &Cell) -> Self {
     let timestamp = cell
@@ -70,6 +76,15 @@ impl From<&Cell> for DateCellData {
     Self {
       timestamp,
       include_time,
+    }
+  }
+}
+
+impl From<&DateCellDataPB> for DateCellData {
+  fn from(data: &DateCellDataPB) -> Self {
+    Self {
+      timestamp: Some(data.timestamp),
+      include_time: data.include_time,
     }
   }
 }

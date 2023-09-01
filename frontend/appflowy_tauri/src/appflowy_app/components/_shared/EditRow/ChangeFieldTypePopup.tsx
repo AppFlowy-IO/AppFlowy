@@ -1,7 +1,7 @@
 import { FieldType } from '@/services/backend';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
-import { PopupWindow } from '$app/components/_shared/PopupWindow';
+import { Popover } from '@mui/material';
 
 const typesOrder: FieldType[] = [
   FieldType.RichText,
@@ -15,24 +15,36 @@ const typesOrder: FieldType[] = [
 ];
 
 export const ChangeFieldTypePopup = ({
-  top,
-  left,
+  open,
+  anchorEl,
   onClick,
   onOutsideClick,
 }: {
-  top: number;
-  left: number;
+  open: boolean;
+  anchorEl: HTMLDivElement | null;
   onClick: (newType: FieldType) => void;
   onOutsideClick: () => void;
 }) => {
   return (
-    <PopupWindow className={'p-2 text-xs'} onOutsideClick={onOutsideClick} left={left} top={top}>
-      <div className={'flex flex-col'}>
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
+      onClose={onOutsideClick}
+    >
+      <div className={'flex flex-col p-2 text-xs'}>
         {typesOrder.map((t, i) => (
           <button
             onClick={() => onClick(t)}
             key={i}
-            className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-main-secondary'}
+            className={'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 pr-8 hover:bg-fill-list-hover'}
           >
             <i className={'h-5 w-5'}>
               <FieldTypeIcon fieldType={t}></FieldTypeIcon>
@@ -43,6 +55,6 @@ export const ChangeFieldTypePopup = ({
           </button>
         ))}
       </div>
-    </PopupWindow>
+    </Popover>
   );
 };

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:collection/collection.dart';
@@ -91,7 +91,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
 
               if (fieldInfo != null) {
                 final style = GridTextCellStyle(
-                  placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+                  placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
                   textStyle: Theme.of(context).textTheme.titleLarge,
                   showEmoji: false,
                   autofocus: true,

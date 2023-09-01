@@ -10,12 +10,13 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
     hide DocumentEvent;
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
@@ -64,12 +65,16 @@ class _DocumentPageState extends State<DocumentPage> {
       child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           return state.loadingState.when(
-            loading: () => const SizedBox.shrink(),
+            loading: () =>
+                const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.fold(
-              (error) => FlowyErrorPage.message(
-                error.toString(),
-                howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-              ),
+              (error) {
+                Log.error(error);
+                return FlowyErrorPage.message(
+                  error.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                );
+              },
               (data) {
                 if (state.forceClose) {
                   widget.onDeleted();
@@ -97,7 +102,8 @@ class _DocumentPageState extends State<DocumentPage> {
       editorState: editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,
-        padding: const EdgeInsets.symmetric(horizontal: 50),
+        // the 44 is the width of the left action list
+        padding: const EdgeInsets.only(left: 40, right: 40 + 44),
       ),
       header: _buildCoverAndIcon(context),
     );

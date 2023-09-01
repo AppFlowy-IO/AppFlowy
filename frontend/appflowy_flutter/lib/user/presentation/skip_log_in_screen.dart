@@ -1,14 +1,15 @@
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -19,7 +20,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/locale_keys.g.dart';
@@ -85,7 +85,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
           ),
         ),
         const Spacer(),
-        const VSpace(48),
         const SkipLoginPageFooter(),
         const VSpace(20),
       ],
@@ -109,7 +108,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Future<void> _relaunchAppAndAutoRegister() async {
     await FlowyRunner.run(
       FlowyApp(),
-      integrationEnv(),
+      integrationMode(),
       config: const LaunchConfiguration(
         autoRegistrationSupported: true,
       ),
@@ -172,36 +171,48 @@ class SubscribeButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      alignment: WrapAlignment.center,
       children: [
-        FlowyText.regular(
-          LocaleKeys.youCanAlso.tr(),
-          fontSize: FontSizes.s12,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyText.regular(
+              LocaleKeys.youCanAlso.tr(),
+              fontSize: FontSizes.s12,
+            ),
+            FlowyTextButton(
+              LocaleKeys.githubStarText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              fontWeight: FontWeight.w500,
+              fontColor: Theme.of(context).colorScheme.primary,
+              hoverColor: Colors.transparent,
+              fillColor: Colors.transparent,
+              onPressed: () => _launchURL(
+                'https://github.com/AppFlowy-IO/appflowy',
+              ),
+            ),
+          ],
         ),
-        FlowyTextButton(
-          LocaleKeys.githubStarText.tr(),
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL(
-            'https://github.com/AppFlowy-IO/appflowy',
-          ),
-        ),
-        FlowyText.regular(
-          LocaleKeys.and.tr(),
-          fontSize: FontSizes.s12,
-        ),
-        FlowyTextButton(
-          LocaleKeys.subscribeNewsletterText.tr(),
-          overflow: TextOverflow.ellipsis,
-          fontWeight: FontWeight.w500,
-          fontColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Colors.transparent,
-          fillColor: Colors.transparent,
-          onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyText.regular(
+              LocaleKeys.and.tr(),
+              fontSize: FontSizes.s12,
+            ),
+            FlowyTextButton(
+              LocaleKeys.subscribeNewsletterText.tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              fontWeight: FontWeight.w500,
+              fontColor: Theme.of(context).colorScheme.primary,
+              hoverColor: Colors.transparent,
+              fillColor: Colors.transparent,
+              onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+            ),
+          ],
         ),
       ],
     );
@@ -224,43 +235,44 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-      builder: (context, state) {
-        return AppFlowyPopover(
-          offset: const Offset(0, -450),
-          direction: PopoverDirection.bottomWithRightAligned,
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            text: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const FlowySvg(
-                  name: 'login/language',
-                  size: Size.square(20),
-                ),
-                const HSpace(4),
-                FlowyText(
-                  languageFromLocale(state.locale),
-                ),
-                // const HSpace(4),
-                const FlowySvg(
-                  name: 'home/drop_down_hide',
-                  size: Size.square(20),
-                ),
-              ],
+    return AppFlowyPopover(
+      offset: const Offset(0, -450),
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        text: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const FlowySvg(
+              FlowySvgs.ethernet_m,
+              size: Size.square(20),
             ),
-          ),
-          popupBuilder: (BuildContext context) {
-            final easyLocalization = EasyLocalization.of(context);
-            if (easyLocalization == null) {
-              return const SizedBox.shrink();
-            }
-            final allLocales = easyLocalization.supportedLocales;
-            return LanguageItemsListView(
-              allLocales: allLocales,
-            );
-          },
+            const HSpace(4),
+            Builder(
+              builder: (context) {
+                final currentLocale =
+                    context.watch<AppearanceSettingsCubit>().state.locale;
+                return FlowyText(
+                  languageFromLocale(currentLocale),
+                );
+              },
+            ),
+            const FlowySvg(
+              FlowySvgs.drop_menu_hide_m,
+              size: Size.square(20),
+            ),
+          ],
+        ),
+      ),
+      popupBuilder: (BuildContext context) {
+        final easyLocalization = EasyLocalization.of(context);
+        if (easyLocalization == null) {
+          return const SizedBox.shrink();
+        }
+        final allLocales = easyLocalization.supportedLocales;
+        return LanguageItemsListView(
+          allLocales: allLocales,
         );
       },
     );
@@ -277,21 +289,52 @@ class GoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTextButton(
-      LocaleKeys.letsGoButtonText.tr(),
-      constraints: const BoxConstraints(
-        maxWidth: 340,
-        maxHeight: 48,
+    return BlocProvider(
+      create: (context) => HistoricalUserBloc()
+        ..add(
+          const HistoricalUserEvent.initial(),
+        ),
+      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
+        listenWhen: (previous, current) =>
+            previous.openedHistoricalUser != current.openedHistoricalUser,
+        listener: (context, state) async {
+          await runAppFlowy();
+        },
+        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+          builder: (context, state) {
+            final text = state.historicalUsers.isEmpty
+                ? LocaleKeys.letsGoButtonText.tr()
+                : LocaleKeys.signIn_continueAnonymousUser.tr();
+
+            final textWidget = FlowyText.medium(
+              text,
+              textAlign: TextAlign.center,
+              fontSize: 14,
+            );
+
+            return SizedBox(
+              width: 340,
+              height: 48,
+              child: FlowyButton(
+                isSelected: true,
+                text: textWidget,
+                radius: Corners.s6Border,
+                onTap: () {
+                  if (state.historicalUsers.isNotEmpty) {
+                    final bloc = context.read<HistoricalUserBloc>();
+                    final historicalUser = state.historicalUsers.first;
+                    bloc.add(
+                      HistoricalUserEvent.openHistoricalUser(historicalUser),
+                    );
+                  } else {
+                    onPressed();
+                  }
+                },
+              ),
+            );
+          },
+        ),
       ),
-      radius: BorderRadius.circular(12),
-      mainAxisAlignment: MainAxisAlignment.center,
-      fontSize: FontSizes.s14,
-      fontFamily: GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,
-      padding: const EdgeInsets.symmetric(vertical: 14.0),
-      onPressed: onPressed,
-      fillColor: Theme.of(context).colorScheme.primary,
-      fontColor: Theme.of(context).colorScheme.onPrimary,
-      hoverColor: Theme.of(context).colorScheme.primaryContainer,
     );
   }
 }

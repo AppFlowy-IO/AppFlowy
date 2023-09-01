@@ -1,15 +1,15 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, SelectionUpdateReason;
 import 'package:collection/collection.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class MentionPageBlock extends StatefulWidget {
 
 class _MentionPageBlockState extends State<MentionPageBlock> {
   late final EditorState editorState;
-  late final Future<ViewPB?> viewPBFuture;
+  late Future<ViewPB?> viewPBFuture;
   ViewListener? viewListener;
 
   @override
@@ -45,6 +45,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       ..start(
         onViewUpdated: (p0) {
           pageMemorizer[p0.id] = p0;
+          viewPBFuture = fetchView(widget.pageId);
           editorState.reload();
         },
       );
@@ -82,7 +83,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
                 children: [
                   const HSpace(4),
                   FlowySvg(
-                    name: view.layout.iconName,
+                    view.layout.icon,
                     size: const Size.square(18.0),
                   ),
                   const HSpace(2),
@@ -107,15 +108,19 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       Log.error('Page($pageId) not found');
       return;
     }
-    getIt<MenuSharedState>().latestOpenView = view;
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(),
+        view: view,
+      ),
+    );
   }
 
   Future<ViewPB?> fetchView(String pageId) async {
-    final views = await ViewBackendService().fetchViews((_, __) => true);
-    final flattenViews = views.expand((e) => [e.$1, ...e.$2]).toList();
-    final view = flattenViews.firstWhereOrNull(
-      (element) => element.id == pageId,
+    final view = await ViewBackendService.getView(pageId).then(
+      (value) => value.swap().toOption().toNullable(),
     );
+
     if (view == null) {
       // try to fetch from trash
       final trashViews = await TrashService().readTrash();
@@ -129,6 +134,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
           ..name = trash.name;
       }
     }
+
     return view;
   }
 

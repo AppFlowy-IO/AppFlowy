@@ -13,6 +13,15 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-macos-universal]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-windows]
 dependencies = ["appflowy-core-release"]
 run_task = { name = [
@@ -37,6 +46,15 @@ script_runner = "@shell"
 mac_alias = "appflowy-macos-dev"
 windows_alias = "appflowy-windows-dev"
 linux_alias = "appflowy-linux-dev"
+
+[tasks.appflowy-ios-dev]
+dependencies = ["appflowy-core-dev-ios"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build",
+] }
+script_runner = "@shell"
 
 [tasks.appflowy-macos-dev]
 dependencies = ["appflowy-core-dev"]
@@ -102,9 +120,6 @@ script = [
   product=${PRODUCT_NAME}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/${LINUX_ARCH}/${BUILD_FLAG}/bundle \
   ${output_path}/${product}
-
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/linux/appflowy.desktop.temp ${output_path}/${product}
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/assets/images/flowy_logo.svg ${output_path}/${product}
   """,
 ]
 script_runner = "@shell"
@@ -146,8 +161,8 @@ linux_alias = "create-release-archive-linux"
 
 [tasks.create-release-archive-linux]
 script = [
-  "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}/${TARGET_OS}/Release",
-  "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *",
+  # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}/${TARGET_OS}/Release",
+  # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *",
 ]
 
 [tasks.create-release-archive-windows]
@@ -167,16 +182,14 @@ script = [
 [tasks.flutter-build]
 script = ["""
   cd appflowy_flutter/
-  flutter clean
   flutter pub get
-  flutter build ${TARGET_OS} --${BUILD_FLAG}
+  flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
 script = ["""
   cd appflowy_flutter
-  exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
   """]
@@ -189,10 +202,9 @@ script = [
   cd appflowy_flutter
   flutter clean
   flutter pub get
-  flutter packages pub get
-  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  dart run build_runner build -d
-  """,
+  cd ../
+  sh scripts/code_generation/generate.sh
+  """
 ]
 
 [tasks.code_generation.windows]
@@ -202,9 +214,8 @@ script = [
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
-  exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
-  exec cmd.exe /c dart run build_runner build -d
+  cd ../
+  exec scripts/code_generation/generate.cmd
   """,
 ]
 

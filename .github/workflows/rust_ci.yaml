@@ -22,10 +22,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_TOOLCHAIN: "1.70"
-  FLUTTER_VERSION: "3.10.1"
 
 jobs:
   test-on-ubuntu:
+    environment: SUPABASE_CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -40,14 +40,6 @@ jobs:
           components: rustfmt, clippy
           profile: minimal
 
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
       - name: Install prerequisites
         working-directory: frontend
         run: |
@@ -58,12 +50,23 @@ jobs:
         with:
           prefix-key: 'ubuntu-latest'
           workspaces: |
-            frontend/rust-lib 
+            frontend/rust-lib
 
-      - name: Build FlowySDK
-        working-directory: frontend
+      - name: Create .env file in flowy-server
+        working-directory: frontend/rust-lib/flowy-server
         run: |
-          cargo make --profile development-linux-x86_64 appflowy-core-dev
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+
+      - name: Create .env file in flowy-test
+        working-directory: frontend/rust-lib/flowy-test
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
@@ -74,17 +77,5 @@ jobs:
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --features="rev-sqlite"
+        run: cargo clippy --all
         working-directory: frontend/rust-lib
-
-      - name: rustfmt shared-lib
-        run: cargo fmt --all -- --check
-        working-directory: shared-lib
-
-      - name: clippy shared-lib
-        run: cargo clippy -- -D warnings
-        working-directory: shared-lib
-
-      - name: Run shared-lib tests
-        working-directory: shared-lib
-        run: RUST_LOG=info cargo test --no-default-features

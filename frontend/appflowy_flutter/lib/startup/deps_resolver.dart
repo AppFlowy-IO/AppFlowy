@@ -1,57 +1,69 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/trash/application/prelude.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
+import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/file_picker/file_picker_impl.dart';
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
-import 'package:appflowy/workspace/application/user/prelude.dart';
-import 'package:appflowy/workspace/application/workspace/prelude.dart';
-import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/menu/prelude.dart';
-import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/plugins/trash/application/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/prelude.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/workspace/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_infra/file_picker/file_picker_impl.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
 class DependencyResolver {
-  static Future<void> resolve(GetIt getIt) async {
-    _resolveUserDeps(getIt);
-
+  static Future<void> resolve(
+    GetIt getIt,
+    IntegrationMode mode,
+  ) async {
+    _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
-
     _resolveFolderDeps(getIt);
-
     _resolveDocDeps(getIt);
-
     _resolveGridDeps(getIt);
-
-    _resolveCommonService(getIt);
+    _resolveCommonService(getIt, mode);
   }
 }
 
-void _resolveCommonService(GetIt getIt) async {
+void _resolveCommonService(
+  GetIt getIt,
+  IntegrationMode mode,
+) async {
   // getIt.registerFactory<KeyValueStorage>(() => RustKeyValue());
   getIt.registerFactory<KeyValueStorage>(() => DartKeyValue());
   getIt.registerFactory<FilePickerService>(() => FilePicker());
-  getIt.registerFactory<ApplicationDataStorage>(() => ApplicationDataStorage());
+  if (mode.isTest) {
+    getIt.registerFactory<ApplicationDataStorage>(
+      () => MockApplicationDataStorage(),
+    );
+  } else {
+    getIt.registerFactory<ApplicationDataStorage>(
+      () => ApplicationDataStorage(),
+    );
+  }
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {
@@ -69,11 +81,22 @@ void _resolveCommonService(GetIt getIt) async {
       );
     },
   );
+
+  getIt.registerFactory<ClipboardService>(
+    () => ClipboardService(),
+  );
 }
 
-void _resolveUserDeps(GetIt getIt) {
-  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
-  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
+  if (isSupabaseEnabled) {
+    if (mode.isIntegrationTest) {
+      getIt.registerFactory<AuthService>(() => MockAuthService());
+    } else {
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+    }
+  } else {
+    getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  }
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
@@ -99,13 +122,9 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  //
-  getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
-
   getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
       userService: UserBackendService(userId: user.id),
-      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -113,6 +132,8 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
     (view, _) => DocShareBloc(view: view),
   );
+
+  getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {
@@ -126,10 +147,6 @@ void _resolveFolderDeps(GetIt getIt) {
     (view, _) => ViewBloc(
       view: view,
     ),
-  );
-
-  getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
-    (user, _) => MenuUserBloc(user),
   );
 
   //Settings
@@ -148,6 +165,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }
 
 void _resolveDocDeps(GetIt getIt) {

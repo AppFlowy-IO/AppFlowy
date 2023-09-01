@@ -11,17 +11,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('inline page view in document', () {
-    const location = 'inline_page';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('insert a inline page - grid', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -73,9 +62,11 @@ void main() {
       final pageName = await insertingInlinePage(tester, ViewLayoutPB.Document);
 
       // rename
-      await tester.hoverOnPageName(pageName);
       const newName = 'RenameToNewPageName';
-      await tester.renamePage(newName);
+      await tester.hoverOnPageName(
+        pageName,
+        onHover: () async => await tester.renamePage(newName),
+      );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
         matching: find.findTextInFlowyText(newName),
@@ -90,8 +81,11 @@ void main() {
       final pageName = await insertingInlinePage(tester, ViewLayoutPB.Grid);
 
       // rename
-      await tester.hoverOnPageName(pageName);
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        pageName,
+        layout: ViewLayoutPB.Grid,
+        onHover: () async => await tester.tapDeletePageButton(),
+      );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
         matching: find.findTextInFlowyText(pageName),
@@ -112,13 +106,14 @@ Future<String> insertingInlinePage(
   final id = uuid();
   final name = '${layout.name}_$id';
   await tester.createNewPageWithName(
-    layout,
-    name,
+    name: name,
+    layout: layout,
+    openAfterCreated: false,
   );
   // create a new document
   await tester.createNewPageWithName(
-    ViewLayoutPB.Document,
-    'insert_a_inline_page_${layout.name}',
+    name: 'insert_a_inline_page_${layout.name}',
+    layout: ViewLayoutPB.Document,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);

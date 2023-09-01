@@ -1,49 +1,109 @@
-import 'package:appflowy/core/config/config.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
+import 'dart:io';
 
+import 'package:appflowy/env/env.dart';
+import 'package:appflowy/user/application/supabase_realtime.dart';
+import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_protocol/url_protocol.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path/path.dart' as p;
 import '../startup.dart';
 
-bool isSupabaseEnable = false;
-bool isSupabaseInitialized = false;
+// ONLY supports in macOS and Windows now.
+//
+// If you need to update the schema, please update the following files:
+// - appflowy_flutter/macos/Runner/Info.plist (macOS)
+// - the callback url in Supabase dashboard
+const appflowyDeepLinkSchema = 'appflowy-flutter';
+const supabaseLoginCallback = '$appflowyDeepLinkSchema://login-callback';
+
+const hiveBoxName = 'appflowy_supabase_authentication';
+
+// Used to store the session of the supabase in case of the user switch the different folder.
+Supabase? supabase;
+SupbaseRealtimeService? realtimeService;
 
 class InitSupabaseTask extends LaunchTask {
-  const InitSupabaseTask({
-    required this.url,
-    required this.anonKey,
-    required this.key,
-    required this.jwtSecret,
-    this.collabTable = "",
-  });
-
-  final String url;
-  final String anonKey;
-  final String key;
-  final String jwtSecret;
-  final String collabTable;
-
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (url.isEmpty || anonKey.isEmpty || jwtSecret.isEmpty || key.isEmpty) {
-      isSupabaseEnable = false;
-      Log.info('Supabase config is empty, skip init supabase.');
+    if (!isSupabaseEnabled) {
       return;
     }
-    if (isSupabaseInitialized) {
-      return;
+
+    supabase?.dispose();
+    supabase = null;
+    final initializedSupabase = await Supabase.initialize(
+      url: Env.supabaseUrl,
+      anonKey: Env.supabaseAnonKey,
+      debug: kDebugMode,
+      localStorage: const SupabaseLocalStorage(),
+    );
+
+    if (realtimeService != null) {
+      await realtimeService?.dispose();
+      realtimeService = null;
     }
-    await Supabase.initialize(
-      url: url,
-      anonKey: anonKey,
-      debug: false,
+    realtimeService = SupbaseRealtimeService(supabase: initializedSupabase);
+
+    supabase = initializedSupabase;
+
+    if (Platform.isWindows) {
+      // register deep link for Windows
+      registerProtocolHandler(appflowyDeepLinkSchema);
+    }
+  }
+}
+
+/// customize the supabase auth storage
+///
+/// We don't use the default one because it always save the session in the document directory.
+/// When we switch to the different folder, the session still exists.
+class SupabaseLocalStorage extends LocalStorage {
+  const SupabaseLocalStorage()
+      : super(
+          initialize: _initialize,
+          hasAccessToken: _hasAccessToken,
+          accessToken: _accessToken,
+          removePersistedSession: _removePersistedSession,
+          persistSession: _persistSession,
+        );
+
+  static Future<void> _initialize() async {
+    HiveCipher? encryptionCipher;
+
+    // customize the path for Hive
+    final path = await getIt<ApplicationDataStorage>().getPath();
+    Hive.init(p.join(path, 'supabase_auth'));
+    await Hive.openBox(
+      hiveBoxName,
+      encryptionCipher: encryptionCipher,
     );
-    await Config.setSupabaseConfig(
-      url: url,
-      key: key,
-      secret: jwtSecret,
-      anonKey: anonKey,
+  }
+
+  static Future<bool> _hasAccessToken() {
+    return Future.value(
+      Hive.box(hiveBoxName).containsKey(
+        supabasePersistSessionKey,
+      ),
     );
-    isSupabaseEnable = true;
-    isSupabaseInitialized = true;
+  }
+
+  static Future<String?> _accessToken() {
+    return Future.value(
+      Hive.box(hiveBoxName).get(supabasePersistSessionKey) as String?,
+    );
+  }
+
+  static Future<void> _removePersistedSession() {
+    return Hive.box(hiveBoxName).delete(supabasePersistSessionKey);
+  }
+
+  static Future<void> _persistSession(String persistSessionString) {
+    return Hive.box(hiveBoxName).put(
+      supabasePersistSessionKey,
+      persistSessionString,
+    );
   }
 }

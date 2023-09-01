@@ -23,38 +23,28 @@ class InitRustSDKTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final dir = directory ?? await appFlowyApplicationDataDirectory();
 
-    context.getIt<FlowySDK>().setEnv(getAppFlowyEnv());
+    final env = getAppFlowyEnv();
+    context.getIt<FlowySDK>().setEnv(env);
     await context.getIt<FlowySDK>().init(dir);
   }
 }
 
 AppFlowyEnv getAppFlowyEnv() {
   final supabaseConfig = SupabaseConfiguration(
+    enable_sync: true,
     url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
-  );
-
-  final collabTableConfig =
-      CollabTableConfig(enable: true, table_name: Env.supabaseCollabTable);
-
-  final supbaseDBConfig = SupabaseDBConfig(
-    url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
-    collab_table_config: collabTableConfig,
+    anon_key: Env.supabaseAnonKey,
   );
 
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
-    supabase_db_config: supbaseDBConfig,
   );
 }
 
 /// The default directory to store the user data. The directory can be
 /// customized by the user via the [ApplicationDataStorage]
 Future<Directory> appFlowyApplicationDataDirectory() async {
-  switch (integrationEnv()) {
+  switch (integrationMode()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
         ..create();
@@ -62,7 +52,7 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();
       return Directory(path.join(documentsDir.path, 'data')).create();
-    case IntegrationMode.test:
+    case IntegrationMode.unitTest:
     case IntegrationMode.integrationTest:
       return Directory(path.join(Directory.current.path, '.sandbox'));
   }

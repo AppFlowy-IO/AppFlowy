@@ -2,10 +2,9 @@ import { BlockType, NestedBlock } from '$app/interfaces/document';
 import TextBlock from '$app/components/document/TextBlock';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 import { IconButton } from '@mui/material';
-import emojiData from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import { useCalloutBlock } from '$app/components/document/CalloutBlock/CalloutBlock.hooks';
 import Popover from '@mui/material/Popover';
+import EmojiPicker from '$app/components/_shared/EmojiPicker';
 
 export default function CalloutBlock({
   node,
@@ -17,7 +16,7 @@ export default function CalloutBlock({
   const { openEmojiSelect, open, closeEmojiSelect, id, anchorEl, onEmojiSelect } = useCalloutBlock(node.id);
 
   return (
-    <div className={'my-1 flex rounded border border-solid border-main-accent bg-main-secondary p-4'}>
+    <div className={'my-1 flex rounded border border-solid border-line-divider bg-content-blue-50 p-4'}>
       <div className={'w-[1.5em]'} onMouseDown={(e) => e.stopPropagation()}>
         <div className={'flex h-[calc(1.5em_+_2px)] w-[24px] select-none items-center justify-start'}>
           <IconButton
@@ -38,7 +37,7 @@ export default function CalloutBlock({
               horizontal: 'left',
             }}
           >
-            <Picker searchPosition={'static'} locale={'en'} autoFocus data={emojiData} onEmojiSelect={onEmojiSelect} />
+            <EmojiPicker onEmojiSelect={onEmojiSelect} />
           </Popover>
         </div>
       </div>

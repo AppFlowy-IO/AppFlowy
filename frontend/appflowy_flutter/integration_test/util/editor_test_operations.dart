@@ -2,15 +2,16 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'ime.dart';
 import 'util.dart';
 
 extension EditorWidgetTester on WidgetTester {
@@ -30,7 +31,7 @@ class EditorOperations {
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
-    final textBlocks = find.byType(FlowyRichText);
+    final textBlocks = find.byType(AppFlowyRichText);
     index = index.clamp(0, textBlocks.evaluate().length - 1);
     await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
     await tester.pumpAndSettle();
@@ -86,9 +87,33 @@ class EditorOperations {
 
   Future<void> switchSolidColorBackground() async {
     final findPurpleButton = find.byWidgetPredicate(
-      (widget) => widget is ColorItem && widget.option.colorHex == "ffe8e0ff",
+      (widget) => widget is ColorItem && widget.option.name == 'Purple',
     );
     await tester.tapButton(findPurpleButton);
+  }
+
+  Future<void> addNetworkImageCover(String imageUrl) async {
+    final findNewImageButton = find.byType(NewCustomCoverButton);
+    await tester.tapButton(findNewImageButton);
+
+    final imageUrlTextField = find.descendant(
+      of: find.byType(NetworkImageUrlInput),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(imageUrlTextField, imageUrl);
+    await tester.tapButtonWithName(
+      LocaleKeys.document_plugins_cover_add.tr(),
+    );
+    await tester.tapButtonWithName(
+      LocaleKeys.document_plugins_cover_saveToGallery.tr(),
+    );
+  }
+
+  Future<void> switchNetworkImageCover(String imageUrl) async {
+    final image = find.byWidgetPredicate(
+      (widget) => widget is ImageGridItem,
+    );
+    await tester.tapButton(image);
   }
 
   Future<void> tapOnRemoveCover() async {
@@ -138,5 +163,15 @@ class EditorOperations {
       matching: find.text(name, findRichText: true),
     );
     await tester.tapButton(atMenuItem);
+  }
+
+  /// Update the editor's selection
+  Future<void> updateSelection(Selection selection) async {
+    final editorState = getCurrentEditorState();
+    editorState.updateSelectionWithReason(
+      selection,
+      reason: SelectionUpdateReason.uiEvent,
+    );
+    await tester.pumpAndSettle(const Duration(milliseconds: 200));
   }
 }

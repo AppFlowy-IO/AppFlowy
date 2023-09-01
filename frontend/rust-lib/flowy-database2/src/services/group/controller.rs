@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -13,7 +13,6 @@ use crate::entities::{
   FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser, DecodedCellData};
-use crate::services::database::RowDetail;
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };
@@ -166,7 +165,7 @@ where
     if !no_status_group_rows.is_empty() {
       changeset
         .inserted_rows
-        .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+        .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
       no_status_group.add_row(row_detail.clone());
     }
 
@@ -191,7 +190,7 @@ where
 
     let mut deleted_row_ids = vec![];
     for row_detail in &no_status_group.rows {
-      let row_id = row_detail.meta.row_id.clone();
+      let row_id = row_detail.row.id.to_string();
       if default_group_deleted_rows
         .iter()
         .any(|deleted_row| deleted_row.row_meta.id == row_id)
@@ -201,7 +200,7 @@ where
     }
     no_status_group
       .rows
-      .retain(|row_detail| !deleted_row_ids.contains(&row_detail.meta.row_id));
+      .retain(|row_detail| !deleted_row_ids.contains(&row_detail.row.id));
     changeset.deleted_rows.extend(deleted_row_ids);
     Some(changeset)
   }

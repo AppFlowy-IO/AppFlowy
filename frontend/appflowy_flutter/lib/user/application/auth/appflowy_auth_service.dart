@@ -1,5 +1,6 @@
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
 
 import '../../../generated/locale_keys.g.dart';
+import 'device_id.dart';
 
 class AppFlowyAuthService implements AuthService {
   @override
@@ -17,12 +19,13 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignInPayloadPB.create()
       ..email = email
       ..password = password
-      ..authType = authType;
+      ..authType = authType
+      ..deviceId = await getDeviceId();
     final response = UserEventSignIn(request).send();
     return response.then((value) => value.swap());
   }
@@ -33,13 +36,14 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignUpPayloadPB.create()
       ..name = name
       ..email = email
       ..password = password
-      ..authType = authType;
+      ..authType = authType
+      ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
           (value) => value.swap(),
         );
@@ -49,19 +53,18 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
-    final payload = SignOutPB()..authType = authType;
-    await UserEventSignOut(payload).send();
+    await UserEventSignOut().send();
     return;
   }
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) {
-    const password = "AppFlowy123@";
+    const password = "Guest!@123456";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
     return signUp(
@@ -75,13 +78,29 @@ class AppFlowyAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
-  }) {
-    throw UnimplementedError();
+    Map<String, String> params = const {},
+  }) async {
+    return left(
+      FlowyError.create()
+        ..code = ErrorCode.Internal
+        ..msg = "Unsupported sign up action",
+    );
   }
 
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
+  }
+
+  @override
+  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+    required String email,
+    Map<String, String> params = const {},
+  }) async {
+    return left(
+      FlowyError.create()
+        ..code = ErrorCode.Internal
+        ..msg = "Unsupported sign up action",
+    );
   }
 }

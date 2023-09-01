@@ -13,12 +13,18 @@ export const CellOption = ({
   cellIdentifier,
   openOptionDetail,
   clearValue,
+  noSelect,
+  noDetail,
+  onOptionClick,
 }: {
   option: ISelectOption;
   checked: boolean;
-  cellIdentifier: CellIdentifier;
-  openOptionDetail: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
-  clearValue: () => void;
+  cellIdentifier?: CellIdentifier;
+  openOptionDetail?: (_left: number, _top: number, _select_option: SelectOptionPB) => void;
+  clearValue?: () => void;
+  noSelect?: boolean;
+  noDetail?: boolean;
+  onOptionClick?: () => void;
 }) => {
   const onOptionDetailClick: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -36,33 +42,39 @@ export const CellOption = ({
     });
 
     const { right: _left, top: _top } = target.getBoundingClientRect();
-    openOptionDetail(_left, _top, selectOption);
+
+    openOptionDetail?.(_left, _top, selectOption);
   };
 
   const onToggleOptionClick: MouseEventHandler = async () => {
+    onOptionClick?.();
+    if (noSelect || !cellIdentifier) return;
     if (checked) {
       await new SelectOptionCellBackendService(cellIdentifier).unselectOption([option.selectOptionId]);
     } else {
       await new SelectOptionCellBackendService(cellIdentifier).selectOption([option.selectOptionId]);
     }
-    clearValue();
+
+    clearValue?.();
   };
 
   return (
     <div
       onClick={onToggleOptionClick}
-      className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-main-secondary'}
+      className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-fill-list-hover'}
     >
-      <div className={`${getBgColor(option.color)} rounded px-2 py-0.5`}>{option.title}</div>
+      <div className={`${getBgColor(option.color)} rounded px-2 py-0.5 text-text-title`}>{option.title}</div>
       <div className={'flex items-center'}>
         {checked && (
           <button className={'h-5 w-5 p-1'}>
             <CheckmarkSvg></CheckmarkSvg>
           </button>
         )}
-        <button onClick={onOptionDetailClick} className={'h-6 w-6 p-1'}>
-          <Details2Svg></Details2Svg>
-        </button>
+        {!noDetail && (
+          <button onClick={onOptionDetailClick} className={'h-6 w-6 p-1'}>
+            <Details2Svg></Details2Svg>
+          </button>
+        )}
       </div>
     </div>
   );

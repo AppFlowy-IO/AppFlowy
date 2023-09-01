@@ -13,13 +13,15 @@ export const GridCell = ({
   cellIdentifier,
   cellCache,
   fieldController,
+  width,
 }: {
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
+  width?: number;
 }) => {
   return (
-    <>
+    <div style={{ width }}>
       {cellIdentifier.fieldType === FieldType.MultiSelect ||
       cellIdentifier.fieldType === FieldType.Checklist ||
       cellIdentifier.fieldType === FieldType.SingleSelect ? (
@@ -39,6 +41,6 @@ export const GridCell = ({
       ) : (
         <GridTextCell cellIdentifier={cellIdentifier} cellCache={cellCache} fieldController={fieldController} />
       )}
-    </>
+    </div>
   );
 };

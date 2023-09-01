@@ -11,6 +11,8 @@ import {
   TextFields,
   Title,
   SafetyDivider,
+  Image,
+  Functions,
 } from '@mui/icons-material';
 import {
   BlockData,
@@ -160,6 +162,20 @@ function BlockSlashMenu({
           icon: <DataObject />,
           group: SlashCommandGroup.MEDIA,
         },
+        {
+          key: SlashCommandOptionKey.IMAGE,
+          type: BlockType.ImageBlock,
+          title: 'Image',
+          icon: <Image />,
+          group: SlashCommandGroup.MEDIA,
+        },
+        {
+          key: SlashCommandOptionKey.EQUATION,
+          type: BlockType.EquationBlock,
+          title: 'Block equation',
+          icon: <Functions />,
+          group: SlashCommandGroup.ADVANCED,
+        },
       ].filter((option) => {
         if (!searchText) return true;
         const match = (text: string) => {
@@ -276,7 +292,7 @@ function BlockSlashMenu({
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
         {Object.entries(optionsByGroup).map(([group, options]) => (
           <div key={group}>
-            <div className={'px-2 py-2 text-sm text-shade-3'}>{group}</div>
+            <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
             <div>
               {options.map((option) => {
                 return (

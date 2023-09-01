@@ -6,12 +6,23 @@ import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/user/presentation/welcome_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
+
+import 'encrypt_secret_screen.dart';
+import 'workspace_error_screen.dart';
+
+const routerNameRoot = '/';
+const routerNameSignUp = '/signUp';
+const routerNameSignIn = '/signIn';
+const routerNameSkipLogIn = '/skipLogIn';
+const routerNameWelcome = '/welcome';
+const routerNameHome = '/home';
 
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
@@ -24,6 +35,7 @@ class AuthRouter {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => SignUpScreen(router: getIt<AuthRouter>()),
+        const RouteSettings(name: routerNameSignUp),
       ),
     );
   }
@@ -41,6 +53,7 @@ class AuthRouter {
           workspaceSetting,
           key: ValueKey(profile.id),
         ),
+        const RouteSettings(name: routerNameHome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -60,6 +73,41 @@ class AuthRouter {
       (r) => pushWelcomeScreen(context, userProfile),
     );
   }
+
+  Future<void> pushEncryptionScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) async {
+    Navigator.push(
+      context,
+      PageRoutes.fade(
+        () => EncryptSecretScreen(
+          user: userProfile,
+          key: ValueKey(userProfile.id),
+        ),
+        const RouteSettings(name: routerNameWelcome),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
+    );
+  }
+
+  Future<void> pushWorkspaceErrorScreen(
+    BuildContext context,
+    UserFolderPB userFolder,
+    FlowyError error,
+  ) async {
+    final screen = WorkspaceErrorScreen(
+      userFolder: userFolder,
+      error: error,
+    );
+    await Navigator.of(context).push(
+      PageRoutes.fade(
+        () => screen,
+        const RouteSettings(name: routerNameWelcome),
+        RouteDurations.slow.inMilliseconds * .001,
+      ),
+    );
+  }
 }
 
 class SplashRoute {
@@ -71,6 +119,7 @@ class SplashRoute {
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
+        const RouteSettings(name: routerNameWelcome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -97,6 +146,7 @@ class SplashRoute {
           workspaceSetting,
           key: ValueKey(userProfile.id),
         ),
+        const RouteSettings(name: routerNameWelcome),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -107,6 +157,7 @@ class SplashRoute {
       context,
       PageRoutes.fade(
         () => SignInScreen(router: getIt<AuthRouter>()),
+        const RouteSettings(name: routerNameSignIn),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -120,6 +171,7 @@ class SplashRoute {
           router: getIt<AuthRouter>(),
           authService: getIt<AuthService>(),
         ),
+        const RouteSettings(name: routerNameSkipLogIn),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );

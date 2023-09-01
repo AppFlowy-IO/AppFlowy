@@ -1,5 +1,6 @@
 library flowy_plugin;
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -45,7 +46,7 @@ abstract class PluginBuilder {
 
   String get menuName;
 
-  String get menuIcon;
+  FlowySvgData get icon;
 
   /// The type of this [Plugin]. Each [Plugin] should have a unique [PluginType]
   PluginType get pluginType;
@@ -66,7 +67,7 @@ abstract class PluginWidgetBuilder with NavigationItem {
   EdgeInsets get contentPadding =>
       const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
-  Widget buildWidget({PluginContext? context});
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap});
 }
 
 class PluginContext {

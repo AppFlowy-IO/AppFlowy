@@ -32,7 +32,7 @@ export default function TodoListBlock({
             />
           </div>
         </div>
-        <div className={`flex-1 ${checked ? 'text-shade-2 line-through' : ''}`}>
+        <div className={`flex-1 ${checked ? 'text-text-caption line-through' : ''}`}>
           <TextBlock node={node} />
         </div>
       </div>

@@ -1,9 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -29,8 +29,29 @@ class QuestionBubble extends StatelessWidget {
   }
 }
 
-class BubbleActionList extends StatelessWidget {
+class BubbleActionList extends StatefulWidget {
   const BubbleActionList({Key? key}) : super(key: key);
+
+  @override
+  State<BubbleActionList> createState() => _BubbleActionListState();
+}
+
+class _BubbleActionListState extends State<BubbleActionList> {
+  bool isOpen = false;
+
+  Color get fontColor => isOpen
+      ? Theme.of(context).colorScheme.onPrimary
+      : Theme.of(context).colorScheme.tertiary;
+
+  Color get fillColor => isOpen
+      ? Theme.of(context).colorScheme.primary
+      : Theme.of(context).colorScheme.tertiaryContainer;
+
+  void toggle() {
+    setState(() {
+      isOpen = !isOpen;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +70,18 @@ class BubbleActionList extends StatelessWidget {
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
-          fontColor: Theme.of(context).colorScheme.tertiary,
-          fillColor: Theme.of(context).colorScheme.tertiaryContainer,
-          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+          fontColor: fontColor,
+          fillColor: fillColor,
+          hoverColor: Theme.of(context).colorScheme.primary,
           mainAxisAlignment: MainAxisAlignment.center,
           radius: Corners.s10Border,
-          onPressed: () => controller.show(),
+          onPressed: () {
+            toggle();
+            controller.show();
+          },
         );
       },
+      onClosed: toggle,
       onSelected: (action, controller) {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
@@ -117,7 +142,7 @@ class _DebugToast {
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
     return deviceInfo.data.entries
-        .fold('', (prev, el) => "$prev${el.key}: ${el.value}");
+        .fold('', (prev, el) => "$prev${el.key}: ${el.value}\n");
   }
 
   Future<String> _getDocumentPath() async {
@@ -219,11 +244,11 @@ extension QuestionBubbleExtension on BubbleAction {
       case BubbleAction.markdown:
         return const FlowyText.regular('✨');
       case BubbleAction.github:
-        return Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: svgWidget(
-            'login/github-mark',
-            size: const Size.square(12),
+        return const Padding(
+          padding: EdgeInsets.all(3.0),
+          child: FlowySvg(
+            FlowySvgs.archive_m,
+            size: Size.square(12),
           ),
         );
     }

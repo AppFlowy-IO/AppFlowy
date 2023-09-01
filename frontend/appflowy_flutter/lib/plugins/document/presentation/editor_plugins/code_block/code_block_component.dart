@@ -1,7 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
@@ -40,10 +42,10 @@ Node codeBlockNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
-  name: 'Code Block',
+  name: LocaleKeys.document_selectionMenu_codeBlock.tr(),
   iconData: Icons.abc,
   keywords: ['code', 'codeblock'],
-  nodeBuilder: (editorState) => codeBlockNode(),
+  nodeBuilder: (editorState, _) => codeBlockNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 
@@ -96,10 +98,15 @@ class CodeBlockComponentWidget extends BlockComponentStatefulWidget {
 }
 
 class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
-    with SelectableMixin, DefaultSelectable, BlockComponentConfigurable {
+    with SelectableMixin, DefaultSelectableMixin, BlockComponentConfigurable {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
+
+  @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: CodeBlockKeys.type,
+  );
 
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -118,7 +125,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     'BASIC',
     'C',
     'C#',
-    'C++',
+    'CPP',
     'Clojure',
     'CSS',
     'Dart',
@@ -162,7 +169,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       .map((e) => e.toLowerCase())
       .toSet()
       .intersection(allLanguages.keys.toSet())
-      .toList();
+      .toList()
+    ..add('auto')
+    ..add('c')
+    ..sort();
 
   late final editorState = context.read<EditorState>();
 
@@ -187,7 +197,13 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       ),
     );
 
-    if (widget.actionBuilder != null) {
+    child = Padding(
+      key: blockComponentKey,
+      padding: padding,
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,
@@ -216,7 +232,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     final codeTextSpans = _convert(codeNodes);
     return Padding(
       padding: widget.padding,
-      child: FlowyRichText(
+      child: AppFlowyRichText(
         key: forwardKey,
         node: widget.node,
         editorState: editorState,
@@ -242,7 +258,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: FlowyTextButton(
-          '${language?.capitalize() ?? 'auto'} ',
+          '${language?.capitalize() ?? 'Auto'} ',
           padding: const EdgeInsets.symmetric(
             horizontal: 12.0,
             vertical: 4.0,
@@ -270,11 +286,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   Future<void> updateLanguage(String language) async {
     final transaction = editorState.transaction
       ..updateNode(node, {
-        CodeBlockKeys.language: language,
+        CodeBlockKeys.language: language == 'auto' ? null : language,
       })
-      ..afterSelection = Selection.collapse(
-        node.path,
-        node.delta?.length ?? 0,
+      ..afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
   }

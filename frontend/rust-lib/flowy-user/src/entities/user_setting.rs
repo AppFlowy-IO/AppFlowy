@@ -1,6 +1,11 @@
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_user_deps::cloud::UserCloudConfig;
+
+use crate::entities::EncryptionTypePB;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -96,4 +101,84 @@ impl std::default::Default for AppearanceSettingsPB {
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserCloudConfigPB {
+  #[pb(index = 1)]
+  enable_sync: bool,
+
+  #[pb(index = 2)]
+  enable_encrypt: bool,
+
+  #[pb(index = 3)]
+  pub encrypt_secret: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateCloudConfigPB {
+  #[pb(index = 1, one_of)]
+  pub enable_sync: Option<bool>,
+
+  #[pb(index = 2, one_of)]
+  pub enable_encrypt: Option<bool>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserSecretPB {
+  #[pb(index = 1)]
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub encryption_secret: String,
+
+  #[pb(index = 3)]
+  pub encryption_type: EncryptionTypePB,
+
+  #[pb(index = 4)]
+  pub encryption_sign: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserEncryptionSecretCheckPB {
+  #[pb(index = 1)]
+  pub is_need_secret: bool,
+}
+
+impl From<UserCloudConfig> for UserCloudConfigPB {
+  fn from(value: UserCloudConfig) -> Self {
+    Self {
+      enable_sync: value.enable_sync,
+      enable_encrypt: value.enable_encrypt(),
+      encrypt_secret: value.encrypt_secret,
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum NetworkTypePB {
+  #[default]
+  NetworkUnknown = 0,
+  Wifi = 1,
+  Cell = 2,
+  Ethernet = 3,
+  Bluetooth = 4,
+  VPN = 5,
+}
+
+impl NetworkTypePB {
+  pub fn is_reachable(&self) -> bool {
+    match self {
+      NetworkTypePB::NetworkUnknown | NetworkTypePB::Bluetooth => false,
+      NetworkTypePB::Wifi | NetworkTypePB::Cell | NetworkTypePB::Ethernet | NetworkTypePB::VPN => {
+        true
+      },
+    }
+  }
+}
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct NetworkStatePB {
+  #[pb(index = 1)]
+  pub ty: NetworkTypePB,
 }

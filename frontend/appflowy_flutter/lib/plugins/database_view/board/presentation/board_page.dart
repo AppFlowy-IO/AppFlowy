@@ -2,11 +2,12 @@
 
 import 'dart:collection';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_data_controller.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -15,7 +16,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -35,6 +36,7 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
+    bool shrinkWrap,
   ) {
     return BoardPage(
       key: _makeValueKey(controller),
@@ -96,7 +98,10 @@ class BoardPage extends StatelessWidget {
                 (_) => BoardContent(
                   onEditStateChanged: onEditStateChanged,
                 ),
-                (err) => FlowyErrorPage.message(err.toString(), howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),),
+                (err) => FlowyErrorPage.message(
+                  err.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
               );
             },
           );
@@ -217,8 +222,8 @@ class _BoardContentState extends State<BoardContent> {
       addIcon: SizedBox(
         height: 20,
         width: 20,
-        child: svgWidget(
-          "home/add",
+        child: FlowySvg(
+          FlowySvgs.add_s,
           color: Theme.of(context).iconTheme.color,
         ),
       ),
@@ -240,8 +245,8 @@ class _BoardContentState extends State<BoardContent> {
       icon: SizedBox(
         height: 20,
         width: 20,
-        child: svgWidget(
-          "home/add",
+        child: FlowySvg(
+          FlowySvgs.add_s,
           color: Theme.of(context).iconTheme.color,
         ),
       ),
@@ -295,6 +300,7 @@ class _BoardContentState extends State<BoardContent> {
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
+        groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         renderHook: renderHook,
@@ -376,9 +382,10 @@ Widget? _buildHeaderIcon(GroupData customData) {
     case FieldType.Checkbox:
       final group = customData.asCheckboxGroup()!;
       if (group.isCheck) {
-        widget = svgWidget('editor/editor_check');
+        widget =
+            const FlowySvg(FlowySvgs.check_filled_s, blendMode: BlendMode.dst,);
       } else {
-        widget = svgWidget('editor/editor_uncheck');
+        widget = const FlowySvg(FlowySvgs.uncheck_s);
       }
       break;
     case FieldType.DateTime:

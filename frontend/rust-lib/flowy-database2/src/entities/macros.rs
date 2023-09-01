@@ -15,8 +15,27 @@ macro_rules! impl_into_field_type {
           8 => FieldType::LastEditedTime,
           9 => FieldType::CreatedTime,
           _ => {
-            tracing::error!("Can't parser FieldType from value: {}", ty);
+            tracing::error!("🔴Can't parser FieldType from value: {}", ty);
             FieldType::RichText
+          },
+        }
+      }
+    }
+  };
+}
+
+#[macro_export]
+macro_rules! impl_into_field_visibility {
+  ($target: ident) => {
+    impl std::convert::From<$target> for FieldVisibility {
+      fn from(ty: $target) -> Self {
+        match ty {
+          0 => FieldVisibility::AlwaysShown,
+          1 => FieldVisibility::HideWhenEmpty,
+          2 => FieldVisibility::AlwaysHidden,
+          _ => {
+            tracing::error!("🔴Can't parser FieldVisibility from value: {}", ty);
+            FieldVisibility::AlwaysShown
           },
         }
       }

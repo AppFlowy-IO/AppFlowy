@@ -9,12 +9,11 @@ use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
   CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
-
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
   SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
-  TypeOptionCellData, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -123,7 +122,8 @@ where
 
 impl<T> CellDataDecoder for T
 where
-  T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellData,
+  T:
+    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
 {
   fn decode_cell(
     &self,
@@ -168,7 +168,7 @@ pub fn select_type_option_from_field(
       Ok(Box::new(type_option))
     },
     ty => {
-      tracing::error!("Unsupported field type: {:?} for this handler", ty);
+      tracing::error!("🔴Unsupported field type: {:?} for this handler", ty);
       Err(ErrorCode::FieldInvalidOperation.into())
     },
   }

@@ -13,6 +13,8 @@ enum SettingsPage {
   language,
   files,
   user,
+  syncSetting,
+  shortcuts,
 }
 
 class SettingsDialogBloc

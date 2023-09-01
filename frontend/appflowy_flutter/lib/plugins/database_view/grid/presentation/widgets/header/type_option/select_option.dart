@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
-              _CreateOptionTextField(popoverMutex: popoverMutex),
+              CreateOptionTextField(popoverMutex: popoverMutex),
             if (state.options.isNotEmpty && state.isEditingOption)
               const VSpace(10),
             if (state.options.isEmpty && !state.isEditingOption)
@@ -195,8 +196,8 @@ class _OptionCellState extends State<_OptionCell> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
-            child: svgWidget(
-              "grid/details",
+            child: FlowySvg(
+              FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,
             ),
           ),
@@ -256,8 +257,8 @@ class _AddOptionButton extends StatelessWidget {
                 .read<SelectOptionTypeOptionBloc>()
                 .add(const SelectOptionTypeOptionEvent.addingOption());
           },
-          leftIcon: svgWidget(
-            "home/add",
+          leftIcon: FlowySvg(
+            FlowySvgs.add_s,
             color: Theme.of(context).iconTheme.color,
           ),
         ),
@@ -266,18 +267,18 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _CreateOptionTextField extends StatefulWidget {
+class CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
-  const _CreateOptionTextField({
+  const CreateOptionTextField({
     Key? key,
     this.popoverMutex,
   }) : super(key: key);
 
   @override
-  State<_CreateOptionTextField> createState() => _CreateOptionTextFieldState();
+  State<CreateOptionTextField> createState() => _CreateOptionTextFieldState();
 }
 
-class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
   late final FocusNode _focusNode;
 
   @override

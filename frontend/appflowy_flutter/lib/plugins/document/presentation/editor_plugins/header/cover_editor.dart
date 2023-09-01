@@ -1,16 +1,18 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -83,7 +85,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
       child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(12),
             child: SingleChildScrollView(
               child: isAddingImage
                   ? CoverImagePicker(
@@ -116,18 +118,18 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
           LocaleKeys.document_plugins_cover_colors.tr(),
           color: Theme.of(context).colorScheme.tertiary,
         ),
-        const SizedBox(height: 10),
+        const VSpace(10),
         _buildColorPickerList(),
-        const SizedBox(height: 10),
+        const VSpace(10),
         _buildImageHeader(),
-        const SizedBox(height: 10),
+        const VSpace(10),
         _buildFileImagePicker(),
-        const SizedBox(height: 10),
+        const VSpace(10),
         FlowyText.semibold(
           LocaleKeys.document_plugins_cover_abstract.tr(),
           color: Theme.of(context).colorScheme.tertiary,
         ),
-        const SizedBox(height: 10),
+        const VSpace(10),
         _buildAbstractImagePicker(),
       ],
     );
@@ -249,27 +251,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             itemCount: images.length + 1,
             itemBuilder: (BuildContext ctx, index) {
               if (index == 0) {
-                return Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    borderRadius: Corners.s8Border,
-                  ),
-                  child: FlowyIconButton(
-                    iconPadding: EdgeInsets.zero,
-                    icon: Icon(
-                      Icons.add,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    hoverColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                    width: 20,
-                    onPressed: () {
-                      setState(() {
-                        isAddingImage = true;
-                      });
-                    },
+                return NewCustomCoverButton(
+                  onPressed: () => setState(
+                    () => isAddingImage = true,
                   ),
                 );
               }
@@ -325,6 +309,32 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
           ),
         )
         .toList();
+  }
+}
+
+@visibleForTesting
+class NewCustomCoverButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const NewCustomCoverButton({super.key, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        borderRadius: Corners.s8Border,
+      ),
+      child: FlowyIconButton(
+        icon: Icon(
+          Icons.add,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+        onPressed: onPressed,
+      ),
+    );
   }
 }
 
@@ -436,8 +446,8 @@ class _ImageGridItemState extends State<ImageGridItem> {
                     Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 iconPadding: const EdgeInsets.all(5),
                 width: 28,
-                icon: svgWidget(
-                  'editor/delete',
+                icon: FlowySvg(
+                  FlowySvgs.delete_s,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
                 onPressed: widget.onImageDelete,

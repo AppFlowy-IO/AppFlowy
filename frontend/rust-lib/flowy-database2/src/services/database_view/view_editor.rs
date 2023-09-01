@@ -2,9 +2,9 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_filter_id, gen_database_sort_id, Database};
+use collab_database::database::{gen_database_filter_id, gen_database_sort_id, MutexDatabase};
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowCell, RowId, RowMeta};
+use collab_database::rows::{Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::{broadcast, RwLock};
 
@@ -14,15 +14,13 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB,
-  InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
-use crate::services::database::{
-  database_view_setting_pb_from_view, DatabaseRowEvent, RowDetail, UpdatedRow,
-};
+use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
   get_cell_for_row, get_cells_for_field, new_group_controller, new_group_controller_with_field,
@@ -34,6 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -44,7 +43,7 @@ use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
 pub trait DatabaseViewData: Send + Sync + 'static {
-  fn get_database(&self) -> Arc<Database>;
+  fn get_database(&self) -> Arc<MutexDatabase>;
 
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
@@ -125,6 +124,21 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     field: &Field,
     field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
+
+  fn get_field_settings(
+    &self,
+    view_id: &str,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+
+  fn update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  );
 }
 
 pub struct DatabaseViewEditor {
@@ -202,9 +216,9 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_meta: &RowMeta) {
-    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_meta.clone());
-    let changeset = RowsChangePB::from_update(self.view_id.clone(), update_row.into());
+  pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
+    let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
+    let changeset = RowsChangePB::from_update(update_row.into());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
       .send();
@@ -216,14 +230,12 @@ impl DatabaseViewEditor {
     group_id: &Option<String>,
     index: usize,
   ) {
+    let changes: RowsChangePB;
     // Send the group notification if the current view has groups
     match group_id.as_ref() {
       None => {
-        let row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)).with_index(index as i32);
-        let changes = RowsChangePB::from_insert(self.view_id.clone(), row);
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-          .payload(changes)
-          .send();
+        let row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
+        changes = RowsChangePB::from_insert(row);
       },
       Some(group_id) => {
         self
@@ -234,14 +246,20 @@ impl DatabaseViewEditor {
           .await;
 
         let inserted_row = InsertedRowPB {
-          row_meta: RowMetaPB::from(&row_detail.meta),
+          row_meta: RowMetaPB::from(row_detail),
           index: Some(index as i32),
           is_new: true,
         };
-        let changeset = GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row]);
+        let changeset =
+          GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row.clone()]);
         notify_did_update_group_rows(changeset).await;
+        changes = RowsChangePB::from_insert(inserted_row);
       },
     }
+
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+      .payload(changes)
+      .send();
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
@@ -259,7 +277,7 @@ impl DatabaseViewEditor {
         notify_did_update_group_rows(changeset).await;
       }
     }
-    let changes = RowsChangePB::from_delete(self.view_id.clone(), row.id.clone().into_inner());
+    let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
@@ -307,7 +325,7 @@ impl DatabaseViewEditor {
     } else {
       let update_row =
         UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changeset = RowsChangePB::from_update(self.view_id.clone(), update_row.into());
+      let changeset = RowsChangePB::from_update(update_row.into());
       send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
         .payload(changeset)
         .send();
@@ -416,7 +434,7 @@ impl DatabaseViewEditor {
       .as_ref()
       .and_then(|group| group.get_group(group_id))
     {
-      None => Err(FlowyError::record_not_found().context("Can't find the group")),
+      None => Err(FlowyError::record_not_found().with_context("Can't find the group")),
       Some((_, group)) => Ok(GroupPB::from(group)),
     }
   }
@@ -772,7 +790,7 @@ impl DatabaseViewEditor {
 
     let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
     Some(CalendarEventPB {
-      row_meta: RowMetaPB::from(&row_detail.meta),
+      row_meta: RowMetaPB::from(row_detail.as_ref()),
       date_field_id: date_field.id.clone(),
       title,
       timestamp,
@@ -835,7 +853,7 @@ impl DatabaseViewEditor {
 
       let (_, row_detail) = self.delegate.get_row(&self.view_id, &row_id).await?;
       let event = CalendarEventPB {
-        row_meta: RowMetaPB::from(&row_detail.meta),
+        row_meta: RowMetaPB::from(row_detail.as_ref()),
         date_field_id: calendar_setting.field_id.clone(),
         title,
         timestamp,
@@ -876,28 +894,42 @@ impl DatabaseViewEditor {
 
   pub async fn handle_row_event(&self, event: Cow<'_, DatabaseRowEvent>) {
     let changeset = match event.into_owned() {
-      DatabaseRowEvent::InsertRow(row) => {
-        RowsChangePB::from_insert(self.view_id.clone(), row.into())
-      },
-      DatabaseRowEvent::UpdateRow(row) => {
-        RowsChangePB::from_update(self.view_id.clone(), row.into())
-      },
-      DatabaseRowEvent::DeleteRow(row_id) => {
-        RowsChangePB::from_delete(self.view_id.clone(), row_id.into_inner())
-      },
+      DatabaseRowEvent::InsertRow(row) => RowsChangePB::from_insert(row.into()),
+      DatabaseRowEvent::UpdateRow(row) => RowsChangePB::from_update(row.into()),
+      DatabaseRowEvent::DeleteRow(row_id) => RowsChangePB::from_delete(row_id.into_inner()),
       DatabaseRowEvent::Move {
         deleted_row_id,
         inserted_row,
-      } => RowsChangePB::from_move(
-        self.view_id.clone(),
-        vec![deleted_row_id.into_inner()],
-        vec![inserted_row.into()],
-      ),
+      } => RowsChangePB::from_move(vec![deleted_row_id.into_inner()], vec![inserted_row.into()]),
     };
 
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
       .send();
+  }
+
+  pub async fn v_get_field_settings(
+    &self,
+    field_ids: Vec<String>,
+  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_field_settings(&self.view_id, field_ids)
+  }
+
+  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    self.delegate.get_all_field_settings(&self.view_id)
+  }
+
+  pub async fn v_update_field_settings(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    visibility: Option<FieldVisibility>,
+  ) -> FlowyResult<()> {
+    self
+      .delegate
+      .update_field_settings(view_id, field_id, visibility);
+
+    Ok(())
   }
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>

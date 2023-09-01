@@ -1,10 +1,12 @@
-use crate::entities::{CreateViewParams, ViewLayoutPB};
-use crate::manager::Folder2Manager;
-use crate::view_operation::gen_view_id;
 use std::collections::HashMap;
 
+use flowy_folder_deps::cloud::gen_view_id;
+
+use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::manager::FolderManager;
+
 #[cfg(feature = "test_helper")]
-impl Folder2Manager {
+impl FolderManager {
   pub async fn create_test_grid_view(
     &self,
     app_id: &str,
@@ -34,7 +36,7 @@ impl Folder2Manager {
     layout: ViewLayoutPB,
     ext: HashMap<String, String>,
   ) -> String {
-    let view_id = gen_view_id();
+    let view_id = gen_view_id().to_string();
     let params = CreateViewParams {
       parent_view_id: app_id.to_string(),
       name: name.to_string(),
@@ -44,6 +46,7 @@ impl Folder2Manager {
       initial_data: vec![],
       meta: ext,
       set_as_current: true,
+      index: None,
     };
     self.create_view_with_params(params).await.unwrap();
     view_id

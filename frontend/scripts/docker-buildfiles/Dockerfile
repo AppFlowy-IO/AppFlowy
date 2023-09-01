@@ -46,8 +46,8 @@ RUN flutter config --enable-linux-desktop
 RUN flutter doctor
 RUN dart pub global activate protoc_plugin 20.0.1
 
-# Intall build dependencies for AppFlowy
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang
+# Install build dependencies for AppFlowy
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync
 RUN source ~/.cargo/env && cargo install --force cargo-make duckscript_cli
 
 # Build AppFlowy

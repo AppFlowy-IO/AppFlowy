@@ -37,7 +37,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
   name: 'MathEquation',
   iconData: Icons.text_fields_rounded,
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
-  nodeBuilder: (editorState) => mathEquationNode(),
+  nodeBuilder: (editorState, _) => mathEquationNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   updateSelection: (editorState, path, __, ___) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -144,7 +144,7 @@ class _MathEquationBlockComponentWidgetState
       ),
     );
 
-    if (widget.actionBuilder != null) {
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,

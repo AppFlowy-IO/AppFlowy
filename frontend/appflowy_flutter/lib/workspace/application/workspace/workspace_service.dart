@@ -15,15 +15,24 @@ class WorkspaceService {
   WorkspaceService({
     required this.workspaceId,
   });
+
   Future<Either<ViewPB, FlowyError>> createApp({
     required String name,
     String? desc,
+    int? index,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
       ..name = name
-      ..desc = desc ?? ""
       ..layout = ViewLayoutPB.Document;
+
+    if (desc != null) {
+      payload.desc = desc;
+    }
+
+    if (index != null) {
+      payload.index = index;
+    }
 
     return FolderEventCreateView(payload).send();
   }
@@ -53,7 +62,7 @@ class WorkspaceService {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceViews(payload).send().then((result) {
       return result.fold(
-        (apps) => left(apps.items),
+        (views) => left(views.items),
         (error) => right(error),
       );
     });

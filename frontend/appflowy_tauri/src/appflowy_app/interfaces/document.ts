@@ -25,13 +25,10 @@ export enum BlockType {
   ToggleListBlock = 'toggle_list',
   CodeBlock = 'code',
   EquationBlock = 'math_equation',
-  EmbedBlock = 'embed',
   QuoteBlock = 'quote',
   CalloutBlock = 'callout',
   DividerBlock = 'divider',
-  MediaBlock = 'media',
-  TableBlock = 'table',
-  ColumnBlock = 'column',
+  ImageBlock = 'image',
 }
 
 export interface EauqtionBlockData {
@@ -71,7 +68,28 @@ export interface TextBlockData {
 
 export interface DividerBlockData {}
 
-export type PageBlockData = TextBlockData;
+export enum Align {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
+}
+
+export interface ImageBlockData {
+  width: number;
+  height: number;
+  caption: Op[];
+  url: string;
+  align: Align;
+}
+
+export enum CoverType {
+  Image = 'image',
+  Color = 'color',
+}
+export interface PageBlockData extends TextBlockData {
+  cover?: string;
+  coverType?: CoverType;
+}
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
@@ -93,6 +111,8 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? CalloutBlockData
   : Type extends BlockType.EquationBlock
   ? EauqtionBlockData
+  : Type extends BlockType.ImageBlock
+  ? ImageBlockData
   : Type extends BlockType.TextBlock
   ? TextBlockData
   : any;
@@ -142,6 +162,7 @@ export enum SlashCommandOptionKey {
   HEADING_1,
   HEADING_2,
   HEADING_3,
+  IMAGE,
 }
 
 export interface SlashCommandOption {
@@ -153,6 +174,7 @@ export interface SlashCommandOption {
 export enum SlashCommandGroup {
   BASIC = 'Basic',
   MEDIA = 'Media',
+  ADVANCED = 'Advanced',
 }
 
 export interface RectSelectionState {
@@ -220,6 +242,8 @@ export enum TextAction {
   Code = 'code',
   Equation = 'formula',
   Link = 'href',
+  TextColor = 'font_color',
+  Highlight = 'bg_color',
 }
 export interface TextActionMenuProps {
   /**
@@ -274,6 +298,7 @@ export interface RangeStaticNoId {
 
 export interface CodeEditorProps extends EditorProps {
   language: string;
+  isDark: boolean;
 }
 export interface EditorProps {
   isCodeBlock?: boolean;
@@ -281,10 +306,6 @@ export interface EditorProps {
   value?: Delta;
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
-  linkDecorateSelection?: {
-    selection?: RangeStaticNoId;
-    placeholder?: string;
-  };
   temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
   onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
@@ -295,15 +316,6 @@ export interface BlockCopyData {
   json: string;
   text: string;
   html: string;
-}
-
-export interface LinkPopoverState {
-  anchorPosition?: { top: number; left: number };
-  id?: string;
-  selection?: RangeStaticNoId;
-  open?: boolean;
-  href?: string;
-  title?: string;
 }
 
 export interface TemporaryState {
@@ -317,10 +329,11 @@ export interface TemporaryState {
 
 export enum TemporaryType {
   Equation = 'equation',
+  Link = 'link',
 }
 
-export type TemporaryData = InlineEquationData;
-
-export interface InlineEquationData {
-  latex: string;
+export interface TemporaryData {
+  latex?: string;
+  href?: string;
+  text?: string;
 }

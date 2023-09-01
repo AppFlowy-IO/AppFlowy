@@ -1,8 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter/material.dart';
@@ -117,18 +118,25 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.fieldInfo.name),
-          const HSpace(4),
-          TextFilterConditionPBList(
-            filterInfo: state.filterInfo,
-            popoverMutex: popoverMutex,
-            onCondition: (condition) {
-              context
-                  .read<TextFilterEditorBloc>()
-                  .add(TextFilterEditorEvent.updateCondition(condition));
-            },
+          Expanded(
+            child: FlowyText(
+              state.filterInfo.fieldInfo.name,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          const Spacer(),
+          const HSpace(4),
+          Expanded(
+            child: TextFilterConditionPBList(
+              filterInfo: state.filterInfo,
+              popoverMutex: popoverMutex,
+              onCondition: (condition) {
+                context
+                    .read<TextFilterEditorBloc>()
+                    .add(TextFilterEditorEvent.updateCondition(condition));
+              },
+            ),
+          ),
+          const HSpace(4),
           DisclosureButton(
             popoverMutex: popoverMutex,
             onAction: (action) {
@@ -213,7 +221,7 @@ class ConditionWrapper extends ActionCell {
   @override
   Widget? rightIcon(Color iconColor) {
     if (isSelected) {
-      return svgWidget("grid/checkmark");
+      return const FlowySvg(FlowySvgs.check_s);
     } else {
       return null;
     }

@@ -20,9 +20,9 @@ export const SelectedOption = ({
   };
 
   return (
-    <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5`}>
-      <span>{option?.name ?? ''}</span>
-      <button onClick={onUnselectOptionClick} className={'h-5 w-5 cursor-pointer'}>
+    <div className={`${getBgColor(option.color)} flex items-center gap-0.5 rounded px-1 py-0.5 text-content-on-fill`}>
+      <span className={'text-text-title'}>{option?.name ?? ''}</span>
+      <button onClick={onUnselectOptionClick} className={'h-5 w-5 cursor-pointer text-text-title'}>
         <CloseSvg></CloseSvg>
       </button>
     </div>

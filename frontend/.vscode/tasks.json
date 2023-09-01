@@ -20,7 +20,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -28,17 +29,18 @@
       }
     },
     {
-      "label": "AF: Clean + Rebuild All (Android)",
+      "label": "AF: Clean + Rebuild All (iOS)",
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
         "AF: Dart Clean",
         "AF: Flutter Clean",
-        "AF: Build Appflowy Core_for_android",
+        "AF: Build Appflowy Core For iOS",
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "presentation": {
         "reveal": "always",
@@ -46,9 +48,37 @@
       }
     },
     {
-      "label": "AF: Build Appflowy Core_for_android",
+      "label": "AF: Clean + Rebuild All (iOS Simulator)",
       "type": "shell",
-      "command": "cargo make --profile development-android appflowy-core-dev-android",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core For iOS Simulator",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64 appflowy-core-dev-ios",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For iOS Simulator",
+      "type": "shell",
+      "command": "cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios",
       "group": "build",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -80,7 +110,8 @@
         "AF: Flutter Pub Get",
         "AF: Flutter Package Get",
         "AF: Generate Language Files",
-        "AF: Generate Freezed Files"
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
       ],
       "group": {
         "kind": "build",
@@ -118,15 +149,11 @@
     {
       "label": "AF: Generate Freezed Files",
       "type": "shell",
-      "command": "dart run build_runner build -d",
+      "command": "sh ./scripts/code_generation/freezed/generate_freezed.sh",
       "options": {
-        "cwd": "${workspaceFolder}/appflowy_flutter"
-      }
-    },
-    {
-      "label": "AF: Generate Language Files",
-      "type": "shell",
-      "command": "sh ./scripts/generate_language_files.sh",
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
       "windows": {
         "options": {
           "shell": {
@@ -134,7 +161,45 @@
             "args": [
               "/d",
               "/c",
-              ".\\scripts\\generate_language_files.cmd"
+              ".\\scripts\\code_generation\\freezed\\generate_freezed.cmd"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "label": "AF: Generate Language Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/language_files/generate_language_files.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\language_files\\generate_language_files.cmd"
+            ]
+          }
+        }
+      },
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "AF: Generate Svg Files",
+      "type": "shell",
+      "command": "sh ./scripts/code_generation/flowy_icons/generate_flowy_icons.sh",
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "cmd.exe",
+            "args": [
+              "/d",
+              "/c",
+              ".\\scripts\\code_generation\\flowy_icons\\generate_flowy_icons.cmd"
             ]
           }
         }
@@ -157,10 +222,7 @@
       "label": "AF: flutter build aar",
       "type": "flutter",
       "command": "flutter",
-      "args": [
-        "build",
-        "aar"
-      ],
+      "args": ["build", "aar"],
       "group": "build",
       "problemMatcher": [],
       "detail": "appflowy_flutter"
@@ -170,9 +232,7 @@
       "type": "shell",
       "isBackground": true,
       "command": "yarn",
-      "args": [
-        "dev"
-      ],
+      "args": ["dev"],
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
@@ -205,10 +265,7 @@
       "label": "AF: Tauri Clean + Dev",
       "type": "shell",
       "dependsOrder": "sequence",
-      "dependsOn": [
-        "AF: Tauri Clean",
-        "AF: Tauri UI Dev"
-      ],
+      "dependsOn": ["AF: Tauri Clean", "AF: Tauri UI Dev"],
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -221,5 +278,13 @@
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
     },
+    {
+      "label": "AF: Generate Env File",
+      "type": "shell",
+      "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    }
   ]
 }

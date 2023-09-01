@@ -15,3 +15,5 @@ bin/
 .idea/
 AppFlowy-Collab/
 .env
+.env.**
+**/unit_test**

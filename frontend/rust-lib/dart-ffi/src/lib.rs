@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
 use flowy_core::*;
-use flowy_notification::register_notification_sender;
+use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 
@@ -37,7 +37,6 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
   let config =
     AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string()).log_filter("info", log_crates);
   *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
-
   0
 }
 
@@ -90,6 +89,8 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn set_stream_port(port: i64) -> i32 {
+  // Make sure hot reload won't register the notification sender twice
+  unregister_all_notification_sender();
   register_notification_sender(DartNotificationSender::new(port));
   0
 }

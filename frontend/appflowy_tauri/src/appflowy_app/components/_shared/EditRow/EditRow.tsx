@@ -35,19 +35,17 @@ export const EditRow = ({
   controller: DatabaseController;
   rowInfo: RowInfo;
 }) => {
-  const databaseStore = useAppSelector((state) => state.database);
+  const fieldsStore = useAppSelector((state) => state.database.fields);
   const { cells, onNewColumnClick } = useRow(viewId, controller, rowInfo);
   const { t } = useTranslation();
   const [unveil, setUnveil] = useState(false);
 
   const [editingCell, setEditingCell] = useState<CellIdentifier | null>(null);
+  const [editFieldAnchorEl, setEditFieldAnchorEl] = useState<HTMLDivElement | null>(null);
   const [showFieldEditor, setShowFieldEditor] = useState(false);
-  const [editFieldTop, setEditFieldTop] = useState(0);
-  const [editFieldLeft, setEditFieldLeft] = useState(0);
 
   const [showChangeFieldTypePopup, setShowChangeFieldTypePopup] = useState(false);
-  const [changeFieldTypeTop, setChangeFieldTypeTop] = useState(0);
-  const [changeFieldTypeLeft, setChangeFieldTypeLeft] = useState(0);
+  const [changeFieldTypeAnchorEl, setChangeFieldTypeAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const [showChangeOptionsPopup, setShowChangeOptionsPopup] = useState(false);
   const [changeOptionsTop, setChangeOptionsTop] = useState(0);
@@ -89,22 +87,18 @@ export const EditRow = ({
     }, 300);
   };
 
-  const onEditFieldClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
+  const onEditFieldClick = (cellIdentifier: CellIdentifier, anchorEl: HTMLDivElement) => {
+    setEditFieldAnchorEl(anchorEl);
     setEditingCell(cellIdentifier);
-    setEditFieldTop(top);
-    setEditFieldLeft(left + 10);
     setShowFieldEditor(true);
   };
 
   const onOutsideEditFieldClick = () => {
-    if (!showChangeFieldTypePopup) {
-      setShowFieldEditor(false);
-    }
+    setShowFieldEditor(false);
   };
 
-  const onChangeFieldTypeClick = (buttonTop: number, buttonRight: number) => {
-    setChangeFieldTypeTop(buttonTop);
-    setChangeFieldTypeLeft(buttonRight + 30);
+  const onChangeFieldTypeClick = (el: HTMLDivElement) => {
+    setChangeFieldTypeAnchorEl(el);
     setShowChangeFieldTypePopup(true);
   };
 
@@ -112,9 +106,11 @@ export const EditRow = ({
     if (!editingCell) return;
 
     const currentField = controller.fieldController.getField(editingCell.fieldId);
+
     if (!currentField) return;
 
     const typeOptionController = new TypeOptionController(viewId, Some(currentField));
+
     await typeOptionController.switchToField(newType);
 
     setEditingCell(new CellIdentifier(viewId, rowInfo.row.id, editingCell.fieldId, newType));
@@ -150,12 +146,6 @@ export const EditRow = ({
     setEditCheckListTop(_top);
   };
 
-  const onNumberFormat = (_left: number, _top: number) => {
-    setShowNumberFormatPopup(true);
-    setNumberFormatLeft(_left + 10);
-    setNumberFormatTop(_top);
-  };
-
   const onEditCheckListClick = (cellIdentifier: CellIdentifier, left: number, top: number) => {
     setEditingCell(cellIdentifier);
     setShowCheckListPopup(true);
@@ -180,8 +170,12 @@ export const EditRow = ({
   const onDelete = async () => {
     if (!deletingPropertyId) return;
     const fieldInfo = controller.fieldController.getField(deletingPropertyId);
+
     if (!fieldInfo) return;
     const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
+    setEditingCell(null);
+
     await typeController.initialize();
     await typeController.deleteField();
     setShowDeletePropertyPrompt(false);
@@ -199,16 +193,16 @@ export const EditRow = ({
           onClick={(e) => {
             e.stopPropagation();
           }}
-          className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-white `}
+          className={`relative flex h-[90%] w-[70%] flex-col gap-8 rounded-xl bg-bg-body `}
         >
           <div onClick={() => onCloseClick()} className={'absolute right-1 top-1'}>
-            <button className={'block h-8 w-8 rounded-lg text-shade-2 hover:bg-main-secondary'}>
+            <button className={'block h-8 w-8 rounded-lg text-text-title hover:bg-fill-list-hover'}>
               <CloseSvg></CloseSvg>
             </button>
           </div>
 
           <div className={'flex h-full'}>
-            <div className={'flex h-full flex-1 flex-col border-r border-shade-6 pb-4 pt-6'}>
+            <div className={'flex h-full flex-1 flex-col border-r border-line-divider pb-4 pt-6'}>
               <div className={'pb-4 pl-12'}>
                 <button className={'flex items-center gap-2 p-4'}>
                   <i className={'h-5 w-5'}>
@@ -224,13 +218,13 @@ export const EditRow = ({
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`flex flex-1 flex-col gap-8 px-8 ${
+                      className={`flex flex-1 flex-col gap-8 px-8 pb-8 ${
                         showFieldEditor || showChangeOptionsPopup || showDatePicker ? 'overflow-hidden' : 'overflow-auto'
                       }`}
                     >
                       {cells
                         .filter((cell) => {
-                          return databaseStore.fields[cell.cellIdentifier.fieldId]?.visible;
+                          return fieldsStore[cell.cellIdentifier.fieldId]?.visible;
                         })
                         .map((cell, cellIndex) => (
                           <EditCellWrapper
@@ -250,10 +244,10 @@ export const EditRow = ({
                 </Droppable>
               </DragDropContext>
 
-              <div className={'border-t border-shade-6 px-8 pt-2'}>
+              <div className={'border-t border-line-divider px-8 pt-2'}>
                 <button
                   onClick={() => onNewColumnClick()}
-                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-shade-6'}
+                  className={'flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:bg-fill-list-hover'}
                 >
                   <i className={'h-5 w-5'}>
                     <AddSvg></AddSvg>
@@ -271,23 +265,22 @@ export const EditRow = ({
             ></PropertiesPanel>
           </div>
 
-          {showFieldEditor && editingCell && (
+          {editingCell && (
             <EditFieldPopup
-              top={editFieldTop}
-              left={editFieldLeft}
+              open={showFieldEditor}
+              anchorEl={editFieldAnchorEl}
               cellIdentifier={editingCell}
               viewId={viewId}
               onOutsideClick={onOutsideEditFieldClick}
-              fieldInfo={controller.fieldController.getField(editingCell.fieldId)}
-              fieldController={controller.fieldController}
+              controller={controller}
               changeFieldTypeClick={onChangeFieldTypeClick}
-              onNumberFormat={onNumberFormat}
+              onDeletePropertyClick={onDeletePropertyClick}
             ></EditFieldPopup>
           )}
           {showChangeFieldTypePopup && (
             <ChangeFieldTypePopup
-              top={changeFieldTypeTop}
-              left={changeFieldTypeLeft}
+              open={showChangeFieldTypePopup}
+              anchorEl={changeFieldTypeAnchorEl}
               onClick={(newType) => changeFieldType(newType)}
               onOutsideClick={() => setShowChangeFieldTypePopup(false)}
             ></ChangeFieldTypePopup>
@@ -319,6 +312,7 @@ export const EditRow = ({
               left={editCellOptionLeft}
               cellIdentifier={editingCell}
               editingSelectOption={editingSelectOption}
+              setEditingSelectOption={setEditingSelectOption}
               onOutsideClick={() => {
                 setShowEditCellOption(false);
               }}

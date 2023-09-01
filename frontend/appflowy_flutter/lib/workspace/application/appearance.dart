@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,6 +11,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 part 'appearance.freezed.dart';
 
@@ -20,11 +22,13 @@ const _white = Color(0xFFFFFFFF);
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
-  AppearanceSettingsCubit(AppearanceSettingsPB setting)
-      : _setting = setting,
+  AppearanceSettingsCubit(
+    AppearanceSettingsPB setting,
+    AppTheme appTheme,
+  )   : _setting = setting,
         super(
           AppearanceSettingsState.initial(
-            setting.theme,
+            appTheme,
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
@@ -36,11 +40,15 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
-  void setTheme(String themeName) {
+  Future<void> setTheme(String themeName) async {
     _setting.theme = themeName;
     _saveAppearanceSettings();
-    emit(state.copyWith(appTheme: AppTheme.fromName(themeName)));
+    emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
+
+  /// Reset the current user selected theme back to the default
+  Future<void> resetTheme() =>
+      setTheme(DefaultAppearanceSettings.kDefaultThemeName);
 
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
@@ -49,11 +57,35 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(themeMode: themeMode));
   }
 
+  /// Resets the current brightness setting
+  void resetThemeMode() =>
+      setThemeMode(DefaultAppearanceSettings.kDefaultThemeMode);
+
+  /// Toggle the theme mode
+  void toggleThemeMode() {
+    final currentThemeMode = state.themeMode;
+    setThemeMode(
+      currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
+    );
+  }
+
+  /// Update selected font in the user's settings and emit an updated state
+  /// with the font name.
+  void setFontFamily(String fontFamilyName) {
+    _setting.font = fontFamilyName;
+    _saveAppearanceSettings();
+    emit(state.copyWith(font: fontFamilyName));
+  }
+
+  /// Resets the current font family for the user preferences
+  void resetFontFamily() =>
+      setFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
+
   /// Updates the current locale and notify the listeners the locale was
   /// changed. Fallback to [en] locale if [newLocale] is not supported.
   void setLocale(BuildContext context, Locale newLocale) {
     if (!context.supportedLocales.contains(newLocale)) {
-      Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
+      // Log.warn("Unsupported locale: $newLocale, Fallback to locale: en");
       newLocale = const Locale('en');
     }
 
@@ -173,7 +205,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
-    String themeName,
+    AppTheme appTheme,
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
@@ -182,7 +214,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fromName(themeName),
+      appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
       themeMode: _themeModeFromPB(themeModePB),
@@ -329,6 +361,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontSize: FontSizes.s11,
             fontColor: theme.shader3,
           ),
+          calloutBGColor: theme.hoverBG3,
+          tableCellBGColor: theme.surface,
           caption: _getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
@@ -341,14 +375,24 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }
 
   TextStyle _getFontStyle({
-    String? fontFamily,
+    required String fontFamily,
     double? fontSize,
     FontWeight? fontWeight,
     Color? fontColor,
     double? letterSpacing,
     double? lineHeight,
-  }) =>
-      TextStyle(
+  }) {
+    try {
+      return GoogleFonts.getFont(
+        fontFamily,
+        fontSize: fontSize ?? FontSizes.s12,
+        color: fontColor,
+        fontWeight: fontWeight ?? FontWeight.w500,
+        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+        height: lineHeight,
+      );
+    } catch (e) {
+      return TextStyle(
         fontFamily: fontFamily,
         fontSize: fontSize ?? FontSizes.s12,
         color: fontColor,
@@ -357,6 +401,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
         height: lineHeight,
       );
+    }
+  }
 
   TextTheme _getTextTheme({
     required String fontFamily,

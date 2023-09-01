@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode, useRef } from 'react';
+import { CSSProperties, MouseEvent, ReactNode, useRef } from 'react';
 import useOutsideClick from './useOutsideClick';
 
 export interface IPopupItem {
@@ -18,9 +18,10 @@ export const PopupSelect = ({
   className: string;
   onOutsideClick?: () => void;
   columns?: 1 | 2 | 3;
-  style?: any;
+  style?: CSSProperties;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useOutsideClick(ref, () => onOutsideClick && onOutsideClick());
 
   const handleClick = (e: MouseEvent, item: IPopupItem) => {
@@ -29,7 +30,7 @@ export const PopupSelect = ({
   };
 
   return (
-    <div ref={ref} className={`${className} rounded-lg bg-white px-2 py-2 shadow-md`} style={style}>
+    <div ref={ref} className={`${className} rounded-lg bg-bg-body px-2 py-2 text-text-title shadow-md`} style={style}>
       <div
         className={
           (columns === 2 ? 'grid grid-cols-2' : '') + (columns === 3 ? 'grid grid-cols-3' : '') + ' w-full gap-x-4'
@@ -38,7 +39,7 @@ export const PopupSelect = ({
         {items.map((item, index) => (
           <button
             key={index}
-            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-main-secondary'}
+            className={'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'}
             onClick={(e) => handleClick(e, item)}
           >
             <>

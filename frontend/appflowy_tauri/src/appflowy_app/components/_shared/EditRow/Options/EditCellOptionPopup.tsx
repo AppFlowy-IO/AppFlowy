@@ -7,23 +7,29 @@ import { SelectOptionCellBackendService } from '$app/stores/effects/database/cel
 import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { CheckmarkSvg } from '$app/components/_shared/svg/CheckmarkSvg';
 import { PopupWindow } from '$app/components/_shared/PopupWindow';
+import { databaseActions, ISelectOptionType } from '$app_reducers/database/slice';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 
 export const EditCellOptionPopup = ({
   left,
   top,
   cellIdentifier,
   editingSelectOption,
+  setEditingSelectOption,
   onOutsideClick,
 }: {
   left: number;
   top: number;
   cellIdentifier: CellIdentifier;
   editingSelectOption: SelectOptionPB;
+  setEditingSelectOption: (option: SelectOptionPB) => void;
   onOutsideClick: () => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [value, setValue] = useState('');
+  const fieldsStore = useAppSelector((state) => state.database.fields);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setValue(editingSelectOption.name);
@@ -44,6 +50,7 @@ export const EditCellOptionPopup = ({
 
   const onBlur = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
+
     await svc.updateOption(
       new SelectOptionPB({
         id: editingSelectOption.id,
@@ -53,19 +60,48 @@ export const EditCellOptionPopup = ({
     );
   };
 
-  const onColorClick = async (color: SelectOptionColorPB) => {
-    const svc = new SelectOptionCellBackendService(cellIdentifier);
-    await svc.updateOption(
-      new SelectOptionPB({
-        id: editingSelectOption.id,
-        color,
-        name: editingSelectOption.name,
+  const onUpdateSelectOption = (option: SelectOptionPB) => {
+    const updatingField = fieldsStore[cellIdentifier.fieldId];
+    const allOptions = (updatingField.fieldOptions as ISelectOptionType).selectOptions;
+
+    dispatch(
+      databaseActions.updateField({
+        field: {
+          ...updatingField,
+          fieldOptions: {
+            selectOptions: allOptions.map((o) =>
+              o.selectOptionId === option.id
+                ? {
+                    selectOptionId: option.id,
+                    color: option.color,
+                    title: option.name,
+                  }
+                : o
+            ),
+          },
+        },
       })
     );
+
+    setEditingSelectOption(option);
+  };
+
+  const onColorClick = async (color: SelectOptionColorPB) => {
+    const svc = new SelectOptionCellBackendService(cellIdentifier);
+
+    const updatedOption = new SelectOptionPB({
+      id: editingSelectOption.id,
+      color,
+      name: editingSelectOption.name,
+    });
+
+    await svc.updateOption(updatedOption);
+    onUpdateSelectOption(updatedOption);
   };
 
   const onDeleteOptionClick = async () => {
     const svc = new SelectOptionCellBackendService(cellIdentifier);
+
     await svc.deleteOption([editingSelectOption]);
     onOutsideClick();
   };
@@ -81,7 +117,11 @@ export const EditCellOptionPopup = ({
       top={top}
     >
       <div onKeyDown={onKeyDownWrapper} className={'flex flex-col gap-2 p-2'}>
-        <div className={'border-shades-3 flex flex-1 items-center gap-2 rounded border bg-main-selector px-2 '}>
+        <div
+          className={
+            'flex flex-1 items-center gap-2 rounded border border-line-divider px-2 hover:border-fill-hover focus:border-fill-hover'
+          }
+        >
           <input
             ref={inputRef}
             className={'py-2'}
@@ -90,12 +130,12 @@ export const EditCellOptionPopup = ({
             onKeyDown={onKeyDown}
             onBlur={() => onBlur()}
           />
-          <div className={'font-mono text-shade-3'}>{value.length}/30</div>
+          <div className={'font-mono text-text-caption'}>{value.length}/30</div>
         </div>
         <button
           onClick={() => onDeleteOptionClick()}
           className={
-            'flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-main-alert hover:bg-main-secondary'
+            'text-main-alert flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 hover:bg-fill-list-hover'
           }
         >
           <i className={'h-5 w-5'}>
@@ -103,8 +143,8 @@ export const EditCellOptionPopup = ({
           </i>
           <span>{t('grid.selectOption.deleteTag')}</span>
         </button>
-        <div className={'-mx-4 h-[1px] bg-shade-6'}></div>
-        <div className={'my-2 font-medium text-shade-3'}>{t('grid.selectOption.colorPanelTitle')}</div>
+        <div className={'-mx-4 h-[1px] bg-line-divider'}></div>
+        <div className={'my-2 font-medium text-text-caption'}>{t('grid.selectOption.colorPanelTitle')}</div>
         <div className={'flex flex-col'}>
           <ColorItem
             title={t('grid.selectOption.purpleColor')}
@@ -179,7 +219,7 @@ const ColorItem = ({
 }) => {
   return (
     <div
-      className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-main-secondary'}
+      className={'flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-fill-list-hover'}
       onClick={() => onClick()}
     >
       <div className={'flex items-center gap-2'}>

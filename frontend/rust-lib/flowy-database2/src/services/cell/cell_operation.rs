@@ -212,6 +212,7 @@ pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Fiel
     date: Some(timestamp.to_string()),
     time: None,
     include_time,
+    clear_flag: None,
   })
   .unwrap();
   apply_cell_changeset(cell_data, None, field, None).unwrap()
@@ -277,7 +278,7 @@ pub struct AnyCellChangeset<T>(pub Option<T>);
 impl<T> AnyCellChangeset<T> {
   pub fn try_into_inner(self) -> FlowyResult<T> {
     match self.0 {
-      None => Err(ErrorCode::InvalidData.into()),
+      None => Err(ErrorCode::InvalidParams.into()),
       Some(data) => Ok(data),
     }
   }

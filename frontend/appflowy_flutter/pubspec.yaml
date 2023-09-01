@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.2.4
+version: 0.3.0
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -37,17 +37,18 @@ dependencies:
     path: packages/flowy_infra_ui
   flowy_infra:
     path: packages/flowy_infra
+  flowy_svg:
+    path: packages/flowy_svg
   appflowy_board:
     # path: packages/appflowy_board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  # appflowy_editor: ^1.0.4
+  # appflowy_editor: 1.2.3
   appflowy_editor:
     git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor
-      ref: 250b1a5
-
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: 0e55cce
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -85,13 +86,13 @@ dependencies:
   linked_scroll_controller: ^0.2.0
   hotkey_manager: ^0.1.7
   fixnum: ^1.1.0
+  flutter_svg: ^2.0.7
   protobuf: "2.0.0"
   charcode: ^1.3.1
   collection: ^1.17.1
   bloc: ^8.1.2
   shared_preferences: ^2.1.1
   google_fonts: ^4.0.5
-  file_picker: ^5.3.1
   percent_indicator: ^4.2.3
   calendar_view: ^1.0.3
   window_manager: ^0.3.4
@@ -99,10 +100,14 @@ dependencies:
   path: ^1.8.3
   mocktail: ^0.3.0
   archive: ^3.3.7
-  flutter_svg: ^2.0.6
   nanoid: ^1.0.0
-  supabase_flutter: ^1.10.0
+  supabase_flutter: ^1.10.4
   envied: ^0.3.0+3
+  dotted_border: ^2.0.0+3
+  url_protocol:
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  super_clipboard: ^0.6.3
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -117,8 +122,25 @@ dev_dependencies:
   json_serializable: ^6.7.0
   envied_generator: ^0.3.0+3
 
+  plugin_platform_interface: any
+  url_launcher_platform_interface: any
+
 dependency_overrides:
   http: ^1.0.0
+
+  supabase_flutter:
+    git:
+      url: https://github.com/LucasXu0/supabase-flutter
+      ref: 852119e
+      path: packages/supabase_flutter
+  app_links:
+    git:
+      url: https://github.com/LucasXu0/app_links
+      ref: c64ce17
+  url_protocol:
+    git:
+      url: https://github.com/LucasXu0/flutter_url_protocol.git
+      commit: 77a8420
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -167,20 +189,19 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-    - assets/images/home/
-    - assets/images/editor/align/
-    - assets/images/editor/
-    - assets/images/grid/
+    - assets/flowy_icons/
+    - assets/flowy_icons/16x/
+    - assets/flowy_icons/24x/
+    - assets/flowy_icons/32x/
+    - assets/flowy_icons/40x/
     - assets/images/emoji/
-    - assets/images/grid/field/
-    - assets/images/common/
     - assets/images/login/
-    - assets/images/grid/setting/
     - assets/translations/
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE
     - assets/test/workspaces/
+    - assets/test/images/
     - assets/template/
     - assets/test/workspaces/markdowns/
     - assets/test/workspaces/database/

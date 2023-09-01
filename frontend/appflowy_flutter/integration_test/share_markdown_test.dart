@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
+import 'package:path/path.dart' as p;
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -11,30 +11,17 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('share markdown in document page', () {
-    const location = 'markdown';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('click the share button in document page', (tester) async {
-      await tester.initializeAppFlowy();
+      final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // expect to see a readme page
-      tester.expectToSeePageName(readme);
+      tester.expectToSeePageName(gettingStarted);
 
       // mock the file picker
-      final path = await mockSaveFilePath(location, 'test.md');
+      final path = await mockSaveFilePath(
+        p.join(context.applicationDataDirectory, 'test.md'),
+      );
       // click the share button and select markdown
       await tester.tapShareButton();
       await tester.tapMarkdownButton();
@@ -52,21 +39,29 @@ void main() {
     testWidgets(
       'share the markdown after renaming the document name',
       (tester) async {
-        await tester.initializeAppFlowy();
+        final context = await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
-        // expect to see a readme page
-        tester.expectToSeePageName(readme);
+        // expect to see a getting started page
+        tester.expectToSeePageName(gettingStarted);
 
         // rename the document
-        await tester.hoverOnPageName(readme);
-        await tester.renamePage('example');
+        await tester.hoverOnPageName(
+          gettingStarted,
+          onHover: () async {
+            await tester.renamePage('example');
+          },
+        );
 
         final shareButton = find.byType(ShareActionList);
         final shareButtonState =
             tester.state(shareButton) as ShareActionListState;
-        final path =
-            await mockSaveFilePath(location, '${shareButtonState.name}.md');
+        final path = await mockSaveFilePath(
+          p.join(
+            context.applicationDataDirectory,
+            '${shareButtonState.name}.md',
+          ),
+        );
 
         // click the share button and select markdown
         await tester.tapShareButton();
@@ -99,6 +94,13 @@ const expectedMarkdown = r'''
 1. Keyboard shortcuts [guide](https://appflowy.gitbook.io/docs/essential-documentation/shortcuts)
 1. Markdown [reference](https://appflowy.gitbook.io/docs/essential-documentation/markdown)
 1. Type `/code` to insert a code block
+```rust
+// This is the main function.
+fn main() {
+    // Print text to the console.
+    println!("Hello World!");
+}
+```
 
 ## Have a question❓
 > Click `?` at the bottom right for help and support.

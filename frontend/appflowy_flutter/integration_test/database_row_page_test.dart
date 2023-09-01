@@ -1,41 +1,26 @@
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'util/database_test_op.dart';
 import 'util/emoji.dart';
-import 'util/ime.dart';
 import 'util/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('grid', () {
-    const location = 'appflowy';
-
-    setUp(() async {
-      await TestFolder.cleanTestLocation(location);
-      await TestFolder.setTestLocation(location);
-    });
-
-    tearDown(() async {
-      await TestFolder.cleanTestLocation(location);
-    });
-
-    tearDownAll(() async {
-      await TestFolder.cleanTestLocation(null);
-    });
-
     testWidgets('row details page opens', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -49,8 +34,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -70,8 +54,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -100,8 +83,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -123,8 +105,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -159,8 +140,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -175,8 +155,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -187,9 +166,10 @@ void main() {
       // Focus on the editor
       final textBlock = find.byType(TextBlockComponentWidget);
       await tester.tapAt(tester.getCenter(textBlock));
+      await tester.pumpAndSettle();
 
       // Input some text
-      const inputText = 'Hello world';
+      const inputText = 'Hello World';
       await tester.ime.insertText(inputText);
       expect(
         find.textContaining(inputText, findRichText: true),
@@ -208,13 +188,53 @@ void main() {
       );
     });
 
+    testWidgets(
+        'check if the title wraps properly when a long text is inserted',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Wait for the document to be loaded
+      await tester.wait(500);
+
+      // Focus on the editor
+      final textField = find
+          .descendant(
+            of: find.byType(SimpleDialog),
+            matching: find.byType(TextField),
+          )
+          .first;
+
+      // Input a long text
+      await tester.enterText(textField, 'Long text' * 25);
+      await tester.pumpAndSettle();
+
+      // Tap outside to dismiss the field
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+
+      // Check if there is any overflow in the widget tree
+      expect(tester.takeException(), isNull);
+
+      // Re-open the document
+      await tester.openFirstRowDetailPage();
+
+      // Check again if there is any overflow in the widget tree
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('delete row in row detail page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
@@ -230,8 +250,7 @@ void main() {
       await tester.tapGoButton();
 
       // Create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();

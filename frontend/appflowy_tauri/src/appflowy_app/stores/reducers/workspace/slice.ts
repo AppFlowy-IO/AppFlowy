@@ -1,16 +1,60 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface IWorkspace {
-  id?: string;
-  name?: string;
+export interface WorkspaceItem {
+  id: string;
+  name: string;
 }
+
+interface WorkspaceState {
+  workspaces: WorkspaceItem[];
+  currentWorkspace: WorkspaceItem | null;
+}
+
+const initialState: WorkspaceState = {
+  workspaces: [],
+  currentWorkspace: null,
+};
 
 export const workspaceSlice = createSlice({
   name: 'workspace',
-  initialState: {} as IWorkspace,
+  initialState,
   reducers: {
-    updateWorkspace: (state, action: PayloadAction<IWorkspace>) => {
+    initWorkspaces: (
+      state,
+      action: PayloadAction<{
+        workspaces: WorkspaceItem[];
+        currentWorkspace: WorkspaceItem | null;
+      }>
+    ) => {
       return action.payload;
+    },
+
+    onWorkspacesChanged: (
+      state,
+      action: PayloadAction<{
+        workspaces: WorkspaceItem[];
+        currentWorkspace: WorkspaceItem | null;
+      }>
+    ) => {
+      return action.payload;
+    },
+
+    onWorkspaceChanged: (state, action: PayloadAction<WorkspaceItem>) => {
+      const { id } = action.payload;
+      const index = state.workspaces.findIndex((workspace) => workspace.id === id);
+
+      if (index !== -1) {
+        state.workspaces[index] = action.payload;
+      }
+    },
+
+    onWorkspaceDeleted: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      const index = state.workspaces.findIndex((workspace) => workspace.id === id);
+
+      if (index !== -1) {
+        state.workspaces.splice(index, 1);
+      }
     },
   },
 });

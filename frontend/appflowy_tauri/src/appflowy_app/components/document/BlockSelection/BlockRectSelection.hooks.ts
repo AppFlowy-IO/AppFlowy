@@ -41,6 +41,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
     const y = Math.min(startY, endY);
     const width = Math.abs(endX - startX);
     const height = Math.abs(endY - startY);
+
     return {
       left: x - container.scrollLeft + 'px',
       top: y - container.scrollTop + 'px',
@@ -51,14 +52,17 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
 
   const handleDragStart = useCallback(
     (e: MouseEvent) => {
+      if (e.button !== 0) return;
       if (isPointInBlock(e.target as HTMLElement)) {
         return;
       }
+
       e.preventDefault();
       setDragging(true);
 
       const startX = e.clientX + container.scrollLeft;
       const startY = e.clientY + container.scrollTop;
+
       startPointRef.current = [startX, startY];
       setRect({
         startX,
@@ -84,6 +88,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
         endY,
       };
       const blockIds = getIntersectedBlockIds(newRect);
+
       setRect(newRect);
       dispatch(
         setRectSelectionThunk({
@@ -103,11 +108,14 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
       updateSelctionsByPoint(e.clientX, e.clientY);
 
       const { top, bottom } = container.getBoundingClientRect();
+
       if (e.clientY >= bottom) {
         const delta = e.clientY - bottom;
+
         container.scrollBy(0, delta);
       } else if (e.clientY <= top) {
         const delta = e.clientY - top;
+
         container.scrollBy(0, delta);
       }
     },
@@ -125,6 +133,7 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
         );
         return;
       }
+
       if (!isDragging) return;
       e.preventDefault();
       updateSelctionsByPoint(e.clientX, e.clientY);
@@ -135,16 +144,16 @@ export function useBlockRectSelection({ container, getIntersectedBlockIds }: Blo
   );
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleDragStart);
+    container.addEventListener('mousedown', handleDragStart);
     document.addEventListener('mousemove', handleDraging);
     document.addEventListener('mouseup', handleDragEnd);
 
     return () => {
-      document.removeEventListener('mousedown', handleDragStart);
+      container.removeEventListener('mousedown', handleDragStart);
       document.removeEventListener('mousemove', handleDraging);
       document.removeEventListener('mouseup', handleDragEnd);
     };
-  }, [handleDragStart, handleDragEnd, handleDraging]);
+  }, [container, handleDragStart, handleDragEnd, handleDraging]);
 
   return {
     isDragging,

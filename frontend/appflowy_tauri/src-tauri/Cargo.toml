@@ -16,7 +16,7 @@ tauri-build = { version = "1.2", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["shell-open"] }
+tauri = { version = "1.2", features = ["fs-all", "shell-open"] }
 tauri-utils = "1.2"
 bytes = { version = "1.4" }
 tracing = { version = "0.1", features = ["log"] }
@@ -34,18 +34,24 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d1882d" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
 
-#collab = { path = "../../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }
-#collab-document = { path = "../../AppFlowy-Collab/collab-document" }
-#collab-database = { path = "../../AppFlowy-Collab/collab-database" }
-#appflowy-integrate = { path = "../../AppFlowy-Collab/appflowy-integrate" }
+#collab = { path = "../../../../AppFlowy-Collab/collab" }
+#collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
+#collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
+#collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
+#appflowy-integrate = { path = "../../../../AppFlowy-Collab/appflowy-integrate" }
+#collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
+#collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
+#collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
 
 
 

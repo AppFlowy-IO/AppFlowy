@@ -1,5 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -11,10 +14,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
@@ -90,7 +91,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       onEnter: (_) => widget.editorState.service.scrollService?.disable(),
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: SizedBox(
-        height: 400,
+        height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,10 +129,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           width: 24,
           height: 24,
           iconPadding: const EdgeInsets.all(3),
-          icon: svgWidget(
-            'common/information',
-            color: Theme.of(context).iconTheme.color,
+          icon: const FlowySvg(
+            FlowySvgs.information_s,
           ),
+          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
         ),
         // setting
         const Space(7, 0),
@@ -145,18 +146,21 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: svgWidget(
-              'common/settings',
-              color: Theme.of(context).iconTheme.color,
+            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+            icon: const FlowySvg(
+              FlowySvgs.settings_s,
             ),
             onPressed: () => controller.show(),
           ),
           onSelected: (action, controller) async {
             switch (action.inner) {
               case _ActionType.viewDatabase:
-                getIt<MenuSharedState>().latestOpenView = viewPB;
-
-                getIt<HomeStackManager>().setPlugin(viewPB.plugin());
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: viewPB.plugin(),
+                    view: viewPB,
+                  ),
+                );
                 break;
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;

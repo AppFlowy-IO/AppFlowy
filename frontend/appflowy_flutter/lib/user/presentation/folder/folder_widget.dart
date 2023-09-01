@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:appflowy/util/file_picker/file_picker_service.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
@@ -12,7 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../generated/locale_keys.g.dart';
 import '../../../startup/startup.dart';
-import '../../../workspace/application/settings/settings_location_cubit.dart';
 import '../../../workspace/presentation/home/toast.dart';
 
 enum _FolderPage {
@@ -86,7 +86,7 @@ class FolderOptionsWidget extends StatelessWidget {
       builder: (context, result) {
         final subtitle = result.hasData ? result.data! : '';
         return _FolderCard(
-          icon: const FlowySvg(name: 'common/archive'),
+          icon: const FlowySvg(FlowySvgs.archive_m),
           title: LocaleKeys.settings_files_defineWhereYourDataIsStored.tr(),
           subtitle: subtitle,
           trailing: _buildTextButton(
@@ -171,23 +171,19 @@ class CreateFolderWidgetState extends State<CreateFolderWidget> {
         const VSpace(4.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              _buildTextButton(
-                context,
-                LocaleKeys.settings_files_create.tr(),
-                () async {
-                  if (_path.isEmpty) {
-                    _showToast(
-                      LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
-                    );
-                  } else {
-                    await getIt<ApplicationDataStorage>().setCustomPath(_path);
-                    await widget.onPressedCreate();
-                  }
-                },
-              ),
-            ],
+          child: _buildTextButton(
+            context,
+            LocaleKeys.settings_files_create.tr(),
+            () async {
+              if (_path.isEmpty) {
+                _showToast(
+                  LocaleKeys.settings_files_locationCannotBeEmpty.tr(),
+                );
+              } else {
+                await getIt<ApplicationDataStorage>().setCustomPath(_path);
+                await widget.onPressedCreate();
+              }
+            },
           ),
         )
       ],
@@ -218,13 +214,10 @@ Widget _buildTextButton(
   String title,
   VoidCallback onPressed,
 ) {
-  return SizedBox(
-    width: 60,
-    child: SecondaryTextButton(
-      title,
-      mode: SecondaryTextButtonMode.small,
-      onPressed: onPressed,
-    ),
+  return SecondaryTextButton(
+    title,
+    mode: TextButtonMode.small,
+    onPressed: onPressed,
   );
 }
 
@@ -243,17 +236,18 @@ class _FolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const cardSpacing = 16.0;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          vertical: 16.0,
-          horizontal: 16.0,
+          vertical: cardSpacing,
+          horizontal: cardSpacing,
         ),
         child: Row(
           children: [
             if (icon != null)
               Padding(
-                padding: const EdgeInsets.only(right: 20),
+                padding: const EdgeInsets.only(right: cardSpacing),
                 child: icon!,
               ),
             Expanded(
@@ -280,7 +274,7 @@ class _FolderCard extends StatelessWidget {
               ),
             ),
             if (trailing != null) ...[
-              const HSpace(40),
+              const HSpace(cardSpacing),
               trailing!,
             ],
           ],

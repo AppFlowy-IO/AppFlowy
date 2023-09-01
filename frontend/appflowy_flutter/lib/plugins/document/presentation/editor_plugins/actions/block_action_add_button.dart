@@ -1,6 +1,13 @@
+import 'dart:io';
+
+import 'package:appflowy/core/raw_keyboard_extension.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BlockAddButton extends StatelessWidget {
   const BlockAddButton({
@@ -20,26 +27,46 @@ class BlockAddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlockActionButton(
-      svgName: 'editor/add',
-      richMessage: const TextSpan(
+      svg: FlowySvgs.add_s,
+      richMessage: TextSpan(
         children: [
           TextSpan(
-            // todo: l10n.
-            text: 'Click to add below',
+            text: LocaleKeys.blockActions_addBelowTooltip.tr(),
+          ),
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: Platform.isMacOS
+                ? LocaleKeys.blockActions_addAboveMacCmd.tr()
+                : LocaleKeys.blockActions_addAboveCmd.tr(),
+          ),
+          const TextSpan(text: ' '),
+          TextSpan(
+            text: LocaleKeys.blockActions_addAboveTooltip.tr(),
           ),
         ],
       ),
       onTap: () {
+        final isAltPressed = RawKeyboard.instance.isAltPressed;
+
         final transaction = editorState.transaction;
-        // if the current block is not a empty paragraph block, then insert a new block below the current block.
+
+        // If the current block is not an empty paragraph block,
+        // then insert a new block above/below the current block.
         final node = blockComponentContext.node;
         if (node.type != ParagraphBlockKeys.type ||
             (node.delta?.isNotEmpty ?? true)) {
-          transaction.insertNode(node.path.next, paragraphNode());
-          transaction.afterSelection = Selection.collapse(node.path.next, 0);
+          final path = isAltPressed ? node.path : node.path.next;
+
+          transaction.insertNode(path, paragraphNode());
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: path, offset: 0),
+          );
         } else {
-          transaction.afterSelection = Selection.collapse(node.path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: node.path, offset: 0),
+          );
         }
+
         // show the slash menu.
         editorState.apply(transaction).then(
               (_) => WidgetsBinding.instance.addPostFrameCallback(

@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import '../../application/cell/cell_service.dart';
@@ -16,7 +15,7 @@ import 'cells/url_cell/url_cell.dart';
 
 /// Build the cell widget in Grid style.
 class GridCellBuilder {
-  final CellCache cellCache;
+  final CellMemCache cellCache;
   GridCellBuilder({
     required this.cellCache,
   });
@@ -152,17 +151,9 @@ abstract class GridCellWidget extends StatefulWidget
 abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void initState() {
-    widget.requestFocus.setListener(requestBeginFocus);
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
-    widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
-      Clipboard.getData("text/plain").then((data) {
-        final s = data?.text;
-        if (s is String) {
-          onInsert(s);
-        }
-      });
-    };
     super.initState();
+
+    widget.requestFocus.setListener(requestBeginFocus);
   }
 
   @override
@@ -183,8 +174,6 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   void requestBeginFocus();
 
   String? onCopy() => null;
-
-  void onInsert(String value) {}
 }
 
 abstract class GridEditableTextCell<T extends GridCellWidget>

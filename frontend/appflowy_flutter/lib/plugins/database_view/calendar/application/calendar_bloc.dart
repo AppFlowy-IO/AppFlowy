@@ -1,5 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -24,7 +26,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   // Getters
   String get viewId => databaseController.viewId;
   FieldController get fieldController => databaseController.fieldController;
-  CellCache get cellCache => databaseController.rowCache.cellCache;
+  CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
   CalendarBloc({required ViewPB view, required this.databaseController})
@@ -58,8 +60,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
               ),
             );
           },
-          createEvent: (DateTime date, String title) async {
-            await _createEvent(date, title);
+          createEvent: (DateTime date) async {
+            await _createEvent(date);
           },
           moveEvent: (CalendarDayEvent event, DateTime date) async {
             await _moveEvent(event, date);
@@ -118,43 +120,32 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  FieldInfo? _getTitleFieldInfo() {
-    final fieldInfos = databaseController.fieldController.fieldInfos;
-    final index = fieldInfos.indexWhere(
-      (element) => element.field.isPrimary,
-    );
-    if (index != -1) {
-      return fieldInfos[index];
-    } else {
-      return null;
-    }
-  }
-
   Future<void> _openDatabase(Emitter<CalendarState> emit) async {
     final result = await databaseController.open();
     result.fold(
-      (database) => emit(
-        state.copyWith(loadingState: DatabaseLoadingState.finish(left(unit))),
-      ),
+      (database) {
+        databaseController.setIsLoading(false);
+        emit(
+          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+        );
+      },
       (err) => emit(
-        state.copyWith(loadingState: DatabaseLoadingState.finish(right(err))),
+        state.copyWith(loadingState: LoadingState.finish(right(err))),
       ),
     );
   }
 
-  Future<void> _createEvent(DateTime date, String title) async {
+  Future<void> _createEvent(DateTime date) async {
     return state.settings.fold(
       () {
         Log.warn('Calendar settings not found');
       },
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
-        final titleField = _getTitleFieldInfo();
-        if (dateField != null && titleField != null) {
+        if (dateField != null) {
           final newRow = await databaseController.createRow(
             withCells: (builder) {
               builder.insertDate(dateField, date);
-              builder.insertText(titleField, title);
             },
           ).then(
             (result) => result.fold(
@@ -397,8 +388,7 @@ class CalendarEvent with _$CalendarEvent {
       _DidDeleteEvents;
 
   // Called when creating a new event
-  const factory CalendarEvent.createEvent(DateTime date, String title) =
-      _CreateEvent;
+  const factory CalendarEvent.createEvent(DateTime date) = _CreateEvent;
 
   // Called when moving an event
   const factory CalendarEvent.moveEvent(CalendarDayEvent event, DateTime date) =
@@ -425,7 +415,7 @@ class CalendarState with _$CalendarState {
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required List<String> deleteEventIds,
     required Option<CalendarLayoutSettingPB> settings,
-    required DatabaseLoadingState loadingState,
+    required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _CalendarState;
 
@@ -436,16 +426,8 @@ class CalendarState with _$CalendarState {
         deleteEventIds: [],
         settings: none(),
         noneOrError: none(),
-        loadingState: const _Loading(),
+        loadingState: const LoadingState.loading(),
       );
-}
-
-@freezed
-class DatabaseLoadingState with _$DatabaseLoadingState {
-  const factory DatabaseLoadingState.loading() = _Loading;
-  const factory DatabaseLoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
-  ) = _Finish;
 }
 
 class CalendarEditingRow {

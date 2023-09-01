@@ -1,7 +1,7 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockType, RangeStatic, SplitRelationship } from '$app/interfaces/document';
-import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/turn_to';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { DocumentController } from "$app/stores/effects/document/document_controller";
+import { BlockType, RangeStatic, SplitRelationship } from "$app/interfaces/document";
+import { turnToTextBlockThunk } from "$app_reducers/document/async-actions/turn_to";
 import {
   findNextHasDeltaNode,
   findPrevHasDeltaNode,
@@ -9,23 +9,27 @@ import {
   getLeftCaretByRange,
   getRightCaretByRange,
   transformToNextLineCaret,
-  transformToPrevLineCaret,
-} from '$app/utils/document/action';
-import Delta from 'quill-delta';
-import { indentNodeThunk, mergeDeltaThunk, outdentNodeThunk } from '$app_reducers/document/async-actions/blocks';
-import { rangeActions } from '$app_reducers/document/slice';
-import { RootState } from '$app/stores/store';
-import { blockConfig } from '$app/constants/document/config';
-import { Keyboard } from '$app/constants/document/keyboard';
-import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
-import { getPreviousWordIndex } from '$app/utils/document/delta';
+  transformToPrevLineCaret
+} from "$app/utils/document/action";
+import Delta from "quill-delta";
+import { indentNodeThunk, mergeDeltaThunk, outdentNodeThunk } from "$app_reducers/document/async-actions/blocks";
+import { rangeActions } from "$app_reducers/document/slice";
+import { RootState } from "$app/stores/store";
+import { blockConfig } from "$app/constants/document/config";
+import { Keyboard } from "$app/constants/document/keyboard";
+import { DOCUMENT_NAME, RANGE_NAME } from "$app/constants/document/name";
+import { getDeltaText, getPreviousWordIndex } from "$app/utils/document/delta";
+import { updatePageName } from "$app_reducers/pages/async_actions";
+import { newBlock } from "$app/utils/document/block";
+
 
 /**
- * Delete a block by backspace or delete key
- * 1. If the block is not a text block, turn it to a text block
- * 2. If the block is a text block
- *   2.1 If the block has next node or is top level, merge it to the previous line
- *   2.2 If the block has no next node and is not top level, outdent it
+ - Deletes a block using the backspace or delete key.
+ - If the block is not a text block, it is converted into a text block.
+ - If the block is a text block:
+ - - If the block is the first line, it is merged into the document title, and a new line is inserted.
+ - - If the block is not the first line and it has a next sibling, it is merged into the previous line (including the previous sibling and its parent).
+ - - If the block has no next sibling and is not a top-level block, it is outdented (moved to a higher level in the hierarchy).
  */
 export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
   'document/backspaceDeleteActionForBlock',
@@ -49,11 +53,43 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
     }
 
     const isTopLevel = parent.type === BlockType.PageBlock;
+    const isFirstLine = isTopLevel && index === 0;
 
+    if (isTopLevel && isFirstLine) {
+      // merge to document title and insert a new line
+      const parentDelta = new Delta(parent.data.delta);
+      const caretIndex = parentDelta.length();
+      const caret = {
+        id: parent.id,
+        index: caretIndex,
+        length: 0,
+      };
+      const titleDelta = parentDelta.concat(new Delta(node.data.delta));
+      await dispatch(updatePageName({ id: docId, name: getDeltaText(titleDelta) }));
+      const actions = [
+        controller.getDeleteAction(node),
+      ]
+
+      if (!nextNodeId) {
+        // insert a new line
+        const block = newBlock<any>(BlockType.TextBlock, parent.id, {
+          delta: [{ insert: "" }]
+        });
+        actions.push(controller.getInsertAction(block, null));
+      }
+      await controller.applyActions(actions);
+      dispatch(rangeActions.initialState(docId));
+      dispatch(
+        rangeActions.setCaret({
+          docId,
+          caret,
+        })
+      );
+      return;
+    }
     if (isTopLevel || nextNodeId) {
       // merge to previous line
       const prevLine = findPrevHasDeltaNode(state, id);
-
       if (!prevLine) return;
       const caretIndex = new Delta(prevLine.data.delta).length();
       const caret = {
@@ -104,19 +140,49 @@ export const enterActionForBlockThunk = createAsyncThunk(
     if (!node || !caret || caret.id !== id) return;
     const delta = new Delta(node.data.delta);
 
+    const nodeDelta = delta.slice(0, caret.index);
+
+    const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
+
+    const isDocumentTitle = !node.parent;
+    // update page title and insert a new line
+    if (isDocumentTitle) {
+      // update page title
+      await dispatch(updatePageName({
+        id: docId,
+        name: getDeltaText(nodeDelta),
+      }));
+      // insert a new line
+      const block = newBlock<any>(BlockType.TextBlock, node.id, {
+        delta: insertNodeDelta.ops,
+      });
+      const insertNodeAction = controller.getInsertAction(block, null);
+      await controller.applyActions([insertNodeAction]);
+      dispatch(rangeActions.initialState(docId));
+      dispatch(
+        rangeActions.setCaret({
+          docId,
+          caret: {
+            id: block.id,
+            index: 0,
+            length: 0,
+          },
+        })
+      );
+      return;
+    }
+
     if (delta.length() === 0 && node.type !== BlockType.TextBlock) {
       // If the node is not a text block, turn it to a text block
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;
     }
 
-    const nodeDelta = delta.slice(0, caret.index);
-
-    const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
 
     const insertNodeAction = getInsertEnterNodeAction(node, insertNodeDelta, controller);
 
     if (!insertNodeAction) return;
+
     const updateNode = {
       ...node,
       data: {

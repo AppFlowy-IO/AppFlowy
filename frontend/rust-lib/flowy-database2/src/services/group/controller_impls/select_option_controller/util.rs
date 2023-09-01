@@ -1,11 +1,13 @@
+use chrono::NaiveDateTime;
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row};
+use collab_database::rows::{Cell, Row, RowDetail};
 
 use crate::entities::{
   FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB, SelectOptionCellDataPB,
 };
-use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell, insert_url_cell};
-use crate::services::database::RowDetail;
+use crate::services::cell::{
+  insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
+};
 use crate::services::field::{SelectOption, CHECK};
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
@@ -29,7 +31,7 @@ pub fn add_or_remove_select_option_row(
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {
@@ -102,7 +104,7 @@ pub fn move_group_row(
   }
 
   if group.id == *to_group_id {
-    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta));
+    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from((*row_detail).clone()));
     match to_index {
       None => {
         changeset.inserted_rows.push(inserted_row);
@@ -169,6 +171,13 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
     },
     FieldType::URL => {
       let cell = insert_url_cell(group_id.to_owned(), field);
+      Some(cell)
+    },
+    FieldType::DateTime => {
+      let date =
+        NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
+          .unwrap();
+      let cell = insert_date_cell(date.timestamp(), None, field);
       Some(cell)
     },
     _ => {

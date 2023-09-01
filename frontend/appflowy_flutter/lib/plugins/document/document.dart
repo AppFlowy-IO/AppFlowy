@@ -1,5 +1,6 @@
 library document_plugin;
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/left_bar_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  String get menuIcon => "editor/documents";
+  FlowySvgData get icon => FlowySvgs.documents_s;
 
   @override
   PluginType get pluginType => PluginType.editor;
@@ -39,8 +41,6 @@ class DocumentPluginBuilder extends PluginBuilder {
 
 class DocumentPlugin extends Plugin<int> {
   late PluginType _pluginType;
-  final DocumentAppearanceCubit _documentAppearanceCubit =
-      DocumentAppearanceCubit();
 
   @override
   final ViewPluginNotifier notifier;
@@ -52,20 +52,12 @@ class DocumentPlugin extends Plugin<int> {
     Key? key,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
-    _documentAppearanceCubit.fetch();
-  }
-
-  @override
-  void dispose() {
-    _documentAppearanceCubit.close();
-    super.dispose();
   }
 
   @override
   PluginWidgetBuilder get widgetBuilder {
     return DocumentPluginWidgetBuilder(
       notifier: notifier,
-      documentAppearanceCubit: _documentAppearanceCubit,
     );
   }
 
@@ -81,11 +73,9 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
-  DocumentAppearanceCubit documentAppearanceCubit;
 
   DocumentPluginWidgetBuilder({
     required this.notifier,
-    required this.documentAppearanceCubit,
     Key? key,
   });
 
@@ -93,7 +83,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
-  Widget buildWidget({PluginContext? context}) {
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
       notifier.isDeleted.value.fold(() => null, (deletedView) {
         if (deletedView.hasIndex()) {
@@ -102,22 +92,22 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
       });
     });
 
-    return BlocProvider.value(
-      value: documentAppearanceCubit,
-      child: BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-        builder: (_, state) {
-          return DocumentPage(
-            view: view,
-            onDeleted: () => context?.onDeleted(view, deletedViewIndex),
-            key: ValueKey(view.id),
-          );
-        },
-      ),
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (_, state) {
+        return DocumentPage(
+          view: view,
+          onDeleted: () => context?.onDeleted(view, deletedViewIndex),
+          key: ValueKey(view.id),
+        );
+      },
     );
   }
 
   @override
   Widget get leftBarItem => ViewLeftBarItem(view: view);
+
+  @override
+  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
 
   @override
   Widget? get rightBarItem {
@@ -128,10 +118,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
         ),
         const SizedBox(width: 10),
-        BlocProvider.value(
-          value: documentAppearanceCubit,
-          child: const DocumentMoreButton(),
-        ),
+        const DocumentMoreButton(),
       ],
     );
   }
