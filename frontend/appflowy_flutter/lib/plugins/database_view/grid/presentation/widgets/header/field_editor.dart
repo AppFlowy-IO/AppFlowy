@@ -102,7 +102,7 @@ class _FieldEditorState extends State<FieldEditor> {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: _HideFieldButton(
+          child: HideFieldButton(
             popoverMutex: popoverMutex,
             onHidden: () {
               state.field.fold(
@@ -236,11 +236,12 @@ class _DeleteFieldButton extends StatelessWidget {
   }
 }
 
-class _HideFieldButton extends StatelessWidget {
+@visibleForTesting
+class HideFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   final VoidCallback? onHidden;
 
-  const _HideFieldButton({
+  const HideFieldButton({
     required this.popoverMutex,
     required this.onHidden,
     Key? key,

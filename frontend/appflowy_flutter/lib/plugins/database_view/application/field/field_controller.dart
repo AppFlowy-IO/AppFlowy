@@ -417,7 +417,7 @@ class FieldController {
       _fieldNotifier.fieldInfos = newFieldInfos;
     }
 
-    List<FieldInfo> updateFields(List<FieldPB> updatedFieldPBs) {
+    Future<List<FieldInfo>> updateFields(List<FieldPB> updatedFieldPBs) async {
       if (updatedFieldPBs.isEmpty) {
         return [];
       }
@@ -429,7 +429,8 @@ class FieldController {
             newFields.indexWhere((field) => field.id == updatedFieldPB.id);
         if (index != -1) {
           newFields.removeAt(index);
-          final fieldInfo = FieldInfo.initial(updatedFieldPB);
+          final initial = FieldInfo.initial(updatedFieldPB);
+          final fieldInfo = await attachFieldSettings(initial);
           newFields.insert(index, fieldInfo);
           updatedFields.add(fieldInfo);
         }
@@ -443,16 +444,16 @@ class FieldController {
 
     // Listen on field's changes
     _fieldListener.start(
-      onFieldsChanged: (result) {
+      onFieldsChanged: (result) async {
         result.fold(
-          (changeset) {
+          (changeset) async {
             if (_isDisposed) {
               return;
             }
             deleteFields(changeset.deletedFields);
             insertFields(changeset.insertedFields);
 
-            final updatedFields = updateFields(changeset.updatedFields);
+            final updatedFields = await updateFields(changeset.updatedFields);
             for (final listener in _updatedFieldCallbacks.values) {
               listener(updatedFields);
             }
@@ -548,7 +549,7 @@ class FieldController {
 
           _fieldNotifier.fieldInfos =
               newFields.map((field) => FieldInfo.initial(field)).toList();
-          Future.wait([
+          await Future.wait([
             _loadFilters(),
             _loadSorts(),
             _loadAllFieldSettings(),
