@@ -15,7 +15,7 @@ class PanesState extends Equatable {
     final pane = PaneNode(
       tabs: Tabs(),
       children: const [],
-      paneId: UniqueKey().toString(),
+      paneId: nanoid(),
       axis: null,
     );
     return PanesState(

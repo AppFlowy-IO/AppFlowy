@@ -8,16 +8,18 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:nanoid/nanoid.dart';
 
 import '../panes.dart';
 
 part 'panes_state.dart';
 
+enum SplitDirection { left, right, up, down }
+
 class PanesCubit extends Cubit<PanesState> {
-  static final key = UniqueKey().toString();
   final PanesService panesService;
   late final MenuSharedState menuSharedState;
-  PanesCubit()
+  PanesCubit({required double offset})
       : panesService = PanesService(),
         menuSharedState = getIt<MenuSharedState>(),
         super(PanesState.initial());
@@ -27,86 +29,29 @@ class PanesCubit extends Cubit<PanesState> {
     _setLatestOpenView();
   }
 
-  void splitRight(ViewPB view) {
-    emit(
-      state.copyWith(
-        root: panesService.splitHandler(
-          state.root,
-          state.activePane.paneId,
-          view,
-          Direction.front,
-          Axis.vertical,
-        ),
-      ),
-    );
-    emit(
-      state.copyWith(
-        count: panesService.countNodeHandler(
-          state.root,
-        ),
-      ),
-    );
-  }
+  void split(ViewPB view, SplitDirection splitDirection) {
+    final direction =
+        [SplitDirection.right, SplitDirection.down].contains(splitDirection)
+            ? Direction.front
+            : Direction.back;
 
-  void splitDown(ViewPB view) {
-    emit(
-      state.copyWith(
-        root: panesService.splitHandler(
-          state.root,
-          state.activePane.paneId,
-          view,
-          Direction.front,
-          Axis.horizontal,
-        ),
-      ),
-    );
-    emit(
-      state.copyWith(
-        count: panesService.countNodeHandler(
-          state.root,
-        ),
-      ),
-    );
-  }
+    final axis =
+        [SplitDirection.down, SplitDirection.up].contains(splitDirection)
+            ? Axis.horizontal
+            : Axis.vertical;
 
-  void splitLeft(ViewPB view) {
-    emit(
-      state.copyWith(
-        root: panesService.splitHandler(
-          state.root,
-          state.activePane.paneId,
-          view,
-          Direction.back,
-          Axis.vertical,
-        ),
-      ),
+    final root = panesService.splitHandler(
+      state.root,
+      state.activePane.paneId,
+      view,
+      direction,
+      axis,
     );
-    emit(
-      state.copyWith(
-        count: panesService.countNodeHandler(
-          state.root,
-        ),
-      ),
-    );
-  }
 
-  void splitUp(ViewPB view) {
     emit(
       state.copyWith(
-        root: panesService.splitHandler(
-          state.root,
-          state.activePane.paneId,
-          view,
-          Direction.back,
-          Axis.horizontal,
-        ),
-      ),
-    );
-    emit(
-      state.copyWith(
-        count: panesService.countNodeHandler(
-          state.root,
-        ),
+        root: root,
+        count: panesService.countNodeHandler(root),
       ),
     );
   }
@@ -114,18 +59,8 @@ class PanesCubit extends Cubit<PanesState> {
   void closePane(String paneId) {
     emit(
       state.copyWith(
-        root: panesService.closePaneHandler(
-          state.root,
-          paneId,
-          setActivePane,
-        ),
-      ),
-    );
-    emit(
-      state.copyWith(
-        count: panesService.countNodeHandler(
-          state.root,
-        ),
+        root: panesService.closePaneHandler(state.root, paneId, setActivePane),
+        count: panesService.countNodeHandler(state.root),
       ),
     );
   }
