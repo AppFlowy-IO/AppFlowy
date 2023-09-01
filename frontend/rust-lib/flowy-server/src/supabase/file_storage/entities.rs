@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 
-use flowy_storage::core::ObjectValue;
+use flowy_storage::ObjectValue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -75,15 +75,15 @@ impl DeleteObjects {
 
 pub enum RequestBody {
   Empty,
-  File {
+  MultiPartFile {
     file_path: String,
     options: FileOptions,
   },
-  Bytes {
+  MultiPartBytes {
     bytes: Bytes,
     options: FileOptions,
   },
-  Text {
+  BodyString {
     text: String,
   },
 }
@@ -92,8 +92,8 @@ impl From<(FileOptions, ObjectValue)> for RequestBody {
   fn from(params: (FileOptions, ObjectValue)) -> Self {
     let (options, value) = params;
     match value {
-      ObjectValue::File { file_path } => RequestBody::File { file_path, options },
-      ObjectValue::Bytes { bytes, mime: _ } => RequestBody::Bytes { bytes, options },
+      ObjectValue::File { file_path } => RequestBody::MultiPartFile { file_path, options },
+      ObjectValue::Bytes { bytes, mime: _ } => RequestBody::MultiPartBytes { bytes, options },
     }
   }
 }

@@ -185,6 +185,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+        Arc::downgrade(&server_provider.file_storage()),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
@@ -295,7 +296,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     user_workspace: &UserWorkspace,
     _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
-    let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
     let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
@@ -305,7 +305,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     if let Some(cloud_config) = cloud_config {
       self
         .server_provider
-        .set_enable_sync(cloud_config.enable_sync);
+        .set_enable_sync(user_id, cloud_config.enable_sync);
       if cloud_config.enable_encrypt() {
         self
           .server_provider

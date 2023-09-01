@@ -1,6 +1,7 @@
 use url::Url;
+use uuid::Uuid;
 
-use flowy_storage::core::StorageObject;
+use flowy_storage::StorageObject;
 
 use crate::supabase_test::util::{file_storage_service, get_supabase_ci_config};
 
@@ -11,7 +12,7 @@ async fn supabase_get_object_test() {
   }
 
   let service = file_storage_service();
-  let file_name = format!("test-{}.txt", chrono::Utc::now().timestamp());
+  let file_name = format!("test-{}.txt", Uuid::new_v4().to_string());
   let object = StorageObject::from_file(&file_name, "tests/test.txt");
 
   // Upload a file
@@ -28,8 +29,9 @@ async fn supabase_get_object_test() {
   assert_eq!(name, &file_name);
 
   // Download the file
-  let bytes = service.get_object(&file_name).await.unwrap();
-  assert!(!bytes.is_empty());
+  let bytes = service.get_object_by_url(url.as_str()).await.unwrap();
+  let s = String::from_utf8(bytes.to_vec()).unwrap();
+  assert_eq!(s, "hello world");
 }
 
 #[tokio::test]
@@ -39,20 +41,20 @@ async fn supabase_upload_image_test() {
   }
 
   let service = file_storage_service();
-  let file_name = format!("image-{}.png", chrono::Utc::now().timestamp());
+  let file_name = format!("image-{}.png", Uuid::new_v4().to_string());
   let object = StorageObject::from_file(&file_name, "tests/logo.png");
 
   // Upload a file
-  let _ = service
+  let url = service
     .create_object(object)
     .await
     .unwrap()
     .parse::<Url>()
     .unwrap();
 
-  // Download the file
-  let bytes = service.get_object(&file_name).await.unwrap();
-  assert!(!bytes.is_empty());
+  // Download object by url
+  let bytes = service.get_object_by_url(url.as_str()).await.unwrap();
+  assert_eq!(bytes.len(), 15694);
 }
 
 #[tokio::test]
@@ -62,15 +64,15 @@ async fn supabase_delete_object_test() {
   }
 
   let service = file_storage_service();
-  let file_name = format!("test-{}.txt", chrono::Utc::now().timestamp());
+  let file_name = format!("test-{}.txt", Uuid::new_v4().to_string());
   let object = StorageObject::from_file(&file_name, "tests/test.txt");
-  let _ = service.create_object(object).await.unwrap();
+  let url = service.create_object(object).await.unwrap();
 
-  let result = service.get_object(&file_name).await;
+  let result = service.get_object_by_url(&url).await;
   assert!(result.is_ok());
 
-  let _ = service.delete_object(&file_name).await;
+  let _ = service.delete_object_by_url(&url).await;
 
-  let result = service.get_object(&file_name).await;
+  let result = service.get_object_by_url(&url).await;
   assert!(result.is_err());
 }

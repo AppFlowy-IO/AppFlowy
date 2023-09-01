@@ -1,13 +1,16 @@
 use std::sync::Arc;
 
+use bytes::Bytes;
 use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 use parking_lot::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_storage::core::FileStorageService;
+use flowy_storage::error::FileStorageError;
+use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user_deps::cloud::UserCloudService;
+use lib_infra::future::FutureResult;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;
@@ -36,7 +39,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Arguments
   ///
   /// * `_enable` - A boolean to toggle the server synchronization.
-  fn set_enable_sync(&self, _enable: bool) {}
+  fn set_enable_sync(&self, uid: i64, _enable: bool) {}
 
   /// Provides access to cloud-based user management functionalities. This includes operations
   /// such as user registration, authentication, profile management, and handling of user workspaces.
@@ -88,6 +91,21 @@ pub trait AppFlowyServer: Send + Sync + 'static {
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
     None
+  }
+}
+
+pub struct DefaultFileStorageService;
+impl FileStorageService for DefaultFileStorageService {
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FileStorageError> {
+    todo!()
+  }
+
+  fn delete_object_by_url(&self, object_url: &str) -> FutureResult<(), FileStorageError> {
+    todo!()
+  }
+
+  fn get_object_by_url(&self, object_url: &str) -> FutureResult<Bytes, FileStorageError> {
+    todo!()
   }
 }
 

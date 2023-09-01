@@ -16,8 +16,9 @@ use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::core::FileStorageService;
+use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
 use flowy_user_deps::cloud::UserCloudService;
+use lib_infra::future::FutureResult;
 
 use crate::setup_log;
 
@@ -59,8 +60,16 @@ pub fn folder_service() -> Arc<dyn FolderCloudService> {
 }
 
 pub fn file_storage_service() -> Arc<dyn FileStorageService> {
+  let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(EncryptionImpl::new(None));
   let config = SupabaseConfiguration::from_env().unwrap();
-  Arc::new(SupabaseFileStorage::new(&config).unwrap())
+  Arc::new(
+    SupabaseFileStorage::new(
+      &config,
+      Arc::downgrade(&encryption_impl),
+      Arc::new(TestFileStoragePlan),
+    )
+    .unwrap(),
+  )
 }
 
 #[allow(dead_code)]
@@ -130,4 +139,22 @@ pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
   );
   params.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
   params
+}
+
+pub struct TestFileStoragePlan;
+
+impl FileStoragePlan for TestFileStoragePlan {
+  fn storage_size(&self) -> FutureResult<u64, FileStorageError> {
+    // 1 GB
+    FutureResult::new(async { Ok(1 * 1024 * 1024 * 1024) })
+  }
+
+  fn maximum_file_size(&self) -> FutureResult<u64, FileStorageError> {
+    // 5 MB
+    FutureResult::new(async { Ok(5 * 1024 * 1024) })
+  }
+
+  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FileStorageError> {
+    FutureResult::new(async { Ok(()) })
+  }
 }

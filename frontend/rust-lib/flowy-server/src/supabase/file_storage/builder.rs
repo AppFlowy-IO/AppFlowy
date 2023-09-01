@@ -6,13 +6,13 @@ use reqwest::header::IntoHeaderName;
 use reqwest::multipart::{Form, Part};
 use reqwest::{
   header::{HeaderMap, HeaderValue},
-  Body, Client, Method, RequestBuilder,
+  Client, Method, RequestBuilder,
 };
 use tokio::fs::File;
-use tokio_util::codec::{BytesCodec, FramedRead};
+use tokio::io::AsyncReadExt;
 use url::Url;
 
-use flowy_storage::core::StorageObject;
+use flowy_storage::StorageObject;
 
 use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket, RequestBody};
 
@@ -52,7 +52,7 @@ impl StorageRequestBuilder {
       .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
     self.url.path_segments_mut().unwrap().push("bucket");
     let bucket = serde_json::to_string(&NewBucket::new(bucket_name.to_string())).unwrap();
-    self.body = RequestBody::Text { text: bucket };
+    self.body = RequestBody::BodyString { text: bucket };
     self
   }
 
@@ -63,7 +63,7 @@ impl StorageRequestBuilder {
       .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
     let delete_objects = DeleteObjects::new(vec![object.to_string()]);
     let text = serde_json::to_string(&delete_objects).unwrap();
-    self.body = RequestBody::Text { text };
+    self.body = RequestBody::BodyString { text };
     self
       .url
       .path_segments_mut()
@@ -89,11 +89,6 @@ impl StorageRequestBuilder {
   pub fn upload_object(mut self, bucket_name: &str, object: StorageObject) -> Self {
     self.method = Method::POST;
     let options = FileOptions::from_mime(object.value.mime_type());
-    self.headers.insert(
-      CONTENT_TYPE,
-      HeaderValue::from_str(&options.content_type).unwrap(),
-    );
-
     self
       .url
       .path_segments_mut()
@@ -125,23 +120,30 @@ impl StorageRequestBuilder {
     let url = self.url.to_string();
     let mut builder = self.client.request(self.method, url);
     match self.body {
-      RequestBody::Empty => {},
-      RequestBody::File { file_path, options } => {
-        self.headers.insert(
-          CACHE_CONTROL,
-          HeaderValue::from_str(&options.cache_control).unwrap(),
-        );
+      RequestBody::Empty => {
+        // Do nothing
+      },
+      RequestBody::MultiPartFile { file_path, options } => {
         self.headers.insert(
           "x-upsert",
           HeaderValue::from_str(&options.upsert.to_string()).unwrap(),
         );
 
-        let file = File::open(&file_path).await?;
-        let file_body = Body::wrap_stream(FramedRead::new(file, BytesCodec::new()));
-        let part = Part::stream(file_body);
-        builder = builder.multipart(Form::new().part("", part));
+        let mut file = File::open(&file_path).await?;
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer).await?;
+
+        let part = Part::bytes(buffer)
+          .file_name(file_path.to_string())
+          .mime_str(&options.content_type)?;
+
+        let form = Form::new()
+          .part(file_path, part)
+          .text("cacheControl", options.cache_control);
+
+        builder = builder.multipart(form);
       },
-      RequestBody::Bytes { bytes, options } => {
+      RequestBody::MultiPartBytes { bytes, options } => {
         self.headers.insert(
           CACHE_CONTROL,
           HeaderValue::from_str(&options.cache_control).unwrap(),
@@ -153,7 +155,7 @@ impl StorageRequestBuilder {
         let part = Part::bytes(Cow::Owned(bytes.to_vec()));
         builder = builder.multipart(Form::new().part("", part));
       },
-      RequestBody::Text { text } => {
+      RequestBody::BodyString { text } => {
         builder = builder.body(text);
       },
     }
