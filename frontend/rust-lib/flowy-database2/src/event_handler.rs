@@ -14,6 +14,7 @@ use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
+use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
 
@@ -460,7 +461,7 @@ pub(crate) async fn create_row_handler(
     .await?
   {
     None => Err(FlowyError::internal().with_context("Create row fail")),
-    Some(row) => data_result_ok(RowMetaPB::from(row.meta)),
+    Some(row) => data_result_ok(RowMetaPB::from(row)),
   }
 }
 
@@ -890,4 +891,64 @@ pub(crate) async fn get_snapshots_handler(
   let view_id = data.into_inner().value;
   let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_field_settings_handler(
+  data: AFPluginData<FieldIdsPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let (view_id, field_ids) = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_field_settings(&view_id, layout_ty, field_ids.clone())
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect();
+
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_field_settings_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_all_field_settings(view_id.as_ref(), layout_ty)
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect();
+
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_field_settings_handler(
+  data: AFPluginData<FieldSettingsChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: FieldSettingsChangesetParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .update_field_settings_with_changeset(params)
+    .await?;
+  Ok(())
 }

@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use crate::entities::FieldType;
 use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
+use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::setting::CalendarLayoutSetting;
 
 /// When creating a database, we need to resolve the dependencies of the views.
@@ -83,7 +84,10 @@ impl DatabaseLayoutDepsResolver {
             tracing::trace!("Create a new date field after layout type change");
             let field = self.create_date_field();
             let field_id = field.id.clone();
-            self.database.lock().create_field(field);
+            self
+              .database
+              .lock()
+              .create_field(field, default_field_settings_by_layout_map());
             field_id
           },
           Some(date_field) => date_field.id,

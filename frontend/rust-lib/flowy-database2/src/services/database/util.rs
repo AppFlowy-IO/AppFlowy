@@ -2,8 +2,9 @@ use collab_database::views::DatabaseView;
 
 use crate::entities::{
   CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB,
-  FilterPB, GroupSettingPB, SortPB,
+  FieldSettingsPB, FilterPB, GroupSettingPB, SortPB,
 };
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
 use crate::services::setting::CalendarLayoutSetting;
@@ -30,6 +31,7 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
       Err(_) => None,
     })
     .collect::<Vec<FilterPB>>();
+
   let group_settings = view
     .group_settings
     .into_iter()
@@ -48,11 +50,20 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     })
     .collect::<Vec<SortPB>>();
 
+  let field_settings = view
+    .field_settings
+    .into_inner()
+    .into_iter()
+    .flat_map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+    .map(FieldSettingsPB::from)
+    .collect::<Vec<FieldSettingsPB>>();
+
   DatabaseViewSettingPB {
     layout_type,
     filters: filters.into(),
     group_settings: group_settings.into(),
     sorts: sorts.into(),
+    field_settings: field_settings.into(),
     layout_setting,
   }
 }

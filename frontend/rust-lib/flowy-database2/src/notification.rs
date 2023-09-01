@@ -50,6 +50,8 @@ pub enum DatabaseNotification {
   DidMoveDatabaseViewToTrash = 84,
   DidUpdateDatabaseSyncUpdate = 85,
   DidUpdateDatabaseSnapshotState = 86,
+  // Trigger when the field setting is changed
+  DidUpdateFieldSettings = 87,
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {
@@ -81,6 +83,7 @@ impl std::convert::From<i32> for DatabaseNotification {
       82 => DatabaseNotification::DidUpdateDatabaseLayout,
       83 => DatabaseNotification::DidDeleteDatabaseView,
       84 => DatabaseNotification::DidMoveDatabaseViewToTrash,
+      87 => DatabaseNotification::DidUpdateFieldSettings,
       _ => DatabaseNotification::Unknown,
     }
   }

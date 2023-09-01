@@ -232,6 +232,12 @@ pub enum ErrorCode {
 
   #[error("It appears that the workspace data has not been fully synchronized")]
   WorkspaceDataNotSync = 76,
+
+  #[error("Excess storage limited")]
+  ExcessStorageLimited = 77,
+
+  #[error("Parse url failed")]
+  InvalidURL = 78,
 }
 
 impl ErrorCode {

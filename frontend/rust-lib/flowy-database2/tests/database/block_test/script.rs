@@ -43,7 +43,7 @@ impl DatabaseRowTest {
           .unwrap();
         self
           .row_by_row_id
-          .insert(row_detail.row.id.to_string(), row_detail.meta.into());
+          .insert(row_detail.row.id.to_string(), row_detail.into());
         self.row_details = self.get_rows().await;
       },
       RowScript::UpdateTextCell { row_id, content } => {

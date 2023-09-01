@@ -1,5 +1,7 @@
 export 'actions/block_action_list.dart';
 export 'actions/option_action.dart';
+export 'align_toolbar_item/align_toolbar_item.dart';
+export 'base/toolbar_extension.dart';
 export 'callout/callout_block_component.dart';
 export 'code_block/code_block_component.dart';
 export 'code_block/code_block_shortcut_event.dart';
@@ -24,5 +26,7 @@ export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
+export 'table/table_menu.dart';
+export 'table/table_option_action.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcut_event.dart';

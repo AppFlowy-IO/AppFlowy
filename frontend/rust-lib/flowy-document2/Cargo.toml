@@ -10,6 +10,7 @@ collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 appflowy-integrate = {version = "0.1.0" }
 flowy-document-deps = { path = "../flowy-document-deps" }
+flowy-storage = { path = "../flowy-storage" }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-notification = { path = "../flowy-notification" }

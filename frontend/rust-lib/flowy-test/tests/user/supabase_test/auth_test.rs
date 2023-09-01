@@ -1,9 +1,16 @@
 use std::collections::HashMap;
 
+use assert_json_diff::assert_json_eq;
+use collab_database::rows::database_row_document_id_from_row_id;
+use collab_document::blocks::DocumentData;
+use collab_folder::core::FolderData;
 use nanoid::nanoid;
+use serde_json::json;
 
+use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
-use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{CollabType, USER_EMAIL, USER_UUID};
+use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{
@@ -258,4 +265,266 @@ async fn update_user_profile_with_existing_email_test() {
       .unwrap();
     assert_eq!(error.code, ErrorCode::Conflict);
   }
+}
+
+#[tokio::test]
+async fn migrate_anon_document_on_cloud_signup() {
+  if get_supabase_config().is_some() {
+    let test = FlowyCoreTest::new();
+    let user_profile = test.sign_up_as_guest().await.user_profile;
+
+    let view = test
+      .create_view(&user_profile.workspace_id, "My first view".to_string())
+      .await;
+    let document_event = DocumentEventTest::new_with_core(test.clone());
+    let block_id = document_event
+      .insert_index(&view.id, "hello world", 1, None)
+      .await;
+
+    let _ = test.supabase_party_sign_up().await;
+
+    // After sign up, the documents should be migrated to the cloud
+    // So, we can get the document data from the cloud
+    let data: DocumentData = test
+      .document_manager
+      .get_cloud_service()
+      .get_document_data(&view.id)
+      .await
+      .unwrap()
+      .unwrap();
+    let block = data.blocks.get(&block_id).unwrap();
+    assert_json_eq!(
+      block.data,
+      json!({
+        "delta": [
+          {
+            "insert": "hello world"
+          }
+        ]
+      })
+    );
+  }
+}
+
+#[tokio::test]
+async fn migrate_anon_data_on_cloud_signup() {
+  if get_supabase_config().is_some() {
+    let (cleaner, user_db_path) = unzip_history_user_db(
+      "./tests/user/supabase_test/history_user_db",
+      "workspace_sync",
+    )
+    .unwrap();
+    let test = FlowyCoreTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
+    let user_profile = test.supabase_party_sign_up().await;
+
+    // Get the folder data from remote
+    let folder_data: FolderData = test
+      .folder_manager
+      .get_cloud_service()
+      .get_folder_data(&user_profile.workspace_id)
+      .await
+      .unwrap()
+      .unwrap();
+
+    let expected_folder_data = expected_workspace_sync_folder_data();
+
+    if folder_data.workspaces.len() != expected_folder_data.workspaces.len() {
+      dbg!(&folder_data.workspaces);
+    }
+
+    assert_eq!(
+      folder_data.workspaces.len(),
+      expected_folder_data.workspaces.len()
+    );
+    assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
+
+    // After migration, the ids of the folder_data should be different from the expected_folder_data
+    for i in 0..folder_data.views.len() {
+      let left_view = &folder_data.views[i];
+      let right_view = &expected_folder_data.views[i];
+      assert_ne!(left_view.id, right_view.id);
+      assert_ne!(left_view.parent_view_id, right_view.parent_view_id);
+      assert_eq!(left_view.name, right_view.name);
+    }
+
+    assert_ne!(
+      folder_data.current_workspace_id,
+      expected_folder_data.current_workspace_id
+    );
+    assert_ne!(folder_data.current_view, expected_folder_data.current_view);
+
+    let database_views = folder_data
+      .views
+      .iter()
+      .filter(|view| view.layout.is_database())
+      .collect::<Vec<_>>();
+
+    // Try to load the database from the cloud.
+    for (i, database_view) in database_views.iter().enumerate() {
+      let cloud_service = test.database_manager.get_cloud_service();
+      let database_id = test
+        .database_manager
+        .get_database_id_with_view_id(&database_view.id)
+        .await
+        .unwrap();
+      let editor = test
+        .database_manager
+        .get_database(&database_id)
+        .await
+        .unwrap();
+
+      // The database view setting should be loaded by the view id
+      let _ = editor
+        .get_database_view_setting(&database_view.id)
+        .await
+        .unwrap();
+
+      let rows = editor.get_rows(&database_view.id).await.unwrap();
+      assert_eq!(rows.len(), 3);
+
+      if i == 0 {
+        let first_row = rows.first().unwrap().as_ref();
+        let icon_url = first_row.meta.icon_url.clone().unwrap();
+        assert_eq!(icon_url, "😄");
+
+        let document_id = database_row_document_id_from_row_id(&first_row.row.id);
+        let document_data: DocumentData = test
+          .document_manager
+          .get_cloud_service()
+          .get_document_data(&document_id)
+          .await
+          .unwrap()
+          .unwrap();
+
+        let editor = test
+          .document_manager
+          .get_document(&document_id)
+          .await
+          .unwrap();
+        let expected_document_data = editor.lock().get_document_data().unwrap();
+
+        // let expected_document_data = test
+        //   .document_manager
+        //   .get_document_data(&document_id)
+        //   .await
+        //   .unwrap();
+        assert_eq!(document_data, expected_document_data);
+        let json = json!(document_data);
+        assert_eq!(
+          json["blocks"]["LPMpo0Qaab"]["data"]["delta"][0]["insert"],
+          json!("Row document")
+        );
+      }
+
+      assert!(cloud_service
+        .get_collab_update(&database_id, CollabType::Database)
+        .await
+        .is_ok());
+    }
+
+    drop(cleaner);
+  }
+}
+
+fn expected_workspace_sync_folder_data() -> FolderData {
+  serde_json::from_value::<FolderData>(json!({
+    "current_view": "e0811131-9928-4541-a174-20b7553d9e4c",
+    "current_workspace_id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3",
+    "views": [
+      {
+        "children": {
+          "items": [
+            {
+              "id": "e0811131-9928-4541-a174-20b7553d9e4c"
+            },
+            {
+              "id": "53333949-c262-447b-8597-107589697059"
+            }
+          ]
+        },
+        "created_at": 1693147093,
+        "desc": "",
+        "icon": null,
+        "id": "e203afb3-de5d-458a-8380-33cd788a756e",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "⭐️ Getting started",
+        "parent_view_id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3"
+      },
+      {
+        "children": {
+          "items": [
+            {
+              "id": "11c697ba-5ed1-41c0-adfc-576db28ad27b"
+            },
+            {
+              "id": "4a5c25e2-a734-440c-973b-4c0e7ab0039c"
+            }
+          ]
+        },
+        "created_at": 1693147096,
+        "desc": "",
+        "icon": null,
+        "id": "e0811131-9928-4541-a174-20b7553d9e4c",
+        "is_favorite": false,
+        "layout": 1,
+        "name": "database",
+        "parent_view_id": "e203afb3-de5d-458a-8380-33cd788a756e"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1693147124,
+        "desc": "",
+        "icon": null,
+        "id": "11c697ba-5ed1-41c0-adfc-576db28ad27b",
+        "is_favorite": false,
+        "layout": 3,
+        "name": "calendar",
+        "parent_view_id": "e0811131-9928-4541-a174-20b7553d9e4c"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1693147125,
+        "desc": "",
+        "icon": null,
+        "id": "4a5c25e2-a734-440c-973b-4c0e7ab0039c",
+        "is_favorite": false,
+        "layout": 2,
+        "name": "board",
+        "parent_view_id": "e0811131-9928-4541-a174-20b7553d9e4c"
+      },
+      {
+        "children": {
+          "items": []
+        },
+        "created_at": 1693147133,
+        "desc": "",
+        "icon": null,
+        "id": "53333949-c262-447b-8597-107589697059",
+        "is_favorite": false,
+        "layout": 0,
+        "name": "document",
+        "parent_view_id": "e203afb3-de5d-458a-8380-33cd788a756e"
+      }
+    ],
+    "workspaces": [
+      {
+        "child_views": {
+          "items": [
+            {
+              "id": "e203afb3-de5d-458a-8380-33cd788a756e"
+            }
+          ]
+        },
+        "created_at": 1693147093,
+        "id": "8df7f755-fa5d-480e-9f8e-48ea0fed12b3",
+        "name": "Workspace"
+      }
+    ]
+  }))
+  .unwrap()
 }

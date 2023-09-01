@@ -9,6 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::field::{default_type_option_data_from_type, CELL_DATA};
+use crate::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use crate::services::share::csv::CSVFormat;
 
 #[derive(Default)]
@@ -96,6 +97,9 @@ fn database_from_fields_and_rows(
     })
     .collect::<Vec<Field>>();
 
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
+
   let created_rows = rows
     .iter()
     .map(|cells| {
@@ -134,6 +138,7 @@ fn database_from_fields_and_rows(
     sorts: vec![],
     created_rows,
     fields,
+    field_settings,
   }
 }
 

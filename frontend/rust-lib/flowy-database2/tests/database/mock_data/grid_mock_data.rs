@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
+use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -15,6 +16,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 pub fn make_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -115,6 +117,9 @@ pub fn make_test_grid() -> DatabaseData {
       },
     }
   }
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
 
   for i in 0..7 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
@@ -238,10 +243,11 @@ pub fn make_test_grid() -> DatabaseData {
   }
 
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    id: gen_database_id(),
+    database_id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
+    field_settings,
     ..Default::default()
   };
 
@@ -251,6 +257,7 @@ pub fn make_test_grid() -> DatabaseData {
 pub fn make_no_date_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
+
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -276,6 +283,9 @@ pub fn make_no_date_test_grid() -> DatabaseData {
       _ => {},
     }
   }
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
 
   for i in 0..3 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
@@ -319,6 +329,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     database_id: gen_database_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
+    field_settings,
     ..Default::default()
   };
 

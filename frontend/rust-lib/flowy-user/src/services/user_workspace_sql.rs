@@ -23,7 +23,7 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
     if value.1.id.is_empty() {
       return Err(FlowyError::invalid_data().with_context("The id is empty"));
     }
-    if value.1.database_storage_id.is_empty() {
+    if value.1.database_views_aggregate_id.is_empty() {
       return Err(FlowyError::invalid_data().with_context("The database storage id is empty"));
     }
 
@@ -32,7 +32,7 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
       name: value.1.name.clone(),
       uid: value.0,
       created_at: value.1.created_at.timestamp(),
-      database_storage_id: value.1.database_storage_id.clone(),
+      database_storage_id: value.1.database_views_aggregate_id.clone(),
     })
   }
 }
@@ -46,7 +46,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
         .timestamp_opt(value.created_at, 0)
         .single()
         .unwrap_or_default(),
-      database_storage_id: value.database_storage_id,
+      database_views_aggregate_id: value.database_storage_id,
     }
   }
 }

@@ -8,6 +8,7 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 
 use crate::supabase::api::{
@@ -15,6 +16,8 @@ use crate::supabase::api::{
   SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl, SupabaseDocumentServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
+use crate::supabase::file_storage::core::SupabaseFileStorage;
+use crate::supabase::file_storage::FileStoragePlanImpl;
 use crate::{AppFlowyEncryption, AppFlowyServer};
 
 /// https://www.pgbouncer.org/features.html
@@ -59,13 +62,16 @@ pub struct SupabaseServer {
   config: SupabaseConfiguration,
   /// did represents as the device id is used to identify the device that is currently using the app.
   device_id: Arc<RwLock<String>>,
+  uid: Arc<RwLock<Option<i64>>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
+  file_storage: Arc<RwLock<Option<Arc<SupabaseFileStorage>>>>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
 impl SupabaseServer {
   pub fn new(
+    uid: Arc<RwLock<Option<i64>>>,
     config: SupabaseConfiguration,
     enable_sync: bool,
     device_id: Arc<RwLock<String>>,
@@ -80,32 +86,52 @@ impl SupabaseServer {
     } else {
       None
     };
+    let file_storage = if enable_sync {
+      let plan = FileStoragePlanImpl::new(
+        Arc::downgrade(&uid),
+        restful_postgres.as_ref().map(Arc::downgrade),
+      );
+      Some(Arc::new(
+        SupabaseFileStorage::new(&config, encryption.clone(), Arc::new(plan)).unwrap(),
+      ))
+    } else {
+      None
+    };
     Self {
       config,
       device_id,
       collab_update_sender,
       restful_postgres: Arc::new(RwLock::new(restful_postgres)),
+      file_storage: Arc::new(RwLock::new(file_storage)),
       encryption,
-    }
-  }
-
-  pub fn set_enable_sync(&self, enable: bool) {
-    if enable {
-      if self.restful_postgres.read().is_some() {
-        return;
-      }
-      let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
-      *self.restful_postgres.write() = Some(Arc::new(postgres));
-    } else {
-      *self.restful_postgres.write() = None;
+      uid,
     }
   }
 }
 
 impl AppFlowyServer for SupabaseServer {
-  fn set_enable_sync(&self, enable: bool) {
-    tracing::info!("supabase sync: {}", enable);
-    self.set_enable_sync(enable);
+  fn set_enable_sync(&self, uid: i64, enable: bool) {
+    tracing::info!("{} supabase sync: {}", uid, enable);
+
+    if enable {
+      if self.restful_postgres.read().is_none() {
+        let postgres = RESTfulPostgresServer::new(self.config.clone(), self.encryption.clone());
+        *self.restful_postgres.write() = Some(Arc::new(postgres));
+      }
+
+      if self.file_storage.read().is_none() {
+        let plan = FileStoragePlanImpl::new(
+          Arc::downgrade(&self.uid),
+          self.restful_postgres.read().as_ref().map(Arc::downgrade),
+        );
+        let file_storage =
+          SupabaseFileStorage::new(&self.config, self.encryption.clone(), Arc::new(plan)).unwrap();
+        *self.file_storage.write() = Some(Arc::new(file_storage));
+      }
+    } else {
+      *self.restful_postgres.write() = None;
+      *self.file_storage.write() = None;
+    }
   }
 
   fn user_service(&self) -> Arc<dyn UserCloudService> {
@@ -159,5 +185,13 @@ impl AppFlowyServer for SupabaseServer {
       Some(rx),
       self.encryption.clone(),
     )))
+  }
+
+  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+    self
+      .file_storage
+      .read()
+      .clone()
+      .map(|s| s as Arc<dyn FileStorageService>)
   }
 }

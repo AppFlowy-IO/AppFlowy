@@ -7,6 +7,7 @@ use crate::services::cell::{insert_select_option_cell, insert_text_cell};
 use crate::services::field::{
   FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use crate::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use crate::services::setting::CalendarLayoutSetting;
 
 pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
@@ -26,6 +27,11 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
     .visibility(true)
     .build();
 
+  let fields = vec![text_field, single_select, checkbox_field];
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
+
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
@@ -40,7 +46,8 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
       CreateRowParams::new(gen_row_id()),
       CreateRowParams::new(gen_row_id()),
     ],
-    fields: vec![text_field, single_select, checkbox_field],
+    fields,
+    field_settings,
   }
 }
 
@@ -81,6 +88,11 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
     rows.push(row);
   }
 
+  let fields = vec![text_field, single_select];
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
@@ -91,7 +103,8 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
     groups: vec![],
     sorts: vec![],
     created_rows: rows,
-    fields: vec![text_field, single_select],
+    fields,
+    field_settings,
   }
 }
 
@@ -116,6 +129,11 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
     .visibility(true)
     .build();
 
+  let fields = vec![text_field, date_field, multi_select_field];
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Calendar).build();
+
   let mut layout_settings = LayoutSettings::default();
   layout_settings.insert(
     DatabaseLayout::Calendar,
@@ -132,6 +150,7 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
     groups: vec![],
     sorts: vec![],
     created_rows: vec![],
-    fields: vec![text_field, date_field, multi_select_field],
+    fields,
+    field_settings,
   }
 }

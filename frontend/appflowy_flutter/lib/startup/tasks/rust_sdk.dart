@@ -34,7 +34,6 @@ AppFlowyEnv getAppFlowyEnv() {
     enable_sync: true,
     url: Env.supabaseUrl,
     anon_key: Env.supabaseAnonKey,
-    jwt_secret: Env.supabaseJwtSecret,
   );
 
   return AppFlowyEnv(
