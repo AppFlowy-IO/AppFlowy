@@ -5,8 +5,7 @@ import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
@@ -42,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<PanesCubit>.value(value: getIt<PanesCubit>()),
-        // BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
             return HomeBloc(widget.user, widget.workspaceSetting)
@@ -79,11 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (currentPageManager.plugin.pluginType ==
                         PluginType.blank) {
-                      // getIt<TabsBloc>().add(
-                      //   TabsEvent.openPlugin(
-                      //     plugin: view.plugin(listenOnViewChanged: true),
-                      //   ),
-                      // );
                       getIt<PanesCubit>().openPlugin(
                         plugin: view.plugin(listenOnViewChanged: true),
                       );
@@ -256,9 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
               animate: true,
             )
             .animate(layout.animDuration, Curves.easeOut),
-        homeMenuResizer
-            .positioned(left: layout.menuWidth - 5)
-            .animate(layout.animDuration, Curves.easeOut),
+        homeMenuResizer.positioned(left: layout.menuWidth - 5)
       ],
     );
   }
@@ -283,21 +274,9 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
             if (index != null && index != 0 && views.length > index - 1) {
               lastView = views[index - 1];
             }
-
-            // getIt<TabsBloc>().add(
-            //   TabsEvent.openPlugin(
-            //     plugin: lastView.plugin(listenOnViewChanged: true),
-            //   ),
-            // );
             getIt<PanesCubit>()
                 .openPlugin(plugin: lastView.plugin(listenOnViewChanged: true));
           } else {
-            // getIt<TabsBloc>().add(
-            //   TabsEvent.openPlugin(
-            //     plugin: BlankPagePlugin(),
-            //   ),
-            // );
-
             getIt<PanesCubit>().openPlugin(plugin: BlankPagePlugin());
           }
         },

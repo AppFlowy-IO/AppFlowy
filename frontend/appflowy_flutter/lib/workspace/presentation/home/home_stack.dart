@@ -2,18 +2,19 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/size_cubit/cubit/pane_size_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -40,10 +41,7 @@ class HomeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<PanesCubit, PanesState>(
-      listener: (contest, state) {
-        Log.warn(state.root.toString());
-      },
+    return BlocBuilder<PanesCubit, PanesState>(
       builder: (context, state) {
         return _buildTabs(state.root, context);
       },
@@ -91,21 +89,85 @@ class HomeStack extends StatelessWidget {
         ),
       );
     } else {
-      if (root.axis == Axis.vertical) {
-        return Row(
-          key: ValueKey(root.paneId),
-          children: root.children
-              .map((e) => Expanded(child: _buildTabs(e, context)))
-              .toList(),
-        );
-      } else {
-        return Column(
-          key: ValueKey(root.paneId),
-          children: root.children
-              .map((e) => Expanded(child: _buildTabs(e, context)))
-              .toList(),
-        );
-      }
+      double distance = 0;
+      return SizedBox(
+        child: LayoutBuilder(
+          builder: (context, constraints) => Stack(
+            key: ValueKey(root.paneId),
+            children: [
+              ...root.children.map((e) {
+                //TODO(squidrye): move calculations out of presentation
+                final childWidth = (root.axis == Axis.vertical
+                        ? constraints.maxWidth
+                        : constraints.maxHeight) /
+                    root.children.length;
+                final childLeft = distance * childWidth;
+                distance++;
+                return BlocProvider(
+                  create: (context) => PaneSizeCubit(offset: childLeft),
+                  child: BlocBuilder<PaneSizeCubit, PaneSizeState>(
+                    builder: (context, state) {
+                      return Stack(
+                        children: [
+                          _buildTabs(e, context)
+                              .constrained(
+                                animate: true,
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height,
+                              )
+                              .positioned(
+                                left: root.axis == Axis.vertical
+                                    ? state.resizeOffset
+                                    : null,
+                                top: root.axis == Axis.horizontal
+                                    ? state.resizeOffset
+                                    : null,
+                              ),
+                          MouseRegion(
+                            cursor: root.axis == Axis.vertical
+                                ? SystemMouseCursors.resizeLeftRight
+                                : SystemMouseCursors.resizeUpDown,
+                            child: GestureDetector(
+                              dragStartBehavior: DragStartBehavior.down,
+                              onHorizontalDragStart: (details) => context
+                                  .read<PaneSizeCubit>()
+                                  .editPanelResizeStart(),
+                              onHorizontalDragUpdate: (details) => context
+                                  .read<PaneSizeCubit>()
+                                  .editPanelResized(
+                                    root.axis == Axis.vertical
+                                        ? details.localPosition.dx
+                                        : details.localPosition.dy,
+                                  ),
+                              behavior: HitTestBehavior.translucent,
+                              child: Container(
+                                color: Colors.lightBlue,
+                                width: root.axis == Axis.vertical
+                                    ? 5
+                                    : MediaQuery.of(context).size.width,
+                                height: root.axis == Axis.vertical
+                                    ? MediaQuery.of(context).size.height
+                                    : 5,
+                              ),
+                            ),
+                          ).positioned(
+                            left: root.axis == Axis.vertical
+                                ? state.resizeOffset
+                                : null,
+                            top: root.axis == Axis.horizontal
+                                ? state.resizeOffset
+                                : null,
+                          )
+                        ],
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+      );
     }
   }
 }
@@ -331,7 +393,6 @@ class HomeTopBar extends StatelessWidget {
             ),
             BlocBuilder<PanesCubit, PanesState>(
               builder: (context, state) {
-                Log.warn("Count ${state.count}");
                 return state.count > 1
                     ? IconButton(
                         onPressed: () {
