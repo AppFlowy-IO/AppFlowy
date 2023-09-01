@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::services::field_settings::default_field_settings_by_layout;
+use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -17,7 +17,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 pub fn make_test_board() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
-  let field_settings = default_field_settings_by_layout(DatabaseLayout::Board);
+
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -115,6 +115,9 @@ pub fn make_test_board() -> DatabaseData {
       },
     }
   }
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {

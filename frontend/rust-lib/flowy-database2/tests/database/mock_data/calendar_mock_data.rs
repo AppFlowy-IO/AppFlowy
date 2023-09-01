@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, LayoutSettings};
-use flowy_database2::services::field_settings::default_field_settings_by_layout;
+use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -13,7 +13,6 @@ use crate::database::database_editor::TestRowBuilder;
 pub fn make_test_calendar() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
-  let field_settings = default_field_settings_by_layout(DatabaseLayout::Calendar);
 
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
@@ -32,7 +31,6 @@ pub fn make_test_calendar() -> DatabaseData {
   fields.push(date_field);
 
   // multi select
-
   let type_option = MultiSelectTypeOption::default();
   let multi_select_field = FieldBuilder::new(FieldType::MultiSelect, type_option)
     .name("Tags")
@@ -41,6 +39,9 @@ pub fn make_test_calendar() -> DatabaseData {
   fields.push(multi_select_field);
 
   let calendar_setting: LayoutSetting = CalendarLayoutSetting::new(date_field_id).into();
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Calendar).build();
 
   for i in 0..5 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
