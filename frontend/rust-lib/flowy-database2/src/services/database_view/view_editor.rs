@@ -126,10 +126,10 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_field_settings(
     &self,
     view_id: &str,
-    field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error>;
+    field_ids: &Vec<String>,
+  ) -> HashMap<String, FieldSettings>;
 
-  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings>;
 
   fn update_field_settings(
     &self,
@@ -912,12 +912,12 @@ impl DatabaseViewEditor {
 
   pub async fn v_get_field_settings(
     &self,
-    field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    field_ids: &Vec<String>,
+  ) -> HashMap<String, FieldSettings> {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 
-  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+  pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
     self.delegate.get_all_field_settings(&self.view_id)
   }
 

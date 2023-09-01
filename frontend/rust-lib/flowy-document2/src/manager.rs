@@ -12,6 +12,7 @@ use parking_lot::RwLock;
 
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
@@ -28,6 +29,7 @@ pub struct DocumentManager {
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
+  storage_service: Weak<dyn FileStorageService>,
 }
 
 impl DocumentManager {
@@ -35,12 +37,14 @@ impl DocumentManager {
     user: Arc<dyn DocumentUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
+    storage_service: Weak<dyn FileStorageService>,
   ) -> Self {
     Self {
       user,
       collab_builder,
       documents: Default::default(),
       cloud_service,
+      storage_service,
     }
   }
 
@@ -64,15 +68,14 @@ impl DocumentManager {
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(uid, doc_id, vec![])?;
 
-    match self.get_document(doc_id).await {
-      Ok(document) => Ok(document),
-      Err(_) => {
-        let data = data.unwrap_or_else(default_document_data);
-        let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
-        Ok(document)
-      },
+    if self.is_doc_exist(doc_id).unwrap_or(false) {
+      self.get_document(doc_id).await
+    } else {
+      let collab = self.collab_for_document(uid, doc_id, vec![])?;
+      let data = data.unwrap_or_else(default_document_data);
+      let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
+      Ok(document)
     }
   }
 
@@ -179,5 +182,10 @@ impl DocumentManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
     &self.cloud_service
+  }
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+    &self.storage_service
   }
 }

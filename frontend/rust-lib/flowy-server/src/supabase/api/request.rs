@@ -15,8 +15,9 @@ use tokio_retry::{Action, Condition, RetryIf};
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::util::{
-  BinaryColumnDecoder, ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  BinaryColumnDecoder, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
   SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
