@@ -7,6 +7,7 @@ use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
@@ -144,17 +145,17 @@ pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
 pub struct TestFileStoragePlan;
 
 impl FileStoragePlan for TestFileStoragePlan {
-  fn storage_size(&self) -> FutureResult<u64, FileStorageError> {
+  fn storage_size(&self) -> FutureResult<u64, FlowyError> {
     // 1 GB
-    FutureResult::new(async { Ok(1 * 1024 * 1024 * 1024) })
+    FutureResult::new(async { Ok(1024 * 1024 * 1024) })
   }
 
-  fn maximum_file_size(&self) -> FutureResult<u64, FileStorageError> {
+  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError> {
     // 5 MB
     FutureResult::new(async { Ok(5 * 1024 * 1024) })
   }
 
-  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FileStorageError> {
+  fn check_upload_object(&self, _object: &StorageObject) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 }

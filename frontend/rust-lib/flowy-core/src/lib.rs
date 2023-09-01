@@ -18,6 +18,7 @@ use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder2::manager::{FolderInitializeDataSource, FolderManager};
 use flowy_sqlite::kv::StorePreferences;
+use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
 use flowy_user::manager::{UserManager, UserSessionConfig};
@@ -185,7 +186,7 @@ impl AppFlowyCore {
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&server_provider.file_storage()),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn FileStorageService>)),
       );
 
       let folder_manager = FolderDepsResolver::resolve(

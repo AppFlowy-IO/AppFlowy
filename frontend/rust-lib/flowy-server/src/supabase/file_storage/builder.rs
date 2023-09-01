@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use anyhow::Error;
-use hyper::header::{CACHE_CONTROL, CONTENT_TYPE};
+use hyper::header::CONTENT_TYPE;
 use reqwest::header::IntoHeaderName;
 use reqwest::multipart::{Form, Part};
 use reqwest::{
@@ -95,24 +95,10 @@ impl StorageRequestBuilder {
       .unwrap()
       .push("object")
       .push(bucket_name)
-      .push(&object.name);
+      .push(&object.file_name);
 
     self.body = (options, object.value).into();
 
-    self
-  }
-
-  pub fn download_object(mut self, bucket_id: &str) -> Self {
-    self.method = Method::POST;
-    self
-      .headers
-      .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    self
-      .url
-      .path_segments_mut()
-      .unwrap()
-      .push("object")
-      .push(bucket_id);
     self
   }
 
@@ -145,15 +131,18 @@ impl StorageRequestBuilder {
       },
       RequestBody::MultiPartBytes { bytes, options } => {
         self.headers.insert(
-          CACHE_CONTROL,
-          HeaderValue::from_str(&options.cache_control).unwrap(),
-        );
-        self.headers.insert(
           "x-upsert",
           HeaderValue::from_str(&options.upsert.to_string()).unwrap(),
         );
-        let part = Part::bytes(Cow::Owned(bytes.to_vec()));
-        builder = builder.multipart(Form::new().part("", part));
+        let part = Part::bytes(Cow::Owned(bytes.to_vec()))
+          .file_name("")
+          .mime_str(&options.content_type)?;
+
+        let form = Form::new()
+          .part("", part)
+          .text("cacheControl", options.cache_control);
+
+        builder = builder.multipart(form);
       },
       RequestBody::BodyString { text } => {
         builder = builder.body(text);

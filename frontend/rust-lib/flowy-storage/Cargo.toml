@@ -9,10 +9,9 @@ edition = "2021"
 reqwest = { version = "0.11", features = ["json", "stream"] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-anyhow = "1.0.75"
 async-trait = "0.1.73"
 bytes = "1.0.1"
 mime_guess = "2.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-thiserror = "1.0.30"
 url = "2.2.2"
+flowy-error = { path = "../flowy-error", features = ["impl_from_reqwest"] }

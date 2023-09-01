@@ -8,8 +8,9 @@ use reqwest::{
 };
 use url::Url;
 
+use flowy_encrypt::{decrypt_data, encrypt_data};
+use flowy_error::FlowyError;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::error::FileStorageError;
 use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
 use lib_infra::future::FutureResult;
 
@@ -21,7 +22,8 @@ pub struct SupabaseFileStorage {
   url: Url,
   headers: HeaderMap,
   client: Client,
-  encryption: Weak<dyn AppFlowyEncryption>,
+  #[allow(dead_code)]
+  encryption: ObjectEncryption,
   storage_plan: Arc<dyn FileStoragePlan>,
 }
 
@@ -44,6 +46,7 @@ impl SupabaseFileStorage {
       HeaderValue::from_str(&config.anon_key).expect("apikey value is invalid"),
     );
 
+    let encryption = ObjectEncryption::new(encryption);
     Ok(Self {
       url: Url::parse(&url)?,
       headers,
@@ -59,7 +62,7 @@ impl SupabaseFileStorage {
 }
 
 impl FileStorageService for SupabaseFileStorage {
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FileStorageError> {
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
     let mut storage = self.storage();
     let storage_plan = Arc::downgrade(&self.storage_plan);
 
@@ -71,13 +74,12 @@ impl FileStorageService for SupabaseFileStorage {
 
       storage = storage.upload_object("data", object);
       let url = storage.url.to_string();
-      let _ = storage.build().await?.send().await?.success().await?;
+      storage.build().await?.send().await?.success().await?;
       Ok(url)
     })
   }
 
-  fn delete_object_by_url(&self, object_url: &str) -> FutureResult<(), FileStorageError> {
-    let object_url = object_url.to_string();
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
     let storage = self.storage();
 
     FutureResult::new(async move {
@@ -95,8 +97,7 @@ impl FileStorageService for SupabaseFileStorage {
     })
   }
 
-  fn get_object_by_url(&self, object_url: &str) -> FutureResult<Bytes, FileStorageError> {
-    let object_url = object_url.to_string();
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
     let storage = self.storage();
     FutureResult::new(async move {
       let url = Url::parse(&object_url)?;
@@ -111,6 +112,45 @@ impl FileStorageService for SupabaseFileStorage {
         .await?;
       Ok(bytes)
     })
+  }
+}
+
+#[allow(dead_code)]
+struct ObjectEncryption {
+  encryption: Weak<dyn AppFlowyEncryption>,
+}
+
+impl ObjectEncryption {
+  fn new(encryption: Weak<dyn AppFlowyEncryption>) -> Self {
+    Self { encryption }
+  }
+
+  #[allow(dead_code)]
+  fn encrypt(&self, object_data: Vec<u8>) -> Result<Vec<u8>, Error> {
+    if let Some(secret) = self
+      .encryption
+      .upgrade()
+      .and_then(|encryption| encryption.get_secret())
+    {
+      let encryption_data = encrypt_data(object_data, &secret)?;
+      Ok(encryption_data)
+    } else {
+      Ok(object_data)
+    }
+  }
+
+  #[allow(dead_code)]
+  fn decrypt(&self, object_data: Vec<u8>) -> Result<Vec<u8>, Error> {
+    if let Some(secret) = self
+      .encryption
+      .upgrade()
+      .and_then(|encryption| encryption.get_secret())
+    {
+      let decryption_data = decrypt_data(object_data, &secret)?;
+      Ok(decryption_data)
+    } else {
+      Ok(object_data)
+    }
   }
 }
 

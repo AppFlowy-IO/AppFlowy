@@ -1540,6 +1540,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-postgres",
+ "url",
 ]
 
 [[package]]
@@ -1687,15 +1688,14 @@ dependencies = [
 name = "flowy-storage"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "bytes",
+ "flowy-error",
  "lib-infra",
  "mime_guess",
  "reqwest",
  "serde",
  "serde_json",
- "thiserror",
  "url",
 ]
 
@@ -1737,6 +1737,7 @@ dependencies = [
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
+ "flowy-storage",
  "flowy-user",
  "flowy-user-deps",
  "futures-util",

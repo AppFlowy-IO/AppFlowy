@@ -15,7 +15,7 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use flowy_document2::document::MutexDocument;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
-use flowy_storage::error::FileStorageError;
+use flowy_error::FlowyError;
 use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::future::FutureResult;
 
@@ -27,7 +27,7 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let file_storage = Arc::new(DocumentTestFileStorageService);
+    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn FileStorageService>;
     let manager = DocumentManager::new(
       Arc::new(user),
       default_collab_builder(),
@@ -141,15 +141,15 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 
 pub struct DocumentTestFileStorageService;
 impl FileStorageService for DocumentTestFileStorageService {
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FileStorageError> {
+  fn create_object(&self, _object: StorageObject) -> FutureResult<String, FlowyError> {
     todo!()
   }
 
-  fn delete_object_by_url(&self, object_url: &str) -> FutureResult<(), FileStorageError> {
+  fn delete_object_by_url(&self, _object_url: String) -> FutureResult<(), FlowyError> {
     todo!()
   }
 
-  fn get_object_by_url(&self, object_url: &str) -> FutureResult<Bytes, FileStorageError> {
+  fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
     todo!()
   }
 }

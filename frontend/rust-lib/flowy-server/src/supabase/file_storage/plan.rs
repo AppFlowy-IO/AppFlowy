@@ -2,7 +2,7 @@ use std::sync::Weak;
 
 use parking_lot::RwLock;
 
-use flowy_storage::error::FileStorageError;
+use flowy_error::FlowyError;
 use flowy_storage::{FileStoragePlan, StorageObject};
 use lib_infra::future::FutureResult;
 
@@ -10,7 +10,9 @@ use crate::supabase::api::RESTfulPostgresServer;
 
 #[derive(Default)]
 pub struct FileStoragePlanImpl {
+  #[allow(dead_code)]
   uid: Weak<RwLock<Option<i64>>>,
+  #[allow(dead_code)]
   postgrest: Option<Weak<RESTfulPostgresServer>>,
 }
 
@@ -24,17 +26,17 @@ impl FileStoragePlanImpl {
 }
 
 impl FileStoragePlan for FileStoragePlanImpl {
-  fn storage_size(&self) -> FutureResult<u64, FileStorageError> {
+  fn storage_size(&self) -> FutureResult<u64, FlowyError> {
     // 1 GB
-    FutureResult::new(async { Ok(1 * 1024 * 1024 * 1024) })
+    FutureResult::new(async { Ok(1024 * 1024 * 1024) })
   }
 
-  fn maximum_file_size(&self) -> FutureResult<u64, FileStorageError> {
+  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError> {
     // 5 MB
     FutureResult::new(async { Ok(5 * 1024 * 1024) })
   }
 
-  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FileStorageError> {
+  fn check_upload_object(&self, _object: &StorageObject) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 }

@@ -1,13 +1,10 @@
 use bytes::Bytes;
 
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
-use crate::error::FileStorageError;
-
-pub mod error;
-
 pub struct StorageObject {
-  pub name: String,
+  pub file_name: String,
   pub value: ObjectValue,
 }
 
@@ -19,9 +16,9 @@ impl StorageObject {
   /// * `name`: The name of the storage object.
   /// * `file_path`: The file path to the storage object's data.
   ///
-  pub fn from_file<T: ToString>(name: &str, file_path: T) -> Self {
+  pub fn from_file<T: ToString>(file_name: &str, file_path: T) -> Self {
     Self {
-      name: name.to_string(),
+      file_name: file_name.to_string(),
       value: ObjectValue::File {
         file_path: file_path.to_string(),
       },
@@ -36,10 +33,10 @@ impl StorageObject {
   /// * `bytes`: The byte data of the storage object.
   /// * `mime`: The MIME type of the storage object.
   ///
-  pub fn from_bytes<B: Into<Bytes>>(name: &str, bytes: B, mime: String) -> Self {
+  pub fn from_bytes<B: Into<Bytes>>(file_name: &str, bytes: B, mime: String) -> Self {
     let bytes = bytes.into();
     Self {
-      name: name.to_string(),
+      file_name: file_name.to_string(),
       value: ObjectValue::Bytes { bytes, mime },
     }
   }
@@ -85,26 +82,26 @@ pub trait FileStorageService: Send + Sync + 'static {
   /// # Returns
   /// - `Ok(String)`: A url representing some kind of object identifier.
   /// - `Err(Error)`: An error occurred during the operation.
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FileStorageError>;
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError>;
 
   /// Deletes a storage object by its URL.
   ///
   /// # Parameters
   /// - `object_url`: The URL of the object to be deleted.
   ///
-  fn delete_object_by_url(&self, object_url: &str) -> FutureResult<(), FileStorageError>;
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError>;
 
   /// Fetches a storage object by its URL.
   ///
   /// # Parameters
   /// - `object_url`: The URL of the object to be fetched.
   ///
-  fn get_object_by_url(&self, object_url: &str) -> FutureResult<Bytes, FileStorageError>;
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError>;
 }
 
 pub trait FileStoragePlan: Send + Sync + 'static {
-  fn storage_size(&self) -> FutureResult<u64, FileStorageError>;
-  fn maximum_file_size(&self) -> FutureResult<u64, FileStorageError>;
+  fn storage_size(&self) -> FutureResult<u64, FlowyError>;
+  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError>;
 
-  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FileStorageError>;
+  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FlowyError>;
 }

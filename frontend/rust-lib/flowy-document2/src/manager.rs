@@ -183,4 +183,9 @@ impl DocumentManager {
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
     &self.cloud_service
   }
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+    &self.storage_service
+  }
 }

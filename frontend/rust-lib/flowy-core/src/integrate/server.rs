@@ -4,6 +4,7 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
+use bytes::Bytes;
 use parking_lot::RwLock;
 use serde_repr::*;
 
@@ -16,10 +17,10 @@ use flowy_server::af_cloud::configuration::appflowy_cloud_server_configuration;
 use flowy_server::af_cloud::AFCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
-use flowy_server::{AppFlowyEncryption, AppFlowyServer, DefaultFileStorageService, EncryptionImpl};
+use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_storage::FileStorageService;
+use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
@@ -156,17 +157,31 @@ impl AppFlowyServerProvider {
       .insert(provider_type.clone(), server.clone());
     Ok(server)
   }
+}
 
-  pub fn file_storage(&self) -> Arc<dyn FileStorageService> {
-    match self.get_provider(&self.provider_type.read()) {
-      Ok(provider) => provider
-        .file_storage()
-        .unwrap_or(Arc::new(DefaultFileStorageService)),
-      Err(e) => {
-        tracing::error!("🔴Failed to get file storage: {:?}", e);
-        Arc::new(DefaultFileStorageService)
-      },
-    }
+impl FileStorageService for AppFlowyServerProvider {
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.create_object(object).await
+    })
+  }
+
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.delete_object_by_url(object_url).await
+    })
+  }
+
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.get_object_by_url(object_url).await
+    })
   }
 }
 
