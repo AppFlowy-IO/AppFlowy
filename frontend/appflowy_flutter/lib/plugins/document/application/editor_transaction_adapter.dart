@@ -1,5 +1,7 @@
-import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'dart:async';
+
 import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -15,8 +17,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Path,
         composeAttributes;
 import 'package:collection/collection.dart';
-import 'dart:async';
-
 import 'package:nanoid/nanoid.dart';
 
 /// Uses to adjust the data structure between the editor and the backend.
@@ -93,13 +93,13 @@ extension on InsertOperation {
           ..payload = payload,
       );
       if (node.children.isNotEmpty) {
-        for (var i = 0; i < node.children.length; i++) {
-          final n = node.childAtIndexOrNull(i)!;
-          final prevNode = i == 0 ? null : node.childAtIndexOrNull(i - 1);
+        Node? prevChild;
+        for (final child in node.children) {
           actions.addAll(
-            InsertOperation(currentPath + n.path, [n])
-                .toBlockAction(editorState, previousNode: prevNode),
+            InsertOperation(currentPath + child.path, [child])
+                .toBlockAction(editorState, previousNode: prevChild),
           );
+          prevChild = child;
         }
       }
       previousNode = node;
