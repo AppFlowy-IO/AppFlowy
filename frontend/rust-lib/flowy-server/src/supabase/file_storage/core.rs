@@ -1,32 +1,38 @@
+use std::sync::{Arc, Weak};
+
 use anyhow::{anyhow, Error};
 use bytes::Bytes;
-use hyper::header::{CACHE_CONTROL, CONTENT_TYPE};
-use reqwest::header::IntoHeaderName;
-use reqwest::multipart::{Form, Part};
 use reqwest::{
   header::{HeaderMap, HeaderValue},
-  Body, Client, Method, RequestBuilder,
+  Client,
 };
-use serde_json::Value;
-use tokio::fs::File;
-use tokio_util::codec::{BytesCodec, FramedRead};
 use url::Url;
 
+use flowy_encrypt::{decrypt_data, encrypt_data};
+use flowy_error::FlowyError;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::core::FileStorageService;
-use lib_infra::async_trait::async_trait;
+use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
+use lib_infra::future::FutureResult;
 
 use crate::response::ExtendedResponse;
-use crate::supabase::file_storage::{DeleteObjects, FileOptions, NewBucket};
+use crate::supabase::file_storage::builder::StorageRequestBuilder;
+use crate::AppFlowyEncryption;
 
 pub struct SupabaseFileStorage {
   url: Url,
   headers: HeaderMap,
   client: Client,
+  #[allow(dead_code)]
+  encryption: ObjectEncryption,
+  storage_plan: Arc<dyn FileStoragePlan>,
 }
 
 impl SupabaseFileStorage {
-  pub fn new(config: &SupabaseConfiguration) -> Result<Self, Error> {
+  pub fn new(
+    config: &SupabaseConfiguration,
+    encryption: Weak<dyn AppFlowyEncryption>,
+    storage_plan: Arc<dyn FileStoragePlan>,
+  ) -> Result<Self, Error> {
     let mut headers = HeaderMap::new();
     let url = format!("{}/storage/v1", config.url);
     let auth = format!("Bearer {}", config.anon_key);
@@ -40,212 +46,134 @@ impl SupabaseFileStorage {
       HeaderValue::from_str(&config.anon_key).expect("apikey value is invalid"),
     );
 
+    let encryption = ObjectEncryption::new(encryption);
     Ok(Self {
       url: Url::parse(&url)?,
       headers,
       client: Client::new(),
+      encryption,
+      storage_plan,
     })
   }
 
-  pub fn request(&self) -> FileStorageRequestBuilder {
-    FileStorageRequestBuilder::new(self.url.clone(), self.headers.clone(), self.client.clone())
+  pub fn storage(&self) -> StorageRequestBuilder {
+    StorageRequestBuilder::new(self.url.clone(), self.headers.clone(), self.client.clone())
   }
 }
 
-pub enum RequestBody {
-  Empty,
-  File {
-    file_path: String,
-    options: FileOptions,
-  },
-  Text {
-    text: String,
-  },
-}
-
-pub struct FileStorageRequestBuilder {
-  url: Url,
-  headers: HeaderMap,
-  client: Client,
-  method: Method,
-  body: RequestBody,
-}
-
-impl FileStorageRequestBuilder {
-  pub fn new(url: Url, headers: HeaderMap, client: Client) -> Self {
-    Self {
-      url,
-      headers,
-      client,
-      method: Method::GET,
-      body: RequestBody::Empty,
-    }
-  }
-  pub fn with_header(mut self, key: impl IntoHeaderName, value: HeaderValue) -> Self {
-    self.headers.insert(key, value);
-    self
-  }
-
-  pub fn get_buckets(mut self) -> Self {
-    self.method = Method::GET;
-    self.url.path_segments_mut().unwrap().push("bucket");
-    self
-  }
-
-  pub fn create_bucket(mut self, bucket_name: &str) -> Self {
-    self.method = Method::POST;
-    self
-      .headers
-      .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    self.url.path_segments_mut().unwrap().push("bucket");
-    let bucket = serde_json::to_string(&NewBucket::new(bucket_name.to_string())).unwrap();
-    self.body = RequestBody::Text { text: bucket };
-    self
-  }
-
-  pub fn delete_object(mut self, bucket_id: &str, object: &str) -> Self {
-    self.method = Method::DELETE;
-    self
-      .headers
-      .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    let delete_objects = DeleteObjects::new(vec![object.to_string()]);
-    let text = serde_json::to_string(&delete_objects).unwrap();
-    self.body = RequestBody::Text { text };
-    self
-      .url
-      .path_segments_mut()
-      .unwrap()
-      .push("object")
-      .push(bucket_id)
-      .push(object);
-    self
-  }
-
-  pub fn get_object(mut self, bucket_name: &str, object: &str) -> Self {
-    self.method = Method::GET;
-    self
-      .url
-      .path_segments_mut()
-      .unwrap()
-      .push("object")
-      .push(bucket_name)
-      .push(object);
-    self
-  }
-
-  pub fn upload_object(mut self, bucket_name: &str, object: &str, file_path: &str) -> Self {
-    self.method = Method::POST;
-    let options = FileOptions::from_file_path(file_path);
-    self.headers.insert(
-      CONTENT_TYPE,
-      HeaderValue::from_str(&options.content_type).unwrap(),
-    );
-
-    self
-      .url
-      .path_segments_mut()
-      .unwrap()
-      .push("object")
-      .push(bucket_name)
-      .push(object);
-
-    self.body = RequestBody::File {
-      file_path: file_path.to_string(),
-      options,
-    };
-
-    self
-  }
-
-  pub fn download_object(mut self, bucket_id: &str) -> Self {
-    self.method = Method::POST;
-    self
-      .headers
-      .insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    self
-      .url
-      .path_segments_mut()
-      .unwrap()
-      .push("object")
-      .push(bucket_id);
-    self
-  }
-
-  pub async fn build(mut self) -> Result<RequestBuilder, Error> {
-    let url = self.url.to_string();
-    let mut builder = self.client.request(self.method, url);
-    match self.body {
-      RequestBody::Empty => {},
-      RequestBody::File { file_path, options } => {
-        self.headers.insert(
-          CACHE_CONTROL,
-          HeaderValue::from_str(&options.cache_control).unwrap(),
-        );
-        self.headers.insert(
-          "x-upsert",
-          HeaderValue::from_str(&options.upsert.to_string()).unwrap(),
-        );
-
-        let file = File::open(&file_path).await?;
-        let file_body = Body::wrap_stream(FramedRead::new(file, BytesCodec::new()));
-        let part = Part::stream(file_body).mime_str(&options.content_type)?;
-        builder = builder.multipart(Form::new().part(file_path, part));
-      },
-      RequestBody::Text { text } => {
-        builder = builder.body(text);
-      },
-    }
-    builder = builder.headers(self.headers);
-    Ok(builder)
-  }
-}
-
-#[async_trait]
 impl FileStorageService for SupabaseFileStorage {
-  async fn create_object(&self, object_name: &str, object_path: &str) -> Result<String, Error> {
-    let resp: Value = self
-      .request()
-      .upload_object("data", object_name, object_path)
-      .build()
-      .await?
-      .send()
-      .await?
-      .get_json()
-      .await?;
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
+    let mut storage = self.storage();
+    let storage_plan = Arc::downgrade(&self.storage_plan);
 
-    let key = resp
-      .get("Key")
-      .and_then(|v| v.as_str())
-      .ok_or(anyhow!("Key not found in response"))?
-      .to_string();
+    FutureResult::new(async move {
+      let plan = storage_plan
+        .upgrade()
+        .ok_or(anyhow!("Storage plan is not available"))?;
+      plan.check_upload_object(&object).await?;
 
-    Ok(key)
+      storage = storage.upload_object("data", object);
+      let url = storage.url.to_string();
+      storage.build().await?.send().await?.success().await?;
+      Ok(url)
+    })
   }
 
-  async fn delete_object(&self, object_name: &str) -> Result<(), Error> {
-    let resp = self
-      .request()
-      .delete_object("data", object_name)
-      .build()
-      .await?
-      .send()
-      .await?
-      .success()
-      .await?;
-    println!("{:?}", resp);
-    Ok(())
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
+    let storage = self.storage();
+
+    FutureResult::new(async move {
+      let url = Url::parse(&object_url)?;
+      let location = get_object_location_from(&url)?;
+      storage
+        .delete_object(location.bucket_id, location.file_name)
+        .build()
+        .await?
+        .send()
+        .await?
+        .success()
+        .await?;
+      Ok(())
+    })
   }
 
-  async fn get_object(&self, object_name: &str) -> Result<Bytes, Error> {
-    let bytes = self
-      .request()
-      .get_object("data", object_name)
-      .build()
-      .await?
-      .send()
-      .await?
-      .get_bytes()
-      .await?;
-    Ok(bytes)
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
+    let storage = self.storage();
+    FutureResult::new(async move {
+      let url = Url::parse(&object_url)?;
+      let location = get_object_location_from(&url)?;
+      let bytes = storage
+        .get_object(location.bucket_id, location.file_name)
+        .build()
+        .await?
+        .send()
+        .await?
+        .get_bytes()
+        .await?;
+      Ok(bytes)
+    })
   }
+}
+
+#[allow(dead_code)]
+struct ObjectEncryption {
+  encryption: Weak<dyn AppFlowyEncryption>,
+}
+
+impl ObjectEncryption {
+  fn new(encryption: Weak<dyn AppFlowyEncryption>) -> Self {
+    Self { encryption }
+  }
+
+  #[allow(dead_code)]
+  fn encrypt(&self, object_data: Vec<u8>) -> Result<Vec<u8>, Error> {
+    if let Some(secret) = self
+      .encryption
+      .upgrade()
+      .and_then(|encryption| encryption.get_secret())
+    {
+      let encryption_data = encrypt_data(object_data, &secret)?;
+      Ok(encryption_data)
+    } else {
+      Ok(object_data)
+    }
+  }
+
+  #[allow(dead_code)]
+  fn decrypt(&self, object_data: Vec<u8>) -> Result<Vec<u8>, Error> {
+    if let Some(secret) = self
+      .encryption
+      .upgrade()
+      .and_then(|encryption| encryption.get_secret())
+    {
+      let decryption_data = decrypt_data(object_data, &secret)?;
+      Ok(decryption_data)
+    } else {
+      Ok(object_data)
+    }
+  }
+}
+
+struct ObjectLocation<'a> {
+  bucket_id: &'a str,
+  file_name: &'a str,
+}
+
+fn get_object_location_from(url: &Url) -> Result<ObjectLocation, Error> {
+  let mut segments = url
+    .path_segments()
+    .ok_or(anyhow!("Invalid object url: {}", url))?
+    .collect::<Vec<_>>();
+
+  let file_name = segments
+    .pop()
+    .ok_or(anyhow!("Can't get file name from url: {}", url))?;
+  let bucket_id = segments
+    .pop()
+    .ok_or(anyhow!("Can't get bucket id from url: {}", url))?;
+
+  Ok(ObjectLocation {
+    bucket_id,
+    file_name,
+  })
 }

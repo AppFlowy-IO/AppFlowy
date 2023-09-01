@@ -261,7 +261,9 @@ pub async fn set_cloud_config_handler(
     .ok_or(FlowyError::internal().with_context("Can't find any cloud config"))?;
 
   if let Some(enable_sync) = update.enable_sync {
-    manager.cloud_services.set_enable_sync(enable_sync);
+    manager
+      .cloud_services
+      .set_enable_sync(session.user_id, enable_sync);
     config.enable_sync = enable_sync;
   }
 

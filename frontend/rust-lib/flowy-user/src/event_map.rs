@@ -102,7 +102,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  fn set_enable_sync(&self, enable_sync: bool);
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool);
   fn set_encrypt_secret(&self, secret: String);
   fn set_auth_type(&self, auth_type: AuthType);
   fn set_device_id(&self, device_id: &str);
@@ -114,8 +114,8 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
-  fn set_enable_sync(&self, enable_sync: bool) {
-    (**self).set_enable_sync(enable_sync)
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
+    (**self).set_enable_sync(uid, enable_sync)
   }
 
   fn set_encrypt_secret(&self, secret: String) {
