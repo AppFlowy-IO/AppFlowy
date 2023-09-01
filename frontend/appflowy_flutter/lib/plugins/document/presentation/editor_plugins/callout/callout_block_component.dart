@@ -195,7 +195,7 @@ class _CalloutBlockComponentWidgetState
       child: child,
     );
 
-    if (widget.actionBuilder != null) {
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,
