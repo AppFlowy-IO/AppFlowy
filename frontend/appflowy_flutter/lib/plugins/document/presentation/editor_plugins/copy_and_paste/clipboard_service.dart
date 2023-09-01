@@ -22,6 +22,7 @@ final inAppJsonFormat = CustomValueFormat<String>(
     }
     return null;
   },
+  onEncode: (value, platformType) => utf8.encode(value),
 );
 
 class ClipboardServiceData {

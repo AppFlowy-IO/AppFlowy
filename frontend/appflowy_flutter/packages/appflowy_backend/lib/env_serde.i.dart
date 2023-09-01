@@ -22,7 +22,6 @@ SupabaseConfiguration _$SupabaseConfigurationFromJson(
       enable_sync: json['enable_sync'] as bool? ?? true,
       url: json['url'] as String,
       anon_key: json['anon_key'] as String,
-      jwt_secret: json['jwt_secret'] as String,
     );
 
 Map<String, dynamic> _$SupabaseConfigurationToJson(
@@ -31,5 +30,4 @@ Map<String, dynamic> _$SupabaseConfigurationToJson(
       'enable_sync': instance.enable_sync,
       'url': instance.url,
       'anon_key': instance.anon_key,
-      'jwt_secret': instance.jwt_secret,
     };

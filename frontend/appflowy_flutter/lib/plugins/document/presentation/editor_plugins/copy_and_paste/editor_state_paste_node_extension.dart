@@ -14,25 +14,21 @@ extension PasteNodes on EditorState {
     final transaction = this.transaction;
     final insertedDelta = insertedNode.delta;
     // if the node is empty, replace it with the inserted node.
-    if (delta.isEmpty || insertedDelta == null) {
+    if (delta.isEmpty) {
       transaction.insertNode(
         selection.end.path.next,
-        node.copyWith(
-          type: node.type,
-          attributes: {
-            ...node.attributes,
-            ...insertedNode.attributes,
-          },
-        ),
+        insertedNode,
       );
       transaction.deleteNode(node);
+      final path = calculatePath(selection.end.path, [insertedNode]);
+      final offset = calculateLength([insertedNode]);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path,
-          offset: insertedDelta?.length ?? 0,
+          path: path,
+          offset: offset,
         ),
       );
-    } else {
+    } else if (insertedDelta != null) {
       // if the node is not empty, insert the delta from inserted node after the selection.
       transaction.insertTextDelta(node, selection.endIndex, insertedDelta);
     }
@@ -53,7 +49,7 @@ extension PasteNodes on EditorState {
     }
     final transaction = this.transaction;
 
-    final lastNodeLength = nodes.last.delta?.length ?? 0;
+    final lastNodeLength = calculateLength(nodes);
     // merge the current selected node delta into the nodes.
     if (delta.isNotEmpty) {
       nodes.first.insertDelta(
@@ -86,13 +82,10 @@ extension PasteNodes on EditorState {
     // delete the current node.
     transaction.deleteNode(node);
 
-    var path = selection.end.path;
-    for (var i = 0; i < nodes.length; i++) {
-      path = path.next;
-    }
+    final path = calculatePath(selection.start.path, nodes);
     transaction.afterSelection = Selection.collapsed(
       Position(
-        path: path.previous, // because a node is deleted.
+        path: path,
         offset: lastNodeLength,
       ),
     );
@@ -115,6 +108,28 @@ extension PasteNodes on EditorState {
     // fetch selection again.selection = editorState.selection;
     assert(this.selection?.isCollapsed == true);
     return this.selection;
+  }
+
+  Path calculatePath(Path start, List<Node> nodes) {
+    var path = start;
+    for (var i = 0; i < nodes.length; i++) {
+      path = path.next;
+    }
+    path = path.previous;
+    if (nodes.last.children.isNotEmpty) {
+      return [
+        ...path,
+        ...calculatePath([0], nodes.last.children.toList())
+      ];
+    }
+    return path;
+  }
+
+  int calculateLength(List<Node> nodes) {
+    if (nodes.last.children.isNotEmpty) {
+      return calculateLength(nodes.last.children.toList());
+    }
+    return nodes.last.delta?.length ?? 0;
   }
 }
 

@@ -31,3 +31,7 @@ pub struct FolderSnapshot {
 pub fn gen_workspace_id() -> Uuid {
   uuid::Uuid::new_v4()
 }
+
+pub fn gen_view_id() -> Uuid {
+  uuid::Uuid::new_v4()
+}

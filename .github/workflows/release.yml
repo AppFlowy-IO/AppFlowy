@@ -26,7 +26,6 @@ jobs:
           cat CHANGELOG.md | sed -e '/./{H;$!d;}' -e "x;/##\ Version\ ${{ github.ref_name }}/"'!d;' >> ${{ env.RELEASE_NOTES_PATH }}
 
       - name: Create release
-        if: github.run_number == 1
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -395,7 +394,7 @@ jobs:
         if: ${{ matrix.job.target == 'aarch64-unknown-linux-gnu' }}
         working-directory: frontend
         run: |
-          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libgtk-3-0
 
       - name: Build AppFlowy
         working-directory: frontend
@@ -403,34 +402,15 @@ jobs:
           flutter config --enable-linux-desktop
           dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
-      - name: Archive Assert
+      - name: Archive Asset
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
 
-      - name: Configuring Linux Package
+      - name: Build Linux package (.deb)
         working-directory: frontend
         run: |
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/opt
-          mkdir -p ../${{ env.LINUX_APP_RELEASE_PATH }}/package/usr/share/applications
-          cp -r ./scripts/linux_installer ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          cd ../${{ env.LINUX_APP_RELEASE_PATH }}/package/DEBIAN
-          grep -rl "\[CHANGE_THIS\]" ./control | xargs sed -i "s/\[CHANGE_THIS\]/${{ github.ref_name }}/"
-          chmod 0755 {postinst,postrm}
-
-      - name: Build Linux package
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: |
-          mv AppFlowy package/opt/
-          cd package
-
-          # Update Exec & icon path in desktop entry
-          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
-          # Add desktop entry in package
-          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
-
-          # Build
-          cd ../ && dpkg-deb --build --root-owner-group -Z xz package ${{ env.LINUX_PACKAGE_NAME }}
-
+          sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_NAME }}
+      
       - name: Upload Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -442,7 +422,7 @@ jobs:
           asset_name: ${{ env.LINUX_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Asset Install Package
+      - name: Upload Debian package
         id: upload-release-asset-install-package
         uses: actions/upload-release-asset@v1
         env:

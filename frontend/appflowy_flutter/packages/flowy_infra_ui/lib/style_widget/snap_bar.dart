@@ -7,7 +7,7 @@ void showSnapBar(BuildContext context, String title, {VoidCallback? onClosed}) {
   ScaffoldMessenger.of(context)
       .showSnackBar(
         SnackBar(
-          duration: const Duration(milliseconds: 10000),
+          duration: const Duration(milliseconds: 8000),
           content: WillPopScope(
             onWillPop: () async {
               ScaffoldMessenger.of(context).removeCurrentSnackBar();

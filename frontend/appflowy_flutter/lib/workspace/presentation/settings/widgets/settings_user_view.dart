@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -50,6 +50,12 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _renderUserNameInput(context),
+
+              if (isSupabaseEnabled) ...[
+                const VSpace(20),
+                UserEmailInput(user.email)
+              ],
+
               const VSpace(20),
               _renderCurrentIcon(context),
               const VSpace(20),
@@ -65,7 +71,7 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
-  /// Renders either a login or logout button based on the user's authentication status.
+  /// Renders either a login or logout button based on the user's authentication status, or nothing if Supabase is not enabled.
   ///
   /// This function checks the current user's authentication type and Supabase
   /// configuration to determine whether to render a third-party login button
@@ -74,14 +80,17 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (isSupabaseEnabled) {
-      // If the user is logged in locally, render a third-party login button.
-      if (state.userProfile.authType == AuthTypePB.Local) {
-        return SettingThirdPartyLogin(
-          didLogin: didLogin,
-        );
-      }
+    if (!isSupabaseEnabled) {
+      return const SizedBox.shrink();
     }
+
+    // If the user is logged in locally, render a third-party login button.
+    if (state.userProfile.authType == AuthTypePB.Local) {
+      return SettingThirdPartyLogin(
+        didLogin: didLogin,
+      );
+    }
+
     return SettingLogoutButton(user: user, didLogout: didLogout);
   }
 
@@ -159,6 +168,70 @@ class UserNameInputState extends State<UserNameInput> {
           context
               .read<SettingsUserViewBloc>()
               .add(SettingsUserEvent.updateUserName(val));
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+@visibleForTesting
+class UserEmailInput extends StatefulWidget {
+  final String email;
+
+  const UserEmailInput(
+    this.email, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  UserEmailInputState createState() => UserEmailInputState();
+}
+
+class UserEmailInputState extends State<UserEmailInput> {
+  late TextEditingController _controller;
+
+  Timer? _debounce;
+  final Duration _debounceDuration = const Duration(milliseconds: 500);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      decoration: InputDecoration(
+        labelText: LocaleKeys.settings_user_email.tr(),
+        labelStyle: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontWeight: FontWeight.w500),
+        enabledBorder: UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.onBackground),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
+      ),
+      onChanged: (val) {
+        if (_debounce?.isActive ?? false) {
+          _debounce!.cancel();
+        }
+
+        _debounce = Timer(_debounceDuration, () {
+          context
+              .read<SettingsUserViewBloc>()
+              .add(SettingsUserEvent.updateUserEmail(val));
         });
       },
     );

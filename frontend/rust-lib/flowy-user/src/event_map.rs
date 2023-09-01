@@ -5,7 +5,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserService};
+use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
@@ -88,7 +88,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   /// Will be called after the user signed up.
   fn did_sign_up(
     &self,
-    context: SignUpContext,
+    is_new_user: bool,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -106,7 +106,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   fn set_encrypt_secret(&self, secret: String);
   fn set_auth_type(&self, auth_type: AuthType);
   fn set_device_id(&self, device_id: &str);
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
   fn service_name(&self) -> String;
 }
 
@@ -130,7 +130,7 @@ where
     (**self).set_device_id(device_id)
   }
 
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     (**self).get_user_service()
   }
 
@@ -163,7 +163,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
 
   fn did_sign_up(
     &self,
-    _context: SignUpContext,
+    _is_new_user: bool,
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,

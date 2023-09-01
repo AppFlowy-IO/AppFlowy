@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version 0.3.0 - 08/22/2023
+
+### New Features
+
+- Improve paste features:
+  - Paste HTML content from website.
+  - Paste image from clipboard.
+
+- Support Group by Date in Kanban Board.
+- Notarize the macOS package, which is now verified by Apple.
+- Add Persian language translations.
+
+### Bug fixes
+
+- Some UI issues
+
 ## Version 0.2.9 - 08/08/2023
 
 ### New Features

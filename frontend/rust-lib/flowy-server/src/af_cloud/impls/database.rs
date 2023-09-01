@@ -6,9 +6,9 @@ use flowy_database_deps::cloud::{
 };
 use lib_infra::future::FutureResult;
 
-pub(crate) struct SelfHostedDatabaseCloudServiceImpl();
+pub(crate) struct AFCloudDatabaseCloudServiceImpl();
 
-impl DatabaseCloudService for SelfHostedDatabaseCloudServiceImpl {
+impl DatabaseCloudService for AFCloudDatabaseCloudServiceImpl {
   fn get_collab_update(
     &self,
     _object_id: &str,
