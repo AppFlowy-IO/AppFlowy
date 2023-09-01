@@ -23,12 +23,20 @@ pub struct SupabaseConfiguration {
 
 impl SupabaseConfiguration {
   pub fn from_env() -> Result<Self, FlowyError> {
-    Ok(Self {
-      url: std::env::var(SUPABASE_URL)
-        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
-      anon_key: std::env::var(SUPABASE_ANON_KEY)
-        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_ANON_KEY"))?,
-    })
+    let url = std::env::var(SUPABASE_URL)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?;
+
+    let anon_key = std::env::var(SUPABASE_ANON_KEY)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_ANON_KEY"))?;
+
+    if url.is_empty() || anon_key.is_empty() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidAuthConfig,
+        "Missing SUPABASE_URL or SUPABASE_ANON_KEY",
+      ));
+    }
+
+    Ok(Self { url, anon_key })
   }
 
   /// Write the configuration to the environment variables.
