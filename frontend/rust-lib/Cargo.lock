@@ -120,7 +120,7 @@ checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 [[package]]
 name = "appflowy-integrate"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "collab",
@@ -611,7 +611,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "bytes",
@@ -629,7 +629,7 @@ dependencies = [
 [[package]]
 name = "collab-client-ws"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "bytes",
  "collab-sync",
@@ -647,7 +647,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -676,15 +676,19 @@ dependencies = [
 [[package]]
 name = "collab-define"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
+ "anyhow",
+ "collab",
+ "serde",
+ "serde_repr",
  "uuid",
 ]
 
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -696,7 +700,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "collab",
@@ -715,7 +719,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "chrono",
@@ -735,7 +739,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "bincode",
  "chrono",
@@ -755,7 +759,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -767,7 +771,6 @@ dependencies = [
  "futures-util",
  "parking_lot 0.12.1",
  "rand 0.8.5",
- "rusoto_credential",
  "serde",
  "serde_json",
  "similar 2.2.1",
@@ -784,7 +787,7 @@ dependencies = [
 [[package]]
 name = "collab-sync"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "bytes",
  "collab",
@@ -806,10 +809,11 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1b297c#1b297c2ed75aa33b964f0da546d771b00805be62"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=223011#223011a4340d0d98e7e10ca6bb19b8d622b0f568"
 dependencies = [
  "anyhow",
  "collab",
+ "collab-define",
  "parking_lot 0.12.1",
  "serde",
  "serde_json",
@@ -1148,27 +1152,6 @@ dependencies = [
  "block-buffer",
  "crypto-common",
  "subtle",
-]
-
-[[package]]
-name = "dirs-next"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b98cf8ebf19c3d1b223e151f99a4f9f0690dca41414773390fc824184ac833e1"
-dependencies = [
- "cfg-if",
- "dirs-sys-next",
-]
-
-[[package]]
-name = "dirs-sys-next"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ebda144c4fe02d1f7ea1a7d9641b6fc6b580adcfa024ae48797ecdeb6825b4d"
-dependencies = [
- "libc",
- "redox_users",
- "winapi",
 ]
 
 [[package]]
@@ -3682,17 +3665,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "redox_users"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b033d837a7cf162d7993aded9304e30a83213c648b6e389db233191f891e5c2b"
-dependencies = [
- "getrandom 0.2.9",
- "redox_syscall 0.2.16",
- "thiserror",
-]
-
-[[package]]
 name = "regex"
 version = "1.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3829,24 +3801,6 @@ checksum = "bb6f170a4041d50a0ce04b0d2e14916d6ca863ea2e422689a5b694395d299ffe"
 dependencies = [
  "libc",
  "librocksdb-sys",
-]
-
-[[package]]
-name = "rusoto_credential"
-version = "0.48.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee0a6c13db5aad6047b6a44ef023dbbc21a056b6dab5be3b79ce4283d5c02d05"
-dependencies = [
- "async-trait",
- "chrono",
- "dirs-next",
- "futures",
- "hyper",
- "serde",
- "serde_json",
- "shlex",
- "tokio",
- "zeroize",
 ]
 
 [[package]]
@@ -5407,12 +5361,6 @@ dependencies = [
  "smallvec",
  "thiserror",
 ]
-
-[[package]]
-name = "zeroize"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
 
 [[package]]
 name = "zip"

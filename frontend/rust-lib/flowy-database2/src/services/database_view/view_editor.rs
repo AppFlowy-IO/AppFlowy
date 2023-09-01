@@ -75,6 +75,8 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
   fn get_cell_in_row(&self, field_id: &str, row_id: &RowId) -> Fut<Arc<RowCell>>;
 
+  /// Return the database layout type for the view with given view_id
+  /// The default layout type is [DatabaseLayout::Grid]
   fn get_layout_for_view(&self, view_id: &str) -> DatabaseLayout;
 
   fn get_group_setting(&self, view_id: &str) -> Vec<GroupSetting>;
@@ -110,10 +112,6 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     layout_setting: LayoutSetting,
   );
 
-  /// Return the database layout type for the view with given view_id
-  /// The default layout type is [DatabaseLayout::Grid]
-  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout;
-
   fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout);
 
   /// Returns a `TaskDispatcher` used to poll a `Task`
@@ -128,10 +126,10 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_field_settings(
     &self,
     view_id: &str,
-    field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error>;
+    field_ids: &Vec<String>,
+  ) -> HashMap<String, FieldSettings>;
 
-  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error>;
+  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings>;
 
   fn update_field_settings(
     &self,
@@ -864,6 +862,10 @@ impl DatabaseViewEditor {
     Some(events)
   }
 
+  pub async fn v_get_layout_type(&self) -> DatabaseLayout {
+    self.delegate.get_layout_for_view(&self.view_id)
+  }
+
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_update_layout_type(&self, new_layout_type: DatabaseLayout) -> FlowyResult<()> {
     self
@@ -910,12 +912,12 @@ impl DatabaseViewEditor {
 
   pub async fn v_get_field_settings(
     &self,
-    field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    field_ids: &Vec<String>,
+  ) -> HashMap<String, FieldSettings> {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 
-  pub async fn v_get_all_field_settings(&self) -> Result<Vec<FieldSettings>, anyhow::Error> {
+  pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
     self.delegate.get_all_field_settings(&self.view_id)
   }
 

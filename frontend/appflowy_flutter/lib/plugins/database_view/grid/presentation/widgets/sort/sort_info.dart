@@ -8,4 +8,6 @@ class SortInfo {
   SortInfo({required this.sortPB, required this.fieldInfo});
 
   String get sortId => sortPB.id;
+
+  String get fieldId => sortPB.fieldId;
 }
