@@ -2,9 +2,8 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -78,7 +77,6 @@ class ViewItem extends StatelessWidget {
               plugin: state.lastCreatedView!.plugin(),
               view: state.lastCreatedView!,
             ),
-        // context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
           // don't remove this code. it's related to the backend service.
           view.childViews
@@ -403,15 +401,18 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              // context.read<TabsBloc>().openTab(widget.view);
               context
                   .read<PanesCubit>()
                   .openTab(plugin: widget.view.plugin(), view: widget.view);
               break;
             case ViewMoreActionType.splitDown:
-              context.read<PanesCubit>().splitDown(widget.view);
+              context
+                  .read<PanesCubit>()
+                  .split(widget.view, SplitDirection.down);
             case ViewMoreActionType.splitRight:
-              context.read<PanesCubit>().splitRight(widget.view);
+              context
+                  .read<PanesCubit>()
+                  .split(widget.view, SplitDirection.right);
             default:
               throw UnsupportedError('$action is not supported');
           }

@@ -1,8 +1,7 @@
 import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -57,13 +56,11 @@ class FavoriteFolder extends StatelessWidget {
                     level: 0,
                     onSelected: (view) {
                       if (RawKeyboard.instance.isControlPressed) {
-                        // context.read<TabsBloc>().openTab(view);
                         context
                             .read<PanesCubit>()
                             .openTab(plugin: view.plugin(), view: view);
                       }
 
-                      // context.read<TabsBloc>().openPlugin(view);
                       context
                           .read<PanesCubit>()
                           .openPlugin(plugin: view.plugin(), view: view);
@@ -71,7 +68,6 @@ class FavoriteFolder extends StatelessWidget {
                     onTertiarySelected: (view) => context
                         .read<PanesCubit>()
                         .openTab(plugin: view.plugin(), view: view),
-                    // context.read<TabsBloc>().openTab(view),
                   ),
                 )
             ],

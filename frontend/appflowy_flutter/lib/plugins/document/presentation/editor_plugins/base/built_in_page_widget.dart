@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -159,12 +159,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
                   plugin: viewPB.plugin(),
                   view: viewPB,
                 );
-                // getIt<TabsBloc>().add(
-                //   TabsEvent.openPlugin(
-                //     plugin: viewPB.plugin(),
-                //     view: viewPB,
-                //   ),
-                // );
                 break;
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;

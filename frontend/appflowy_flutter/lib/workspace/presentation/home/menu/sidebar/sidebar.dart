@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -51,9 +50,6 @@ class HomeSideBar extends StatelessWidget {
         listenWhen: (p, c) => p.plugin.id != c.plugin.id,
         listener: (context, state) =>
             context.read<PanesCubit>().openPlugin(plugin: state.plugin),
-        // context
-        //     .read<TabsBloc>()
-        //     .add(TabsEvent.openPlugin(plugin: state.plugin)),
         child: Builder(
           builder: (context) {
             final menuState = context.watch<MenuBloc>().state;

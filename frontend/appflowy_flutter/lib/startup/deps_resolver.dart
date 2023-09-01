@@ -16,8 +16,7 @@ import 'package:appflowy/user/application/auth/mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/application/panes/cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -31,6 +30,7 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -134,8 +134,9 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
-  getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
-  getIt.registerLazySingleton<PanesCubit>(() => PanesCubit());
+  getIt.registerLazySingleton<PanesCubit>(
+    () => PanesCubit(offset: Sizes.sideBarWidth),
+  );
 }
 
 void _resolveFolderDeps(GetIt getIt) {
