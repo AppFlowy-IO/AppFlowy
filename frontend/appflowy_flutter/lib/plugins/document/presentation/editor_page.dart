@@ -57,13 +57,18 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    smartEditItem,
-    paragraphItem,
-    ...headingItems,
+    smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    ...(headingItems
+      ..forEach(
+        (e) => e.isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+      )),
     ...markdownFormatItems,
-    quoteItem,
-    bulletedListItem,
-    numberedListItem,
+    quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    bulletedListItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    numberedListItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     inlineMathEquationItem,
     linkItem,
     alignToolbarItem,
