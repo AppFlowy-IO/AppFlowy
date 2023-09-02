@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/application/open_ai/open_ai_service.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -100,12 +101,12 @@ class SidebarUser extends StatelessWidget {
           openAIKey: state.userProfile.openaiKey,
           model: "gpt-3.5-turbo",
         );
-        debugPrint("OPEN AI KEY:${state.userProfile.openaiKey}");
+        Log.debug("OPEN AI KEY:${state.userProfile.openaiKey}");
         result.fold(
-          (value) => debugPrint(
+          (value) => Log.debug(
             "Model: ${value.model} \n GPT Reply: ${value.content} ",
           ),
-          (error) => debugPrint(error.toString()),
+          (error) => Log.debug(error.toString()),
         );
       },
       child: FlowyText.medium(
