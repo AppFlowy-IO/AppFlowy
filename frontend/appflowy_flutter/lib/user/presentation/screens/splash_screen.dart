@@ -93,9 +93,7 @@ class SplashScreen extends StatelessWidget {
                 workspaceSetting,
               );
             },
-            (error) {
-              handleOpenWorkspaceError(context, error);
-            },
+            (error) => handleOpenWorkspaceError(context, error),
           );
         }
       },

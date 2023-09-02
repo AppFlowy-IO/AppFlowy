@@ -4,6 +4,8 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -36,4 +38,22 @@ void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
         );
     }
   }
+}
+
+void handleSignInSuccessOrFail(
+  Either<UserProfilePB, FlowyError> result,
+  BuildContext context,
+) {
+  result.fold(
+    (user) {
+      if (user.encryptionType == EncryptionTypePB.Symmetric) {
+        getIt<AuthRouter>().pushEncryptionScreen(context, user);
+      } else {
+        getIt<AuthRouter>().pushHomeScreen(context, user);
+      }
+    },
+    (error) {
+      handleOpenWorkspaceError(context, error);
+    },
+  );
 }

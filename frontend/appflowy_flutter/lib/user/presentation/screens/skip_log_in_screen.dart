@@ -11,16 +11,11 @@ import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -97,9 +92,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         Log.error(error);
       },
       (user) {
-        FolderEventGetCurrentWorkspace().send().then((result) {
-          _openCurrentWorkspace(context, user, result);
-        });
+        widget.router.pushHomeScreen(context, user);
       },
     );
   }
@@ -111,21 +104,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
       config: const LaunchConfiguration(
         autoRegistrationSupported: true,
       ),
-    );
-  }
-
-  void _openCurrentWorkspace(
-    BuildContext context,
-    UserProfilePB user,
-    dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
-  ) {
-    workspacesOrError.fold(
-      (workspaceSetting) {
-        widget.router.pushHomeScreen(context, user, workspaceSetting);
-      },
-      (error) {
-        Log.error(error);
-      },
     );
   }
 }

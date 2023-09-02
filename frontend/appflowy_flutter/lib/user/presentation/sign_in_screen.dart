@@ -4,24 +4,20 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/user/presentation/widgets/background.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy/user/presentation/widgets/auth_form_container.dart';
+import 'package:appflowy/user/presentation/widgets/flowy_logo_title.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'helpers/handle_open_workspace_error.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
@@ -39,7 +35,7 @@ class SignInScreen extends StatelessWidget {
         listener: (context, state) {
           state.successOrFail.fold(
             () => null,
-            (result) => _handleSuccessOrFail(result, context),
+            (result) => handleSignInSuccessOrFail(result, context),
           );
         },
         builder: (_, __) => Scaffold(
@@ -51,49 +47,6 @@ class SignInScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _handleSuccessOrFail(
-    Either<UserProfilePB, FlowyError> result,
-    BuildContext context,
-  ) {
-    result.fold(
-      (user) {
-        if (user.encryptionType == EncryptionTypePB.Symmetric) {
-          router.pushEncryptionScreen(context, user);
-        } else {
-          router.pushHomeScreen(context, user);
-        }
-      },
-      (error) {
-        handleOpenWorkspaceError(context, error);
-      },
-    );
-  }
-}
-
-void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
-  Log.error(error);
-  switch (error.code) {
-    case ErrorCode.WorkspaceDataNotSync:
-      final userFolder = UserFolderPB.fromBuffer(error.payload);
-      getIt<AuthRouter>().pushWorkspaceErrorScreen(context, userFolder, error);
-      break;
-    case ErrorCode.InvalidEncryptSecret:
-      showSnapBar(
-        context,
-        error.msg,
-      );
-      break;
-    default:
-      showSnapBar(
-        context,
-        error.msg,
-        onClosed: () {
-          getIt<AuthService>().signOut();
-          runAppFlowy();
-        },
-      );
   }
 }
 
@@ -246,7 +199,7 @@ class SignInAsGuestButton extends StatelessWidget {
             child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
               builder: (context, state) {
                 final text = state.historicalUsers.isEmpty
-                    ? LocaleKeys.signIn_loginAsGuestButtonText.tr()
+                    ? LocaleKeys.signIn_loginStartWithAnonymous.tr()
                     : LocaleKeys.signIn_continueAnonymousUser.tr();
 
                 final onTap = state.historicalUsers.isEmpty

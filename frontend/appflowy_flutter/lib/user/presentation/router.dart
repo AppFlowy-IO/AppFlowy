@@ -5,7 +5,6 @@ import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
@@ -34,57 +33,56 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(
-    BuildContext context,
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
-  ) {
-    if (PlatformExtension.isMobile) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => MobileHomeScreen(
-            key: ValueKey(userProfile.id),
-            userProfile: userProfile,
-            workspaceSetting: workspaceSetting,
-          ),
-        ),
-        // pop up all the pages until [SplashScreen]
-        (route) => route.settings.name == SplashScreen.routeName,
-      );
-    } else {
-      Navigator.push(
-        context,
-        PageRoutes.fade(
-          () => DesktopHomeScreen(
-            key: ValueKey(userProfile.id),
-            userProfile: userProfile,
-            workspaceSetting: workspaceSetting,
-          ),
-          const RouteSettings(
-            name: DesktopHomeScreen.routeName,
-          ),
-          RouteDurations.slow.inMilliseconds * .001,
-        ),
-      );
-    }
-  }
-
-  Future<void> pushHomeOrWorkspaceStartScreen(
+  /// Navigates to the home screen based on the current workspace and platform.
+  ///
+  /// This function takes in a [BuildContext] and a [UserProfilePB] object to
+  /// determine the user's settings and then navigate to the appropriate home screen
+  /// (`MobileHomeScreen` for mobile platforms, `DesktopHomeScreen` for others).
+  ///
+  /// It first fetches the current workspace settings using [FolderEventGetCurrentWorkspace].
+  /// If the workspace settings are successfully fetched, it navigates to the home screen.
+  /// If there's an error, it defaults to the workspace start screen.
+  ///
+  /// @param [context] BuildContext for navigating to the appropriate screen.
+  /// @param [userProfile] UserProfilePB object containing the details of the current user.
+  ///
+  Future<void> pushHomeScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    // retrieve user's workspace
     final result = await FolderEventGetCurrentWorkspace().send();
-    Log.debug('pushHomeOrWorkspaceStartScreen -> current workspace:$result');
     result.fold(
-      // if user has workspace, push [HomeScreen]
-      (workspaceSettingPB) => pushHomeScreen(
-        context,
-        userProfile,
-        workspaceSettingPB,
-      ),
-      // if user has no workspace, push [WorkspaceStartScreen]
-      (r) => pushWorkspaceStartScreen(context, userProfile),
+      (workspaceSetting) {
+        if (PlatformExtension.isMobile) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => MobileHomeScreen(
+                key: ValueKey(userProfile.id),
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
+            ),
+            // pop up all the pages until [SplashScreen]
+            (route) => route.settings.name == SplashScreen.routeName,
+          );
+        } else {
+          Navigator.push(
+            context,
+            PageRoutes.fade(
+              () => DesktopHomeScreen(
+                key: ValueKey(userProfile.id),
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
+              const RouteSettings(
+                name: DesktopHomeScreen.routeName,
+              ),
+              RouteDurations.slow.inMilliseconds * .001,
+            ),
+          );
+        }
+      },
+      (error) => pushWorkspaceStartScreen(context, userProfile),
     );
   }
 
