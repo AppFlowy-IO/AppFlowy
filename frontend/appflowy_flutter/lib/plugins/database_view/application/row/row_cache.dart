@@ -74,6 +74,7 @@ class RowCache {
       final rowInfo = buildGridRow(row);
       _rowList.add(rowInfo);
     }
+    _changedNotifier.receive(const ChangedReason.setInitialRows());
   }
 
   Future<void> dispose() async {
@@ -245,7 +246,8 @@ class RowCache {
     // ignore: prefer_collection_literals
     final cellContextMap = CellContextByFieldId();
     for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      if (fieldInfo.field.visibility) {
+      if (fieldInfo.visibility != null &&
+          fieldInfo.visibility != FieldVisibility.AlwaysHidden) {
         cellContextMap[fieldInfo.id] = DatabaseCellContext(
           rowMeta: rowMeta,
           viewId: viewId,
@@ -281,6 +283,7 @@ class RowChangesetNotifier extends ChangeNotifier {
       initial: (_) {},
       reorderRows: (_) => notifyListeners(),
       reorderSingleRow: (_) => notifyListeners(),
+      setInitialRows: (_) => notifyListeners(),
     );
   }
 }
@@ -313,6 +316,7 @@ class ChangedReason with _$ChangedReason {
     ReorderSingleRowPB reorderRow,
     RowInfo rowInfo,
   ) = _ReorderSingleRow;
+  const factory ChangedReason.setInitialRows() = _SetInitialRows;
 }
 
 class InsertedIndex {

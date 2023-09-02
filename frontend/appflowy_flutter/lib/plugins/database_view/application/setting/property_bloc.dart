@@ -1,6 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -28,13 +30,13 @@ class DatabasePropertyBloc
             _startListening();
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
-            final fieldBackendSvc = FieldBackendService(
+            final fieldSettingsSvc = FieldSettingsBackendService(
               viewId: viewId,
-              fieldId: value.fieldId,
             );
 
-            final result = await fieldBackendSvc.updateField(
-              visibility: value.visibility,
+            final result = await fieldSettingsSvc.updateFieldSettings(
+              fieldId: value.fieldId,
+              fieldVisibility: value.visibility,
             );
 
             result.fold((l) => null, (err) => Log.error(err));
@@ -84,7 +86,7 @@ class DatabasePropertyEvent with _$DatabasePropertyEvent {
   const factory DatabasePropertyEvent.initial() = _Initial;
   const factory DatabasePropertyEvent.setFieldVisibility(
     String fieldId,
-    bool visibility,
+    FieldVisibility visibility,
   ) = _SetFieldVisibility;
   const factory DatabasePropertyEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,

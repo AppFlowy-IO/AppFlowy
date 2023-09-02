@@ -23,6 +23,7 @@ flowy-server = { path = "../flowy-server" }
 flowy-server-config = { path = "../flowy-server-config" }
 flowy-notification = { path = "../flowy-notification" }
 anyhow = "1.0.71"
+flowy-storage = { path = "../flowy-storage" }
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}

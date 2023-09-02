@@ -35,6 +35,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database_view/widgets/field/grid_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
@@ -503,6 +504,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findDateCell);
   }
 
+  Future<void> tapGridFieldWithNameInRowDetailPage(String name) async {
+    final fields = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    final field = find.descendant(
+      of: find.byType(RowDetailPage),
+      matching: fields,
+    );
+    await tapButton(field);
+    await pumpAndSettle();
+  }
+
   Future<void> duplicateRowInRowDetailPage() async {
     final duplicateButton = find.byType(RowDetailPageDuplicateButton);
     await tapButton(duplicateButton);
@@ -583,6 +596,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is FieldActionCell && widget.action == FieldAction.hide,
     );
     await tapButton(field);
+  }
+
+  Future<void> tapHidePropertyButtonInFieldEditor() async {
+    final button = find.byType(HideFieldButton);
+    await tapButton(button);
   }
 
   Future<void> tapRowDetailPageCreatePropertyButton() async {
@@ -926,6 +944,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Should call [tapDatabaseSettingButton] first.
+  Future<void> tapViewPropertiesButton() async {
+    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findLayoutButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.text == DatabaseSettingAction.showProperties.title(),
+    );
+
+    final button = find.descendant(
+      of: findSettingItem,
+      matching: findLayoutButton,
+    );
+
+    await tapButton(button);
+  }
+
+  /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapDatabaseLayoutButton() async {
     final findSettingItem = find.byType(DatabaseSettingItem);
     final findLayoutButton = find.byWidgetPredicate(
@@ -1111,6 +1146,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findCreateButton);
   }
 
+  Future<void> tapTabBarLinkedViewByViewName(String name) async {
+    final viewButton = findTabBarLinkViewByViewName(name);
+    await tapButton(viewButton);
+  }
+
   Finder findTabBarLinkViewByViewLayout(ViewLayoutPB layout) {
     return find.byWidgetPredicate(
       (widget) => widget is TabBarItemButton && widget.view.layout == layout,
@@ -1211,6 +1251,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> tapAddSelectOptionButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
+  }
+
+  Future<void> tapViewTogglePropertyVisibilityButtonByName(
+    String fieldName,
+  ) async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridPropertyCell && widget.fieldInfo.name == fieldName,
+    );
+    final toggleVisibilityButton =
+        find.descendant(of: field, matching: find.byType(FlowyIconButton));
+    await tapButton(toggleVisibilityButton);
   }
 }
 

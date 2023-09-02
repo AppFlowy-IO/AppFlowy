@@ -12,6 +12,7 @@ use parking_lot::RwLock;
 
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
@@ -28,6 +29,7 @@ pub struct DocumentManager {
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
+  storage_service: Weak<dyn FileStorageService>,
 }
 
 impl DocumentManager {
@@ -35,12 +37,14 @@ impl DocumentManager {
     user: Arc<dyn DocumentUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
+    storage_service: Weak<dyn FileStorageService>,
   ) -> Self {
     Self {
       user,
       collab_builder,
       documents: Default::default(),
       cloud_service,
+      storage_service,
     }
   }
 
@@ -178,5 +182,10 @@ impl DocumentManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
     &self.cloud_service
+  }
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+    &self.storage_service
   }
 }

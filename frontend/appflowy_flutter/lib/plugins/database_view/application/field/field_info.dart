@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'field_info.freezed.dart';
 
@@ -8,6 +9,7 @@ class FieldInfo with _$FieldInfo {
 
   const factory FieldInfo({
     required FieldPB field,
+    required FieldSettingsPB? fieldSettings,
     required bool isGroupField,
     required bool hasFilter,
     required bool hasSort,
@@ -21,8 +23,11 @@ class FieldInfo with _$FieldInfo {
 
   bool get isPrimary => field.isPrimary;
 
+  FieldVisibility? get visibility => fieldSettings?.visibility;
+
   factory FieldInfo.initial(FieldPB field) => FieldInfo(
         field: field,
+        fieldSettings: null,
         hasFilter: false,
         hasSort: false,
         isGroupField: false,

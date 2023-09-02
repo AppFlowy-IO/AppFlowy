@@ -24,3 +24,6 @@ mod postgres;
 
 #[cfg(feature = "impl_from_tokio")]
 mod tokio;
+
+#[cfg(feature = "impl_from_url")]
+mod url;

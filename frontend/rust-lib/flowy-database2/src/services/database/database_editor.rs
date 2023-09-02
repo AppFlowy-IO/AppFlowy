@@ -28,8 +28,7 @@ use crate::services::field::{
   SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
-  default_field_settings_by_layout, default_field_settings_by_layout_map, FieldSettings,
-  FieldSettingsChangesetParams,
+  default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
@@ -108,6 +107,15 @@ impl DatabaseEditor {
   }
 
   pub async fn close(&self) {}
+
+  pub async fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
+    let view = self.database_views.get_view_editor(view_id).await.ok();
+    if let Some(editor) = view {
+      editor.v_get_layout_type().await
+    } else {
+      DatabaseLayout::default()
+    }
+  }
 
   pub async fn update_view_layout(
     &self,
@@ -1107,18 +1115,57 @@ impl DatabaseEditor {
   pub async fn get_field_settings(
     &self,
     view_id: &str,
+    layout_ty: DatabaseLayout,
     field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+  ) -> FlowyResult<Vec<FieldSettings>> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_get_field_settings(field_ids).await
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+
+    let found_field_settings = view.v_get_field_settings(&field_ids).await;
+
+    let field_settings = field_ids
+      .into_iter()
+      .map(|field_id| {
+        if let Some(field_settings) = found_field_settings.get(&field_id) {
+          field_settings.to_owned()
+        } else {
+          FieldSettings::try_from_anymap(field_id, default_field_settings.clone()).unwrap()
+        }
+      })
+      .collect();
+
+    Ok(field_settings)
   }
 
   pub async fn get_all_field_settings(
     &self,
     view_id: &str,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    layout_ty: DatabaseLayout,
+  ) -> FlowyResult<Vec<FieldSettings>> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_get_all_field_settings().await
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+    let fields = self.get_fields(view_id, None);
+
+    let found_field_settings = view.v_get_all_field_settings().await;
+
+    let field_settings = fields
+      .into_iter()
+      .map(|field| {
+        if let Some(field_settings) = found_field_settings.get(&field.id) {
+          field_settings.to_owned()
+        } else {
+          FieldSettings::try_from_anymap(field.id, default_field_settings.clone()).unwrap()
+        }
+      })
+      .collect();
+
+    Ok(field_settings)
   }
 
   pub async fn update_field_settings_with_changeset(
@@ -1352,10 +1399,6 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       .insert_layout_setting(view_id, layout_ty, layout_setting);
   }
 
-  fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
-    self.database.lock().views.get_database_view_layout(view_id)
-  }
-
   fn update_layout_type(&self, view_id: &str, layout_type: &DatabaseLayout) {
     self
       .database
@@ -1379,30 +1422,40 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_field_settings(
     &self,
     view_id: &str,
-    field_ids: Vec<String>,
-  ) -> Result<Vec<FieldSettings>, anyhow::Error> {
+    field_ids: &Vec<String>,
+  ) -> HashMap<String, FieldSettings> {
     let field_settings_map = self
       .database
       .lock()
-      .get_field_settings(view_id, Some(field_ids));
+      .get_field_settings(view_id, Some(&field_ids));
 
-    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+    field_settings_map
       .into_iter()
-      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
-      .collect();
-
-    field_settings
+      .filter_map(|(field_id, field_settings)| {
+        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
+        if let Ok(settings) = field_settings {
+          Some((field_id, settings))
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 
-  fn get_all_field_settings(&self, view_id: &str) -> Result<Vec<FieldSettings>, anyhow::Error> {
+  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings> {
     let field_settings_map = self.database.lock().get_field_settings(view_id, None);
 
-    let field_settings: Result<Vec<FieldSettings>, anyhow::Error> = field_settings_map
+    field_settings_map
       .into_iter()
-      .map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
-      .collect();
-
-    field_settings
+      .filter_map(|(field_id, field_settings)| {
+        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
+        if let Ok(settings) = field_settings {
+          Some((field_id, settings))
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 
   fn update_field_settings(
@@ -1411,32 +1464,34 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     field_id: &str,
     visibility: Option<FieldVisibility>,
   ) {
-    let field_settings = self
-      .get_field_settings(view_id, vec![field_id.to_string()])
-      .ok();
+    let field_settings_map = self.get_field_settings(view_id, &vec![field_id.to_string()]);
 
-    let new_field_settings = match field_settings {
-      Some(field_settings) => {
-        let mut field_settings = field_settings.first().unwrap().clone();
-        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
-        field_settings
-      },
-      None => {
-        let layout_ty = self.get_layout_for_view(view_id);
-        let mut field_settings = FieldSettings::try_from_anymap(
-          field_id.to_string(),
-          default_field_settings_by_layout(layout_ty),
-        )
-        .unwrap();
-        field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
-        field_settings
-      },
+    let new_field_settings = if let Some(field_settings) = field_settings_map.get(field_id) {
+      let mut field_settings = field_settings.to_owned();
+      field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+      field_settings
+    } else {
+      let layout_ty = self.get_layout_for_view(view_id);
+      let mut field_settings = FieldSettings::try_from_anymap(
+        field_id.to_string(),
+        default_field_settings_by_layout_map()
+          .get(&layout_ty)
+          .unwrap()
+          .to_owned(),
+      )
+      .unwrap();
+      field_settings.visibility = visibility.unwrap_or(field_settings.visibility);
+      field_settings
     };
 
     self.database.lock().update_field_settings(
       view_id,
       Some(vec![field_id.to_string()]),
-      new_field_settings,
-    )
+      new_field_settings.clone(),
+    );
+
+    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
+      .payload(FieldSettingsPB::from(new_field_settings))
+      .send()
   }
 }
