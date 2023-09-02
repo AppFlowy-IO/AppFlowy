@@ -256,7 +256,7 @@ impl CellDataChangeset for DateTypeOption {
     // order to change the day without changing the time, the old time string
     // should be passed in as well.
 
-    let changeset_timestamp = changeset.date_timestamp();
+    let changeset_timestamp = changeset.date;
 
     // parse the time string, which is in the local timezone
     let parsed_time = match (include_time, changeset.time) {
