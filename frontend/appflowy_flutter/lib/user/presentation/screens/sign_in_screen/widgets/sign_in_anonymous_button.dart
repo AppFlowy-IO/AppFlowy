@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -11,16 +12,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignInAnonymousButton extends StatelessWidget {
-  final bool isMobile;
-
   /// Used in DesktopSignInScreen and MobileSignInScreen
   const SignInAnonymousButton({
     super.key,
-    required this.isMobile,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = PlatformExtension.isMobile;
+
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, signInState) {
         return BlocProvider(
@@ -51,7 +51,7 @@ class SignInAnonymousButton extends StatelessWidget {
                         final user = bloc.state.historicalUsers.first;
                         bloc.add(HistoricalUserEvent.openHistoricalUser(user));
                       };
-                // mobile
+                // SignInAnonymousButton in mobile
                 if (isMobile) {
                   return ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -61,7 +61,7 @@ class SignInAnonymousButton extends StatelessWidget {
                     child: Text(LocaleKeys.signIn_loginStartWithAnonymous.tr()),
                   );
                 }
-                // desktop
+                // SignInAnonymousButton in desktop
                 return SizedBox(
                   height: 48,
                   child: FlowyButton(

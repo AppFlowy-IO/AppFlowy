@@ -64,7 +64,7 @@ class MobileSignInScreen extends StatelessWidget {
                   const Spacer(
                     flex: 2,
                   ),
-                  const SignInAnonymousButton(isMobile: true),
+                  const SignInAnonymousButton(),
                   const VSpace(16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +81,7 @@ class MobileSignInScreen extends StatelessWidget {
                     ],
                   ),
                   const VSpace(16),
-                  const ThirdPartySignInButtons(isMobile: true),
+                  const ThirdPartySignInButtons(),
                   const VSpace(16),
                 ],
               ),

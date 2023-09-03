@@ -42,17 +42,13 @@ class DesktopSignInScreen extends StatelessWidget {
           ],
           */
 
-            const SignInAnonymousButton(
-              isMobile: false,
-            ),
+            const SignInAnonymousButton(),
 
             // third-party sign in.
             const VSpace(20),
             const _OrDivider(),
             const VSpace(10),
-            const ThirdPartySignInButtons(
-              isMobile: false,
-            ),
+            const ThirdPartySignInButtons(),
             const VSpace(20),
             // loading status
             const VSpace(indicatorMinHeight),
