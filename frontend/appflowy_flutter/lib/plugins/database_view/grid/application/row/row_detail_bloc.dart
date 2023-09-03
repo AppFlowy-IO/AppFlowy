@@ -58,6 +58,9 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               (err) => Log.error(err),
             );
           },
+          reorderField: (fieldId, fromIndex, toIndex) async {
+            await _reorderField(fieldId, fromIndex, toIndex, emit);
+          },
           deleteRow: (rowId) async {
             await rowService.deleteRow(rowId);
           },
@@ -94,6 +97,25 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
       fieldId: fieldId,
     );
   }
+
+  Future<void> _reorderField(
+    String fieldId,
+    int fromIndex,
+    int toIndex,
+    Emitter<RowDetailState> emit,
+  ) async {
+    final cells = List<DatabaseCellContext>.from(state.cells);
+    cells.insert(toIndex, cells.removeAt(fromIndex));
+    emit(state.copyWith(cells: cells));
+
+    final fieldService =
+        FieldBackendService(viewId: rowController.viewId, fieldId: fieldId);
+    final result = await fieldService.moveField(
+      fromIndex,
+      toIndex,
+    );
+    result.fold((l) {}, (err) => Log.error(err));
+  }
 }
 
 @freezed
@@ -102,6 +124,11 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
   const factory RowDetailEvent.showField(String fieldId) = _ShowField;
   const factory RowDetailEvent.hideField(String fieldId) = _HideField;
+  const factory RowDetailEvent.reorderField(
+    String fieldId,
+    int fromIndex,
+    int toIndex,
+  ) = _ReorderField;
   const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
   const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
       _DuplicateRow;

@@ -12,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_builder.dart';
 import 'cells/text_cell/text_cell.dart';
-import 'row_action.dart';
 import 'row_banner.dart';
 import 'row_property.dart';
 
@@ -47,17 +46,29 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return FlowyDialog(
       child: BlocProvider(
-        create: (context) {
-          return RowDetailBloc(rowController: widget.rowController)
-            ..add(const RowDetailEvent.initial());
-        },
+        create: (context) => RowDetailBloc(rowController: widget.rowController)
+          ..add(const RowDetailEvent.initial()),
         child: ListView(
           controller: scrollController,
           children: [
-            _rowBanner(),
-            IntrinsicHeight(child: _responsiveRowInfo()),
-            const Divider(height: 1.0),
-            const VSpace(10),
+            RowBanner2(
+              rowController: widget.rowController,
+              cellBuilder: widget.cellBuilder,
+            ),
+            const VSpace(16),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 60),
+              child: RowPropertyList(
+                cellBuilder: widget.cellBuilder,
+                viewId: widget.rowController.viewId,
+              ),
+            ),
+            const VSpace(20),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 60),
+              child: Divider(height: 1.0),
+            ),
+            const VSpace(20),
             RowDocument(
               viewId: widget.rowController.viewId,
               rowId: widget.rowController.rowId,
@@ -68,104 +79,50 @@ class _RowDetailPageState extends State<RowDetailPage> {
       ),
     );
   }
+}
 
-  Widget _rowBanner() {
+class RowBanner2 extends StatelessWidget {
+  final RowController rowController;
+  final GridCellBuilder cellBuilder;
+  const RowBanner2({
+    super.key,
+    required this.rowController,
+    required this.cellBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
-        final paddingOffset = getHorizontalPadding(context);
-        return Padding(
-          padding: EdgeInsets.only(
-            left: paddingOffset,
-            right: paddingOffset,
-            top: 20,
-          ),
-          child: RowBanner(
-            rowMeta: widget.rowController.rowMeta,
-            viewId: widget.rowController.viewId,
-            cellBuilder: (fieldId) {
-              final fieldInfo = state.cells
-                  .firstWhereOrNull(
-                    (e) => e.fieldInfo.field.id == fieldId,
-                  )
-                  ?.fieldInfo;
+        return RowBanner(
+          rowController: rowController,
+          cellBuilder: (fieldId) {
+            final fieldInfo = state.cells
+                .firstWhereOrNull(
+                  (e) => e.fieldInfo.field.id == fieldId,
+                )
+                ?.fieldInfo;
 
-              if (fieldInfo != null) {
-                final style = GridTextCellStyle(
-                  placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
-                  textStyle: Theme.of(context).textTheme.titleLarge,
-                  showEmoji: false,
-                  autofocus: true,
-                );
-                final cellContext = DatabaseCellContext(
-                  viewId: widget.rowController.viewId,
-                  rowMeta: widget.rowController.rowMeta,
-                  fieldInfo: fieldInfo,
-                );
-                return widget.cellBuilder.build(cellContext, style: style);
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
+            if (fieldInfo == null) {
+              return const SizedBox.shrink();
+            }
+
+            final style = GridTextCellStyle(
+              placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
+              textStyle: Theme.of(context).textTheme.titleLarge,
+              showEmoji: false,
+              autofocus: true,
+              cellPadding: EdgeInsets.zero,
+            );
+            final cellContext = DatabaseCellContext(
+              viewId: rowController.viewId,
+              rowMeta: rowController.rowMeta,
+              fieldInfo: fieldInfo,
+            );
+            return cellBuilder.build(cellContext, style: style);
+          },
         );
       },
     );
-  }
-
-  Widget _responsiveRowInfo() {
-    final rowDataColumn = RowPropertyList(
-      cellBuilder: widget.cellBuilder,
-      viewId: widget.rowController.viewId,
-    );
-    final rowOptionColumn = RowActionList(
-      viewId: widget.rowController.viewId,
-      rowController: widget.rowController,
-    );
-    final paddingOffset = getHorizontalPadding(context);
-    if (MediaQuery.of(context).size.width > 800) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            flex: 3,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(paddingOffset, 0, 20, 20),
-              child: rowDataColumn,
-            ),
-          ),
-          const VerticalDivider(width: 1.0),
-          Flexible(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, paddingOffset, 0),
-              child: rowOptionColumn,
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(paddingOffset, 0, 20, 20),
-            child: rowDataColumn,
-          ),
-          const Divider(height: 1.0),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingOffset),
-            child: rowOptionColumn,
-          )
-        ],
-      );
-    }
-  }
-}
-
-double getHorizontalPadding(BuildContext context) {
-  if (MediaQuery.of(context).size.width > 800) {
-    return 50;
-  } else {
-    return 20;
   }
 }

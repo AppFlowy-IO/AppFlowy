@@ -9,12 +9,29 @@ import 'checkbox_cell_bloc.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
 
+class GridCheckboxCellStyle extends GridCellStyle {
+  EdgeInsets? cellPadding;
+
+  GridCheckboxCellStyle({
+    this.cellPadding,
+  });
+}
+
 class GridCheckboxCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
+  late final GridCheckboxCellStyle cellStyle;
+
   GridCheckboxCell({
     required this.cellControllerBuilder,
+    GridCellStyle? style,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key) {
+    if (style != null) {
+      cellStyle = (style as GridCheckboxCellStyle);
+    } else {
+      cellStyle = GridCheckboxCellStyle();
+    }
+  }
 
   @override
   GridCellState<GridCheckboxCell> createState() => _CheckboxCellState();
@@ -46,7 +63,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
           return Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: GridSize.cellContentInsets,
+              padding:
+                  widget.cellStyle.cellPadding ?? GridSize.cellContentInsets,
               child: FlowyIconButton(
                 hoverColor: Colors.transparent,
                 onPressed: () => context

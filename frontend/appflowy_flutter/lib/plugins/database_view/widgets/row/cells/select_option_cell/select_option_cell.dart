@@ -13,9 +13,11 @@ import 'select_option_editor.dart';
 
 class SelectOptionCellStyle extends GridCellStyle {
   String placeholder;
+  EdgeInsets? cellPadding;
 
   SelectOptionCellStyle({
     required this.placeholder,
+    this.cellPadding,
   });
 }
 
@@ -170,10 +172,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     final Widget child = _buildOptions(context);
 
     final constraints = BoxConstraints.loose(
-      Size(
-        SelectOptionCellEditor.editorPanelWidth,
-        300,
-      ),
+      Size(SelectOptionCellEditor.editorPanelWidth, 300),
     );
     return AppFlowyPopover(
       controller: widget.popoverController,
@@ -191,7 +190,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       },
       onClose: () => widget.onCellEditing.value = false,
       child: Padding(
-        padding: GridSize.cellContentInsets,
+        padding: widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
         child: child,
       ),
     );
@@ -200,9 +199,12 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
   Widget _buildOptions(BuildContext context) {
     final Widget child;
     if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
-      child = FlowyText.medium(
-        widget.cellStyle!.placeholder,
-        color: Theme.of(context).hintColor,
+      child = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1),
+        child: FlowyText.medium(
+          widget.cellStyle!.placeholder,
+          color: Theme.of(context).hintColor,
+        ),
       );
     } else {
       final children = widget.selectOptions.map(

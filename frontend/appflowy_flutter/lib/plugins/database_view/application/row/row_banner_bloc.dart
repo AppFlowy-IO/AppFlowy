@@ -32,11 +32,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
             await _listenRowMeteChanged();
           },
           didReceiveRowMeta: (RowMetaPB rowMeta) {
-            emit(
-              state.copyWith(
-                rowMeta: rowMeta,
-              ),
-            );
+            emit(state.copyWith(rowMeta: rowMeta));
           },
           setCover: (String coverURL) {
             _updateMeta(coverURL: coverURL);

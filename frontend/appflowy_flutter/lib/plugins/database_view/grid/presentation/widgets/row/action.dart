@@ -40,8 +40,7 @@ class RowActions extends StatelessWidget {
               .map((action) => _ActionCell(action: action))
               .toList();
 
-          //
-          final list = ListView.separated(
+          return ListView.separated(
             shrinkWrap: true,
             controller: ScrollController(),
             itemCount: cells.length,
@@ -53,7 +52,6 @@ class RowActions extends StatelessWidget {
               return cells[index];
             },
           );
-          return list;
         },
       ),
     );
@@ -70,6 +68,7 @@ class _ActionCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        useIntrinsicWidth: true,
         text: FlowyText.medium(
           action.title(),
           color: action.enable()

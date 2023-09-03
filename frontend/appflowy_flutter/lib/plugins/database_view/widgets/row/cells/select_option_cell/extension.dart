@@ -93,7 +93,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -110,6 +110,7 @@ class SelectOptionTag extends StatelessWidget {
           Flexible(
             child: FlowyText.medium(
               name,
+              fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
               color: AFThemeExtension.of(context).textColor,
             ),

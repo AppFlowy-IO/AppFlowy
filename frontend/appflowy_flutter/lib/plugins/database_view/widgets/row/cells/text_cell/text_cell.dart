@@ -14,6 +14,7 @@ class GridTextCellStyle extends GridCellStyle {
   double emojiFontSize;
   double emojiHPadding;
   bool showEmoji;
+  EdgeInsets? cellPadding;
 
   GridTextCellStyle({
     this.placeholder,
@@ -22,6 +23,7 @@ class GridTextCellStyle extends GridCellStyle {
     this.showEmoji = true,
     this.emojiFontSize = 16,
     this.emojiHPadding = 0,
+    this.cellPadding,
   });
 }
 
@@ -72,10 +74,11 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.only(
-            left: GridSize.cellContentInsets.left,
-            right: GridSize.cellContentInsets.right,
-          ),
+          padding: widget.cellStyle.cellPadding ??
+              EdgeInsets.only(
+                left: GridSize.cellContentInsets.left,
+                right: GridSize.cellContentInsets.right,
+              ),
           child: Row(
             children: [
               if (widget.cellStyle.showEmoji)
