@@ -30,7 +30,6 @@ class FieldBackendService {
   Future<Either<Unit, FlowyError>> updateField({
     String? name,
     bool? frozen,
-    bool? visibility,
     double? width,
   }) {
     final payload = FieldChangesetPB.create()
@@ -43,10 +42,6 @@ class FieldBackendService {
 
     if (frozen != null) {
       payload.frozen = frozen;
-    }
-
-    if (visibility != null) {
-      payload.visibility = visibility;
     }
 
     if (width != null) {

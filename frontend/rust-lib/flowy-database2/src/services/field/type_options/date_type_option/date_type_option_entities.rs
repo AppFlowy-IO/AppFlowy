@@ -18,16 +18,10 @@ use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
-  pub date: Option<String>,
+  pub date: Option<i64>,
   pub time: Option<String>,
   pub include_time: Option<bool>,
   pub clear_flag: Option<bool>,
-}
-
-impl DateCellChangeset {
-  pub fn date_timestamp(&self) -> Option<i64> {
-    self.date.as_ref().and_then(|date| date.parse::<i64>().ok())
-  }
 }
 
 impl FromCellChangeset for DateCellChangeset {

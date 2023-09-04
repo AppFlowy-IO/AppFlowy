@@ -5,6 +5,7 @@ use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 
 use crate::af_cloud::configuration::AFCloudConfiguration;
@@ -42,6 +43,10 @@ impl AppFlowyServer for AFCloudServer {
   }
 
   fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    None
+  }
+
+  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
     None
   }
 }

@@ -48,7 +48,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
     return FlowyDialog(
       child: BlocProvider(
         create: (context) {
-          return RowDetailBloc(dataController: widget.rowController)
+          return RowDetailBloc(rowController: widget.rowController)
             ..add(const RowDetailEvent.initial());
         },
         child: ListView(

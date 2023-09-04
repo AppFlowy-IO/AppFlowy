@@ -27,7 +27,8 @@
     "passwordHint": "Lösenord",
     "dontHaveAnAccount": "Har du inget konto?",
     "repeatPasswordEmptyError": "Upprepat lösenord kan inte vara tomt",
-    "unmatchedPasswordError": "Upprepat lösenord är inte samma som det första"
+    "unmatchedPasswordError": "Upprepat lösenord är inte samma som det första",
+    "loginAsGuestButtonText": "Komma igång"
   },
   "workspace": {
     "create": "Skapa arbetsyta",
@@ -43,7 +44,8 @@
   "disclosureAction": {
     "rename": "Byt namn",
     "delete": "Ta bort",
-    "duplicate": "Klona"
+    "duplicate": "Klona",
+    "openNewTab": "Öppna i en ny flik"
   },
   "blankPageTitle": "Tom sida",
   "newPageText": "Ny sida",
@@ -55,6 +57,14 @@
       "fileName": "Filnamn",
       "lastModified": "Ändrad",
       "created": "Skapad"
+    },
+    "confirmDeleteAll": {
+      "title": "Är du säker på att ta bort alla sidor i papperskorgen?",
+      "caption": "Denna åtgärd kan inte ångras."
+    },
+    "confirmRestoreAll": {
+      "title": "Är du säker på att återställa alla sidor i papperskorgen?",
+      "caption": "Denna åtgärd kan inte ångras."
     }
   },
   "deletePagePrompt": {
@@ -70,7 +80,10 @@
       "name": "Felsökningsinfo",
       "success": "Kopierade felsökningsinfo till urklipp!",
       "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
-    }
+    },
+    "shortcuts": "Genvägar",
+    "markdown": "Prissänkning",
+    "feedback": "Respons"
   },
   "menuAppHeader": {
     "addPageTooltip": "Lägg snabbt till en sida inuti",
@@ -90,14 +103,21 @@
     "inlineCode": "Infogad kod",
     "quote": "Citatblock",
     "header": "Rubrik",
-    "highlight": "Färgmarkera"
+    "highlight": "Färgmarkera",
+    "color": "Färg",
+    "addLink": "Lägg till länk",
+    "link": "Länk"
   },
   "tooltip": {
     "lightMode": "Växla till ljust läge",
     "darkMode": "Växla till mörkt läge",
     "openAsPage": "Öppna som sida",
     "addNewRow": "Lägg till ny rad",
-    "openMenu": "Klicka för att öppna meny"
+    "openMenu": "Klicka för att öppna meny",
+    "dragRow": "Långt tryck för att ändra ordningen på raden",
+    "viewDataBase": "Visa databas",
+    "referencePage": "Det här {name} refereras till",
+    "addBlockBelow": "Lägg till ett block nedan"
   },
   "sideBar": {
     "closeSidebar": "Stäng sidofältet",
@@ -121,7 +141,21 @@
     "signIn": "Logga in",
     "signOut": "Logga ut",
     "complete": "Slutfört",
-    "save": "Spara"
+    "save": "Spara",
+    "Done": "Gjort",
+    "generate": "Generera",
+    "esc": "ESC",
+    "keep": "Ha kvar",
+    "tryAgain": "Försök igen",
+    "discard": "Kassera",
+    "replace": "Byta ut",
+    "insertBelow": "Infoga nedan",
+    "upload": "Ladda upp",
+    "edit": "Redigera",
+    "delete": "Radera",
+    "duplicate": "Duplicera",
+    "done": "Gjort",
+    "putback": "Ställ tillbaka"
   },
   "label": {
     "welcome": "Välkommen!",
@@ -149,7 +183,9 @@
       "appearance": "Utseende",
       "language": "Språk",
       "user": "Användare",
-      "open": "Öppna inställningarna"
+      "open": "Öppna inställningarna",
+      "files": "Filer",
+      "supabaseSetting": "Supabase-inställning"
     },
     "appearance": {
       "themeMode": {
@@ -157,7 +193,66 @@
         "light": "Ljust läge",
         "dark": "Mörkt läge",
         "system": "Adapt to System"
-      }
+      },
+      "fontFamily": {
+        "label": "Typsnittsfamilj",
+        "search": "Sök"
+      },
+      "themeUpload": {
+        "button": "Ladda upp",
+        "description": "Ladda upp ditt eget AppFlowy-tema med knappen nedan.",
+        "failure": "Temat som laddades upp hade ett ogiltigt format.",
+        "loading": "Vänta medan vi validerar och laddar upp ditt tema...",
+        "uploadSuccess": "Ditt tema laddades upp",
+        "deletionFailure": "Det gick inte att ta bort temat. Försök att radera det manuellt.",
+        "filePickerDialogTitle": "Välj en .flowy_plugin-fil",
+        "urlUploadFailure": "Det gick inte att öppna webbadressen: {}"
+      },
+      "theme": "Tema",
+      "builtInsLabel": "Inbyggda teman",
+      "pluginsLabel": "Plugins"
+    },
+    "files": {
+      "copy": "Kopiera",
+      "defaultLocation": "Läs filer och datalagringsplats",
+      "exportData": "Exportera dina data",
+      "doubleTapToCopy": "Dubbeltryck för att kopiera sökvägen",
+      "restoreLocation": "Återställ till AppFlowy standardsökväg",
+      "customizeLocation": "Öppna en annan mapp",
+      "restartApp": "Starta om appen för att ändringarna ska träda i kraft.",
+      "exportDatabase": "Exportera databas",
+      "selectFiles": "Välj de filer som behöver exporteras",
+      "selectAll": "Välj alla",
+      "deselectAll": "Avmarkera alla",
+      "createNewFolder": "Skapa en ny mapp",
+      "createNewFolderDesc": "Berätta för oss var du vill lagra din data",
+      "defineWhereYourDataIsStored": "Definiera var din data lagras",
+      "open": "Öppen",
+      "openFolder": "Öppna en befintlig mapp",
+      "openFolderDesc": "Läs och skriv det till din befintliga AppFlowy-mapp",
+      "folderHintText": "mapp namn",
+      "location": "Skapar en ny mapp",
+      "locationDesc": "Välj ett namn för din AppFlowy-datamapp",
+      "browser": "Bläddra",
+      "create": "Skapa",
+      "set": "Uppsättning",
+      "folderPath": "Sökväg för att lagra din mapp",
+      "locationCannotBeEmpty": "Sökvägen får inte vara tom",
+      "pathCopiedSnackbar": "Fillagringssökväg kopierad till urklipp!",
+      "changeLocationTooltips": "Byt datakatalog",
+      "change": "Förändra",
+      "openLocationTooltips": "Öppna en annan datakatalog",
+      "openCurrentDataFolder": "Öppna aktuell datakatalog",
+      "recoverLocationTooltips": "Återställ till AppFlowys standarddatakatalog",
+      "exportFileSuccess": "Exportera filen framgångsrikt!",
+      "exportFileFail": "Export av fil misslyckades!",
+      "export": "Exportera"
+    },
+    "user": {
+      "name": "namn",
+      "icon": "Ikon",
+      "selectAnIcon": "Välj en ikon",
+      "pleaseInputYourOpenAIKey": "vänligen ange din OpenAI-nyckel"
     }
   },
   "grid": {
@@ -165,7 +260,16 @@
       "filter": "Filter",
       "sortBy": "Sortera efter",
       "Properties": "Egenskaper",
-      "group": "Grupp"
+      "group": "Grupp",
+      "sort": "Sortera",
+      "properties": "Egenskaper",
+      "reorderPropertiesTooltip": "Dra för att ändra ordning på egenskaper",
+      "addFilter": "Lägg till filter",
+      "deleteFilter": "Ta bort filter",
+      "filterBy": "Filtrera efter...",
+      "typeAValue": "Skriv ett värde...",
+      "layout": "Layout",
+      "databaseLayout": "Layout"
     },
     "field": {
       "hide": "Dölj",
@@ -196,7 +300,11 @@
       "addOption": "Lägg till alternativ",
       "editProperty": "Redigera egenskap",
       "newProperty": "Ny kolumn",
-      "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas."
+      "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas.",
+      "updatedAtFieldName": "Senast ändrad tid",
+      "createdAtFieldName": "Skapat tid",
+      "checklistFieldName": "Checklista",
+      "dateFormatDayMonthYear": "Dag månad år"
     },
     "row": {
       "duplicate": "Klona",
@@ -204,7 +312,8 @@
       "textPlaceholder": "Tom",
       "copyProperty": "Kopierade egenskap till urklipp",
       "count": "Antal",
-      "newRow": "Ny rad"
+      "newRow": "Ny rad",
+      "action": "Handling"
     },
     "selectOption": {
       "create": "Skapa",
@@ -222,281 +331,270 @@
       "panelTitle": "Välj ett alternativ eller skapa ett",
       "searchOption": "Sök efter ett alternativ"
     },
-    "menuName": "Tabell"
+    "menuName": "Tabell",
+    "deleteView": "Är du säker på att du vill ta bort den här vyn?",
+    "createView": "Ny",
+    "textFilter": {
+      "contains": "Innehåller",
+      "doesNotContain": "Innehåller inte",
+      "endsWith": "Slutar med",
+      "startWith": "Börjar med",
+      "is": "Är",
+      "isNot": "Är inte",
+      "isEmpty": "Är tom",
+      "isNotEmpty": "Är inte tom",
+      "choicechipPrefix": {
+        "isNot": "Inte",
+        "startWith": "Börjar med",
+        "endWith": "Slutar med",
+        "isEmpty": "är tom",
+        "isNotEmpty": "är inte tom"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Kontrollerade",
+      "isUnchecked": "Okontrollerad",
+      "choicechipPrefix": {
+        "is": "är"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "är komplett",
+      "isIncomplted": "är ofullständig"
+    },
+    "singleSelectOptionFilter": {
+      "is": "Är",
+      "isNot": "Är inte",
+      "isEmpty": "Är tom",
+      "isNotEmpty": "Är inte tom"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Innehåller",
+      "doesNotContain": "Innehåller inte",
+      "isEmpty": "Är tom",
+      "isNotEmpty": "Är inte tom"
+    },
+    "sort": {
+      "ascending": "Stigande",
+      "descending": "Nedåtgående",
+      "deleteSort": "Ta bort sortering",
+      "addSort": "Lägg till sortering"
+    },
+    "checklist": {
+      "panelTitle": "Lägg till ett objekt"
+    },
+    "referencedGridPrefix": "Utsikt över"
   },
   "document": {
     "menuName": "Dokument",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Välj en styrelse att länka till",
+        "createANewBoard": "Skapa en ny styrelse"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Välj ett rutnät att länka till",
+        "createANewGrid": "Skapa ett nytt rutnät"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Välj en kalender att länka till",
+        "createANewCalendar": "Skapa en ny kalender"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Skissera"
+    },
+    "plugins": {
+      "referencedBoard": "Refererad styrelse",
+      "referencedGrid": "Refererade rutnät",
+      "referencedCalendar": "Refererad kalender",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
+      "autoGeneratorTitleName": "OpenAI: Be AI skriva vad som helst...",
+      "autoGeneratorLearnMore": "Läs mer",
+      "autoGeneratorGenerate": "Generera",
+      "autoGeneratorHintText": "Fråga OpenAI...",
+      "autoGeneratorCantGetOpenAIKey": "Kan inte hämta OpenAI-nyckeln",
+      "autoGeneratorRewrite": "Skriva om",
+      "smartEdit": "AI-assistenter",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Fixa stavningen",
+      "warning": "⚠️ AI-svar kan vara felaktiga eller vilseledande.",
+      "smartEditSummarize": "Sammanfatta",
+      "smartEditImproveWriting": "Förbättra skrivandet",
+      "smartEditMakeLonger": "Gör längre",
+      "smartEditCouldNotFetchResult": "Det gick inte att hämta resultatet från OpenAI",
+      "smartEditCouldNotFetchKey": "Det gick inte att hämta OpenAI-nyckeln",
+      "smartEditDisabled": "Anslut OpenAI i Inställningar",
+      "discardResponse": "Vill du kassera AI-svaren?",
+      "createInlineMathEquation": "Skapa ekvation",
+      "toggleList": "Växla lista",
+      "cover": {
+        "changeCover": "Byta omslag",
+        "colors": "Färger",
+        "images": "Bilder",
+        "clearAll": "Rensa alla",
+        "abstract": "Abstrakt",
+        "addCover": "Lägg till lock",
+        "addLocalImage": "Lägg till lokal bild",
+        "invalidImageUrl": "Ogiltig bildadress",
+        "failedToAddImageToGallery": "Det gick inte att lägga till bild i galleriet",
+        "enterImageUrl": "Ange bildens URL",
+        "add": "Lägg till",
+        "back": "Tillbaka",
+        "saveToGallery": "Spara i galleriet",
+        "removeIcon": "Ta bort ikon",
+        "pasteImageUrl": "Klistra in bildens URL",
+        "or": "ELLER",
+        "pickFromFiles": "Välj från filer",
+        "couldNotFetchImage": "Det gick inte att hämta bilden",
+        "imageSavingFailed": "Det gick inte att spara bild",
+        "addIcon": "Lägg till ikon",
+        "coverRemoveAlert": "Den kommer att tas bort från omslaget efter att den har raderats.",
+        "alertDialogConfirmation": "Är du säker på att du vill fortsätta?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Lägg till matematikekvation",
+        "editMathEquation": "Redigera matematisk ekvation"
+      },
+      "optionAction": {
+        "click": "Klick",
+        "toOpenMenu": " för att öppna menyn",
+        "delete": "Radera",
+        "duplicate": "Duplicera",
+        "turnInto": "Bli till",
+        "moveUp": "Flytta upp",
+        "moveDown": "Flytta ner",
+        "color": "Färg",
+        "align": "Justera",
+        "left": "Vänster",
+        "center": "Centrum",
+        "right": "Höger",
+        "defaultColor": "Standard"
+      },
+      "image": {
+        "copiedToPasteBoard": "Bildlänken har kopierats till urklipp"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Lägg till rubriker för att skapa en innehållsförteckning."
+      }
+    },
+    "textBlock": {
+      "placeholder": "Skriv '/' för kommandon"
+    },
+    "title": {
+      "placeholder": "Ofrälse"
+    },
+    "imageBlock": {
+      "placeholder": "Klicka för att lägga till bild",
+      "upload": {
+        "label": "Ladda upp",
+        "placeholder": "Klicka för att ladda upp bilden"
+      },
+      "url": {
+        "label": "bild URL",
+        "placeholder": "Ange bildens URL"
+      },
+      "support": "Bildstorleksgränsen är 5 MB. Format som stöds: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Ogiltig bild",
+        "invalidImageSize": "Bildstorleken måste vara mindre än 5 MB",
+        "invalidImageFormat": "Bildformat stöds inte. Format som stöds: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Ogiltig bildadress"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Språk",
+        "placeholder": "Välj språk"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Klistra in eller skriv en länk",
+      "url": {
+        "label": "Länk-URL",
+        "placeholder": "Ange länkens URL"
+      },
+      "title": {
+        "label": "Länktitel",
+        "placeholder": "Ange länkens titel"
+      }
     }
   },
   "board": {
     "column": {
       "create_new_card": "Nytt"
-    }
+    },
+    "menuName": "Styrelse",
+    "referencedBoardPrefix": "Utsikt över"
   },
-  "moreAction.small": "små",
+  "moreAction": {
+    "small": "små",
+    "medium": "medium",
+    "large": "stor",
+    "fontSize": "Textstorlek",
+    "import": "Importera",
+    "moreOptions": "Fler alternativ"
+  },
   "youCanAlso": "Du kan också",
   "and": "och",
-  "blockActions.addBelowTooltip": "Klicka för att lägga till nedan",
-  "blockActions.addAboveCmd": "Alt+klicka",
-  "blockActions.addAboveMacCmd": "Alternativ+klick",
-  "blockActions.addAboveTooltip": "att lägga till ovan",
-  "signIn.loginAsGuestButtonText": "Komma igång",
-  "moreAction.medium": "medium",
-  "moreAction.large": "stor",
-  "moreAction.fontSize": "Textstorlek",
-  "moreAction.import": "Importera",
-  "moreAction.moreOptions": "Fler alternativ",
-  "importPanel.textAndMarkdown": "Text & Markdown",
-  "importPanel.documentFromV010": "Dokument från v0.1.0",
-  "importPanel.databaseFromV010": "Databas från v0.1.0",
-  "importPanel.csv": "CSV",
-  "importPanel.database": "Databas",
-  "disclosureAction.openNewTab": "Öppna i en ny flik",
-  "trash.confirmDeleteAll.title": "Är du säker på att ta bort alla sidor i papperskorgen?",
-  "trash.confirmDeleteAll.caption": "Denna åtgärd kan inte ångras.",
-  "trash.confirmRestoreAll.title": "Är du säker på att återställa alla sidor i papperskorgen?",
-  "trash.confirmRestoreAll.caption": "Denna åtgärd kan inte ångras.",
-  "questionBubble.shortcuts": "Genvägar",
-  "questionBubble.markdown": "Prissänkning",
-  "questionBubble.feedback": "Respons",
-  "toolbar.color": "Färg",
-  "toolbar.addLink": "Lägg till länk",
-  "toolbar.link": "Länk",
-  "tooltip.dragRow": "Långt tryck för att ändra ordningen på raden",
-  "tooltip.viewDataBase": "Visa databas",
-  "tooltip.referencePage": "Det här {name} refereras till",
-  "tooltip.addBlockBelow": "Lägg till ett block nedan",
-  "button.Done": "Gjort",
-  "button.generate": "Generera",
-  "button.esc": "ESC",
-  "button.keep": "Ha kvar",
-  "button.tryAgain": "Försök igen",
-  "button.discard": "Kassera",
-  "button.replace": "Byta ut",
-  "button.insertBelow": "Infoga nedan",
-  "button.upload": "Ladda upp",
-  "button.edit": "Redigera",
-  "button.delete": "Radera",
-  "button.duplicate": "Duplicera",
-  "button.done": "Gjort",
-  "button.putback": "Ställ tillbaka",
-  "settings.menu.files": "Filer",
-  "settings.menu.supabaseSetting": "Supabase-inställning",
-  "settings.appearance.fontFamily.label": "Typsnittsfamilj",
-  "settings.appearance.fontFamily.search": "Sök",
-  "settings.appearance.themeUpload.button": "Ladda upp",
-  "settings.appearance.themeUpload.description": "Ladda upp ditt eget AppFlowy-tema med knappen nedan.",
-  "settings.appearance.themeUpload.failure": "Temat som laddades upp hade ett ogiltigt format.",
-  "settings.appearance.themeUpload.loading": "Vänta medan vi validerar och laddar upp ditt tema...",
-  "settings.appearance.themeUpload.uploadSuccess": "Ditt tema laddades upp",
-  "settings.appearance.themeUpload.deletionFailure": "Det gick inte att ta bort temat. Försök att radera det manuellt.",
-  "settings.appearance.themeUpload.filePickerDialogTitle": "Välj en .flowy_plugin-fil",
-  "settings.appearance.themeUpload.urlUploadFailure": "Det gick inte att öppna webbadressen: {}",
-  "settings.appearance.theme": "Tema",
-  "settings.appearance.builtInsLabel": "Inbyggda teman",
-  "settings.appearance.pluginsLabel": "Plugins",
-  "settings.files.copy": "Kopiera",
-  "settings.files.defaultLocation": "Läs filer och datalagringsplats",
-  "settings.files.exportData": "Exportera dina data",
-  "settings.files.doubleTapToCopy": "Dubbeltryck för att kopiera sökvägen",
-  "settings.files.restoreLocation": "Återställ till AppFlowy standardsökväg",
-  "settings.files.customizeLocation": "Öppna en annan mapp",
-  "settings.files.restartApp": "Starta om appen för att ändringarna ska träda i kraft.",
-  "settings.files.exportDatabase": "Exportera databas",
-  "settings.files.selectFiles": "Välj de filer som behöver exporteras",
-  "settings.files.selectAll": "Välj alla",
-  "settings.files.deselectAll": "Avmarkera alla",
-  "settings.files.createNewFolder": "Skapa en ny mapp",
-  "settings.files.createNewFolderDesc": "Berätta för oss var du vill lagra din data",
-  "settings.files.defineWhereYourDataIsStored": "Definiera var din data lagras",
-  "settings.files.open": "Öppen",
-  "settings.files.openFolder": "Öppna en befintlig mapp",
-  "settings.files.openFolderDesc": "Läs och skriv det till din befintliga AppFlowy-mapp",
-  "settings.files.folderHintText": "mapp namn",
-  "settings.files.location": "Skapar en ny mapp",
-  "settings.files.locationDesc": "Välj ett namn för din AppFlowy-datamapp",
-  "settings.files.browser": "Bläddra",
-  "settings.files.create": "Skapa",
-  "settings.files.set": "Uppsättning",
-  "settings.files.folderPath": "Sökväg för att lagra din mapp",
-  "settings.files.locationCannotBeEmpty": "Sökvägen får inte vara tom",
-  "settings.files.pathCopiedSnackbar": "Fillagringssökväg kopierad till urklipp!",
-  "settings.files.changeLocationTooltips": "Byt datakatalog",
-  "settings.files.change": "Förändra",
-  "settings.files.openLocationTooltips": "Öppna en annan datakatalog",
-  "settings.files.openCurrentDataFolder": "Öppna aktuell datakatalog",
-  "settings.files.recoverLocationTooltips": "Återställ till AppFlowys standarddatakatalog",
-  "settings.files.exportFileSuccess": "Exportera filen framgångsrikt!",
-  "settings.files.exportFileFail": "Export av fil misslyckades!",
-  "settings.files.export": "Exportera",
-  "settings.user.name": "namn",
-  "settings.user.icon": "Ikon",
-  "settings.user.selectAnIcon": "Välj en ikon",
-  "settings.user.pleaseInputYourOpenAIKey": "vänligen ange din OpenAI-nyckel",
-  "grid.deleteView": "Är du säker på att du vill ta bort den här vyn?",
-  "grid.createView": "Ny",
-  "grid.settings.sort": "Sortera",
-  "grid.settings.properties": "Egenskaper",
-  "grid.settings.reorderPropertiesTooltip": "Dra för att ändra ordning på egenskaper",
-  "grid.settings.addFilter": "Lägg till filter",
-  "grid.settings.deleteFilter": "Ta bort filter",
-  "grid.settings.filterBy": "Filtrera efter...",
-  "grid.settings.typeAValue": "Skriv ett värde...",
-  "grid.settings.layout": "Layout",
-  "grid.settings.databaseLayout": "Layout",
-  "grid.textFilter.contains": "Innehåller",
-  "grid.textFilter.doesNotContain": "Innehåller inte",
-  "grid.textFilter.endsWith": "Slutar med",
-  "grid.textFilter.startWith": "Börjar med",
-  "grid.textFilter.is": "Är",
-  "grid.textFilter.isNot": "Är inte",
-  "grid.textFilter.isEmpty": "Är tom",
-  "grid.textFilter.isNotEmpty": "Är inte tom",
-  "grid.textFilter.choicechipPrefix.isNot": "Inte",
-  "grid.textFilter.choicechipPrefix.startWith": "Börjar med",
-  "grid.textFilter.choicechipPrefix.endWith": "Slutar med",
-  "grid.textFilter.choicechipPrefix.isEmpty": "är tom",
-  "grid.textFilter.choicechipPrefix.isNotEmpty": "är inte tom",
-  "grid.checkboxFilter.isChecked": "Kontrollerade",
-  "grid.checkboxFilter.isUnchecked": "Okontrollerad",
-  "grid.checkboxFilter.choicechipPrefix.is": "är",
-  "grid.checklistFilter.isComplete": "är komplett",
-  "grid.checklistFilter.isIncomplted": "är ofullständig",
-  "grid.singleSelectOptionFilter.is": "Är",
-  "grid.singleSelectOptionFilter.isNot": "Är inte",
-  "grid.singleSelectOptionFilter.isEmpty": "Är tom",
-  "grid.singleSelectOptionFilter.isNotEmpty": "Är inte tom",
-  "grid.multiSelectOptionFilter.contains": "Innehåller",
-  "grid.multiSelectOptionFilter.doesNotContain": "Innehåller inte",
-  "grid.multiSelectOptionFilter.isEmpty": "Är tom",
-  "grid.multiSelectOptionFilter.isNotEmpty": "Är inte tom",
-  "grid.field.updatedAtFieldName": "Senast ändrad tid",
-  "grid.field.createdAtFieldName": "Skapat tid",
-  "grid.field.checklistFieldName": "Checklista",
-  "grid.field.dateFormatDayMonthYear": "Dag månad år",
-  "grid.sort.ascending": "Stigande",
-  "grid.sort.descending": "Nedåtgående",
-  "grid.sort.deleteSort": "Ta bort sortering",
-  "grid.sort.addSort": "Lägg till sortering",
-  "grid.row.action": "Handling",
-  "grid.checklist.panelTitle": "Lägg till ett objekt",
-  "grid.referencedGridPrefix": "Utsikt över",
-  "document.slashMenu.board.selectABoardToLinkTo": "Välj en styrelse att länka till",
-  "document.slashMenu.board.createANewBoard": "Skapa en ny styrelse",
-  "document.slashMenu.grid.selectAGridToLinkTo": "Välj ett rutnät att länka till",
-  "document.slashMenu.grid.createANewGrid": "Skapa ett nytt rutnät",
-  "document.slashMenu.calendar.selectACalendarToLinkTo": "Välj en kalender att länka till",
-  "document.slashMenu.calendar.createANewCalendar": "Skapa en ny kalender",
-  "document.selectionMenu.outline": "Skissera",
-  "document.plugins.referencedBoard": "Refererad styrelse",
-  "document.plugins.referencedGrid": "Refererade rutnät",
-  "document.plugins.referencedCalendar": "Refererad kalender",
-  "document.plugins.autoGeneratorMenuItemName": "OpenAI Writer",
-  "document.plugins.autoGeneratorTitleName": "OpenAI: Be AI skriva vad som helst...",
-  "document.plugins.autoGeneratorLearnMore": "Läs mer",
-  "document.plugins.autoGeneratorGenerate": "Generera",
-  "document.plugins.autoGeneratorHintText": "Fråga OpenAI...",
-  "document.plugins.autoGeneratorCantGetOpenAIKey": "Kan inte hämta OpenAI-nyckeln",
-  "document.plugins.autoGeneratorRewrite": "Skriva om",
-  "document.plugins.smartEdit": "AI-assistenter",
-  "document.plugins.openAI": "OpenAI",
-  "document.plugins.smartEditFixSpelling": "Fixa stavningen",
-  "document.plugins.warning": "⚠️ AI-svar kan vara felaktiga eller vilseledande.",
-  "document.plugins.smartEditSummarize": "Sammanfatta",
-  "document.plugins.smartEditImproveWriting": "Förbättra skrivandet",
-  "document.plugins.smartEditMakeLonger": "Gör längre",
-  "document.plugins.smartEditCouldNotFetchResult": "Det gick inte att hämta resultatet från OpenAI",
-  "document.plugins.smartEditCouldNotFetchKey": "Det gick inte att hämta OpenAI-nyckeln",
-  "document.plugins.smartEditDisabled": "Anslut OpenAI i Inställningar",
-  "document.plugins.discardResponse": "Vill du kassera AI-svaren?",
-  "document.plugins.createInlineMathEquation": "Skapa ekvation",
-  "document.plugins.toggleList": "Växla lista",
-  "document.plugins.cover.changeCover": "Byta omslag",
-  "document.plugins.cover.colors": "Färger",
-  "document.plugins.cover.images": "Bilder",
-  "document.plugins.cover.clearAll": "Rensa alla",
-  "document.plugins.cover.abstract": "Abstrakt",
-  "document.plugins.cover.addCover": "Lägg till lock",
-  "document.plugins.cover.addLocalImage": "Lägg till lokal bild",
-  "document.plugins.cover.invalidImageUrl": "Ogiltig bildadress",
-  "document.plugins.cover.failedToAddImageToGallery": "Det gick inte att lägga till bild i galleriet",
-  "document.plugins.cover.enterImageUrl": "Ange bildens URL",
-  "document.plugins.cover.add": "Lägg till",
-  "document.plugins.cover.back": "Tillbaka",
-  "document.plugins.cover.saveToGallery": "Spara i galleriet",
-  "document.plugins.cover.removeIcon": "Ta bort ikon",
-  "document.plugins.cover.pasteImageUrl": "Klistra in bildens URL",
-  "document.plugins.cover.or": "ELLER",
-  "document.plugins.cover.pickFromFiles": "Välj från filer",
-  "document.plugins.cover.couldNotFetchImage": "Det gick inte att hämta bilden",
-  "document.plugins.cover.imageSavingFailed": "Det gick inte att spara bild",
-  "document.plugins.cover.addIcon": "Lägg till ikon",
-  "document.plugins.cover.coverRemoveAlert": "Den kommer att tas bort från omslaget efter att den har raderats.",
-  "document.plugins.cover.alertDialogConfirmation": "Är du säker på att du vill fortsätta?",
-  "document.plugins.mathEquation.addMathEquation": "Lägg till matematikekvation",
-  "document.plugins.mathEquation.editMathEquation": "Redigera matematisk ekvation",
-  "document.plugins.optionAction.click": "Klick",
-  "document.plugins.optionAction.toOpenMenu": " för att öppna menyn",
-  "document.plugins.optionAction.delete": "Radera",
-  "document.plugins.optionAction.duplicate": "Duplicera",
-  "document.plugins.optionAction.turnInto": "Bli till",
-  "document.plugins.optionAction.moveUp": "Flytta upp",
-  "document.plugins.optionAction.moveDown": "Flytta ner",
-  "document.plugins.optionAction.color": "Färg",
-  "document.plugins.optionAction.align": "Justera",
-  "document.plugins.optionAction.left": "Vänster",
-  "document.plugins.optionAction.center": "Centrum",
-  "document.plugins.optionAction.right": "Höger",
-  "document.plugins.optionAction.defaultColor": "Standard",
-  "document.plugins.image.copiedToPasteBoard": "Bildlänken har kopierats till urklipp",
-  "document.plugins.outline.addHeadingToCreateOutline": "Lägg till rubriker för att skapa en innehållsförteckning.",
-  "document.textBlock.placeholder": "Skriv '/' för kommandon",
-  "document.title.placeholder": "Ofrälse",
-  "document.imageBlock.placeholder": "Klicka för att lägga till bild",
-  "document.imageBlock.upload.label": "Ladda upp",
-  "document.imageBlock.upload.placeholder": "Klicka för att ladda upp bilden",
-  "document.imageBlock.url.label": "bild URL",
-  "document.imageBlock.url.placeholder": "Ange bildens URL",
-  "document.imageBlock.support": "Bildstorleksgränsen är 5 MB. Format som stöds: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImage": "Ogiltig bild",
-  "document.imageBlock.error.invalidImageSize": "Bildstorleken måste vara mindre än 5 MB",
-  "document.imageBlock.error.invalidImageFormat": "Bildformat stöds inte. Format som stöds: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImageUrl": "Ogiltig bildadress",
-  "document.codeBlock.language.label": "Språk",
-  "document.codeBlock.language.placeholder": "Välj språk",
-  "document.inlineLink.placeholder": "Klistra in eller skriv en länk",
-  "document.inlineLink.url.label": "Länk-URL",
-  "document.inlineLink.url.placeholder": "Ange länkens URL",
-  "document.inlineLink.title.label": "Länktitel",
-  "document.inlineLink.title.placeholder": "Ange länkens titel",
-  "board.menuName": "Styrelse",
-  "board.referencedBoardPrefix": "Utsikt över",
-  "calendar.menuName": "Kalender",
-  "calendar.defaultNewCalendarTitle": "Ofrälse",
-  "calendar.navigation.today": "I dag",
-  "calendar.navigation.jumpToday": "Hoppa till Idag",
-  "calendar.navigation.previousMonth": "Förra månaden",
-  "calendar.navigation.nextMonth": "Nästa månad",
-  "calendar.settings.showWeekNumbers": "Visa veckonummer",
-  "calendar.settings.showWeekends": "Visa helger",
-  "calendar.settings.firstDayOfWeek": "Börja veckan på",
-  "calendar.settings.layoutDateField": "Layoutkalender av",
-  "calendar.settings.noDateTitle": "Inget datum",
-  "calendar.settings.noDateHint": "Oschemalagda händelser kommer att dyka upp här",
-  "calendar.settings.clickToAdd": "Klicka för att lägga till i kalendern",
-  "calendar.settings.name": "Kalenderlayout",
-  "calendar.referencedCalendarPrefix": "Utsikt över",
-  "errorDialog.title": "AppFlowy-fel",
-  "errorDialog.howToFixFallback": "Vi ber om ursäkt för besväret! Skicka ett problem på vår GitHub-sida som beskriver ditt fel.",
-  "errorDialog.github": "Visa på GitHub",
-  "search.label": "Sök",
-  "search.placeholder.actions": "Sökåtgärder...",
-  "message.copy.success": "Kopierade!",
-  "message.copy.fail": "Det går inte att kopiera",
+  "blockActions": {
+    "addBelowTooltip": "Klicka för att lägga till nedan",
+    "addAboveCmd": "Alt+klicka",
+    "addAboveMacCmd": "Alternativ+klick",
+    "addAboveTooltip": "att lägga till ovan"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Dokument från v0.1.0",
+    "databaseFromV010": "Databas från v0.1.0",
+    "csv": "CSV",
+    "database": "Databas"
+  },
+  "calendar": {
+    "menuName": "Kalender",
+    "defaultNewCalendarTitle": "Ofrälse",
+    "navigation": {
+      "today": "I dag",
+      "jumpToday": "Hoppa till Idag",
+      "previousMonth": "Förra månaden",
+      "nextMonth": "Nästa månad"
+    },
+    "settings": {
+      "showWeekNumbers": "Visa veckonummer",
+      "showWeekends": "Visa helger",
+      "firstDayOfWeek": "Börja veckan på",
+      "layoutDateField": "Layoutkalender av",
+      "noDateTitle": "Inget datum",
+      "noDateHint": "Oschemalagda händelser kommer att dyka upp här",
+      "clickToAdd": "Klicka för att lägga till i kalendern",
+      "name": "Kalenderlayout"
+    },
+    "referencedCalendarPrefix": "Utsikt över"
+  },
+  "errorDialog": {
+    "title": "AppFlowy-fel",
+    "howToFixFallback": "Vi ber om ursäkt för besväret! Skicka ett problem på vår GitHub-sida som beskriver ditt fel.",
+    "github": "Visa på GitHub"
+  },
+  "search": {
+    "label": "Sök",
+    "placeholder": {
+      "actions": "Sökåtgärder..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Kopierade!",
+      "fail": "Det går inte att kopiera"
+    }
+  },
   "unSupportBlock": "Den aktuella versionen stöder inte detta block.",
-  "views.deleteContentTitle": "Är du säker på att du vill ta bort {pageType}?",
-  "views.deleteContentCaption": "om du tar bort denna {pageType} kan du återställa den från papperskorgen."
+  "views": {
+    "deleteContentTitle": "Är du säker på att du vill ta bort {pageType}?",
+    "deleteContentCaption": "om du tar bort denna {pageType} kan du återställa den från papperskorgen."
+  }
 }

@@ -6,7 +6,7 @@ use parking_lot::RwLock;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_storage::core::FileStorageService;
+use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
@@ -36,7 +36,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Arguments
   ///
   /// * `_enable` - A boolean to toggle the server synchronization.
-  fn set_enable_sync(&self, _enable: bool) {}
+  fn set_enable_sync(&self, _uid: i64, _enable: bool) {}
 
   /// Provides access to cloud-based user management functionalities. This includes operations
   /// such as user registration, authentication, profile management, and handling of user workspaces.
@@ -86,9 +86,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
   fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>>;
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
-    None
-  }
+  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>>;
 }
 
 pub struct EncryptionImpl {

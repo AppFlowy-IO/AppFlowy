@@ -62,7 +62,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     ...(headingItems
       ..forEach(
-        (e) => e.isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+        (e) => e.isActive = onlyShowInSingleSelectionAndTextType,
       )),
     ...markdownFormatItems,
     quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,

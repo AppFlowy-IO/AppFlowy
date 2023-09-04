@@ -22,6 +22,10 @@ class FilterInfo {
     );
   }
 
+  String get filterId => filter.id;
+
+  String get fieldId => filter.fieldId;
+
   DateFilterPB? dateFilter() {
     if (![
       FieldType.DateTime,

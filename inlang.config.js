@@ -1,15 +1,15 @@
 export async function defineConfig(env) {
-	const { default: pluginJson } = await env.$import(
-		'https://cdn.jsdelivr.net/gh/samuelstroschein/inlang-plugin-json@2/dist/index.js'
-	);
+	const { default: i18nextPlugin } = await env.$import(
+		"https://cdn.jsdelivr.net/npm/@inlang/plugin-i18next@3/dist/index.js",
+	)
 
 	const { default: standardLintRules } = await env.$import(
-		'https://cdn.jsdelivr.net/gh/inlang/standard-lint-rules@2/dist/index.js'
-	);
+		"https://cdn.jsdelivr.net/npm/@inlang/plugin-standard-lint-rules@3/dist/index.js",
+	)
 
 	return {
 		referenceLanguage: 'en',
-		plugins: [pluginJson({
+		plugins: [i18nextPlugin({
 			pathPattern: './frontend/resources/translations/{language}.json',
 			variableReferencePattern: ["@:"]
 		}), standardLintRules()]

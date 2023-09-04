@@ -4,6 +4,7 @@ use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
 use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
+use bytes::Bytes;
 use parking_lot::RwLock;
 use serde_repr::*;
 
@@ -19,6 +20,7 @@ use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
+use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::services::database::{
   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
@@ -63,12 +65,14 @@ impl Display for ServerProviderType {
 pub struct AppFlowyServerProvider {
   config: AppFlowyCoreConfig,
   provider_type: RwLock<ServerProviderType>,
-  device_id: Arc<RwLock<String>>,
   providers: RwLock<HashMap<ServerProviderType, Arc<dyn AppFlowyServer>>>,
-  enable_sync: RwLock<bool>,
   encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   store_preferences: Weak<StorePreferences>,
   cache_user_service: RwLock<HashMap<ServerProviderType, Arc<dyn UserCloudService>>>,
+
+  device_id: Arc<RwLock<String>>,
+  enable_sync: RwLock<bool>,
+  uid: Arc<RwLock<Option<i64>>>,
 }
 
 impl AppFlowyServerProvider {
@@ -87,11 +91,8 @@ impl AppFlowyServerProvider {
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
       cache_user_service: Default::default(),
+      uid: Default::default(),
     }
-  }
-
-  pub fn set_sync_device(&self, device_id: &str) {
-    *self.device_id.write() = device_id.to_string();
   }
 
   pub fn provider_type(&self) -> ServerProviderType {
@@ -137,10 +138,11 @@ impl AppFlowyServerProvider {
             return Err(e);
           },
         };
-
+        let uid = self.uid.clone();
         tracing::trace!("🔑Supabase config: {:?}", config);
         let encryption = Arc::downgrade(&*self.encryption.read());
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(Arc::new(SupabaseServer::new(
+          uid,
           config,
           *self.enable_sync.read(),
           self.device_id.clone(),
@@ -157,12 +159,39 @@ impl AppFlowyServerProvider {
   }
 }
 
+impl FileStorageService for AppFlowyServerProvider {
+  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.create_object(object).await
+    })
+  }
+
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.delete_object_by_url(object_url).await
+    })
+  }
+
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
+    let server = self.get_provider(&self.provider_type.read());
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.get_object_by_url(object_url).await
+    })
+  }
+}
+
 impl UserCloudServiceProvider for AppFlowyServerProvider {
-  fn set_enable_sync(&self, enable_sync: bool) {
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     match self.get_provider(&self.provider_type.read()) {
       Ok(server) => {
-        server.set_enable_sync(enable_sync);
+        server.set_enable_sync(uid, enable_sync);
         *self.enable_sync.write() = enable_sync;
+        *self.uid.write() = Some(uid);
       },
       Err(e) => tracing::error!("🔴Failed to enable sync: {:?}", e),
     }
