@@ -488,7 +488,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(banner, findsOneWidget);
 
     await startGesture(
-      getTopLeft(banner),
+      getCenter(banner),
       kind: PointerDeviceKind.mouse,
     );
 
@@ -602,6 +602,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapHidePropertyButtonInFieldEditor() async {
     final button = find.byType(HideFieldButton);
     await tapButton(button);
+  }
+
+  Future<void> tapRowDetailPageRowActionButton() async {
+    await tapButton(find.byType(RowActionButton));
   }
 
   Future<void> tapRowDetailPageCreatePropertyButton() async {

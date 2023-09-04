@@ -239,6 +239,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDeleteRowButton();
       await tester.tapEscButton();
 
@@ -255,6 +256,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDuplicateRowButton();
       await tester.tapEscButton();
 

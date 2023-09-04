@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/checkbox_cell/checkbox_cell.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -20,7 +19,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'accessory/cell_accessory.dart';
 import 'cell_builder.dart';
+import 'cells/checkbox_cell/checkbox_cell.dart';
 import 'cells/date_cell/date_cell.dart';
+import 'cells/number_cell/number_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
 import 'cells/url_cell/url_cell.dart';
@@ -54,6 +55,7 @@ class RowPropertyList extends StatelessWidget {
             .toList();
         return ReorderableListView(
           shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           onReorder: (oldIndex, newIndex) {
             if (oldIndex + 1 == newIndex) {
               return;
@@ -179,6 +181,7 @@ class _PropertyCellState extends State<_PropertyCell> {
               constraints: BoxConstraints.loose(const Size(240, 600)),
               margin: EdgeInsets.zero,
               triggerActions: PopoverTriggerFlags.none,
+              direction: PopoverDirection.bottomWithLeftAligned,
               popupBuilder: (popoverContext) => buildFieldEditor(),
               child: SizedBox(
                 width: 160,
@@ -252,7 +255,9 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
       );
     case FieldType.Number:
-      return null;
+      return GridNumberCellStyle(
+        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+      );
     case FieldType.RichText:
       return GridTextCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),

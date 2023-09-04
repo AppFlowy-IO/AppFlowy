@@ -65,17 +65,7 @@ class _RowBannerState extends State<RowBanner> {
             Positioned(
               top: 12,
               right: 12,
-              child: AppFlowyPopover(
-                direction: PopoverDirection.bottomWithLeftAligned,
-                popupBuilder: (context) =>
-                    RowActionList(rowController: widget.rowController),
-                child: FlowyIconButton(
-                  width: 20,
-                  height: 20,
-                  icon: const FlowySvg(FlowySvgs.details_horizontal_s),
-                  iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
-                ),
-              ),
+              child: RowActionButton(rowController: widget.rowController),
             ),
           ],
         ),
@@ -283,4 +273,23 @@ Widget _buildEmojiPicker(OnSubmittedEmoji onSubmitted) {
       onExit: () {},
     ),
   );
+}
+
+class RowActionButton extends StatelessWidget {
+  final RowController rowController;
+  const RowActionButton({super.key, required this.rowController});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithLeftAligned,
+      popupBuilder: (context) => RowActionList(rowController: rowController),
+      child: FlowyIconButton(
+        width: 20,
+        height: 20,
+        icon: const FlowySvg(FlowySvgs.details_horizontal_s),
+        iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+      ),
+    );
+  }
 }
