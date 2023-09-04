@@ -80,7 +80,7 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
             decoration: InputDecoration(
               contentPadding: EdgeInsets.zero,
               border: InputBorder.none,
-              hintText: widget.cellStyle.placeholder ?? "",
+              hintText: widget.cellStyle.placeholder,
               isDense: true,
             ),
           ),
