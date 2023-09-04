@@ -2,7 +2,10 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/size_cubit/cubit/pane_size_cubit.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
@@ -11,6 +14,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -27,41 +31,144 @@ abstract class HomeStackDelegate {
 class HomeStack extends StatelessWidget {
   final HomeStackDelegate delegate;
   final HomeLayout layout;
+  final PaneNode? paneNode;
   const HomeStack({
     required this.delegate,
+    this.paneNode,
     required this.layout,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final pageController = PageController();
-
-    return BlocProvider<TabsBloc>.value(
-      value: getIt<TabsBloc>(),
-      child: BlocBuilder<TabsBloc, TabsState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              TabsManager(pageController: pageController),
-              state.currentPageManager.stackTopBar(layout: layout),
-              Expanded(
-                child: PageView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: pageController,
-                  children: state.pageManagers
-                      .map(
-                        (pm) => PageStack(pageManager: pm, delegate: delegate),
-                      )
-                      .toList(),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    return BlocBuilder<PanesCubit, PanesState>(
+      builder: (context, state) {
+        return _buildTabs(state.root, context);
+      },
     );
+  }
+
+  Widget _buildTabs(PaneNode root, BuildContext context) {
+    if (root.children.isEmpty) {
+      final pageController = PageController();
+      return ChangeNotifierProvider<Tabs>(
+        create: (context) => root.tabs,
+        child: Consumer<Tabs>(
+          builder: (context, value, child) => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              context.read<PanesCubit>().setActivePane(root);
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TabsManager(
+                  pane: root,
+                  pageController: pageController,
+                  tabs: value,
+                ),
+                value.currentPageManager
+                    .stackTopBar(layout: layout, paneId: root.paneId),
+                Expanded(
+                  child: PageView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: pageController,
+                    children: value.pageManagers
+                        .map(
+                          (pm) => PageStack(
+                            pageManager: pm,
+                            delegate: delegate,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      double distance = 0;
+      return SizedBox(
+        child: LayoutBuilder(
+          builder: (context, constraints) => Stack(
+            key: ValueKey(root.paneId),
+            children: [
+              ...root.children.map((e) {
+                //TODO(squidrye): move calculations out of presentation
+                final childWidth = (root.axis == Axis.vertical
+                        ? constraints.maxWidth
+                        : constraints.maxHeight) /
+                    root.children.length;
+                final childLeft = distance * childWidth;
+                distance++;
+                return BlocProvider(
+                  create: (context) => PaneSizeCubit(offset: childLeft),
+                  child: BlocBuilder<PaneSizeCubit, PaneSizeState>(
+                    builder: (context, state) {
+                      return Stack(
+                        children: [
+                          _buildTabs(e, context)
+                              .constrained(
+                                animate: true,
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height,
+                              )
+                              .positioned(
+                                left: root.axis == Axis.vertical
+                                    ? state.resizeOffset
+                                    : null,
+                                top: root.axis == Axis.horizontal
+                                    ? state.resizeOffset
+                                    : null,
+                              ),
+                          MouseRegion(
+                            cursor: root.axis == Axis.vertical
+                                ? SystemMouseCursors.resizeLeftRight
+                                : SystemMouseCursors.resizeUpDown,
+                            child: GestureDetector(
+                              dragStartBehavior: DragStartBehavior.down,
+                              onHorizontalDragStart: (details) => context
+                                  .read<PaneSizeCubit>()
+                                  .editPanelResizeStart(),
+                              onHorizontalDragUpdate: (details) => context
+                                  .read<PaneSizeCubit>()
+                                  .editPanelResized(
+                                    root.axis == Axis.vertical
+                                        ? details.localPosition.dx
+                                        : details.localPosition.dy,
+                                  ),
+                              behavior: HitTestBehavior.translucent,
+                              child: Container(
+                                color: Colors.lightBlue,
+                                width: root.axis == Axis.vertical
+                                    ? 5
+                                    : MediaQuery.of(context).size.width,
+                                height: root.axis == Axis.vertical
+                                    ? MediaQuery.of(context).size.height
+                                    : 5,
+                              ),
+                            ),
+                          ).positioned(
+                            left: root.axis == Axis.vertical
+                                ? state.resizeOffset
+                                : null,
+                            top: root.axis == Axis.horizontal
+                                ? state.resizeOffset
+                                : null,
+                          )
+                        ],
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -206,7 +313,7 @@ class PageManager {
     // Navigate to the page with id
   }
 
-  Widget stackTopBar({required HomeLayout layout}) {
+  Widget stackTopBar({required HomeLayout layout, required String paneId}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
@@ -214,7 +321,9 @@ class PageManager {
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
-          return MoveWindowDetector(child: HomeTopBar(layout: layout));
+          return MoveWindowDetector(
+            child: HomeTopBar(layout: layout, paneId: paneId),
+          );
         },
       ),
     );
@@ -253,9 +362,10 @@ class PageManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+  const HomeTopBar({super.key, required this.layout, required this.paneId});
 
   final HomeLayout layout;
+  final String paneId;
 
   @override
   Widget build(BuildContext context) {
@@ -280,6 +390,18 @@ class HomeTopBar extends StatelessWidget {
                     const SizedBox.shrink(),
               ),
             ),
+            BlocBuilder<PanesCubit, PanesState>(
+              builder: (context, state) {
+                return state.count > 1
+                    ? IconButton(
+                        onPressed: () {
+                          context.read<PanesCubit>().closePane(paneId);
+                        },
+                        icon: const Icon(Icons.close_sharp),
+                      )
+                    : const SizedBox.shrink();
+              },
+            )
           ],
         ),
       ).bottomBorder(color: Theme.of(context).dividerColor),
