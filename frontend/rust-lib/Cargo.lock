@@ -1512,7 +1512,6 @@ dependencies = [
  "flowy-codegen",
  "flowy-derive",
  "flowy-sqlite",
- "http-error-code",
  "lib-dispatch",
  "protobuf",
  "r2d2",
@@ -2155,16 +2154,6 @@ dependencies = [
  "bytes",
  "http",
  "pin-project-lite",
-]
-
-[[package]]
-name = "http-error-code"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Server?branch=refactor/appflowy_server#1ccd296de8530760d92652dbd9f38f27178059b6"
-dependencies = [
- "serde",
- "serde_repr",
- "thiserror",
 ]
 
 [[package]]
