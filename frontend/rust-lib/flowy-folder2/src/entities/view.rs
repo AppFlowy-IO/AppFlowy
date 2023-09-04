@@ -5,12 +5,12 @@ use std::sync::Arc;
 
 use collab_folder::core::{View, ViewLayout};
 
-use crate::entities::icon::ViewIconPB;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use flowy_folder_deps::cloud::gen_view_id;
 
+use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
-use crate::view_operation::gen_view_id;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChildViewUpdatePB {
@@ -226,7 +226,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
-    let view_id = gen_view_id();
+    let view_id = gen_view_id().to_string();
 
     Ok(CreateViewParams {
       parent_view_id,

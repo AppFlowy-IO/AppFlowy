@@ -13,7 +13,9 @@ async fn undo_redo_test() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()));
+  _ = test
+    .create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()))
+    .await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();

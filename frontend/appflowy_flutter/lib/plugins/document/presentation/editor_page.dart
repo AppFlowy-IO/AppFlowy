@@ -66,6 +66,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     numberedListItem,
     inlineMathEquationItem,
     linkItem,
+    alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
   ];
@@ -159,6 +160,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      contextMenuItems: customContextMenuItems,
       header: widget.header,
       footer: const VSpace(200),
     );
