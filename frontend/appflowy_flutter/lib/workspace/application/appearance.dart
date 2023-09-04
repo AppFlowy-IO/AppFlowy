@@ -72,13 +72,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   void setLayoutDirection(LayoutDirection layoutDirection) {
-    _setting.layoutDirection = _layoutDirectionToPB(layoutDirection);
+    _setting.layoutDirection = layoutDirection.toLayoutDirectionPB();
     _saveAppearanceSettings();
     emit(state.copyWith(layoutDirection: layoutDirection));
   }
 
   void setTextDirection(AppFlowyTextDirection? textDirection) {
-    _setting.textDirection = _textDirectionToPB(textDirection);
+    _setting.textDirection =
+        textDirection?.toTextDirectionPB() ?? TextDirectionPB.NULL;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
   }
@@ -206,60 +207,51 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
 
 enum LayoutDirection {
   ltrLayout,
-  rtlLayout,
-}
+  rtlLayout;
 
-LayoutDirection _layoutDirectionFromPB(LayoutDirectionPB layoutDirectionPB) {
-  switch (layoutDirectionPB) {
-    case LayoutDirectionPB.LTRLayout:
-      return LayoutDirection.ltrLayout;
-    case LayoutDirectionPB.RTLLayout:
-      return LayoutDirection.rtlLayout;
-    default:
-      return LayoutDirection.ltrLayout;
-  }
-}
+  static LayoutDirection fromLayoutDirectionPB(
+    LayoutDirectionPB layoutDirectionPB,
+  ) =>
+      layoutDirectionPB == LayoutDirectionPB.RTLLayout
+          ? LayoutDirection.rtlLayout
+          : LayoutDirection.ltrLayout;
 
-LayoutDirectionPB _layoutDirectionToPB(LayoutDirection direction) {
-  switch (direction) {
-    case LayoutDirection.ltrLayout:
-      return LayoutDirectionPB.LTRLayout;
-    case LayoutDirection.rtlLayout:
-      return LayoutDirectionPB.RTLLayout;
-    default:
-      return LayoutDirectionPB.LTRLayout;
-  }
+  LayoutDirectionPB toLayoutDirectionPB() => this == LayoutDirection.rtlLayout
+      ? LayoutDirectionPB.RTLLayout
+      : LayoutDirectionPB.LTRLayout;
 }
 
 enum AppFlowyTextDirection {
   ltr,
   rtl,
-  auto,
-}
+  auto;
 
-AppFlowyTextDirection? _textDirectionFromPB(TextDirectionPB? textDirectionPB) {
-  switch (textDirectionPB) {
-    case TextDirectionPB.LTR:
-      return AppFlowyTextDirection.ltr;
-    case TextDirectionPB.RTL:
-      return AppFlowyTextDirection.rtl;
-    case TextDirectionPB.AUTO:
-      return AppFlowyTextDirection.auto;
-    default:
-      return null;
+  static AppFlowyTextDirection? fromTextDirectionPB(
+    TextDirectionPB? textDirectionPB,
+  ) {
+    switch (textDirectionPB) {
+      case TextDirectionPB.LTR:
+        return AppFlowyTextDirection.ltr;
+      case TextDirectionPB.RTL:
+        return AppFlowyTextDirection.rtl;
+      case TextDirectionPB.AUTO:
+        return AppFlowyTextDirection.auto;
+      default:
+        return null;
+    }
   }
-}
 
-TextDirectionPB _textDirectionToPB(AppFlowyTextDirection? textDirection) {
-  switch (textDirection) {
-    case AppFlowyTextDirection.ltr:
-      return TextDirectionPB.LTR;
-    case AppFlowyTextDirection.rtl:
-      return TextDirectionPB.RTL;
-    case AppFlowyTextDirection.auto:
-      return TextDirectionPB.AUTO;
-    default:
-      return TextDirectionPB.NULL;
+  TextDirectionPB toTextDirectionPB() {
+    switch (this) {
+      case AppFlowyTextDirection.ltr:
+        return TextDirectionPB.LTR;
+      case AppFlowyTextDirection.rtl:
+        return TextDirectionPB.RTL;
+      case AppFlowyTextDirection.auto:
+        return TextDirectionPB.AUTO;
+      default:
+        return TextDirectionPB.NULL;
+    }
   }
 }
 
@@ -294,8 +286,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
-      layoutDirection: _layoutDirectionFromPB(layoutDirectionPB),
-      textDirection: _textDirectionFromPB(textDirectionPB),
+      layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
+      textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,

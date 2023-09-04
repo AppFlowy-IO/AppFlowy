@@ -10,28 +10,31 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'theme_setting_entry_template.dart';
 
 class LayoutDirectionSetting extends StatelessWidget {
-  final LayoutDirection currentLayoutDirection;
   const LayoutDirectionSetting({
-    required this.currentLayoutDirection,
     super.key,
+    required this.currentLayoutDirection,
   });
 
+  final LayoutDirection currentLayoutDirection;
+
   @override
-  Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
-        label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
-        trailing: [
-          ThemeValueDropDown(
-            currentValue: _layoutDirectionLabelText(currentLayoutDirection),
-            popupBuilder: (_) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _layoutDirectionItemButton(context, LayoutDirection.ltrLayout),
-                _layoutDirectionItemButton(context, LayoutDirection.rtlLayout),
-              ],
-            ),
-          )
-        ],
-      );
+  Widget build(BuildContext context) {
+    return ThemeSettingEntryTemplateWidget(
+      label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
+      trailing: [
+        ThemeValueDropDown(
+          currentValue: _layoutDirectionLabelText(currentLayoutDirection),
+          popupBuilder: (_) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _layoutDirectionItemButton(context, LayoutDirection.ltrLayout),
+              _layoutDirectionItemButton(context, LayoutDirection.rtlLayout),
+            ],
+          ),
+        )
+      ],
+    );
+  }
 
   Widget _layoutDirectionItemButton(
     BuildContext context,
@@ -62,14 +65,18 @@ class LayoutDirectionSetting extends StatelessWidget {
       case (LayoutDirection.rtlLayout):
         return LocaleKeys.settings_appearance_layoutDirection_rtl.tr();
       default:
-        return "";
+        return '';
     }
   }
 }
 
 class TextDirectionSetting extends StatelessWidget {
+  const TextDirectionSetting({
+    super.key,
+    required this.currentTextDirection,
+  });
+
   final AppFlowyTextDirection? currentTextDirection;
-  const TextDirectionSetting({required this.currentTextDirection, super.key});
 
   @override
   Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
@@ -124,7 +131,7 @@ class TextDirectionSetting extends StatelessWidget {
       case (AppFlowyTextDirection.auto):
         return LocaleKeys.settings_appearance_textDirection_auto.tr();
       default:
-        return "Not Set";
+        return 'Not Set';
     }
   }
 }
