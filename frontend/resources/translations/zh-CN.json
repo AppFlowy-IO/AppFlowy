@@ -43,8 +43,8 @@
     "markdown": "Markdown",
     "copyLink": "复制链接"
   },
-  "moreAction.small": "小的",
   "moreAction": {
+    "small": "小的",
     "medium": "中",
     "large": "大",
     "fontSize": "字号",
@@ -61,7 +61,8 @@
   "disclosureAction": {
     "rename": "重命名",
     "delete": "删除",
-    "duplicate": "复制"
+    "duplicate": "复制",
+    "openNewTab": "在新选项卡中打开"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -73,6 +74,14 @@
       "fileName": "文件名",
       "lastModified": "最近修改",
       "created": "创建时间"
+    },
+    "confirmDeleteAll": {
+      "title": "您确定要删除回收站中的所有页面吗？",
+      "caption": "此操作无法撤消。"
+    },
+    "confirmRestoreAll": {
+      "title": "您确定要恢复回收站中的所有页面吗？",
+      "caption": "此操作无法撤消。"
     }
   },
   "deletePagePrompt": {
@@ -90,7 +99,8 @@
       "name": "调试信息",
       "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
-    }
+    },
+    "feedback": "反馈"
   },
   "menuAppHeader": {
     "addPageTooltip": "在其中快速添加页面",
@@ -111,7 +121,9 @@
     "quote": "块引用",
     "header": "标题",
     "highlight": "高亮",
-    "color": "颜色"
+    "color": "颜色",
+    "addLink": "添加链接",
+    "link": "关联"
   },
   "tooltip": {
     "lightMode": "切换到亮色模式",
@@ -121,7 +133,8 @@
     "openMenu": "点击打开菜单",
     "dragRow": "拖动来调整行",
     "viewDataBase": "查看数据库",
-    "referencePage": "这个 {name} 正在被引用"
+    "referencePage": "这个 {name} 正在被引用",
+    "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
     "openSidebar": "打开侧边栏",
@@ -153,7 +166,13 @@
     "tryAgain": "重试",
     "discard": "放弃",
     "replace": "替换",
-    "insertBelow": "下方插入"
+    "insertBelow": "下方插入",
+    "upload": "上传",
+    "edit": "编辑",
+    "delete": "删除",
+    "duplicate": "复制",
+    "done": "完毕",
+    "putback": "放回去"
   },
   "label": {
     "welcome": "欢迎!",
@@ -182,7 +201,8 @@
       "language": "语言",
       "user": "用户",
       "files": "文件",
-      "open": "打开设置"
+      "open": "打开设置",
+      "supabaseSetting": "超基设置"
     },
     "appearance": {
       "themeMode": {
@@ -191,7 +211,23 @@
         "dark": "夜间模式",
         "system": "系统自适应"
       },
-      "theme": "主题"
+      "theme": "主题",
+      "fontFamily": {
+        "label": "字体系列",
+        "search": "搜索"
+      },
+      "themeUpload": {
+        "button": "上传",
+        "description": "使用下面的按钮上传您自己的 AppFlowy 主题。",
+        "failure": "上传的主题格式无效。",
+        "loading": "我们正在验证并上传您的主题，请稍候...",
+        "uploadSuccess": "您的主题已成功上传",
+        "deletionFailure": "删除主题失败。尝试手动删除它。",
+        "filePickerDialogTitle": "选择 .flowy_plugin 文件",
+        "urlUploadFailure": "无法打开网址：{}"
+      },
+      "builtInsLabel": "内置主题",
+      "pluginsLabel": "插件"
     },
     "files": {
       "copy": "复制",
@@ -250,7 +286,9 @@
       "filterBy": "以……筛选",
       "typeAValue": "请输入一个值",
       "layout": "布局",
-      "databaseLayout": "布局"
+      "databaseLayout": "布局",
+      "properties": "特性",
+      "reorderPropertiesTooltip": "拖动以重新排序属性"
     },
     "textFilter": {
       "contains": "包含",
@@ -448,6 +486,58 @@
         "center": "中心",
         "right": "又",
         "defaultColor": "默认"
+      },
+      "createInlineMathEquation": "创建方程",
+      "toggleList": "切换列表",
+      "image": {
+        "copiedToPasteBoard": "图片链接已复制到剪贴板"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "添加标题以创建目录。"
+      }
+    },
+    "selectionMenu": {
+      "outline": "大纲"
+    },
+    "textBlock": {
+      "placeholder": "输入“/”作为命令"
+    },
+    "title": {
+      "placeholder": "无标题"
+    },
+    "imageBlock": {
+      "placeholder": "点击添加图片",
+      "upload": {
+        "label": "上传",
+        "placeholder": "点击上传图片"
+      },
+      "url": {
+        "label": "图片网址",
+        "placeholder": "输入图片网址"
+      },
+      "support": "图片大小限制为 5MB。支持的格式：JPEG、PNG、GIF、SVG",
+      "error": {
+        "invalidImage": "图片无效",
+        "invalidImageSize": "图片大小必须小于 5MB",
+        "invalidImageFormat": "不支持图像格式。支持的格式：JPEG、PNG、GIF、SVG",
+        "invalidImageUrl": "图片网址无效"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "语言",
+        "placeholder": "选择语言"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "粘贴或输入链接",
+      "url": {
+        "label": "链接网址",
+        "placeholder": "输入链接网址"
+      },
+      "title": {
+        "label": "链接标题",
+        "placeholder": "输入链接标题"
       }
     }
   },
@@ -484,69 +574,27 @@
     "howToFixFallback": "对于给您带来的不便, 我们深表歉意! 请在我们的 GitHub 页面上提交 issue 并描述您遇到的错误。",
     "github": "在 GitHub 查看"
   },
-  "blockActions.addBelowTooltip": "点击下方添加",
-  "blockActions.addAboveCmd": "Alt+单击",
-  "blockActions.addAboveMacCmd": "选项+单击",
-  "blockActions.addAboveTooltip": "添加上面",
-  "disclosureAction.openNewTab": "在新选项卡中打开",
-  "trash.confirmDeleteAll.title": "您确定要删除回收站中的所有页面吗？",
-  "trash.confirmDeleteAll.caption": "此操作无法撤消。",
-  "trash.confirmRestoreAll.title": "您确定要恢复回收站中的所有页面吗？",
-  "trash.confirmRestoreAll.caption": "此操作无法撤消。",
-  "questionBubble.feedback": "反馈",
-  "toolbar.addLink": "添加链接",
-  "toolbar.link": "关联",
-  "tooltip.addBlockBelow": "在下面添加一个块",
-  "button.upload": "上传",
-  "button.edit": "编辑",
-  "button.delete": "删除",
-  "button.duplicate": "复制",
-  "button.done": "完毕",
-  "button.putback": "放回去",
-  "settings.menu.supabaseSetting": "超基设置",
-  "settings.appearance.fontFamily.label": "字体系列",
-  "settings.appearance.fontFamily.search": "搜索",
-  "settings.appearance.themeUpload.button": "上传",
-  "settings.appearance.themeUpload.description": "使用下面的按钮上传您自己的 AppFlowy 主题。",
-  "settings.appearance.themeUpload.failure": "上传的主题格式无效。",
-  "settings.appearance.themeUpload.loading": "我们正在验证并上传您的主题，请稍候...",
-  "settings.appearance.themeUpload.uploadSuccess": "您的主题已成功上传",
-  "settings.appearance.themeUpload.deletionFailure": "删除主题失败。尝试手动删除它。",
-  "settings.appearance.themeUpload.filePickerDialogTitle": "选择 .flowy_plugin 文件",
-  "settings.appearance.themeUpload.urlUploadFailure": "无法打开网址：{}",
-  "settings.appearance.builtInsLabel": "内置主题",
-  "settings.appearance.pluginsLabel": "插件",
-  "grid.settings.properties": "特性",
-  "grid.settings.reorderPropertiesTooltip": "拖动以重新排序属性",
-  "document.selectionMenu.outline": "大纲",
-  "document.plugins.createInlineMathEquation": "创建方程",
-  "document.plugins.toggleList": "切换列表",
-  "document.plugins.image.copiedToPasteBoard": "图片链接已复制到剪贴板",
-  "document.plugins.outline.addHeadingToCreateOutline": "添加标题以创建目录。",
-  "document.textBlock.placeholder": "输入“/”作为命令",
-  "document.title.placeholder": "无标题",
-  "document.imageBlock.placeholder": "点击添加图片",
-  "document.imageBlock.upload.label": "上传",
-  "document.imageBlock.upload.placeholder": "点击上传图片",
-  "document.imageBlock.url.label": "图片网址",
-  "document.imageBlock.url.placeholder": "输入图片网址",
-  "document.imageBlock.support": "图片大小限制为 5MB。支持的格式：JPEG、PNG、GIF、SVG",
-  "document.imageBlock.error.invalidImage": "图片无效",
-  "document.imageBlock.error.invalidImageSize": "图片大小必须小于 5MB",
-  "document.imageBlock.error.invalidImageFormat": "不支持图像格式。支持的格式：JPEG、PNG、GIF、SVG",
-  "document.imageBlock.error.invalidImageUrl": "图片网址无效",
-  "document.codeBlock.language.label": "语言",
-  "document.codeBlock.language.placeholder": "选择语言",
-  "document.inlineLink.placeholder": "粘贴或输入链接",
-  "document.inlineLink.url.label": "链接网址",
-  "document.inlineLink.url.placeholder": "输入链接网址",
-  "document.inlineLink.title.label": "链接标题",
-  "document.inlineLink.title.placeholder": "输入链接标题",
-  "search.label": "搜索",
-  "search.placeholder.actions": "搜索操作...",
-  "message.copy.success": "复制了！",
-  "message.copy.fail": "无法复制",
+  "blockActions": {
+    "addBelowTooltip": "点击下方添加",
+    "addAboveCmd": "Alt+单击",
+    "addAboveMacCmd": "选项+单击",
+    "addAboveTooltip": "添加上面"
+  },
+  "search": {
+    "label": "搜索",
+    "placeholder": {
+      "actions": "搜索操作..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "复制了！",
+      "fail": "无法复制"
+    }
+  },
   "unSupportBlock": "当前版本不支持该块。",
-  "views.deleteContentTitle": "您确定要删除 {pageType} 吗？",
-  "views.deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
+  "views": {
+    "deleteContentTitle": "您确定要删除 {pageType} 吗？",
+    "deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
+  }
 }

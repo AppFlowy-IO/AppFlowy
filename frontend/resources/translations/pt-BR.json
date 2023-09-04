@@ -27,7 +27,8 @@
     "passwordHint": "Senha",
     "dontHaveAnAccount": "Não possui uma conta?",
     "repeatPasswordEmptyError": "Senha não pode estar em branco.",
-    "unmatchedPasswordError": "As senhas não conferem."
+    "unmatchedPasswordError": "As senhas não conferem.",
+    "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
     "create": "Crie um espaço de trabalho",
@@ -45,12 +46,14 @@
     "medium": "médio",
     "large": "grande",
     "fontSize": "Tamanho da fonte",
-    "import": "Importar"
+    "import": "Importar",
+    "moreOptions": "Mais opções"
   },
   "disclosureAction": {
     "rename": "Renomear",
     "delete": "Apagar",
-    "duplicate": "Duplicar"
+    "duplicate": "Duplicar",
+    "openNewTab": "Abrir em uma nova guia"
   },
   "blankPageTitle": "Página em branco",
   "newPageText": "Nova página",
@@ -62,6 +65,14 @@
       "fileName": "Nome do arquivo",
       "lastModified": "Última modificação",
       "created": "Criado"
+    },
+    "confirmDeleteAll": {
+      "title": "Tem certeza de que deseja excluir todas as páginas da Lixeira?",
+      "caption": "Essa ação não pode ser desfeita."
+    },
+    "confirmRestoreAll": {
+      "title": "Tem certeza de que deseja restaurar todas as páginas da Lixeira?",
+      "caption": "Essa ação não pode ser desfeita."
     }
   },
   "deletePagePrompt": {
@@ -78,7 +89,9 @@
       "name": "Informação de depuração",
       "success": "Informação de depuração copiada para a área de transferência!",
       "fail": "Falha ao copiar a informação de depuração para a área de transferência"
-    }
+    },
+    "markdown": "Remarcação",
+    "feedback": "Opinião"
   },
   "menuAppHeader": {
     "addPageTooltip": "Adicionar uma nova página.",
@@ -99,7 +112,9 @@
     "quote": "Citação em bloco",
     "header": "Cabeçalho",
     "highlight": "Destacar",
-    "color": "Cor"
+    "color": "Cor",
+    "addLink": "Adicionar link",
+    "link": "Link"
   },
   "tooltip": {
     "lightMode": "Mudar para o modo claro",
@@ -108,7 +123,9 @@
     "addNewRow": "Adicionar uma nova linha",
     "openMenu": "Clique para abrir o menu",
     "viewDataBase": "Visualizar banco de dados",
-    "referencePage": "Esta {name} é uma referência"
+    "referencePage": "Esta {name} é uma referência",
+    "dragRow": "Pressione e segure para reordenar a linha",
+    "addBlockBelow": "Adicione um bloco abaixo"
   },
   "sideBar": {
     "openSidebar": "Abrir barra lateral",
@@ -138,7 +155,16 @@
     "keep": "Manter",
     "tryAGain": "Tentar novamente",
     "discard": "Descartar",
-    "replace": "substituir"
+    "replace": "substituir",
+    "Done": "Feito",
+    "tryAgain": "Tente novamente",
+    "insertBelow": "Inserir Abaixo",
+    "upload": "Carregar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "duplicate": "Duplicado",
+    "done": "Feito",
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem-vindo!",
@@ -167,7 +193,8 @@
       "language": "Idioma",
       "user": "Usuário",
       "files": "Arquivos",
-      "open": "Abrir Configurações"
+      "open": "Abrir Configurações",
+      "supabaseSetting": "Configuração de Supabase"
     },
     "appearance": {
       "themeMode": {
@@ -176,7 +203,23 @@
         "dark": "Modo escuro",
         "system": "Adaptar-se ao sistema"
       },
-      "theme": "Tema"
+      "theme": "Tema",
+      "fontFamily": {
+        "label": "Família de fontes",
+        "search": "Procurar"
+      },
+      "themeUpload": {
+        "button": "Carregar",
+        "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
+        "failure": "O tema que foi carregado tinha um formato inválido.",
+        "loading": "Aguarde enquanto validamos e carregamos seu tema...",
+        "uploadSuccess": "Seu tema foi carregado com sucesso",
+        "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
+        "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
+        "urlUploadFailure": "Falha ao abrir url: {}"
+      },
+      "builtInsLabel": "Temas embutidos",
+      "pluginsLabel": "Plugins"
     },
     "files": {
       "defaultLocation": "Onde os seus dados ficam armazenados",
@@ -197,7 +240,22 @@
       "browser": "Navegar",
       "create": "Criar",
       "folderPath": "Caminho para armazenar sua pasta",
-      "locationCannotBeEmpty": "O caminho não pode estar vazio"
+      "locationCannotBeEmpty": "O caminho não pode estar vazio",
+      "copy": "cópia de",
+      "exportData": "Exporte seus dados",
+      "selectAll": "Selecionar tudo",
+      "deselectAll": "Desmarcar todos",
+      "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
+      "set": "Definir",
+      "pathCopiedSnackbar": "Caminho de armazenamento de arquivo copiado para a área de transferência!",
+      "changeLocationTooltips": "Alterar o diretório de dados",
+      "change": "Mudar",
+      "openLocationTooltips": "Abra outro diretório de dados",
+      "openCurrentDataFolder": "Abra o diretório de dados atual",
+      "recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
+      "exportFileSuccess": "Exportar arquivo com sucesso!",
+      "exportFileFail": "Falha na exportação do arquivo!",
+      "export": "Exportar"
     },
     "user": {
       "name": "Nome",
@@ -216,7 +274,11 @@
       "addFilter": "Adicionar filtro",
       "deleteFilter": "Apagar filtro",
       "filterBy": "Filtrar por...",
-      "typeAValue": "Digite um valor..."
+      "typeAValue": "Digite um valor...",
+      "properties": "Propriedades",
+      "reorderPropertiesTooltip": "Arraste para reordenar as propriedades",
+      "layout": "Disposição",
+      "databaseLayout": "Disposição"
     },
     "textFilter": {
       "contains": "Contém",
@@ -288,7 +350,10 @@
       "addOption": "Adicioar opção",
       "editProperty": "Editar propriedade",
       "newProperty": "Nova coluna",
-      "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída"
+      "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída",
+      "updatedAtFieldName": "Hora da última modificação",
+      "createdAtFieldName": "hora criada",
+      "dateFormatDayMonthYear": "Dia mês ano"
     },
     "sort": {
       "ascending": "Crescente",
@@ -302,7 +367,8 @@
       "textPlaceholder": "Vazio",
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contagem",
-      "newRow": "Nova linha"
+      "newRow": "Nova linha",
+      "action": "Ação"
     },
     "selectOption": {
       "create": "Criar",
@@ -318,12 +384,17 @@
       "deleteTag": "Apagar etiqueta",
       "colorPannelTitle": "Cores",
       "pannelTitle": "Escolha uma opção ou crie uma",
-      "searchOption": "Procurar uma opção"
+      "searchOption": "Procurar uma opção",
+      "colorPanelTitle": "cores",
+      "panelTitle": "Selecione uma opção ou crie uma"
     },
     "checklist": {
       "panelTitle": "Adicionar um item"
     },
-    "menuName": "Grade"
+    "menuName": "Grade",
+    "deleteView": "Tem certeza de que deseja excluir esta visualização?",
+    "createView": "Novo",
+    "referencedGridPrefix": "Vista de"
   },
   "document": {
     "menuName": "Documento",
@@ -333,10 +404,16 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Selecione um quadro para vincular"
+        "selectABoardToLinkTo": "Selecione um quadro para vincular",
+        "createANewBoard": "Criar um novo Conselho"
       },
       "grid": {
-        "selectAGridToLinkTo": "Selecione um grade para vincular"
+        "selectAGridToLinkTo": "Selecione um grade para vincular",
+        "createANewGrid": "Criar uma nova grade"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Selecione um calendário para vincular",
+        "createANewCalendar": "Criar um novo calendário"
       }
     },
     "plugins": {
@@ -352,14 +429,119 @@
       "smartEditFixSpelling": "Corrigir ortografia",
       "smartEditSummarize": "Resumir",
       "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
-      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI"
+      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI",
+      "referencedCalendar": "calendário referenciado",
+      "autoGeneratorRewrite": "Reescrever",
+      "smartEdit": "Assistentes de IA",
+      "openAI": "OpenAI",
+      "warning": "⚠️ As respostas da IA podem ser imprecisas ou enganosas.",
+      "smartEditImproveWriting": "melhorar a escrita",
+      "smartEditMakeLonger": "Faça mais",
+      "smartEditDisabled": "Conecte OpenAI em Configurações",
+      "discardResponse": "Deseja descartar as respostas de IA?",
+      "createInlineMathEquation": "Criar equação",
+      "toggleList": "Alternar lista",
+      "cover": {
+        "changeCover": "Mudar capa",
+        "colors": "cores",
+        "images": "Imagens",
+        "clearAll": "Limpar tudo",
+        "abstract": "Abstrato",
+        "addCover": "Adicionar Capa",
+        "addLocalImage": "Adicionar imagem local",
+        "invalidImageUrl": "URL de imagem inválido",
+        "failedToAddImageToGallery": "Falha ao adicionar imagem à galeria",
+        "enterImageUrl": "Insira o URL da imagem",
+        "add": "Adicionar",
+        "back": "Voltar",
+        "saveToGallery": "Salvar na galeria",
+        "removeIcon": "Remover ícone",
+        "pasteImageUrl": "Colar URL da imagem",
+        "or": "OU",
+        "pickFromFiles": "Escolha entre os arquivos",
+        "couldNotFetchImage": "Não foi possível obter a imagem",
+        "imageSavingFailed": "Falha ao salvar a imagem",
+        "addIcon": "Adicionar ícone",
+        "coverRemoveAlert": "Ele será removido da capa após ser excluído.",
+        "alertDialogConfirmation": "Você tem certeza que quer continuar?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Adicionar equação matemática",
+        "editMathEquation": "Editar equação matemática"
+      },
+      "optionAction": {
+        "click": "Clique",
+        "toOpenMenu": " para abrir o menu",
+        "delete": "Excluir",
+        "duplicate": "Duplicado",
+        "turnInto": "Transformar-se em",
+        "moveUp": "Subir",
+        "moveDown": "Mover para baixo",
+        "color": "Cor",
+        "align": "Alinhar",
+        "left": "Esquerda",
+        "center": "Centro",
+        "right": "Certo",
+        "defaultColor": "Padrão"
+      },
+      "image": {
+        "copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Adicione títulos para criar um sumário."
+      }
+    },
+    "selectionMenu": {
+      "outline": "Contorno"
+    },
+    "textBlock": {
+      "placeholder": "Digite '/' para comandos"
+    },
+    "title": {
+      "placeholder": "Sem título"
+    },
+    "imageBlock": {
+      "placeholder": "Clique para adicionar imagem",
+      "upload": {
+        "label": "Carregar",
+        "placeholder": "Clique para carregar a imagem"
+      },
+      "url": {
+        "label": "imagem URL",
+        "placeholder": "Insira o URL da imagem"
+      },
+      "support": "O limite de tamanho da imagem é de 5 MB. Formatos suportados: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "imagem inválida",
+        "invalidImageSize": "O tamanho da imagem deve ser inferior a 5 MB",
+        "invalidImageFormat": "O formato da imagem não é suportado. Formatos suportados: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "URL de imagem inválido"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Linguagem",
+        "placeholder": "Selecione o idioma"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Cole ou digite um link",
+      "url": {
+        "label": "URL do link",
+        "placeholder": "Insira o URL do link"
+      },
+      "title": {
+        "label": "Título do link",
+        "placeholder": "Insira o título do link"
+      }
     }
   },
   "board": {
     "column": {
       "create_new_card": "Novo"
     },
-    "menuName": "Quadro"
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendário",
@@ -368,221 +550,55 @@
       "jumpToday": "Pular para hoje",
       "previousMonth": "Mês anterior",
       "nextMonth": "Próximo mês"
-    }
+    },
+    "defaultNewCalendarTitle": "Sem título",
+    "settings": {
+      "showWeekNumbers": "Mostrar números da semana",
+      "showWeekends": "Mostrar fins de semana",
+      "firstDayOfWeek": "Comece a semana em",
+      "layoutDateField": "Calendário de layout por",
+      "noDateTitle": "sem data",
+      "noDateHint": "Eventos não agendados aparecerão aqui",
+      "clickToAdd": "Clique para adicionar ao calendário",
+      "name": "Layout do calendário"
+    },
+    "referencedCalendarPrefix": "Vista de"
   },
   "youCanAlso": "Você também pode",
   "and": "e",
-  "blockActions.addBelowTooltip": "Clique para adicionar abaixo",
-  "blockActions.addAboveCmd": "Alt+clique",
-  "blockActions.addAboveMacCmd": "Opção+clique",
-  "blockActions.addAboveTooltip": "para adicionar acima",
-  "signIn.loginAsGuestButtonText": "Iniciar",
-  "moreAction.moreOptions": "Mais opções",
-  "importPanel.textAndMarkdown": "Texto e Remarcação",
-  "importPanel.documentFromV010": "Documento de v0.1.0",
-  "importPanel.databaseFromV010": "Banco de dados de v0.1.0",
-  "importPanel.csv": "CSV",
-  "importPanel.database": "Base de dados",
-  "disclosureAction.openNewTab": "Abrir em uma nova guia",
-  "trash.confirmDeleteAll.title": "Tem certeza de que deseja excluir todas as páginas da Lixeira?",
-  "trash.confirmDeleteAll.caption": "Essa ação não pode ser desfeita.",
-  "trash.confirmRestoreAll.title": "Tem certeza de que deseja restaurar todas as páginas da Lixeira?",
-  "trash.confirmRestoreAll.caption": "Essa ação não pode ser desfeita.",
-  "questionBubble.markdown": "Remarcação",
-  "questionBubble.feedback": "Opinião",
-  "toolbar.addLink": "Adicionar link",
-  "toolbar.link": "Link",
-  "tooltip.dragRow": "Pressione e segure para reordenar a linha",
-  "tooltip.addBlockBelow": "Adicione um bloco abaixo",
-  "button.Done": "Feito",
-  "button.tryAgain": "Tente novamente",
-  "button.insertBelow": "Inserir Abaixo",
-  "button.upload": "Carregar",
-  "button.edit": "Editar",
-  "button.delete": "Excluir",
-  "button.duplicate": "Duplicado",
-  "button.done": "Feito",
-  "button.putback": "Por de volta",
-  "settings.menu.supabaseSetting": "Configuração de Supabase",
-  "settings.appearance.fontFamily.label": "Família de fontes",
-  "settings.appearance.fontFamily.search": "Procurar",
-  "settings.appearance.themeUpload.button": "Carregar",
-  "settings.appearance.themeUpload.description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
-  "settings.appearance.themeUpload.failure": "O tema que foi carregado tinha um formato inválido.",
-  "settings.appearance.themeUpload.loading": "Aguarde enquanto validamos e carregamos seu tema...",
-  "settings.appearance.themeUpload.uploadSuccess": "Seu tema foi carregado com sucesso",
-  "settings.appearance.themeUpload.deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
-  "settings.appearance.themeUpload.filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
-  "settings.appearance.themeUpload.urlUploadFailure": "Falha ao abrir url: {}",
-  "settings.appearance.builtInsLabel": "Temas embutidos",
-  "settings.appearance.pluginsLabel": "Plugins",
-  "settings.files.copy": "cópia de",
-  "settings.files.exportData": "Exporte seus dados",
-  "settings.files.selectAll": "Selecionar tudo",
-  "settings.files.deselectAll": "Desmarcar todos",
-  "settings.files.defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
-  "settings.files.set": "Definir",
-  "settings.files.pathCopiedSnackbar": "Caminho de armazenamento de arquivo copiado para a área de transferência!",
-  "settings.files.changeLocationTooltips": "Alterar o diretório de dados",
-  "settings.files.change": "Mudar",
-  "settings.files.openLocationTooltips": "Abra outro diretório de dados",
-  "settings.files.openCurrentDataFolder": "Abra o diretório de dados atual",
-  "settings.files.recoverLocationTooltips": "Redefinir para o diretório de dados padrão do AppFlowy",
-  "settings.files.exportFileSuccess": "Exportar arquivo com sucesso!",
-  "settings.files.exportFileFail": "Falha na exportação do arquivo!",
-  "settings.files.export": "Exportar",
-  "grid.deleteView": "Tem certeza de que deseja excluir esta visualização?",
-  "grid.createView": "Novo",
-  "grid.settings.properties": "Propriedades",
-  "grid.settings.reorderPropertiesTooltip": "Arraste para reordenar as propriedades",
-  "grid.settings.layout": "Disposição",
-  "grid.settings.databaseLayout": "Disposição",
-  "grid.field.updatedAtFieldName": "Hora da última modificação",
-  "grid.field.createdAtFieldName": "hora criada",
-  "grid.field.dateFormatDayMonthYear": "Dia mês ano",
-  "grid.row.action": "Ação",
-  "grid.selectOption.colorPanelTitle": "cores",
-  "grid.selectOption.panelTitle": "Selecione uma opção ou crie uma",
-  "grid.referencedGridPrefix": "Vista de",
-  "document.slashMenu.board.createANewBoard": "Criar um novo Conselho",
-  "document.slashMenu.grid.createANewGrid": "Criar uma nova grade",
-  "document.slashMenu.calendar.selectACalendarToLinkTo": "Selecione um calendário para vincular",
-  "document.slashMenu.calendar.createANewCalendar": "Criar um novo calendário",
-  "document.selectionMenu.outline": "Contorno",
-  "document.plugins.referencedCalendar": "calendário referenciado",
-  "document.plugins.autoGeneratorRewrite": "Reescrever",
-  "document.plugins.smartEdit": "Assistentes de IA",
-  "document.plugins.openAI": "OpenAI",
-  "document.plugins.warning": "⚠️ As respostas da IA podem ser imprecisas ou enganosas.",
-  "document.plugins.smartEditImproveWriting": "melhorar a escrita",
-  "document.plugins.smartEditMakeLonger": "Faça mais",
-  "document.plugins.smartEditDisabled": "Conecte OpenAI em Configurações",
-  "document.plugins.discardResponse": "Deseja descartar as respostas de IA?",
-  "document.plugins.createInlineMathEquation": "Criar equação",
-  "document.plugins.toggleList": "Alternar lista",
-  "document.plugins.cover.changeCover": "Mudar capa",
-  "document.plugins.cover.colors": "cores",
-  "document.plugins.cover.images": "Imagens",
-  "document.plugins.cover.clearAll": "Limpar tudo",
-  "document.plugins.cover.abstract": "Abstrato",
-  "document.plugins.cover.addCover": "Adicionar Capa",
-  "document.plugins.cover.addLocalImage": "Adicionar imagem local",
-  "document.plugins.cover.invalidImageUrl": "URL de imagem inválido",
-  "document.plugins.cover.failedToAddImageToGallery": "Falha ao adicionar imagem à galeria",
-  "document.plugins.cover.enterImageUrl": "Insira o URL da imagem",
-  "document.plugins.cover.add": "Adicionar",
-  "document.plugins.cover.back": "Voltar",
-  "document.plugins.cover.saveToGallery": "Salvar na galeria",
-  "document.plugins.cover.removeIcon": "Remover ícone",
-  "document.plugins.cover.pasteImageUrl": "Colar URL da imagem",
-  "document.plugins.cover.or": "OU",
-  "document.plugins.cover.pickFromFiles": "Escolha entre os arquivos",
-  "document.plugins.cover.couldNotFetchImage": "Não foi possível obter a imagem",
-  "document.plugins.cover.imageSavingFailed": "Falha ao salvar a imagem",
-  "document.plugins.cover.addIcon": "Adicionar ícone",
-  "document.plugins.cover.coverRemoveAlert": "Ele será removido da capa após ser excluído.",
-  "document.plugins.cover.alertDialogConfirmation": "Você tem certeza que quer continuar?",
-  "document.plugins.mathEquation.addMathEquation": "Adicionar equação matemática",
-  "document.plugins.mathEquation.editMathEquation": "Editar equação matemática",
-  "document.plugins.optionAction.click": "Clique",
-  "document.plugins.optionAction.toOpenMenu": " para abrir o menu",
-  "document.plugins.optionAction.delete": "Excluir",
-  "document.plugins.optionAction.duplicate": "Duplicado",
-  "document.plugins.optionAction.turnInto": "Transformar-se em",
-  "document.plugins.optionAction.moveUp": "Subir",
-  "document.plugins.optionAction.moveDown": "Mover para baixo",
-  "document.plugins.optionAction.color": "Cor",
-  "document.plugins.optionAction.align": "Alinhar",
-  "document.plugins.optionAction.left": "Esquerda",
-  "document.plugins.optionAction.center": "Centro",
-  "document.plugins.optionAction.right": "Certo",
-  "document.plugins.optionAction.defaultColor": "Padrão",
-  "document.plugins.image.copiedToPasteBoard": "O link da imagem foi copiado para a área de transferência",
-  "document.plugins.outline.addHeadingToCreateOutline": "Adicione títulos para criar um sumário.",
-  "document.textBlock.placeholder": "Digite '/' para comandos",
-  "document.title.placeholder": "Sem título",
-  "document.imageBlock.placeholder": "Clique para adicionar imagem",
-  "document.imageBlock.upload.label": "Carregar",
-  "document.imageBlock.upload.placeholder": "Clique para carregar a imagem",
-  "document.imageBlock.url.label": "imagem URL",
-  "document.imageBlock.url.placeholder": "Insira o URL da imagem",
-  "document.imageBlock.support": "O limite de tamanho da imagem é de 5 MB. Formatos suportados: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImage": "imagem inválida",
-  "document.imageBlock.error.invalidImageSize": "O tamanho da imagem deve ser inferior a 5 MB",
-  "document.imageBlock.error.invalidImageFormat": "O formato da imagem não é suportado. Formatos suportados: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImageUrl": "URL de imagem inválido",
-  "document.codeBlock.language.label": "Linguagem",
-  "document.codeBlock.language.placeholder": "Selecione o idioma",
-  "document.inlineLink.placeholder": "Cole ou digite um link",
-  "document.inlineLink.url.label": "URL do link",
-  "document.inlineLink.url.placeholder": "Insira o URL do link",
-  "document.inlineLink.title.label": "Título do link",
-  "document.inlineLink.title.placeholder": "Insira o título do link",
-  "board.referencedBoardPrefix": "Vista de",
-  "calendar.defaultNewCalendarTitle": "Sem título",
-  "calendar.settings.showWeekNumbers": "Mostrar números da semana",
-  "calendar.settings.showWeekends": "Mostrar fins de semana",
-  "calendar.settings.firstDayOfWeek": "Comece a semana em",
-  "calendar.settings.layoutDateField": "Calendário de layout por",
-  "calendar.settings.noDateTitle": "sem data",
-  "calendar.settings.noDateHint": "Eventos não agendados aparecerão aqui",
-  "calendar.settings.clickToAdd": "Clique para adicionar ao calendário",
-  "calendar.settings.name": "Layout do calendário",
-  "calendar.referencedCalendarPrefix": "Vista de",
-  "errorDialog.title": "Erro do AppFlowy",
-  "errorDialog.howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
-  "errorDialog.github": "Ver no GitHub",
-  "search.label": "Procurar",
-  "search.placeholder.actions": "Pesquisar ações...",
-  "message.copy.success": "Copiado!",
-  "message.copy.fail": "Não é possível copiar",
+  "blockActions": {
+    "addBelowTooltip": "Clique para adicionar abaixo",
+    "addAboveCmd": "Alt+clique",
+    "addAboveMacCmd": "Opção+clique",
+    "addAboveTooltip": "para adicionar acima"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Texto e Remarcação",
+    "documentFromV010": "Documento de v0.1.0",
+    "databaseFromV010": "Banco de dados de v0.1.0",
+    "csv": "CSV",
+    "database": "Base de dados"
+  },
+  "errorDialog": {
+    "title": "Erro do AppFlowy",
+    "howToFixFallback": "Lamentamos o inconveniente! Envie um problema em nossa página do GitHub que descreva seu erro.",
+    "github": "Ver no GitHub"
+  },
+  "search": {
+    "label": "Procurar",
+    "placeholder": {
+      "actions": "Pesquisar ações..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Copiado!",
+      "fail": "Não é possível copiar"
+    }
+  },
   "unSupportBlock": "A versão atual não suporta este bloco.",
-  "views.deleteContentTitle": "Tem certeza de que deseja excluir {pageType}?",
-  "views.deleteContentCaption": "se você excluir este {pageType}, poderá restaurá-lo da lixeira.",
-  "blockActions.dragTooltip": "Arraste para mover",
-  "blockActions.openMenuTooltip": "Clique para abri o menu",
-  "disclosureAction.copyLink": "Copiar Link",
-  "disclosureAction.addToFavorites": "Adicionar aos favoritos",
-  "disclosureAction.moveTo": "Mover para",
-  "menuAppHeader.moreButtonToolTip": "Remover, renomear e mais...",
-  "sideBar.personal": "Pessoal",
-  "sideBar.favorites": "Favoritos",
-  "sideBar.clickToHidePersonal": "Clique para ocultar a seção pessoal",
-  "sideBar.addAPage": "Adicionar uma página",
-  "settings.menu.logout": "Sair",
-  "settings.menu.logoutPrompt": "Tem certeza que deseja sair?",
-  "settings.shortcuts.shortcutsLabel": "Atalhos",
-  "settings.shortcuts.command": "Command",
-  "settings.shortcuts.keyBinding": "Atalho",
-  "settings.shortcuts.addNewCommand": "Adicionar novo comando",
-  "settings.shortcuts.updateShortcutStep": "Pressione a combinação de teclas desejada e pressione ENTER",
-  "settings.shortcuts.shortcutIsAlreadyUsed": "Este atalho já é usado para: {conflict}",
-  "settings.shortcuts.resetToDefault": "Redefinir para atalhos padrão",
-  "settings.shortcuts.couldNotLoadErrorMsg": "Não foi possível carregar os atalhos, tente novamente",
-  "settings.shortcuts.couldNotSaveErrorMsg": "Não foi possível salvar os atalhos, tente novamente",
-  "grid.field.clearDate": "Limpar data",
-  "colors.custom": "Personalizado",
-  "colors.default": "Padrão",
-  "colors.red": "Vermelho",
-  "colors.orange": "Laranja",
-  "colors.yellow": "Amarelo",
-  "colors.green": "Verde",
-  "colors.blue": "Azul",
-  "colors.purple": "Roxo",
-  "colors.pink": "Rosa",
-  "colors.brown": "Marrom",
-  "colors.gray": "Cinza",
-  "emoji.filter": "Filtro",
-  "emoji.random": "Aleatório",
-  "emoji.remove": "Remover emoji",
-  "emoji.categories.smileys": "Emoticons e Emoções",
-  "emoji.categories.people": "Pessoas & Corpo",
-  "emoji.categories.animals": "Animais e Natureza",
-  "emoji.categories.food": "Comida e bebida",
-  "emoji.categories.activities": "Atividades",
-  "emoji.categories.places": "Viagens e lugares",
-  "emoji.categories.objects": "Objetos",
-  "emoji.categories.symbols": "Símbolos",
-  "emoji.categories.flags": "Bandeiras",
-  "emoji.categories.nature": "Natureza"
+  "views": {
+    "deleteContentTitle": "Tem certeza de que deseja excluir {pageType}?",
+    "deleteContentCaption": "se você excluir este {pageType}, poderá restaurá-lo da lixeira."
+  }
 }
