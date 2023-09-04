@@ -260,14 +260,17 @@
       },
       "layoutDirection": {
         "label": "Layout Direction",
+        "hint": "To start aligning elements from left or right of the screen.",
         "ltr": "LTR",
         "rtl": "RTL"
       },
       "textDirection": {
         "label": "Default text direction",
+        "hint": "Default text direction when the text direction is not set on the element.",
         "ltr": "LTR",
         "rtl": "RTL",
-        "auto": "AUTO"
+        "auto": "AUTO",
+        "fallback": "Same as layout direction"
       },
       "themeUpload": {
         "button": "Upload",

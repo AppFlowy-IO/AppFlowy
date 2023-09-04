@@ -79,7 +79,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   void setTextDirection(AppFlowyTextDirection? textDirection) {
     _setting.textDirection =
-        textDirection?.toTextDirectionPB() ?? TextDirectionPB.NULL;
+        textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
   }
@@ -250,7 +250,7 @@ enum AppFlowyTextDirection {
       case AppFlowyTextDirection.auto:
         return TextDirectionPB.AUTO;
       default:
-        return TextDirectionPB.NULL;
+        return TextDirectionPB.FALLBACK;
     }
   }
 }

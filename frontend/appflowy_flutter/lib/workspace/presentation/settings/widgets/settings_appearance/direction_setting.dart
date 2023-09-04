@@ -21,6 +21,7 @@ class LayoutDirectionSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     return ThemeSettingEntryTemplateWidget(
       label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
+      hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
         ThemeValueDropDown(
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
@@ -81,6 +82,7 @@ class TextDirectionSetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
         label: LocaleKeys.settings_appearance_textDirection_label.tr(),
+        hint: LocaleKeys.settings_appearance_textDirection_hint.tr(),
         trailing: [
           ThemeValueDropDown(
             currentValue: _textDirectionLabelText(currentTextDirection),
@@ -131,7 +133,7 @@ class TextDirectionSetting extends StatelessWidget {
       case (AppFlowyTextDirection.auto):
         return LocaleKeys.settings_appearance_textDirection_auto.tr();
       default:
-        return 'Not Set';
+        return LocaleKeys.settings_appearance_textDirection_fallback.tr();
     }
   }
 }

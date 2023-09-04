@@ -55,6 +55,8 @@ pub struct AppearanceSettingsPB {
   #[serde(default)]
   pub layout_direction: LayoutDirectionPB,
 
+  // If the value is FALLBACK which is the default value then it will fall back
+  // to layout direction and it will use that as default text direction.
   #[pb(index = 11)]
   #[serde(default)]
   pub text_direction: TextDirectionPB,
@@ -83,7 +85,7 @@ pub enum TextDirectionPB {
   RTL = 1,
   AUTO = 2,
   #[default]
-  NULL = 3,
+  FALLBACK = 3,
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
