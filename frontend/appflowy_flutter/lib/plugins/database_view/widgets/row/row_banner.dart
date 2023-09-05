@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
@@ -11,11 +13,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef RowBannerCellBuilder = Widget Function(String fieldId);
+import 'cell_builder.dart';
+import 'cells/cells.dart';
 
 class RowBanner extends StatefulWidget {
   final RowController rowController;
-  final RowBannerCellBuilder cellBuilder;
+  final GridCellBuilder cellBuilder;
+
   const RowBanner({
     required this.rowController,
     required this.cellBuilder,
@@ -58,6 +62,7 @@ class _RowBannerState extends State<RowBanner> {
                   _BannerTitle(
                     cellBuilder: widget.cellBuilder,
                     popoverController: popoverController,
+                    rowController: widget.rowController,
                   ),
                 ],
               ),
@@ -125,12 +130,16 @@ class _BannerAction extends StatelessWidget {
 }
 
 class _BannerTitle extends StatefulWidget {
-  final RowBannerCellBuilder cellBuilder;
+  final GridCellBuilder cellBuilder;
   final PopoverController popoverController;
+  final RowController rowController;
+
   const _BannerTitle({
     required this.cellBuilder,
     required this.popoverController,
-  });
+    required this.rowController,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<_BannerTitle> createState() => _BannerTitleState();
@@ -155,9 +164,21 @@ class _BannerTitleState extends State<_BannerTitle> {
         children.add(const HSpace(4));
 
         if (state.primaryField != null) {
+          final style = GridTextCellStyle(
+            placeholder: LocaleKeys.grid_row_titlePlaceholder.tr(),
+            textStyle: Theme.of(context).textTheme.titleLarge,
+            showEmoji: false,
+            autofocus: true,
+            cellPadding: EdgeInsets.zero,
+          );
+          final cellContext = DatabaseCellContext(
+            viewId: widget.rowController.viewId,
+            rowMeta: widget.rowController.rowMeta,
+            fieldInfo: FieldInfo.initial(state.primaryField!),
+          );
           children.add(
             Expanded(
-              child: widget.cellBuilder(state.primaryField!.id),
+              child: widget.cellBuilder.build(cellContext, style: style),
             ),
           );
         }
