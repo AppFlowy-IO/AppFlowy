@@ -126,7 +126,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_field_settings(
     &self,
     view_id: &str,
-    field_ids: &Vec<String>,
+    field_ids: &[String],
   ) -> HashMap<String, FieldSettings>;
 
   fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings>;

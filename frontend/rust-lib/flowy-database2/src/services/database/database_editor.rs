@@ -1422,12 +1422,12 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   fn get_field_settings(
     &self,
     view_id: &str,
-    field_ids: &Vec<String>,
+    field_ids: &[String],
   ) -> HashMap<String, FieldSettings> {
     let field_settings_map = self
       .database
       .lock()
-      .get_field_settings(view_id, Some(&field_ids));
+      .get_field_settings(view_id, Some(field_ids));
 
     field_settings_map
       .into_iter()
