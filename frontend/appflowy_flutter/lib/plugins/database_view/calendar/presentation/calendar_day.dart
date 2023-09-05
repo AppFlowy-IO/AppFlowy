@@ -2,12 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../application/calendar_bloc.dart';
@@ -36,10 +35,14 @@ class CalendarDayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = Theme.of(context).colorScheme.surface;
-    if (!isInMonth) {
-      backgroundColor = AFThemeExtension.of(context).lightGreyHover;
+    Color backgroundColor = Colors.transparent;
+    if (date.isWeekend) {
+      backgroundColor = AFThemeExtension.of(context).calendarWeekendBGColor;
     }
+    final hoverBackgroundColor =
+        Theme.of(context).brightness == Brightness.light
+            ? Theme.of(context).colorScheme.secondaryContainer
+            : Colors.transparent;
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -57,7 +60,7 @@ class CalendarDayCard extends StatelessWidget {
                 ),
 
                 // Add a separator between the header and the content.
-                VSpace(GridSize.typeOptionSeparatorHeight),
+                const VSpace(6.0),
 
                 // List of cards or empty space
                 if (events.isNotEmpty)
@@ -79,34 +82,29 @@ class CalendarDayCard extends StatelessWidget {
                 DragTarget<CalendarDayEvent>(
                   builder: (context, candidate, __) {
                     return Stack(
-                      fit: StackFit.expand,
                       children: [
-                        if (candidate.isNotEmpty)
-                          Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color:
+                              candidate.isEmpty ? null : hoverBackgroundColor,
+                          padding: const EdgeInsets.only(top: 4.0),
                           child: child,
-                        )
+                        ),
+                        if (candidate.isEmpty)
+                          NewEventButton(onCreate: () => onCreateEvent(date)),
                       ],
                     );
                   },
-                  onWillAccept: (CalendarDayEvent? event) {
-                    if (event == null) {
-                      return false;
-                    }
-                    return !isSameDay(event.date, date);
-                  },
                   onAccept: (CalendarDayEvent event) {
+                    if (event.date == date) {
+                      return;
+                    }
                     context
                         .read<CalendarBloc>()
                         .add(CalendarEvent.moveEvent(event, date));
                   },
                 ),
-                NewEventButton(onCreate: () => onCreateEvent(date)),
                 MouseRegion(
                   onEnter: (p) => notifyEnter(context, true),
                   onExit: (p) => notifyEnter(context, false),
@@ -143,7 +141,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: _DayBadge(
         isToday: isToday,
         isInMonth: isInMonth,
@@ -166,7 +164,7 @@ class NewEventButton extends StatelessWidget {
           return const SizedBox.shrink();
         }
         return Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: FlowyIconButton(
             onPressed: onCreate,
             iconPadding: EdgeInsets.zero,
@@ -195,37 +193,49 @@ class _DayBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color dayTextColor = Theme.of(context).colorScheme.onBackground;
+    Color monthTextColor = Theme.of(context).colorScheme.onBackground;
     final String monthString =
         DateFormat("MMM ", context.locale.toLanguageTag()).format(date);
     final String dayString = date.day.toString();
 
     if (!isInMonth) {
       dayTextColor = Theme.of(context).disabledColor;
+      monthTextColor = Theme.of(context).disabledColor;
     }
     if (isToday) {
       dayTextColor = Theme.of(context).colorScheme.onPrimary;
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (date.day == 1) FlowyText.medium(monthString),
-        Container(
-          decoration: BoxDecoration(
-            color: isToday ? Theme.of(context).colorScheme.primary : null,
-            borderRadius: Corners.s6Border,
-          ),
-          width: isToday ? 26 : null,
-          height: isToday ? 26 : null,
-          padding: GridSize.typeOptionContentInsets,
-          child: Center(
-            child: FlowyText.medium(
-              dayString,
-              color: dayTextColor,
+    return SizedBox(
+      height: 18,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (date.day == 1)
+            FlowyText.medium(
+              monthString,
+              fontSize: 11,
+              color: monthTextColor,
+            ),
+          Container(
+            decoration: BoxDecoration(
+              color: isToday ? Theme.of(context).colorScheme.primary : null,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            width: isToday ? 18 : null,
+            height: isToday ? 18 : null,
+            // padding: GridSize.typeOptionContentInsets,
+            child: Center(
+              child: FlowyText.medium(
+                dayString,
+                fontSize: 11,
+                color: dayTextColor,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -259,7 +269,7 @@ class _EventList extends StatelessWidget {
             constraints: constraints,
           ),
           itemCount: events.length,
-          padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
+          padding: const EdgeInsets.fromLTRB(4.0, 0, 4.0, 4.0),
           separatorBuilder: (BuildContext context, int index) =>
               VSpace(GridSize.typeOptionSeparatorHeight),
           shrinkWrap: true,

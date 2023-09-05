@@ -10,7 +10,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_c
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -65,8 +64,11 @@ class EventCard extends StatelessWidget {
       styleConfiguration: RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
+        cardPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         hoverStyle: HoverStyle(
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          hoverColor: Theme.of(context).brightness == Brightness.light
+              ? const Color(0x0F1F2329)
+              : const Color(0x0FEFF4FB),
           foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
         ),
       ),
@@ -76,8 +78,14 @@ class EventCard extends StatelessWidget {
     );
 
     final decoration = BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
       border: Border.fromBorderSide(
-        BorderSide(color: Theme.of(context).dividerColor),
+        BorderSide(
+          color: Theme.of(context).brightness == Brightness.light
+              ? const Color(0xffd0d3d6)
+              : const Color(0xff59647a),
+          width: 0.5,
+        ),
       ),
       borderRadius: Corners.s6Border,
     );
@@ -86,13 +94,14 @@ class EventCard extends StatelessWidget {
       data: event,
       feedback: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: constraints.maxWidth - 16.0,
+          maxWidth: constraints.maxWidth - 8.0,
         ),
-        child: DecoratedBox(
-          decoration: decoration.copyWith(
-            color: AFThemeExtension.of(context).lightGreyHover,
+        child: Opacity(
+          opacity: 0.6,
+          child: DecoratedBox(
+            decoration: decoration,
+            child: card,
           ),
-          child: card,
         ),
       ),
       child: DecoratedBox(
@@ -127,8 +136,9 @@ class EventCard extends StatelessWidget {
             child: FlowyText.medium(
               text,
               textAlign: TextAlign.left,
-              fontSize: 11,
-              maxLines: null, // Enable multiple lines
+              fontSize: isTitle ? 11 : 10,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           );
         },
