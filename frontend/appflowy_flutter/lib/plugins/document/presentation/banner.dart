@@ -29,7 +29,7 @@ class DocumentBanner extends StatelessWidget {
             children: [
               FlowyText.medium(
                 LocaleKeys.deletePagePrompt_text.tr(),
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.tertiary,
                 fontSize: 14,
               ),
               const HSpace(20),
@@ -38,14 +38,15 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Colors.white.withOpacity(0.3),
+                hoverColor:
+                    Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                 highlightColor: Theme.of(context).colorScheme.primaryContainer,
-                outlineColor: Colors.white,
+                outlineColor: Theme.of(context).colorScheme.tertiary,
                 borderRadius: Corners.s8Border,
                 onPressed: onRestore,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_restore.tr(),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   fontSize: 13,
                 ),
               ),
@@ -55,14 +56,15 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Colors.white.withOpacity(0.3),
+                hoverColor:
+                    Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                 highlightColor: Theme.of(context).colorScheme.primary,
-                outlineColor: Colors.white,
+                outlineColor: Theme.of(context).colorScheme.tertiary,
                 borderRadius: Corners.s8Border,
                 onPressed: onDelete,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   fontSize: 13,
                 ),
               ),
