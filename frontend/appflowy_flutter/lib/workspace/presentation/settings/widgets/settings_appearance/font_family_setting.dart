@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -109,35 +111,60 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
   }
 
+  bool _isTextOverflowing(String text, TextStyle textStyle, double maxWidth) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: text, style: textStyle),
+      maxLines: 1,
+      textDirection: ui.TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+
+    return textPainter.didExceedMaxLines;
+  }
+
   Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
-    return SizedBox(
-      key: UniqueKey(),
-      height: 32,
-      child: FlowyButton(
-        key: Key(buttonFontFamily),
-        onHover: (_) => FocusScope.of(context).unfocus(),
-        text: FlowyText.medium(
-          parseFontFamilyName(style.fontFamily!),
-          fontFamily: style.fontFamily!,
+
+    final bool isOverFlown = _isTextOverflowing(
+      buttonFontFamily,
+      Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontWeight: FontWeight.w500,
+            fontFamily: buttonFontFamily,
+          ),
+      110,
+    );
+
+    return Tooltip(
+      margin: const EdgeInsets.only(right: 220),
+      message: isOverFlown ? buttonFontFamily : "",
+      child: SizedBox(
+        key: UniqueKey(),
+        height: 32,
+        child: FlowyButton(
+          key: Key(buttonFontFamily),
+          onHover: (_) => FocusScope.of(context).unfocus(),
+          text: FlowyText.medium(
+            parseFontFamilyName(style.fontFamily!),
+            overflow: TextOverflow.ellipsis,
+            fontFamily: style.fontFamily!,
+          ),
+          rightIcon:
+              buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
+                  ? const FlowySvg(
+                      FlowySvgs.check_s,
+                    )
+                  : null,
+          onTap: () {
+            if (parseFontFamilyName(widget.currentFontFamily) !=
+                buttonFontFamily) {
+              context
+                  .read<AppearanceSettingsCubit>()
+                  .setFontFamily(parseFontFamilyName(style.fontFamily!));
+              context
+                  .read<DocumentAppearanceCubit>()
+                  .syncFontFamily(parseFontFamilyName(style.fontFamily!));
+            }
+          },
         ),
-        rightIcon:
-            buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                ? const FlowySvg(
-                    FlowySvgs.check_s,
-                  )
-                : null,
-        onTap: () {
-          if (parseFontFamilyName(widget.currentFontFamily) !=
-              buttonFontFamily) {
-            context
-                .read<AppearanceSettingsCubit>()
-                .setFontFamily(parseFontFamilyName(style.fontFamily!));
-            context
-                .read<DocumentAppearanceCubit>()
-                .syncFontFamily(parseFontFamilyName(style.fontFamily!));
-          }
-        },
       ),
     );
   }
