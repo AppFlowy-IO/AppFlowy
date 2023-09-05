@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -23,20 +24,50 @@ class ThirdPartySignInButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = PlatformExtension.isMobile;
-    // Leave for future implementation
-    // final isDarkMode =
-    //     MediaQuery.of(context).platformBrightness == Brightness.dark;
 
-    // ThirdPartySignInButtons in mobile
+    // Get themeMode from AppearanceSettingsCubit
+    // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
+    final isDarkMode =
+        context.read<AppearanceSettingsCubit>().state.themeMode ==
+            ThemeMode.dark;
     if (isMobile) {
-      return _ThirdPartySignInButton(
-        isMobile: true,
-        icon: FlowySvgs.google_mark_xl,
-        labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-        onPressed: () {
-          _signInWithGoogle(context);
-        },
-        contentAlignment: contentAlignment,
+      // ThirdPartySignInButtons in mobile
+      return Column(
+        children: [
+          _ThirdPartySignInButton(
+            isMobile: true,
+            icon: FlowySvgs.google_mark_xl,
+            labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
+            onPressed: () {
+              _signInWithGoogle(context);
+            },
+            contentAlignment: contentAlignment,
+          ),
+          const SizedBox(height: 8),
+          _ThirdPartySignInButton(
+            isMobile: true,
+            icon: isDarkMode
+                ? FlowySvgs.github_mark_white_xl
+                : FlowySvgs.github_mark_black_xl,
+            labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
+            onPressed: () {
+              _signInWithGithub(context);
+            },
+            contentAlignment: contentAlignment,
+          ),
+          const SizedBox(height: 8),
+          _ThirdPartySignInButton(
+            isMobile: true,
+            icon: isDarkMode
+                ? FlowySvgs.discord_mark_white_xl
+                : FlowySvgs.discord_mark_blurple_xl,
+            labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
+            onPressed: () {
+              _signInWithDiscord(context);
+            },
+            contentAlignment: contentAlignment,
+          ),
+        ],
       );
     }
     // ThirdPartySignInButtons in desktop
@@ -52,35 +83,30 @@ class ThirdPartySignInButtons extends StatelessWidget {
             _signInWithGoogle(context);
           },
         ),
-        // Leave for future implementation
-        // const SizedBox(height: 8),
-        // _ThirdPartySignInButton(
-        //   icon: isDarkMode
-        //       ? FlowySvgs.github_mark_white_xl
-        //       : FlowySvgs.github_mark_black_xl,
-        //   labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-        //   contentAlignment: contentAlignment,
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('github'));
-        //   },
-        // ),
-        // const SizedBox(height: 8),
-        // _ThirdPartySignInButton(
-        //   icon: isDarkMode
-        //       ? FlowySvgs.discord_mark_white_xl
-        //       : FlowySvgs.discord_mark_blurple_xl,
-        //   labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-        //   contentAlignment: contentAlignment,
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('discord'));
-        //   },
-        // ),
+        const SizedBox(height: 8),
+        _ThirdPartySignInButton(
+          isMobile: false,
+          icon: isDarkMode
+              ? FlowySvgs.github_mark_white_xl
+              : FlowySvgs.github_mark_black_xl,
+          labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
+          contentAlignment: contentAlignment,
+          onPressed: () {
+            _signInWithGithub(context);
+          },
+        ),
+        const SizedBox(height: 8),
+        _ThirdPartySignInButton(
+          isMobile: false,
+          icon: isDarkMode
+              ? FlowySvgs.discord_mark_white_xl
+              : FlowySvgs.discord_mark_blurple_xl,
+          labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
+          contentAlignment: contentAlignment,
+          onPressed: () {
+            _signInWithDiscord(context);
+          },
+        ),
       ],
     );
   }
@@ -108,12 +134,14 @@ class _ThirdPartySignInButton extends StatelessWidget {
     if (isMobile) {
       return SizedBox(
         width: double.infinity,
-        height: 56,
+        height: 48,
         child: OutlinedButton.icon(
-          icon: FlowySvg(
-            icon,
-            size: const Size.square(18),
-            blendMode: null,
+          icon: SizedBox.square(
+            dimension: 18,
+            child: FlowySvg(
+              icon,
+              blendMode: null,
+            ),
           ),
           label: Text(labelText),
           style: ButtonStyle(
@@ -127,10 +155,12 @@ class _ThirdPartySignInButton extends StatelessWidget {
       height: 48,
       width: double.infinity,
       child: OutlinedButton.icon(
-        icon: FlowySvg(
-          icon,
-          size: const Size.square(24),
-          blendMode: null,
+        icon: SizedBox.square(
+          dimension: 28,
+          child: FlowySvg(
+            icon,
+            blendMode: null,
+          ),
         ),
         label: FlowyText(
           labelText,
@@ -168,4 +198,16 @@ void _signInWithGoogle(BuildContext context) {
   context.read<SignInBloc>().add(
         const SignInEvent.signedInWithOAuth('google'),
       );
+}
+
+void _signInWithGithub(BuildContext context) {
+  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+  context.read<SignInBloc>().add(const SignInEvent.signedInWithOAuth('github'));
+}
+
+void _signInWithDiscord(BuildContext context) {
+  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+  context
+      .read<SignInBloc>()
+      .add(const SignInEvent.signedInWithOAuth('discord'));
 }
