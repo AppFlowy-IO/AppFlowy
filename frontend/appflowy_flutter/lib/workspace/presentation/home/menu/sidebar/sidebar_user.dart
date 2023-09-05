@@ -94,26 +94,10 @@ class SidebarUser extends StatelessWidget {
 
   Widget _buildUserName(BuildContext context, MenuUserState state) {
     final String name = _userName(state.userProfile);
-    return GestureDetector(
-      onTap: () async {
-        final result = await OpenAIService.requestTextCompletion(
-          prompt: 'tell a story',
-          openAIKey: state.userProfile.openaiKey,
-          model: "gpt-3.5-turbo",
-        );
-        Log.debug("OPEN AI KEY:${state.userProfile.openaiKey}");
-        result.fold(
-          (value) => Log.debug(
-            "Model: ${value.model} \n GPT Reply: ${value.content} ",
-          ),
-          (error) => Log.debug(error.toString()),
-        );
-      },
-      child: FlowyText.medium(
-        name,
-        overflow: TextOverflow.ellipsis,
-        color: Theme.of(context).colorScheme.tertiary,
-      ),
+    return FlowyText.medium(
+      name,
+      overflow: TextOverflow.ellipsis,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 
