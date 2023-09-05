@@ -55,9 +55,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
               const VSpace(6),
               promptMessage,
               const VSpace(6),
-              const ThirdPartySignInButtons(
-                isMobile: false,
-              ),
+              const ThirdPartySignInButtons(),
               const VSpace(6),
             ],
           );
