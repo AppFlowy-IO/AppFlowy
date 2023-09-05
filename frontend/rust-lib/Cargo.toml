@@ -27,11 +27,20 @@ members = [
 
 [profile.dev]
 opt-level = 0
-#https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
-#split-debuginfo = "unpacked"
+lto = false
+codegen-units = 16
 
 [profile.release]
+lto = true
 opt-level = 3
+codegen-units = 1
+
+[profile.profiling]
+inherits = "release"
+debug = true
+codegen-units = 16
+lto = false
+
 ## debuginfo — it makes ./target much bigger, which again harms caching. Depending on your preferred workflow,
 ## you might consider disabling debuginfo unconditionally, this brings some benefits for local builds as well.
 #strip = "debuginfo"
