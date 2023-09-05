@@ -16,7 +16,8 @@
     "alreadyHaveAnAccount": "Bereits registriert?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
-    "repeatPasswordHint": "Wiederhole Passwort"
+    "repeatPasswordHint": "Wiederhole Passwort",
+    "signUpWith": "Registrieren mit:"
   },
   "signIn": {
     "loginTitle": "Bei @:appName einloggen",
@@ -28,24 +29,35 @@
     "dontHaveAnAccount": "Du besitzt noch kein Konto?",
     "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
-    "loginAsGuestButtonText": "Loslegen"
+    "loginAsGuestButtonText": "Loslegen",
+    "continueAnonymousUser": "Als Gast fortfahren",
+    "syncPromptMessage": "Die Synchronisierung der Daten könnte eine Weile dauern. Diese Seite bitte nicht schließen",
+    "signInWith": "Anmelden mit:"
   },
   "workspace": {
     "create": "Arbeitsbereich erstellen",
     "hint": "Arbeitsbereich",
-    "notFoundError": "Arbeitsbereich nicht gefunden"
+    "notFoundError": "Arbeitsbereich nicht gefunden",
+    "reset": "Arbeitsbereich zurücksetzen",
+    "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereichs wird alle Seiten und deren Inhalt löschen. Bist du dir sicher, dass du den Arbeitsbereich zurücksetzen möchtest? Alternativ kannst du auch den Support kontaktieren, um den Arbeitsbereich wiederherzustellen"
   },
   "shareAction": {
     "buttonText": "Teilen",
     "workInProgress": "Demnächst verfügbar",
     "markdown": "Markdown",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "csv": "CSV"
   },
   "disclosureAction": {
     "rename": "Umbenennen",
     "delete": "Löschen",
     "duplicate": "Duplizieren",
-    "openNewTab": "In einem neuen Tab öffnen"
+    "openNewTab": "In einem neuen Tab öffnen",
+    "favorite": "zu Favoriten hinzufügen",
+    "unfavorite": "von Favoriten entfernen",
+    "moveTo": "verschieben nach",
+    "addToFavorites": "zu Favoriten hinzufügen",
+    "copyLink": "Link kopieren"
   },
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
@@ -88,7 +100,8 @@
   "menuAppHeader": {
     "addPageTooltip": "Schnell eine Seite innerhalb hinzufügen",
     "defaultNewPageName": "Unbenannt",
-    "renameDialog": "Umbenennen"
+    "renameDialog": "Umbenennen",
+    "moreButtonToolTip": "entfernen, umbenennen und mehr..."
   },
   "toolbar": {
     "undo": "Rückgängig",
@@ -256,7 +269,10 @@
   },
   "sideBar": {
     "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+    "closeSidebar": "Close sidebar",
+    "personal": "Persönlich",
+    "favorites": "Favoriten",
+    "addAPage": "Seite hinzufügen"
   },
   "moreAction": {
     "small": "klein",
@@ -267,12 +283,14 @@
     "moreOptions": "Mehr Optionen"
   },
   "youCanAlso": "Du kannst auch",
-  "and": "Und",
+  "and": "und",
   "blockActions": {
     "addBelowTooltip": "Klicken Sie unten, um etwas hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
     "addAboveMacCmd": "Wahl+Klick",
-    "addAboveTooltip": "oben hinzufügen"
+    "addAboveTooltip": "oben hinzufügen",
+    "dragTooltip": "Halten um zu bewegen",
+    "openMenuTooltip": "Klicken um das Menü zu öffnen"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -284,7 +302,7 @@
   "notifications": {
     "export": {
       "markdown": "Notiz nach Markdown exportiert",
-      "path": "Dokumente/fließend"
+      "path": "Dokumente/flowy"
     }
   },
   "grid": {
@@ -604,5 +622,7 @@
   "views": {
     "deleteContentTitle": "Möchten Sie den {pageType} wirklich löschen?",
     "deleteContentCaption": "Wenn Sie diesen {pageType} löschen, können Sie ihn aus dem Papierkorb wiederherstellen."
-  }
+  },
+  "newDocumentText": "Neues Dokument",
+  "newCalendarText": "Neuer Kalender"
 }

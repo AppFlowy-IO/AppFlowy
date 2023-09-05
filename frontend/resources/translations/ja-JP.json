@@ -1,7 +1,7 @@
 {
   "appName": "AppFlowy",
   "defaultUsername": "ユーザー",
-  "welcomeText": "Welcome to @:appName",
+  "welcomeText": "@:appName へようこそ",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "新着情報を受け取る",
   "letsGoButtonText": "Let's Go",
