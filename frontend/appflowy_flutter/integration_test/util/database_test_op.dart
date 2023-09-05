@@ -527,6 +527,27 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(deleteButton);
   }
 
+  Future<TestGesture> hoverOnFieldInRowDetail({required int index}) async {
+    final fieldButtons = find.byType(FieldCellButton);
+    final button = find
+        .descendant(of: find.byType(RowDetailPage), matching: fieldButtons)
+        .at(index);
+    return startGesture(
+      getCenter(button),
+      kind: PointerDeviceKind.mouse,
+    );
+  }
+
+  Future<void> reorderFieldInRowDetail({required double offset}) async {
+    final thumb = find.byType(ReorderableDragStartListener).first;
+    await drag(
+      thumb,
+      Offset(0, offset),
+      kind: PointerDeviceKind.mouse,
+    );
+    await pumpAndSettle();
+  }
+
   Future<void> scrollGridByOffset(Offset offset) async {
     await drag(find.byType(GridPage), offset);
     await pumpAndSettle();
@@ -675,6 +696,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(field, findsOneWidget);
+  }
+
+  void assertFirstFieldInRowDetailByType(FieldType fieldType) {
+    final firstField = find
+        .descendant(
+          of: find.byType(RowDetailPage),
+          matching: find.byType(FieldCellButton),
+        )
+        .first;
+
+    final widget = this.widget<FieldCellButton>(firstField);
+    expect(widget.field.fieldType, fieldType);
   }
 
   Future<void> findFieldWithName(String name) async {
