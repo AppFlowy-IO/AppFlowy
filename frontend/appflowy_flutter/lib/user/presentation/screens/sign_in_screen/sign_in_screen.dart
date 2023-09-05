@@ -1,12 +1,13 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/helpers/handle_open_workspace_error.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/desktop_sign_in_screen.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/mobile_sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../helpers/helpers.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
@@ -25,7 +26,7 @@ class SignInScreen extends StatelessWidget {
         listener: (context, state) {
           state.successOrFail.fold(
             () => null,
-            (result) => handleSignInSuccessOrFail(result, context),
+            (result) => handleSuccessOrFail(result, context, router),
           );
         },
         builder: (context, state) {
