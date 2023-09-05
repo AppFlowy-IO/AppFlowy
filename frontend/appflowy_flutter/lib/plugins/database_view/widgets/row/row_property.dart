@@ -154,10 +154,7 @@ class _PropertyCellState extends State<_PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(
-        // contentPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
-        child: cell,
-      ),
+      child: AccessoryHover(child: cell),
     );
 
     return Container(

@@ -91,12 +91,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
 
 class AccessoryHover extends StatefulWidget {
   final CellAccessory child;
-  final EdgeInsets contentPadding;
-  const AccessoryHover({
-    required this.child,
-    this.contentPadding = EdgeInsets.zero,
-    Key? key,
-  }) : super(key: key);
+  const AccessoryHover({required this.child, super.key});
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
@@ -108,8 +103,7 @@ class _AccessoryHoverState extends State<AccessoryHover> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      Container(
-        padding: widget.contentPadding,
+      DecoratedBox(
         decoration: BoxDecoration(
           color: _isHover
               ? AFThemeExtension.of(context).lightGreyHover
