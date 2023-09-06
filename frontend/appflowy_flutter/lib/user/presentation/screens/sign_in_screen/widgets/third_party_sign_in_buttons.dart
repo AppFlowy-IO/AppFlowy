@@ -13,12 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ThirdPartySignInButtons extends StatelessWidget {
-  final Alignment contentAlignment;
-
   /// Used in DesktopSignInScreen and MobileSignInScreen
   const ThirdPartySignInButtons({
     super.key,
-    this.contentAlignment = Alignment.center,
   });
 
   @override
@@ -30,6 +27,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
     final isDarkMode =
         context.read<AppearanceSettingsCubit>().state.themeMode ==
             ThemeMode.dark;
+
     if (isMobile) {
       // ThirdPartySignInButtons in mobile
       return Column(
@@ -41,7 +39,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
             onPressed: () {
               _signInWithGoogle(context);
             },
-            contentAlignment: contentAlignment,
           ),
           const SizedBox(height: 8),
           _ThirdPartySignInButton(
@@ -53,7 +50,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
             onPressed: () {
               _signInWithGithub(context);
             },
-            contentAlignment: contentAlignment,
           ),
           const SizedBox(height: 8),
           _ThirdPartySignInButton(
@@ -65,7 +61,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
             onPressed: () {
               _signInWithDiscord(context);
             },
-            contentAlignment: contentAlignment,
           ),
         ],
       );
@@ -78,7 +73,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
           isMobile: false,
           icon: FlowySvgs.google_mark_xl,
           labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-          contentAlignment: contentAlignment,
           onPressed: () {
             _signInWithGoogle(context);
           },
@@ -90,7 +84,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
               ? FlowySvgs.github_mark_white_xl
               : FlowySvgs.github_mark_black_xl,
           labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-          contentAlignment: contentAlignment,
           onPressed: () {
             _signInWithGithub(context);
           },
@@ -102,7 +95,6 @@ class ThirdPartySignInButtons extends StatelessWidget {
               ? FlowySvgs.discord_mark_white_xl
               : FlowySvgs.discord_mark_blurple_xl,
           labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-          contentAlignment: contentAlignment,
           onPressed: () {
             _signInWithDiscord(context);
           },
@@ -119,13 +111,12 @@ class _ThirdPartySignInButton extends StatelessWidget {
     required this.icon,
     required this.labelText,
     required this.onPressed,
-    required this.contentAlignment,
   });
 
   final bool isMobile;
   final FlowySvgData icon;
   final String labelText;
-  final Alignment contentAlignment;
+
   final VoidCallback onPressed;
 
   @override
@@ -144,9 +135,6 @@ class _ThirdPartySignInButton extends StatelessWidget {
             ),
           ),
           label: Text(labelText),
-          style: ButtonStyle(
-            alignment: contentAlignment,
-          ),
           onPressed: onPressed,
         ),
       );
@@ -155,19 +143,28 @@ class _ThirdPartySignInButton extends StatelessWidget {
       height: 48,
       width: double.infinity,
       child: OutlinedButton.icon(
-        icon: SizedBox.square(
-          dimension: 28,
-          child: FlowySvg(
-            icon,
-            blendMode: null,
+        // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
+        icon: Container(
+          width: 110,
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            // Some icons are not square, so we just use a fixed width here.
+            width: 24,
+            child: FlowySvg(
+              icon,
+              blendMode: null,
+            ),
           ),
         ),
-        label: FlowyText(
-          labelText,
-          fontSize: 14,
+        label: Container(
+          padding: const EdgeInsets.only(left: 8),
+          alignment: Alignment.centerLeft,
+          child: FlowyText(
+            labelText,
+            fontSize: 14,
+          ),
         ),
         style: ButtonStyle(
-          alignment: contentAlignment,
           overlayColor: MaterialStateProperty.resolveWith<Color?>(
             (states) {
               if (states.contains(MaterialState.hovered)) {
