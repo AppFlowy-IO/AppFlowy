@@ -255,10 +255,7 @@ impl DatabaseManager {
       let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
         .resolve_deps_when_create_database_linked_view();
       if let Some(field) = field {
-        params = params.with_deps_fields(
-          vec![field.clone()],
-          vec![default_field_settings_by_layout_map()],
-        );
+        params = params.with_deps_fields(vec![field], vec![default_field_settings_by_layout_map()]);
       }
       if let Some(layout_setting) = layout_setting {
         params = params.with_layout_setting(layout_setting);
