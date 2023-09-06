@@ -44,7 +44,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     if let Some(cloud_config) = cloud_config {
       self
         .server_provider
-        .set_enable_sync(cloud_config.enable_sync);
+        .set_enable_sync(user_id, cloud_config.enable_sync);
       if cloud_config.enable_encrypt() {
         self
           .server_provider

@@ -61,9 +61,9 @@ impl DocumentManager {
 
   pub async fn handle_reminder_action(&self, action: DocumentReminderAction) {
     match action {
-      DocumentReminderAction::Add { reminder } => {},
-      DocumentReminderAction::Remove { reminder_id } => {},
-      DocumentReminderAction::Update { reminder } => {},
+      DocumentReminderAction::Add { reminder: _ } => {},
+      DocumentReminderAction::Remove { reminder_id: _ } => {},
+      DocumentReminderAction::Update { reminder: _ } => {},
     }
   }
 

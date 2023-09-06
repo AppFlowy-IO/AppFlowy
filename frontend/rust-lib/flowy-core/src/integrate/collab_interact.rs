@@ -11,6 +11,7 @@ use flowy_user::services::collab_interact::CollabInteract;
 use lib_infra::future::FutureResult;
 
 pub struct CollabInteractImpl {
+  #[allow(dead_code)]
   pub(crate) database_manager: Weak<DatabaseManager>,
   #[allow(dead_code)]
   pub(crate) document_manager: Weak<DocumentManager>,

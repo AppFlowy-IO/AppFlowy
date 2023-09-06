@@ -22,7 +22,7 @@ members = [
   "flowy-config",
   "flowy-encrypt",
   "flowy-storage",
-  "flowy-date",
+  "flowy-ai",
 ]
 
 [profile.dev]

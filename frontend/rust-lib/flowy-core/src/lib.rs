@@ -13,7 +13,7 @@ use flowy_folder2::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::manager::{UserManager, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;

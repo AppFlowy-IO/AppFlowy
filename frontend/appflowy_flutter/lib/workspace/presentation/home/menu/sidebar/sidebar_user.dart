@@ -43,7 +43,7 @@ class SidebarUser extends StatelessWidget {
             Expanded(
               child: _buildUserName(context, state),
             ),
-            _buildSettingsButton(context),
+            _buildSettingsButton(context, state),
             const HSpace(4),
             NotificationButton(views: views),
           ],

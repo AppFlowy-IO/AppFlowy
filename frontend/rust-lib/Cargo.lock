@@ -1323,7 +1323,7 @@ dependencies = [
  "flowy-error",
  "lib-dispatch",
  "protobuf",
- "strum_macros",
+ "strum_macros 0.21.1",
  "tracing",
 ]
 
