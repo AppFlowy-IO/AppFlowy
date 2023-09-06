@@ -272,7 +272,19 @@
       "icon": "Ícone",
       "selectAnIcon": "Selecione um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
-      "email": "E-mail"
+      "email": "E-mail",
+      "clickToLogout": "Clique para fazer logout"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Atalhos",
+      "command": "Comando",
+      "keyBinding": "Atalhos de teclado",
+      "addNewCommand": "Adicionar novo comando",
+      "updateShortcutStep": "Pressione a combinação de teclas desejada e pressione ENTER",
+      "shortcutIsAlreadyUsed": "Este atalho já é usado para: {conflict}",
+      "resetToDefault": "Redefinir para atalhos de teclado padrão",
+      "couldNotLoadErrorMsg": "Não foi possível carregar os atalhos. Tente novamente",
+      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
     }
   },
   "sideBar": {
@@ -280,7 +292,9 @@
     "closeSidebar": "Close sidebar",
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
-    "addAPage": "Adicionar uma página"
+    "addAPage": "Adicionar uma página",
+    "personal": "Pessoal",
+    "favorites": "Favoritos"
   },
   "moreAction": {
     "small": "pequeno",
@@ -403,13 +417,16 @@
       "addOption": "Adicionar opção",
       "editProperty": "Editar propriedade",
       "newProperty": "Nova propriedade",
-      "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída"
+      "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída",
+      "clearDate": "Limpar data",
+      "newColumn": "Nova Coluna"
     },
     "sort": {
       "ascending": "Ascendente",
       "descending": "descendente",
       "deleteSort": "Excluir classificação",
-      "addSort": "Adicionar classificação"
+      "addSort": "Adicionar classificação",
+      "deleteAllSorts": "Apagar todas as ordenações"
     },
     "row": {
       "duplicate": "Duplicado",
@@ -418,7 +435,8 @@
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contar",
       "newRow": "Nova linha",
-      "action": "Ação"
+      "action": "Ação",
+      "titlePlaceholder": "Sem título"
     },
     "selectOption": {
       "create": "Criar",
@@ -463,7 +481,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Contorno"
+      "outline": "Contorno",
+      "codeBlock": "Bloco de código"
     },
     "plugins": {
       "referencedBoard": "Conselho Referenciado",
@@ -537,6 +556,19 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Adicione títulos para criar um sumário."
+      },
+      "table": {
+        "addAfter": "Adicionar depois",
+        "addBefore": "Adicionar antes",
+        "delete": "Eliminar",
+        "clear": "Limpar conteúdo",
+        "duplicate": "Duplicado",
+        "bgColor": "Cor de fundo"
+      },
+      "contextMenu": {
+        "copy": "Cópia",
+        "cut": "Corte",
+        "paste": "Colar"
       }
     },
     "textBlock": {
@@ -578,6 +610,16 @@
       "title": {
         "label": "Título do Link",
         "placeholder": "Insira o título do link"
+      },
+      "openInNewTab": "Abrir numa nova aba",
+      "copyLink": "Cópia do link",
+      "removeLink": "Remover link"
+    },
+    "mention": {
+      "placeholder": "Mencione uma pessoa, uma página ou uma data...",
+      "page": {
+        "label": "Link para a página",
+        "tooltip": "Clique para abrir a página"
       }
     }
   },
@@ -633,5 +675,38 @@
   },
   "newDocumentText": "Novo Documento",
   "newGridText": "Nova grelha",
-  "newBoardText": "Novo quadro"
+  "newBoardText": "Novo quadro",
+  "newCalendarText": "Novo calendário",
+  "colors": {
+    "custom": "Personalizado",
+    "default": "Padrão",
+    "red": "Vermelho",
+    "orange": "Laranja",
+    "yellow": "Amarelo",
+    "green": "Verde",
+    "blue": "Azul",
+    "purple": "Roxo",
+    "pink": "Rosa",
+    "brown": "Castanho",
+    "gray": "Cinzento"
+  },
+  "emoji": {
+    "filter": "Filtro",
+    "random": "Aleatório",
+    "selectSkinTone": "Selecione o tom do tema",
+    "remove": "Remover emoji",
+    "categories": {
+      "smileys": "Smileys e Emoções",
+      "people": "Pessoas e Corpo",
+      "animals": "Animais e Natureza",
+      "food": "Comida e bebida",
+      "activities": "Atividades",
+      "places": "Viagens e lugares",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Bandeiras",
+      "nature": "Natureza",
+      "frequentlyUsed": "Usado frequentemente"
+    }
+  }
 }

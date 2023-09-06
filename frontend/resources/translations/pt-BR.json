@@ -64,7 +64,8 @@
     "unfavorite": "Remover dos favoritos",
     "favorite": "Adicionar aos favoritos",
     "moveTo": "Mover para",
-    "addToFavorites": "Adicionar aos favoritos"
+    "addToFavorites": "Adicionar aos favoritos",
+    "copyLink": "Copiar link"
   },
   "blankPageTitle": "Página em branco",
   "newPageText": "Nova página",
@@ -145,7 +146,8 @@
     "favorites": "Favoritos",
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
-    "addAPage": "Adicionar uma página"
+    "addAPage": "Adicionar uma página",
+    "personal": "Pessoal"
   },
   "notifications": {
     "export": {
@@ -219,7 +221,11 @@
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "historicalUserList": "Histórico de login do usuário",
-      "openHistoricalUser": "Clique para abrir a conta anônima"
+      "openHistoricalUser": "Clique para abrir a conta anônima",
+      "syncSetting": "Configuração de sincronização",
+      "clickToCopySecret": "Clique para copiar o segredo",
+      "inputTextFieldHint": "Seu segredo",
+      "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’"
     },
     "appearance": {
       "themeMode": {
@@ -288,7 +294,19 @@
       "icon": "Ícone",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
-      "email": "E-mail"
+      "email": "E-mail",
+      "clickToLogout": "Clique para sair do usuário atual"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Atalhos",
+      "command": "Comando",
+      "keyBinding": "Atalhos de teclado",
+      "addNewCommand": "Adicionar novo comando",
+      "updateShortcutStep": "Pressione a combinação de teclas desejada e pressione ENTER",
+      "shortcutIsAlreadyUsed": "Este atalho já é usado para: {conflict}",
+      "resetToDefault": "Redefinir para atalhos de teclado padrão",
+      "couldNotLoadErrorMsg": "Não foi possível carregar os atalhos. Tente novamente",
+      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
     }
   },
   "grid": {
@@ -380,13 +398,16 @@
       "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída",
       "updatedAtFieldName": "Hora da última modificação",
       "createdAtFieldName": "hora criada",
-      "dateFormatDayMonthYear": "Dia mês ano"
+      "dateFormatDayMonthYear": "Dia mês ano",
+      "clearDate": "Limpar data",
+      "newColumn": "Nova Coluna"
     },
     "sort": {
       "ascending": "Crescente",
       "descending": "Decrescente",
       "deleteSort": "Apagar ordenação",
-      "addSort": "Adicionar ordenação"
+      "addSort": "Adicionar ordenação",
+      "deleteAllSorts": "Apagar todas as ordenações"
     },
     "row": {
       "duplicate": "Duplicar",
@@ -395,7 +416,8 @@
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contagem",
       "newRow": "Nova linha",
-      "action": "Ação"
+      "action": "Ação",
+      "titlePlaceholder": "Sem título"
     },
     "selectOption": {
       "create": "Criar",
@@ -516,10 +538,24 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Adicione títulos para criar um sumário."
+      },
+      "table": {
+        "addAfter": "Adicionar depois",
+        "addBefore": "Adicionar antes",
+        "delete": "Excluir",
+        "clear": "Limpar conteúdo",
+        "duplicate": "Duplicado",
+        "bgColor": "Cor de fundo"
+      },
+      "contextMenu": {
+        "copy": "Cópia",
+        "cut": "Corte",
+        "paste": "Colar"
       }
     },
     "selectionMenu": {
-      "outline": "Contorno"
+      "outline": "Contorno",
+      "codeBlock": "Bloco de código"
     },
     "textBlock": {
       "placeholder": "Digite '/' para comandos"
@@ -560,6 +596,16 @@
       "title": {
         "label": "Título do link",
         "placeholder": "Insira o título do link"
+      },
+      "openInNewTab": "Abrir em nova aba",
+      "copyLink": "Cópia do link",
+      "removeLink": "Remover link"
+    },
+    "mention": {
+      "placeholder": "Mencione uma pessoa, uma página ou uma data...",
+      "page": {
+        "label": "Link para a página",
+        "tooltip": "Clique para abrir a página"
       }
     }
   },
@@ -633,5 +679,37 @@
   "newDocumentText": "Novo Documento",
   "newGridText": "Nova grelha",
   "newCalendarText": "Novo calendário",
-  "newBoardText": "Novo quadro"
+  "newBoardText": "Novo quadro",
+  "colors": {
+    "custom": "Personalizado",
+    "default": "Padrão",
+    "red": "Vermelho",
+    "orange": "Laranja",
+    "yellow": "Amarelo",
+    "green": "Verde",
+    "blue": "Azul",
+    "purple": "Roxo",
+    "pink": "Rosa",
+    "brown": "Marrom",
+    "gray": "Cinza"
+  },
+  "emoji": {
+    "filter": "Filtro",
+    "random": "Aleatório",
+    "selectSkinTone": "Selecione o tom do tema",
+    "remove": "Remover emoji",
+    "categories": {
+      "smileys": "Smileys e Emoções",
+      "people": "Pessoas e Corpo",
+      "animals": "Animais e Natureza",
+      "food": "Comida e bebida",
+      "activities": "Atividades",
+      "places": "Viagens e lugares",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Bandeiras",
+      "nature": "Natureza",
+      "frequentlyUsed": "Usado frequentemente"
+    }
+  }
 }
