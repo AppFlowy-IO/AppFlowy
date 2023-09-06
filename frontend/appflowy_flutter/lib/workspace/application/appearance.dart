@@ -268,7 +268,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       onSurface: theme.hoverFG,
       // grey hover color
       inverseSurface: theme.hoverBG3,
-      onError: theme.shader7,
+      onError: theme.onPrimary,
       error: theme.red,
       outline: theme.shader4,
       surfaceVariant: theme.sidebarBg,
