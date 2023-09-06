@@ -2,6 +2,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/historical_user_bloc.dart';
@@ -12,16 +13,15 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
@@ -430,26 +430,10 @@ class ThirdPartySignInButtons extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: const [
         GoogleSignUpButton(),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/github-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('github'));
-        //   },
-        // ),
-        // const SizedBox(width: 20),
-        // ThirdPartySignInButton(
-        //   icon: 'login/discord-mark',
-        //   onPressed: () {
-        //     getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-        //     context
-        //         .read<SignInBloc>()
-        //         .add(const SignInEvent.signedInWithOAuth('discord'));
-        //   },
-        // ),
+        SizedBox(width: 20),
+        GitHubSignUpButton(),
+        SizedBox(width: 20),
+        DiscordSignUpButton(),
       ],
     );
   }
@@ -467,6 +451,40 @@ class GoogleSignUpButton extends StatelessWidget {
         context.read<SignInBloc>().add(
               const SignInEvent.signedInWithOAuth('google'),
             );
+      },
+    );
+  }
+}
+
+class GitHubSignUpButton extends StatelessWidget {
+  const GitHubSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.github_mark_s,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context
+            .read<SignInBloc>()
+            .add(const SignInEvent.signedInWithOAuth('github'));
+      },
+    );
+  }
+}
+
+class DiscordSignUpButton extends StatelessWidget {
+  const DiscordSignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThirdPartySignInButton(
+      icon: FlowySvgs.discord_mark_s,
+      onPressed: () {
+        getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
+        context
+            .read<SignInBloc>()
+            .add(const SignInEvent.signedInWithOAuth('discord'));
       },
     );
   }

@@ -5,43 +5,48 @@ use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 
-use crate::self_host::configuration::SelfHostedConfiguration;
-use crate::self_host::impls::{
-  SelfHostedDatabaseCloudServiceImpl, SelfHostedDocumentCloudServiceImpl,
-  SelfHostedServerFolderCloudServiceImpl, SelfHostedUserAuthServiceImpl,
+use crate::af_cloud::configuration::AFCloudConfiguration;
+use crate::af_cloud::impls::{
+  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFolderCloudServiceImpl,
+  AFCloudUserAuthServiceImpl,
 };
 use crate::AppFlowyServer;
 
-pub struct SelfHostServer {
-  pub(crate) config: SelfHostedConfiguration,
+pub struct AFCloudServer {
+  pub(crate) config: AFCloudConfiguration,
 }
 
-impl SelfHostServer {
-  pub fn new(config: SelfHostedConfiguration) -> Self {
+impl AFCloudServer {
+  pub fn new(config: AFCloudConfiguration) -> Self {
     Self { config }
   }
 }
 
-impl AppFlowyServer for SelfHostServer {
+impl AppFlowyServer for AFCloudServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
-    Arc::new(SelfHostedUserAuthServiceImpl::new(self.config.clone()))
+    Arc::new(AFCloudUserAuthServiceImpl::new(self.config.clone()))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
-    Arc::new(SelfHostedServerFolderCloudServiceImpl())
+    Arc::new(AFCloudFolderCloudServiceImpl())
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
-    Arc::new(SelfHostedDatabaseCloudServiceImpl())
+    Arc::new(AFCloudDatabaseCloudServiceImpl())
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
-    Arc::new(SelfHostedDocumentCloudServiceImpl())
+    Arc::new(AFCloudDocumentCloudServiceImpl())
   }
 
   fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    None
+  }
+
+  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
     None
   }
 }

@@ -14,13 +14,12 @@ use tokio::task::spawn_blocking;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::md5;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
   create_snapshot, get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
   UpdateItem,
 };
-use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnEncoder,
-};
+use crate::supabase::api::util::{InsertParamsBuilder, SupabaseBinaryColumnEncoder};
 use crate::supabase::api::{PostgresWrapper, SupabaseServerService};
 use crate::supabase::define::*;
 use crate::AppFlowyEncryption;

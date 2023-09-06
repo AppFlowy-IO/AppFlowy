@@ -193,6 +193,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (lastNode == null || lastNode.delta == null) {
       final transaction = editorState.transaction;
       transaction.insertNode([document.root.children.length], paragraphNode());
+      transaction.afterSelection = transaction.beforeSelection;
       await editorState.apply(transaction);
     }
   }

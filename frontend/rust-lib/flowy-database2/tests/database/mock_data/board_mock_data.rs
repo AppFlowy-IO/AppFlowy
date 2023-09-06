@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::services::field_settings::default_field_settings_by_layout;
+use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -18,7 +18,6 @@ pub fn make_test_board() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
   // Iterate through the FieldType to create the corresponding Field.
-  let field_settings = default_field_settings_by_layout(DatabaseLayout::Board);
   for field_type in FieldType::iter() {
     match field_type {
       FieldType::RichText => {
@@ -116,6 +115,9 @@ pub fn make_test_board() -> DatabaseData {
     }
   }
 
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
+
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
@@ -127,7 +129,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -147,7 +149,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -166,7 +168,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
@@ -188,7 +190,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1668704685", None, None, &field_type)
+              row_builder.insert_date_cell(1668704685, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
@@ -205,7 +207,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1668359085", None, None, &field_type)
+              row_builder.insert_date_cell(1668359085, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(2))

@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version 0.3.1 - 09/04/2023
+
+### New Features
+
+- Improve CJK (Chinese, Japanese, Korean) input method support.
+- Share a database in CSV format.
+- Support for aligning the block component with the toolbar.
+- Support for editing name when creating a new page.
+- Support for inserting a table in the document page.
+- Database views allow for independent field visibility toggling.
+
+### Bug fixes
+
+- Paste multiple lines in code block.
+- Some UI issues
+
 ## Version 0.3.0 - 08/22/2023
 
 ### New Features

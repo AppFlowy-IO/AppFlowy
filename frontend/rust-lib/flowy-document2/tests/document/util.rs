@@ -4,6 +4,7 @@ use std::sync::Arc;
 use anyhow::Error;
 use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, DefaultCollabStorageProvider};
 use appflowy_integrate::RocksCollabDB;
+use bytes::Bytes;
 use collab_document::blocks::DocumentData;
 use collab_document::document_data::default_document_data;
 use nanoid::nanoid;
@@ -14,6 +15,8 @@ use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
 use flowy_document2::document::MutexDocument;
 use flowy_document2::manager::{DocumentManager, DocumentUser};
 use flowy_document_deps::cloud::*;
+use flowy_error::FlowyError;
+use flowy_storage::{FileStorageService, StorageObject};
 use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
@@ -24,7 +27,13 @@ impl DocumentTest {
   pub fn new() -> Self {
     let user = FakeUser::new();
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
-    let manager = DocumentManager::new(Arc::new(user), default_collab_builder(), cloud_service);
+    let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn FileStorageService>;
+    let manager = DocumentManager::new(
+      Arc::new(user),
+      default_collab_builder(),
+      cloud_service,
+      Arc::downgrade(&file_storage),
+    );
     Self { inner: manager }
   }
 }
@@ -127,5 +136,20 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 
   fn get_document_data(&self, _document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
     FutureResult::new(async move { Ok(None) })
+  }
+}
+
+pub struct DocumentTestFileStorageService;
+impl FileStorageService for DocumentTestFileStorageService {
+  fn create_object(&self, _object: StorageObject) -> FutureResult<String, FlowyError> {
+    todo!()
+  }
+
+  fn delete_object_by_url(&self, _object_url: String) -> FutureResult<(), FlowyError> {
+    todo!()
+  }
+
+  fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
+    todo!()
   }
 }
