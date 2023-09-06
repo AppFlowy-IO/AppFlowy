@@ -122,19 +122,28 @@ class _ThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
+    final buttonSize = MediaQuery.of(context).size;
     if (isMobile) {
       return SizedBox(
         width: double.infinity,
         height: 48,
         child: OutlinedButton.icon(
-          icon: SizedBox.square(
-            dimension: 18,
-            child: FlowySvg(
-              icon,
-              blendMode: null,
+          icon: Container(
+            width: buttonSize.width / 5.5,
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 24,
+              child: FlowySvg(
+                icon,
+                blendMode: null,
+              ),
             ),
           ),
-          label: Text(labelText),
+          label: Container(
+            padding: const EdgeInsets.only(left: 4),
+            alignment: Alignment.centerLeft,
+            child: Text(labelText),
+          ),
           onPressed: onPressed,
         ),
       );
@@ -145,7 +154,7 @@ class _ThirdPartySignInButton extends StatelessWidget {
       child: OutlinedButton.icon(
         // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
         icon: Container(
-          width: 110,
+          width: buttonSize.width / 8,
           alignment: Alignment.centerRight,
           child: SizedBox(
             // Some icons are not square, so we just use a fixed width here.
