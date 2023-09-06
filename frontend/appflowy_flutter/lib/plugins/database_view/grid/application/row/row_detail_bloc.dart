@@ -1,5 +1,7 @@
+import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,18 +12,18 @@ part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   final RowBackendService rowService;
-  final RowController dataController;
+  final RowController rowController;
 
   RowDetailBloc({
-    required this.dataController,
-  })  : rowService = RowBackendService(viewId: dataController.viewId),
+    required this.rowController,
+  })  : rowService = RowBackendService(viewId: rowController.viewId),
         super(RowDetailState.initial()) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             await _startListening();
-            final cells = dataController.loadData();
+            final cells = rowController.loadData();
             if (!isClosed) {
               add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
             }
@@ -32,9 +34,24 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           deleteField: (fieldId) {
             _fieldBackendService(fieldId).deleteField();
           },
+          showField: (fieldId) async {
+            final result =
+                await FieldSettingsBackendService(viewId: rowController.viewId)
+                    .updateFieldSettings(
+              fieldId: fieldId,
+              fieldVisibility: FieldVisibility.AlwaysShown,
+            );
+            result.fold(
+              (l) {},
+              (err) => Log.error(err),
+            );
+          },
           hideField: (fieldId) async {
-            final result = await _fieldBackendService(fieldId).updateField(
-              visibility: false,
+            final result =
+                await FieldSettingsBackendService(viewId: rowController.viewId)
+                    .updateFieldSettings(
+              fieldId: fieldId,
+              fieldVisibility: FieldVisibility.AlwaysHidden,
             );
             result.fold(
               (l) {},
@@ -57,12 +74,12 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   @override
   Future<void> close() async {
-    dataController.dispose();
+    rowController.dispose();
     return super.close();
   }
 
   Future<void> _startListening() async {
-    dataController.addListener(
+    rowController.addListener(
       onRowChanged: (cells, reason) {
         if (!isClosed) {
           add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
@@ -73,7 +90,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   FieldBackendService _fieldBackendService(String fieldId) {
     return FieldBackendService(
-      viewId: dataController.viewId,
+      viewId: rowController.viewId,
       fieldId: fieldId,
     );
   }
@@ -83,6 +100,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
+  const factory RowDetailEvent.showField(String fieldId) = _ShowField;
   const factory RowDetailEvent.hideField(String fieldId) = _HideField;
   const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
   const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =

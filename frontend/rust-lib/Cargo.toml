@@ -28,11 +28,20 @@ members = [
 
 [profile.dev]
 opt-level = 0
-#https://doc.rust-lang.org/rustc/codegen-options/index.html#debug-assertions
-#split-debuginfo = "unpacked"
+lto = false
+codegen-units = 16
 
 [profile.release]
+lto = true
 opt-level = 3
+codegen-units = 1
+
+[profile.profiling]
+inherits = "release"
+debug = true
+codegen-units = 16
+lto = false
+
 ## debuginfo — it makes ./target much bigger, which again harms caching. Depending on your preferred workflow,
 ## you might consider disabling debuginfo unconditionally, this brings some benefits for local builds as well.
 #strip = "debuginfo"
@@ -41,14 +50,14 @@ opt-level = 3
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1b297c" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "223011" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
@@ -58,4 +67,3 @@ collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = 
 #appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
 #collab-user = { path = "../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../AppFlowy-Collab/collab-define" }
-

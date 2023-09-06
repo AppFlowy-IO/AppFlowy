@@ -168,7 +168,8 @@ class SelectOptionTagCell extends StatelessWidget {
             ...children,
           ],
         ),
-        onTap: () => onSelected(option),
+        // TODO(richard): find alternative solution to onTapDown
+        onTapDown: (_) => onSelected(option),
       ),
     );
   }
