@@ -134,8 +134,9 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
     );
 
     return Tooltip(
-      margin: const EdgeInsets.only(right: 220),
       message: isOverFlown ? buttonFontFamily : "",
+      margin: const EdgeInsets.only(right: 220),
+      waitDuration: const Duration(milliseconds: 300),
       child: SizedBox(
         key: UniqueKey(),
         height: 32,
