@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 class FlowyTextField extends StatefulWidget {
   final String hintText;
   final String text;
+  final TextStyle? textStyle;
   final void Function(String)? onChanged;
   final void Function()? onEditingComplete;
   final void Function(String)? onSubmitted;
@@ -24,6 +25,7 @@ class FlowyTextField extends StatefulWidget {
   const FlowyTextField({
     this.hintText = "",
     this.text = "",
+    this.textStyle,
     this.onChanged,
     this.onEditingComplete,
     this.onSubmitted,
@@ -105,7 +107,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: Theme.of(context).textTheme.bodySmall,
+      style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
         constraints: BoxConstraints(
             maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
