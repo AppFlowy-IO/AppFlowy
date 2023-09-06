@@ -88,7 +88,16 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    self.today_desc_from_timestamp(cell_data)
+    let timestamp = cell_data.timestamp;
+    let include_time = cell_data.include_time;
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    DateCellDataPB {
+      date,
+      time,
+      timestamp: timestamp.unwrap_or_default(),
+      include_time,
+    }
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -112,31 +121,39 @@ impl DateTypeOption {
     }
   }
 
-  fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
-    let timestamp = cell_data.timestamp.unwrap_or_default();
-    let include_time = cell_data.include_time;
+  fn formatted_date_time_from_timestamp(&self, timestamp: &Option<i64>) -> (String, String) {
+    if let Some(timestamp) = timestamp {
+      let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
+      let offset = self.get_timezone_offset(naive);
+      let date_time = DateTime::<Local>::from_utc(naive, offset);
 
-    let (date, time) = match cell_data.timestamp {
-      Some(timestamp) => {
-        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = self.get_timezone_offset(naive);
-        let date_time = DateTime::<Local>::from_utc(naive, offset);
+      let fmt = self.date_format.format_str();
+      let date = format!("{}", date_time.format(fmt));
+      let fmt = self.time_format.format_str();
+      let time = format!("{}", date_time.format(fmt));
+      (date, time)
+    } else {
+      ("".to_owned(), "".to_owned())
+    }
+  }
 
-        let fmt = self.date_format.format_str();
-        let date = format!("{}", date_time.format(fmt));
-        let fmt = self.time_format.format_str();
-        let time = format!("{}", date_time.format(fmt));
-
-        (date, time)
+  fn naive_time_from_time_string(
+    &self,
+    include_time: bool,
+    time_str: Option<String>,
+  ) -> FlowyResult<Option<NaiveTime>> {
+    match (include_time, time_str) {
+      (true, Some(time_str)) => {
+        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        match result {
+          Ok(time) => Ok(Some(time)),
+          Err(_e) => {
+            let msg = format!("Parse {} failed", time_str);
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
+          },
+        }
       },
-      None => ("".to_owned(), "".to_owned()),
-    };
-
-    DateCellDataPB {
-      date,
-      time,
-      include_time,
-      timestamp,
+      _ => Ok(None),
     }
   }
 
@@ -211,7 +228,14 @@ impl CellDataDecoder for DateTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    self.today_desc_from_timestamp(cell_data).date
+    let timestamp = cell_data.timestamp;
+    let include_time = cell_data.include_time;
+    let (date_string, time_string) = self.formatted_date_time_from_timestamp(&timestamp);
+    if include_time {
+      format!("{} {}", date_string, time_string)
+    } else {
+      date_string
+    }
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
@@ -256,27 +280,12 @@ impl CellDataChangeset for DateTypeOption {
     // order to change the day without changing the time, the old time string
     // should be passed in as well.
 
-    let changeset_timestamp = changeset.date;
-
-    // parse the time string, which is in the local timezone
-    let parsed_time = match (include_time, changeset.time) {
-      (true, Some(time_str)) => {
-        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
-        match result {
-          Ok(time) => Ok(Some(time)),
-          Err(_e) => {
-            let msg = format!("Parse {} failed", time_str);
-            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
-          },
-        }
-      },
-      _ => Ok(None),
-    }?;
+    let parsed_time = self.naive_time_from_time_string(include_time, changeset.time)?;
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
       parsed_time,
       previous_timestamp,
-      changeset_timestamp,
+      changeset.date,
     );
 
     let cell_data = DateCellData {
