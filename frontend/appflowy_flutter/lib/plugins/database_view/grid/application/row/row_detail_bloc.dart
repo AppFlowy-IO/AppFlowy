@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_service.dar
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,13 +10,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final RowBackendService _rowService;
   final RowController rowController;
 
   RowDetailBloc({
     required this.rowController,
-  })  : _rowService = RowBackendService(viewId: rowController.viewId),
-        super(RowDetailState.initial()) {
+  }) : super(RowDetailState.initial()) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
@@ -60,15 +57,6 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           reorderField: (fieldId, fromIndex, toIndex) async {
             await _reorderField(fieldId, fromIndex, toIndex, emit);
-          },
-          deleteRow: (rowId) async {
-            await _rowService.deleteRow(rowId);
-          },
-          duplicateRow: (String rowId, String? groupId) async {
-            await _rowService.duplicateRow(
-              rowId: rowId,
-              groupId: groupId,
-            );
           },
         );
       },
@@ -129,9 +117,6 @@ class RowDetailEvent with _$RowDetailEvent {
     int fromIndex,
     int toIndex,
   ) = _ReorderField;
-  const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
-      _DuplicateRow;
   const factory RowDetailEvent.didReceiveCellDatas(
     List<DatabaseCellContext> gridCells,
   ) = _DidReceiveCellDatas;
