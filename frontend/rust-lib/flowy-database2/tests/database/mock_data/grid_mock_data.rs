@@ -55,7 +55,7 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         // LastEditedTime and CreatedTime
-        let date_type_option = TimestampTypeOption {
+        let timestamp_type_option = TimestampTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
@@ -66,11 +66,11 @@ pub fn make_test_grid() -> DatabaseData {
           FieldType::CreatedTime => "Created At",
           _ => "",
         };
-        let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
+        let timestamp_field = FieldBuilder::new(field_type.clone(), timestamp_type_option)
           .name(name)
           .visibility(true)
           .build();
-        fields.push(date_field);
+        fields.push(timestamp_field);
       },
       FieldType::SingleSelect => {
         // Single Select
@@ -142,7 +142,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::MultiSelect => row_builder
@@ -163,7 +163,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell(""),
             FieldType::Number => row_builder.insert_number_cell("2"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::MultiSelect => row_builder
@@ -178,7 +178,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -197,7 +197,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("14"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1668704685, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -213,7 +213,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1668359085, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -231,7 +231,7 @@ pub fn make_test_grid() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell("5"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1671938394, None, None, &field_type)
             },
             FieldType::SingleSelect => {
