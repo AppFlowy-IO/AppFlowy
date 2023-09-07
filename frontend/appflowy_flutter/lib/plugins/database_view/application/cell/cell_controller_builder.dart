@@ -13,7 +13,7 @@ typedef NumberCellController = CellController<String, String>;
 typedef SelectOptionCellController
     = CellController<SelectOptionCellDataPB, String>;
 typedef ChecklistCellController = CellController<ChecklistCellDataPB, String>;
-typedef DateCellController = CellController<DateCellDataPB, DateCellData>;
+typedef DateCellController = CellController<DateCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 
 class CellControllerBuilder {
@@ -54,7 +54,7 @@ class CellControllerBuilder {
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           cellDataPersistence:
-              DateCellDataPersistence(cellContext: _cellContext),
+              TextCellDataPersistence(cellContext: _cellContext),
         );
       case FieldType.Number:
         final cellDataLoader = CellDataLoader(

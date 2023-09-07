@@ -78,9 +78,9 @@ pub fn create_date_field(grid_id: &str, field_type: FieldType) -> (CreateFieldPa
 
 //  The grid will contains all existing field types and there are three empty rows in this grid.
 
-pub fn make_date_cell_string(s: &str) -> String {
+pub fn make_date_cell_string(timestamp: i64) -> String {
   serde_json::to_string(&DateCellChangeset {
-    date: Some(s.to_string()),
+    date: Some(timestamp),
     time: None,
     include_time: Some(false),
     clear_flag: None,

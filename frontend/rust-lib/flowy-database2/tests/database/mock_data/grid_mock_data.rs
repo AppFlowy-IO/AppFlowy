@@ -1,6 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::views::{DatabaseLayout, DatabaseView};
-use flowy_database2::services::field_settings::default_field_settings_by_layout;
+use flowy_database2::services::field_settings::DatabaseFieldSettingsMapBuilder;
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
@@ -16,7 +16,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 pub fn make_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
-  let field_settings = default_field_settings_by_layout(DatabaseLayout::Grid);
+
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -118,6 +118,9 @@ pub fn make_test_grid() -> DatabaseData {
     }
   }
 
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
+
   for i in 0..7 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
     match i {
@@ -127,7 +130,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
@@ -148,7 +151,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell(""),
             FieldType::Number => row_builder.insert_number_cell("2"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::MultiSelect => row_builder
               .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(1)]),
@@ -163,7 +166,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1647251762", None, None, &field_type)
+              row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -182,7 +185,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("14"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1668704685", None, None, &field_type)
+              row_builder.insert_date_cell(1668704685, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
@@ -198,7 +201,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1668359085", None, None, &field_type)
+              row_builder.insert_date_cell(1668359085, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
@@ -216,7 +219,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell("5"),
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              row_builder.insert_date_cell("1671938394", None, None, &field_type)
+              row_builder.insert_date_cell(1671938394, None, None, &field_type)
             },
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
@@ -254,7 +257,7 @@ pub fn make_test_grid() -> DatabaseData {
 pub fn make_no_date_test_grid() -> DatabaseData {
   let mut fields = vec![];
   let mut rows = vec![];
-  let field_settings = default_field_settings_by_layout(DatabaseLayout::Grid);
+
   // Iterate through the FieldType to create the corresponding Field.
   for field_type in FieldType::iter() {
     match field_type {
@@ -280,6 +283,9 @@ pub fn make_no_date_test_grid() -> DatabaseData {
       _ => {},
     }
   }
+
+  let field_settings =
+    DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Grid).build();
 
   for i in 0..3 {
     let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);

@@ -843,7 +843,7 @@ pub(crate) async fn move_calendar_event_handler(
   let data = data.into_inner();
   let cell_id: CellIdParams = data.cell_path.try_into()?;
   let cell_changeset = DateCellChangeset {
-    date: Some(data.timestamp.to_string()),
+    date: Some(data.timestamp),
     ..Default::default()
   };
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
@@ -901,12 +901,39 @@ pub(crate) async fn get_field_settings_handler(
   let manager = upgrade_manager(manager)?;
   let (view_id, field_ids) = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
   let field_settings = database_editor
-    .get_field_settings(&view_id, field_ids)
+    .get_field_settings(&view_id, layout_ty, field_ids.clone())
     .await?
     .into_iter()
     .map(FieldSettingsPB::from)
-    .collect::<Vec<FieldSettingsPB>>();
+    .collect();
+
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_field_settings_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_all_field_settings(view_id.as_ref(), layout_ty)
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect();
+
   data_result_ok(RepeatedFieldSettingsPB {
     items: field_settings,
   })

@@ -6,9 +6,9 @@ use flowy_folder_deps::cloud::{
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
-pub(crate) struct SelfHostedServerFolderCloudServiceImpl();
+pub(crate) struct AFCloudFolderCloudServiceImpl();
 
-impl FolderCloudService for SelfHostedServerFolderCloudServiceImpl {
+impl FolderCloudService for AFCloudFolderCloudServiceImpl {
   fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
     let name = name.to_string();
     FutureResult::new(async move {

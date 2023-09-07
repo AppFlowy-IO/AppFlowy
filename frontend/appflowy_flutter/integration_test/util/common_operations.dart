@@ -292,6 +292,7 @@ extension CommonOperations on WidgetTester {
     // create a new page
     await tapAddViewButton(name: parentName ?? gettingStarted);
     await tapButtonWithName(layout.menuName);
+    await tapOKButton();
     await pumpAndSettle();
 
     // hover on it and change it's name

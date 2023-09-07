@@ -17,9 +17,9 @@ serde_json = {version = "1.0", optional = true}
 serde_repr = { version = "0.1" }
 serde = "1.0"
 reqwest = { version = "0.11.14", optional = true, features = ["native-tls-vendored"] }
-http-error-code = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", branch = "refactor/appflowy_server", optional = true }
 flowy-sqlite = { path = "../flowy-sqlite", optional = true}
 r2d2 = { version = "0.8", optional = true}
+url = { version = "2.2", optional = true }
 collab-database = { version = "0.1.0", optional = true }
 collab-document = { version = "0.1.0", optional = true }
 tokio-postgres = { version = "0.7.8", optional = true }
@@ -30,10 +30,10 @@ impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = ["serde_json"]
 impl_from_reqwest = ["reqwest"]
 impl_from_sqlite = ["flowy-sqlite", "r2d2"]
-impl_from_appflowy_cloud = ["http-error-code"]
 impl_from_collab = ["collab-database", "collab-document", "impl_from_reqwest"]
 impl_from_postgres = ["tokio-postgres"]
 impl_from_tokio= ["tokio"]
+impl_from_url= ["url"]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
 
