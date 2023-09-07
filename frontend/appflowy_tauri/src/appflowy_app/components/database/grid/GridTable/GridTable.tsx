@@ -31,6 +31,9 @@ export const GridTable: FC = () => {
         type: RenderRowType.Row,
         data: row,
       })),
+      {
+        type: RenderRowType.NewRow,
+      },
     ];
   }, [rows]);
 

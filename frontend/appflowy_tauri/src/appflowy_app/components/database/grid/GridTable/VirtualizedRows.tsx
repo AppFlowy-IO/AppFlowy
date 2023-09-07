@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, RefObject } from 'react';
-import { RenderRow } from '../GridRow';
+import { RenderRow, RenderRowType } from '../GridRow';
 
 export interface VirtualizedRowsProps {
   rows: RenderRow[];
@@ -9,34 +9,43 @@ export interface VirtualizedRowsProps {
   renderRow: (row: RenderRow, index: number) => React.ReactNode;
 }
 
+const getRenderRowKey = (row: RenderRow) => {
+  switch (row.type) {
+    case RenderRowType.Row:
+      return `row:${row.data.id}`;
+    case RenderRowType.Fields:
+      return 'fields';
+    case RenderRowType.NewRow:
+      return 'new-row';
+    default:
+      return '';
+  }
+};
+
+const getRenderRowHeight = (row: RenderRow) => {
+  switch (row.type) {
+    case RenderRowType.Row:
+      return row.data.height ?? 41;
+    case RenderRowType.Fields:
+      return 41;
+    case RenderRowType.NewRow:
+      return 36;
+    default:
+      return 0;
+  }
+};
+
 export const VirtualizedRows: FC<VirtualizedRowsProps> = ({
   rows,
   scrollElementRef,
-  defaultHeight = 41,
   renderRow,
 }) => {
   const virtualizer = useVirtualizer({
     count: rows.length,
     overscan: 5,
-    getItemKey: i => {
-      const row = rows[i];
-
-      if (row.type === 'row') {
-        return `row:${row.data.id}`;
-      }
-
-      return `fields`;
-    },
+    getItemKey: i => getRenderRowKey(rows[i]),
     getScrollElement: () => scrollElementRef.current,
-    estimateSize: i => {
-      const row = rows[i];
-
-      if (row.type === 'row') {
-        return row.data.height ?? defaultHeight;
-      }
-
-      return defaultHeight;
-    },
+    estimateSize: i => getRenderRowHeight(rows[i]),
   });
 
   const virtualItems = virtualizer.getVirtualItems();

@@ -147,6 +147,7 @@ export namespace Database {
 
   export interface Row {
     id: string;
+    documentId?: string;
     icon?: string;
     cover?: string;
     createdAt?: number;

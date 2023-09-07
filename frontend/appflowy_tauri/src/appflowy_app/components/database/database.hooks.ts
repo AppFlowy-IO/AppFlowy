@@ -31,6 +31,7 @@ const fetchDatabase = async (viewId: string) => {
     fields: fieldsPb.map(fieldPbToField),
     rows: databasePb.rows.map(row => ({
       id: row.id,
+      documentId: row.document_id,
       icon: row.icon,
       cover: row.cover,
     })),
@@ -100,6 +101,34 @@ export const useConnectDatabase = (viewId: string) => {
   
         database.fields = newFieldsPb.map(fieldPbToField);
       },
+      [DatabaseNotification.DidUpdateViewRows]:async (result) => {
+        if (result.err) {
+          return;
+        }
+
+        const {
+          deleted_rows: deletedRowIds,
+          inserted_rows: insertedRows,
+          // TODO: updated_rows: updatedRows,
+        } = result.val;
+
+        deletedRowIds.forEach(rowId => {
+          const index = database.rows.findIndex(row => row.id === rowId);
+
+          if (index !== -1) {
+            database.rows.splice(index, 1);
+          }
+        });
+
+        insertedRows.forEach(({ index, row_meta: rowMeta }) => {
+          database.rows.splice(index, 0, {
+            id: rowMeta.id,
+            documentId: rowMeta.document_id,
+            cover: rowMeta.cover,
+            icon: rowMeta.icon,
+          });
+        });
+      }
     }, { id: viewId });
 
     return () => void unsubscribePromise.then(unsubscribe => unsubscribe());
