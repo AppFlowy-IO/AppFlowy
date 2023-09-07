@@ -238,14 +238,14 @@ impl TypeOptionCellData for StrCellData {
 
 impl From<&Cell> for StrCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value("data").unwrap_or_default())
+    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<StrCellData> for Cell {
   fn from(data: StrCellData) -> Self {
     new_cell_builder(FieldType::RichText)
-      .insert_str_value("data", data.0)
+      .insert_str_value(CELL_DATA, data.0)
       .build()
   }
 }

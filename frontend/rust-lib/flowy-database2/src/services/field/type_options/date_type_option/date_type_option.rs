@@ -13,8 +13,8 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -27,7 +27,6 @@ pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
-  pub field_type: FieldType,
 }
 
 impl Default for DateTypeOption {
@@ -36,7 +35,6 @@ impl Default for DateTypeOption {
       date_format: Default::default(),
       time_format: Default::default(),
       timezone_id: Default::default(),
-      field_type: FieldType::DateTime,
     }
   }
 }
@@ -59,15 +57,10 @@ impl From<TypeOptionData> for DateTypeOption {
       .map(TimeFormat::from)
       .unwrap_or_default();
     let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
-    let field_type = data
-      .get_i64_value("field_type")
-      .map(FieldType::from)
-      .unwrap_or(FieldType::DateTime);
     Self {
       date_format,
       time_format,
       timezone_id,
-      field_type,
     }
   }
 }
@@ -78,7 +71,6 @@ impl From<DateTypeOption> for TypeOptionData {
       .insert_i64_value("date_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
       .insert_str_value("timezone_id", data.timezone_id)
-      .insert_i64_value("field_type", data.field_type.value())
       .build()
   }
 }
@@ -106,17 +98,13 @@ impl TypeOptionCellDataSerde for DateTypeOption {
 }
 
 impl DateTypeOption {
-  pub fn new(field_type: FieldType) -> Self {
-    Self {
-      field_type,
-      ..Default::default()
-    }
+  pub fn new() -> Self {
+    Self::default()
   }
 
   pub fn test() -> Self {
     Self {
       timezone_id: "Etc/UTC".to_owned(),
-      field_type: FieldType::DateTime,
       ..Self::default()
     }
   }
@@ -231,7 +219,7 @@ impl CellDataDecoder for DateTypeOption {
     let timestamp = cell_data.timestamp;
     let include_time = cell_data.include_time;
     let (date_string, time_string) = self.formatted_date_time_from_timestamp(&timestamp);
-    if include_time {
+    if include_time && timestamp.is_some() {
       format!("{} {}", date_string, time_string)
     } else {
       date_string
@@ -260,15 +248,12 @@ impl CellDataChangeset for DateTypeOption {
     };
 
     if changeset.clear_flag == Some(true) {
-      let (timestamp, include_time) = (None, include_time);
-
       let cell_data = DateCellData {
-        timestamp,
+        timestamp: None,
         include_time,
       };
 
-      let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
-      return Ok((Cell::from(cell_wrapper), cell_data));
+      return Ok((Cell::from(&cell_data), cell_data));
     }
 
     // update include_time if necessary
@@ -293,8 +278,7 @@ impl CellDataChangeset for DateTypeOption {
       include_time,
     };
 
-    let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
-    Ok((Cell::from(cell_wrapper), cell_data))
+    Ok((Cell::from(&cell_data), cell_data))
   }
 }
 

@@ -7,7 +7,7 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
   DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, NumberFormat, NumberTypeOption,
-  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat,
+  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 
 use crate::database::database_editor::TestRowBuilder;
@@ -39,17 +39,30 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(number_field);
       },
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+      FieldType::DateTime => {
         // Date
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
           timezone_id: "Etc/UTC".to_owned(),
+        };
+        let name = "Time";
+        let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
+          .name(name)
+          .visibility(true)
+          .build();
+        fields.push(date_field);
+      },
+      FieldType::LastEditedTime | FieldType::CreatedTime => {
+        // LastEditedTime and CreatedTime
+        let date_type_option = TimestampTypeOption {
+          date_format: DateFormat::US,
+          time_format: TimeFormat::TwentyFourHour,
+          include_time: true,
           field_type: field_type.clone(),
         };
         let name = match field_type {
-          FieldType::DateTime => "Time",
-          FieldType::LastEditedTime => "Updated At",
+          FieldType::LastEditedTime => "Last Modified",
           FieldType::CreatedTime => "Created At",
           _ => "",
         };
