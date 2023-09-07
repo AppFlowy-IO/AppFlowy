@@ -43,6 +43,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -1284,7 +1285,7 @@ Finder finderForFieldType(FieldType fieldType) {
       return find.byType(GridDateCell, skipOffstage: false);
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return find.byType(GridDateCell, skipOffstage: false);
+      return find.byType(GridTimestampCell, skipOffstage: false);
     case FieldType.SingleSelect:
       return find.byType(GridSingleSelectCell, skipOffstage: false);
     case FieldType.MultiSelect:
