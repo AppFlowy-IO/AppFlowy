@@ -41,6 +41,7 @@ flowy-storage = { path = "../flowy-storage" }
 mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"
+appflowy-cloud = { version = "0.1.0" }
 
 [dev-dependencies]
 uuid = { version = "1.3.3", features = ["v4"] }
