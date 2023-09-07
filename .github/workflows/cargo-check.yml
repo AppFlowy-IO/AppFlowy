@@ -1,11 +1,6 @@
 name: Build and Validate Cargo.toml and cargo.lock
 
 on:
-  workflow_dispatch:
-    branches:
-      - "main"
-      - "develop"
-      - "release/*"
   pull_request:
     branches:
       - "main"
