@@ -52,7 +52,8 @@
     "notFoundError": "Workspace not found"
   },
   "shareAction": {
-    "buttonText": "Share",
+    "buttonText": "Share",  
+    "template": "Template",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
     "csv": "CSV",

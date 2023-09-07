@@ -16,7 +16,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 
 import 'util.dart';
 
@@ -270,6 +269,19 @@ extension CommonOperations on WidgetTester {
     );
     await tapButton(markdownButton);
   }
+
+  /// Tap the export template button 
+  ///
+  /// Must call [tapShareButton] first.
+  /// 
+  Future<void> tapTemplateButton() async{
+    final templateButton = find.textContaining(
+      LocaleKeys.shareAction_template.tr(),
+    );
+    await tapButton(templateButton);
+  }
+
+
 
   Future<void> createNewPageWithName({
     String? name,

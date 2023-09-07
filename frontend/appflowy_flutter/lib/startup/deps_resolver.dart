@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
@@ -85,6 +86,8 @@ void _resolveCommonService(
   getIt.registerFactory<ClipboardService>(
     () => ClipboardService(),
   );
+
+  getIt.registerFactory<TemplateService>(() => TemplateService());
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {

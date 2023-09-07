@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/application/template/config_service.dart';
+import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:archive/archive.dart';
@@ -26,66 +27,78 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 /// Use [unloadTemplate] to import template
 
 class TemplateService {
-   Future<void> saveTemplate(EditorState editorState, ViewPB view) async {
+  Future<bool> saveTemplate(ViewPB view) async {
     final configService = ConfigService();
     await configService.initConfig(view);
-    await configService.saveConfig();
+    final template = await configService.saveConfig();
 
     // Export parent view first and then continue with subviews
-    await _exportDocumentAsJSON(view);
-    _exportTemplate(view);
+    await _exportDocumentAsJSON(view, template.documents);
+    _exportTemplate(view, template.documents.childViews);
+
+    return true;
   }
 
   // Exports all the child views
-  Future<void> _exportTemplate(ViewPB view) async {
+  Future<void> _exportTemplate(
+    ViewPB view,
+    List<FlowyTemplateItem> childViews,
+  ) async {
     final viewsAtId = await ViewBackendService.getChildViews(viewId: view.id);
     final List<ViewPB> views = viewsAtId.getLeftOrNull();
 
     if (views.isEmpty) return;
 
-    for (final e in views) {
-      final temp = await ViewBackendService.getChildViews(viewId: e.id);
+    for (int i = 0; i < views.length; i++) {
+      final view = views[i];
+      final item = childViews[i];
+
+      final temp = await ViewBackendService.getChildViews(viewId: view.id);
       final viewsAtE = temp.getLeftOrNull();
 
       // If children are empty no need to continue
       if (viewsAtE.isEmpty) {
-        await _exportView(e);
+        await _exportView(view, item);
       } else {
-        await _exportView(e);
-        await _exportTemplate(e);
+        await _exportView(view, item);
+        await _exportTemplate(view, item.childViews);
       }
     }
   }
 
-  Future<void> _exportView(ViewPB view) async {
+  Future<void> _exportView(ViewPB view, FlowyTemplateItem item) async {
     switch (view.layout) {
       case ViewLayoutPB.Document:
-        await _exportDocumentAsJSON(view);
+        await _exportDocumentAsJSON(view, item);
         break;
       case ViewLayoutPB.Grid:
       case ViewLayoutPB.Board:
-        await _exportDBFile(view);
+        // Exported in config.json
+        await _exportDBFile(view, item.name);
         break;
       default:
       // Eventually support calender
     }
   }
 
-  Future<void> _exportDocumentAsJSON(ViewPB view) async {
+  Future<void> _exportDocumentAsJSON(
+    ViewPB view,
+    FlowyTemplateItem item,
+  ) async {
     final data = await _getJsonFromView(view);
+
+    final document = json.decode(data);
     final directory = await getApplicationDocumentsDirectory();
 
     final dir = Directory(path.join(directory.path, 'template'));
     if (!(await dir.exists())) {
       await dir.create(recursive: true);
     }
-    //TODO: Optionally remove pre-existing template folder
 
     final file = File(
-      path.join(directory.path, 'template', "${view.name}.json"),
+      path.join(directory.path, 'template', item.name),
     );
-
-    await file.writeAsString(data);
+    await file.writeAsString(json.encode(document));
   }
 
   Future<String> _getJsonFromView(ViewPB view) async {
@@ -95,7 +108,7 @@ class TemplateService {
     return jsonData ?? "";
   }
 
-  Future<void> _exportDBFile(ViewPB view) async {
+  Future<void> _exportDBFile(ViewPB view, String name) async {
     final directory = await getApplicationDocumentsDirectory();
 
     final res = await BackendExportService.exportDatabaseAsCSV(view.id);
@@ -103,7 +116,7 @@ class TemplateService {
 
     if (pb == null) return;
 
-    final dbFile = File('${directory.path}/template/${view.name}.csv');
+    final dbFile = File(path.join(directory.path, 'template', name));
     await dbFile.writeAsString(pb);
   }
 
@@ -173,11 +186,11 @@ class TemplateService {
       return;
     }
 
-    await _loadTemplate(parentView.id, template.documents);
+    await _loadTemplateIntoEditor(parentView.id, template.documents);
   }
 
   /// Recursively adds the template into the editor
-  Future<void> _loadTemplate(
+  Future<void> _loadTemplateIntoEditor(
     String parentViewId,
     FlowyTemplateItem doc,
   ) async {
@@ -191,7 +204,7 @@ class TemplateService {
           debugPrint("An error occured while loading template");
           return;
         }
-        await _loadTemplate(res.id, e);
+        await _loadTemplateIntoEditor(res.id, e);
       }
     }
   }
@@ -214,8 +227,24 @@ class TemplateService {
         await File('${directory.path}/${doc.name}').readAsString();
 
     final Map<String, dynamic> docJson = json.decode(templateRes);
-    final document = Document.fromJson(docJson);
 
+    final imagePaths = <String>[];
+    for (final image in doc.images) {
+      final res = await _importImage(image);
+      if (res == null) continue;
+      imagePaths.add(res);
+    }
+
+    final List<dynamic> children = docJson["document"]["children"];
+    for (int i = 0; i < children.length; i++) {
+      if (children[i]["type"] == ImageBlockKeys.type) {
+        children[i]["data"]["url"] = imagePaths.removeAt(0);
+      }
+    }
+
+    docJson["document"]["children"] = children;
+
+    final document = Document.fromJson(docJson);
     final docBytes =
         DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
 
@@ -229,6 +258,37 @@ class TemplateService {
     );
 
     return res.fold((l) => l, (r) => null);
+  }
+
+  Future<String?> _importImage(String image) async {
+    // 1. Get the image from the template folder
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = path.join(directory.path, "template", image);
+    final imageFile = File(imagePath);
+    final imageBytes = await imageFile.readAsBytes();
+
+    // 2. Copy the image to the AppFlowy images folder
+    final appPath = await getIt<ApplicationDataStorage>().getPath();
+    final newImagePath = path.join(
+      appPath,
+      'images',
+    );
+    try {
+      // create the directory if not exists
+      final directory = Directory(newImagePath);
+      if (!directory.existsSync()) {
+        await directory.create(recursive: true);
+      }
+      final copyToPath = path.join(
+        newImagePath,
+        image,
+      );
+      await File(copyToPath).writeAsBytes(imageBytes);
+      return copyToPath;
+    } catch (e) {
+      debugPrint('An Error Occured while copying the image');
+      return null;
+    }
   }
 
   Future<ViewPB?> _importDB(String parentViewId, FlowyTemplateItem db) async {

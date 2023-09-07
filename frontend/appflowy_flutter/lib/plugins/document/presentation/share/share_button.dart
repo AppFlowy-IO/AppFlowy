@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -125,6 +126,12 @@ class ShareActionListState extends State<ShareActionList> {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
             }
             break;
+          case ShareAction.template:
+            await getIt<TemplateService>().saveTemplate(widget.view);
+            if (mounted) {
+              showSnackBarMessage(context, "Exported Template Successfully!");
+            }
+            break;
         }
         controller.close();
       },
@@ -143,6 +150,7 @@ class ShareActionListState extends State<ShareActionList> {
 
 enum ShareAction {
   markdown,
+  template,
 }
 
 class ShareActionWrapper extends ActionCell {
@@ -157,6 +165,8 @@ class ShareActionWrapper extends ActionCell {
     switch (inner) {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
+      case ShareAction.template:
+        return LocaleKeys.shareAction_template.tr();
     }
   }
 }

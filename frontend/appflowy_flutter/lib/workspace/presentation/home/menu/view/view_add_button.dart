@@ -79,9 +79,9 @@ class ViewAddButton extends StatelessWidget {
         } else if (action is ViewImportActionWrapper) {
           _showViewImportAction(context, action);
         } else if (action is TemplateActionWrapper) {
-          final TemplateService templateService = TemplateService();
-          final archive = await templateService.pickTemplate();
-          await templateService.unloadTemplate(parentViewId, archive);
+          final TemplateService tService = getIt<TemplateService>();
+          final archive = await tService.pickTemplate();
+          await tService.unloadTemplate(parentViewId, archive);
         }
         popover.close();
       },
@@ -153,5 +153,5 @@ class TemplateActionWrapper extends ActionCell {
   Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.template_s);
 
   @override
-  String get name => "Template";
+  String get name => LocaleKeys.shareAction_template.tr();
 }

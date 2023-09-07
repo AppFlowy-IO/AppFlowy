@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:path/path.dart' as path;
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -11,7 +14,11 @@ import 'package:path_provider/path_provider.dart';
 class ConfigService {
   final _template = FlowyTemplate(
     templateName: "template",
-    documents: FlowyTemplateItem(name: "template.json", childViews: []),
+    documents: FlowyTemplateItem(
+      name: "template.json",
+      childViews: [],
+      images: [],
+    ),
   );
 
   initConfig(ViewPB view) async {
@@ -28,16 +35,23 @@ class ConfigService {
 
     if (views.isEmpty) return null;
 
-    final FlowyTemplateItem newModel =
-        FlowyTemplateItem(name: "${view.name}.json", childViews: []);
+    final images = await _getImagesInView(view);
+    final FlowyTemplateItem newModel = FlowyTemplateItem(
+      name: "${uuid()}.json",
+      childViews: [],
+      images: images,
+    );
 
-    for (final e in views) {
+    for (int i = 0; i < views.length; i++) {
+      final e = views[i];
+
       final temp = await ViewBackendService.getChildViews(viewId: e.id);
       final viewsAtE = temp.getLeftOrNull();
 
       // If children are empty no need to continue
       if (viewsAtE.isEmpty) {
-        newModel.childViews.add(addData(newModel, e));
+        final viewImages = await _getImagesInView(e);
+        newModel.childViews.add(_addData(e, viewImages));
       } else {
         final newDoc = await _generateConfig(e, newModel);
 
@@ -50,7 +64,45 @@ class ConfigService {
     return newModel;
   }
 
-  Future<void> saveConfig() async {
+  // If any document contains images we need to export it and
+  // save the path in config.json
+  Future<List<String>> _getImagesInView(ViewPB view) async {
+    final images = <String>[];
+    final directory = await getApplicationDocumentsDirectory();
+
+    final data = await DocumentExporter(view).export(DocumentExportType.json);
+    final String? jsonData = data.fold((l) => null, (r) => r);
+    if (jsonData == null) return [];
+
+    final document = json.decode(jsonData);
+    final List<dynamic> children = document["document"]["children"];
+
+    for (int i = 0; i < children.length; i++) {
+      // Export images first, so that names can be determined
+      if (children[i]["type"] == ImageBlockKeys.type) {
+        final url = children[i]["data"]["url"] as String;
+
+        final image = File.fromUri(Uri.parse(url));
+        final bytes = await image.readAsBytes();
+
+        final dir = Directory(path.join(directory.path, 'template'));
+        if (!dir.existsSync()) {
+          await dir.create(recursive: true);
+        }
+
+        final extension = url.substring(url.lastIndexOf(".") + 1, url.length);
+
+        // Store their unique names in config.json
+        final name = "${uuid()}.$extension";
+        await File(path.join(dir.path, name)).writeAsBytes(bytes);
+        images.add(name);
+      }
+    }
+
+    return images;
+  }
+
+  Future<FlowyTemplate> saveConfig() async {
     final directory = await getApplicationDocumentsDirectory();
 
     final dir = Directory(path.join(directory.path, 'template'));
@@ -63,22 +115,26 @@ class ConfigService {
     );
 
     await file.writeAsString(json.encode(_template.toJson()));
+    return _template;
   }
 
-  FlowyTemplateItem addData(FlowyTemplateItem model, ViewPB view) {
+  FlowyTemplateItem _addData(ViewPB view, List<String> images) {
     final FlowyTemplateItem newModel = FlowyTemplateItem(
       name: "",
       childViews: [],
+      images: images,
     );
+
+    // Generate unique name for each document
+    final name = uuid();
 
     switch (view.layout) {
       case ViewLayoutPB.Document:
-        newModel.name = "${view.name}.json";
+        newModel.name = "$name.json";
         break;
       case ViewLayoutPB.Grid:
       case ViewLayoutPB.Board:
-        final name = "${view.name}.csv";
-        newModel.name = name;
+        newModel.name = "$name.csv";
         break;
       default:
       // Eventually support calender
@@ -97,11 +153,6 @@ class FlowyTemplate {
     required this.documents,
   });
 
-  factory FlowyTemplate.fromRawJson(String str) =>
-      FlowyTemplate.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory FlowyTemplate.fromJson(Map<String, dynamic> json) => FlowyTemplate(
         templateName: json["templateName"],
         documents: FlowyTemplateItem.fromJson(json["documents"]),
@@ -116,19 +167,15 @@ class FlowyTemplate {
 /// [FlowyTemplateItem] is the structure for each document in [config.json] file
 class FlowyTemplateItem {
   String name;
-  // List<String> db;
-  List<FlowyTemplateItem> childViews;
+  List<String> databases = [];
+  List<String> images = [];
+  List<FlowyTemplateItem> childViews = [];
 
   FlowyTemplateItem({
     required this.name,
-    // required this.db,
+    required this.images,
     required this.childViews,
   });
-
-  factory FlowyTemplateItem.fromRawJson(String str) =>
-      FlowyTemplateItem.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
 
   factory FlowyTemplateItem.fromJson(Map<String, dynamic> json) =>
       FlowyTemplateItem(
@@ -136,6 +183,7 @@ class FlowyTemplateItem {
         childViews: List<FlowyTemplateItem>.from(
           json["childViews"].map((x) => FlowyTemplateItem.fromJson(x)),
         ),
+        images: List<String>.from(json["images"].map((x) => x.toString())),
       );
 
   Map<String, dynamic> toJson() {
@@ -143,6 +191,7 @@ class FlowyTemplateItem {
     final result = <String, dynamic>{
       "name": name,
       "childViews": [],
+      "images": images,
     };
 
     _toJsonHelper(this, processed, result);
@@ -166,6 +215,7 @@ class FlowyTemplateItem {
       final childResult = <String, dynamic>{
         "name": child.name,
         "childViews": [],
+        "images": child.images,
       };
 
       _toJsonHelper(child, processed, childResult);

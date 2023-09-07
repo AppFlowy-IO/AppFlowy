@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/template/template_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -12,7 +11,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
-import "package:archive/archive.dart";
 
 import 'cover_editor.dart';
 import 'emoji_icon_widget.dart';
@@ -228,19 +226,6 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       return [];
     }
     final List<Widget> children = [];
-
-    children.add(
-      FlowyButton(
-        leftIconSize: const Size.square(18),
-        onTap: () =>
-            TemplateService().saveTemplate(widget.editorState, widget.view),
-        useIntrinsicWidth: true,
-        leftIcon: const FlowySvg(FlowySvgs.image_s),
-        text: const FlowyText.regular(
-          "Convert to JSON",
-        ),
-      ),
-    );
 
     if (!widget.hasCover) {
       children.add(
@@ -512,19 +497,5 @@ class _DocumentIconState extends State<DocumentIcon> {
         );
       },
     );
-  }
-}
-
-// * Added this
-Future<void> extractRarFile(String filePath) async {
-  final bytes = await File(filePath).readAsBytes();
-  final archive = ZipDecoder().decodeBytes(bytes);
-
-  for (final file in archive) {
-    final filename = file.name;
-    final data = file.content as List<int>;
-
-    final outputFile = File(filename);
-    await outputFile.writeAsBytes(data);
   }
 }
