@@ -262,15 +262,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> assertDateCellInGrid({
     required int rowIndex,
-    required FieldType fieldType,
     required String content,
   }) async {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = find.descendant(
       of: findRow.at(rowIndex),
-      matching: find.byWidgetPredicate(
-        (widget) => widget is GridDateCell && widget.fieldType == fieldType,
-      ),
+      matching: find.byType(GridDateCell),
       skipOffstage: false,
     );
 
