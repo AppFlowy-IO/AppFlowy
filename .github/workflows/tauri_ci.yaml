@@ -83,6 +83,11 @@ jobs:
           pnpm install
           cargo make --cwd .. tauri_build
           pnpm test:errors
+          diff_files = echo "$(git status --porcelain)"
+          if [ -n "$diff_files" ]; then
+            echo "There are uncommitted changes in the working tree. Please commit them before pushing."
+            exit 1
+          fi
 
       - uses: tauri-apps/tauri-action@v0
         env:
