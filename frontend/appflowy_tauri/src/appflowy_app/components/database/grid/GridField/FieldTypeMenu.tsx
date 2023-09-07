@@ -47,5 +47,5 @@ export const FieldTypeMenu: FC<MenuProps> = (props) => {
         index < FieldTypeGroup.length - 1 && <Divider key={`Divider-${group.name}`} />,
       ])}
     </Menu>
-  )
-}
+  );
+};

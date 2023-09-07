@@ -27,19 +27,73 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateGroupRow]: GroupRowsNotificationPB,
   [DatabaseNotification.DidUpdateField]: FieldPB,
   [DatabaseNotification.DidUpdateCell]: null,
+
+  // TODO: The following events need to be modified after confirming the message type.
+  [DatabaseNotification.Unknown]: null,
+  [DatabaseNotification.DidFetchRow]: null,
+  [DatabaseNotification.DidUpdateFilter]: null,
+  [DatabaseNotification.DidUpdateSort]: null,
+  [DatabaseNotification.DidUpdateRowMeta]: null,
+  [DatabaseNotification.DidUpdateSettings]: null,
+  [DatabaseNotification.DidUpdateLayoutSettings]: null,
+  [DatabaseNotification.DidSetNewLayoutField]: null,
+  [DatabaseNotification.DidUpdateDatabaseLayout]: null,
+  [DatabaseNotification.DidDeleteDatabaseView]: null,
+  [DatabaseNotification.DidMoveDatabaseViewToTrash]: null,
+  [DatabaseNotification.DidUpdateDatabaseSyncUpdate]: null,
+  [DatabaseNotification.DidUpdateDatabaseSnapshotState]: null,
 };
 
 type NotificationMap = typeof NotificationPBMap;
 
-type NotificationEnum = keyof NotificationMap;
-
 type NullableInstanceType<K extends ((abstract new (...args: any) => any) | null)> = K extends (abstract new (...args: any) => any) ? InstanceType<K> : void;
 
-type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
+type NotificationHandler<K extends DatabaseNotification> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
 
+/**
+ * Subscribes to a set of notifications.
+ * 
+ * This function subscribes to notifications defined by the `DatabaseNotification` and 
+ * calls the appropriate `NotificationHandler` when each type of notification is received.
+ *
+ * @param {Object} callbacks - An object containing handlers for various notification types.
+ * Each key is a `DatabaseNotification` value, and the corresponding value is a `NotificationHandler` function.
+ *
+ * @param {Object} [options] - Optional settings for the subscription.
+ * @param {string} [options.id] - An optional ID. If provided, only notifications with a matching ID will be processed.
+ * 
+ * @returns {Promise<() => void>} A Promise that resolves to an unsubscribe function.
+ * 
+ * @example
+ * subscribeNotifications({
+ *   [DatabaseNotification.DidUpdateField]: (result) => {
+ *     if (result.err) {
+ *       // process error
+ *       return;
+ *     }
+ *
+ *     console.log(result.val); // result.val is FieldPB
+ *   },
+ *   [DatabaseNotification.DidReorderRows]: (result) => {
+ *     if (result.err) {
+ *       // process error
+ *       return;
+ *     }
+ *
+ *     console.log(result.val); // result.val is ReorderAllRowsPB
+ *   },
+ * }, { id: '123' })
+ * .then(unsubscribe => {
+ *   // Do something
+ *   // ...
+ *   // To unsubscribe, call `unsubscribe()`
+ * });
+ * 
+ * @throws {Error} Throws an error if unable to subscribe.
+ */
 export function subscribeNotifications(
   callbacks: {
-    [K in NotificationEnum]?: NotificationHandler<K>;
+    [K in DatabaseNotification]?: NotificationHandler<K>;
   },
   options?: { id?: string },
 ): Promise<() => void> {
@@ -51,9 +105,9 @@ export function subscribeNotifications(
       return;
     }
 
-    const notification = ty as NotificationEnum;
+    const notification = ty as DatabaseNotification;
     const pb = NotificationPBMap[notification];
-    const callback = callbacks[notification] as NotificationHandler<NotificationEnum>;
+    const callback = callbacks[notification] as NotificationHandler<DatabaseNotification>;
 
     if (pb === undefined || !callback) {
       return;
@@ -71,7 +125,7 @@ export function subscribeNotifications(
   });
 }
 
-export function subscribeNotification<K extends NotificationEnum>(
+export function subscribeNotification<K extends DatabaseNotification>(
   notification: K,
   callback: NotificationHandler<K>,
   options?: { id?: string },
@@ -79,7 +133,7 @@ export function subscribeNotification<K extends NotificationEnum>(
   return subscribeNotifications({ [notification]: callback }, options);
 }
 
-export function useNotification<K extends NotificationEnum>(
+export function useNotification<K extends DatabaseNotification>(
   notification: K,
   callback: NotificationHandler<K>,
   options: { id?: string },

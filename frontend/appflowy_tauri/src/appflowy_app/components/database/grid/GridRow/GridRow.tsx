@@ -1,19 +1,8 @@
 import { VirtualItem } from '@tanstack/react-virtual';
 import { FC } from 'react';
-import { Database } from '$app/interfaces/database';
 import { GridCellRow } from './GridCellRow';
 import { GridFieldRow } from './GridFieldRow';
-
-interface FieldRow {
-  type: 'fields';
-}
-
-interface CellRow {
-  type: 'row';
-  data: Database.Row;
-}
-
-export type RenderRow = FieldRow | CellRow;
+import { RenderRow, RenderRowType } from './constants';
 
 export const GridRow: FC<{
   row: RenderRow;
@@ -22,7 +11,7 @@ export const GridRow: FC<{
   after: number;
 }> = ({ row, columnVirtualItems, before, after }) => {
 
-  if (row.type === 'row') {
+  if (row.type === RenderRowType.Row) {
     return (
       <GridCellRow
         row={row.data}
@@ -40,4 +29,4 @@ export const GridRow: FC<{
       after={after}
     />
   );
-}
+};

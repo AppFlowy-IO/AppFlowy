@@ -90,8 +90,8 @@ export const useConnectDatabase = (viewId: string) => {
 
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications({
-      [DatabaseNotification.DidUpdateFields]: async (data) => {
-        if (data.err) {
+      [DatabaseNotification.DidUpdateFields]: async (result) => {
+        if (result.err) {
           return;
         }
   
