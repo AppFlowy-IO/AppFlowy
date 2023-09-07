@@ -1,0 +1,73 @@
+name: Build and Validate Cargo.toml and cargo.lock
+
+on:
+  workflow_dispatch:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+
+jobs:
+  check_cargo_lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for Changed Cargo.toml files
+        run: |
+          # List all changed files in the pull request
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+
+          for file in $changed_files; do
+            if [[ "$file" == *Cargo.toml ]]; then
+              # Extract the directory path containing the Cargo.toml file
+              dir=$(dirname "$file")
+          
+              # Verify that the corresponding cargo.lock file exists
+              if [ -f "$dir/Cargo.lock" ]; then
+                # Verify that the cargo.lock file matches the branch's cargo.lock
+                if ! git diff --exit-code "$dir/Cargo.lock"; then
+                  echo "cargo.lock file in $dir does not match the branch's cargo.lock."
+                  exit 1
+                fi
+              else
+                echo "cargo.lock file in $dir is missing."
+                exit 1
+              fi
+
+              # Change to the directory with the changed Cargo.toml
+              cd "$dir"
+
+              # Build the project using cargo
+              cargo build
+
+              # Check the exit code to see if the build was successful
+              if [ $? -ne 0 ]; then
+                echo "Cargo build failed in $dir."
+                exit 1
+              fi
+
+              # List all files in the directory
+              all_files=$(find . -type f)
+
+              # List files before the pull request
+              before_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+
+              # Check if any new files have been added
+              for file in $all_files; do
+                if [[ ! "$before_files" =~ "$file" ]]; then
+                  echo "New file detected in $dir: $file"
+                  exit 1
+                fi
+              done
+
+              # Return to the root directory
+              cd -
+            fi
+          done

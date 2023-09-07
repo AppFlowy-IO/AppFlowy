@@ -24,6 +24,7 @@ lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] 
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
 flowy-net = { path = "../../rust-lib/flowy-net" }
+nanoid = "0.4.0"
 
 [features]
 # by default Tauri runs in production mode
