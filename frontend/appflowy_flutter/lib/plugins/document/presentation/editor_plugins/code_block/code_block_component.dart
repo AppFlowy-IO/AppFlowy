@@ -203,6 +203,17 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       child: child,
     );
 
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
@@ -234,6 +245,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       padding: widget.padding,
       child: AppFlowyRichText(
         key: forwardKey,
+        delegate: this,
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
@@ -245,6 +257,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         placeholderTextSpanDecorator: (textSpan) => TextSpan(
           style: textStyle,
         ),
+        cursorColor: editorState.editorStyle.cursorColor,
+        selectionColor: editorState.editorStyle.selectionColor,
       ),
     );
   }

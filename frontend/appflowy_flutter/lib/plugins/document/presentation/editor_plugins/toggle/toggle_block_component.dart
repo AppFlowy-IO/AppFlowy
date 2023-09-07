@@ -171,6 +171,7 @@ class _ToggleListBlockComponentWidgetState
           Expanded(
             child: AppFlowyRichText(
               key: forwardKey,
+              delegate: this,
               node: widget.node,
               editorState: editorState,
               placeholderText: placeholderText,
@@ -183,6 +184,8 @@ class _ToggleListBlockComponentWidgetState
                 placeholderTextStyle,
               ),
               textDirection: textDirection,
+              cursorColor: editorState.editorStyle.cursorColor,
+              selectionColor: editorState.editorStyle.selectionColor,
             ),
           ),
         ],
@@ -192,6 +195,17 @@ class _ToggleListBlockComponentWidgetState
     child = Padding(
       key: blockComponentKey,
       padding: padding,
+      child: child,
+    );
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
       child: child,
     );
 

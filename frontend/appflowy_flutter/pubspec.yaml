@@ -142,6 +142,17 @@ dependency_overrides:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
       commit: 77a8420
 
+  appflowy_editor:
+    git:
+      url: https://github.com/LucasXu0/appflowy-editor.git
+      ref: 50634952d131a1c5bc80df23200bb41471aa4cb0
+
+  scrollable_positioned_list:
+    git:
+      url: https://github.com/LucasXu0/flutter.widgets.git
+      ref: 93d78cbcd689a89a8fa6deb87eeb70dc90cc7700
+      path: packages/scrollable_positioned_list
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

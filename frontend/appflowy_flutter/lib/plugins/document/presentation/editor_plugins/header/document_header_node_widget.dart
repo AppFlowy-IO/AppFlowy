@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picke
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +201,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       child: Container(
         alignment: Alignment.bottomLeft,
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 80),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         child: SizedBox(
           height: 28,
           child: Row(
