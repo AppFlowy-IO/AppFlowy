@@ -30,7 +30,7 @@ class SettingsLanguageView extends StatelessWidget {
   }
 }
 
-class LanguageSelector extends StatelessWidget {
+class LanguageSelector extends StatefulWidget {
   final Locale currentLocale;
   const LanguageSelector({
     super.key,
@@ -38,11 +38,19 @@ class LanguageSelector extends StatelessWidget {
   });
 
   @override
+  State<LanguageSelector> createState() => _LanguageSelectorState();
+}
+
+class _LanguageSelectorState extends State<LanguageSelector> {
+  final controller = PopoverController();
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      controller: controller,
       direction: PopoverDirection.bottomWithRightAligned,
       child: FlowyTextButton(
-        languageFromLocale(currentLocale),
+        languageFromLocale(widget.currentLocale),
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
         onPressed: () {},
@@ -50,6 +58,7 @@ class LanguageSelector extends StatelessWidget {
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
         return LanguageItemsListView(
+          controller: controller,
           allLocales: allLocales,
         );
       },
@@ -61,9 +70,11 @@ class LanguageItemsListView extends StatelessWidget {
   const LanguageItemsListView({
     super.key,
     required this.allLocales,
+    this.controller,
   });
 
   final List<Locale> allLocales;
+  final PopoverController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +85,11 @@ class LanguageItemsListView extends StatelessWidget {
       child: ListView.builder(
         itemBuilder: (context, index) {
           final locale = allLocales[index];
-          return LanguageItem(locale: locale, currentLocale: state.locale);
+          return LanguageItem(
+            controller: controller,
+            locale: locale,
+            currentLocale: state.locale,
+          );
         },
         itemCount: allLocales.length,
       ),
@@ -85,10 +100,13 @@ class LanguageItemsListView extends StatelessWidget {
 class LanguageItem extends StatelessWidget {
   final Locale locale;
   final Locale currentLocale;
+  final PopoverController? controller;
+
   const LanguageItem({
     super.key,
     required this.locale,
     required this.currentLocale,
+    this.controller,
   });
 
   @override
@@ -105,6 +123,7 @@ class LanguageItem extends StatelessWidget {
           if (currentLocale != locale) {
             context.read<AppearanceSettingsCubit>().setLocale(context, locale);
           }
+          controller?.close();
         },
       ),
     );

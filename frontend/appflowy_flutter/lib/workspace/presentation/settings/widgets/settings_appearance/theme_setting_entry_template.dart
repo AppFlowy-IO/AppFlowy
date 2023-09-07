@@ -75,7 +75,7 @@ class ThemeValueDropDown extends StatefulWidget {
 
   final String currentValue;
   final Key? popoverKey;
-  final Widget Function(BuildContext) popupBuilder;
+  final Widget Function(BuildContext, PopoverController) popupBuilder;
   final void Function()? onClose;
 
   @override
@@ -83,12 +83,15 @@ class ThemeValueDropDown extends StatefulWidget {
 }
 
 class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
+  final PopoverController controller = PopoverController();
+
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       key: widget.popoverKey,
+      controller: controller,
       direction: PopoverDirection.bottomWithRightAligned,
-      popupBuilder: widget.popupBuilder,
+      popupBuilder: (context) => widget.popupBuilder(context, controller),
       constraints: const BoxConstraints(
         minWidth: 80,
         maxWidth: 160,

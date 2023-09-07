@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -50,7 +51,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
           onClose: () {
             query.value = '';
           },
-          popupBuilder: (_) => CustomScrollView(
+          popupBuilder: (_, controller) => CustomScrollView(
             shrinkWrap: true,
             slivers: [
               SliverPadding(
@@ -88,6 +89,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                   return SliverFixedExtentList.builder(
                     itemBuilder: (context, index) => _fontFamilyItemButton(
                       context,
+                      controller,
                       GoogleFonts.getFont(displayed[index]),
                     ),
                     itemCount: displayed.length,
@@ -109,7 +111,11 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
         .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
   }
 
-  Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
+  Widget _fontFamilyItemButton(
+    BuildContext context,
+    PopoverController controller,
+    TextStyle style,
+  ) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
     return SizedBox(
       key: UniqueKey(),
@@ -127,7 +133,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                     FlowySvgs.check_s,
                   )
                 : null,
-        onTap: () {
+        onTap: () async {
           if (parseFontFamilyName(widget.currentFontFamily) !=
               buttonFontFamily) {
             context
@@ -137,6 +143,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                 .read<DocumentAppearanceCubit>()
                 .syncFontFamily(parseFontFamilyName(style.fontFamily!));
           }
+          controller.close();
         },
       ),
     );
