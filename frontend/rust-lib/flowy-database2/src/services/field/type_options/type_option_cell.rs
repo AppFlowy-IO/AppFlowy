@@ -16,8 +16,8 @@ use crate::services::cell::{
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
+  SingleSelectTypeOption, TimestampTypeOption, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -407,9 +407,19 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => self
+      FieldType::DateTime => self
         .field
         .get_type_option::<DateTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            self.cell_filter_cache.clone(),
+            self.cell_data_cache.clone(),
+          )
+        }),
+      FieldType::LastEditedTime | FieldType::CreatedTime => self
+        .field
+        .get_type_option::<TimestampTypeOption>(field_type)
         .map(|type_option| {
           TypeOptionCellDataHandlerImpl::new_with_boxed(
             type_option,
@@ -527,8 +537,11 @@ fn get_type_option_transform_handler(
     FieldType::Number => {
       Box::new(NumberTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
-    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+    FieldType::DateTime => {
       Box::new(DateTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::LastEditedTime | FieldType::CreatedTime => {
+      Box::new(TimestampTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
     FieldType::SingleSelect => Box::new(SingleSelectTypeOption::from(type_option_data))
       as Box<dyn TypeOptionTransformHandler>,
@@ -589,6 +602,10 @@ impl RowSingleCellData {
   into_cell_data!(
     into_date_field_cell_data,
     <DateTypeOption as TypeOption>::CellData
+  );
+  into_cell_data!(
+    into_timestamp_field_cell_data,
+    <TimestampTypeOption as TypeOption>::CellData
   );
   into_cell_data!(
     into_check_list_field_cell_data,

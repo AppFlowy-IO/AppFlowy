@@ -22,12 +22,13 @@ async fn grid_cell_update() {
   for (_, row_detail) in rows.iter().enumerate() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
+      if field_type == FieldType::LastEditedTime || field_type == FieldType::CreatedTime {
+        continue;
+      }
       let cell_changeset = match field_type {
         FieldType::RichText => "".to_string(),
         FieldType::Number => "123".to_string(),
-        FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-          make_date_cell_string(123)
-        },
+        FieldType::DateTime => make_date_cell_string(123),
         FieldType::SingleSelect => {
           let type_option = field
             .get_type_option::<SingleSelectTypeOption>(field.field_type)
@@ -49,6 +50,7 @@ async fn grid_cell_update() {
         .to_cell_changeset_str(),
         FieldType::Checkbox => "1".to_string(),
         FieldType::URL => "1".to_string(),
+        _ => "".to_string(),
       };
 
       scripts.push(UpdateCell {
