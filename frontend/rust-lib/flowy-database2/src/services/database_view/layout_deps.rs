@@ -51,7 +51,7 @@ impl DatabaseLayoutDepsResolver {
           .lock()
           .get_fields(None)
           .into_iter()
-          .find(|field| FieldType::from(field.field_type).is_date())
+          .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
         {
           Some(field) => {
             let layout_setting = CalendarLayoutSetting::new(field.id).into();
