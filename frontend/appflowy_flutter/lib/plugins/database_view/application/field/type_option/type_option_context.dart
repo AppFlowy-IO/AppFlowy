@@ -4,6 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -58,13 +59,24 @@ class URLTypeOptionWidgetDataParser extends TypeOptionParser<URLTypeOptionPB> {
   }
 }
 
-// Date
+// DateTime
 typedef DateTypeOptionContext = TypeOptionContext<DateTypeOptionPB>;
 
 class DateTypeOptionDataParser extends TypeOptionParser<DateTypeOptionPB> {
   @override
   DateTypeOptionPB fromBuffer(List<int> buffer) {
     return DateTypeOptionPB.fromBuffer(buffer);
+  }
+}
+
+// LastModified and CreatedAt
+typedef TimestampTypeOptionContext = TypeOptionContext<TimestampTypeOptionPB>;
+
+class TimestampTypeOptionDataParser
+    extends TypeOptionParser<TimestampTypeOptionPB> {
+  @override
+  TimestampTypeOptionPB fromBuffer(List<int> buffer) {
+    return TimestampTypeOptionPB.fromBuffer(buffer);
   }
 }
 

@@ -2,8 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -241,30 +240,11 @@ class _IncludeTimeButton extends StatelessWidget {
       builder: (context, includeTime) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: Padding(
-              padding: GridSize.typeOptionContentInsets,
-              child: Row(
-                children: [
-                  FlowySvg(
-                    FlowySvgs.clock_alarm_s,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                  const HSpace(6),
-                  FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
-                  const Spacer(),
-                  Toggle(
-                    value: includeTime,
-                    onChanged: (value) => context
-                        .read<DateCellCalendarBloc>()
-                        .add(DateCellCalendarEvent.setIncludeTime(!value)),
-                    style: ToggleStyle.big,
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
+          child: IncludeTimeButton(
+            onChanged: (value) => context
+                .read<DateCellCalendarBloc>()
+                .add(DateCellCalendarEvent.setIncludeTime(!value)),
+            value: includeTime,
           ),
         );
       },

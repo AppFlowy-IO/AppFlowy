@@ -27,13 +27,6 @@ class DateTypeOptionBloc
               ),
             );
           },
-          includeTime: (_IncludeTime value) {
-            emit(
-              state.copyWith(
-                typeOption: _updateTypeOption(includeTime: value.includeTime),
-              ),
-            );
-          },
         );
       },
     );
@@ -42,7 +35,6 @@ class DateTypeOptionBloc
   DateTypeOptionPB _updateTypeOption({
     DateFormatPB? dateFormat,
     TimeFormatPB? timeFormat,
-    bool? includeTime,
   }) {
     state.typeOption.freeze();
     return state.typeOption.rebuild((typeOption) {
@@ -63,8 +55,6 @@ class DateTypeOptionEvent with _$DateTypeOptionEvent {
       _DidSelectDateFormat;
   const factory DateTypeOptionEvent.didSelectTimeFormat(TimeFormatPB format) =
       _DidSelectTimeFormat;
-  const factory DateTypeOptionEvent.includeTime(bool includeTime) =
-      _IncludeTime;
 }
 
 @freezed
