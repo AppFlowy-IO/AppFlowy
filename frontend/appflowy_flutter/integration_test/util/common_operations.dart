@@ -276,7 +276,7 @@ extension CommonOperations on WidgetTester {
   /// 
   Future<void> tapTemplateButton() async{
     final templateButton = find.textContaining(
-      LocaleKeys.shareAction_template.tr(),
+      LocaleKeys.template_title.tr(),
     );
     await tapButton(templateButton);
   }

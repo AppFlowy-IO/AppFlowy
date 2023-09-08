@@ -130,7 +130,10 @@ class ShareActionListState extends State<ShareActionList> {
           case ShareAction.template:
             await getIt<TemplateService>().saveTemplate(widget.view);
             if (mounted) {
-              showSnackBarMessage(context, "Exported Template Successfully!");
+              showSnackBarMessage(
+                context,
+                LocaleKeys.template_exportTemplateSuccess.tr(),
+              );
             }
             break;
         }
@@ -167,7 +170,7 @@ class ShareActionWrapper extends ActionCell {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
       case ShareAction.template:
-        return LocaleKeys.shareAction_template.tr();
+        return LocaleKeys.template_title.tr();
     }
   }
 }

@@ -52,8 +52,7 @@
     "notFoundError": "Workspace not found"
   },
   "shareAction": {
-    "buttonText": "Share",  
-    "template": "Template",
+    "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
     "csv": "CSV",
@@ -705,5 +704,9 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
+  },
+  "template": {
+    "title": "Template",
+    "exportTemplateSuccess": "Exported Template Successfully!"
   }
 }
