@@ -58,9 +58,6 @@ class RowPropertyList extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           onReorder: (oldIndex, newIndex) {
-            if (oldIndex + 1 == newIndex) {
-              return;
-            }
             final reorderedField = children[oldIndex].cellContext.fieldId;
             _reorderField(
               context,
