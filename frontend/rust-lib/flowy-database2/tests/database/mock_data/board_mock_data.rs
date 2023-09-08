@@ -7,7 +7,7 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
   DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption, TimeFormat,
+  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 
 use crate::database::database_editor::TestRowBuilder;
@@ -36,17 +36,30 @@ pub fn make_test_board() -> DatabaseData {
           .build();
         fields.push(number_field);
       },
-      FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+      FieldType::DateTime => {
         // Date
         let date_type_option = DateTypeOption {
           date_format: DateFormat::US,
           time_format: TimeFormat::TwentyFourHour,
           timezone_id: "Etc/UTC".to_owned(),
+        };
+        let name = "Time";
+        let date_field = FieldBuilder::new(field_type.clone(), date_type_option)
+          .name(name)
+          .visibility(true)
+          .build();
+        fields.push(date_field);
+      },
+      FieldType::LastEditedTime | FieldType::CreatedTime => {
+        // LastEditedTime and CreatedTime
+        let date_type_option = TimestampTypeOption {
+          date_format: DateFormat::US,
+          time_format: TimeFormat::TwentyFourHour,
+          include_time: true,
           field_type: field_type.clone(),
         };
         let name = match field_type {
-          FieldType::DateTime => "Time",
-          FieldType::LastEditedTime => "Updated At",
+          FieldType::LastEditedTime => "Last Modified",
           FieldType::CreatedTime => "Created At",
           _ => "",
         };
@@ -128,7 +141,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -148,7 +161,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("B"),
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -167,7 +180,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1647251762, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -189,7 +202,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1668704685, None, None, &field_type)
             },
             FieldType::SingleSelect => {
@@ -206,7 +219,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+            FieldType::DateTime => {
               row_builder.insert_date_cell(1668359085, None, None, &field_type)
             },
             FieldType::SingleSelect => {

@@ -27,13 +27,13 @@ async fn export_csv_test() {
   let test = DatabaseEditorTest::new_grid().await;
   let database = test.editor.clone();
   let s = database.export_csv(CSVFormat::Original).await.unwrap();
-  let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Updated At,Created At
-A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,,2022/03/14,2022/03/14
-,$2,2022/03/14,,"Google,Twitter",Yes,,,2022/03/14,2022/03/14
-C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,2022/03/14,2022/03/14
-DA,$14,2022/11/17,Completed,,No,,,2022/11/17,2022/11/17
-AE,,2022/11/13,Planned,"Facebook,Twitter",No,,,2022/11/13,2022/11/13
-AE,$5,2022/12/25,Planned,Facebook,Yes,,,2022/12/25,2022/12/25
+  let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At
+A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,,,
+,$2,2022/03/14,,"Google,Twitter",Yes,,,,
+C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,,
+DA,$14,2022/11/17,Completed,,No,,,,
+AE,,2022/11/13,Planned,"Facebook,Twitter",No,,,,
+AE,$5,2022/12/25,Planned,Facebook,Yes,,,,
 CB,,,,,,,,,
 "#;
   println!("{}", s);

@@ -24,8 +24,8 @@ use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, Data
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, DateCellData, SelectOptionCellChangeset,
-  SelectOptionIds, TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
+  SelectOptionIds, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -614,9 +614,9 @@ impl DatabaseEditor {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         let row = database.get_row(row_id);
         let cell_data = if field_type.is_created_time() {
-          DateCellData::new(row.created_at, true)
+          TimestampCellData::new(row.created_at)
         } else {
-          DateCellData::new(row.modified_at, true)
+          TimestampCellData::new(row.modified_at)
         };
         Some(Cell::from(cell_data))
       },
@@ -651,9 +651,9 @@ impl DatabaseEditor {
           .into_iter()
           .map(|row| {
             let data = if field_type.is_created_time() {
-              DateCellData::new(row.created_at, true)
+              TimestampCellData::new(row.created_at)
             } else {
-              DateCellData::new(row.modified_at, true)
+              TimestampCellData::new(row.modified_at)
             };
             RowCell {
               row_id: row.id,

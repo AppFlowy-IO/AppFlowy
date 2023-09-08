@@ -11,6 +11,7 @@ import 'cells/date_cell/date_cell.dart';
 import 'cells/number_cell/number_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
+import 'cells/timestamp_cell/timestamp_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
 /// Build the cell widget in Grid style.
@@ -41,14 +42,12 @@ class GridCellBuilder {
           cellControllerBuilder: cellControllerBuilder,
           key: key,
           style: style,
-          fieldType: cellContext.fieldType,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
-        return GridDateCell(
+        return GridTimestampCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
-          editable: false,
           style: style,
           fieldType: cellContext.fieldType,
         );
