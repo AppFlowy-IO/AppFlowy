@@ -255,7 +255,7 @@ class NotionImporter {
         continue;
       }
       if (markdownImageRegex.hasMatch(line.trim())) {
-        final imagePath = markdownImageRegex.firstMatch(line)?.group(1);
+        final imagePath = markdownImageRegex.firstMatch(line.trim())?.group(1);
         if (imagePath == null) {
           result.add(line);
         } else {
