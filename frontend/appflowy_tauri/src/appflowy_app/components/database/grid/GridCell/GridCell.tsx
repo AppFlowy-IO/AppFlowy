@@ -33,5 +33,6 @@ export const GridCell: FC<GridCellProps> = ({
     }
   }, [field.type]);
 
-  return <RenderCell rowId={rowId} field={field} cell={cell} />
+  // TODO: find a better way to check cell type.
+  return <RenderCell rowId={rowId} field={field} cell={cell as any} />
 };

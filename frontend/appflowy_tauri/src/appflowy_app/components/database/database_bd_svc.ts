@@ -652,7 +652,7 @@ export async function updateDateCell(
   rowId: string,
   fieldId: string,
   data: {
-    date?: string;
+    date?: number;
     time?: string;
     includeTime?: boolean;
     clearFlag?: boolean;

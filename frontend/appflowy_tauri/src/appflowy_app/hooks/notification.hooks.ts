@@ -27,37 +27,24 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateGroupRow]: GroupRowsNotificationPB,
   [DatabaseNotification.DidUpdateField]: FieldPB,
   [DatabaseNotification.DidUpdateCell]: null,
-
-  // TODO: The following events need to be modified after confirming the message type.
-  [DatabaseNotification.Unknown]: null,
-  [DatabaseNotification.DidFetchRow]: null,
-  [DatabaseNotification.DidUpdateFilter]: null,
-  [DatabaseNotification.DidUpdateSort]: null,
-  [DatabaseNotification.DidUpdateRowMeta]: null,
-  [DatabaseNotification.DidUpdateSettings]: null,
-  [DatabaseNotification.DidUpdateLayoutSettings]: null,
-  [DatabaseNotification.DidSetNewLayoutField]: null,
-  [DatabaseNotification.DidUpdateDatabaseLayout]: null,
-  [DatabaseNotification.DidDeleteDatabaseView]: null,
-  [DatabaseNotification.DidMoveDatabaseViewToTrash]: null,
-  [DatabaseNotification.DidUpdateDatabaseSyncUpdate]: null,
-  [DatabaseNotification.DidUpdateDatabaseSnapshotState]: null,
 };
 
 type NotificationMap = typeof NotificationPBMap;
 
+type NotificationEnum = keyof NotificationMap;
+
 type NullableInstanceType<K extends ((abstract new (...args: any) => any) | null)> = K extends (abstract new (...args: any) => any) ? InstanceType<K> : void;
 
-type NotificationHandler<K extends DatabaseNotification> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
+type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
 
 /**
  * Subscribes to a set of notifications.
  * 
- * This function subscribes to notifications defined by the `DatabaseNotification` and 
+ * This function subscribes to notifications defined by the `NotificationEnum` and 
  * calls the appropriate `NotificationHandler` when each type of notification is received.
  *
  * @param {Object} callbacks - An object containing handlers for various notification types.
- * Each key is a `DatabaseNotification` value, and the corresponding value is a `NotificationHandler` function.
+ * Each key is a `NotificationEnum` value, and the corresponding value is a `NotificationHandler` function.
  *
  * @param {Object} [options] - Optional settings for the subscription.
  * @param {string} [options.id] - An optional ID. If provided, only notifications with a matching ID will be processed.
@@ -93,7 +80,7 @@ type NotificationHandler<K extends DatabaseNotification> = (result: Result<Nulla
  */
 export function subscribeNotifications(
   callbacks: {
-    [K in DatabaseNotification]?: NotificationHandler<K>;
+    [K in NotificationEnum]?: NotificationHandler<K>;
   },
   options?: { id?: string },
 ): Promise<() => void> {
@@ -105,9 +92,9 @@ export function subscribeNotifications(
       return;
     }
 
-    const notification = ty as DatabaseNotification;
+    const notification = ty as NotificationEnum;
     const pb = NotificationPBMap[notification];
-    const callback = callbacks[notification] as NotificationHandler<DatabaseNotification>;
+    const callback = callbacks[notification] as NotificationHandler<NotificationEnum>;
 
     if (pb === undefined || !callback) {
       return;
@@ -125,7 +112,7 @@ export function subscribeNotifications(
   });
 }
 
-export function subscribeNotification<K extends DatabaseNotification>(
+export function subscribeNotification<K extends NotificationEnum>(
   notification: K,
   callback: NotificationHandler<K>,
   options?: { id?: string },
@@ -133,7 +120,7 @@ export function subscribeNotification<K extends DatabaseNotification>(
   return subscribeNotifications({ [notification]: callback }, options);
 }
 
-export function useNotification<K extends DatabaseNotification>(
+export function useNotification<K extends NotificationEnum>(
   notification: K,
   callback: NotificationHandler<K>,
   options: { id?: string },

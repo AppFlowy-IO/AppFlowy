@@ -62,7 +62,7 @@ function parseCellData(fieldType: FieldType, data: Uint8Array) {
   }
 }
 
-export const cellPbToCell = (cellPb: CellPB, fieldType: FieldType): Database.UndeterminedCell => {
+export const cellPbToCell = (cellPb: CellPB, fieldType: FieldType): Database.Cell => {
   return {
     rowId: cellPb.row_id,
     fieldId: cellPb.field_id,

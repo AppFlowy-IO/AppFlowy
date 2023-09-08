@@ -8,7 +8,7 @@ import { useViewId } from '../../database.hooks';
 
 export const useCell = (rowId: string, fieldId: string, fieldType: FieldType) => {
   const viewId = useViewId();
-  const [cell, setCell] = useState<Database.UndeterminedCell | null>(null);
+  const [cell, setCell] = useState<Database.Cell | null>(null);
 
   const fetchCell = useCallback(() => {
     void service.getCell(viewId, rowId, fieldId).then(data => {
