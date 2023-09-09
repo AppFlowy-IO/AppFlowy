@@ -73,6 +73,16 @@ class DateCellDataParser implements CellDataParser<DateCellDataPB> {
   }
 }
 
+class TimestampCellDataParser implements CellDataParser<TimestampCellDataPB> {
+  @override
+  TimestampCellDataPB? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return TimestampCellDataPB.fromBuffer(data);
+  }
+}
+
 class SelectOptionCellDataParser
     implements CellDataParser<SelectOptionCellDataPB> {
   @override

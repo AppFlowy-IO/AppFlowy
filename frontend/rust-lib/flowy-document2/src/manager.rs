@@ -72,7 +72,7 @@ impl DocumentManager {
     if self.is_doc_exist(doc_id).unwrap_or(false) {
       self.get_document(doc_id).await
     } else {
-      let collab = self.collab_for_document(uid, doc_id, vec![])?;
+      let collab = self.collab_for_document(uid, doc_id, vec![]).await?;
       let data = data.unwrap_or_else(default_document_data);
       let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
       Ok(document)
@@ -92,7 +92,7 @@ impl DocumentManager {
     }
 
     let uid = self.user.user_id()?;
-    let collab = self.collab_for_document(uid, doc_id, updates)?;
+    let collab = self.collab_for_document(uid, doc_id, updates).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -110,7 +110,7 @@ impl DocumentManager {
       updates = self.cloud_service.get_document_updates(doc_id).await?;
     }
     let uid = self.user.user_id()?;
-    let collab = self.collab_for_document(uid, doc_id, updates)?;
+    let collab = self.collab_for_document(uid, doc_id, updates).await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -155,7 +155,7 @@ impl DocumentManager {
     Ok(snapshots)
   }
 
-  fn collab_for_document(
+  async fn collab_for_document(
     &self,
     uid: i64,
     doc_id: &str,

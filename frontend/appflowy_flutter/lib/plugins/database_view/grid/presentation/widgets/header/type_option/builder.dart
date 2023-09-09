@@ -8,6 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
@@ -20,6 +21,7 @@ import 'multi_select.dart';
 import 'number.dart';
 import 'rich_text.dart';
 import 'single_select.dart';
+import 'timestamp.dart';
 import 'url.dart';
 
 typedef TypeOptionData = Uint8List;
@@ -73,10 +75,18 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
         ),
       );
     case FieldType.DateTime:
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
       return DateTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<DateTypeOptionPB>(
+          viewId: viewId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
+        popoverMutex,
+      );
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return TimestampTypeOptionWidgetBuilder(
+        makeTypeOptionContextWithDataController<TimestampTypeOptionPB>(
           viewId: viewId,
           fieldType: fieldType,
           dataController: dataController,
@@ -203,11 +213,15 @@ TypeOptionContext<T>
         dataParser: CheckboxTypeOptionWidgetDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.DateTime:
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
       return DateTypeOptionContext(
         dataController: dataController,
         dataParser: DateTypeOptionDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return TimestampTypeOptionContext(
+        dataController: dataController,
+        dataParser: TimestampTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionContext(
