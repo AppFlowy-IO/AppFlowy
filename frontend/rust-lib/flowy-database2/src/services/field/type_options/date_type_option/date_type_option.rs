@@ -78,15 +78,16 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     let timestamp = cell_data.timestamp;
-    let end_timestamp = cell_data.end_timestamp;
     let include_time = cell_data.include_time;
     let is_range = cell_data.is_range;
     let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
-    let (end_date, end_time) = if end_timestamp.is_some() {
-      self.formatted_date_time_from_timestamp(&timestamp)
+
+    let end_timestamp = if cell_data.end_timestamp.is_some() {
+      cell_data.end_timestamp
     } else {
-      (date.clone(), time.clone())
+      cell_data.timestamp.clone()
     };
+    let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
     DateCellDataPB {
       date,
@@ -160,7 +161,7 @@ impl DateTypeOption {
     changeset_timestamp: Option<i64>,
   ) -> Option<i64> {
     if let Some(time) = parsed_time {
-      // a valid time is provided, so we replace the time component of old
+      // a valid time is provided, so we replace the time component of old timestamp
       // (or new timestamp if provided) with it.
       let utc_date = changeset_timestamp
         .or(previous_timestamp)
