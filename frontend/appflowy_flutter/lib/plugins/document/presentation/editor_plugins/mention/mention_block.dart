@@ -29,7 +29,10 @@ class MentionBlockKeys {
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
+
+  // Related to Reminder and Date blocks
   static const date = 'date';
+  static const includeTime = 'include_time';
 }
 
 class MentionBlock extends StatelessWidget {
@@ -64,6 +67,10 @@ class MentionBlock extends StatelessWidget {
           node: node,
           index: index,
           isReminder: type == MentionType.reminder,
+          reminderId: type == MentionType.reminder
+              ? mention[MentionBlockKeys.uid]
+              : null,
+          includeTime: mention[MentionBlockKeys.includeTime] ?? false,
         );
       default:
         return const SizedBox.shrink();

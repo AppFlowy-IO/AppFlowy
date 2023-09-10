@@ -71,7 +71,7 @@ class NotificationDialog extends StatelessWidget {
                   ],
                 ),
                 const VSpace(4),
-                if (state.reminders.isEmpty)
+                if (shownReminders.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Center(

@@ -23,12 +23,15 @@ class InitAppWidgetTask extends LaunchTask {
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
+    final dateTimeSettings =
+        await UserSettingsBackendService().getDateTimeSettings();
 
     // If the passed-in context is not the same as the context of the
     // application widget, the application widget will be rebuilt.
     final app = ApplicationWidget(
       key: ValueKey(context),
       appearanceSetting: appearanceSetting,
+      dateTimeSettings: dateTimeSettings,
       appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
@@ -73,21 +76,26 @@ class InitAppWidgetTask extends LaunchTask {
 }
 
 class ApplicationWidget extends StatelessWidget {
-  final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
-  final AppTheme appTheme;
-
   const ApplicationWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.appTheme,
     required this.appearanceSetting,
-  }) : super(key: key);
+    required this.dateTimeSettings,
+  });
+
+  final Widget child;
+  final AppTheme appTheme;
+  final AppearanceSettingsPB appearanceSetting;
+  final DateTimeSettingsPB dateTimeSettings;
 
   @override
   Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting, appTheme)
-      ..readLocaleWhenAppLaunch(context);
+    final cubit = AppearanceSettingsCubit(
+      appearanceSetting,
+      dateTimeSettings,
+      appTheme,
+    )..readLocaleWhenAppLaunch(context);
 
     return MultiBlocProvider(
       providers: [

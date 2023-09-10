@@ -1,4 +1,6 @@
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/date_format_setting.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/time_format_setting.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,16 +20,14 @@ class SettingsAppearanceView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BrightnessSetting(
-                  currentThemeMode: state.themeMode,
-                ),
+                BrightnessSetting(currentThemeMode: state.themeMode),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
                 ),
-                ThemeFontFamilySetting(
-                  currentFontFamily: state.font,
-                ),
+                ThemeFontFamilySetting(currentFontFamily: state.font),
+                DateFormatSetting(currentFormat: state.dateFormat),
+                TimeFormatSetting(currentFormat: state.timeFormat),
               ],
             );
           },

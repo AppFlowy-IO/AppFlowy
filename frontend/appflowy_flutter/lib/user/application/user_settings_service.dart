@@ -28,4 +28,21 @@ class UserSettingsBackendService {
   ) {
     return UserEventSetAppearanceSetting(setting).send();
   }
+
+  Future<DateTimeSettingsPB> getDateTimeSettings() async {
+    final result = await UserEventGetDateTimeSettings().send();
+
+    return result.fold(
+      (DateTimeSettingsPB setting) => setting,
+      (error) {
+        throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty);
+      },
+    );
+  }
+
+  Future<Either<FlowyError, Unit>> setDateTimeSettings(
+    DateTimeSettingsPB settings,
+  ) async {
+    return (await UserEventSetDateTimeSettings(settings).send()).swap();
+  }
 }

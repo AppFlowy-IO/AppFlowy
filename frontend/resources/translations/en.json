@@ -270,7 +270,20 @@
       },
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Date format",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Time format",
+        "twelveHour": "Twelve hour",
+        "twentyFourHour": "Twenty four hour"
+      }
     },
     "files": {
       "copy": "Copy",
@@ -726,6 +739,6 @@
   },
   "reminderNotification": {
     "title": "Reminder",
-    "message": "Remember to check out {} before you forget!"
+    "message": "Remember to check this before you forget!"
   }
 }

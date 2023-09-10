@@ -136,7 +136,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
-  getIt.registerLazySingleton<ReminderBloc>(() => ReminderBloc());
+  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

@@ -2,6 +2,8 @@ import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -20,7 +22,10 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           remindersOrFailure.fold(
             (error) => Log.error(error),
-            (reminders) => emit(state.copyWith(reminders: reminders)),
+            (reminders) {
+              debugPrint("REMINDER COUNT: ${reminders.length}");
+              emit(state.copyWith(reminders: reminders));
+            },
           );
         },
         remove: (reminderId) async {
@@ -29,7 +34,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           unitOrFailure.fold(
             (error) => Log.error(error),
-            (r) {
+            (_) {
               final reminders = [...state.reminders];
               reminders.removeWhere((e) => e.id == reminderId);
 
@@ -43,11 +48,37 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           return unitOrFailure.fold(
             (error) => Log.error(error),
-            (r) => emit(state..reminders.add(reminder)),
+            (_) {
+              state.reminders.add(reminder);
+              emit(state);
+            },
           );
         },
         notify: (_) {
           // TODO(Xazin): In-app Notification should be triggered
+        },
+        update: (reminderId, date) async {
+          final reminder =
+              state.reminders.firstWhereOrNull((r) => r.id == reminderId);
+
+          if (reminder == null) {
+            return;
+          }
+
+          final newReminder = ReminderPB(
+            id: reminder.id,
+            objectId: reminder.objectId,
+            scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
+            isAck: date.isBefore(DateTime.now()),
+            title: reminder.title,
+            message: reminder.message,
+            meta: reminder.meta,
+          );
+
+          final failureOrUnit =
+              await reminderService.updateReminder(reminder: newReminder);
+
+          failureOrUnit.fold((error) => Log.error(error), (r) => null);
         },
       );
     });
@@ -67,6 +98,11 @@ class ReminderEvent with _$ReminderEvent {
 
   // Notify of a reminder (In-app notification)
   const factory ReminderEvent.notify({required ReminderPB reminder}) = _Notify;
+
+  const factory ReminderEvent.update({
+    required String reminderId,
+    required DateTime date,
+  }) = _Update;
 }
 
 class ReminderState {

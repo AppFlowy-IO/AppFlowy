@@ -45,9 +45,9 @@ class _DateCellEditor extends State<DateCellEditor> {
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -149,7 +149,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           selectedDate: state.dateTime,
           focusedDay: state.focusedDay,
           format: state.format,
-          onDaySelected: (selectedDay, focusedDay) => context
+          onDaySelected: (selectedDay, focusedDay, _) => context
               .read<DateCellCalendarBloc>()
               .add(DateCellCalendarEvent.selectDay(selectedDay.toLocal().date)),
           onFormatChanged: (format) => context

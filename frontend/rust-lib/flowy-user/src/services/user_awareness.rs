@@ -58,6 +58,27 @@ impl UserManager {
     Ok(())
   }
 
+  /// Updates an existing reminder
+  ///
+  pub async fn update_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
+    let reminder = Reminder::from(reminder_pb);
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.update_reminder(&reminder.id, |new_reminder| {
+          new_reminder.clone_from(&reminder)
+        });
+      })
+      .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .update_reminder(reminder)
+      .await?;
+
+    Ok(())
+  }
+
   /// Retrieves all reminders for the user.
   ///
   /// This function fetches all reminders associated with the current user. It leverages the

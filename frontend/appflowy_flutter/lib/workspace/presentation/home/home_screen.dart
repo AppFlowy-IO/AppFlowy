@@ -41,9 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ReminderBloc>(
-          create: (context) =>
-              getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+        BlocProvider<ReminderBloc>.value(
+          value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),
         BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
