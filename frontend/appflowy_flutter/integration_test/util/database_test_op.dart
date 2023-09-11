@@ -537,7 +537,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> reorderFieldInRowDetail({required double offset}) async {
-    final thumb = find.byType(ReorderableDragStartListener).first;
+    final thumb = find
+        .byWidgetPredicate(
+          (widget) => widget is ReorderableDragStartListener && widget.enabled,
+        )
+        .first;
     await drag(
       thumb,
       Offset(0, offset),

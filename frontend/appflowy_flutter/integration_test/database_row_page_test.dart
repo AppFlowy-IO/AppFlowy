@@ -159,14 +159,13 @@ void main() {
       await gesture.removePointer();
       await tester.pumpAndSettle();
 
-      // // Reorder second field in list
-      // await tester.hoverOnFieldInRowDetail(index: 1);
-      // await tester.pumpAndSettle();
-      // await tester.reorderFieldInRowDetail(offset: -30);
-      // await tester.wait(3000);
+      // Reorder second field in list
+      await tester.hoverOnFieldInRowDetail(index: 1);
+      await tester.pumpAndSettle();
+      await tester.reorderFieldInRowDetail(offset: -30);
 
-      // // FIrst field is now back to select option
-      // tester.assertFirstFieldInRowDetailByType(FieldType.Checkbox);
+      // First field is now back to select option
+      tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
     });
 
     testWidgets('check document exists in row detail page', (tester) async {
