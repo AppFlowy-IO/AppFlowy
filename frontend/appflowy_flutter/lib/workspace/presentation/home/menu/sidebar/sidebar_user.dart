@@ -3,10 +3,8 @@ import 'package:appflowy/plugins/document/presentation/more/cubit/document_appea
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
-import 'package:appflowy/workspace/application/open_ai/open_ai_service.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
