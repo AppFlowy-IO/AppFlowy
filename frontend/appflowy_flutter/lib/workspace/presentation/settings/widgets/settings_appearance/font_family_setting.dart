@@ -139,7 +139,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
             context
                 .read<AppearanceSettingsCubit>()
                 .setFontFamily(parseFontFamilyName(style.fontFamily!));
-            context
+            await context
                 .read<DocumentAppearanceCubit>()
                 .syncFontFamily(parseFontFamilyName(style.fontFamily!));
           }
