@@ -20,11 +20,12 @@ run_task = { name = ["restore-crate-type"] }
 
 [env]
 RUST_LOG = "info"
+CARGO_PROFILE = "dev"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.3.0"
+CURRENT_APP_VERSION = "0.3.1"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
@@ -75,6 +76,7 @@ BUILD_ACTIVE_ARCHS_ONLY = true
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-arm64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
@@ -86,6 +88,7 @@ BUILD_ACTIVE_ARCHS_ONLY = false
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-x86_64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
@@ -97,6 +100,7 @@ BUILD_ACTIVE_ARCHS_ONLY = false
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-universal]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 FLUTTER_OUTPUT_DIR = "Release"
@@ -114,6 +118,7 @@ CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
 
 [env.production-windows-x86]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
@@ -133,6 +138,7 @@ LIB_EXT = "so"
 LINUX_ARCH = "x64"
 
 [env.production-linux-x86_64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
@@ -153,6 +159,7 @@ LINUX_ARCH = "arm64"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [env.production-linux-aarch64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
@@ -202,6 +209,7 @@ FLUTTER_OUTPUT_DIR = "Debug"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [env.production-android]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"

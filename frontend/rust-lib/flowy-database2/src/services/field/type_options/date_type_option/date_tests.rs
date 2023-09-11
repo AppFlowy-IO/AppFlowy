@@ -10,7 +10,6 @@ mod tests {
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
   use crate::services::field::{
     DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat,
-    TypeOptionCellDataSerde,
   };
 
   #[test]
@@ -25,7 +24,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
               clear_flag: None,
@@ -39,7 +38,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
               clear_flag: None,
@@ -53,7 +52,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
               clear_flag: None,
@@ -67,7 +66,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
               clear_flag: None,
@@ -81,7 +80,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1647251762".to_owned()),
+              date: Some(1647251762),
               time: None,
               include_time: None,
               clear_flag: None,
@@ -107,7 +106,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: None,
               include_time: Some(true),
               clear_flag: None,
@@ -119,7 +118,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
               clear_flag: None,
@@ -131,7 +130,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
               clear_flag: None,
@@ -145,7 +144,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: None,
               include_time: Some(true),
               clear_flag: None,
@@ -157,7 +156,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
               clear_flag: None,
@@ -169,7 +168,7 @@ mod tests {
             &type_option,
             &field,
             DateCellChangeset {
-              date: Some("1653609600".to_owned()),
+              date: Some(1653609600),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
               clear_flag: None,
@@ -183,25 +182,6 @@ mod tests {
   }
 
   #[test]
-  fn date_type_option_invalid_date_str_test() {
-    let field_type = FieldType::DateTime;
-    let type_option = DateTypeOption::test();
-    let field = FieldBuilder::from_field_type(field_type).build();
-    assert_date(
-      &type_option,
-      &field,
-      DateCellChangeset {
-        date: Some("abc".to_owned()),
-        time: None,
-        include_time: None,
-        clear_flag: None,
-      },
-      None,
-      "",
-    );
-  }
-
-  #[test]
   #[should_panic]
   fn date_type_option_invalid_include_time_str_test() {
     let field_type = FieldType::DateTime;
@@ -212,7 +192,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("1:".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -233,7 +213,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -252,7 +232,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -273,7 +253,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -297,7 +277,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1653609600".to_owned()),
+        date: Some(1653609600),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -345,7 +325,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some("1700006400".to_owned()),
+        date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -355,7 +335,7 @@ mod tests {
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some("1701302400".to_owned()),
+        date: Some(1701302400),
         time: None,
         include_time: None,
         clear_flag: None,
@@ -373,7 +353,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some("1700006400".to_owned()),
+        date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -401,7 +381,7 @@ mod tests {
     let old_cell_data = initialize_date_cell(
       &type_option,
       DateCellChangeset {
-        date: Some("1700006400".to_owned()),
+        date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
         clear_flag: None,
@@ -428,33 +408,18 @@ mod tests {
     old_cell_data: Option<Cell>,
     expected_str: &str,
   ) {
-    let (cell, cell_data) = type_option
+    let (cell, _) = type_option
       .apply_changeset(changeset, old_cell_data)
       .unwrap();
 
-    assert_eq!(
-      decode_cell_data(&cell, type_option, cell_data.include_time, field),
-      expected_str,
-    );
+    assert_eq!(decode_cell_data(&cell, type_option, field), expected_str,);
   }
 
-  fn decode_cell_data(
-    cell: &Cell,
-    type_option: &DateTypeOption,
-    include_time: bool,
-    field: &Field,
-  ) -> String {
+  fn decode_cell_data(cell: &Cell, type_option: &DateTypeOption, field: &Field) -> String {
     let decoded_data = type_option
       .decode_cell(cell, &FieldType::DateTime, field)
       .unwrap();
-    let decoded_data = type_option.protobuf_encode(decoded_data);
-    if include_time {
-      format!("{} {}", decoded_data.date, decoded_data.time)
-        .trim_end()
-        .to_owned()
-    } else {
-      decoded_data.date
-    }
+    type_option.stringify_cell_data(decoded_data)
   }
 
   fn initialize_date_cell(type_option: &DateTypeOption, changeset: DateCellChangeset) -> Cell {

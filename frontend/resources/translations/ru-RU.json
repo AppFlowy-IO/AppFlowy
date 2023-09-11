@@ -27,7 +27,8 @@
     "passwordHint": "Пароль",
     "dontHaveAnAccount": "Нет аккаунта?",
     "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
-    "unmatchedPasswordError": "Пароли не совпадают"
+    "unmatchedPasswordError": "Пароли не совпадают",
+    "loginAsGuestButtonText": "Начать"
   },
   "workspace": {
     "create": "Создать рабочее пространство",
@@ -52,12 +53,14 @@
     "textAndMarkdown": "Текст и Markdown",
     "documentFromV010": "Документ из v0.1.0",
     "databaseFromV010": "База данных из v0.1.0",
-    "csv": "CSV"
+    "csv": "CSV",
+    "database": "База данных"
   },
   "disclosureAction": {
     "rename": "Переименовать",
     "delete": "Удалить",
-    "duplicate": "Дублировать"
+    "duplicate": "Дублировать",
+    "openNewTab": "Открыть в новой вкладке"
   },
   "blankPageTitle": "Пустая страница",
   "newPageText": "Новая страница",
@@ -69,6 +72,14 @@
       "fileName": "Имя",
       "lastModified": "Последнее изменение",
       "created": "Создан"
+    },
+    "confirmDeleteAll": {
+      "title": "Вы уверены, что хотите удалить все страницы в Корзине?",
+      "caption": "Это действие не может быть отменено."
+    },
+    "confirmRestoreAll": {
+      "title": "Вы уверены, что хотите восстановить все страницы в Корзине?",
+      "caption": "Это действие не может быть отменено."
     }
   },
   "deletePagePrompt": {
@@ -86,7 +97,8 @@
       "name": "Отладочная информация",
       "success": "Скопировано в буфер обмена!",
       "fail": "Не получилось скопировать"
-    }
+    },
+    "feedback": "Обратная связь"
   },
   "menuAppHeader": {
     "addPageTooltip": "Быстро добавить новую страницу",
@@ -107,7 +119,9 @@
     "quote": "Цитата",
     "header": "Заголовок",
     "highlight": "Выделение",
-    "color": "Цвет"
+    "color": "Цвет",
+    "addLink": "Добавить ссылку",
+    "link": "Связь"
   },
   "tooltip": {
     "lightMode": "Переключить на светлую тему",
@@ -117,7 +131,8 @@
     "openMenu": "Открыть меню",
     "dragRow": "Долгое нажатие для изменения порядка строк",
     "viewDataBase": "Открыть базу данных",
-    "referencePage": "Ссылки на {name}"
+    "referencePage": "Ссылки на {name}",
+    "addBlockBelow": "Добавьте блок ниже"
   },
   "sideBar": {
     "closeSidebar": "Закрыть боковое меню",
@@ -149,7 +164,13 @@
     "tryAgain": "Повторить",
     "discard": "Отменить",
     "replace": "Заменить",
-    "insertBelow": "Вставить ниже"
+    "insertBelow": "Вставить ниже",
+    "upload": "Загрузить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "duplicate": "Дублировать",
+    "done": "Сделанный",
+    "putback": "Вернуть"
   },
   "label": {
     "welcome": "Добро пожаловать!",
@@ -178,7 +199,8 @@
       "language": "Язык",
       "user": "Пользователь",
       "files": "Файлы",
-      "open": "Открыть настройки"
+      "open": "Открыть настройки",
+      "supabaseSetting": "Настройка надбазы"
     },
     "appearance": {
       "themeMode": {
@@ -187,7 +209,23 @@
         "dark": "Тёмная",
         "system": "Системная"
       },
-      "theme": "Тема"
+      "theme": "Тема",
+      "fontFamily": {
+        "label": "Семейство шрифтов",
+        "search": "Поиск"
+      },
+      "themeUpload": {
+        "button": "Загрузить",
+        "description": "Загрузите собственную тему AppFlowy, используя кнопку ниже.",
+        "failure": "Загруженная тема имеет недопустимый формат.",
+        "loading": "Подождите, пока мы проверим и загрузим вашу тему...",
+        "uploadSuccess": "Ваша тема была успешно загружена",
+        "deletionFailure": "Не удалось удалить тему. Попробуйте удалить его вручную.",
+        "filePickerDialogTitle": "Выберите файл .flowy_plugin",
+        "urlUploadFailure": "Не удалось открыть URL: {}"
+      },
+      "builtInsLabel": "Встроенные темы",
+      "pluginsLabel": "Плагины"
     },
     "files": {
       "copy": "Копировать",
@@ -222,7 +260,8 @@
       "recoverLocationTooltips": "Сбросить к местоположению по умолчанию",
       "exportFileSuccess": "Экспорт завершён!",
       "exportFileFail": "Не удалость экспортировать!",
-      "export": "Экспорт"
+      "export": "Экспорт",
+      "openCurrentDataFolder": "Открыть текущий каталог данных"
     },
     "user": {
       "name": "Имя",
@@ -243,7 +282,9 @@
       "filterBy": "Фильтровать по...",
       "typeAValue": "Введите значение...",
       "layout": "Вид",
-      "databaseLayout": "Вид базы данных"
+      "databaseLayout": "Вид базы данных",
+      "properties": "Характеристики",
+      "reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -355,7 +396,9 @@
       "panelTitle": "Добавить элемент"
     },
     "menuName": "Сетка",
-    "referencedGridPrefix": "Просмотр"
+    "referencedGridPrefix": "Просмотр",
+    "deleteView": "Вы уверены, что хотите удалить это представление?",
+    "createView": "Новый"
   },
   "document": {
     "menuName": "Документ",
@@ -439,6 +482,60 @@
         "center": "По центру",
         "right": "По правому краю",
         "defaultColor": "Цвет по умолчанию"
+      },
+      "referencedCalendar": "Ссылочный календарь",
+      "autoGeneratorRewrite": "Переписать",
+      "createInlineMathEquation": "Создать уравнение",
+      "toggleList": "Переключить список",
+      "image": {
+        "copiedToPasteBoard": "Ссылка на изображение скопирована в буфер обмена"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Добавьте заголовки, чтобы создать оглавление."
+      }
+    },
+    "selectionMenu": {
+      "outline": "Контур"
+    },
+    "textBlock": {
+      "placeholder": "Введите '/' для команд"
+    },
+    "title": {
+      "placeholder": "Без названия"
+    },
+    "imageBlock": {
+      "placeholder": "Нажмите, чтобы добавить изображение",
+      "upload": {
+        "label": "Загрузить",
+        "placeholder": "Нажмите, чтобы загрузить изображение"
+      },
+      "url": {
+        "label": "URL изображения",
+        "placeholder": "Введите URL-адрес изображения"
+      },
+      "support": "Ограничение размера изображения составляет 5 МБ. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Недопустимое изображение",
+        "invalidImageSize": "Размер изображения должен быть менее 5 МБ.",
+        "invalidImageFormat": "Формат изображения не поддерживается. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Недопустимый URL-адрес изображения"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Язык",
+        "placeholder": "Выберите язык"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Вставьте или введите ссылку",
+      "url": {
+        "label": "URL-адрес ссылки",
+        "placeholder": "Введите URL ссылки"
+      },
+      "title": {
+        "label": "Название ссылки",
+        "placeholder": "Введите название ссылки"
       }
     }
   },
@@ -472,79 +569,32 @@
   },
   "youCanAlso": "Вы также можете",
   "and": "и",
-  "blockActions.addBelowTooltip": "Нажмите, чтобы добавить ниже",
-  "blockActions.addAboveCmd": "Alt+щелчок",
-  "blockActions.addAboveMacCmd": "Option+щелчок",
-  "blockActions.addAboveTooltip": "добавить выше",
-  "signIn.loginAsGuestButtonText": "Начать",
-  "importPanel.database": "База данных",
-  "disclosureAction.openNewTab": "Открыть в новой вкладке",
-  "trash.confirmDeleteAll.title": "Вы уверены, что хотите удалить все страницы в Корзине?",
-  "trash.confirmDeleteAll.caption": "Это действие не может быть отменено.",
-  "trash.confirmRestoreAll.title": "Вы уверены, что хотите восстановить все страницы в Корзине?",
-  "trash.confirmRestoreAll.caption": "Это действие не может быть отменено.",
-  "questionBubble.feedback": "Обратная связь",
-  "toolbar.addLink": "Добавить ссылку",
-  "toolbar.link": "Связь",
-  "tooltip.addBlockBelow": "Добавьте блок ниже",
-  "button.upload": "Загрузить",
-  "button.edit": "Редактировать",
-  "button.delete": "Удалить",
-  "button.duplicate": "Дублировать",
-  "button.done": "Сделанный",
-  "button.putback": "Вернуть",
-  "settings.menu.supabaseSetting": "Настройка надбазы",
-  "settings.appearance.fontFamily.label": "Семейство шрифтов",
-  "settings.appearance.fontFamily.search": "Поиск",
-  "settings.appearance.themeUpload.button": "Загрузить",
-  "settings.appearance.themeUpload.description": "Загрузите собственную тему AppFlowy, используя кнопку ниже.",
-  "settings.appearance.themeUpload.failure": "Загруженная тема имеет недопустимый формат.",
-  "settings.appearance.themeUpload.loading": "Подождите, пока мы проверим и загрузим вашу тему...",
-  "settings.appearance.themeUpload.uploadSuccess": "Ваша тема была успешно загружена",
-  "settings.appearance.themeUpload.deletionFailure": "Не удалось удалить тему. Попробуйте удалить его вручную.",
-  "settings.appearance.themeUpload.filePickerDialogTitle": "Выберите файл .flowy_plugin",
-  "settings.appearance.themeUpload.urlUploadFailure": "Не удалось открыть URL: {}",
-  "settings.appearance.builtInsLabel": "Встроенные темы",
-  "settings.appearance.pluginsLabel": "Плагины",
-  "settings.files.openCurrentDataFolder": "Открыть текущий каталог данных",
-  "grid.deleteView": "Вы уверены, что хотите удалить это представление?",
-  "grid.createView": "Новый",
-  "grid.settings.properties": "Характеристики",
-  "grid.settings.reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств",
-  "document.selectionMenu.outline": "Контур",
-  "document.plugins.referencedCalendar": "Ссылочный календарь",
-  "document.plugins.autoGeneratorRewrite": "Переписать",
-  "document.plugins.createInlineMathEquation": "Создать уравнение",
-  "document.plugins.toggleList": "Переключить список",
-  "document.plugins.image.copiedToPasteBoard": "Ссылка на изображение скопирована в буфер обмена",
-  "document.plugins.outline.addHeadingToCreateOutline": "Добавьте заголовки, чтобы создать оглавление.",
-  "document.textBlock.placeholder": "Введите '/' для команд",
-  "document.title.placeholder": "Без названия",
-  "document.imageBlock.placeholder": "Нажмите, чтобы добавить изображение",
-  "document.imageBlock.upload.label": "Загрузить",
-  "document.imageBlock.upload.placeholder": "Нажмите, чтобы загрузить изображение",
-  "document.imageBlock.url.label": "URL изображения",
-  "document.imageBlock.url.placeholder": "Введите URL-адрес изображения",
-  "document.imageBlock.support": "Ограничение размера изображения составляет 5 МБ. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImage": "Недопустимое изображение",
-  "document.imageBlock.error.invalidImageSize": "Размер изображения должен быть менее 5 МБ.",
-  "document.imageBlock.error.invalidImageFormat": "Формат изображения не поддерживается. Поддерживаемые форматы: JPEG, PNG, GIF, SVG",
-  "document.imageBlock.error.invalidImageUrl": "Недопустимый URL-адрес изображения",
-  "document.codeBlock.language.label": "Язык",
-  "document.codeBlock.language.placeholder": "Выберите язык",
-  "document.inlineLink.placeholder": "Вставьте или введите ссылку",
-  "document.inlineLink.url.label": "URL-адрес ссылки",
-  "document.inlineLink.url.placeholder": "Введите URL ссылки",
-  "document.inlineLink.title.label": "Название ссылки",
-  "document.inlineLink.title.placeholder": "Введите название ссылки",
-  "errorDialog.title": "Ошибка приложения",
-  "errorDialog.howToFixFallback": "Приносим извинения за неудобства! Отправьте сообщение о проблеме на нашей странице GitHub, описывающее вашу ошибку.",
-  "errorDialog.github": "Посмотреть на GitHub",
-  "search.label": "Поиск",
-  "search.placeholder.actions": "Поисковые действия...",
-  "message.copy.success": "Скопировано!",
-  "message.copy.fail": "Не удалось скопировать",
+  "blockActions": {
+    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
+    "addAboveCmd": "Alt+щелчок",
+    "addAboveMacCmd": "Option+щелчок",
+    "addAboveTooltip": "добавить выше"
+  },
+  "errorDialog": {
+    "title": "Ошибка приложения",
+    "howToFixFallback": "Приносим извинения за неудобства! Отправьте сообщение о проблеме на нашей странице GitHub, описывающее вашу ошибку.",
+    "github": "Посмотреть на GitHub"
+  },
+  "search": {
+    "label": "Поиск",
+    "placeholder": {
+      "actions": "Поисковые действия..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Скопировано!",
+      "fail": "Не удалось скопировать"
+    }
+  },
   "unSupportBlock": "Текущая версия не поддерживает этот блок.",
-  "views.deleteContentTitle": "Вы уверены, что хотите удалить {pageType}?",
-  "views.deleteContentCaption": "если вы удалите этот {pageType}, вы сможете восстановить его из корзины."
+  "views": {
+    "deleteContentTitle": "Вы уверены, что хотите удалить {pageType}?",
+    "deleteContentCaption": "если вы удалите этот {pageType}, вы сможете восстановить его из корзины."
+  }
 }
