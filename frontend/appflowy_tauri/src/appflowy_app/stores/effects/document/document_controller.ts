@@ -91,14 +91,12 @@ export class DocumentController {
   };
 
   getInsertTextActions = (node: Node, delta: string, prevId: string | null) => {
-    const payload = this.getActionPayloadByNode(node, prevId);
     const textId = node.externalId;
 
     return [
       {
         action: BlockActionTypePB.InsertText,
         payload: {
-          ...payload,
           text_id: textId,
           delta,
         },
@@ -109,12 +107,10 @@ export class DocumentController {
 
   getApplyTextDeltaAction = (node: Node, delta: string) => {
     const textId = node.externalId;
-    const payload = this.getActionPayloadByNode(node, '');
 
     return {
       action: BlockActionTypePB.ApplyTextDelta,
       payload: {
-        ...payload,
         text_id: textId,
         delta,
       },

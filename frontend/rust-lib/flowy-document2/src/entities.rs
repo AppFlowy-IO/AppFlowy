@@ -199,18 +199,24 @@ pub struct BlockActionPB {
 
 #[derive(Default, ProtoBuf, Debug)]
 pub struct BlockActionPayloadPB {
-  #[pb(index = 1)]
-  pub block: BlockPB,
+  // When action = Insert, Update, Delete or Move, block needs to be passed.
+  #[pb(index = 1, one_of)]
+  pub block: Option<BlockPB>,
 
+  // When action = Insert or Move, prev_id needs to be passed.
   #[pb(index = 2, one_of)]
   pub prev_id: Option<String>,
 
+  // When action = Insert or Move, parent_id needs to be passed.
   #[pb(index = 3, one_of)]
   pub parent_id: Option<String>,
 
+  // When action = InsertText or ApplyTextDelta, text_id needs to be passed.
   #[pb(index = 4, one_of)]
   pub text_id: Option<String>,
 
+  // When action = InsertText or ApplyTextDelta, delta needs to be passed.
+  // The format of delta is a JSON string, similar to the serialization result of [{ "insert": "Hello World" }].
   #[pb(index = 5, one_of)]
   pub delta: Option<String>,
 }

@@ -237,7 +237,7 @@ impl From<BlockActionTypePB> for BlockActionType {
 impl From<BlockActionPayloadPB> for BlockActionPayload {
   fn from(pb: BlockActionPayloadPB) -> Self {
     Self {
-      block: Some(pb.block.into()),
+      block: pb.block.map(|b| b.into()),
       parent_id: pb.parent_id,
       prev_id: pb.prev_id,
       text_id: pb.text_id,

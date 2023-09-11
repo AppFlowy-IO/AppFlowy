@@ -233,7 +233,7 @@ impl DocumentEventTest {
     let action = BlockActionPB {
       action: BlockActionTypePB::Insert,
       payload: BlockActionPayloadPB {
-        block: new_block,
+        block: Some(new_block),
         prev_id,
         parent_id: Some(parent_id),
         text_id: None,
@@ -259,7 +259,7 @@ impl DocumentEventTest {
     let action = BlockActionPB {
       action: BlockActionTypePB::Update,
       payload: BlockActionPayloadPB {
-        block: new_block,
+        block: Some(new_block),
         prev_id: None,
         parent_id: Some(block.parent_id.clone()),
         text_id: None,
@@ -279,7 +279,7 @@ impl DocumentEventTest {
     let action = BlockActionPB {
       action: BlockActionTypePB::Delete,
       payload: BlockActionPayloadPB {
-        block,
+        block: Some(block),
         prev_id: None,
         parent_id: Some(parent_id),
         text_id: None,

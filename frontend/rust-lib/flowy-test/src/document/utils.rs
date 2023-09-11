@@ -61,7 +61,7 @@ pub fn gen_insert_block_action(document: OpenDocumentData) -> BlockActionPB {
   BlockActionPB {
     action: BlockActionTypePB::Insert,
     payload: BlockActionPayloadPB {
-      block: new_block,
+      block: Some(new_block),
       prev_id: Some(first_block_id),
       parent_id: Some(page_id),
       text_id: None,
