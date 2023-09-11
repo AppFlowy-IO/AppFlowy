@@ -44,11 +44,10 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
-  # appflowy_editor: 1.2.3
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: 3f2db9b
+      ref: dd59eb5
   appflowy_popover:
     path: packages/appflowy_popover
 
