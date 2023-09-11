@@ -402,7 +402,7 @@
       "searchOption": "Keressen egy lehetőséget"
     },
     "checklist": {
-      "panelTitle": "Adjon hozzá egy elemet"
+      "addNew": "Adjon hozzá egy elemet"
     },
     "menuName": "Rács",
     "referencedGridPrefix": "Nézet"

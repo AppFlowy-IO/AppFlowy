@@ -402,7 +402,7 @@
       "searchOption": "Bir seçenek arayın"
     },
     "checklist": {
-      "panelTitle": "öğe ekle"
+      "addNew": "öğe ekle"
     },
     "menuName": "Kafes",
     "referencedGridPrefix": "görünümü"

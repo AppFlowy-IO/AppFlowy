@@ -381,7 +381,7 @@
       "addSort": "Ajouter un tri"
     },
     "checklist": {
-      "panelTitle": "Ajouter un élément"
+      "addNew": "Ajouter un élément"
     },
     "referencedGridPrefix": "Vue"
   },

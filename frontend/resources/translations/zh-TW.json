@@ -386,7 +386,7 @@
       "searchOption": "搜尋選項"
     },
     "checklist": {
-      "panelTitle": "新增物件"
+      "addNew": "新增物件"
     },
     "menuName": "網格",
     "deleteView": "您確定要刪除該視圖嗎？",

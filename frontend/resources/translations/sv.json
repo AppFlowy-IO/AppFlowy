@@ -381,7 +381,7 @@
       "addSort": "Lägg till sortering"
     },
     "checklist": {
-      "panelTitle": "Lägg till ett objekt"
+      "addNew": "Lägg till ett objekt"
     },
     "referencedGridPrefix": "Utsikt över"
   },

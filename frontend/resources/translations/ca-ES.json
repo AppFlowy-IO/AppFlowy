@@ -402,7 +402,7 @@
       "searchOption": "Cerca una opció"
     },
     "checklist": {
-      "panelTitle": "Afegeix un element"
+      "addNew": "Afegeix un element"
     },
     "menuName": "Quadrícula",
     "referencedGridPrefix": "Vista de"

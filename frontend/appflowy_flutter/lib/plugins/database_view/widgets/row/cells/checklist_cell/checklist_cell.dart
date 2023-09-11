@@ -40,7 +40,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
       child: AppFlowyPopover(
         margin: EdgeInsets.zero,
         controller: _popover,
-        constraints: BoxConstraints.loose(const Size(260, 400)),
+        constraints: BoxConstraints.loose(const Size(360, 400)),
         direction: PopoverDirection.bottomWithLeftAligned,
         triggerActions: PopoverTriggerFlags.none,
         popupBuilder: (BuildContext context) {
@@ -56,8 +56,12 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
         child: Padding(
           padding: GridSize.cellContentInsets,
           child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-            builder: (context, state) =>
-                ChecklistProgressBar(percent: state.percent),
+            builder: (context, state) {
+              if (state.allOptions.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return ChecklistProgressBar(percent: state.percent);
+            },
           ),
         ),
       ),

@@ -370,7 +370,7 @@
       "searchOption": "Cerca un'opzione"
     },
     "checklist": {
-      "panelTitle": "Aggiungi un elemento"
+      "addNew": "Aggiungi un elemento"
     },
     "referencedGridPrefix": "Vista di"
   },

@@ -477,7 +477,9 @@
       "orSelectOne": "Or select an option"
     },
     "checklist": {
-      "panelTitle": "Add an item"
+      "taskHint": "Task description",
+      "addNew": "Add a new task",
+      "submitNewTask": "Create"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of"
