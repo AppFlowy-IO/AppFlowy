@@ -17,7 +17,7 @@ export const GridCheckboxCell: FC<{
   }, [viewId, rowId, field.id ]);
 
   return (
-    <div className="flex h-full items-center px-3">
+    <div className="flex items-center px-2">
       <Checkbox
         disableRipple
         style={{ padding: 0 }}

@@ -11,28 +11,23 @@ import {
 
 export const DatabasePage = () => {
   const viewId = useViewId();
-  const scrollElementRef = useRef<HTMLDivElement>(null);
+  const verticalScrollElementRef = useRef<HTMLDivElement>(null);
   const database = useConnectDatabase(viewId);
   const snapshot = useSnapshot(database);
 
   return (
     <div
-      ref={scrollElementRef}
-      className="scroll-container flex flex-col overflow-y-auto overflow-x-hidden h-full"
+      ref={verticalScrollElementRef}
+      className="h-full overflow-y-auto"
     >
-      <div>
-        <div className="px-16 pt-8">
-          <h1 className="text-3xl font-semibold mb-6">Grid</h1>
-          <div className="text-lg font-semibold mb-9">
-            👋  Welcome to AppFlowy
-          </div>
-        </div>
-        <VerticalScrollElementRefContext.Provider value={scrollElementRef}>
-          <DatabaseContext.Provider value={database}>
-            {snapshot.layoutType === DatabaseLayoutPB.Grid ? <Grid /> : null}
-          </DatabaseContext.Provider>
-        </VerticalScrollElementRefContext.Provider>
+      <div className="px-16 pt-8 mb-6">
+        <h1 className="text-3xl font-semibold">Grid</h1>
       </div>
+      <VerticalScrollElementRefContext.Provider value={verticalScrollElementRef}>
+        <DatabaseContext.Provider value={database}>
+          {snapshot.layoutType === DatabaseLayoutPB.Grid ? <Grid /> : null}
+        </DatabaseContext.Provider>
+      </VerticalScrollElementRefContext.Provider>
     </div>
   );
 };

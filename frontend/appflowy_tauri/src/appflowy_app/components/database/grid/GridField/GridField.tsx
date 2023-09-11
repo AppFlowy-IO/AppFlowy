@@ -1,6 +1,5 @@
-import { IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import { FC, useCallback, useRef, useState } from 'react';
-import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
 import { Database } from '$app/interfaces/database';
 import { FieldTypeSvg } from './FieldTypeSvg';
 import { GridFieldMenu } from './GridFieldMenu';
@@ -10,7 +9,7 @@ export interface GridFieldProps {
 }
 
 export const GridField: FC<GridFieldProps> = ({ field }) => {
-  const anchorEl = useRef<HTMLDivElement>(null);
+  const anchorEl = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -22,25 +21,25 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
   }, []);
 
   return (
-    <div
-      ref={anchorEl}
-      className="flex items-center p-3 h-full"
-    >
-      <div className="flex flex-1 items-center">
-        <FieldTypeSvg type={field.type} className="text-base mr-2" />
-        <span className="text-xs font-medium">
+    <>
+      <Button
+        ref={anchorEl}
+        className="flex items-center px-2 w-full"
+        onClick={handleClick}
+      >
+        <FieldTypeSvg className="text-base mr-1" type={field.type} />
+        <span className="flex-1 text-left text-xs truncate">
           {field.name}
         </span>
-      </div>
-      <IconButton size="small" onClick={handleClick}>
-        <DetailsSvg />
-      </IconButton>
-      <GridFieldMenu
-        field={field}
-        open={open}
-        anchorEl={anchorEl.current}
-        onClose={handleClose}
-      />
-    </div>
+      </Button>
+      {open && (
+        <GridFieldMenu
+          field={field}
+          open={open}
+          anchorEl={anchorEl.current}
+          onClose={handleClose}
+        />
+      )}
+    </>
   );
 };

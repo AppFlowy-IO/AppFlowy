@@ -1,37 +1,35 @@
-import { VirtualItem } from '@tanstack/react-virtual';
+import { Virtualizer } from '@tanstack/react-virtual';
 import { FC } from 'react';
 import { RenderRow, RenderRowType } from './constants';
 import { GridCellRow } from './GridCellRow';
 import { GridFieldRow } from './GridFieldRow';
 import { GridNewRow } from './GridNewRow';
+import { GridCalculateRow } from './GridCalculateRow';
 
-export const GridRow: FC<{
+export interface GridRowProps {
   row: RenderRow;
-  columnVirtualItems: VirtualItem[];
-  before: number;
-  after: number;
-}> = ({ row, columnVirtualItems, before, after }) => {
+  virtualizer: Virtualizer<Element, Element>;
+}
+
+export const GridRow: FC<GridRowProps> = ({
+  row,
+  virtualizer,
+}) => {
 
   switch (row.type) {
     case RenderRowType.Row:
       return (
         <GridCellRow
           row={row.data}
-          columnVirtualItems={columnVirtualItems}
-          before={before}
-          after={after}
+          virtualizer={virtualizer}
         />
       );
     case RenderRowType.Fields:
-      return (
-        <GridFieldRow
-          columnVirtualItems={columnVirtualItems}
-          before={before}
-          after={after}
-        />
-      );
+      return <GridFieldRow virtualizer={virtualizer} />;
     case RenderRowType.NewRow:
       return <GridNewRow />;
+    case RenderRowType.Calculate:
+      return <GridCalculateRow />;
     default:
       return null;
   }
