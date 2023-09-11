@@ -28,12 +28,12 @@ class BrightnessSetting extends StatelessWidget {
           trailing: [
             ThemeValueDropDown(
               currentValue: _themeModeLabelText(currentThemeMode),
-              popupBuilder: (_, controller) => Column(
+              popupBuilder: (context) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _themeModeItemButton(context, controller, ThemeMode.light),
-                  _themeModeItemButton(context, controller, ThemeMode.dark),
-                  _themeModeItemButton(context, controller, ThemeMode.system),
+                  _themeModeItemButton(context, ThemeMode.light),
+                  _themeModeItemButton(context, ThemeMode.dark),
+                  _themeModeItemButton(context, ThemeMode.system),
                 ],
               ),
             ),
@@ -55,7 +55,6 @@ class BrightnessSetting extends StatelessWidget {
 
   Widget _themeModeItemButton(
     BuildContext context,
-    PopoverController controller,
     ThemeMode themeMode,
   ) {
     return SizedBox(
@@ -71,7 +70,7 @@ class BrightnessSetting extends StatelessWidget {
           if (currentThemeMode != themeMode) {
             context.read<AppearanceSettingsCubit>().setThemeMode(themeMode);
           }
-          controller.close();
+          PopoverContainer.of(context).close();
         },
       ),
     );

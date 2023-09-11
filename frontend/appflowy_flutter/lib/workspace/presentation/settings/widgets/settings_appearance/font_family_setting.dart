@@ -51,7 +51,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
           onClose: () {
             query.value = '';
           },
-          popupBuilder: (_, controller) => CustomScrollView(
+          popupBuilder: (_) => CustomScrollView(
             shrinkWrap: true,
             slivers: [
               SliverPadding(
@@ -89,7 +89,6 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                   return SliverFixedExtentList.builder(
                     itemBuilder: (context, index) => _fontFamilyItemButton(
                       context,
-                      controller,
                       GoogleFonts.getFont(displayed[index]),
                     ),
                     itemCount: displayed.length,
@@ -113,7 +112,6 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
 
   Widget _fontFamilyItemButton(
     BuildContext context,
-    PopoverController controller,
     TextStyle style,
   ) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
@@ -134,6 +132,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                   )
                 : null,
         onTap: () async {
+          final popover = PopoverContainer.of(context);
           if (parseFontFamilyName(widget.currentFontFamily) !=
               buttonFontFamily) {
             context
@@ -143,7 +142,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                 .read<DocumentAppearanceCubit>()
                 .syncFontFamily(parseFontFamilyName(style.fontFamily!));
           }
-          controller.close();
+          popover.close();
         },
       ),
     );
