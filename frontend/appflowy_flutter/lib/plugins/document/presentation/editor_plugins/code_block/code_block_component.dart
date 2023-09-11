@@ -127,6 +127,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     'C#',
     'CPP',
     'Clojure',
+    'CS',
     'CSS',
     'Dart',
     'Docker',
