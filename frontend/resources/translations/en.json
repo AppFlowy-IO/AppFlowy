@@ -452,7 +452,10 @@
       "deleteTag": "Delete tag",
       "colorPanelTitle": "Colors",
       "panelTitle": "Select an option or create one",
-      "searchOption": "Search for an option"
+      "searchOption": "Search for an option",
+      "searchOrCreateOption": "Search or create an option...",
+      "createNew": "Create an new",
+      "orSelectOne": "Or select an option"
     },
     "checklist": {
       "panelTitle": "Add an item"
