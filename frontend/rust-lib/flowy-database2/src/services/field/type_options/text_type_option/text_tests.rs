@@ -12,7 +12,7 @@ mod tests {
   #[test]
   fn date_type_to_text_type() {
     let field_type = FieldType::DateTime;
-    let field = FieldBuilder::from_field_type(field_type.clone()).build();
+    let field = FieldBuilder::new(field_type.clone(), DateTypeOption::test()).build();
 
     assert_eq!(
       stringify_cell_data(
