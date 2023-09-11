@@ -51,32 +51,33 @@ class MentionDateBlock extends StatelessWidget {
           value: getIt<ReminderBloc>(),
         ),
       ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        buildWhen: (previous, current) =>
-            previous.dateFormat != current.dateFormat ||
-            previous.timeFormat != current.timeFormat,
-        builder: (context, appearance) {
-          return BlocBuilder<ReminderBloc, ReminderState>(
-            builder: (context, state) {
-              final reminder =
-                  state.reminders.firstWhereOrNull((r) => r.id == reminderId);
-              final noReminder = reminder == null && isReminder;
+      child: BlocBuilder<ReminderBloc, ReminderState>(
+        builder: (context, state) =>
+            BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          buildWhen: (previous, current) =>
+              previous.dateFormat != current.dateFormat ||
+              previous.timeFormat != current.timeFormat,
+          builder: (context, appearance) {
+            final reminder =
+                state.reminders.firstWhereOrNull((r) => r.id == reminderId);
+            final noReminder = reminder == null && isReminder;
 
-              final formattedDate = appearance.dateFormat.formatDate(
-                parsedDate,
-                includeTime,
-                appearance.timeFormat,
-              );
+            final formattedDate = appearance.dateFormat.formatDate(
+              parsedDate,
+              includeTime,
+              appearance.timeFormat,
+            );
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: AppFlowyPopover(
-                    direction: PopoverDirection.bottomWithLeftAligned,
-                    constraints: BoxConstraints.loose(const Size(260, 420)),
-                    popupBuilder: (popoverContext) {
-                      return AppFlowyCalendar(
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: AppFlowyPopover(
+                  direction: PopoverDirection.bottomWithLeftAligned,
+                  constraints: BoxConstraints.loose(const Size(260, 420)),
+                  popupBuilder: (popoverContext) {
+                    return SingleChildScrollView(
+                      child: AppFlowyCalendar(
                         format: CalendarFormat.month,
                         firstDay: isReminder
                             ? noReminder
@@ -88,70 +89,30 @@ class MentionDateBlock extends StatelessWidget {
                         focusedDay: parsedDate,
                         includeTime: includeTime,
                         timeFormat: appearance.timeFormat,
-                        // We can already remove time from the date/reminder
-                        //  block when toggled off.
-                        onIncludeDisabled: () {
-                          final editorState = context.read<EditorState>();
-                          final transaction = editorState.transaction
-                            ..formatText(node, index, 1, {
-                              MentionBlockKeys.mention: {
-                                MentionBlockKeys.type: isReminder
-                                    ? MentionType.reminder.name
-                                    : MentionType.date.name,
-                                MentionBlockKeys.date:
-                                    parsedDate.withoutTime.toIso8601String(),
-                                MentionBlockKeys.uid: reminderId,
-                                MentionBlockKeys.includeTime: false,
-                              },
-                            });
-
-                          editorState.apply(
-                            transaction,
-                            withUpdateSelection: false,
+                        onIncludeTimeChanged: (includeTime) {
+                          _updateBlock(
+                            context,
+                            parsedDate.withoutTime,
+                            includeTime,
                           );
 
-                          // Length of rendered block changes, this synchronizes
-                          //  the cursor with the new block render
-                          editorState.updateSelectionWithReason(
-                            editorState.selection,
-                            reason: SelectionUpdateReason.transaction,
-                          );
-
-                          context.read<ReminderBloc>().add(
-                                ReminderEvent.update(
-                                  reminderId: reminderId!,
-                                  date: parsedDate.withoutTime,
-                                ),
-                              );
+                          // We can remove time from the date/reminder
+                          //  block when toggled off.
+                          if (!includeTime) {
+                            context.read<ReminderBloc>().add(
+                                  ReminderEvent.update(
+                                    reminderId: reminderId!,
+                                    date: parsedDate.withoutTime,
+                                  ),
+                                );
+                          }
                         },
-                        onDaySelected: (selectedDay, focusedDay, includeTime) {
-                          final editorState = context.read<EditorState>();
-
-                          final transaction = editorState.transaction
-                            ..formatText(node, index, 1, {
-                              MentionBlockKeys.mention: {
-                                MentionBlockKeys.type: isReminder
-                                    ? MentionType.reminder.name
-                                    : MentionType.date.name,
-                                MentionBlockKeys.date:
-                                    selectedDay.toIso8601String(),
-                                MentionBlockKeys.uid: reminderId,
-                                MentionBlockKeys.includeTime: includeTime,
-                              },
-                            });
-
-                          editorState.apply(
-                            transaction,
-                            withUpdateSelection: false,
-                          );
-
-                          // Length of rendered block can have
-                          //  changed, this synchronizes the cursor
-                          //  with the new block render
-                          editorState.updateSelectionWithReason(
-                            editorState.selection,
-                            reason: SelectionUpdateReason.transaction,
-                          );
+                        onDaySelected: (
+                          selectedDay,
+                          focusedDay,
+                          includeTime,
+                        ) {
+                          _updateBlock(context, selectedDay, includeTime);
 
                           if (isReminder &&
                               date != selectedDay.toIso8601String()) {
@@ -163,43 +124,73 @@ class MentionDateBlock extends StatelessWidget {
                                 );
                           }
                         },
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FlowySvg(
-                            isReminder
-                                ? FlowySvgs.clock_alarm_s
-                                : FlowySvgs.date_s,
-                            size: const Size.square(18.0),
-                            color: noReminder
-                                ? Theme.of(context).colorScheme.error
-                                : null,
-                          ),
-                          const HSpace(2),
-                          FlowyText(
-                            formattedDate,
-                            fontSize: fontSize,
-                            color: noReminder
-                                ? Theme.of(context).colorScheme.error
-                                : null,
-                            decoration: reminder?.isAck ?? false
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ],
                       ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FlowySvg(
+                          isReminder
+                              ? FlowySvgs.clock_alarm_s
+                              : FlowySvgs.date_s,
+                          size: const Size.square(18.0),
+                          color: noReminder
+                              ? Theme.of(context).colorScheme.error
+                              : null,
+                        ),
+                        const HSpace(2),
+                        FlowyText(
+                          formattedDate,
+                          fontSize: fontSize,
+                          color: noReminder
+                              ? Theme.of(context).colorScheme.error
+                              : null,
+                          decoration: reminder?.isAck ?? false
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              );
-            },
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  void _updateBlock(
+    BuildContext context,
+    DateTime date, [
+    bool includeTime = false,
+  ]) {
+    final editorState = context.read<EditorState>();
+    final transaction = editorState.transaction
+      ..formatText(node, index, 1, {
+        MentionBlockKeys.mention: {
+          MentionBlockKeys.type:
+              isReminder ? MentionType.reminder.name : MentionType.date.name,
+          MentionBlockKeys.date: date.toIso8601String(),
+          MentionBlockKeys.uid: reminderId,
+          MentionBlockKeys.includeTime: includeTime,
+        },
+      });
+
+    editorState.apply(
+      transaction,
+      withUpdateSelection: false,
+    );
+
+    // Length of rendered block changes, this synchronizes
+    //  the cursor with the new block render
+    editorState.updateSelectionWithReason(
+      editorState.selection,
+      reason: SelectionUpdateReason.transaction,
     );
   }
 }

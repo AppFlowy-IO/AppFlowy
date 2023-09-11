@@ -22,10 +22,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           remindersOrFailure.fold(
             (error) => Log.error(error),
-            (reminders) {
-              debugPrint("REMINDER COUNT: ${reminders.length}");
-              emit(state.copyWith(reminders: reminders));
-            },
+            (reminders) => emit(state.copyWith(reminders: reminders)),
           );
         },
         remove: (reminderId) async {
@@ -54,9 +51,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
-        notify: (_) {
-          // TODO(Xazin): In-app Notification should be triggered
-        },
         update: (reminderId, date) async {
           final reminder =
               state.reminders.firstWhereOrNull((r) => r.id == reminderId);
@@ -78,7 +72,17 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           final failureOrUnit =
               await reminderService.updateReminder(reminder: newReminder);
 
-          failureOrUnit.fold((error) => Log.error(error), (r) => null);
+          failureOrUnit.fold(
+            (error) => Log.error(error),
+            (r) {
+              final index =
+                  state.reminders.indexWhere((r) => r.id == reminderId);
+              final reminders = [...state.reminders];
+              reminders.replaceRange(index, index + 1, [newReminder]);
+
+              emit(state.copyWith(reminders: reminders));
+            },
+          );
         },
       );
     });
@@ -95,9 +99,6 @@ class ReminderEvent with _$ReminderEvent {
 
   // Add a reminder
   const factory ReminderEvent.add({required ReminderPB reminder}) = _Add;
-
-  // Notify of a reminder (In-app notification)
-  const factory ReminderEvent.notify({required ReminderPB reminder}) = _Notify;
 
   const factory ReminderEvent.update({
     required String reminderId,

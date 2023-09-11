@@ -3,8 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -62,7 +60,7 @@ class _DateCellEditor extends State<DateCellEditor> {
       },
       (err) {
         Log.error(err);
-        return const SizedBox();
+        return const SizedBox.shrink();
       },
     );
   }
@@ -83,14 +81,7 @@ class _CellCalendarWidget extends StatefulWidget {
 }
 
 class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
-  late PopoverMutex popoverMutex;
-
-  @override
-  void initState() {
-    popoverMutex = PopoverMutex();
-
-    super.initState();
-  }
+  final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -103,21 +94,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
           final List<Widget> children = [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: _buildCalendar(context),
-            ),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime
-                  ? _TimeTextField(
-                      timeStr: state.time,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            const TypeOptionSeparator(spacing: 12.0),
-            const _IncludeTimeButton(),
+            _buildCalendar(context),
             const TypeOptionSeparator(spacing: 12.0),
             DateTypeOptionButton(popoverMutex: popoverMutex),
             const TypeOptionSeparator(spacing: 12.0),
@@ -149,6 +126,17 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           selectedDate: state.dateTime,
           focusedDay: state.focusedDay,
           format: state.format,
+          includeTime: state.includeTime,
+          onTimeChanged: (time) {
+            if (time != null) {
+              context
+                  .read<DateCellCalendarBloc>()
+                  .add(DateCellCalendarEvent.setTime(time));
+            }
+          },
+          onIncludeTimeChanged: (includeTime) => context
+              .read<DateCellCalendarBloc>()
+              .add(DateCellCalendarEvent.setIncludeTime(includeTime)),
           onDaySelected: (selectedDay, focusedDay, _) => context
               .read<DateCellCalendarBloc>()
               .add(DateCellCalendarEvent.selectDay(selectedDay.toLocal().date)),
@@ -158,116 +146,6 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           onPageChanged: (focusedDay) => context
               .read<DateCellCalendarBloc>()
               .add(DateCellCalendarEvent.setFocusedDay(focusedDay)),
-        );
-      },
-    );
-  }
-}
-
-class _IncludeTimeButton extends StatelessWidget {
-  const _IncludeTimeButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
-      selector: (state) => state.includeTime,
-      builder: (context, includeTime) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: SizedBox(
-            height: GridSize.popoverItemHeight,
-            child: Padding(
-              padding: GridSize.typeOptionContentInsets,
-              child: Row(
-                children: [
-                  FlowySvg(
-                    FlowySvgs.clock_alarm_s,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                  const HSpace(6),
-                  FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
-                  const Spacer(),
-                  Toggle(
-                    value: includeTime,
-                    onChanged: (value) => context
-                        .read<DateCellCalendarBloc>()
-                        .add(DateCellCalendarEvent.setIncludeTime(!value)),
-                    style: ToggleStyle.big,
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _TimeTextField extends StatefulWidget {
-  final String? timeStr;
-  final PopoverMutex popoverMutex;
-
-  const _TimeTextField({
-    required this.timeStr,
-    required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<_TimeTextField> createState() => _TimeTextFieldState();
-}
-
-class _TimeTextFieldState extends State<_TimeTextField> {
-  late final FocusNode _focusNode;
-  late final TextEditingController _textController;
-
-  @override
-  void initState() {
-    _focusNode = FocusNode();
-    _textController = TextEditingController()..text = widget.timeStr ?? "";
-
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        widget.popoverMutex.close();
-      }
-    });
-
-    widget.popoverMutex.listenOnPopoverChanged(() {
-      if (_focusNode.hasFocus) {
-        _focusNode.unfocus();
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<DateCellCalendarBloc, DateCellCalendarState>(
-      listener: (context, state) => _textController.text = state.time ?? "",
-      builder: (context, state) {
-        return Column(
-          children: [
-            const VSpace(12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: FlowyTextField(
-                text: state.time ?? "",
-                focusNode: _focusNode,
-                controller: _textController,
-                submitOnLeave: true,
-                hintText: state.timeHintText,
-                errorText: state.timeFormatError,
-                onSubmitted: (timeStr) {
-                  context
-                      .read<DateCellCalendarBloc>()
-                      .add(DateCellCalendarEvent.setTime(timeStr));
-                },
-              ),
-            ),
-          ],
         );
       },
     );

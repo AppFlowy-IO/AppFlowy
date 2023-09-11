@@ -25,7 +25,8 @@ class AppFlowyCalendar extends StatefulWidget {
     this.onDaySelected,
     this.onFormatChanged,
     this.onPageChanged,
-    this.onIncludeDisabled,
+    this.onIncludeTimeChanged,
+    this.onTimeChanged,
     this.includeTime = false,
     this.timeFormat = TimeFormatPB.TwentyFourHour,
   });
@@ -48,10 +49,10 @@ class AppFlowyCalendar extends StatefulWidget {
     bool includeTime,
   )? onDaySelected;
 
-  final VoidCallback? onIncludeDisabled;
-
+  final void Function(bool includeTime)? onIncludeTimeChanged;
   final void Function(CalendarFormat format)? onFormatChanged;
   final void Function(DateTime focusedDay)? onPageChanged;
+  final void Function(String? time)? onTimeChanged;
 
   final bool includeTime;
 
@@ -166,20 +167,20 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
               _includeTime = includeTime;
             });
 
-            if (!includeTime) {
-              widget.onIncludeDisabled?.call();
-            }
+            widget.onIncludeTimeChanged?.call(includeTime);
           },
           onSubmitted: (time) {
             _time = time;
 
-            if (widget.selectedDate != null) {
+            if (widget.selectedDate != null && widget.onTimeChanged == null) {
               _updateSelectedDay(
                 widget.selectedDate!,
                 widget.selectedDate!,
                 _includeTime,
               );
             }
+
+            widget.onTimeChanged?.call(time);
           },
         ),
       ],
