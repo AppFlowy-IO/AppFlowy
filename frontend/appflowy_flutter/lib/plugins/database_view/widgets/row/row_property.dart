@@ -18,6 +18,7 @@ import 'cell_builder.dart';
 import 'cells/date_cell/date_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
+import 'cells/timestamp_cell/timestamp_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
 /// Display the row properties in a list. Only use this widget in the
@@ -156,9 +157,12 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checkbox:
       return null;
     case FieldType.DateTime:
+      return DateCellStyle(
+        alignment: Alignment.centerLeft,
+      );
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return DateCellStyle(
+      return TimestampCellStyle(
         alignment: Alignment.centerLeft,
       );
     case FieldType.MultiSelect:

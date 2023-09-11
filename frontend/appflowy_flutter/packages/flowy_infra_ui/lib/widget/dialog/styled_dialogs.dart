@@ -106,13 +106,14 @@ class DialogBarrier {
   String label;
   Color color;
   bool dismissible;
-  ImageFilter filter;
+  ImageFilter? filter;
 
   DialogBarrier({
     this.dismissible = true,
     this.color = Colors.transparent,
     this.label = '',
-  }) : filter = ImageFilter.blur(sigmaX: 4, sigmaY: 4);
+    this.filter,
+  });
 }
 
 class StyledDialogRoute<T> extends PopupRoute<T> {
