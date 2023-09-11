@@ -7,7 +7,7 @@ export class Log {
   }
 
   static debug(...msg: unknown[]) {
-    console.log(...msg);
+    console.debug(...msg);
   }
 
   static trace(...msg: unknown[]) {

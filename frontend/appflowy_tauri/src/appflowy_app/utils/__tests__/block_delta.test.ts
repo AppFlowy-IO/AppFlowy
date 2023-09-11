@@ -112,30 +112,14 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions.length).toEqual(3);
     expect(actions[0].action).toEqual(5);
     expect(actions[0].payload).toEqual({
-      block: {
-        id: 'gtYcSzwLYw',
-        ty: 'heading',
-        children_id: 'WhIA288H8O',
-        data: '{"level":1}',
-        external_id: 'KbkL-wXQrN',
-        external_type: 'text',
-        parent_id: 'ifF_PvQeOu',
-      },
       delta: '[{"retain":7},{"delete":13}]',
-      parent_id: 'ifF_PvQeOu',
-      prev_id: '',
       text_id: 'KbkL-wXQrN',
     });
     expect(actions[1].action).toEqual(4);
-    expect(actions[1].payload).toHaveProperty('block');
-    expect(actions[1].payload.block.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[1].payload.block.ty).toEqual('paragraph');
-    expect(actions[1].payload.block).toHaveProperty('external_id');
-    expect(actions[1].payload.block.external_id).toBeTruthy();
+    expect(actions[1].payload).toHaveProperty('text_id');
+    expect(actions[1].payload).toHaveProperty('delta');
     expect(actions[1].payload.delta).toEqual('[{"insert":" to AppFlowy!"}]');
-    expect(actions[1].payload.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[1].payload.prev_id).toEqual('gtYcSzwLYw');
-    expect(actions[1].payload.text_id).toEqual(actions[1].payload.block.external_id);
+    expect(actions[1].payload.text_id).toEqual(actions[2].payload.block.external_id);
     expect(actions[2].action).toEqual(0);
     expect(actions[2].payload).toHaveProperty('block');
     expect(actions[2].payload.block.parent_id).toEqual('ifF_PvQeOu');
@@ -168,8 +152,6 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions).toBeTruthy();
     expect(actions.length).toEqual(6);
     expect(actions[0].action).toEqual(5);
-    expect(actions[0].payload.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[0].payload.prev_id).toEqual('');
     expect(actions[0].payload.text_id).toEqual('F3zvDsXHha');
     expect(actions[0].payload.delta).toEqual('[{"retain":8},{"delete":87}]');
     expect(actions[1].action).toEqual(2);
@@ -179,8 +161,7 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions[2].payload.parent_id).toEqual('ifF_PvQeOu');
     expect(actions[2].payload.prev_id).toEqual('');
     expect(actions[3].action).toEqual(4);
-    expect(actions[3].payload.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[3].payload.prev_id).toEqual('pYV_AGVqEE');
+    expect(actions[3].payload.text_id).toEqual(actions[4].payload.block.external_id);
     expect(actions[3].payload.delta).toEqual(
       '[{"insert":" "},{"attributes":{"code":true},"insert":"+"},{"insert":" next to any page title in the sidebar to "},{"attributes":{"font_color":"0xff8427e0"},"insert":"quickly"},{"insert":" add a new subpage, "},{"attributes":{"code":true},"insert":"Document"},{"attributes":{"code":false},"insert":", "},{"attributes":{"code":true},"insert":"Grid"},{"attributes":{"code":false},"insert":", or "},{"attributes":{"code":true},"insert":"Kanban Board"},{"attributes":{"code":false},"insert":"."}]'
     );
@@ -213,18 +194,7 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions.length).toEqual(1);
     expect(actions[0].action).toEqual(5);
     expect(actions[0].payload).toEqual({
-      block: {
-        id: 'gtYcSzwLYw',
-        ty: 'heading',
-        children_id: 'WhIA288H8O',
-        data: '{"level":1}',
-        external_id: 'KbkL-wXQrN',
-        external_type: 'text',
-        parent_id: 'ifF_PvQeOu',
-      },
       delta: '[{"retain":7},{"delete":1}]',
-      parent_id: 'ifF_PvQeOu',
-      prev_id: '',
       text_id: 'KbkL-wXQrN',
     });
   });
@@ -251,8 +221,6 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions).toBeTruthy();
     expect(actions.length).toEqual(6);
     expect(actions[0].action).toEqual(5);
-    expect(actions[0].payload.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[0].payload.prev_id).toEqual('');
     expect(actions[0].payload.text_id).toEqual('F3zvDsXHha');
     expect(actions[0].payload.delta).toEqual('[{"retain":8},{"delete":87}]');
     expect(actions[1].action).toEqual(2);
@@ -262,11 +230,10 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions[2].payload.parent_id).toEqual('ifF_PvQeOu');
     expect(actions[2].payload.prev_id).toEqual('');
     expect(actions[3].action).toEqual(4);
-    expect(actions[3].payload.parent_id).toEqual('ifF_PvQeOu');
-    expect(actions[3].payload.prev_id).toEqual('pYV_AGVqEE');
     expect(actions[3].payload.delta).toEqual(
       '[{"insert":" "},{"attributes":{"code":true},"insert":"+"},{"insert":" next to any page title in the sidebar to "},{"attributes":{"font_color":"0xff8427e0"},"insert":"quickly"},{"insert":" add a new subpage, "},{"attributes":{"code":true},"insert":"Document"},{"attributes":{"code":false},"insert":", "},{"attributes":{"code":true},"insert":"Grid"},{"attributes":{"code":false},"insert":", or "},{"attributes":{"code":true},"insert":"Kanban Board"},{"attributes":{"code":false},"insert":"."}]'
     );
+    expect(actions[3].payload.text_id).toEqual(actions[4].payload.block.external_id);
     expect(actions[4].action).toEqual(0);
     expect(actions[4].payload.parent_id).toEqual('ifF_PvQeOu');
     expect(actions[4].payload.prev_id).toEqual('pYV_AGVqEE');
@@ -287,18 +254,7 @@ describe('Test BlockDeltaOperator', () => {
     expect(actions.length).toEqual(2);
     expect(actions[0].action).toEqual(5);
     expect(actions[0].payload).toEqual({
-      block: {
-        id: 'gtYcSzwLYw',
-        ty: 'heading',
-        children_id: 'WhIA288H8O',
-        data: '{"level":1}',
-        external_id: 'KbkL-wXQrN',
-        external_type: 'text',
-        parent_id: 'ifF_PvQeOu',
-      },
       delta: '[{"retain":20},{"insert":"Here are the basics"}]',
-      parent_id: 'ifF_PvQeOu',
-      prev_id: '',
       text_id: 'KbkL-wXQrN',
     });
     expect(actions[1].action).toEqual(2);
