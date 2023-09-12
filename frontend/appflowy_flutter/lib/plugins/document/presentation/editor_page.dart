@@ -34,7 +34,9 @@ class AppFlowyEditorPage extends StatefulWidget {
 }
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
+  toggleToggleListCommand,
   ...codeBlockCommands,
+  ...copyAndPasteCommands,
   ...standardCommandShortcutEvents,
 ];
 
@@ -46,15 +48,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
 
   final inlinePageReferenceService = InlinePageReferenceService();
-
-  final List<CommandShortcutEvent> commandShortcutEvents = [
-    toggleToggleListCommand,
-    ...codeBlockCommands,
-    customCopyCommand,
-    customPasteCommand,
-    customCutCommand,
-    ...standardCommandShortcutEvents,
-  ];
 
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
