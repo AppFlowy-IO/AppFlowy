@@ -238,6 +238,9 @@ pub enum ErrorCode {
 
   #[error("Parse url failed")]
   InvalidURL = 78,
+
+  #[error("Require Email Confirmation, Sign in after email confirmation")]
+  AwaitingEmailConfirmation = 79,
 }
 
 impl ErrorCode {

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Error;
 use collab_plugins::cloud_storage::CollabObject;
 
@@ -6,26 +8,29 @@ use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use tokio::sync::Mutex;
 
 use crate::af_cloud::configuration::{AFCloudConfiguration, HEADER_TOKEN};
 use crate::request::HttpRequestBuilder;
 
 pub(crate) struct AFCloudUserAuthServiceImpl {
   config: AFCloudConfiguration,
+  client: Arc<Mutex<client_api::Client>>,
 }
 
 impl AFCloudUserAuthServiceImpl {
-  pub(crate) fn new(config: AFCloudConfiguration) -> Self {
-    Self { config }
+  pub(crate) fn new(config: AFCloudConfiguration, client: client_api::Client) -> Self {
+    let client = Arc::new(Mutex::new(client));
+    Self { config, client }
   }
 }
 
 impl UserCloudService for AFCloudUserAuthServiceImpl {
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
-    let url = self.config.sign_up_url();
+    let c = self.client.clone();
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
-      let resp = user_sign_up_request(params, &url).await?;
+      let resp = user_sign_up_request(c, params).await?;
       Ok(resp)
     })
   }
@@ -145,11 +150,24 @@ impl UserCloudService for AFCloudUserAuthServiceImpl {
 }
 
 pub async fn user_sign_up_request(
+  client: Arc<Mutex<client_api::Client>>,
   params: SignUpParams,
-  url: &str,
 ) -> Result<SignUpResponse, FlowyError> {
-  let response = request_builder().post(url).json(params)?.response().await?;
-  Ok(response)
+  let client = client.try_lock().map_err(|e| {
+    FlowyError::new(
+      ErrorCode::UnexpectedEmpty,
+      format!("Client is not available: {}", e),
+    )
+  })?;
+
+  let user = client.sign_up(&params.email, &params.password).await?;
+  tracing::info!("User signed up: {:?}", user);
+  // after the sign up, we need to wait for user to be verified (email)
+  // before we can return the response
+  Err(FlowyError::new(
+    ErrorCode::AwaitingEmailConfirmation,
+    "Awaiting email confirmation".to_string(),
+  ))
 }
 
 pub async fn user_sign_in_request(
