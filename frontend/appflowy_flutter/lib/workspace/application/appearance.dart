@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/workspace/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -281,7 +283,15 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       MaterialState.dragged,
     };
 
-    return ThemeData(
+    if (PlatformExtension.isMobile) {
+      // Mobile version has only one theme(light mode) for now.
+      // The desktop theme and the mobile theme are independent.
+      final mobileThemeData = getMobileThemeData();
+      return mobileThemeData;
+    }
+
+    // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
+    final desktopThemeData = ThemeData(
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
@@ -372,6 +382,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         )
       ],
     );
+    return desktopThemeData;
   }
 
   TextStyle _getFontStyle({
