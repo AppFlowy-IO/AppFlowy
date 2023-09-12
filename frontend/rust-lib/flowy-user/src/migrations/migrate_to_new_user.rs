@@ -144,7 +144,7 @@ where
     vec![],
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
-    old_collab_r_txn.load_doc(
+    old_collab_r_txn.load_doc_with_txn(
       old_user.session.user_id,
       &old_user.session.user_workspace.database_views_aggregate_id,
       txn,
@@ -186,14 +186,15 @@ where
   }
 }
 
-fn migrate_workspace_folder<'a, W>(
+fn migrate_workspace_folder<'a, 'b, W>(
   old_to_new_id_map: &mut OldToNewIdMap,
   old_user: &MigrationUser,
-  old_collab_r_txn: &'a W,
+  old_collab_r_txn: &'b W,
   new_user: &MigrationUser,
   new_collab_w_txn: &'a W,
 ) -> Result<(), PersistenceError>
 where
+  'a: 'b,
   W: YrsDocAction<'a>,
   PersistenceError: From<W::Error>,
 {
@@ -203,8 +204,9 @@ where
   let new_workspace_id = &new_user.session.user_workspace.id;
 
   let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![]);
-  old_folder_collab
-    .with_origin_transact_mut(|txn| old_collab_r_txn.load_doc(old_uid, old_workspace_id, txn))?;
+  old_folder_collab.with_origin_transact_mut(|txn| {
+    old_collab_r_txn.load_doc_with_txn(old_uid, old_workspace_id, txn)
+  })?;
   let old_folder = Folder::open(Arc::new(MutexCollab::from_collab(old_folder_collab)), None);
   let mut folder_data = old_folder
     .get_folder_data()
@@ -417,7 +419,7 @@ where
   for object_id in object_ids {
     let collab = Collab::new(old_user.session.user_id, object_id, "phantom", vec![]);
     match collab.with_origin_transact_mut(|txn| {
-      old_collab_r_txn.load_doc(old_user.session.user_id, &object_id, txn)
+      old_collab_r_txn.load_doc_with_txn(old_user.session.user_id, &object_id, txn)
     }) {
       Ok(_) => {
         collab_by_oid.insert(object_id.clone(), collab);

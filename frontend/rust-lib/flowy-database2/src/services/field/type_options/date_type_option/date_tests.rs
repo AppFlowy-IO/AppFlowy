@@ -10,7 +10,6 @@ mod tests {
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
   use crate::services::field::{
     DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder, TimeFormat,
-    TypeOptionCellDataSerde,
   };
 
   #[test]
@@ -409,33 +408,18 @@ mod tests {
     old_cell_data: Option<Cell>,
     expected_str: &str,
   ) {
-    let (cell, cell_data) = type_option
+    let (cell, _) = type_option
       .apply_changeset(changeset, old_cell_data)
       .unwrap();
 
-    assert_eq!(
-      decode_cell_data(&cell, type_option, cell_data.include_time, field),
-      expected_str,
-    );
+    assert_eq!(decode_cell_data(&cell, type_option, field), expected_str,);
   }
 
-  fn decode_cell_data(
-    cell: &Cell,
-    type_option: &DateTypeOption,
-    include_time: bool,
-    field: &Field,
-  ) -> String {
+  fn decode_cell_data(cell: &Cell, type_option: &DateTypeOption, field: &Field) -> String {
     let decoded_data = type_option
       .decode_cell(cell, &FieldType::DateTime, field)
       .unwrap();
-    let decoded_data = type_option.protobuf_encode(decoded_data);
-    if include_time {
-      format!("{} {}", decoded_data.date, decoded_data.time)
-        .trim_end()
-        .to_owned()
-    } else {
-      decoded_data.date
-    }
+    type_option.stringify_cell_data(decoded_data)
   }
 
   fn initialize_date_cell(type_option: &DateTypeOption, changeset: DateCellChangeset) -> Cell {

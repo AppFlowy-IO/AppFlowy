@@ -145,7 +145,7 @@ class NaviItemWidget extends StatelessWidget {
 
 class NaviItemDivider extends StatelessWidget {
   final Widget child;
-  const NaviItemDivider({Key? key, required this.child}) : super(key: key);
+  const NaviItemDivider({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

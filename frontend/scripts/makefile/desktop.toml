@@ -20,7 +20,7 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
@@ -30,7 +30,7 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
@@ -40,13 +40,13 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
 
 #
-[tasks.sdk-build]
+[tasks.sdk-dev-build]
 private = true
 script = [
   """
@@ -59,7 +59,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-build.mac]
+[tasks.sdk-dev-build.mac]
 private = true
 script = [
   """
@@ -72,7 +72,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-build-android]
+[tasks.sdk-dev-build-android]
 private = true
 script = [
   """
@@ -98,7 +98,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-build.windows]
+[tasks.sdk-dev-build.windows]
 private = true
 script = [
   """
@@ -126,7 +126,7 @@ run_task = { name = [
 script = [
   """
     cd rust-lib/
-    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

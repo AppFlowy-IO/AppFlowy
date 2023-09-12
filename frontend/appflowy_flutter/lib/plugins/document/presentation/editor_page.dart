@@ -152,11 +152,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
+    final editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
+
     final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
+      editorScrollController: editorScrollController,
       // setup the auto focus parameters
       autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
@@ -179,20 +184,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             : TextDirection.ltr;
 
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: double.infinity,
-          maxHeight: double.infinity,
-        ),
-        child: FloatingToolbar(
-          style: styleCustomizer.floatingToolbarStyleBuilder(),
-          items: toolbarItems,
-          editorState: widget.editorState,
-          scrollController: effectiveScrollController,
-          child: Directionality(
-            textDirection: layoutDirection,
-            child: editor,
-          ),
+      child: FloatingToolbar(
+        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        items: toolbarItems,
+        editorState: widget.editorState,
+        editorScrollController: editorScrollController,
+        child: Directionality(
+          textDirection: layoutDirection,
+          child: editor,
         ),
       ),
     );
