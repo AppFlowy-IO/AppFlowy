@@ -102,10 +102,10 @@ class FolderOptionsWidget extends StatelessWidget {
 
 class CreateFolderWidget extends StatefulWidget {
   const CreateFolderWidget({
-    Key? key,
+    super.key,
     required this.onPressedBack,
     required this.onPressedCreate,
-  }) : super(key: key);
+  });
 
   final VoidCallback onPressedBack;
   final Future<void> Function() onPressedCreate;
