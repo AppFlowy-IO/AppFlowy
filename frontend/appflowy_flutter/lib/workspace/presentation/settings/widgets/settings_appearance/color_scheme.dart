@@ -75,7 +75,7 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
   }
 }
 
-class ColorSchemeUploadPopover extends StatefulWidget {
+class ColorSchemeUploadPopover extends StatelessWidget {
   const ColorSchemeUploadPopover({
     super.key,
     required this.currentTheme,
@@ -86,20 +86,11 @@ class ColorSchemeUploadPopover extends StatefulWidget {
   final DynamicPluginBloc bloc;
 
   @override
-  State<ColorSchemeUploadPopover> createState() =>
-      _ColorSchemeUploadPopoverState();
-}
-
-class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
-  final PopoverController controller = PopoverController();
-
-  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      controller: controller,
       direction: PopoverDirection.bottomWithRightAligned,
       child: FlowyTextButton(
-        widget.currentTheme,
+        currentTheme,
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
         onPressed: () {},
@@ -107,7 +98,7 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
       popupBuilder: (BuildContext context) {
         return IntrinsicWidth(
           child: BlocBuilder<DynamicPluginBloc, DynamicPluginState>(
-            bloc: widget.bloc..add(DynamicPluginEvent.load()),
+            bloc: bloc..add(DynamicPluginEvent.load()),
             buildWhen: (previous, current) => current is Ready,
             builder: (context, state) {
               return state.maybeWhen(
@@ -116,11 +107,7 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
                   children: [
                     ...AppTheme.builtins
                         .map(
-                          (theme) => _themeItemButton(
-                            context,
-                            controller,
-                            theme.themeName,
-                          ),
+                          (theme) => _themeItemButton(context, theme.themeName),
                         )
                         .toList(),
                     if (plugins.isNotEmpty) ...[
@@ -131,7 +118,6 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
                           .map(
                             (theme) => _themeItemButton(
                               context,
-                              controller,
                               theme.themeName,
                               false,
                             ),
@@ -151,7 +137,6 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
 
   Widget _themeItemButton(
     BuildContext context,
-    PopoverController controller,
     String theme, [
     bool isBuiltin = true,
   ]) {
@@ -162,16 +147,16 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
           Expanded(
             child: FlowyButton(
               text: FlowyText.medium(theme),
-              rightIcon: widget.currentTheme == theme
+              rightIcon: currentTheme == theme
                   ? const FlowySvg(
                       FlowySvgs.check_s,
                     )
                   : null,
-              onTap: () async {
-                if (widget.currentTheme != theme) {
-                  await context.read<AppearanceSettingsCubit>().setTheme(theme);
+              onTap: () {
+                if (currentTheme != theme) {
+                  context.read<AppearanceSettingsCubit>().setTheme(theme);
                 }
-                controller.close();
+                PopoverContainer.of(context).close();
               },
             ),
           ),
@@ -182,7 +167,7 @@ class _ColorSchemeUploadPopoverState extends State<ColorSchemeUploadPopover> {
               ),
               width: 20,
               onPressed: () =>
-                  widget.bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
+                  bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
             )
         ],
       ),

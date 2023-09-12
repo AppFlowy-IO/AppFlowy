@@ -131,18 +131,17 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
                     FlowySvgs.check_s,
                   )
                 : null,
-        onTap: () async {
-          final popover = PopoverContainer.of(context);
+        onTap: () {
           if (parseFontFamilyName(widget.currentFontFamily) !=
               buttonFontFamily) {
             context
                 .read<AppearanceSettingsCubit>()
                 .setFontFamily(parseFontFamilyName(style.fontFamily!));
-            await context
+            context
                 .read<DocumentAppearanceCubit>()
                 .syncFontFamily(parseFontFamilyName(style.fontFamily!));
           }
-          popover.close();
+          PopoverContainer.of(context).close();
         },
       ),
     );
