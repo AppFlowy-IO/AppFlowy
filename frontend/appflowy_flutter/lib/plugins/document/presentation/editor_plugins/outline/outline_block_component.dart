@@ -84,7 +84,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     if (colorString == null) {
       return Colors.transparent;
     }
-    return colorString.toColor() ?? Colors.transparent;
+    return colorString.tryToColor() ?? Colors.transparent;
   }
 
   late EditorState editorState = context.read<EditorState>();
