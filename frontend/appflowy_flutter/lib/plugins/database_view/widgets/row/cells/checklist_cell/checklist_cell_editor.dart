@@ -75,8 +75,10 @@ class _GridChecklistCellEditorState extends State<GridChecklistCellEditor> {
                     child: state.allOptions.isEmpty
                         ? const SizedBox.shrink()
                         : Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                            child: ChecklistProgressBar(percent: state.percent),
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                            child: ChecklistProgressBar(
+                              percent: state.percent,
+                            ),
                           ),
                   ),
                 ),
@@ -336,6 +338,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                         ),
                       );
                 }
+                _textEditingController.clear();
               },
             ),
           ),
@@ -354,6 +357,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                       ),
                     );
               }
+              _textEditingController.clear();
             },
           ),
         ],
