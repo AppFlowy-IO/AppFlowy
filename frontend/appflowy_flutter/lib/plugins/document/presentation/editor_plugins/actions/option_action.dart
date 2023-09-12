@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -243,7 +242,7 @@ class ColorOptionAction extends PopoverActionCell {
         }
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
-        final selectedColor = bgColor?.toColor();
+        final selectedColor = bgColor?.tryToColor();
         // get default background color from themeExtension
         final defaultColor = AFThemeExtension.of(context).calloutBGColor;
         final colors = [

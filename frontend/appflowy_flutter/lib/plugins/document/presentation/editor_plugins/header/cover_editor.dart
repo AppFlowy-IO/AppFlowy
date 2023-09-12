@@ -6,7 +6,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -536,7 +535,7 @@ class ColorItem extends StatelessWidget {
           dimension: 25,
           child: Container(
             decoration: BoxDecoration(
-              color: option.colorHex.toColor(),
+              color: option.colorHex.tryToColor(),
               shape: BoxShape.circle,
             ),
             child: isChecked
@@ -548,7 +547,7 @@ class ColorItem extends StatelessWidget {
                           color: Theme.of(context).cardColor,
                           width: 3.0,
                         ),
-                        color: option.colorHex.toColor(),
+                        color: option.colorHex.tryToColor(),
                         shape: BoxShape.circle,
                       ),
                     ),

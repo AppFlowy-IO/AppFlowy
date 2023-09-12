@@ -139,7 +139,7 @@ class _CalloutBlockComponentWidgetState
   Color get backgroundColor {
     final colorString =
         node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return colorString.toColor() ?? Colors.transparent;
+    return colorString.tryToColor() ?? Colors.transparent;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
