@@ -165,6 +165,7 @@ impl DocumentEventTest {
 
   pub async fn apply_delta_for_block(&self, document_id: &str, block_id: &str, delta: String) {
     let block = self.get_block(document_id, block_id).await;
+    // Here is unsafe, but it should be fine for testing.
     let text_id = block.unwrap().external_id.unwrap();
     self
       .apply_text_delta(TextDeltaPayloadPB {
