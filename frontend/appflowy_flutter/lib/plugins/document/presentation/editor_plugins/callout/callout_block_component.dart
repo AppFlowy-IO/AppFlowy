@@ -195,6 +195,17 @@ class _CalloutBlockComponentWidgetState
       child: child,
     );
 
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
@@ -212,6 +223,7 @@ class _CalloutBlockComponentWidgetState
       padding: padding,
       child: AppFlowyRichText(
         key: forwardKey,
+        delegate: this,
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
@@ -221,6 +233,8 @@ class _CalloutBlockComponentWidgetState
         placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
           placeholderTextStyle,
         ),
+        cursorColor: editorState.editorStyle.cursorColor,
+        selectionColor: editorState.editorStyle.selectionColor,
       ),
     );
   }

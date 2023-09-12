@@ -28,7 +28,7 @@ CommandShortcutEventHandler _copyCommandHandler = (editorState) {
   // plain text.
   final text = editorState.getTextInSelection(selection).join('\n');
 
-  final nodes = editorState.getSelectedNodes(selection);
+  final nodes = editorState.getSelectedNodes(selection: selection);
   final document = Document.blank()..insert([0], nodes);
 
   // in app json
