@@ -63,7 +63,10 @@ impl JsonToDocumentParser {
   }
 
   fn generate_text_map(text_map: &IndexMap<String, String>) -> HashMap<String, String> {
-    text_map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
+    text_map
+      .iter()
+      .map(|(k, v)| (k.clone(), v.clone()))
+      .collect()
   }
 
   fn generate_children_map(blocks: &IndexMap<String, BlockPB>) -> HashMap<String, ChildrenPB> {
@@ -101,9 +104,7 @@ impl JsonToDocumentParser {
 
     let (external_id, external_type) = match delta {
       None => (None, None),
-      Some(_) => {
-        (Some(nanoid!(10)), Some(TEXT_EXTERNAL_TYPE.to_string()))
-      },
+      Some(_) => (Some(nanoid!(10)), Some(TEXT_EXTERNAL_TYPE.to_string())),
     };
 
     (
