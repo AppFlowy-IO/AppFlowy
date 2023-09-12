@@ -1,18 +1,6 @@
 import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
 import { randomEmoji } from '$app/utils/document/emoji';
 
-export const DELTA_BLOCK_TYPE = [
-  BlockType.TextBlock,
-  BlockType.HeadingBlock,
-  BlockType.TodoListBlock,
-  BlockType.BulletedListBlock,
-  BlockType.NumberedListBlock,
-  BlockType.QuoteBlock,
-  BlockType.CalloutBlock,
-  BlockType.ToggleListBlock,
-  BlockType.CodeBlock,
-  BlockType.EquationBlock,
-];
 /**
  * If the block type is not in the config, it will be thrown an error in development env
  */

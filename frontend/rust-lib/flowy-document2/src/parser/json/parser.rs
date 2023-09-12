@@ -11,6 +11,8 @@ use super::block::Block;
 
 pub struct JsonToDocumentParser;
 
+const DELTA: &str = "delta";
+const TEXT_EXTERNAL_TYPE: &str = "text";
 impl JsonToDocumentParser {
   pub fn json_str_to_document(json_str: &str) -> FlowyResult<DocumentDataPB> {
     let root = serde_json::from_str::<Block>(json_str)?;
@@ -61,11 +63,7 @@ impl JsonToDocumentParser {
   }
 
   fn generate_text_map(text_map: &IndexMap<String, String>) -> HashMap<String, String> {
-    let mut map: HashMap<String, String> = HashMap::new();
-    for (key, value) in text_map.iter() {
-      map.insert(key.clone(), value.clone());
-    }
-    map
+    text_map.iter().map(|(k, v)| (k.clone(), v.clone())).collect()
   }
 
   fn generate_children_map(blocks: &IndexMap<String, BlockPB>) -> HashMap<String, ChildrenPB> {
@@ -99,13 +97,12 @@ impl JsonToDocumentParser {
     let id = id.unwrap_or_else(|| nanoid!(10));
     let mut data = block.data.clone();
 
-    let delta: Option<String> = data.get("delta").map(|d| d.to_string());
+    let delta = data.remove(DELTA).map(|d| d.to_string());
 
     let (external_id, external_type) = match delta {
       None => (None, None),
       Some(_) => {
-        data.remove("delta");
-        (Some(nanoid!(10)), Some("text".to_string()))
+        (Some(nanoid!(10)), Some(TEXT_EXTERNAL_TYPE.to_string()))
       },
     };
 

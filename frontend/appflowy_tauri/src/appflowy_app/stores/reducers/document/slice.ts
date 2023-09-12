@@ -15,7 +15,6 @@ import { DOCUMENT_NAME, RANGE_NAME, RECT_RANGE_NAME, SLASH_COMMAND_NAME } from '
 import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 import { Op } from 'quill-delta';
 import { mentionSlice } from '$app_reducers/document/mention_slice';
-import { copyText } from '$app/utils/document/copy_paste';
 import { generateId } from '$app/utils/document/block';
 
 const initialState: Record<string, DocumentState> = {};
@@ -60,13 +59,6 @@ export const documentSlice = createSlice({
     ) => {
       const { docId, nodes, children, deltaMap } = action.payload;
 
-      copyText(
-        JSON.stringify({
-          nodes,
-          children,
-          deltaMap,
-        })
-      );
       state[docId] = {
         nodes,
         children,

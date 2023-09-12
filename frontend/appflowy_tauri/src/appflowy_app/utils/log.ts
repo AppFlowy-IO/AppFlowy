@@ -1,9 +1,9 @@
 export class Log {
   static error(...msg: unknown[]) {
-    console.log(...msg);
+    console.error(...msg);
   }
   static info(...msg: unknown[]) {
-    console.log(...msg);
+    console.info(...msg);
   }
 
   static debug(...msg: unknown[]) {
@@ -11,10 +11,10 @@ export class Log {
   }
 
   static trace(...msg: unknown[]) {
-    console.log(...msg);
+    console.trace(...msg);
   }
 
   static warn(...msg: unknown[]) {
-    console.log(...msg);
+    console.warn(...msg);
   }
 }
