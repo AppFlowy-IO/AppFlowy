@@ -2,22 +2,23 @@ import {
   FlowyError,
   DocumentDataPB,
   OpenDocumentPayloadPB,
-  CreateDocumentPayloadPB,
   ApplyActionPayloadPB,
   BlockActionPB,
   CloseDocumentPayloadPB,
   DocumentRedoUndoPayloadPB,
   DocumentRedoUndoResponsePB,
+  TextDeltaPayloadPB,
 } from '@/services/backend';
 import { Result } from 'ts-results';
 import {
   DocumentEventApplyAction,
   DocumentEventCloseDocument,
   DocumentEventOpenDocument,
-  DocumentEventCreateDocument,
   DocumentEventCanUndoRedo,
   DocumentEventRedo,
   DocumentEventUndo,
+  DocumentEventCreateText,
+  DocumentEventApplyTextDeltaEvent,
 } from '@/services/backend/events/flowy-document2';
 
 export class DocumentBackendService {
@@ -27,6 +28,7 @@ export class DocumentBackendService {
     const payload = OpenDocumentPayloadPB.fromObject({
       document_id: this.viewId,
     });
+
     return DocumentEventOpenDocument(payload);
   };
 
@@ -35,13 +37,35 @@ export class DocumentBackendService {
       document_id: this.viewId,
       actions: actions,
     });
+
     return DocumentEventApplyAction(payload);
+  };
+
+  createText = (textId: string, defaultDelta?: string): Promise<Result<void, FlowyError>> => {
+    const payload = TextDeltaPayloadPB.fromObject({
+      document_id: this.viewId,
+      text_id: textId,
+      delta: defaultDelta,
+    });
+
+    return DocumentEventCreateText(payload);
+  };
+
+  applyTextDelta = (textId: string, delta: string): Promise<Result<void, FlowyError>> => {
+    const payload = TextDeltaPayloadPB.fromObject({
+      document_id: this.viewId,
+      text_id: textId,
+      delta: delta,
+    });
+
+    return DocumentEventApplyTextDeltaEvent(payload);
   };
 
   close = (): Promise<Result<void, FlowyError>> => {
     const payload = CloseDocumentPayloadPB.fromObject({
       document_id: this.viewId,
     });
+
     return DocumentEventCloseDocument(payload);
   };
 
@@ -49,6 +73,7 @@ export class DocumentBackendService {
     const payload = DocumentRedoUndoPayloadPB.fromObject({
       document_id: this.viewId,
     });
+
     return DocumentEventCanUndoRedo(payload);
   };
 
@@ -56,6 +81,7 @@ export class DocumentBackendService {
     const payload = DocumentRedoUndoPayloadPB.fromObject({
       document_id: this.viewId,
     });
+
     return DocumentEventUndo(payload);
   };
 
@@ -63,6 +89,7 @@ export class DocumentBackendService {
     const payload = DocumentRedoUndoPayloadPB.fromObject({
       document_id: this.viewId,
     });
+
     return DocumentEventRedo(payload);
   };
 }

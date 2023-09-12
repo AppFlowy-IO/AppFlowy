@@ -6,7 +6,7 @@ import { blockConfig } from '$app/constants/document/config';
 
 import Delta, { Op } from 'quill-delta';
 import { useRangeRef } from '$app/components/document/_shared/SubscribeSelection.hooks';
-import { getBlock } from '$app/components/document/_shared/SubscribeNode.hooks';
+import { getBlock, getBlockDelta } from '$app/components/document/_shared/SubscribeNode.hooks';
 import isHotkey from 'is-hotkey';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { getDeltaText } from '$app/utils/document/delta';
@@ -23,9 +23,10 @@ export function useTurnIntoBlockEvents(id: string) {
     const range = rangeRef.current?.caret;
 
     if (!range || range.id !== id) return;
-    const node = getBlock(docId, id);
-    const delta = new Delta(node.data.delta || []);
 
+    const delta = getBlockDelta(docId, id);
+
+    if (!delta) return '';
     return getDeltaText(delta.slice(0, range.index));
   }, [docId, id, rangeRef]);
 
@@ -33,8 +34,9 @@ export function useTurnIntoBlockEvents(id: string) {
     const range = rangeRef.current?.caret;
 
     if (!range || range.id !== id) return;
-    const node = getBlock(docId, id);
-    const delta = new Delta(node.data.delta || []);
+    const delta = getBlockDelta(docId, id);
+
+    if (!delta) return '';
     const content = delta.slice(range.index);
 
     return new Delta(content);
@@ -174,9 +176,7 @@ export function useTurnIntoBlockEvents(id: string) {
               id,
               controller,
               type: BlockType.DividerBlock,
-              data: {
-                delta: delta?.ops as Op[],
-              },
+              data: {},
             })
           );
         },
@@ -187,12 +187,17 @@ export function useTurnIntoBlockEvents(id: string) {
           e.preventDefault();
           if (!controller) return;
           const defaultData = blockConfig[BlockType.CodeBlock].defaultData;
-          const data = {
-            ...defaultData,
-            delta: getDeltaContent()?.ops as Op[],
-          };
 
-          dispatch(turnToBlockThunk({ id, data, type: BlockType.CodeBlock, controller }));
+          dispatch(
+            turnToBlockThunk({
+              id,
+              data: {
+                ...defaultData,
+              },
+              type: BlockType.CodeBlock,
+              controller,
+            })
+          );
         },
       },
       {

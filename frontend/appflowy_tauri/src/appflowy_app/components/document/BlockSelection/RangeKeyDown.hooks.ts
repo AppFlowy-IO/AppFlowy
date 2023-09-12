@@ -40,11 +40,10 @@ export function useRangeKeyDown() {
         },
         handler: (e: KeyboardEvent) => {
           if (!controller) return;
-          const insertDelta = new Delta().insert(e.key);
           dispatch(
             deleteRangeAndInsertThunk({
               controller,
-              insertDelta,
+              insertChar: e.key,
             })
           );
         },
@@ -104,6 +103,7 @@ export function useRangeKeyDown() {
         handler: (e: KeyboardEvent) => {
           if (!controller) return;
           const format = parseFormat(e);
+
           if (!format) return;
           dispatch(
             toggleFormatThunk({
@@ -122,19 +122,25 @@ export function useRangeKeyDown() {
       if (!rangeRef.current) {
         return;
       }
+
       const { anchor, focus } = rangeRef.current;
+
       if (!anchor || !focus) return;
 
       if (anchor.id === focus.id) {
         return;
       }
+
       e.stopPropagation();
       const filteredEvents = interceptEvents.filter((event) => event.canHandle(e));
       const lastIndex = filteredEvents.length - 1;
+
       if (lastIndex < 0) {
         return;
       }
+
       const lastEvent = filteredEvents[lastIndex];
+
       if (!lastEvent) return;
       e.preventDefault();
       lastEvent.handler(e);

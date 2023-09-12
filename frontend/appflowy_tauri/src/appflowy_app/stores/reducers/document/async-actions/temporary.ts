@@ -7,6 +7,7 @@ import { TemporaryState, TemporaryType } from '$app/interfaces/document';
 import { temporaryActions } from '$app_reducers/document/temporary_slice';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { rangeActions } from '$app_reducers/document/slice';
+import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 
 export const createTemporary = createAsyncThunk(
   'document/temporary/create',
@@ -15,6 +16,8 @@ export const createTemporary = createAsyncThunk(
     const { dispatch, getState } = thunkAPI;
     const state = getState() as RootState;
     let temporaryState = payload.state;
+    const documentState = state[DOCUMENT_NAME][docId];
+    const deltaOperator = new BlockDeltaOperator(documentState);
 
     if (!temporaryState && type) {
       const caret = state[RANGE_NAME][docId].caret;
@@ -28,12 +31,22 @@ export const createTemporary = createAsyncThunk(
         index,
         length,
       };
+
       const node = state[DOCUMENT_NAME][docId].nodes[id];
-      const nodeDelta = new Delta(node.data?.delta);
-      const rangeDelta = getDeltaByRange(nodeDelta, selection);
-      const text = getDeltaText(rangeDelta);
+      const nodeDelta = deltaOperator.getDeltaWithBlockId(node.id);
+
+      if (!nodeDelta) return;
+      const rangeDelta = deltaOperator.sliceDeltaWithBlockId(
+        node.id,
+        selection.index,
+        selection.index + selection.length
+      );
+
+      if (!rangeDelta) return;
+      const text = deltaOperator.getDeltaText(rangeDelta);
 
       const data = newDataWithTemporaryType(type, text);
+
       temporaryState = {
         id,
         selection,
@@ -71,17 +84,17 @@ export const formatTemporary = createAsyncThunk(
   async (payload: { controller: DocumentController }, thunkAPI) => {
     const { controller } = payload;
     const docId = controller.documentId;
-    const { dispatch, getState } = thunkAPI;
+    const { getState } = thunkAPI;
     const state = getState() as RootState;
     const temporaryState = state[TEMPORARY_NAME][docId];
+    const documentState = state[DOCUMENT_NAME][docId];
+    const deltaOperator = new BlockDeltaOperator(documentState, controller);
 
     if (!temporaryState) {
       return;
     }
 
     const { id, selection, type, data } = temporaryState;
-    const node = state[DOCUMENT_NAME][docId].nodes[id];
-    const nodeDelta = new Delta(node.data?.delta);
     const { index, length } = selection;
     const diffDelta: Delta = new Delta();
     let newSelection = selection;
@@ -106,6 +119,7 @@ export const formatTemporary = createAsyncThunk(
 
         break;
       }
+
       case TemporaryType.Link: {
         if (!data.text) return;
         if (!data.href) {
@@ -115,6 +129,7 @@ export const formatTemporary = createAsyncThunk(
             href: data.href,
           });
         }
+
         newSelection = {
           index: selection.index,
           length: data.text.length,
@@ -126,17 +141,10 @@ export const formatTemporary = createAsyncThunk(
         break;
     }
 
-    const newDelta = nodeDelta.compose(diffDelta);
+    const applyTextDeltaAction = deltaOperator.getApplyDeltaAction(id, diffDelta);
 
-    const updateAction = controller.getUpdateAction({
-      ...node,
-      data: {
-        ...node.data,
-        delta: newDelta.ops,
-      },
-    });
-
-    await controller.applyActions([updateAction]);
+    if (!applyTextDeltaAction) return;
+    await controller.applyActions([applyTextDeltaAction]);
     return {
       ...temporaryState,
       selection: newSelection,

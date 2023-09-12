@@ -62,9 +62,7 @@ export interface CalloutBlockData extends TextBlockData {
   icon: string;
 }
 
-export interface TextBlockData {
-  delta: Op[];
-}
+export type TextBlockData = Record<string, any>;
 
 export interface DividerBlockData {}
 
@@ -120,9 +118,11 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
 export interface NestedBlock<Type = any> {
   id: string;
   type: BlockType;
-  data: BlockData<Type>;
+  data: BlockData<Type> | any;
   parent: string | null;
   children: string;
+  externalId?: string;
+  externalType?: string;
 }
 
 export type Node = NestedBlock;
@@ -133,12 +133,15 @@ export interface DocumentData {
   nodes: Record<string, Node>;
   // map of block id to children block ids
   children: Record<string, string[]>;
+
+  deltaMap: Record<string, string>;
 }
 export interface DocumentState {
   // map of block id to block
   nodes: Record<string, Node>;
   // map of block id to children block ids
   children: Record<string, string[]>;
+  deltaMap: Record<string, string>;
 }
 
 export interface SlashCommandState {
@@ -219,6 +222,9 @@ export enum ChangeType {
   ChildrenMapInsert,
   ChildrenMapUpdate,
   ChildrenMapDelete,
+  DeltaMapInsert,
+  DeltaMapUpdate,
+  DeltaMapDelete,
 }
 
 export interface BlockPBValue {
@@ -227,6 +233,8 @@ export interface BlockPBValue {
   parent: string;
   children: string;
   data: string;
+  external_id?: string;
+  external_type?: string;
 }
 
 export enum SplitRelationship {
@@ -308,7 +316,7 @@ export interface EditorProps {
   decorateSelection?: RangeStaticNoId;
   temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
-  onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
+  onChange: (ops: Op[], newDelta: Delta) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 

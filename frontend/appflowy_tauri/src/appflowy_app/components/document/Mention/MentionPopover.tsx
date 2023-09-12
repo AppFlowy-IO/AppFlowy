@@ -1,16 +1,18 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useSubscribeMentionState } from '$app/components/document/_shared/SubscribeMention.hooks';
 import Popover from '@mui/material/Popover';
 import { useAppDispatch } from '$app/stores/store';
 import { mentionActions } from '$app_reducers/document/mention_slice';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { useMentionPopoverProps, useSubscribeMentionSearchText } from '$app/components/document/Mention/Mention.hooks';
+import { useMentionPopoverProps } from '$app/components/document/Mention/Mention.hooks';
 import RecentPages from '$app/components/document/Mention/RecentPages';
 import { formatMention, MentionType } from '$app_reducers/document/async-actions/mention';
+import { useSubscribePanelSearchText } from '$app/components/document/_shared/usePanelSearchText';
 
 function MentionPopover() {
   const { docId, controller } = useSubscribeDocument();
   const { open, blockId } = useSubscribeMentionState();
+
   const dispatch = useAppDispatch();
   const onClose = useCallback(() => {
     dispatch(
@@ -20,7 +22,7 @@ function MentionPopover() {
     );
   }, [dispatch, docId]);
 
-  const { searchText } = useSubscribeMentionSearchText({
+  const { searchText } = useSubscribePanelSearchText({
     blockId,
     open,
   });
@@ -28,12 +30,6 @@ function MentionPopover() {
   const { popoverOpen, anchorPosition } = useMentionPopoverProps({
     open,
   });
-
-  useEffect(() => {
-    if (searchText === '' && popoverOpen) {
-      onClose();
-    }
-  }, [searchText, popoverOpen, onClose]);
 
   const onSelectPage = useCallback(
     async (pageId: string) => {
@@ -70,8 +66,7 @@ function MentionPopover() {
     >
       <div
         style={{
-          boxShadow:
-            "var(--shadow-resize-popover)",
+          boxShadow: 'var(--shadow-resize-popover)',
         }}
         className={'flex w-[420px] flex-col rounded-md bg-bg-body px-4 py-2'}
       >

@@ -12,4 +12,5 @@ export const BLOCK_MAP_NAME = 'blocks';
 export const META_NAME = 'meta';
 export const CHILDREN_MAP_NAME = 'children_map';
 
+export const TEXT_MAP_NAME = 'text_map';
 export const EQUATION_PLACEHOLDER = '$';

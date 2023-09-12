@@ -94,6 +94,7 @@ jobs:
           mkdir dist
           pnpm install
           cargo make --cwd .. tauri_build
+          pnpm test
           pnpm test:errors
 
       - name: Check for uncommitted changes

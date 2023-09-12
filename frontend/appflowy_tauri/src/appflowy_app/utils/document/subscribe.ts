@@ -2,7 +2,8 @@ import { DeltaTypePB } from '@/services/backend/models/flowy-document2';
 import { BlockPBValue, BlockType, ChangeType, DocumentState, NestedBlock } from '$app/interfaces/document';
 import { Log } from '../log';
 import { isEqual } from '$app/utils/tool';
-import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME } from '$app/constants/document/name';
+import { BLOCK_MAP_NAME, CHILDREN_MAP_NAME, META_NAME, TEXT_MAP_NAME } from '$app/constants/document/name';
+import Delta, { Op } from 'quill-delta';
 
 // This is a list of all the possible changes that can happen to document data
 const matchCases = [
@@ -12,6 +13,9 @@ const matchCases = [
   { match: matchChildrenMapInsert, type: ChangeType.ChildrenMapInsert, onMatch: onMatchChildrenInsert },
   { match: matchChildrenMapUpdate, type: ChangeType.ChildrenMapUpdate, onMatch: onMatchChildrenUpdate },
   { match: matchChildrenMapDelete, type: ChangeType.ChildrenMapDelete, onMatch: onMatchChildrenDelete },
+  { match: matchDeltaMapInsert, type: ChangeType.DeltaMapInsert, onMatch: onMatchDeltaInsert },
+  { match: matchDeltaMapUpdate, type: ChangeType.DeltaMapUpdate, onMatch: onMatchDeltaUpdate },
+  { match: matchDeltaMapDelete, type: ChangeType.DeltaMapDelete, onMatch: onMatchDeltaDelete },
 ];
 
 export function matchChange(
@@ -25,7 +29,7 @@ export function matchChange(
     command: DeltaTypePB;
     path: string[];
     id: string;
-    value: BlockPBValue & string[];
+    value: BlockPBValue & string[] & Op[];
   }
 ) {
   const matchCase = matchCases.find((item) => item.match(command, path));
@@ -99,6 +103,39 @@ function matchChildrenMapDelete(command: DeltaTypePB, path: string[]) {
   );
 }
 
+/**
+ * @param command DeltaTypePB.Inserted
+ * @param command
+ * @param path [META_NAME, TEXT_MAP_NAME]
+ */
+function matchDeltaMapInsert(command: DeltaTypePB, path: string[]) {
+  if (path.length !== 2) return false;
+  return command === DeltaTypePB.Inserted && path[0] === META_NAME && path[1] === TEXT_MAP_NAME;
+}
+
+/**
+ * @param command DeltaTypePB.Updated
+ * @param command
+ * @param path [META_NAME, TEXT_MAP_NAME, id]
+ */
+function matchDeltaMapUpdate(command: DeltaTypePB, path: string[]) {
+  if (path.length !== 3) return false;
+  return (
+    command === DeltaTypePB.Updated && path[0] === META_NAME && path[1] === TEXT_MAP_NAME && typeof path[2] === 'string'
+  );
+}
+
+/**
+ * @param command DeltaTypePB.Removed
+ * @param path [META_NAME, TEXT_MAP_NAME, id]
+ */
+function matchDeltaMapDelete(command: DeltaTypePB, path: string[]) {
+  if (path.length !== 3) return false;
+  return (
+    command === DeltaTypePB.Removed && path[0] === META_NAME && path[1] === TEXT_MAP_NAME && typeof path[2] === 'string'
+  );
+}
+
 function onMatchBlockInsert(state: DocumentState, blockId: string, blockValue: BlockPBValue) {
   state.nodes[blockId] = blockChangeValue2Node(blockValue);
 }
@@ -133,6 +170,22 @@ function onMatchChildrenDelete(state: DocumentState, id: string, _children: stri
   delete state.children[id];
 }
 
+function onMatchDeltaInsert(state: DocumentState, id: string, ops: Op[]) {
+  state.deltaMap[id] = JSON.stringify(ops);
+}
+
+function onMatchDeltaUpdate(state: DocumentState, id: string, ops: Op[]) {
+  const delta = new Delta(ops);
+  const oldDelta = new Delta(JSON.parse(state.deltaMap[id]));
+  const newDelta = oldDelta.compose(delta);
+
+  state.deltaMap[id] = JSON.stringify(newDelta.ops);
+}
+
+function onMatchDeltaDelete(state: DocumentState, id: string, _ops: Op[]) {
+  delete state.deltaMap[id];
+}
+
 /**
  * convert block change value to node
  * @param value
@@ -143,9 +196,9 @@ export function blockChangeValue2Node(value: BlockPBValue): NestedBlock {
     type: value.ty as BlockType,
     parent: value.parent,
     children: value.children,
-    data: {
-      delta: [],
-    },
+    data: {},
+    externalId: value.external_id,
+    externalType: value.external_type,
   };
 
   if ('data' in value && typeof value.data === 'string') {
@@ -168,7 +221,7 @@ export function parseValue(value: string) {
     valueJson = JSON.parse(value);
   } catch {
     Log.error('[onDataChange] json parse error', value);
-    return;
+    return value;
   }
 
   return valueJson;

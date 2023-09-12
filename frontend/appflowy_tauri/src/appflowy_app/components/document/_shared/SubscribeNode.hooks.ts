@@ -3,6 +3,7 @@ import { createContext, useMemo } from 'react';
 import { Node } from '$app/interfaces/document';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { DOCUMENT_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
+import Delta from 'quill-delta';
 
 /**
  * Subscribe node information
@@ -11,10 +12,18 @@ import { DOCUMENT_NAME, RECT_RANGE_NAME } from '$app/constants/document/name';
 export function useSubscribeNode(id: string) {
   const { docId } = useSubscribeDocument();
 
-  const node = useAppSelector<Node>((state) => {
+  const { node, delta } = useAppSelector<{
+    node: Node;
+    delta: string;
+  }>((state) => {
     const documentState = state[DOCUMENT_NAME][docId];
+    const node = documentState?.nodes[id];
+    const externalId = node?.externalId;
 
-    return documentState?.nodes[id];
+    return {
+      node,
+      delta: externalId ? documentState?.deltaMap[externalId] : '',
+    };
   });
 
   const childIds = useAppSelector<string[] | undefined>((state) => {
@@ -40,12 +49,24 @@ export function useSubscribeNode(id: string) {
   return {
     node: memoizedNode,
     childIds: memoizedChildIds,
+    delta,
     isSelected,
   };
 }
 
 export function getBlock(docId: string, id: string) {
   return store.getState().document[docId]?.nodes[id];
+}
+
+export function getBlockDelta(docId: string, id: string) {
+  const node = getBlock(docId, id);
+
+  if (!node?.externalId) return;
+  const deltaStr = store.getState().document[docId]?.deltaMap[node.externalId];
+  const deltaJson = JSON.parse(deltaStr);
+  const delta = new Delta(deltaJson);
+
+  return delta;
 }
 
 export const NodeIdContext = createContext<string>('');
