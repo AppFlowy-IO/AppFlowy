@@ -13,9 +13,6 @@ pub mod reqwest;
 #[cfg(feature = "impl_from_sqlite")]
 pub mod database;
 
-#[cfg(feature = "impl_from_appflowy_cloud")]
-pub mod http_server;
-
 #[cfg(feature = "impl_from_collab")]
 pub mod collab;
 
@@ -24,3 +21,6 @@ mod postgres;
 
 #[cfg(feature = "impl_from_tokio")]
 mod tokio;
+
+#[cfg(feature = "impl_from_url")]
+mod url;

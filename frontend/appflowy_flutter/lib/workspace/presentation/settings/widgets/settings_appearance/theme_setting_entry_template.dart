@@ -10,11 +10,13 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
     super.key,
     this.resetButtonKey,
     required this.label,
+    this.hint,
     this.trailing,
     this.onResetRequested,
   });
 
   final String label;
+  final String? hint;
   final Key? resetButtonKey;
   final List<Widget>? trailing;
   final void Function()? onResetRequested;
@@ -24,9 +26,23 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FlowyText.medium(
-            label,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowyText.medium(
+                label,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (hint != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: FlowyText.regular(
+                    hint!,
+                    fontSize: 10,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+            ],
           ),
         ),
         if (trailing != null) ...trailing!,

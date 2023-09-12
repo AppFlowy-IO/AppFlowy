@@ -157,7 +157,6 @@ void main() {
       for (final (index, content) in dateCells.indexed) {
         await tester.assertDateCellInGrid(
           rowIndex: index,
-          fieldType: FieldType.DateTime,
           content: content,
         );
       }

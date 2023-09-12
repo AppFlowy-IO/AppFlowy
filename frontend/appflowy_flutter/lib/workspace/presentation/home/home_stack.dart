@@ -39,8 +39,8 @@ class HomeStack extends StatelessWidget {
     required this.delegate,
     this.paneNode,
     required this.layout,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -301,13 +301,13 @@ class FadingIndexedStack extends StatefulWidget {
   final Duration duration;
 
   const FadingIndexedStack({
-    Key? key,
+    super.key,
     required this.index,
     required this.children,
     this.duration = const Duration(
       milliseconds: 250,
     ),
-  }) : super(key: key);
+  });
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();

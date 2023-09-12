@@ -8,8 +8,9 @@ import { blockConfig } from '$app/constants/document/config';
 import Delta, { Op } from 'quill-delta';
 import { getDeltaText } from '$app/utils/document/delta';
 import { RootState } from '$app/stores/store';
-import { DOCUMENT_NAME } from '$app/constants/document/name';
+import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 import { blockEditActions } from '$app_reducers/document/block_edit_slice';
+import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 
 /**
  * add block below click
@@ -26,13 +27,19 @@ export const addBlockBelowClickThunk = createAsyncThunk(
     const node = state.nodes[id];
 
     if (!node) return;
-    const delta = (node.data.delta as Op[]) || [];
-    const text = delta.map((d) => d.insert).join('');
+    const deltaOperator = new BlockDeltaOperator(state, controller);
+    const delta = deltaOperator.getDeltaWithBlockId(id);
 
     // if current block is not empty, insert a new block after current block
-    if (node.type !== BlockType.TextBlock || text !== '') {
+    if (!delta || delta.length() > 1) {
       const { payload: newBlockId } = await dispatch(
-        insertAfterNodeThunk({ id: id, type: BlockType.TextBlock, controller, data: { delta: [] } })
+        insertAfterNodeThunk({
+          id: id,
+          type: BlockType.TextBlock,
+          controller,
+          data: {},
+          defaultDelta: new Delta([{ insert: '' }]),
+        })
       );
 
       if (newBlockId) {
@@ -57,101 +64,5 @@ export const addBlockBelowClickThunk = createAsyncThunk(
     );
 
     dispatch(slashCommandActions.openSlashCommand({ docId, blockId: id }));
-  }
-);
-
-/**
- * slash command action be triggered
- * 1. if current block is empty, operate on current block
- * 2. if current block is not empty, insert a new block after current block and operate on new block
- */
-export const triggerSlashCommandActionThunk = createAsyncThunk(
-  'document/slashCommandAction',
-  async (
-    payload: {
-      id: string;
-      controller: DocumentController;
-      props: {
-        data?: BlockData<any>;
-        type: BlockType;
-      };
-    },
-    thunkAPI
-  ) => {
-    const { id, controller, props } = payload;
-    const { dispatch, getState } = thunkAPI;
-    const docId = controller.documentId;
-    const state = getState() as RootState;
-    const document = state[DOCUMENT_NAME][docId];
-    const node = document.nodes[id];
-
-    if (!node) return;
-    const delta = new Delta(node.data.delta);
-    const text = getDeltaText(delta);
-    const defaultData = blockConfig[props.type].defaultData;
-
-    if (node.type === BlockType.TextBlock && (text === '' || text === '/')) {
-      const { payload: newId } = await dispatch(
-        turnToBlockThunk({
-          id,
-          controller,
-          type: props.type,
-          data: {
-            ...defaultData,
-            ...props.data,
-          },
-        })
-      );
-
-      dispatch(
-        blockEditActions.setBlockEditState({
-          id: docId,
-          state: {
-            id: newId as string,
-            editing: true,
-          },
-        })
-      );
-      return;
-    }
-
-    // if current block has slash command, remove slash command
-    if (text.slice(0, 1) === '/') {
-      const updateNode = {
-        ...node,
-        data: {
-          ...node.data,
-          delta: delta.slice(1, delta.length()).ops,
-        },
-      };
-
-      await controller.applyActions([controller.getUpdateAction(updateNode)]);
-    }
-
-    const insertNodePayload = await dispatch(
-      insertAfterNodeThunk({
-        id,
-        controller,
-        type: props.type,
-        data: defaultData,
-      })
-    );
-    const newBlockId = insertNodePayload.payload as string;
-
-    dispatch(
-      rangeActions.setCaret({
-        docId,
-        caret: { id: newBlockId, index: 0, length: 0 },
-      })
-    );
-    dispatch(
-      blockEditActions.setBlockEditState({
-        id: docId,
-        state: {
-          id: newBlockId,
-          editing: true,
-        },
-      })
-    );
   }
 );

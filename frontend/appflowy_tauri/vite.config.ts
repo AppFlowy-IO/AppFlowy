@@ -1,9 +1,38 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        prettier: false,
+        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+        icon: true,
+        svgoConfig: {
+          multipass: true,
+          plugins: [
+            {
+              name: 'preset-default',
+              params: {
+                overrides: {
+                  removeViewBox: false,
+                }
+              },
+            },
+          ],
+        },
+        svgProps: {
+          role: 'img',
+        },
+        replaceAttrValues: {
+          '#333': 'currentColor',
+        },
+      },
+    }),
+  ],
   publicDir: '../appflowy_flutter/assets',
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors

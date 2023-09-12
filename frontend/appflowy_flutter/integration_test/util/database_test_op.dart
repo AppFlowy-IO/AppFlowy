@@ -35,6 +35,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database_view/widgets/field/grid_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
@@ -42,6 +43,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -261,15 +263,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> assertDateCellInGrid({
     required int rowIndex,
-    required FieldType fieldType,
     required String content,
   }) async {
     final findRow = find.byType(GridRow, skipOffstage: false);
     final findCell = find.descendant(
       of: findRow.at(rowIndex),
-      matching: find.byWidgetPredicate(
-        (widget) => widget is GridDateCell && widget.fieldType == fieldType,
-      ),
+      matching: find.byType(GridDateCell),
       skipOffstage: false,
     );
 
@@ -503,6 +502,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findDateCell);
   }
 
+  Future<void> tapGridFieldWithNameInRowDetailPage(String name) async {
+    final fields = find.byWidgetPredicate(
+      (widget) => widget is FieldCellButton && widget.field.name == name,
+    );
+    final field = find.descendant(
+      of: find.byType(RowDetailPage),
+      matching: fields,
+    );
+    await tapButton(field);
+    await pumpAndSettle();
+  }
+
   Future<void> duplicateRowInRowDetailPage() async {
     final duplicateButton = find.byType(RowDetailPageDuplicateButton);
     await tapButton(duplicateButton);
@@ -583,6 +594,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is FieldActionCell && widget.action == FieldAction.hide,
     );
     await tapButton(field);
+  }
+
+  Future<void> tapHidePropertyButtonInFieldEditor() async {
+    final button = find.byType(HideFieldButton);
+    await tapButton(button);
   }
 
   Future<void> tapRowDetailPageCreatePropertyButton() async {
@@ -926,6 +942,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// Should call [tapDatabaseSettingButton] first.
+  Future<void> tapViewPropertiesButton() async {
+    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findLayoutButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is FlowyText &&
+          widget.text == DatabaseSettingAction.showProperties.title(),
+    );
+
+    final button = find.descendant(
+      of: findSettingItem,
+      matching: findLayoutButton,
+    );
+
+    await tapButton(button);
+  }
+
+  /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapDatabaseLayoutButton() async {
     final findSettingItem = find.byType(DatabaseSettingItem);
     final findLayoutButton = find.byWidgetPredicate(
@@ -1111,6 +1144,11 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findCreateButton);
   }
 
+  Future<void> tapTabBarLinkedViewByViewName(String name) async {
+    final viewButton = findTabBarLinkViewByViewName(name);
+    await tapButton(viewButton);
+  }
+
   Finder findTabBarLinkViewByViewLayout(ViewLayoutPB layout) {
     return find.byWidgetPredicate(
       (widget) => widget is TabBarItemButton && widget.view.layout == layout,
@@ -1212,6 +1250,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapAddSelectOptionButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_addSelectOption.tr());
   }
+
+  Future<void> tapViewTogglePropertyVisibilityButtonByName(
+    String fieldName,
+  ) async {
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is GridPropertyCell && widget.fieldInfo.name == fieldName,
+    );
+    final toggleVisibilityButton =
+        find.descendant(of: field, matching: find.byType(FlowyIconButton));
+    await tapButton(toggleVisibilityButton);
+  }
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) {
@@ -1235,7 +1285,7 @@ Finder finderForFieldType(FieldType fieldType) {
       return find.byType(GridDateCell, skipOffstage: false);
     case FieldType.LastEditedTime:
     case FieldType.CreatedTime:
-      return find.byType(GridDateCell, skipOffstage: false);
+      return find.byType(GridTimestampCell, skipOffstage: false);
     case FieldType.SingleSelect:
       return find.byType(GridSingleSelectCell, skipOffstage: false);
     case FieldType.MultiSelect:

@@ -52,8 +52,11 @@ const FormatButton = ({ format, icon }: { format: TextAction; icon: string }) =>
           isActive,
         })
       );
+      const actived = await isFormatActive();
+
+      setIsActive(actived);
     },
-    [controller, dispatch, isActive]
+    [controller, dispatch, isActive, isFormatActive]
   );
 
   const addTemporaryInput = useCallback(

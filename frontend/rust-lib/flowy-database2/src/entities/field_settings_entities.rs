@@ -8,7 +8,7 @@ use crate::impl_into_field_visibility;
 use crate::services::field_settings::{FieldSettings, FieldSettingsChangesetParams};
 
 /// Defines the field settings for a field in a view.
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct FieldSettingsPB {
   #[pb(index = 1)]
   pub field_id: String,
@@ -27,7 +27,7 @@ impl From<FieldSettings> for FieldSettingsPB {
 }
 
 #[repr(u8)]
-#[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq)]
 pub enum FieldVisibility {
   #[default]
   AlwaysShown = 0,
@@ -77,10 +77,16 @@ impl TryInto<(String, Vec<String>)> for FieldIdsPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RepeatedFieldSettingsPB {
   #[pb(index = 1)]
   pub items: Vec<FieldSettingsPB>,
+}
+
+impl std::convert::From<Vec<FieldSettingsPB>> for RepeatedFieldSettingsPB {
+  fn from(items: Vec<FieldSettingsPB>) -> Self {
+    Self { items }
+  }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

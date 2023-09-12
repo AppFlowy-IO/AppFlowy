@@ -108,7 +108,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     () => SignUpBloc(getIt<AuthService>()),
   );
 
-  getIt.registerFactory<SplashRoute>(() => SplashRoute());
+  getIt.registerFactory<SplashRouter>(() => SplashRouter());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
@@ -123,8 +123,8 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
-    (user, _) => WelcomeBloc(
+  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
+    (user, _) => WorkspaceBloc(
       userService: UserBackendService(userId: user.id),
     ),
   );

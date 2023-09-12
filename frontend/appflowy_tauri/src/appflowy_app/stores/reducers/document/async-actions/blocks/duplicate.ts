@@ -1,6 +1,5 @@
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { rectSelectionActions } from '$app_reducers/document/slice';
 import { getDuplicateActions } from '$app/utils/document/action';
 import { RootState } from '$app/stores/store';
 import { DOCUMENT_NAME } from '$app/constants/document/name';

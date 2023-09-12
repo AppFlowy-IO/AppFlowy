@@ -24,6 +24,7 @@ import {
   transformIndexToPrevLine,
 } from '$app/utils/document/delta';
 import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
+import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 
 export function getMiddleIds(document: DocumentState, startId: string, endId: string) {
   const middleIds = [];
@@ -52,207 +53,6 @@ export function getStartAndEndIdsByRange(rangeState: RangeState) {
   const endId = isForward ? focus.id : anchor.id;
 
   return [startId, endId];
-}
-
-export function getMiddleIdsByRange(rangeState: RangeState, document: DocumentState) {
-  const ids = getStartAndEndIdsByRange(rangeState);
-
-  if (ids.length < 2) return;
-  const [startId, endId] = ids;
-
-  return getMiddleIds(document, startId, endId);
-}
-
-export function getAfterMergeCaretByRange(rangeState: RangeState, insertDelta?: Delta) {
-  const { anchor, focus, ranges } = rangeState;
-
-  if (!anchor || !focus) return;
-
-  const isForward = anchor.point.y < focus.point.y;
-  const startId = isForward ? anchor.id : focus.id;
-  const startRange = ranges[startId];
-
-  if (!startRange) return;
-  const offset = insertDelta ? insertDelta.length() : 0;
-
-  return {
-    id: startId,
-    index: startRange.index + offset,
-    length: 0,
-  };
-}
-
-export function getStartAndEndExtentDelta(documentState: DocumentState, rangeState: RangeState) {
-  const ids = getStartAndEndIdsByRange(rangeState);
-
-  if (ids.length === 0) return;
-  const startId = ids[0];
-  const endId = ids[ids.length - 1];
-  const { ranges } = rangeState;
-  // get start and end delta
-  const startRange = ranges[startId];
-  const endRange = ranges[endId];
-
-  if (!startRange || !endRange) return;
-  const startNode = documentState.nodes[startId];
-  const startNodeDelta = new Delta(startNode.data.delta);
-  const startBeforeExtentDelta = getBeofreExtentDeltaByRange(startNodeDelta, startRange);
-
-  const endNode = documentState.nodes[endId];
-  const endNodeDelta = new Delta(endNode.data.delta);
-  const endAfterExtentDelta = getAfterExtentDeltaByRange(endNodeDelta, endRange);
-
-  return {
-    startNode,
-    endNode,
-    startDelta: startBeforeExtentDelta,
-    endDelta: endAfterExtentDelta,
-  };
-}
-
-export function getMergeEndDeltaToStartActionsByRange(
-  state: RootState,
-  controller: DocumentController,
-  insertDelta?: Delta
-) {
-  const actions = [];
-  const docId = controller.documentId;
-  const documentState = state[DOCUMENT_NAME][docId];
-  const rangeState = state[RANGE_NAME][docId];
-  const { startDelta, endDelta, endNode, startNode } = getStartAndEndExtentDelta(documentState, rangeState) || {};
-
-  if (!startDelta || !endDelta || !endNode || !startNode) return;
-  // merge start and end nodes
-  const mergeDelta = startDelta.concat(insertDelta || new Delta()).concat(endDelta);
-
-  actions.push(
-    controller.getUpdateAction({
-      ...startNode,
-      data: {
-        delta: mergeDelta.ops,
-      },
-    })
-  );
-  if (endNode.id !== startNode.id) {
-    const children = documentState.children[endNode.children].map((id) => documentState.nodes[id]);
-
-    const moveChildrenActions = getMoveChildrenActions({
-      target: startNode,
-      children,
-      controller,
-    });
-
-    actions.push(...moveChildrenActions);
-    // delete end node
-    actions.push(controller.getDeleteAction(endNode));
-  }
-
-  return actions;
-}
-
-export function getMoveChildrenActions({
-  target,
-  children,
-  controller,
-  prevId = '',
-}: {
-  target: NestedBlock;
-  children: NestedBlock[];
-  controller: DocumentController;
-  prevId?: string;
-}) {
-  // move children
-  const config = blockConfig[target.type];
-  const targetParentId = config.canAddChild ? target.id : target.parent;
-
-  if (!targetParentId) return [];
-  const targetPrevId = targetParentId === target.id ? prevId : target.id;
-  const moveActions = controller.getMoveChildrenAction(children, targetParentId, targetPrevId);
-
-  return moveActions;
-}
-
-export function getInsertEnterNodeFields(sourceNode: NestedBlock) {
-  if (!sourceNode.parent) return;
-  const parentId = sourceNode.parent;
-
-  const config = blockConfig[sourceNode.type].splitProps || {
-    nextLineRelationShip: SplitRelationship.NextSibling,
-    nextLineBlockType: BlockType.TextBlock,
-  };
-
-  const newNodeType = config.nextLineBlockType;
-  const relationShip = config.nextLineRelationShip;
-  const defaultData = blockConfig[newNodeType].defaultData;
-
-  // if the defaultData property is not defined for the new block type, we throw an error.
-  if (!defaultData) {
-    throw new Error(`Cannot split node of type ${sourceNode.type} to ${newNodeType}`);
-  }
-
-  const newParentId = relationShip === SplitRelationship.NextSibling ? parentId : sourceNode.id;
-  const newPrevId = relationShip === SplitRelationship.NextSibling ? sourceNode.id : '';
-
-  return {
-    parentId: newParentId,
-    prevId: newPrevId,
-    type: newNodeType,
-    data: defaultData,
-  };
-}
-
-export function getInsertEnterNodeAction(
-  sourceNode: NestedBlock,
-  insertNodeDelta: Delta,
-  controller: DocumentController
-) {
-  const insertNodeFields = getInsertEnterNodeFields(sourceNode);
-
-  if (!insertNodeFields) return;
-  const { type, data, parentId, prevId } = insertNodeFields;
-  const insertNode = newBlock<any>(type, parentId, {
-    ...data,
-    delta: insertNodeDelta.ops,
-  });
-
-  return {
-    id: insertNode.id,
-    action: controller.getInsertAction(insertNode, prevId),
-  };
-}
-
-export function findPrevHasDeltaNode(state: DocumentState, id: string) {
-  const prevLineId = getPrevLineId(state, id);
-
-  if (!prevLineId) return;
-  let prevLine = state.nodes[prevLineId];
-
-  // Find the prev line that has delta
-  while (prevLine && !prevLine.data.delta) {
-    const id = getPrevLineId(state, prevLine.id);
-
-    if (!id) return;
-    prevLine = state.nodes[id];
-  }
-
-  return prevLine;
-}
-
-export function findNextHasDeltaNode(state: DocumentState, id: string) {
-  const nextLineId = getNextLineId(state, id);
-
-  if (!nextLineId) return;
-  let nextLine = state.nodes[nextLineId];
-
-  // Find the next line that has delta
-  while (nextLine && !nextLine.data.delta) {
-    const id = getNextLineId(state, nextLine.id);
-
-    if (!id) return;
-    nextLine = state.nodes[id];
-  }
-
-  return nextLine;
 }
 
 export function isPrintableKeyEvent(event: KeyboardEvent) {
@@ -298,7 +98,10 @@ export function getRightCaretByRange(rangeState: RangeState) {
 }
 
 export function transformToPrevLineCaret(document: DocumentState, caret: RangeStatic) {
-  const delta = new Delta(document.nodes[caret.id].data.delta);
+  const deltaOperator = new BlockDeltaOperator(document);
+  const delta = deltaOperator.getDeltaWithBlockId(caret.id);
+
+  if (!delta) return;
   const inTopEdge = caretInTopEdgeByDelta(delta, caret.index);
 
   if (!inTopEdge) {
@@ -311,25 +114,31 @@ export function transformToPrevLineCaret(document: DocumentState, caret: RangeSt
     };
   }
 
-  const prevLine = findPrevHasDeltaNode(document, caret.id);
+  const prevLineId = deltaOperator.findPrevTextLine(caret.id);
 
-  if (!prevLine) return;
+  if (!prevLineId) return;
   const relativeIndex = getIndexRelativeEnter(delta, caret.index);
-  const prevLineIndex = getLastLineIndex(new Delta(prevLine.data.delta));
-  const prevLineText = getDeltaText(new Delta(prevLine.data.delta));
+  const prevLineDelta = deltaOperator.getDeltaWithBlockId(prevLineId);
+
+  if (!prevLineDelta) return;
+  const prevLineIndex = getLastLineIndex(prevLineDelta);
+  const prevLineText = deltaOperator.getDeltaText(prevLineDelta);
   const newPrevLineIndex = prevLineIndex + relativeIndex;
   const prevLineLength = prevLineText.length;
   const index = newPrevLineIndex > prevLineLength ? prevLineLength : newPrevLineIndex;
 
   return {
-    id: prevLine.id,
+    id: prevLineId,
     index,
     length: 0,
   };
 }
 
 export function transformToNextLineCaret(document: DocumentState, caret: RangeStatic) {
-  const delta = new Delta(document.nodes[caret.id].data.delta);
+  const deltaOperator = new BlockDeltaOperator(document);
+  const delta = deltaOperator.getDeltaWithBlockId(caret.id);
+
+  if (!delta) return;
   const inBottomEdge = caretInBottomEdgeByDelta(delta, caret.index);
 
   if (!inBottomEdge) {
@@ -343,15 +152,18 @@ export function transformToNextLineCaret(document: DocumentState, caret: RangeSt
     return;
   }
 
-  const nextLine = findNextHasDeltaNode(document, caret.id);
+  const nextLineId = deltaOperator.findNextTextLine(caret.id);
 
-  if (!nextLine) return;
-  const nextLineText = getDeltaText(new Delta(nextLine.data.delta));
+  if (!nextLineId) return;
+  const nextLineDelta = deltaOperator.getDeltaWithBlockId(nextLineId);
+
+  if (!nextLineDelta) return;
+  const nextLineText = deltaOperator.getDeltaText(nextLineDelta);
   const relativeIndex = getIndexRelativeEnter(delta, caret.index);
   const index = relativeIndex >= nextLineText.length ? nextLineText.length : relativeIndex;
 
   return {
-    id: nextLine.id,
+    id: nextLineId,
     index,
     length: 0,
   };

@@ -6,7 +6,7 @@ import { ColorPalette } from '$app/components/tests/ColorPalette';
 import { TestAPI } from '$app/components/tests/TestAPI';
 import { DocumentPage } from '$app/views/DocumentPage';
 import { BoardPage } from '$app/views/BoardPage';
-import { GridPage } from '$app/views/GridPage';
+import { DatabasePage } from '$app/views/DatabasePage';
 import { LoginPage } from '$app/views/LoginPage';
 import { GetStarted } from '$app/components/auth/GetStarted/GetStarted';
 import { SignUpPage } from '$app/views/SignUpPage';
@@ -29,7 +29,7 @@ function AppMain() {
             <Route path={'/page/api-test'} element={<TestAPI />} />
             <Route path={'/page/document/:id'} element={<DocumentPage />} />
             <Route path={'/page/board/:id'} element={<BoardPage />} />
-            <Route path={'/page/grid/:id'} element={<GridPage />} />
+            <Route path={'/page/grid/:id'} element={<DatabasePage />} />
             <Route path={'/trash'} id={'trash'} element={<TrashPage />} />
           </Route>
           <Route path={'/auth/login'} element={<LoginPage />}></Route>

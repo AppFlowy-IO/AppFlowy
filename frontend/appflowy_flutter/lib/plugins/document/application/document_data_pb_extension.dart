@@ -3,9 +3,26 @@ import 'dart:convert';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show Document, Node, Attributes, Delta, ParagraphBlockKeys, NodeIterator;
+    show
+        Document,
+        Node,
+        Attributes,
+        Delta,
+        ParagraphBlockKeys,
+        NodeIterator,
+        NodeExternalValues;
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
+
+class ExternalValues extends NodeExternalValues {
+  const ExternalValues({
+    required this.externalId,
+    required this.externalType,
+  });
+
+  final String externalId;
+  final String externalType;
+}
 
 extension DocumentDataPBFromTo on DocumentDataPB {
   static DocumentDataPB? fromDocument(Document document) {
@@ -84,24 +101,51 @@ extension DocumentDataPBFromTo on DocumentDataPB {
       children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
     }
 
-    return block?.toNode(children: children);
+    return block?.toNode(
+      children: children,
+      meta: meta,
+    );
   }
 }
 
 extension BlockToNode on BlockPB {
   Node toNode({
     Iterable<Node>? children,
+    required MetaPB meta,
   }) {
-    return Node(
+    final node = Node(
       id: id,
       type: ty,
-      attributes: _dataAdapter(ty, data),
+      attributes: _dataAdapter(ty, data, meta),
       children: children ?? [],
     );
+    node.externalValues = ExternalValues(
+      externalId: externalId,
+      externalType: externalType,
+    );
+    return node;
   }
 
-  Attributes _dataAdapter(String ty, String data) {
+  Attributes _dataAdapter(String ty, String data, MetaPB meta) {
     final map = Attributes.from(jsonDecode(data));
+
+    // it used in the delta case now.
+    final externalType = this.externalType;
+    final externalId = this.externalId;
+    if (externalType.isNotEmpty && externalId.isNotEmpty) {
+      // the 'text' type is the only type that is supported now.
+      if (externalType == 'text') {
+        final deltaString = meta.textMap[externalId];
+        if (deltaString != null) {
+          final delta = jsonDecode(deltaString);
+          map.putIfAbsent(
+            'delta',
+            () => delta,
+          );
+        }
+      }
+    }
+
     final adapter = {
       ParagraphBlockKeys.type: (Attributes map) => map
         ..putIfAbsent(

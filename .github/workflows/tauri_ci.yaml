@@ -32,6 +32,26 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Cache Rust Dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: rust-dependencies-${{ runner.os }}
+          workspaces: |
+            frontend/rust-lib
+            frontend/appflowy_tauri/src-tauri
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: frontend/appflowy_tauri/node_modules
+          key: node-modules-${{ runner.os }}
+
       - name: Install Rust toolchain
         id: rust_toolchain
         uses: actions-rs/toolchain@v1
@@ -39,13 +59,6 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
           profile: minimal
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: 'ubuntu-latest-tauri'
-          workspaces: |
-            frontend/rust-lib
-            frontend/appflowy_tauri/src-tauri
 
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'
@@ -75,14 +88,22 @@ jobs:
           cargo make appflowy-tauri-deps-tools
           npm install -g pnpm@${{ env.PNPM_VERSION }}
 
-
-      - name: build
+      - name: Build
         working-directory: frontend/appflowy_tauri
         run: |
           mkdir dist
           pnpm install
           cargo make --cwd .. tauri_build
+          pnpm test
           pnpm test:errors
+
+      - name: Check for uncommitted changes
+        run: |
+          diff_files=$(git status --porcelain)
+          if [ -n "$diff_files" ]; then
+            echo "There are uncommitted changes in the working tree. Please commit them before pushing."
+            exit 1
+          fi
 
       - uses: tauri-apps/tauri-action@v0
         env:
