@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/size_cubit/cubit/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -22,14 +23,21 @@ class PanesService {
       ///we create a holder node which would replace current target and add
       ///target node + new node as its children
       final newNode = PaneNode(
+        sizeController: PaneSizeController(
+          axis: node.sizeController.axis,
+          flex: [0.5, 0.5],
+        ),
         paneId: nanoid(),
         children: const [],
         axis: axis,
+        tabs: null,
       );
+      node.sizeController.dispose();
       return newNode.copyWith(
         children: [
           node.copyWith(
             parent: newNode,
+            sizeController: PaneSizeController.intial(),
             axis: null,
             tabs: Tabs(
               currentIndex: node.tabs.currentIndex,
@@ -37,6 +45,7 @@ class PanesService {
             ),
           ),
           PaneNode(
+            sizeController: PaneSizeController.intial(),
             paneId: nanoid(),
             children: const [],
             parent: newNode,
@@ -52,28 +61,33 @@ class PanesService {
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
+          final newNode = PaneNode(
+            sizeController: PaneSizeController.intial(),
+            paneId: nanoid(),
+            children: const [],
+            parent: node.parent,
+            tabs: Tabs(pageManagers: [PageManager()..setPlugin(view.plugin())]),
+          );
           if (direction == Direction.front) {
-            final newNode = PaneNode(
-              paneId: nanoid(),
-              children: const [],
-              parent: node.parent,
-            );
             if (i == node.children.length) {
               node.children.add(newNode);
             } else {
               node.children.insert(i + 1, newNode);
             }
-            return node;
           } else {
-            node.children.insert(
-              i,
-              PaneNode(
-                paneId: nanoid(),
-                children: const [],
-                parent: node.parent,
-              ),
-            );
+            node.children.insert(i, newNode);
           }
+          final ret = node.copyWith(
+            children: node.children,
+            sizeController: PaneSizeController(
+              flex: List.generate(
+                node.children.length,
+                (_) => 1 / (node.children.length),
+              ),
+              axis: axis,
+            ),
+          );
+          return ret;
         }
       }
     }

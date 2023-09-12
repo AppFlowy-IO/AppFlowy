@@ -2,16 +2,19 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/panes/size_cubit/cubit/pane_size_cubit.dart';
+import 'package:appflowy/workspace/application/panes/size_cubit/cubit/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/gestures.dart';
@@ -43,84 +46,139 @@ class HomeStack extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PanesCubit, PanesState>(
       builder: (context, state) {
-        return _buildTabs(state.root, context);
+        return BlocBuilder<HomeSettingBloc, HomeSettingState>(
+          builder: (context, homeState) {
+            return _buildTabs(
+              state.root,
+              context,
+              MediaQuery.of(context).size.width -
+                  (homeState.isMenuCollapsed
+                      ? 0
+                      : (homeState.resizeOffset + Sizes.sideBarWidth)),
+              MediaQuery.of(context).size.height,
+            );
+          },
+        );
       },
     );
   }
 
-  Widget _buildTabs(PaneNode root, BuildContext context) {
+  Widget _buildTabs(
+    PaneNode root,
+    BuildContext context,
+    double width,
+    double height,
+  ) {
     if (root.children.isEmpty) {
       final pageController = PageController();
       return ChangeNotifierProvider<Tabs>(
         create: (context) => root.tabs,
         child: Consumer<Tabs>(
-          builder: (context, value, child) => GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              context.read<PanesCubit>().setActivePane(root);
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                TabsManager(
-                  pane: root,
-                  pageController: pageController,
-                  tabs: value,
-                ),
-                value.currentPageManager
-                    .stackTopBar(layout: layout, paneId: root.paneId),
-                Expanded(
-                  child: PageView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: pageController,
-                    children: value.pageManagers
-                        .map(
-                          (pm) => PageStack(
-                            pageManager: pm,
-                            delegate: delegate,
-                          ),
-                        )
-                        .toList(),
+          builder: (context, value, child) {
+            final horizontalController = ScrollController();
+            final verticalController = ScrollController();
+            return BlocBuilder<HomeSettingBloc, HomeSettingState>(
+              builder: (context, state) {
+                return Scrollbar(
+                  controller: verticalController,
+                  child: SingleChildScrollView(
+                    controller: verticalController,
+                    child: Scrollbar(
+                      controller: horizontalController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: horizontalController,
+                        scrollDirection: Axis.horizontal,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            TabsManager(
+                              pane: root,
+                              pageController: pageController,
+                              tabs: value,
+                            ),
+                            value.currentPageManager.stackTopBar(
+                                layout: layout, paneId: root.paneId),
+                            Expanded(
+                              child: PageView(
+                                physics: const NeverScrollableScrollPhysics(),
+                                controller: pageController,
+                                children: value.pageManagers
+                                    .map(
+                                      (pm) => PageStack(
+                                        pageManager: pm,
+                                        delegate: delegate,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ).constrained(
+                          width: MediaQuery.of(context).size.width -
+                              (state.isMenuCollapsed
+                                  ? 0
+                                  : (state.resizeOffset + Sizes.sideBarWidth)),
+                          height: MediaQuery.of(context).size.height,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                );
+              },
+            );
+          },
         ),
       );
     } else {
-      double distance = 0;
       return SizedBox(
         child: LayoutBuilder(
           builder: (context, constraints) => Stack(
             key: ValueKey(root.paneId),
             children: [
-              ...root.children.map((e) {
-                //TODO(squidrye): move calculations out of presentation
-                final childWidth = (root.axis == Axis.vertical
-                        ? constraints.maxWidth
-                        : constraints.maxHeight) /
-                    root.children.length;
-                final childLeft = distance * childWidth;
-                distance++;
-                return BlocProvider(
-                  create: (context) => PaneSizeCubit(offset: childLeft),
-                  child: BlocBuilder<PaneSizeCubit, PaneSizeState>(
-                    builder: (context, state) {
-                      return Stack(
+              ...root.children.indexed.map((indexNode) {
+                return ChangeNotifierProvider<PaneSizeController>(
+                  create: (context) => root.sizeController,
+                  child: Consumer<PaneSizeController>(
+                    builder: (context, value, child) => GestureDetector(
+                      onTap: () {
+                        context.read<PanesCubit>().setActivePane(indexNode.$2);
+                      },
+                      child: Stack(
                         children: [
-                          _buildTabs(e, context)
+                          _buildTabs(
+                            indexNode.$2,
+                            context,
+                            root.axis == Axis.vertical
+                                ? width * value.flex[indexNode.$1]
+                                : width,
+                            root.axis == Axis.horizontal
+                                ? height * value.flex[indexNode.$1]
+                                : height,
+                          )
                               .constrained(
                                 animate: true,
-                                width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.height,
+                                width: root.axis == Axis.vertical
+                                    ? width * value.flex[indexNode.$1]
+                                    : width,
+                                height: root.axis == Axis.horizontal
+                                    ? height * value.flex[indexNode.$1]
+                                    : height,
                               )
                               .positioned(
                                 left: root.axis == Axis.vertical
-                                    ? state.resizeOffset
+                                    ? width *
+                                        value.flex[indexNode.$1 > 0
+                                            ? indexNode.$1 - 1
+                                            : indexNode.$1] *
+                                        indexNode.$1
                                     : null,
                                 top: root.axis == Axis.horizontal
-                                    ? state.resizeOffset
+                                    ? height *
+                                        value.flex[indexNode.$1 > 0
+                                            ? indexNode.$1 - 1
+                                            : indexNode.$1] *
+                                        indexNode.$1
                                     : null,
                               ),
                           MouseRegion(
@@ -129,16 +187,36 @@ class HomeStack extends StatelessWidget {
                                 : SystemMouseCursors.resizeUpDown,
                             child: GestureDetector(
                               dragStartBehavior: DragStartBehavior.down,
-                              onHorizontalDragStart: (details) => context
-                                  .read<PaneSizeCubit>()
-                                  .editPanelResizeStart(),
-                              onHorizontalDragUpdate: (details) => context
-                                  .read<PaneSizeCubit>()
-                                  .editPanelResized(
-                                    root.axis == Axis.vertical
-                                        ? details.localPosition.dx
-                                        : details.localPosition.dy,
-                                  ),
+                              onHorizontalDragUpdate: (details) {
+                                Log.warn(
+                                    "Change ${details.delta.dx} width ${width * value.flex[indexNode.$1]} change ${(width * value.flex[indexNode.$1]) - (details.delta.dx)} position ${width * value.flex[indexNode.$1]}");
+                                root.sizeController.resize(
+                                  root,
+                                  root.axis == Axis.vertical ? width : height,
+                                  root.axis == Axis.vertical
+                                      ? (width * value.flex[indexNode.$1]) -
+                                          (details.delta.dx)
+                                      : (height * value.flex[indexNode.$1]) -
+                                          (details.delta.dy),
+                                  indexNode.$1,
+                                  details.delta.dx,
+                                );
+                              },
+                              onVerticalDragUpdate: (details) {
+                                Log.warn(
+                                    "Change ${details.delta.dx} width ${width * value.flex[indexNode.$1]} change ${(width * value.flex[indexNode.$1]) + (details.delta.dx)} position ${width * value.flex[indexNode.$1]}");
+                                root.sizeController.resize(
+                                  root,
+                                  root.axis == Axis.vertical ? width : height,
+                                  root.axis == Axis.vertical
+                                      ? (width * value.flex[indexNode.$1]) -
+                                          (details.delta.dx)
+                                      : (height * value.flex[indexNode.$1]) -
+                                          (details.delta.dy),
+                                  indexNode.$1,
+                                  details.delta.dy,
+                                );
+                              },
                               behavior: HitTestBehavior.translucent,
                               child: Container(
                                 color: Colors.lightBlue,
@@ -152,15 +230,23 @@ class HomeStack extends StatelessWidget {
                             ),
                           ).positioned(
                             left: root.axis == Axis.vertical
-                                ? state.resizeOffset
+                                ? width *
+                                    value.flex[indexNode.$1 > 0
+                                        ? indexNode.$1 - 1
+                                        : indexNode.$1] *
+                                    indexNode.$1
                                 : null,
                             top: root.axis == Axis.horizontal
-                                ? state.resizeOffset
+                                ? height *
+                                    value.flex[indexNode.$1 > 0
+                                        ? indexNode.$1 - 1
+                                        : indexNode.$1] *
+                                    indexNode.$1
                                 : null,
                           )
                         ],
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 );
               }).toList(),

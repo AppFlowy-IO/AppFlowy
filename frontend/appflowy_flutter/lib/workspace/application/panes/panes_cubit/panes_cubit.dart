@@ -51,6 +51,10 @@ class PanesCubit extends Cubit<PanesState> {
     emit(
       state.copyWith(
         root: root,
+      ),
+    );
+    emit(
+      state.copyWith(
         count: panesService.countNodeHandler(root),
       ),
     );
