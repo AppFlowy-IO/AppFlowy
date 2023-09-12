@@ -729,5 +729,13 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
+  },
+  "findAndReplace": {
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "close": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all"
   }
 }
