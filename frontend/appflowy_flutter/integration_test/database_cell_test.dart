@@ -437,4 +437,116 @@ void main() {
       await tester.pumpAndSettle();
     });
   });
+
+  testWidgets('edit checklist cell', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapGoButton();
+
+    await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+    const fieldType = FieldType.Checklist;
+    await tester.createField(fieldType, fieldType.name);
+
+    // assert that there is no progress bar in the grid
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: null);
+
+    // tap on the first checklist cell
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // assert that the checklist editor is shown
+    tester.assertChecklistEditorVisible(visible: true);
+
+    // assert that new task editor is shown
+    tester.assertNewCheckListTaskEditorVisible(visible: true);
+
+    // create a new task with enter
+    await tester.createNewChecklistTask(name: "task 0", enter: true);
+
+    // assert that the task is displayed
+    tester.assertChecklistTaskInEditor(
+      index: 0,
+      name: "task 0",
+      isChecked: false,
+    );
+
+    // update the task's name
+    await tester.renameChecklistTask(index: 0, name: "task 1");
+
+    // assert that the task's name is updated
+    tester.assertChecklistTaskInEditor(
+      index: 0,
+      name: "task 1",
+      isChecked: false,
+    );
+
+    // dismiss new task editor
+    await tester.dismissCellEditor();
+    tester.assertNewCheckListTaskEditorVisible(visible: false);
+
+    // dismiss checklist cell editor
+    await tester.dismissCellEditor();
+
+    // assert that progress bar is shown in grid at 0%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 0);
+
+    // start editing the first checklist cell again, click on new task button
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+    tester.assertNewCheckListTaskEditorVisible(visible: false);
+    await tester.tapChecklistNewTaskButton();
+    tester.assertNewCheckListTaskEditorVisible(visible: true);
+
+    // create another task with the create button
+    await tester.createNewChecklistTask(name: "task 2", button: true);
+
+    // assert that the task was inserted
+    tester.assertChecklistTaskInEditor(
+      index: 1,
+      name: "task 2",
+      isChecked: false,
+    );
+
+    // mark it as complete
+    await tester.checkChecklistTask(index: 1);
+
+    // assert that the task was checked in the editor
+    tester.assertChecklistTaskInEditor(
+      index: 1,
+      name: "task 2",
+      isChecked: true,
+    );
+
+    // dismiss checklist editor
+    await tester.dismissCellEditor();
+    await tester.dismissCellEditor();
+
+    // assert that progressbar is shown in grid at 50%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 0.5);
+
+    // re-open the cell editor
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // hover over first task and delete it
+    await tester.deleteChecklistTask(index: 0);
+
+    // dismiss cell editor
+    await tester.dismissCellEditor();
+
+    // assert that progressbar is shown in grid at 100%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 1);
+
+    // re-open the cell edior
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // delete the remaining task
+    await tester.deleteChecklistTask(index: 0);
+
+    // assert that the new task editor is shown
+    tester.assertNewCheckListTaskEditorVisible(visible: true);
+
+    // dismiss the cell editor
+    await tester.dismissCellEditor();
+
+    // check that the progress bar is not viisble
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: null);
+  });
 }

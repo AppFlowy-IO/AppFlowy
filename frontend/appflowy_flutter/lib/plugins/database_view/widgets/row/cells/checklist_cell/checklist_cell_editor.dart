@@ -142,7 +142,7 @@ class _ChecklistItemListState extends State<ChecklistItemList> {
       ...widget.options.mapIndexed(
         (index, option) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
-          child: _ChecklistItem(
+          child: ChecklistItem(
             option: option,
             onSubmitted:
                 index == widget.options.length - 1 ? widget.onUpdateTask : null,
@@ -169,20 +169,21 @@ class _ChecklistItemListState extends State<ChecklistItemList> {
 }
 
 /// Represents an existing task
-class _ChecklistItem extends StatefulWidget {
+@visibleForTesting
+class ChecklistItem extends StatefulWidget {
   final ChecklistSelectOption option;
   final VoidCallback? onSubmitted;
-  const _ChecklistItem({
+  const ChecklistItem({
     required this.option,
     Key? key,
     this.onSubmitted,
   }) : super(key: key);
 
   @override
-  State<_ChecklistItem> createState() => _ChecklistItemState();
+  State<ChecklistItem> createState() => _ChecklistItemState();
 }
 
-class _ChecklistItemState extends State<_ChecklistItem> {
+class _ChecklistItemState extends State<ChecklistItem> {
   late final TextEditingController _textController;
   late final FocusNode _focusNode;
   bool _isHovered = false;
@@ -279,6 +280,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
 
 /// Creates a new task after entering the description and pressing enter.
 /// This can be cancelled by pressing escape
+@visibleForTesting
 class NewTaskItem extends StatefulWidget {
   final FocusNode focusNode;
   const NewTaskItem({super.key, required this.focusNode});
@@ -366,6 +368,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
   }
 }
 
+@visibleForTesting
 class ChecklistNewTaskButton extends StatelessWidget {
   final VoidCallback onTap;
   const ChecklistNewTaskButton({super.key, required this.onTap});
