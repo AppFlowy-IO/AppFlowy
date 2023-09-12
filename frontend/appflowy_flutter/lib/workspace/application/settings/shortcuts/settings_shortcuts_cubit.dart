@@ -40,7 +40,8 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
         customizeShortcuts,
       );
       //sort the shortcuts
-      commandShortcutEvents.sort((a, b) => a.key.compareTo(b.key));
+      commandShortcutEvents
+          .sort((a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()));
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
