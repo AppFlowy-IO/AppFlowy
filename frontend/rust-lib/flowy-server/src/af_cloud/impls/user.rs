@@ -153,7 +153,7 @@ pub async fn user_sign_up_request(
   client: Arc<Mutex<client_api::Client>>,
   params: SignUpParams,
 ) -> Result<SignUpResponse, FlowyError> {
-  let client = client.try_lock().map_err(|e| {
+  let mut client = client.try_lock().map_err(|e| {
     FlowyError::new(
       ErrorCode::UnexpectedEmpty,
       format!("Client is not available: {}", e),
@@ -162,12 +162,22 @@ pub async fn user_sign_up_request(
 
   let user = client.sign_up(&params.email, &params.password).await?;
   tracing::info!("User signed up: {:?}", user);
-  // after the sign up, we need to wait for user to be verified (email)
-  // before we can return the response
-  Err(FlowyError::new(
-    ErrorCode::AwaitingEmailConfirmation,
-    "Awaiting email confirmation".to_string(),
-  ))
+  match user.confirmed_at {
+    Some(_) => {
+        // User is already confirmed, help her/him to sign in
+        let token = client.sign_in_password(&params.email, &params.password).await?;
+
+        // TODO:
+        // Query workspace list
+        // Query user profile
+
+        todo!()
+    },
+    None => Err(FlowyError::new(
+      ErrorCode::AwaitingEmailConfirmation,
+      "Awaiting email confirmation".to_string(),
+    )),
+  }
 }
 
 pub async fn user_sign_in_request(
