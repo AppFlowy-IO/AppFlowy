@@ -10,12 +10,14 @@ import 'package:nanoid/nanoid.dart';
 enum Direction { front, back }
 
 class PanesService {
+  PanesService();
   PaneNode splitHandler(
     PaneNode node,
     String targetPaneId,
     ViewPB view,
     Direction direction,
     Axis axis,
+    void Function(PaneNode) activePane,
   ) {
     /// This is a recursive handler, following condition checks if passed node
     /// is our target node
@@ -23,19 +25,16 @@ class PanesService {
       ///we create a holder node which would replace current target and add
       ///target node + new node as its children
       final newNode = PaneNode(
-        sizeController: PaneSizeController(
-          axis: node.sizeController.axis,
-          flex: [0.5, 0.5],
-        ),
+        sizeController: PaneSizeController(flex: [0.5, 0.5]),
         paneId: nanoid(),
         children: const [],
         axis: axis,
         tabs: null,
       );
-      node.sizeController.dispose();
-      return newNode.copyWith(
+      final ret = newNode.copyWith(
         children: [
           node.copyWith(
+            paneId: nanoid(),
             parent: newNode,
             sizeController: PaneSizeController.intial(),
             axis: null,
@@ -54,6 +53,8 @@ class PanesService {
           )
         ],
       );
+      activePane(ret.children[0]);
+      return ret;
     }
 
     /// if we haven't found our target node there is a possibility that our
@@ -86,9 +87,9 @@ class PanesService {
                 node.children.length,
                 (_) => 1 / (node.children.length),
               ),
-              axis: axis,
             ),
           );
+          activePane(ret.children[i]);
           return ret;
         }
       }
@@ -98,7 +99,8 @@ class PanesService {
     ///node isn't right holder we proceed recursively to dfs remaining
     ///children
     final newChildren = node.children
-        .map((e) => splitHandler(e, targetPaneId, view, direction, axis))
+        .map((e) =>
+            splitHandler(e, targetPaneId, view, direction, axis, activePane))
         .toList();
     return node.copyWith(children: newChildren);
   }

@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/panes/size_cubit/cubit/size_controller.dart';
+import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +18,7 @@ class PaneNode extends Equatable {
     this.parent,
     this.axis,
     Tabs? tabs,
-  })  : sizeController = sizeController ??
-            PaneSizeController(
-              axis: axis,
-              flex: [],
-            ),
+  })  : sizeController = sizeController ?? PaneSizeController(flex: []),
         tabs = tabs ?? Tabs();
 
   PaneNode copyWith({

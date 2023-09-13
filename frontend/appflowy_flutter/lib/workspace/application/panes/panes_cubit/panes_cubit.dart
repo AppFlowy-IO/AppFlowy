@@ -46,6 +46,7 @@ class PanesCubit extends Cubit<PanesState> {
       view,
       direction,
       axis,
+      setActivePane,
     );
 
     emit(
