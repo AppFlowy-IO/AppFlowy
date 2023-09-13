@@ -1,4 +1,4 @@
-use collab_plugins::cloud_storage::{CollabObject, CollabType};
+use collab_define::{CollabObject, CollabType};
 use uuid::Uuid;
 
 use flowy_user_deps::entities::SignUpResponse;
