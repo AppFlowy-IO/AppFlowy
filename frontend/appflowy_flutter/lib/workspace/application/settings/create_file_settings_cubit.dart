@@ -17,12 +17,11 @@ class CreateFileSettingsCubit extends Cubit<bool> {
   }
 
   Future<void> getInitialSettings() async {
-    final future = getIt<KeyValueStorage>().getWithFormat(
+    final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
       KVKeys.showRenameDialogWhenCreatingNewFile,
       (value) => bool.parse(value),
     );
-    future.then(
-      (value) => value.fold((l) => emit(false), (r) => emit(r)),
-    );
+    
+    settingsOrFailure.fold((_) => emit(false), (settings) => emit(settings));
   }
 }
