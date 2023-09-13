@@ -31,7 +31,7 @@ class CalendarDayCard extends StatelessWidget {
     required RowCache rowCache,
     required this.events,
     super.key,
-  })  : _rowCache = rowCache;
+  }) : _rowCache = rowCache;
 
   @override
   Widget build(BuildContext context) {

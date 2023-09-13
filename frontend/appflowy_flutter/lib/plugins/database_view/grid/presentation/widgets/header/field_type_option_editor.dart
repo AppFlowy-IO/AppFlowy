@@ -30,7 +30,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
     required TypeOptionController dataController,
     required this.popoverMutex,
     super.key,
-  })  : _dataController = dataController;
+  }) : _dataController = dataController;
 
   @override
   Widget build(BuildContext context) {

@@ -21,7 +21,7 @@ class CreateFileSettingsCubit extends Cubit<bool> {
       KVKeys.showRenameDialogWhenCreatingNewFile,
       (value) => bool.parse(value),
     );
-    
+
     settingsOrFailure.fold((_) => emit(false), (settings) => emit(settings));
   }
 }

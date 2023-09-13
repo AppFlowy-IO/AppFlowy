@@ -247,7 +247,8 @@ class UserEmailInputState extends State<UserEmailInput> {
 class _OpenaiKeyInput extends StatefulWidget {
   final String openAIKey;
   const _OpenaiKeyInput(
-    this.openAIKey,);
+    this.openAIKey,
+  );
 
   @override
   State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
