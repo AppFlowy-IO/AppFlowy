@@ -17,6 +17,8 @@ class HomeLayout {
   late double editPanelWidth;
   late double homePageLOffset;
   late double homePageROffset;
+  late double homePageWidth;
+  late double homePageHeight;
   late double menuSpacing;
   late Duration animDuration;
 
@@ -43,5 +45,11 @@ class HomeLayout {
 
     editPanelWidth = HomeSizes.editPanelWidth;
     homePageROffset = showEditPanel ? editPanelWidth : 0;
+
+    homePageWidth = homeScreenConstraint.maxWidth -
+        (homeSetting.isMenuCollapsed
+            ? 0
+            : Sizes.sideBarWidth + homeSetting.resizeOffset);
+    homePageHeight = homeScreenConstraint.maxHeight;
   }
 }
