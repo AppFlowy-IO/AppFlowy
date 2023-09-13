@@ -21,8 +21,7 @@ import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
   final FieldContext cellContext;
-  const GridFieldCellActionSheet({required this.cellContext, Key? key})
-      : super(key: key);
+  const GridFieldCellActionSheet({required this.cellContext, super.key});
 
   @override
   State<StatefulWidget> createState() => _GridFieldCellActionSheetState();
@@ -72,8 +71,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 class _EditFieldButton extends StatelessWidget {
   final FieldContext cellContext;
   final void Function()? onTap;
-  const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
-      : super(key: key);
+  const _EditFieldButton({required this.cellContext, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +95,7 @@ class _EditFieldButton extends StatelessWidget {
 
 class _FieldOperationList extends StatelessWidget {
   final FieldContext fieldInfo;
-  const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
+  const _FieldOperationList(this.fieldInfo);
 
   @override
   Widget build(BuildContext context) {
@@ -163,8 +161,8 @@ class FieldActionCell extends StatelessWidget {
     required this.fieldInfo,
     required this.action,
     required this.enable,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

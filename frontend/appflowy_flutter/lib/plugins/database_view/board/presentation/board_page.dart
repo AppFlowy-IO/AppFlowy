@@ -113,9 +113,9 @@ class BoardPage extends StatelessWidget {
 
 class BoardContent extends StatefulWidget {
   const BoardContent({
-    Key? key,
+    super.key,
     this.onEditStateChanged,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onEditStateChanged;
 

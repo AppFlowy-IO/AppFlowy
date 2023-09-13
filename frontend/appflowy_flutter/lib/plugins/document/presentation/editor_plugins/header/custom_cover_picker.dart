@@ -1,18 +1,18 @@
 import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CoverImagePicker extends StatefulWidget {
   final VoidCallback onBackPressed;
@@ -320,9 +320,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
             : (widget.state is NetworkImagePicked)
                 ? widget.state.successOrFail.fold(
                     (l) => _buildImageDeleteButton(context),
-                    (r) => Container(),
+                    (r) => const SizedBox.shrink(),
                   )
-                : Container(),
+                : const SizedBox.shrink(),
       ],
     );
   }

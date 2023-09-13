@@ -294,7 +294,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             },
           );
         }
-        return Container();
+        return const SizedBox.shrink();
       },
     );
   }
@@ -339,9 +339,9 @@ class NewCustomCoverButton extends StatelessWidget {
 
 class DeleteImageAlertDialog extends StatelessWidget {
   const DeleteImageAlertDialog({
-    Key? key,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   final Function() onSubmit;
 
@@ -391,11 +391,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
 
 class ImageGridItem extends StatefulWidget {
   const ImageGridItem({
-    Key? key,
+    super.key,
     required this.onImageSelect,
     required this.onImageDelete,
     required this.imagePath,
-  }) : super(key: key);
+  });
 
   final Function() onImageSelect;
   final Function() onImageDelete;

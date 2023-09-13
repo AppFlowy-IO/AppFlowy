@@ -1,5 +1,6 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
+
 import "./example_button.dart";
 
 void main() {
@@ -64,21 +65,21 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Row(children: [
+      body: const Row(children: [
         Column(children: [
-          const ExampleButton(
+          ExampleButton(
             label: "Left top",
             offset: Offset(0, 10),
             direction: PopoverDirection.bottomWithLeftAligned,
           ),
-          Expanded(child: Container()),
-          const ExampleButton(
+          Expanded(child: SizedBox.shrink()),
+          ExampleButton(
             label: "Left bottom",
             offset: Offset(0, -10),
             direction: PopoverDirection.topWithLeftAligned,
           ),
         ]),
-        const Expanded(
+        Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        const Column(
+        Column(
           children: [
             ExampleButton(
               label: "Right top",

@@ -17,9 +17,9 @@ import 'field_type_extension.dart';
 class GridFieldCell extends StatefulWidget {
   final FieldContext cellContext;
   const GridFieldCell({
-    Key? key,
+    super.key,
     required this.cellContext,
-  }) : super(key: key);
+  });
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
@@ -86,8 +86,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
   const _GridHeaderCellContainer({
     required this.child,
     required this.width,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,9 +114,7 @@ class _GridHeaderCellContainer extends StatelessWidget {
 }
 
 class _DragToExpandLine extends StatelessWidget {
-  const _DragToExpandLine({
-    Key? key,
-  }) : super(key: key);
+  const _DragToExpandLine();
 
   @override
   Widget build(BuildContext context) {
@@ -159,8 +156,8 @@ class FieldCellButton extends StatelessWidget {
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

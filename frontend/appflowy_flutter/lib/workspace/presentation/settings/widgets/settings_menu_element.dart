@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({
-    Key? key,
+    super.key,
     required this.page,
     required this.label,
     required this.icon,
     required this.changeSelectedPage,
     required this.selectedPage,
-  }) : super(key: key);
+  });
 
   final SettingsPage page;
   final SettingsPage selectedPage;

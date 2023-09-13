@@ -9,7 +9,7 @@ import 'package:flowy_infra/language.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsLanguageView extends StatelessWidget {
-  const SettingsLanguageView({Key? key}) : super(key: key);
+  const SettingsLanguageView({super.key});
 
   @override
   Widget build(BuildContext context) {

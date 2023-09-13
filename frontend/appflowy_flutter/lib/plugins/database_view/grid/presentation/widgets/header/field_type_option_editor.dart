@@ -29,9 +29,8 @@ class FieldTypeOptionEditor extends StatelessWidget {
   const FieldTypeOptionEditor({
     required TypeOptionController dataController,
     required this.popoverMutex,
-    Key? key,
-  })  : _dataController = dataController,
-        super(key: key);
+    super.key,
+  })  : _dataController = dataController;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +77,8 @@ class SwitchFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const SwitchFieldButton({
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -123,5 +122,5 @@ class SwitchFieldButton extends StatelessWidget {
 }
 
 abstract class TypeOptionWidget extends StatelessWidget {
-  const TypeOptionWidget({Key? key}) : super(key: key);
+  const TypeOptionWidget({super.key});
 }

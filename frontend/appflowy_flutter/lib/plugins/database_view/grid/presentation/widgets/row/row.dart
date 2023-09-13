@@ -181,7 +181,7 @@ class _RowLeadingState extends State<_RowLeading> {
 }
 
 class InsertRowButton extends StatelessWidget {
-  const InsertRowButton({Key? key}) : super(key: key);
+  const InsertRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -247,8 +247,8 @@ class RowContent extends StatelessWidget {
   const RowContent({
     required this.builder,
     required this.onExpand,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +323,7 @@ class RegionStateNotifier extends ChangeNotifier {
 
 class _RowEnterRegion extends StatefulWidget {
   final Widget child;
-  const _RowEnterRegion({required this.child, Key? key}) : super(key: key);
+  const _RowEnterRegion({required this.child});
 
   @override
   State<_RowEnterRegion> createState() => _RowEnterRegionState();

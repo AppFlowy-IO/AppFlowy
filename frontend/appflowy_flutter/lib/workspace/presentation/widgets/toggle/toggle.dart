@@ -12,7 +12,7 @@ class Toggle extends StatelessWidget {
   final EdgeInsets padding;
 
   const Toggle({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChanged,
     required this.style,
@@ -20,7 +20,7 @@ class Toggle extends StatelessWidget {
     this.activeBackgroundColor,
     this.inactiveBackgroundColor,
     this.padding = const EdgeInsets.all(8.0),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

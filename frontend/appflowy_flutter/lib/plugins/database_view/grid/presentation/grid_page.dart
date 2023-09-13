@@ -92,8 +92,8 @@ class GridPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final ViewPB view;
   final VoidCallback? onDeleted;

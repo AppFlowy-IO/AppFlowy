@@ -12,8 +12,8 @@ class BoardNumberCell extends StatefulWidget {
   const BoardNumberCell({
     required this.groupId,
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<BoardNumberCell> createState() => _NumberCardCellState();

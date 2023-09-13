@@ -16,8 +16,8 @@ class DatabaseSettingList extends StatelessWidget {
   const DatabaseSettingList({
     required this.databaseContoller,
     required this.onAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +51,8 @@ class DatabaseSettingItem extends StatelessWidget {
   const DatabaseSettingItem({
     required this.action,
     required this.onAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

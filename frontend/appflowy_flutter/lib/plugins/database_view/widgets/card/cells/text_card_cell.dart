@@ -22,12 +22,12 @@ class TextCardCell<CustomCardData>
 
   const TextCardCell({
     required this.cellControllerBuilder,
-    required CustomCardData? cardData,
+    required super.cardData,
     this.editableNotifier,
     this.renderHook,
-    TextCardCellStyle? style,
-    Key? key,
-  }) : super(key: key, style: style, cardData: cardData);
+    super.style,
+    super.key,
+  });
 
   @override
   State<TextCardCell> createState() => _TextCardCellState();

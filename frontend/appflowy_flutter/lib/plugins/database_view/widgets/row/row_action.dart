@@ -22,8 +22,8 @@ class RowActionList extends StatelessWidget {
   const RowActionList({
     required String viewId,
     required this.rowController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +48,7 @@ class RowActionList extends StatelessWidget {
 
 class RowDetailPageDeleteButton extends StatelessWidget {
   final String rowId;
-  const RowDetailPageDeleteButton({required this.rowId, Key? key})
-      : super(key: key);
+  const RowDetailPageDeleteButton({required this.rowId, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +72,8 @@ class RowDetailPageDuplicateButton extends StatelessWidget {
   const RowDetailPageDuplicateButton({
     required this.rowId,
     this.groupId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +98,8 @@ class CreateRowFieldButton extends StatefulWidget {
 
   const CreateRowFieldButton({
     required this.viewId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<CreateRowFieldButton> createState() => _CreateRowFieldButtonState();

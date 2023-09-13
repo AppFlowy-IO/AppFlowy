@@ -22,8 +22,8 @@ class SettingButton extends StatefulWidget {
   final DatabaseController databaseController;
   const SettingButton({
     required this.databaseController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<SettingButton> createState() => _SettingButtonState();
@@ -66,8 +66,7 @@ class _DatabaseSettingListPopover extends StatefulWidget {
 
   const _DatabaseSettingListPopover({
     required this.databaseController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DatabaseSettingListPopoverState();

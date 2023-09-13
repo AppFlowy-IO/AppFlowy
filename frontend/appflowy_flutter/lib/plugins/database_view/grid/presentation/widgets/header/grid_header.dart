@@ -29,8 +29,8 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
     required this.viewId,
     required this.fieldController,
     required this.anchorScrollController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -67,7 +67,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 
 class _GridHeader extends StatefulWidget {
   final String viewId;
-  const _GridHeader({Key? key, required this.viewId}) : super(key: key);
+  const _GridHeader({required this.viewId});
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -145,7 +145,7 @@ class _GridHeaderState extends State<_GridHeader> {
 }
 
 class _CellLeading extends StatelessWidget {
-  const _CellLeading({Key? key}) : super(key: key);
+  const _CellLeading();
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +157,7 @@ class _CellLeading extends StatelessWidget {
 
 class _CellTrailing extends StatelessWidget {
   final String viewId;
-  const _CellTrailing({required this.viewId, Key? key}) : super(key: key);
+  const _CellTrailing({required this.viewId});
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +176,7 @@ class _CellTrailing extends StatelessWidget {
 
 class CreateFieldButton extends StatefulWidget {
   final String viewId;
-  const CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  const CreateFieldButton({required this.viewId, super.key});
 
   @override
   State<CreateFieldButton> createState() => _CreateFieldButtonState();

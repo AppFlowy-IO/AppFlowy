@@ -28,8 +28,8 @@ class FieldEditor extends StatefulWidget {
     this.isGroupingField = false,
     this.onDeleted,
     this.onHidden,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _FieldEditorState();
@@ -121,9 +121,9 @@ class FieldTypeOptionCell extends StatelessWidget {
   final PopoverMutex popoverMutex;
 
   const FieldTypeOptionCell({
-    Key? key,
+    super.key,
     required this.popoverMutex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +150,8 @@ class FieldNameTextField extends StatefulWidget {
   final PopoverMutex popoverMutex;
   const FieldNameTextField({
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<FieldNameTextField> createState() => _FieldNameTextFieldState();
@@ -209,8 +209,7 @@ class _DeleteFieldButton extends StatelessWidget {
   const _DeleteFieldButton({
     required this.popoverMutex,
     required this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -244,8 +243,8 @@ class HideFieldButton extends StatelessWidget {
   const HideFieldButton({
     required this.popoverMutex,
     required this.onHidden,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

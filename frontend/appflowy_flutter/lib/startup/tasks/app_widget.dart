@@ -78,11 +78,11 @@ class ApplicationWidget extends StatelessWidget {
   final AppTheme appTheme;
 
   const ApplicationWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.appTheme,
     required this.appearanceSetting,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

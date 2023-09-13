@@ -16,13 +16,13 @@ class CellContainer extends StatelessWidget {
   final CellContainerNotifier cellContainerNotifier;
 
   const CellContainer({
-    Key? key,
+    super.key,
     required this.child,
     required this.width,
     required this.isPrimary,
     required this.cellContainerNotifier,
     this.accessoryBuilder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +88,7 @@ class _GridCellEnterRegion extends StatelessWidget {
     required this.child,
     required this.accessories,
     required this.isPrimary,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -12,8 +12,7 @@ import 'checklist_progress_bar.dart';
 
 class GridChecklistCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
-  GridChecklistCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  GridChecklistCell({required this.cellControllerBuilder, super.key});
 
   @override
   GridCellState<GridChecklistCell> createState() => GridChecklistCellState();

@@ -43,8 +43,8 @@ class UnscheduleEventsButton extends StatefulWidget {
   final DatabaseController databaseController;
   const UnscheduleEventsButton({
     required this.databaseController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<UnscheduleEventsButton> createState() => _UnscheduleEventsButtonState();
@@ -165,8 +165,8 @@ class UnscheduledEventCell extends StatelessWidget {
   const UnscheduledEventCell({
     required this.event,
     required this.onPressed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

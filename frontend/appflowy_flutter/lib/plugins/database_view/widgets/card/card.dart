@@ -63,8 +63,8 @@ class RowCard<CustomCardData> extends StatefulWidget {
       showAccessory: true,
     ),
     this.renderHook,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<RowCard<CustomCardData>> createState() =>
@@ -210,8 +210,8 @@ class _CardContent<CustomCardData> extends StatelessWidget {
     required this.cardData,
     required this.styleConfiguration,
     this.renderHook,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +274,7 @@ class _CardContent<CustomCardData> extends StatelessWidget {
 }
 
 class CardMoreOption extends StatelessWidget with CardAccessory {
-  CardMoreOption({Key? key}) : super(key: key);
+  CardMoreOption({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -295,8 +295,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   final EditableRowNotifier rowNotifier;
   const _CardEditOption({
     required this.rowNotifier,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -12,8 +12,8 @@ class GridNumberCell extends GridCellWidget {
 
   GridNumberCell({
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   GridEditableTextCell<GridNumberCell> createState() => _NumberCellState();

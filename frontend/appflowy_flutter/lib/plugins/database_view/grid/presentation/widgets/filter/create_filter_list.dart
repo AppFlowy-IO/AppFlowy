@@ -27,8 +27,8 @@ class GridCreateFilterList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateFilter,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _GridCreateFilterListState();
@@ -154,8 +154,8 @@ class GridFilterPropertyCell extends StatelessWidget {
   const GridFilterPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -31,10 +31,10 @@ class DateCellEditor extends StatefulWidget {
   final DateCellController cellController;
 
   const DateCellEditor({
-    Key? key,
+    super.key,
     required this.onDismissed,
     required this.cellController,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _DateCellEditor();
@@ -80,8 +80,7 @@ class _CellCalendarWidget extends StatefulWidget {
   const _CellCalendarWidget({
     required this.cellContext,
     required this.dateTypeOptionPB,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CellCalendarWidget> createState() => _CellCalendarWidgetState();
@@ -231,7 +230,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 }
 
 class _IncludeTimeButton extends StatelessWidget {
-  const _IncludeTimeButton({Key? key}) : super(key: key);
+  const _IncludeTimeButton();
 
   @override
   Widget build(BuildContext context) {
@@ -259,8 +258,7 @@ class _TimeTextField extends StatefulWidget {
   const _TimeTextField({
     required this.timeStr,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();
@@ -326,8 +324,8 @@ class DateTypeOptionButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   const DateTypeOptionButton({
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -375,8 +373,7 @@ class _CalDateTimeSetting extends StatefulWidget {
   const _CalDateTimeSetting({
     required this.dateTypeOptionPB,
     required this.onEvent,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CalDateTimeSetting> createState() => _CalDateTimeSettingState();
@@ -445,7 +442,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
 
 @visibleForTesting
 class ClearDateButton extends StatelessWidget {
-  const ClearDateButton({Key? key}) : super(key: key);
+  const ClearDateButton({super.key});
 
   @override
   Widget build(BuildContext context) {

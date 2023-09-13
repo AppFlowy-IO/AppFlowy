@@ -13,8 +13,8 @@ class GridCheckboxCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
   GridCheckboxCell({
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   GridCellState<GridCheckboxCell> createState() => _CheckboxCellState();

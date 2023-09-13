@@ -66,7 +66,7 @@ class _EmojiPopoverState extends State<EmojiPopover> {
 
 class DeleteButton extends StatelessWidget {
   final VoidCallback onTap;
-  const DeleteButton({required this.onTap, Key? key}) : super(key: key);
+  const DeleteButton({required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {

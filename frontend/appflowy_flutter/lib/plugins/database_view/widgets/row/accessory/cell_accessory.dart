@@ -55,8 +55,8 @@ class PrimaryCellAccessory extends StatefulWidget {
   const PrimaryCellAccessory({
     required this.onTapCallback,
     required this.isCellEditing,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _PrimaryCellAccessoryState();
@@ -95,8 +95,8 @@ class AccessoryHover extends StatefulWidget {
   const AccessoryHover({
     required this.child,
     this.contentPadding = EdgeInsets.zero,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
@@ -181,8 +181,7 @@ class AccessoryHoverState extends ChangeNotifier {
 
 class CellAccessoryContainer extends StatelessWidget {
   final List<GridCellAccessoryBuilder> accessories;
-  const CellAccessoryContainer({required this.accessories, Key? key})
-      : super(key: key);
+  const CellAccessoryContainer({required this.accessories, super.key});
 
   @override
   Widget build(BuildContext context) {

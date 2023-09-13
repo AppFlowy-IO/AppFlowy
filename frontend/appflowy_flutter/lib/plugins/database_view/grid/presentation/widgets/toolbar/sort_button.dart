@@ -12,7 +12,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import '../sort/create_sort_list.dart';
 
 class SortButton extends StatefulWidget {
-  const SortButton({Key? key}) : super(key: key);
+  const SortButton({super.key});
 
   @override
   State<SortButton> createState() => _SortButtonState();

@@ -17,8 +17,8 @@ class DatabaseLayoutList extends StatefulWidget {
   const DatabaseLayoutList({
     required this.viewId,
     required this.currentLayout,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _DatabaseLayoutListState();

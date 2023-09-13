@@ -26,8 +26,8 @@ class GridSingleSelectCell extends GridCellWidget {
   GridSingleSelectCell({
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as SelectOptionCellStyle);
     } else {
@@ -89,8 +89,8 @@ class GridMultiSelectCell extends GridCellWidget {
   GridMultiSelectCell({
     required this.cellControllerBuilder,
     GridCellStyle? style,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as SelectOptionCellStyle);
     } else {
@@ -157,8 +157,8 @@ class SelectOptionWrap extends StatefulWidget {
     required this.onCellEditing,
     required this.popoverController,
     this.cellStyle,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _SelectOptionWrapState();

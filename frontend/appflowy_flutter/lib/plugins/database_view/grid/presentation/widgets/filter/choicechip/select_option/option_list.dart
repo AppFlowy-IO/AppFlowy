@@ -20,8 +20,8 @@ class SelectOptionFilterList extends StatelessWidget {
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +86,8 @@ class SelectOptionFilterCell extends StatefulWidget {
   const SelectOptionFilterCell({
     required this.option,
     required this.isSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<SelectOptionFilterCell> createState() => _SelectOptionFilterCellState();

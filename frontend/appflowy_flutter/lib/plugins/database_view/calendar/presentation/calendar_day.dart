@@ -30,9 +30,8 @@ class CalendarDayCard extends StatelessWidget {
     required this.onCreateEvent,
     required RowCache rowCache,
     required this.events,
-    Key? key,
-  })  : _rowCache = rowCache,
-        super(key: key);
+    super.key,
+  })  : _rowCache = rowCache;
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +136,7 @@ class _Header extends StatelessWidget {
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +154,7 @@ class _Header extends StatelessWidget {
 @visibleForTesting
 class NewEventButton extends StatelessWidget {
   final VoidCallback onCreate;
-  const NewEventButton({required this.onCreate, Key? key}) : super(key: key);
+  const NewEventButton({required this.onCreate, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -189,8 +187,7 @@ class _DayBadge extends StatelessWidget {
     required this.isToday,
     required this.isInMonth,
     required this.date,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -241,8 +238,7 @@ class _EventList extends StatelessWidget {
     required this.viewId,
     required this.rowCache,
     required this.constraints,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -29,10 +29,19 @@ linter:
   # producing the lint.
   rules:
     - require_trailing_commas
+    - recursive_getters
+    - use_super_parameters
 
     - prefer_final_fields
     - prefer_final_in_for_each
     - prefer_final_locals
+    - prefer_is_empty
+    - prefer_initializing_formals
+
+    - unnecessary_overrides
+
+    - avoid_unnecessary_containers
+    - sized_box_for_whitespace
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

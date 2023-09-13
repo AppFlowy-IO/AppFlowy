@@ -23,8 +23,8 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   const RowDetailPage({
     required this.rowController,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();

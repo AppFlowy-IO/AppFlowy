@@ -39,7 +39,7 @@ class BarrierDialog {
         barrierColor: Colors.transparent,
         builder: (BuildContext context) {
           loadingContext = context;
-          return Container();
+          return const SizedBox.shrink();
         },
       );
 

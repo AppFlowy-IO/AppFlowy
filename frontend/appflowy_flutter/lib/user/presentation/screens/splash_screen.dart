@@ -40,7 +40,7 @@ class SplashScreen extends StatelessWidget {
         future: _registerIfNeeded(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return Container();
+            return const SizedBox.shrink();
           }
           return _buildChild(context);
         },

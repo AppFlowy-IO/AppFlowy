@@ -22,8 +22,8 @@ class RowActions extends StatelessWidget {
     required this.viewId,
     required this.rowId,
     this.groupId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class RowActions extends StatelessWidget {
 
 class _ActionCell extends StatelessWidget {
   final _RowAction action;
-  const _ActionCell({required this.action, Key? key}) : super(key: key);
+  const _ActionCell({required this.action});
 
   @override
   Widget build(BuildContext context) {

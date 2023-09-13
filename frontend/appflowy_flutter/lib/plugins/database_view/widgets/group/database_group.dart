@@ -21,8 +21,8 @@ class DatabaseGroupList extends StatelessWidget {
     required this.viewId,
     required this.fieldController,
     required this.onDismissed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +67,8 @@ class _GridGroupCell extends StatelessWidget {
   const _GridGroupCell({
     required this.fieldInfo,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

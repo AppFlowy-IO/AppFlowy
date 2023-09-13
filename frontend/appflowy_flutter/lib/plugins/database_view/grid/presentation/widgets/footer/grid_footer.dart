@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridAddRowButton extends StatelessWidget {
-  const GridAddRowButton({Key? key}) : super(key: key);
+  const GridAddRowButton({super.key});
 
   @override
   Widget build(BuildContext context) {

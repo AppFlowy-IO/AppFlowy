@@ -62,10 +62,10 @@ void showEmojiPickerMenu(
 
 class EmojiSelectionMenu extends StatefulWidget {
   const EmojiSelectionMenu({
-    Key? key,
+    super.key,
     required this.onSubmitted,
     required this.onExit,
-  }) : super(key: key);
+  });
 
   final void Function(Emoji emoji) onSubmitted;
   final void Function() onExit;

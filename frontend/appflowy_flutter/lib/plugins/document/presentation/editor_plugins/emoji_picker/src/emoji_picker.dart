@@ -81,12 +81,12 @@ typedef EmojiViewBuilder = Widget Function(Config config, EmojiViewState state);
 class EmojiPicker extends StatefulWidget {
   /// EmojiPicker for flutter
   const EmojiPicker({
-    Key? key,
+    super.key,
     required this.onEmojiSelected,
     this.onBackspacePressed,
     this.config = const Config(),
     this.customWidget,
-  }) : super(key: key);
+  });
 
   /// Custom widget
   final EmojiViewBuilder? customWidget;

@@ -24,8 +24,8 @@ class GridTimestampCell extends GridCellWidget {
     GridCellStyle? style,
     required this.fieldType,
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as TimestampCellStyle);
     } else {

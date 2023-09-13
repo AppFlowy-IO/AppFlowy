@@ -19,8 +19,8 @@ class SelectOptionFilterConditionList extends StatelessWidget {
     required this.filterInfo,
     required this.popoverMutex,
     required this.onCondition,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

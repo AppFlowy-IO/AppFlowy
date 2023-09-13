@@ -14,8 +14,8 @@ class DisclosureButton extends StatefulWidget {
   const DisclosureButton({
     required this.popoverMutex,
     required this.onAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<DisclosureButton> createState() => _DisclosureButtonState();

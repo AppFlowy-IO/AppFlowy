@@ -27,8 +27,8 @@ class GridDateCell extends GridCellWidget {
   GridDateCell({
     GridCellStyle? style,
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     if (style != null) {
       cellStyle = (style as DateCellStyle);
     } else {

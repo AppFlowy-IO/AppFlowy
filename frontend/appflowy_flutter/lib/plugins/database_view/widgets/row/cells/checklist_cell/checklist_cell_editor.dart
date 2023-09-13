@@ -14,8 +14,7 @@ import 'checklist_progress_bar.dart';
 
 class GridChecklistCellEditor extends StatefulWidget {
   final ChecklistCellController cellController;
-  const GridChecklistCellEditor({required this.cellController, Key? key})
-      : super(key: key);
+  const GridChecklistCellEditor({required this.cellController, super.key});
 
   @override
   State<GridChecklistCellEditor> createState() =>
@@ -90,8 +89,7 @@ class _ChecklistOptionCell extends StatefulWidget {
   const _ChecklistOptionCell({
     required this.option,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_ChecklistOptionCell> createState() => _ChecklistOptionCellState();

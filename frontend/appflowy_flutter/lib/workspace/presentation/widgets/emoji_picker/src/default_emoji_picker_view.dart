@@ -4,16 +4,13 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'models/category_models.dart';
-import 'config.dart';
-import 'models/emoji_model.dart';
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
-import 'emoji_view_state.dart';
+import 'models/category_models.dart';
+import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
-  const DefaultEmojiPickerView(Config config, EmojiViewState state, {Key? key})
-      : super(config, state, key: key);
+  const DefaultEmojiPickerView(super.config, super.state, {super.key});
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -90,7 +87,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         ),
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 
   bool isEmojiSearching() {

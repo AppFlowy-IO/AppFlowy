@@ -122,8 +122,8 @@ class UserNameInput extends StatefulWidget {
 
   const UserNameInput(
     this.name, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   UserNameInputState createState() => UserNameInputState();
@@ -186,8 +186,8 @@ class UserEmailInput extends StatefulWidget {
 
   const UserEmailInput(
     this.email, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   UserEmailInputState createState() => UserEmailInputState();
@@ -247,9 +247,7 @@ class UserEmailInputState extends State<UserEmailInput> {
 class _OpenaiKeyInput extends StatefulWidget {
   final String openAIKey;
   const _OpenaiKeyInput(
-    this.openAIKey, {
-    Key? key,
-  }) : super(key: key);
+    this.openAIKey,);
 
   @override
   State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
@@ -319,7 +317,7 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
 
 class _CurrentIcon extends StatelessWidget {
   final String iconUrl;
-  const _CurrentIcon(this.iconUrl, {Key? key}) : super(key: key);
+  const _CurrentIcon(this.iconUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -379,7 +377,7 @@ class _CurrentIcon extends StatelessWidget {
 
 class IconGallery extends StatelessWidget {
   final Function setIcon;
-  const IconGallery(this.setIcon, {Key? key}) : super(key: key);
+  const IconGallery(this.setIcon, {super.key});
 
   Future<List<String>> _getIcons(BuildContext context) async {
     final manifestContent =

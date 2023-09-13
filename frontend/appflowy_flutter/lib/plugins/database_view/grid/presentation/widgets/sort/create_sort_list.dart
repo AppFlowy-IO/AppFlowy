@@ -27,8 +27,8 @@ class GridCreateSortList extends StatefulWidget {
     required this.fieldController,
     required this.onClosed,
     this.onCreateSort,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _GridCreateSortListState();
@@ -154,8 +154,8 @@ class GridSortPropertyCell extends StatelessWidget {
   const GridSortPropertyCell({
     required this.fieldInfo,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

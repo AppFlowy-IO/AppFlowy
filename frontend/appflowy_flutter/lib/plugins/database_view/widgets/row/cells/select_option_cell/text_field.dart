@@ -39,8 +39,8 @@ class SelectOptionTextField extends StatefulWidget {
     this.maxLength,
     TextEditingController? textController,
     FocusNode? focusNode,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<SelectOptionTextField> createState() => _SelectOptionTextFieldState();

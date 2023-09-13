@@ -73,8 +73,8 @@ class SelectOptionTag extends StatelessWidget {
     required this.color,
     this.onSelected,
     this.onRemove,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   factory SelectOptionTag.fromOption({
     required BuildContext context,
@@ -139,8 +139,8 @@ class SelectOptionTagCell extends StatelessWidget {
     required this.option,
     required this.onSelected,
     this.children = const [],
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

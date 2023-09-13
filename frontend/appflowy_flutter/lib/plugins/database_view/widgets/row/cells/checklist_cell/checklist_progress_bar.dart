@@ -12,8 +12,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 class ChecklistProgressBar extends StatelessWidget {
   final double percent;
-  const ChecklistProgressBar({required this.percent, Key? key})
-      : super(key: key);
+  const ChecklistProgressBar({required this.percent, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class ChecklistProgressBar extends StatelessWidget {
 }
 
 class SliverChecklistProgressBar extends StatelessWidget {
-  const SliverChecklistProgressBar({Key? key}) : super(key: key);
+  const SliverChecklistProgressBar({super.key});
 
   @override
   Widget build(BuildContext context) {
