@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use anyhow::Error;
-use collab_plugins::cloud_storage::CollabType;
+use collab_define::CollabType;
 
 use lib_infra::future::FutureResult;
 

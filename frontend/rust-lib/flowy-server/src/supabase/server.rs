@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage, RemoteUpdateSender};
+use collab_define::CollabObject;
+use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
