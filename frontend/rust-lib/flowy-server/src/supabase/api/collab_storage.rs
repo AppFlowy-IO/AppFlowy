@@ -4,9 +4,9 @@ use std::sync::{Arc, Weak};
 use anyhow::Error;
 use chrono::{DateTime, Utc};
 use collab::preclude::merge_updates_v1;
+use collab_define::CollabObject;
 use collab_plugins::cloud_storage::{
-  CollabObject, MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage,
-  RemoteUpdateReceiver,
+  MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use parking_lot::Mutex;
 use tokio::task::spawn_blocking;
