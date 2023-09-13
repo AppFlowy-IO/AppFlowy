@@ -68,13 +68,13 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                                 .selectOrDeselectAllItems();
                           },
                         ),
-                      )
+                      ),
                     ],
                   ),
                   const VSpace(8),
                   const Expanded(child: _ExpandedList()),
                   const VSpace(8),
-                  _buildButtons()
+                  _buildButtons(),
                 ],
               ),
             );

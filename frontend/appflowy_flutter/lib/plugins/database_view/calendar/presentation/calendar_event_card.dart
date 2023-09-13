@@ -160,7 +160,7 @@ class EventCard extends StatelessWidget {
                     color: Theme.of(context).hintColor,
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
+                ),
             ],
           ),
         ),

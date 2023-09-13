@@ -90,7 +90,7 @@ class CalendarDayCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: child,
-                        )
+                        ),
                       ],
                     );
                   },

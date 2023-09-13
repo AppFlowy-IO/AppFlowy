@@ -219,7 +219,7 @@ class CellController<T, D> extends Equatable {
   @override
   List<Object> get props => [
         _cellCache.get(_cacheKey) ?? "",
-        _cellContext.rowId + _cellContext.fieldInfo.id
+        _cellContext.rowId + _cellContext.fieldInfo.id,
       ];
 }
 

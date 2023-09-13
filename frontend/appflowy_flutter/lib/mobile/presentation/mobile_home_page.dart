@@ -38,7 +38,7 @@ class MobileHomeScreen extends StatelessWidget {
                 runAppFlowy();
               },
               child: const Text('Logout'),
-            )
+            ),
           ],
         ),
       ),

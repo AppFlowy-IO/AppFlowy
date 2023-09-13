@@ -19,7 +19,7 @@ const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg"
+      "assets/images/app_flowy_abstract_cover_2.jpg",
     ];
 
 class ChangeCoverPopover extends StatefulWidget {

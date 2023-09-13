@@ -150,7 +150,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
       LogicalKeyboardKey.tab,
-      LogicalKeyboardKey.enter
+      LogicalKeyboardKey.enter,
     ];
 
     if (!acceptedKeys.contains(event.logicalKey)) {

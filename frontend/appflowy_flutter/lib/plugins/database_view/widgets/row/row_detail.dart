@@ -155,7 +155,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingOffset),
             child: rowOptionColumn,
-          )
+          ),
         ],
       );
     }

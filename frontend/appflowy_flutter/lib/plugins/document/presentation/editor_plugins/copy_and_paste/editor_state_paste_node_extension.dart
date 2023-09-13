@@ -119,7 +119,7 @@ extension PasteNodes on EditorState {
     if (nodes.last.children.isNotEmpty) {
       return [
         ...path,
-        ...calculatePath([0], nodes.last.children.toList())
+        ...calculatePath([0], nodes.last.children.toList()),
       ];
     }
     return path;

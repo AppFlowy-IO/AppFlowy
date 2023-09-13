@@ -253,7 +253,7 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
           onTap: () async {
             await openLearnMorePage();
           },
-        )
+        ),
       ],
     );
   }

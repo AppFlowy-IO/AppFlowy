@@ -118,7 +118,7 @@ class EditorStyleCustomizer {
       fontSize + 8,
       fontSize + 4,
       fontSize + 2,
-      fontSize
+      fontSize,
     ];
     return TextStyle(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,

@@ -19,7 +19,7 @@ class GridShortcuts extends StatelessWidget {
 }
 
 Map<ShortcutActivator, Intent> bindKeys(List<LogicalKeyboardKey> keys) {
-  return {for (var key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
+  return {for (final key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
 }
 
 Map<Type, Action<Intent>> bindActions() {

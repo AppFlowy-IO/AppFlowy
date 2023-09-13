@@ -49,7 +49,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const HSpace(6),
-                  indicator
+                  indicator,
                 ],
               ),
               const VSpace(6),

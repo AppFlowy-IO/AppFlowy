@@ -88,7 +88,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
               }
               Navigator.of(context).pop();
             },
-          )
+          ),
         ],
       ),
     );
@@ -149,8 +149,8 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
                 widget.cancel?.call();
                 Navigator.of(context).pop();
               },
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -209,7 +209,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             },
             okTitle: okTitle?.toUpperCase(),
             cancelTitle: cancelTitle?.toUpperCase(),
-          )
+          ),
         ],
       ),
     );

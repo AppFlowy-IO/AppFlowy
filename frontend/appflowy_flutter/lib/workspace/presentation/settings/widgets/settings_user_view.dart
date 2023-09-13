@@ -53,7 +53,7 @@ class SettingsUserView extends StatelessWidget {
 
               if (isSupabaseEnabled) ...[
                 const VSpace(20),
-                UserEmailInput(user.email)
+                UserEmailInput(user.email),
               ],
 
               const VSpace(20),
@@ -357,7 +357,7 @@ class _CurrentIcon extends StatelessWidget {
                       height: 300,
                       width: 300,
                       child: IconGallery(setIcon),
-                    )
+                    ),
                   ],
                 );
               },

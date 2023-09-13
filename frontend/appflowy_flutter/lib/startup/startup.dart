@@ -72,7 +72,7 @@ class FlowyRunner {
           const HotKeyTask(),
           InitSupabaseTask(),
           const InitAppWidgetTask(),
-          const InitPlatformServiceTask()
+          const InitPlatformServiceTask(),
         ],
       ],
     );

@@ -148,7 +148,7 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
             title: LocaleKeys.document_plugins_cover_add.tr(),
             borderRadius: Corners.s8Border,
           ),
-        )
+        ),
       ],
     );
   }
@@ -322,7 +322,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
                     (l) => _buildImageDeleteButton(context),
                     (r) => Container(),
                   )
-                : Container()
+                : Container(),
       ],
     );
   }

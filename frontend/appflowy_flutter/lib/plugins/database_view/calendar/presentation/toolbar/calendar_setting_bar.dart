@@ -146,7 +146,7 @@ class UnscheduleEventsList extends StatelessWidget {
             controller.close();
           },
         ),
-      )
+      ),
     ];
 
     return ListView.separated(

@@ -219,7 +219,7 @@ void main() {
           expect(node.delta!.toJson(), [
             {
               'insert': text,
-              'attributes': {'href': url}
+              'attributes': {'href': url},
             }
           ]);
         },

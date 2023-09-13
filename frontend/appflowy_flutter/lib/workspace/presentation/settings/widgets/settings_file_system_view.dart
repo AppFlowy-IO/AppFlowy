@@ -16,7 +16,7 @@ class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
   late final _items = [
     const SettingsFileLocationCustomizer(),
     // disable export data for v0.2.0 in release mode.
-    if (kDebugMode) const SettingsExportFileWidget()
+    if (kDebugMode) const SettingsExportFileWidget(),
   ];
 
   @override

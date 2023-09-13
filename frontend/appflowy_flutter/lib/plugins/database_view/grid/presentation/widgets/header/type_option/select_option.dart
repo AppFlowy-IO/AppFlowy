@@ -48,7 +48,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
               const VSpace(10),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
-            _OptionList(popoverMutex: popoverMutex)
+            _OptionList(popoverMutex: popoverMutex),
           ];
 
           return ListView.builder(
@@ -77,7 +77,7 @@ class OptionTitle extends StatelessWidget {
             child: FlowyText.medium(
               LocaleKeys.grid_field_optionTitle.tr(),
             ),
-          )
+          ),
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
           children.add(const Spacer());

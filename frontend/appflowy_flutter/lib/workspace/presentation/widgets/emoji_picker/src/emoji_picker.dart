@@ -224,7 +224,7 @@ class EmojiPickerState extends State<EmojiPicker> {
       CategoryEmoji(
         Category.FLAGS,
         await _getAvailableEmojis(emoji_list.flags, title: 'flags'),
-      )
+      ),
     ]);
   }
 

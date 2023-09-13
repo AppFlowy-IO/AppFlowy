@@ -282,7 +282,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           widget.view.name,
           overflow: TextOverflow.ellipsis,
         ),
-      )
+      ),
     ];
 
     // hover action
