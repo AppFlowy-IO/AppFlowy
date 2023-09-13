@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/size_cubit/cubit/size_controller.dart';
+import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -78,7 +78,9 @@ class PanesService {
             node.children.insert(i, newNode);
           }
           final ret = node.copyWith(
-            children: node.children,
+            paneId: nanoid(),
+            children:
+                node.children.map((e) => e.copyWith(paneId: nanoid())).toList(),
             sizeController: PaneSizeController(
               flex: List.generate(
                 node.children.length,
