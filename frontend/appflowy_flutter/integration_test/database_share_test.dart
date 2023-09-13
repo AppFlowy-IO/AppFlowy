@@ -122,17 +122,17 @@ void main() {
       }
 
       // check the checklist cell
-      final List<double> checklistCells = [
-        0.6,
-        0.3,
+      final List<double?> checklistCells = [
+        0.67,
+        0.33,
         1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       ];
       for (final (index, percent) in checklistCells.indexed) {
         await tester.assertChecklistCellInGrid(
