@@ -32,10 +32,16 @@ class _ChecklistCardCellState extends State<ChecklistCardCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-        builder: (context, state) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: ChecklistProgressBar(percent: state.percent),
-        ),
+        builder: (context, state) {
+          if (state.allOptions.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: ChecklistProgressBar(percent: state.percent),
+          );
+        },
       ),
     );
   }

@@ -393,7 +393,7 @@
       "searchOption": "Поиск"
     },
     "checklist": {
-      "panelTitle": "Добавить элемент"
+      "addNew": "Добавить элемент"
     },
     "menuName": "Сетка",
     "referencedGridPrefix": "Просмотр",

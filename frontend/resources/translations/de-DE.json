@@ -411,7 +411,7 @@
       "searchOption": "Suchen Sie nach einer Option"
     },
     "checklist": {
-      "panelTitle": "Fügen Sie einen Artikel hinzu"
+      "addNew": "Fügen Sie einen Artikel hinzu"
     },
     "menuName": "Netz",
     "referencedGridPrefix": "Sicht von"
