@@ -30,76 +30,93 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
     if (isMobile) {
       // ThirdPartySignInButtons in mobile
-      return Column(
-        children: [
-          _ThirdPartySignInButton(
-            isMobile: true,
-            icon: FlowySvgs.google_mark_xl,
-            labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-            onPressed: () {
-              _signInWithGoogle(context);
-            },
-          ),
-          const SizedBox(height: 8),
-          _ThirdPartySignInButton(
-            isMobile: true,
-            icon: isDarkMode
-                ? FlowySvgs.github_mark_white_xl
-                : FlowySvgs.github_mark_black_xl,
-            labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-            onPressed: () {
-              _signInWithGithub(context);
-            },
-          ),
-          const SizedBox(height: 8),
-          _ThirdPartySignInButton(
-            isMobile: true,
-            icon: isDarkMode
-                ? FlowySvgs.discord_mark_white_xl
-                : FlowySvgs.discord_mark_blurple_xl,
-            labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-            onPressed: () {
-              _signInWithDiscord(context);
-            },
-          ),
-        ],
+      return LayoutBuilder(
+        builder: (context, constraints) => Column(
+          children: [
+            _ThirdPartySignInButton(
+              buttonWidth: constraints.maxWidth,
+              isMobile: true,
+              icon: FlowySvgs.google_mark_xl,
+              labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
+              onPressed: () {
+                _signInWithGoogle(context);
+              },
+            ),
+            const SizedBox(height: 8),
+            _ThirdPartySignInButton(
+              buttonWidth: constraints.maxWidth,
+              isMobile: true,
+              icon: isDarkMode
+                  ? FlowySvgs.github_mark_white_xl
+                  : FlowySvgs.github_mark_black_xl,
+              labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
+              onPressed: () {
+                _signInWithGithub(context);
+              },
+            ),
+            const SizedBox(height: 8),
+            _ThirdPartySignInButton(
+              buttonWidth: constraints.maxWidth,
+              isMobile: true,
+              icon: isDarkMode
+                  ? FlowySvgs.discord_mark_white_xl
+                  : FlowySvgs.discord_mark_blurple_xl,
+              labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
+              onPressed: () {
+                _signInWithDiscord(context);
+              },
+            ),
+          ],
+        ),
       );
     }
     // ThirdPartySignInButtons in desktop
-    return Column(
-      children: [
-        _ThirdPartySignInButton(
-          key: const Key('signInWithGoogleButton'),
-          isMobile: false,
-          icon: FlowySvgs.google_mark_xl,
-          labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-          onPressed: () {
-            _signInWithGoogle(context);
-          },
-        ),
-        const SizedBox(height: 8),
-        _ThirdPartySignInButton(
-          isMobile: false,
-          icon: isDarkMode
-              ? FlowySvgs.github_mark_white_xl
-              : FlowySvgs.github_mark_black_xl,
-          labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-          onPressed: () {
-            _signInWithGithub(context);
-          },
-        ),
-        const SizedBox(height: 8),
-        _ThirdPartySignInButton(
-          isMobile: false,
-          icon: isDarkMode
-              ? FlowySvgs.discord_mark_white_xl
-              : FlowySvgs.discord_mark_blurple_xl,
-          labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-          onPressed: () {
-            _signInWithDiscord(context);
-          },
-        ),
-      ],
+    return LayoutBuilder(
+      // Use LayoutBuilder to get the maxWidth of Column and pass it to _ThirdPartySignInButton to build the button with the same width.
+      builder: (context, constraints) {
+        final buttonWidth = constraints.maxWidth;
+        return SizedBox(
+          width: buttonWidth,
+          child: Column(
+            children: [
+              _ThirdPartySignInButton(
+                key: const Key('signInWithGoogleButton'),
+                buttonWidth: constraints.maxWidth,
+                isMobile: false,
+                icon: FlowySvgs.google_mark_xl,
+                labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
+                onPressed: () {
+                  _signInWithGoogle(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              _ThirdPartySignInButton(
+                isMobile: false,
+                buttonWidth: constraints.maxWidth,
+                icon: isDarkMode
+                    ? FlowySvgs.github_mark_white_xl
+                    : FlowySvgs.github_mark_black_xl,
+                labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
+                onPressed: () {
+                  _signInWithGithub(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              _ThirdPartySignInButton(
+                isMobile: false,
+                buttonWidth: constraints.maxWidth,
+                icon: isDarkMode
+                    ? FlowySvgs.discord_mark_white_xl
+                    : FlowySvgs.discord_mark_blurple_xl,
+                labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
+                onPressed: () {
+                  _signInWithDiscord(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -107,12 +124,14 @@ class ThirdPartySignInButtons extends StatelessWidget {
 class _ThirdPartySignInButton extends StatelessWidget {
   const _ThirdPartySignInButton({
     super.key,
+    required this.buttonWidth,
     required this.isMobile,
     required this.icon,
     required this.labelText,
     required this.onPressed,
   });
 
+  final double buttonWidth;
   final bool isMobile;
   final FlowySvgData icon;
   final String labelText;
@@ -122,14 +141,13 @@ class _ThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
-    final buttonSize = MediaQuery.of(context).size;
     if (isMobile) {
       return SizedBox(
-        width: double.infinity,
         height: 48,
+        width: buttonWidth,
         child: OutlinedButton.icon(
           icon: Container(
-            width: buttonSize.width / 5.5,
+            width: buttonWidth / 4,
             alignment: Alignment.centerRight,
             child: SizedBox(
               width: 24,
@@ -150,11 +168,11 @@ class _ThirdPartySignInButton extends StatelessWidget {
     }
     return SizedBox(
       height: 48,
-      width: double.infinity,
+      width: buttonWidth,
       child: OutlinedButton.icon(
         // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
         icon: Container(
-          width: buttonSize.width / 8,
+          width: buttonWidth / 4,
           alignment: Alignment.centerRight,
           child: SizedBox(
             // Some icons are not square, so we just use a fixed width here.
