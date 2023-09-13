@@ -48,6 +48,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
@@ -485,7 +486,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(banner, findsOneWidget);
 
     await startGesture(
-      getTopLeft(banner),
+      getCenter(banner),
       kind: PointerDeviceKind.mouse,
     );
 
@@ -522,6 +523,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> deleteRowInRowDetailPage() async {
     final deleteButton = find.byType(RowDetailPageDeleteButton);
     await tapButton(deleteButton);
+  }
+
+  Future<TestGesture> hoverOnFieldInRowDetail({required int index}) async {
+    final fieldButtons = find.byType(FieldCellButton);
+    final button = find
+        .descendant(of: find.byType(RowDetailPage), matching: fieldButtons)
+        .at(index);
+    return startGesture(
+      getCenter(button),
+      kind: PointerDeviceKind.mouse,
+    );
+  }
+
+  Future<void> reorderFieldInRowDetail({required double offset}) async {
+    final thumb = find
+        .byWidgetPredicate(
+          (widget) => widget is ReorderableDragStartListener && widget.enabled,
+        )
+        .first;
+    await drag(
+      thumb,
+      Offset(0, offset),
+      kind: PointerDeviceKind.mouse,
+    );
+    await pumpAndSettle();
   }
 
   Future<void> scrollGridByOffset(Offset offset) async {
@@ -601,6 +627,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  Future<void> tapRowDetailPageRowActionButton() async {
+    await tapButton(find.byType(RowActionButton));
+  }
+
   Future<void> tapRowDetailPageCreatePropertyButton() async {
     await tapButton(find.byType(CreateRowFieldButton));
   }
@@ -668,6 +698,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(field, findsOneWidget);
+  }
+
+  void assertFirstFieldInRowDetailByType(FieldType fieldType) {
+    final firstField = find
+        .descendant(
+          of: find.byType(RowDetailPage),
+          matching: find.byType(FieldCellButton),
+        )
+        .first;
+
+    final widget = this.widget<FieldCellButton>(firstField);
+    expect(widget.field.fieldType, fieldType);
   }
 
   Future<void> findFieldWithName(String name) async {
