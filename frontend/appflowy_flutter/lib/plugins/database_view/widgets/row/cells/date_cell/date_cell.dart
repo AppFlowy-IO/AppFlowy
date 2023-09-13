@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
@@ -10,9 +11,15 @@ import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
 class DateCellStyle extends GridCellStyle {
+  String? placeholder;
   Alignment alignment;
+  EdgeInsets? cellPadding;
 
-  DateCellStyle({this.alignment = Alignment.center});
+  DateCellStyle({
+    this.placeholder,
+    this.alignment = Alignment.center,
+    this.cellPadding,
+  });
 }
 
 abstract class GridCellDelegate {
@@ -71,7 +78,10 @@ class _DateCellState extends GridCellState<GridDateCell> {
             margin: EdgeInsets.zero,
             child: GridDateCellText(
               dateStr: state.dateStr,
+              placeholder: widget.cellStyle?.placeholder ?? "",
               alignment: alignment,
+              cellPadding:
+                  widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
             ),
             popupBuilder: (BuildContext popoverContent) {
               return DateCellEditor(
@@ -107,24 +117,31 @@ class _DateCellState extends GridCellState<GridDateCell> {
 
 class GridDateCellText extends StatelessWidget {
   final String dateStr;
+  final String placeholder;
   final Alignment alignment;
+  final EdgeInsets cellPadding;
   const GridDateCellText({
     required this.dateStr,
+    required this.placeholder,
     required this.alignment,
+    required this.cellPadding,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: GridSize.cellContentInsets,
-          child: FlowyText.medium(
-            dateStr,
-            maxLines: null,
-          ),
+    final isPlaceholder = dateStr.isEmpty;
+    final text = isPlaceholder ? placeholder : dateStr;
+    return Align(
+      alignment: alignment,
+      child: Padding(
+        padding: cellPadding,
+        child: FlowyText.medium(
+          text,
+          color: isPlaceholder
+              ? Theme.of(context).hintColor
+              : AFThemeExtension.of(context).textColor,
+          maxLines: null,
         ),
       ),
     );

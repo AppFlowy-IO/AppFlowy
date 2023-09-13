@@ -37,6 +37,7 @@ linter:
     - prefer_final_locals
     - prefer_is_empty
     - prefer_initializing_formals
+    - prefer_const_constructors
 
     - unnecessary_overrides
 

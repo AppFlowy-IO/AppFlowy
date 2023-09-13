@@ -161,16 +161,12 @@ class _RowLeadingState extends State<_RowLeading> {
             index: widget.index!,
             child: RowMenuButton(
               isDragEnabled: isDraggable,
-              openMenu: () {
-                popoverController.show();
-              },
+              openMenu: popoverController.show,
             ),
           ),
         ] else ...[
           RowMenuButton(
-            openMenu: () {
-              popoverController.show();
-            },
+            openMenu: popoverController.show,
           ),
         ],
       ],

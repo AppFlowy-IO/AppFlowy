@@ -184,7 +184,10 @@ impl CellDataDecoder for NumberTypeOption {
     decoded_field_type: &FieldType,
     _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if decoded_field_type.is_date() {
+    if decoded_field_type.is_date()
+      || decoded_field_type.is_created_time()
+      || decoded_field_type.is_last_edited_time()
+    {
       return Ok(Default::default());
     }
 

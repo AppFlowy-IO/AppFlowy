@@ -229,6 +229,9 @@ extension CommonOperations on WidgetTester {
           widget is PrimaryTextButton &&
           widget.label == LocaleKeys.button_OK.tr(),
     );
+    if (okButton.evaluate().isEmpty) {
+      return;
+    }
     await tapButton(okButton);
   }
 

@@ -35,6 +35,7 @@ class GridCellBuilder {
       case FieldType.Checkbox:
         return GridCheckboxCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.DateTime:
@@ -71,6 +72,7 @@ class GridCellBuilder {
       case FieldType.Number:
         return GridNumberCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.RichText:
