@@ -130,7 +130,6 @@ class PanesService {
     }
     for (final element in node.children) {
       if (element.paneId == targetPaneId) {
-        Log.warn("Found deletion");
         node.children.remove(element);
         setActiveNode(node);
         if (node.children.length == 1) {
