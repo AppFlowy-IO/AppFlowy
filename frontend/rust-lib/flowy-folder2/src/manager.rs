@@ -3,9 +3,10 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB, YrsDocAction};
+use appflowy_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
+use collab_define::CollabType;
 use collab_folder::core::{
   FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
   View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,

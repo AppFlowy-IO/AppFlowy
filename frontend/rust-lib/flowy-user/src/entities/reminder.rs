@@ -1,4 +1,5 @@
-use appflowy_integrate::reminder::{ObjectType, Reminder};
+use collab_define::reminder::{ObjectType, Reminder};
+
 use flowy_derive::ProtoBuf;
 
 #[derive(ProtoBuf, Default, Clone)]

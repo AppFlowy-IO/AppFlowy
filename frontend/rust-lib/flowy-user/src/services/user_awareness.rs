@@ -1,8 +1,9 @@
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::reminder::Reminder;
-use appflowy_integrate::{CollabType, RocksCollabDB};
+use appflowy_integrate::RocksCollabDB;
 use collab::core::collab::{CollabRawData, MutexCollab};
+use collab_define::reminder::Reminder;
+use collab_define::CollabType;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};

@@ -7,13 +7,33 @@ import 'number_cell_bloc.dart';
 import '../../../../grid/presentation/layout/sizes.dart';
 import '../../cell_builder.dart';
 
+class GridNumberCellStyle extends GridCellStyle {
+  String? placeholder;
+  TextStyle? textStyle;
+  EdgeInsets? cellPadding;
+
+  GridNumberCellStyle({
+    this.placeholder,
+    this.textStyle,
+    this.cellPadding,
+  });
+}
+
 class GridNumberCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
+  late final GridNumberCellStyle cellStyle;
 
   GridNumberCell({
     required this.cellControllerBuilder,
-    Key? key,
-  }) : super(key: key);
+    required GridCellStyle? style,
+    super.key,
+  }) {
+    if (style != null) {
+      cellStyle = (style as GridNumberCellStyle);
+    } else {
+      cellStyle = GridNumberCellStyle();
+    }
+  }
 
   @override
   GridEditableTextCell<GridNumberCell> createState() => _NumberCellState();
@@ -57,9 +77,10 @@ class _NumberCellState extends GridEditableTextCell<GridNumberCell> {
             maxLines: null,
             style: Theme.of(context).textTheme.bodyMedium,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               contentPadding: EdgeInsets.zero,
               border: InputBorder.none,
+              hintText: widget.cellStyle.placeholder,
               isDense: true,
             ),
           ),
