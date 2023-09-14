@@ -2,8 +2,9 @@ use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabType, RocksCollabDB};
+use appflowy_integrate::RocksCollabDB;
 use collab::core::collab::MutexCollab;
+use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;

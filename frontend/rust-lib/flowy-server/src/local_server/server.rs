@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
+use collab_define::CollabObject;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 

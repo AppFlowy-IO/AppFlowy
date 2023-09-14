@@ -21,6 +21,7 @@ collab-folder = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
+collab-define = { version = "0.1.0" }
 flowy-user-deps = { path = "../flowy-user-deps" }
 anyhow = "1.0.75"
 

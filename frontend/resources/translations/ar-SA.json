@@ -386,7 +386,7 @@
             "searchOption": "ابحث عن خيار"
         },
         "checklist": {
-            "panelTitle": "أضف عنصرًا"
+            "addNew": "أضف عنصرًا"
         },
         "menuName": "شبكة",
         "referencedGridPrefix": "نظرا ل",

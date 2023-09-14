@@ -383,7 +383,7 @@
       "addSort": "정렬 추가"
     },
     "checklist": {
-      "panelTitle": "항목 추가"
+      "addNew": "항목 추가"
     },
     "referencedGridPrefix": "관점"
   },

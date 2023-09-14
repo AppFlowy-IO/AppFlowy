@@ -402,7 +402,7 @@
       "searchOption": "Rechercher une option"
     },
     "checklist": {
-      "panelTitle": "Ajouter un article"
+      "addNew": "Ajouter un article"
     },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue"

@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -91,50 +91,31 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
 
 class AccessoryHover extends StatefulWidget {
   final CellAccessory child;
-  final EdgeInsets contentPadding;
-  const AccessoryHover({
-    required this.child,
-    this.contentPadding = EdgeInsets.zero,
-    Key? key,
-  }) : super(key: key);
+  const AccessoryHover({required this.child, super.key});
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
 }
 
 class _AccessoryHoverState extends State<AccessoryHover> {
-  late AccessoryHoverState _hoverState;
-  VoidCallback? _listenerFn;
-
-  @override
-  void initState() {
-    _hoverState = AccessoryHoverState();
-    _listenerFn = () =>
-        _hoverState.onHover = widget.child.onAccessoryHover?.value ?? false;
-    widget.child.onAccessoryHover?.addListener(_listenerFn!);
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _hoverState.dispose();
-
-    if (_listenerFn != null) {
-      widget.child.onAccessoryHover?.removeListener(_listenerFn!);
-      _listenerFn = null;
-    }
-    super.dispose();
-  }
+  bool _isHover = false;
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      Padding(padding: widget.contentPadding, child: widget.child),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: _isHover
+              ? AFThemeExtension.of(context).lightGreyHover
+              : Colors.transparent,
+          borderRadius: Corners.s6Border,
+        ),
+        child: widget.child,
+      ),
     ];
 
     final accessoryBuilder = widget.child.accessoryBuilder;
-    if (accessoryBuilder != null) {
+    if (accessoryBuilder != null && _isHover) {
       final accessories = accessoryBuilder(
         (GridCellAccessoryBuildContext(
           anchorContext: context,
@@ -149,34 +130,18 @@ class _AccessoryHoverState extends State<AccessoryHover> {
       );
     }
 
-    return ChangeNotifierProvider.value(
-      value: _hoverState,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        opaque: false,
-        onEnter: (p) => setState(() => _hoverState.onHover = true),
-        onExit: (p) => setState(() => _hoverState.onHover = false),
-        child: Stack(
-          fit: StackFit.loose,
-          alignment: AlignmentDirectional.center,
-          children: children,
-        ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      opaque: false,
+      onEnter: (p) => setState(() => _isHover = true),
+      onExit: (p) => setState(() => _isHover = false),
+      child: Stack(
+        fit: StackFit.loose,
+        alignment: AlignmentDirectional.center,
+        children: children,
       ),
     );
   }
-}
-
-class AccessoryHoverState extends ChangeNotifier {
-  bool _onHover = false;
-
-  set onHover(bool value) {
-    if (_onHover != value) {
-      _onHover = value;
-      notifyListeners();
-    }
-  }
-
-  bool get onHover => _onHover;
 }
 
 class CellAccessoryContainer extends StatelessWidget {

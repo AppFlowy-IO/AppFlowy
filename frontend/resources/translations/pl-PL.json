@@ -402,7 +402,7 @@
       "searchOption": "Wyszukaj opcję"
     },
     "checklist": {
-      "panelTitle": "Dodaj element"
+      "addNew": "Dodaj element"
     },
     "menuName": "Siatka",
     "referencedGridPrefix": "Widok"

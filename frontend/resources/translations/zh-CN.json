@@ -397,7 +397,7 @@
       "searchOption": "搜索标签"
     },
     "checklist": {
-      "panelTitle": "添加项"
+      "addNew": "添加项"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图"
