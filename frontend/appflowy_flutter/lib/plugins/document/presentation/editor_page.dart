@@ -38,7 +38,10 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   toggleToggleListCommand,
   ...codeBlockCommands,
   ...copyAndPasteCommands,
-  ...standardCommandShortcutEvents,
+  ...standardCommandShortcutEvents
+    ..removeWhere(
+      (e) => e == copyCommand || e == cutCommand || e == pasteCommand,
+    ),
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
