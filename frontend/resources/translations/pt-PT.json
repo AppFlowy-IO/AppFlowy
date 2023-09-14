@@ -455,7 +455,7 @@
       "searchOption": "Pesquise uma opção"
     },
     "checklist": {
-      "panelTitle": "Adicionar um item"
+      "addNew": "Adicionar um item"
     },
     "menuName": "Grade",
     "referencedGridPrefix": "Vista de"

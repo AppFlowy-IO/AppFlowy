@@ -18,6 +18,8 @@ export function blockPB2Node(block: BlockPB) {
     parent: block.parent_id,
     children: block.children_id,
     data,
+    externalId: block.external_id,
+    externalType: block.external_type,
   };
 
   return node;
@@ -97,12 +99,12 @@ export function getPrevNodeId(state: DocumentState, id: string) {
   return prevNodeId;
 }
 
-export function newBlock<Type>(type: BlockType, parentId: string, data: BlockData<Type>): NestedBlock<Type> {
+export function newBlock<Type>(type: BlockType, parentId: string, data?: BlockData<Type>): NestedBlock<Type> {
   return {
     id: generateId(),
     type,
     parent: parentId,
     children: generateId(),
-    data,
+    data: data ? data : {},
   };
 }

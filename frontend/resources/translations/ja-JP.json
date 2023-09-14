@@ -370,7 +370,7 @@
       "addSort": "並べ替えの追加"
     },
     "checklist": {
-      "panelTitle": "アイテムを追加する"
+      "addNew": "アイテムを追加する"
     },
     "menuName": "グリッド",
     "referencedGridPrefix": "のビュー"

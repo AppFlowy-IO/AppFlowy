@@ -263,6 +263,20 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
+      "layoutDirection": {
+        "label": "Layout Direction",
+        "hint": "To start aligning elements from left or right of the screen.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Default text direction",
+        "hint": "Default text direction when the text direction is not set on the element.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO",
+        "fallback": "Same as layout direction"
+      },
       "themeUpload": {
         "button": "Upload",
         "description": "Upload your own AppFlowy theme using the button below.",
@@ -463,7 +477,9 @@
       "orSelectOne": "Or select an option"
     },
     "checklist": {
-      "panelTitle": "Add an item"
+      "taskHint": "Task description",
+      "addNew": "Add a new task",
+      "submitNewTask": "Create"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of"

@@ -367,7 +367,7 @@ class DocumentCoverState extends State<DocumentCover> {
           fit: BoxFit.cover,
         );
       case CoverType.color:
-        final color = widget.coverDetails?.toColor() ?? Colors.white;
+        final color = widget.coverDetails?.tryToColor() ?? Colors.white;
         return Container(color: color);
       case CoverType.none:
         return const SizedBox.shrink();

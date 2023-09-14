@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         PathExtensions,
         Node,
         Path,
+        Delta,
         composeAttributes;
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
@@ -32,28 +34,66 @@ class TransactionAdapter {
   final DocumentService documentService;
   final String documentId;
 
+  final bool _enableDebug = false;
+
   Future<void> apply(Transaction transaction, EditorState editorState) async {
+    final stopwatch = Stopwatch()..start();
     Log.debug('transaction => ${transaction.toJson()}');
     final actions = transaction.operations
-        .map((op) => op.toBlockAction(editorState))
+        .map((op) => op.toBlockAction(editorState, documentId))
         .whereNotNull()
         .expand((element) => element)
         .toList(growable: false); // avoid lazy evaluation
-    Log.debug('actions => $actions');
+    final textActions = actions.where(
+      (e) =>
+          e.textDeltaType != TextDeltaType.none && e.textDeltaPayloadPB != null,
+    );
+    final actionCostTime = stopwatch.elapsedMilliseconds;
+    for (final textAction in textActions) {
+      final payload = textAction.textDeltaPayloadPB!;
+      final type = textAction.textDeltaType;
+      if (type == TextDeltaType.create) {
+        await documentService.createExternalText(
+          documentId: payload.documentId,
+          textId: payload.textId,
+          delta: payload.delta,
+        );
+        Log.debug('create external text: ${payload.delta}');
+      } else if (type == TextDeltaType.update) {
+        await documentService.updateExternalText(
+          documentId: payload.documentId,
+          textId: payload.textId,
+          delta: payload.delta,
+        );
+        Log.debug('update external text: ${payload.delta}');
+      }
+    }
+    final blockActions =
+        actions.map((e) => e.blockActionPB).toList(growable: false);
     await documentService.applyAction(
       documentId: documentId,
-      actions: actions,
+      actions: blockActions,
     );
+    final elapsed = stopwatch.elapsedMilliseconds;
+    stopwatch.stop();
+    if (_enableDebug) {
+      Log.debug(
+        'apply transaction cost: total $elapsed ms, converter action $actionCostTime ms, apply action ${elapsed - actionCostTime} ms',
+      );
+    }
   }
 }
 
 extension BlockAction on Operation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
+  List<BlockActionWrapper> toBlockAction(
+    EditorState editorState,
+    String documentId,
+  ) {
     final op = this;
     if (op is InsertOperation) {
-      return op.toBlockAction(editorState);
+      return op.toBlockAction(editorState, documentId);
     } else if (op is UpdateOperation) {
-      return op.toBlockAction(editorState);
+      return op.toBlockAction(editorState, documentId);
     } else if (op is DeleteOperation) {
       return op.toBlockAction(editorState);
     }
@@ -62,12 +102,13 @@ extension BlockAction on Operation {
 }
 
 extension on InsertOperation {
-  List<BlockActionPB> toBlockAction(
-    EditorState editorState, {
+  List<BlockActionWrapper> toBlockAction(
+    EditorState editorState,
+    String documentId, {
     Node? previousNode,
   }) {
     Path currentPath = path;
-    final List<BlockActionPB> actions = [];
+    final List<BlockActionWrapper> actions = [];
     for (final node in nodes) {
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
@@ -82,22 +123,58 @@ extension on InsertOperation {
       } else {
         assert(prevId.isNotEmpty && prevId != node.id);
       }
+
+      // create the external text if the node contains the delta in its data.
+      final delta = node.delta;
+      TextDeltaPayloadPB? textDeltaPayloadPB;
+      if (delta != null) {
+        final textId = nanoid(6);
+
+        textDeltaPayloadPB = TextDeltaPayloadPB(
+          documentId: documentId,
+          textId: textId,
+          delta: jsonEncode(node.delta!.toJson()),
+        );
+
+        // sync the text id to the node
+        node.externalValues = ExternalValues(
+          externalId: textId,
+          externalType: 'text',
+        );
+      }
+
+      // remove the delta from the data when the incremental update is stable.
       final payload = BlockActionPayloadPB()
-        ..block = node.toBlock(childrenId: nanoid(10))
+        ..block = node.toBlock(childrenId: nanoid(6))
         ..parentId = parentId
         ..prevId = prevId;
+
+      // pass the external text id to the payload.
+      if (textDeltaPayloadPB != null) {
+        payload.textId = textDeltaPayloadPB.textId;
+      }
+
       assert(payload.block.childrenId.isNotEmpty);
+      final blockActionPB = BlockActionPB()
+        ..action = BlockActionTypePB.Insert
+        ..payload = payload;
+
       actions.add(
-        BlockActionPB()
-          ..action = BlockActionTypePB.Insert
-          ..payload = payload,
+        BlockActionWrapper(
+          blockActionPB: blockActionPB,
+          textDeltaPayloadPB: textDeltaPayloadPB,
+          textDeltaType: TextDeltaType.create,
+        ),
       );
       if (node.children.isNotEmpty) {
         Node? prevChild;
         for (final child in node.children) {
           actions.addAll(
-            InsertOperation(currentPath + child.path, [child])
-                .toBlockAction(editorState, previousNode: prevChild),
+            InsertOperation(currentPath + child.path, [child]).toBlockAction(
+              editorState,
+              documentId,
+              previousNode: prevChild,
+            ),
           );
           prevChild = child;
         }
@@ -110,8 +187,11 @@ extension on InsertOperation {
 }
 
 extension on UpdateOperation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
-    final List<BlockActionPB> actions = [];
+  List<BlockActionWrapper> toBlockAction(
+    EditorState editorState,
+    String documentId,
+  ) {
+    final List<BlockActionWrapper> actions = [];
 
     // if the attributes are both empty, we don't need to update
     if (const DeepCollectionEquality().equals(attributes, oldAttributes)) {
@@ -125,23 +205,74 @@ extension on UpdateOperation {
     final parentId =
         node.parent?.id ?? editorState.getNodeAtPath(path.parent)?.id ?? '';
     assert(parentId.isNotEmpty);
+
+    // create the external text if the node contains the delta in its data.
+    final prevDelta = oldAttributes['delta'];
+    final delta = attributes['delta'];
+    final diff = prevDelta != null && delta != null
+        ? Delta.fromJson(prevDelta).diff(
+            Delta.fromJson(delta),
+          )
+        : null;
+
     final payload = BlockActionPayloadPB()
       ..block = node.toBlock(
         parentId: parentId,
         attributes: composeAttributes(oldAttributes, attributes),
       )
       ..parentId = parentId;
-    actions.add(
-      BlockActionPB()
-        ..action = BlockActionTypePB.Update
-        ..payload = payload,
-    );
+    final blockActionPB = BlockActionPB()
+      ..action = BlockActionTypePB.Update
+      ..payload = payload;
+
+    final textId = (node.externalValues as ExternalValues?)?.externalId;
+    if (textId == null || textId.isEmpty) {
+      // to be compatible with the old version, we create a new text id if the text id is empty.
+      final textId = nanoid(6);
+      final textDeltaPayloadPB = delta == null
+          ? null
+          : TextDeltaPayloadPB(
+              documentId: documentId,
+              textId: textId,
+              delta: jsonEncode(delta),
+            );
+
+      node.externalValues = ExternalValues(
+        externalId: textId,
+        externalType: 'text',
+      );
+
+      actions.add(
+        BlockActionWrapper(
+          blockActionPB: blockActionPB,
+          textDeltaPayloadPB: textDeltaPayloadPB,
+          textDeltaType: TextDeltaType.create,
+        ),
+      );
+    } else {
+      final textDeltaPayloadPB = delta == null
+          ? null
+          : TextDeltaPayloadPB(
+              documentId: documentId,
+              textId: textId,
+              delta: jsonEncode(diff),
+            );
+
+      actions.add(
+        BlockActionWrapper(
+          blockActionPB: blockActionPB,
+          textDeltaPayloadPB: textDeltaPayloadPB,
+          textDeltaType: TextDeltaType.update,
+        ),
+      );
+    }
+
     return actions;
   }
 }
 
 extension on DeleteOperation {
-  List<BlockActionPB> toBlockAction(EditorState editorState) {
+  List<BlockActionWrapper> toBlockAction(EditorState editorState) {
     final List<BlockActionPB> actions = [];
     for (final node in nodes) {
       final parentId =
@@ -158,6 +289,26 @@ extension on DeleteOperation {
           ..payload = payload,
       );
     }
-    return actions;
+    return actions
+        .map((e) => BlockActionWrapper(blockActionPB: e))
+        .toList(growable: false);
   }
+}
+
+enum TextDeltaType {
+  none,
+  create,
+  update,
+}
+
+class BlockActionWrapper {
+  BlockActionWrapper({
+    required this.blockActionPB,
+    this.textDeltaType = TextDeltaType.none,
+    this.textDeltaPayloadPB,
+  });
+
+  final BlockActionPB blockActionPB;
+  final TextDeltaPayloadPB? textDeltaPayloadPB;
+  final TextDeltaType textDeltaType;
 }

@@ -29,6 +29,8 @@ class KVKeys {
       'kDocumentAppearanceFontSize';
   static const String kDocumentAppearanceFontFamily =
       'kDocumentAppearanceFontFamily';
+  static const String kDocumentAppearanceDefaultTextDirection =
+      'kDocumentAppearanceDefaultTextDirection';
 
   /// The key for saving the expanded views
   ///

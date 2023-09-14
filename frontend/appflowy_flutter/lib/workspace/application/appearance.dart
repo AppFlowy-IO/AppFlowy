@@ -34,6 +34,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
+            setting.layoutDirection,
+            setting.textDirection,
             setting.locale,
             setting.isMenuCollapsed,
             setting.menuOffset,
@@ -69,6 +71,19 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setThemeMode(
       currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
     );
+  }
+
+  void setLayoutDirection(LayoutDirection layoutDirection) {
+    _setting.layoutDirection = layoutDirection.toLayoutDirectionPB();
+    _saveAppearanceSettings();
+    emit(state.copyWith(layoutDirection: layoutDirection));
+  }
+
+  void setTextDirection(AppFlowyTextDirection? textDirection) {
+    _setting.textDirection =
+        textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
+    _saveAppearanceSettings();
+    emit(state.copyWith(textDirection: textDirection));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -192,6 +207,56 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
   }
 }
 
+enum LayoutDirection {
+  ltrLayout,
+  rtlLayout;
+
+  static LayoutDirection fromLayoutDirectionPB(
+    LayoutDirectionPB layoutDirectionPB,
+  ) =>
+      layoutDirectionPB == LayoutDirectionPB.RTLLayout
+          ? LayoutDirection.rtlLayout
+          : LayoutDirection.ltrLayout;
+
+  LayoutDirectionPB toLayoutDirectionPB() => this == LayoutDirection.rtlLayout
+      ? LayoutDirectionPB.RTLLayout
+      : LayoutDirectionPB.LTRLayout;
+}
+
+enum AppFlowyTextDirection {
+  ltr,
+  rtl,
+  auto;
+
+  static AppFlowyTextDirection? fromTextDirectionPB(
+    TextDirectionPB? textDirectionPB,
+  ) {
+    switch (textDirectionPB) {
+      case TextDirectionPB.LTR:
+        return AppFlowyTextDirection.ltr;
+      case TextDirectionPB.RTL:
+        return AppFlowyTextDirection.rtl;
+      case TextDirectionPB.AUTO:
+        return AppFlowyTextDirection.auto;
+      default:
+        return null;
+    }
+  }
+
+  TextDirectionPB toTextDirectionPB() {
+    switch (this) {
+      case AppFlowyTextDirection.ltr:
+        return TextDirectionPB.LTR;
+      case AppFlowyTextDirection.rtl:
+        return TextDirectionPB.RTL;
+      case AppFlowyTextDirection.auto:
+        return TextDirectionPB.AUTO;
+      default:
+        return TextDirectionPB.FALLBACK;
+    }
+  }
+}
+
 @freezed
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const AppearanceSettingsState._();
@@ -201,6 +266,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required ThemeMode themeMode,
     required String font,
     required String monospaceFont,
+    required LayoutDirection layoutDirection,
+    required AppFlowyTextDirection? textDirection,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
@@ -211,6 +278,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
+    LayoutDirectionPB layoutDirectionPB,
+    TextDirectionPB? textDirectionPB,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
@@ -219,6 +288,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
+      layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
+      textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
