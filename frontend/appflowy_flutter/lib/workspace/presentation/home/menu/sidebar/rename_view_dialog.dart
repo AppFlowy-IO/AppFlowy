@@ -22,8 +22,7 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
     (value) => bool.parse(value),
   );
   final showRenameDialog = value.fold((l) => false, (r) => r);
-  if (!context.mounted) return;
-  if (showRenameDialog) {
+  if (context.mounted && showRenameDialog) {
     NavigatorTextFieldDialog(
       title: dialogTitle,
       value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
