@@ -4,7 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CreateFileSettingsCubit extends Cubit<bool> {
-  CreateFileSettingsCubit() : super(false) {
+  CreateFileSettingsCubit(super.initialState) {
     getInitialSettings();
   }
 

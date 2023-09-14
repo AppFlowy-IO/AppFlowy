@@ -3,12 +3,14 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_appear
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+bool _prevSetting = false;
+
 class CreateFileSettings extends StatelessWidget {
   CreateFileSettings({
     super.key,
   });
 
-  final cubit = CreateFileSettingsCubit();
+  final cubit = CreateFileSettingsCubit(_prevSetting);
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class CreateFileSettings extends StatelessWidget {
                 value: state,
                 onChanged: (value) {
                   cubit.toggle(value: value);
+                  _prevSetting = value;
                 },
               );
             },
