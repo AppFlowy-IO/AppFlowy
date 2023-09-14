@@ -44,7 +44,10 @@ class HomeStack extends StatelessWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              TabsManager(pageController: pageController),
+              Padding(
+                padding: EdgeInsets.only(left: layout.menuSpacing),
+                child: TabsManager(pageController: pageController),
+              ),
               state.currentPageManager.stackTopBar(layout: layout),
               Expanded(
                 child: PageView(
