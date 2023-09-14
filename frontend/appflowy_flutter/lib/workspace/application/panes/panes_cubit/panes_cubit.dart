@@ -124,8 +124,8 @@ class PanesCubit extends Cubit<PanesState> {
       PaneDraggableHoverPosition.left,
       PaneDraggableHoverPosition.right
     ].contains(position)
-        ? Axis.horizontal
-        : Axis.vertical;
+        ? Axis.vertical
+        : Axis.horizontal;
 
     emit(
       state.copyWith(

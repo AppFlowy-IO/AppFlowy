@@ -51,10 +51,15 @@ class FlowyPane extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            TabsManager(
-                              pane: node,
-                              pageController: pageController,
-                              tabs: value,
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: layout.menuSpacing,
+                              ),
+                              child: TabsManager(
+                                pane: node,
+                                pageController: pageController,
+                                tabs: value,
+                              ),
                             ),
                             value.currentPageManager.stackTopBar(
                               layout: layout,

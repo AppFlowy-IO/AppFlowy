@@ -1,10 +1,8 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
