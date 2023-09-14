@@ -180,7 +180,7 @@
     },
     "appearance": {
       "themeMode": {
-        "label": "Tema",
+        "label": "Modalità tema",
         "light": "Modalità Chiara",
         "dark": "Modalità Scura",
         "system": "Segui il sistema"
