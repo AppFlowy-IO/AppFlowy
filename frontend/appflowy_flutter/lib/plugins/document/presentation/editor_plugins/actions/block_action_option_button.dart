@@ -40,12 +40,16 @@ class BlockOptionButton extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.leftWithCenterAligned,
       actions: popoverActions,
-      onPopupBuilder: () => blockComponentState.alwaysShowActions = true,
+      onPopupBuilder: () {
+        keepEditorFocusNotifier.value += 1;
+        blockComponentState.alwaysShowActions = true;
+      },
       onClosed: () {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           editorState.selectionType = null;
           editorState.selection = null;
           blockComponentState.alwaysShowActions = false;
+          keepEditorFocusNotifier.value -= 1;
         });
       },
       onSelected: (action, controller) {

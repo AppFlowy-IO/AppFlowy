@@ -168,7 +168,7 @@ class OutlineItemWidget extends StatelessWidget {
         hoverColor: Theme.of(context).hoverColor,
       ),
       child: GestureDetector(
-        onTap: () => updateBlockSelection(context),
+        onTap: () => scrollToBlock(context),
         child: Container(
           padding: EdgeInsets.only(left: node.leftIndent),
           child: Text(
@@ -180,14 +180,14 @@ class OutlineItemWidget extends StatelessWidget {
     );
   }
 
-  void updateBlockSelection(BuildContext context) async {
+  void scrollToBlock(BuildContext context) {
     final editorState = context.read<EditorState>();
-    editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection.collapsed(
-      Position(path: node.path, offset: node.delta?.length ?? 0),
-    );
+    final editorScrollController = context.read<EditorScrollController>();
+    editorScrollController.itemScrollController.jumpTo(index: node.path.first);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selectionType = null;
+      editorState.selection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
+      );
     });
   }
 }

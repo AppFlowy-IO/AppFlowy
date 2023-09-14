@@ -7,6 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class KeyValueStorage {
   Future<void> set(String key, String value);
   Future<Either<FlowyError, String>> get(String key);
+  Future<Either<FlowyError, T>> getWithFormat<T>(
+    String key,
+    T Function(String value) formatter,
+  );
   Future<void> remove(String key);
   Future<void> clear();
 }
@@ -24,6 +28,18 @@ class DartKeyValue implements KeyValueStorage {
       return Right(value);
     }
     return Left(FlowyError());
+  }
+
+  @override
+  Future<Either<FlowyError, T>> getWithFormat<T>(
+    String key,
+    T Function(String value) formatter,
+  ) async {
+    final value = await get(key);
+    return value.fold(
+      (l) => left(l),
+      (r) => right(formatter(r)),
+    );
   }
 
   @override
@@ -69,6 +85,18 @@ class RustKeyValue implements KeyValueStorage {
     final payload = KeyPB.create()..key = key;
     final response = await ConfigEventGetKeyValue(payload).send();
     return response.swap().map((r) => r.value);
+  }
+
+  @override
+  Future<Either<FlowyError, T>> getWithFormat<T>(
+    String key,
+    T Function(String value) formatter,
+  ) async {
+    final value = await get(key);
+    return value.fold(
+      (l) => left(l),
+      (r) => right(formatter(r)),
+    );
   }
 
   @override

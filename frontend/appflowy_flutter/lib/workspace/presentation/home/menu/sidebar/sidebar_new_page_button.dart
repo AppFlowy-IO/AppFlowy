@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flutter/material.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarNewPageButton extends StatelessWidget {
@@ -20,7 +20,15 @@ class SidebarNewPageButton extends StatelessWidget {
       fillColor: Colors.transparent,
       hoverColor: Colors.transparent,
       fontColor: Theme.of(context).colorScheme.tertiary,
-      onPressed: () async => await _showCreatePageDialog(context),
+      onPressed: () async => await createViewAndShowRenameDialogIfNeeded(
+        context,
+        LocaleKeys.newPageText.tr(),
+        (viewName) {
+          if (viewName.isNotEmpty) {
+            context.read<MenuBloc>().add(MenuEvent.createApp(viewName));
+          }
+        },
+      ),
       heading: Container(
         width: 16,
         height: 16,
@@ -43,17 +51,5 @@ class SidebarNewPageButton extends StatelessWidget {
         child: child,
       ),
     );
-  }
-
-  Future<void> _showCreatePageDialog(BuildContext context) async {
-    return NavigatorTextFieldDialog(
-      title: LocaleKeys.newPageText.tr(),
-      value: '',
-      confirm: (value) {
-        if (value.isNotEmpty) {
-          context.read<MenuBloc>().add(MenuEvent.createApp(value));
-        }
-      },
-    ).show(context);
   }
 }
