@@ -97,7 +97,6 @@ class HomeHotKeys extends StatelessWidget {
 
   void _selectTab(BuildContext context, int change) {
     final bloc = context.read<PanesCubit>();
-    // bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + change));
     context
         .read<PanesCubit>()
         .selectTab(index: bloc.state.activePane.tabs.currentIndex + change);

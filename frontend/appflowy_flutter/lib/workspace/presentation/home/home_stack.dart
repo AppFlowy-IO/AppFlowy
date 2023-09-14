@@ -277,14 +277,14 @@ class HomeTopBar extends StatelessWidget {
             ),
             BlocBuilder<PanesCubit, PanesState>(
               builder: (context, state) {
-                return state.count > 1
-                    ? IconButton(
-                        onPressed: () {
-                          context.read<PanesCubit>().closePane(paneId);
-                        },
-                        icon: const Icon(Icons.close_sharp),
-                      )
-                    : const SizedBox.shrink();
+                if (state.count <= 0) {
+                  return const SizedBox.shrink();
+                }
+
+                return IconButton(
+                  onPressed: () => context.read<PanesCubit>().closePane(paneId),
+                  icon: const Icon(Icons.close_sharp),
+                );
               },
             )
           ],

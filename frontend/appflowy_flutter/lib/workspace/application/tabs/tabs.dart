@@ -35,11 +35,10 @@ class Tabs extends ChangeNotifier {
     /// And the current selected tab isn't the first (index 0)
     ///   as currentIndex cannot be -1
     /// Then decrease currentIndex by 1
-    final newIndex = currentIndex > _pageManagers.length - 1 && currentIndex > 0
+    currentIndex = currentIndex > _pageManagers.length - 1 && currentIndex > 0
         ? currentIndex - 1
         : currentIndex;
 
-    currentIndex = newIndex;
     notifyListeners();
   }
 

@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -11,7 +10,6 @@ import 'package:nanoid/nanoid.dart';
 enum Direction { front, back }
 
 class PanesService {
-  PanesService();
   PaneNode splitHandler(
     PaneNode node,
     String targetPaneId,
