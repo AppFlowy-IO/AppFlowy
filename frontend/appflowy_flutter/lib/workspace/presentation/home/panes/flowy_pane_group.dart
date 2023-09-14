@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,15 +29,21 @@ class FlowyPaneGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (node.children.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        final renderBox = context.findRenderObject() as RenderBox;
+        Log.warn("Check render ${renderBox.paintBounds}");
+      });
       return FlowyPane(
         node: node,
         delegate: delegate,
         layout: layout,
+        paneContext: context,
       );
-    } else {
-      return SizedBox(
-        child: LayoutBuilder(
-          builder: (context, constraints) => Stack(
+    }
+    return SizedBox(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
             key: ValueKey(node.paneId),
             children: [
               ...node.children.indexed
@@ -74,10 +81,10 @@ class FlowyPaneGroup extends StatelessWidget {
                   )
                   .toList(),
             ],
-          ),
-        ),
-      );
-    }
+          );
+        },
+      ),
+    );
   }
 
   Widget _resizeBar(
@@ -101,6 +108,12 @@ class FlowyPaneGroup extends StatelessWidget {
               details.delta.dx,
             );
           },
+          // onHorizontalDragEnd: (_) => node.sizeController.resize(
+          //   paneLayout.childPaneWidth,
+          //   sizeController.flex,
+          //   indexNode.$1,
+          //   state.resizeOffset,
+          // ),
           onVerticalDragUpdate: (details) => node.sizeController.resize(
             paneLayout.childPaneHeight,
             sizeController.flex,

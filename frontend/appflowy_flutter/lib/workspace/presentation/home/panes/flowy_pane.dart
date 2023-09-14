@@ -3,8 +3,8 @@ import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +14,13 @@ class FlowyPane extends StatelessWidget {
   final PaneNode node;
   final HomeLayout layout;
   final HomeStackDelegate delegate;
+  final BuildContext paneContext;
   const FlowyPane({
     super.key,
     required this.node,
     required this.layout,
     required this.delegate,
+    required this.paneContext,
   });
 
   @override
@@ -32,47 +34,51 @@ class FlowyPane extends StatelessWidget {
           final verticalController = ScrollController();
           return BlocBuilder<HomeSettingBloc, HomeSettingState>(
             builder: (context, state) {
-              return Scrollbar(
-                controller: verticalController,
-                child: SingleChildScrollView(
+              return DraggablePaneItem(
+                paneContext: paneContext,
+                pane: node,
+                feedback: (context) => node.tabs.currentPageManager.title(),
+                child: Scrollbar(
                   controller: verticalController,
-                  child: Scrollbar(
-                    controller: horizontalController,
-                    thumbVisibility: true,
-                    child: SingleChildScrollView(
+                  child: SingleChildScrollView(
+                    controller: verticalController,
+                    child: Scrollbar(
                       controller: horizontalController,
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          TabsManager(
-                            pane: node,
-                            pageController: pageController,
-                            tabs: value,
-                          ),
-                          value.currentPageManager
-                              .stackTopBar(layout: layout, paneId: node.paneId),
-                          Expanded(
-                            child: PageView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              controller: pageController,
-                              children: value.pageManagers
-                                  .map(
-                                    (pm) => PageStack(
-                                      pageManager: pm,
-                                      delegate: delegate,
-                                    ),
-                                  )
-                                  .toList(),
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: horizontalController,
+                        scrollDirection: Axis.horizontal,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            TabsManager(
+                              pane: node,
+                              pageController: pageController,
+                              tabs: value,
                             ),
-                          ),
-                        ],
-                      ).constrained(
-                        width: MediaQuery.of(context).size.width -
-                            (state.isMenuCollapsed
-                                ? 0
-                                : (state.resizeOffset + Sizes.sideBarWidth)),
-                        height: MediaQuery.of(context).size.height,
+                            value.currentPageManager.stackTopBar(
+                              layout: layout,
+                              paneId: node.paneId,
+                            ),
+                            Expanded(
+                              child: PageView(
+                                physics: const NeverScrollableScrollPhysics(),
+                                controller: pageController,
+                                children: value.pageManagers
+                                    .map(
+                                      (pm) => PageStack(
+                                        pageManager: pm,
+                                        delegate: delegate,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ).constrained(
+                          width: layout.homePageWidth,
+                          height: layout.homePageHeight,
+                        ),
                       ),
                     ),
                   ),
