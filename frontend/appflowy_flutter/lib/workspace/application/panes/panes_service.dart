@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -14,10 +15,11 @@ class PanesService {
   PaneNode splitHandler(
     PaneNode node,
     String targetPaneId,
-    ViewPB view,
+    ViewPB? view,
     Direction direction,
     Axis axis,
     void Function(PaneNode) activePane,
+    PaneNode? fromNode,
   ) {
     /// This is a recursive handler, following condition checks if passed node
     /// is our target node
@@ -43,14 +45,16 @@ class PanesService {
               pageManagers: node.tabs.pageManagers,
             ),
           ),
-          PaneNode(
-            sizeController: PaneSizeController.intial(),
-            paneId: nanoid(),
-            children: const [],
-            parent: newNode,
-            axis: null,
-            tabs: Tabs(pageManagers: [PageManager()..setPlugin(view.plugin())]),
-          )
+          fromNode ??
+              PaneNode(
+                sizeController: PaneSizeController.intial(),
+                paneId: nanoid(),
+                children: const [],
+                parent: newNode,
+                axis: null,
+                tabs: Tabs(
+                    pageManagers: [PageManager()..setPlugin(view!.plugin())]),
+              )
         ],
       );
       activePane(ret.children[0]);
@@ -62,13 +66,15 @@ class PanesService {
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
-          final newNode = PaneNode(
-            sizeController: PaneSizeController.intial(),
-            paneId: nanoid(),
-            children: const [],
-            parent: node.parent,
-            tabs: Tabs(pageManagers: [PageManager()..setPlugin(view.plugin())]),
-          );
+          final newNode = fromNode ??
+              PaneNode(
+                sizeController: PaneSizeController.intial(),
+                paneId: nanoid(),
+                children: const [],
+                parent: node.parent,
+                tabs: Tabs(
+                    pageManagers: [PageManager()..setPlugin(view!.plugin())]),
+              );
           if (direction == Direction.front) {
             if (i == node.children.length) {
               node.children.add(newNode);
@@ -99,8 +105,17 @@ class PanesService {
     ///node isn't right holder we proceed recursively to dfs remaining
     ///children
     final newChildren = node.children
-        .map((e) =>
-            splitHandler(e, targetPaneId, view, direction, axis, activePane))
+        .map(
+          (e) => splitHandler(
+            e,
+            targetPaneId,
+            view,
+            direction,
+            axis,
+            activePane,
+            fromNode,
+          ),
+        )
         .toList();
     return node.copyWith(children: newChildren);
   }
@@ -123,7 +138,19 @@ class PanesService {
             parent: node.parent,
           );
         }
-        return node;
+        return node.copyWith(
+          paneId: nanoid(),
+          tabs: Tabs(
+            currentIndex: node.tabs.currentIndex,
+            pageManagers: node.tabs.pageManagers,
+          ),
+          sizeController: PaneSizeController(
+            flex: List.generate(
+              node.children.length,
+              (_) => 1 / (node.children.length),
+            ),
+          ),
+        );
       }
     }
 

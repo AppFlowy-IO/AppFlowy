@@ -1,5 +1,14 @@
 part of 'panes_cubit.dart';
 
+enum PaneDraggableHoverPosition {
+  none,
+  top,
+  left,
+  right,
+  bottom,
+  whole,
+}
+
 class PanesState extends Equatable {
   final PaneNode root;
   final int count;

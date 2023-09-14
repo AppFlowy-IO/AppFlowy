@@ -1,18 +1,11 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:flutter/material.dart';
-
-enum PaneDraggableHoverPosition {
-  none,
-  top,
-  left,
-  right,
-  bottom,
-  whole,
-}
 
 class DraggablePaneItem extends StatefulWidget {
   const DraggablePaneItem({
@@ -166,5 +159,7 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
     return true;
   }
 
-  void _move(PaneNode from, PaneNode to) {}
+  void _move(PaneNode from, PaneNode to) {
+    context.read<PanesCubit>().movePane(from, to, position);
+  }
 }

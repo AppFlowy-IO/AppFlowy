@@ -47,15 +47,12 @@ class PanesCubit extends Cubit<PanesState> {
       direction,
       axis,
       setActivePane,
+      null,
     );
 
     emit(
       state.copyWith(
         root: root,
-      ),
-    );
-    emit(
-      state.copyWith(
         count: panesService.countNodeHandler(root),
       ),
     );
@@ -109,5 +106,29 @@ class PanesCubit extends Cubit<PanesState> {
         menuSharedState.latestOpenView = notifier.view;
       }
     }
+  }
+
+  void movePane(
+    PaneNode from,
+    PaneNode to,
+    PaneDraggableHoverPosition position,
+  ) {
+    emit(
+      state.copyWith(
+        root: panesService.splitHandler(
+          state.root,
+          to.paneId,
+          null,
+          Direction.front,
+          (position == PaneDraggableHoverPosition.left ||
+                  position == PaneDraggableHoverPosition.right)
+              ? Axis.vertical
+              : Axis.horizontal,
+          setActivePane,
+          from,
+        ),
+      ),
+    );
+    closePane(from.paneId);
   }
 }
