@@ -139,8 +139,6 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
     if (normalizedAngle < 0) {
       normalizedAngle += 360;
     }
-    Log.warn(
-        "center $center angle in degree $normalizedAngle ${box.paintBounds}");
     // Determine the quadrant of the offset
     if (normalizedAngle >= 315 || normalizedAngle < 45) {
       return PaneDraggableHoverPosition.right;

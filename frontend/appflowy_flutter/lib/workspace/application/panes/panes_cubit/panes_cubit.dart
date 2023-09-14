@@ -53,7 +53,7 @@ class PanesCubit extends Cubit<PanesState> {
     emit(
       state.copyWith(
         root: root,
-        count: panesService.countNodeHandler(root),
+        count: state.count + 1,
       ),
     );
   }
@@ -62,7 +62,7 @@ class PanesCubit extends Cubit<PanesState> {
     emit(
       state.copyWith(
         root: panesService.closePaneHandler(state.root, paneId, setActivePane),
-        count: panesService.countNodeHandler(state.root),
+        count: state.count - 1,
       ),
     );
   }
@@ -113,17 +113,28 @@ class PanesCubit extends Cubit<PanesState> {
     PaneNode to,
     PaneDraggableHoverPosition position,
   ) {
+    final direction = [
+      PaneDraggableHoverPosition.top,
+      PaneDraggableHoverPosition.left
+    ].contains(position)
+        ? Direction.front
+        : Direction.back;
+
+    final axis = [
+      PaneDraggableHoverPosition.left,
+      PaneDraggableHoverPosition.right
+    ].contains(position)
+        ? Axis.horizontal
+        : Axis.vertical;
+
     emit(
       state.copyWith(
         root: panesService.splitHandler(
           state.root,
           to.paneId,
           null,
-          Direction.front,
-          (position == PaneDraggableHoverPosition.left ||
-                  position == PaneDraggableHoverPosition.right)
-              ? Axis.vertical
-              : Axis.horizontal,
+          direction,
+          axis,
           setActivePane,
           from,
         ),

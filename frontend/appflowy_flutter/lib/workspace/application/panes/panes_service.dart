@@ -1,8 +1,10 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
@@ -43,7 +45,7 @@ class PanesService {
               pageManagers: node.tabs.pageManagers,
             ),
           ),
-          fromNode ??
+          fromNode?.copyWith(paneId: nanoid()) ??
               PaneNode(
                 sizeController: PaneSizeController.intial(),
                 paneId: nanoid(),
@@ -51,7 +53,8 @@ class PanesService {
                 parent: newNode,
                 axis: null,
                 tabs: Tabs(
-                    pageManagers: [PageManager()..setPlugin(view!.plugin())]),
+                  pageManagers: [PageManager()..setPlugin(view!.plugin())],
+                ),
               )
         ],
       );
@@ -64,14 +67,15 @@ class PanesService {
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
-          final newNode = fromNode ??
+          final newNode = fromNode?.copyWith(paneId: nanoid()) ??
               PaneNode(
                 sizeController: PaneSizeController.intial(),
                 paneId: nanoid(),
                 children: const [],
                 parent: node.parent,
                 tabs: Tabs(
-                    pageManagers: [PageManager()..setPlugin(view!.plugin())]),
+                  pageManagers: [PageManager()..setPlugin(view!.plugin())],
+                ),
               );
           if (direction == Direction.front) {
             if (i == node.children.length) {
@@ -84,8 +88,6 @@ class PanesService {
           }
           final ret = node.copyWith(
             paneId: nanoid(),
-            children:
-                node.children.map((e) => e.copyWith(paneId: nanoid())).toList(),
             sizeController: PaneSizeController(
               flex: List.generate(
                 node.children.length,
@@ -128,11 +130,13 @@ class PanesService {
     }
     for (final element in node.children) {
       if (element.paneId == targetPaneId) {
+        Log.warn("Found deletion");
         node.children.remove(element);
         setActiveNode(node);
         if (node.children.length == 1) {
           setActiveNode(node.children.first);
           return node.children.first.copyWith(
+            paneId: nanoid(),
             parent: node.parent,
           );
         }
