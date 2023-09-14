@@ -82,7 +82,7 @@
       "fail": "Impossibile copiare le informazioni di debug negli appunti"
     },
     "shortcuts": "Scorciatoie",
-    "markdown": "Ribasso",
+    "markdown": "Markdown",
     "feedback": "Feedback"
   },
   "menuAppHeader": {
@@ -149,8 +149,8 @@
   },
   "label": {
     "welcome": "Benvenuto!",
-    "firstName": "Name",
-    "middleName": "Secondo Name",
+    "firstName": "Nome",
+    "middleName": "Secondo Nome",
     "lastName": "Cognome",
     "stepX": "Passo {X}"
   },
@@ -172,17 +172,17 @@
     "menu": {
       "appearance": "Aspetto",
       "language": "Lingua",
-      "open": "aprire le impostazioni",
+      "open": "Apri le impostazioni",
       "user": "Utente",
       "files": "File",
       "supabaseSetting": "Impostazione Supabase"
     },
     "appearance": {
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Tema",
         "light": "Modalità Chiara",
         "dark": "Modalità Scura",
-        "system": "Adapt to System"
+        "system": "Segui il sistema"
       },
       "fontFamily": {
         "label": "Famiglia di font",
