@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
@@ -38,6 +39,7 @@ import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart'
 import 'package:appflowy/plugins/database_view/widgets/field/grid_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
@@ -48,6 +50,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
@@ -242,23 +245,33 @@ extension AppFlowyDatabaseTest on WidgetTester {
     }
   }
 
+  /// null percent means no progress bar should be found
   Future<void> assertChecklistCellInGrid({
     required int rowIndex,
-    required double percent,
+    required double? percent,
   }) async {
     final findCell = cellFinder(rowIndex, FieldType.Checklist);
-    final finder = find.descendant(
-      of: findCell,
-      matching: find.byWidgetPredicate(
-        (widget) {
-          if (widget is ChecklistProgressBar) {
-            return widget.percent == percent;
-          }
-          return false;
-        },
-      ),
-    );
-    expect(finder, findsOneWidget);
+
+    if (percent == null) {
+      final finder = find.descendant(
+        of: findCell,
+        matching: find.byType(ChecklistProgressBar),
+      );
+      expect(finder, findsNothing);
+    } else {
+      final finder = find.descendant(
+        of: findCell,
+        matching: find.byWidgetPredicate(
+          (widget) {
+            if (widget is ChecklistProgressBar) {
+              return widget.percent == percent;
+            }
+            return false;
+          },
+        ),
+      );
+      expect(finder, findsOneWidget);
+    }
   }
 
   Future<void> assertDateCellInGrid({
@@ -449,6 +462,119 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(cell, matcher);
   }
 
+  Future<void> tapChecklistCellInGrid({required int rowIndex}) async {
+    final findRow = find.byType(GridRow);
+    final findCell = finderForFieldType(FieldType.Checklist);
+
+    final cell = find.descendant(
+      of: findRow.at(rowIndex),
+      matching: findCell,
+    );
+
+    await tapButton(cell);
+  }
+
+  void assertChecklistEditorVisible({required bool visible}) {
+    final editor = find.byType(GridChecklistCellEditor);
+    if (visible) {
+      expect(editor, findsOneWidget);
+    } else {
+      expect(editor, findsNothing);
+    }
+  }
+
+  void assertNewCheckListTaskEditorVisible({required bool visible}) {
+    final editor = find.byType(NewTaskItem);
+    if (visible) {
+      expect(editor, findsOneWidget);
+    } else {
+      expect(editor, findsNothing);
+    }
+  }
+
+  Future<void> createNewChecklistTask({
+    required String name,
+    enter = false,
+    button = false,
+  }) async {
+    assert(!(enter && button));
+    final textField = find.descendant(
+      of: find.byType(NewTaskItem),
+      matching: find.byType(TextField),
+    );
+
+    await enterText(textField, name);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+    if (enter) {
+      await testTextInput.receiveAction(TextInputAction.done);
+      await pumpAndSettle(const Duration(milliseconds: 300));
+    } else {
+      await tapButton(
+        find.descendant(
+          of: find.byType(NewTaskItem),
+          matching: find.byType(FlowyTextButton),
+        ),
+      );
+    }
+  }
+
+  void assertChecklistTaskInEditor({
+    required int index,
+    required String name,
+    required bool isChecked,
+  }) {
+    final task = find.byType(ChecklistItem).at(index);
+
+    final widget = this.widget<ChecklistItem>(task);
+    assert(
+      widget.option.data.name == name && widget.option.isSelected == isChecked,
+    );
+  }
+
+  Future<void> renameChecklistTask({
+    required int index,
+    required String name,
+  }) async {
+    final textField = find
+        .descendant(
+          of: find.byType(ChecklistItem),
+          matching: find.byType(TextField),
+        )
+        .at(index);
+
+    await enterText(textField, name);
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> tapChecklistNewTaskButton() async {
+    await tapButton(find.byType(ChecklistNewTaskButton));
+  }
+
+  Future<void> checkChecklistTask({required int index}) async {
+    final button = find.descendant(
+      of: find.byType(ChecklistItem).at(index),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.uncheck_s,
+      ),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> deleteChecklistTask({required int index}) async {
+    final task = find.byType(ChecklistItem).at(index);
+
+    await startGesture(getCenter(task), kind: PointerDeviceKind.mouse);
+    await pumpAndSettle();
+
+    final button = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+    );
+
+    await tapButton(button);
+  }
+
   Future<void> openFirstRowDetailPage() async {
     await hoverOnFirstRowOfGrid();
 
@@ -485,7 +611,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(banner, findsOneWidget);
 
     await startGesture(
-      getTopLeft(banner),
+      getCenter(banner),
       kind: PointerDeviceKind.mouse,
     );
 
@@ -522,6 +648,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> deleteRowInRowDetailPage() async {
     final deleteButton = find.byType(RowDetailPageDeleteButton);
     await tapButton(deleteButton);
+  }
+
+  Future<TestGesture> hoverOnFieldInRowDetail({required int index}) async {
+    final fieldButtons = find.byType(FieldCellButton);
+    final button = find
+        .descendant(of: find.byType(RowDetailPage), matching: fieldButtons)
+        .at(index);
+    return startGesture(
+      getCenter(button),
+      kind: PointerDeviceKind.mouse,
+    );
+  }
+
+  Future<void> reorderFieldInRowDetail({required double offset}) async {
+    final thumb = find
+        .byWidgetPredicate(
+          (widget) => widget is ReorderableDragStartListener && widget.enabled,
+        )
+        .first;
+    await drag(
+      thumb,
+      Offset(0, offset),
+      kind: PointerDeviceKind.mouse,
+    );
+    await pumpAndSettle();
   }
 
   Future<void> scrollGridByOffset(Offset offset) async {
@@ -601,6 +752,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(button);
   }
 
+  Future<void> tapRowDetailPageRowActionButton() async {
+    await tapButton(find.byType(RowActionButton));
+  }
+
   Future<void> tapRowDetailPageCreatePropertyButton() async {
     await tapButton(find.byType(CreateRowFieldButton));
   }
@@ -668,6 +823,18 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     expect(field, findsOneWidget);
+  }
+
+  void assertFirstFieldInRowDetailByType(FieldType fieldType) {
+    final firstField = find
+        .descendant(
+          of: find.byType(RowDetailPage),
+          matching: find.byType(FieldCellButton),
+        )
+        .first;
+
+    final widget = this.widget<FieldCellButton>(firstField);
+    expect(widget.field.fieldType, fieldType);
   }
 
   Future<void> findFieldWithName(String name) async {

@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 use std::sync::Arc;
 
-use appflowy_integrate::{CollabObject, CollabType};
+use collab_define::{CollabObject, CollabType};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;

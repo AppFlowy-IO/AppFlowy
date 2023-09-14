@@ -4,6 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:flutter/material.dart';
 
 typedef CellRenderHook<C, CustomCardData> = Widget? Function(
@@ -48,6 +49,16 @@ class RowCardRenderHook<CustomCardData> {
     CellRenderHook<DateCellDataPB, CustomCardData?> hook,
   ) {
     renderHook[FieldType.DateTime] = _typeSafeHook<DateCellDataPB>(hook);
+  }
+
+  /// Add a render hook for [FieldType.LastEditedTime] and [FieldType.CreatedTime]
+  void addTimestampCellHook(
+    CellRenderHook<TimestampCellDataPB, CustomCardData?> hook,
+  ) {
+    renderHook[FieldType.LastEditedTime] =
+        _typeSafeHook<TimestampCellDataPB>(hook);
+    renderHook[FieldType.CreatedTime] =
+        _typeSafeHook<TimestampCellDataPB>(hook);
   }
 
   CellRenderHook<dynamic, CustomCardData> _typeSafeHook<C>(
