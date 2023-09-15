@@ -21,7 +21,7 @@ parking_lot = "0.12.1"
 futures = "0.3"
 
 [features]
-default = ["postgres_storage_plugin", "snapshot_plugin"]
-postgres_storage_plugin = ["collab-plugins/postgres_storage_plugin", "collab-plugins/rocksdb_plugin"]
-aws_storage_plugin = ["collab-plugins/aws_storage_plugin", "collab-plugins/rocksdb_plugin"]
+default = []
+supabase_integrate = ["collab-plugins/postgres_storage_plugin", "collab-plugins/rocksdb_plugin"]
+appflowy_cloud_integrate = ["collab-plugins/sync_plugin", "collab-plugins/rocksdb_plugin"]
 snapshot_plugin = ["collab-plugins/snapshot_plugin"]

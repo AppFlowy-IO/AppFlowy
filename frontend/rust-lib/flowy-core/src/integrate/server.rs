@@ -7,7 +7,7 @@ use collab_define::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_repr::*;
 
-use collab_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
+use collab_integrate::collab_builder::{CollabIntegrateType, CollabStorageProvider};
 use collab_integrate::{RemoteCollabStorage, YrsDocAction};
 use flowy_database_deps::cloud::*;
 use flowy_document2::deps::DocumentData;
@@ -398,19 +398,19 @@ impl DocumentCloudService for AppFlowyServerProvider {
 }
 
 impl CollabStorageProvider for AppFlowyServerProvider {
-  fn storage_type(&self) -> CollabStorageType {
+  fn storage_type(&self) -> CollabIntegrateType {
     self.provider_type().into()
   }
 
   fn get_storage(
     &self,
     collab_object: &CollabObject,
-    storage_type: &CollabStorageType,
+    storage_type: &CollabIntegrateType,
   ) -> Option<Arc<dyn RemoteCollabStorage>> {
     match storage_type {
-      CollabStorageType::Local => None,
-      CollabStorageType::AWS => None,
-      CollabStorageType::Supabase => self
+      CollabIntegrateType::Local => None,
+      CollabIntegrateType::AFCloud => None,
+      CollabIntegrateType::Supabase => self
         .get_provider(&ServerProviderType::Supabase)
         .ok()
         .and_then(|provider| provider.collab_storage(collab_object)),

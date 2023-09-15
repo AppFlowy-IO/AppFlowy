@@ -23,7 +23,7 @@ flowy-task = { workspace = true }
 flowy-server = { workspace = true }
 flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }
-collab-integrate = { workspace = true, features = ["postgres_storage_plugin", "snapshot_plugin"] }
+collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
 collab-define = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }
 uuid = { version = "1.3.3", features = ["v4"] }

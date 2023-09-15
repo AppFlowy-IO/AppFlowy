@@ -16,18 +16,18 @@ use futures::executor::block_on;
 use parking_lot::{Mutex, RwLock};
 
 #[derive(Clone, Debug)]
-pub enum CollabStorageType {
+pub enum CollabIntegrateType {
   Local,
-  AWS,
+  AFCloud,
   Supabase,
 }
 
 pub trait CollabStorageProvider: Send + Sync + 'static {
-  fn storage_type(&self) -> CollabStorageType;
+  fn storage_type(&self) -> CollabIntegrateType;
   fn get_storage(
     &self,
     collab_object: &CollabObject,
-    storage_type: &CollabStorageType,
+    storage_type: &CollabIntegrateType,
   ) -> Option<Arc<dyn RemoteCollabStorage>>;
   fn is_sync_enabled(&self) -> bool;
 }
@@ -36,14 +36,14 @@ impl<T> CollabStorageProvider for Arc<T>
 where
   T: CollabStorageProvider,
 {
-  fn storage_type(&self) -> CollabStorageType {
+  fn storage_type(&self) -> CollabIntegrateType {
     (**self).storage_type()
   }
 
   fn get_storage(
     &self,
     collab_object: &CollabObject,
-    storage_type: &CollabStorageType,
+    storage_type: &CollabIntegrateType,
   ) -> Option<Arc<dyn RemoteCollabStorage>> {
     (**self).get_storage(collab_object, storage_type)
   }
@@ -166,31 +166,14 @@ impl AppFlowyCollabBuilder {
       let cloud_storage = self.cloud_storage.read();
       let cloud_storage_type = cloud_storage.storage_type();
       match cloud_storage_type {
-        CollabStorageType::AWS => {
-          #[cfg(feature = "aws_storage_plugin")]
+        CollabIntegrateType::AFCloud => {
+          #[cfg(feature = "appflowy_cloud_integrate")]
           {
-            // let collab_config = CollabPluginConfig::from_env();
-            // if let Some(config) = collab_config.aws_config() {
-            //   if !config.enable {
-            //     std::env::remove_var(AWS_ACCESS_KEY_ID);
-            //     std::env::remove_var(AWS_SECRET_ACCESS_KEY);
-            //   } else {
-            //     std::env::set_var(AWS_ACCESS_KEY_ID, &config.access_key_id);
-            //     std::env::set_var(AWS_SECRET_ACCESS_KEY, &config.secret_access_key);
-            //     let plugin = AWSDynamoDBPlugin::new(
-            //       object_id.to_string(),
-            //       Arc::downgrade(&collab),
-            //       10,
-            //       config.region.clone(),
-            //     );
-            //     collab.lock().add_plugin(Arc::new(plugin));
-            //     // tracing::debug!("add aws plugin: {:?}", cloud_storage_type);
-            //   }
-            // }
+            //
           }
         },
-        CollabStorageType::Supabase => {
-          #[cfg(feature = "postgres_storage_plugin")]
+        CollabIntegrateType::Supabase => {
+          #[cfg(feature = "supabase_integrate")]
           {
             let workspace_id = self.workspace_id.read().clone().ok_or_else(|| {
               anyhow::anyhow!("When using supabase plugin, the workspace_id should not be empty")
@@ -214,7 +197,7 @@ impl AppFlowyCollabBuilder {
             }
           }
         },
-        CollabStorageType::Local => {},
+        CollabIntegrateType::Local => {},
       }
 
       if let Some(snapshot_persistence) = self.snapshot_persistence.lock().as_ref() {
@@ -241,14 +224,14 @@ impl AppFlowyCollabBuilder {
 
 pub struct DefaultCollabStorageProvider();
 impl CollabStorageProvider for DefaultCollabStorageProvider {
-  fn storage_type(&self) -> CollabStorageType {
-    CollabStorageType::Local
+  fn storage_type(&self) -> CollabIntegrateType {
+    CollabIntegrateType::Local
   }
 
   fn get_storage(
     &self,
     _collab_object: &CollabObject,
-    _storage_type: &CollabStorageType,
+    _storage_type: &CollabIntegrateType,
   ) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }

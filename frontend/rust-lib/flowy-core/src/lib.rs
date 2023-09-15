@@ -12,7 +12,7 @@ use std::{
 
 use tokio::sync::RwLock;
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabIntegrateType};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
@@ -449,12 +449,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 }
 
-impl From<ServerProviderType> for CollabStorageType {
+impl From<ServerProviderType> for CollabIntegrateType {
   fn from(server_provider: ServerProviderType) -> Self {
     match server_provider {
-      ServerProviderType::Local => CollabStorageType::Local,
-      ServerProviderType::AppFlowyCloud => CollabStorageType::Local,
-      ServerProviderType::Supabase => CollabStorageType::Supabase,
+      ServerProviderType::Local => CollabIntegrateType::Local,
+      ServerProviderType::AppFlowyCloud => CollabIntegrateType::Local,
+      ServerProviderType::Supabase => CollabIntegrateType::Supabase,
     }
   }
 }
