@@ -289,7 +289,8 @@
       },
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
     },
     "files": {
       "copy": "Copy",
