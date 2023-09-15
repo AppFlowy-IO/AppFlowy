@@ -244,6 +244,12 @@ pub enum ErrorCode {
 
   #[error("Text id is empty")]
   TextIdIsEmpty = 80,
+
+  #[error("Record already exists")]
+  RecordAlreadyExists = 81,
+
+  #[error("Missing payload")]
+  MissingPayload = 82,
 }
 
 impl ErrorCode {

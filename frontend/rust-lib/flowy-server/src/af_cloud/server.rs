@@ -29,7 +29,8 @@ impl AFCloudServer {
 impl AppFlowyServer for AFCloudServer {
   fn user_service(&self) -> Arc<dyn UserCloudService> {
     let http_client = reqwest::Client::new();
-    let client = client_api::Client::from(http_client, &self.config.base_url());
+    let client =
+      client_api::Client::from(http_client, &self.config.base_url(), &self.config.ws_addr());
     Arc::new(AFCloudUserAuthServiceImpl::new(self.config.clone(), client))
   }
 
