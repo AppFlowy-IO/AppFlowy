@@ -42,7 +42,7 @@ mime_guess = "2.0"
 url = "2.4"
 tokio-util = "0.7"
 
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "828c0f0cd41b717dd4d79fb87172fb3bbbce1eaf" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "05e52dd8edec799c57f2e16a65885d7c37ce8ed0" }
 
 [dev-dependencies]
 uuid = { version = "1.3.3", features = ["v4"] }

@@ -66,3 +66,4 @@ rev-sqlite = [
     "flowy-user/rev-sqlite",
 ]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
+
