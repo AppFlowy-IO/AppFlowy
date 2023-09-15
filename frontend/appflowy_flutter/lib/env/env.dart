@@ -32,6 +32,7 @@ abstract class Env {
 }
 
 bool get isSupabaseEnabled {
+  return false;
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
     return Env.supabaseUrl.isNotEmpty && Env.supabaseAnonKey.isNotEmpty;

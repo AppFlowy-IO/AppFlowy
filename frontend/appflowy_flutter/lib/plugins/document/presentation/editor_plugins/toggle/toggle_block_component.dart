@@ -109,7 +109,8 @@ class _ToggleListBlockComponentWidgetState
         BlockComponentConfigurable,
         BlockComponentBackgroundColorMixin,
         NestedBlockComponentStatefulWidgetMixin,
-        BlockComponentTextDirectionMixin {
+        BlockComponentTextDirectionMixin,
+        BlockComponentAlignMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -157,8 +158,12 @@ class _ToggleListBlockComponentWidgetState
     Widget child = Container(
       color: backgroundColor,
       width: double.infinity,
+      alignment: alignment,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        textDirection: textDirection,
         children: [
           // the emoji picker button for the note
           FlowyIconButton(
@@ -171,7 +176,7 @@ class _ToggleListBlockComponentWidgetState
           const SizedBox(
             width: 4.0,
           ),
-          Expanded(
+          Flexible(
             child: AppFlowyRichText(
               key: forwardKey,
               delegate: this,
@@ -187,6 +192,7 @@ class _ToggleListBlockComponentWidgetState
                 placeholderTextStyle,
               ),
               textDirection: textDirection,
+              textAlign: alignment?.toTextAlign,
               cursorColor: editorState.editorStyle.cursorColor,
               selectionColor: editorState.editorStyle.selectionColor,
             ),
