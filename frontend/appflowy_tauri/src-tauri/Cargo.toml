@@ -34,12 +34,13 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7" }
+
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
@@ -49,7 +50,6 @@ collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab",
 #collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
 #collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
 #collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
-#appflowy-integrate = { path = "../../../../AppFlowy-Collab/appflowy-integrate" }
 #collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
 #collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }

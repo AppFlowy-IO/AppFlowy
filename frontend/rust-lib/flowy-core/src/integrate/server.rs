@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::{RemoteCollabStorage, YrsDocAction};
 use bytes::Bytes;
 use collab_define::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_repr::*;
 
+use collab_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
+use collab_integrate::{RemoteCollabStorage, YrsDocAction};
 use flowy_database_deps::cloud::*;
 use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};

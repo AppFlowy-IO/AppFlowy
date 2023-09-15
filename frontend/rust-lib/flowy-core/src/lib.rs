@@ -10,9 +10,9 @@ use std::{
   },
 };
 
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;

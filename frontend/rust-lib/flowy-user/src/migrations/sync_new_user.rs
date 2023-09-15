@@ -4,7 +4,6 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use appflowy_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
@@ -14,6 +13,7 @@ use collab_define::{CollabObject, CollabType};
 use collab_folder::core::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
 
+use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_error::FlowyResult;
 use flowy_user_deps::cloud::UserCloudService;
 
