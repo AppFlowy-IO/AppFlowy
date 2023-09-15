@@ -24,8 +24,10 @@ flowy-server = { path = "../flowy-server" }
 flowy-server-config = { path = "../flowy-server-config" }
 flowy-config = { path = "../flowy-config" }
 appflowy-integrate = { version = "0.1.0", features = ["postgres_storage_plugin", "snapshot_plugin"] }
+collab-define = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }
 uuid = { version = "1.3.3", features = ["v4"] }
+flowy-storage = { path = "../flowy-storage" }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }

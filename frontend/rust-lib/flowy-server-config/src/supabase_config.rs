@@ -5,7 +5,6 @@ use flowy_error::{ErrorCode, FlowyError};
 pub const ENABLE_SUPABASE_SYNC: &str = "ENABLE_SUPABASE_SYNC";
 pub const SUPABASE_URL: &str = "SUPABASE_URL";
 pub const SUPABASE_ANON_KEY: &str = "SUPABASE_ANON_KEY";
-pub const SUPABASE_JWT_SECRET: &str = "SUPABASE_JWT_SECRET";
 
 pub const SUPABASE_DB: &str = "SUPABASE_DB";
 pub const SUPABASE_DB_USER: &str = "SUPABASE_DB_USER";
@@ -20,27 +19,29 @@ pub struct SupabaseConfiguration {
   pub url: String,
   /// The key of the supabase server.
   pub anon_key: String,
-  /// The secret used to sign the JWT tokens.
-  pub jwt_secret: String,
 }
 
 impl SupabaseConfiguration {
   pub fn from_env() -> Result<Self, FlowyError> {
-    Ok(Self {
-      url: std::env::var(SUPABASE_URL)
-        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?,
-      anon_key: std::env::var(SUPABASE_ANON_KEY)
-        .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_ANON_KEY"))?,
-      jwt_secret: std::env::var(SUPABASE_JWT_SECRET).map_err(|_| {
-        FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_JWT_SECRET")
-      })?,
-    })
+    let url = std::env::var(SUPABASE_URL)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_URL"))?;
+
+    let anon_key = std::env::var(SUPABASE_ANON_KEY)
+      .map_err(|_| FlowyError::new(ErrorCode::InvalidAuthConfig, "Missing SUPABASE_ANON_KEY"))?;
+
+    if url.is_empty() || anon_key.is_empty() {
+      return Err(FlowyError::new(
+        ErrorCode::InvalidAuthConfig,
+        "Missing SUPABASE_URL or SUPABASE_ANON_KEY",
+      ));
+    }
+
+    Ok(Self { url, anon_key })
   }
 
   /// Write the configuration to the environment variables.
   pub fn write_env(&self) {
     std::env::set_var(SUPABASE_URL, &self.url);
     std::env::set_var(SUPABASE_ANON_KEY, &self.anon_key);
-    std::env::set_var(SUPABASE_JWT_SECRET, &self.jwt_secret);
   }
 }

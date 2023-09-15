@@ -21,6 +21,7 @@ export const mentionSlice = createSlice({
       }
     ) => {
       const { docId, blockId } = action.payload;
+
       state[docId] = {
         open: true,
         blockId,
@@ -28,6 +29,7 @@ export const mentionSlice = createSlice({
     },
     close: (state, action: { payload: { docId: string } }) => {
       const { docId } = action.payload;
+
       delete state[docId];
     },
   },

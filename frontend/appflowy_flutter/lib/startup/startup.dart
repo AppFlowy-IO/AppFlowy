@@ -27,7 +27,7 @@ class FlowyRunnerContext {
 Future<void> runAppFlowy() async {
   await FlowyRunner.run(
     FlowyApp(),
-    integrationEnv(),
+    integrationMode(),
   );
 }
 
@@ -86,7 +86,7 @@ class FlowyRunner {
 
 Future<void> initGetIt(
   GetIt getIt,
-  IntegrationMode env,
+  IntegrationMode mode,
   EntryPoint f,
   LaunchConfiguration config,
 ) async {
@@ -98,14 +98,14 @@ Future<void> initGetIt(
     () => AppLauncher(
       context: LaunchContext(
         getIt,
-        env,
+        mode,
         config,
       ),
     ),
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
-  await DependencyResolver.resolve(getIt, env);
+  await DependencyResolver.resolve(getIt, mode);
 }
 
 class LaunchContext {
@@ -171,7 +171,7 @@ enum IntegrationMode {
   bool get isDevelop => this == IntegrationMode.develop;
 }
 
-IntegrationMode integrationEnv() {
+IntegrationMode integrationMode() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     return IntegrationMode.unitTest;
   }

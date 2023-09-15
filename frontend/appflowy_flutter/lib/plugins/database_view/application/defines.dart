@@ -38,4 +38,7 @@ class LoadingState with _$LoadingState {
   const factory LoadingState.finish(
     Either<Unit, FlowyError> successOrFail,
   ) = _Finish;
+
+  const LoadingState._();
+  isLoading() => this is _Loading;
 }

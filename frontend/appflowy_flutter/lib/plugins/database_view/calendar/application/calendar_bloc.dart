@@ -60,8 +60,8 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
               ),
             );
           },
-          createEvent: (DateTime date, String title) async {
-            await _createEvent(date, title);
+          createEvent: (DateTime date) async {
+            await _createEvent(date);
           },
           moveEvent: (CalendarDayEvent event, DateTime date) async {
             await _moveEvent(event, date);
@@ -120,18 +120,6 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  FieldInfo? _getTitleFieldInfo() {
-    final fieldInfos = databaseController.fieldController.fieldInfos;
-    final index = fieldInfos.indexWhere(
-      (element) => element.field.isPrimary,
-    );
-    if (index != -1) {
-      return fieldInfos[index];
-    } else {
-      return null;
-    }
-  }
-
   Future<void> _openDatabase(Emitter<CalendarState> emit) async {
     final result = await databaseController.open();
     result.fold(
@@ -147,19 +135,17 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  Future<void> _createEvent(DateTime date, String title) async {
+  Future<void> _createEvent(DateTime date) async {
     return state.settings.fold(
       () {
         Log.warn('Calendar settings not found');
       },
       (settings) async {
         final dateField = _getCalendarFieldInfo(settings.fieldId);
-        final titleField = _getTitleFieldInfo();
-        if (dateField != null && titleField != null) {
+        if (dateField != null) {
           final newRow = await databaseController.createRow(
             withCells: (builder) {
               builder.insertDate(dateField, date);
-              builder.insertText(titleField, title);
             },
           ).then(
             (result) => result.fold(
@@ -402,8 +388,7 @@ class CalendarEvent with _$CalendarEvent {
       _DidDeleteEvents;
 
   // Called when creating a new event
-  const factory CalendarEvent.createEvent(DateTime date, String title) =
-      _CreateEvent;
+  const factory CalendarEvent.createEvent(DateTime date) = _CreateEvent;
 
   // Called when moving an event
   const factory CalendarEvent.moveEvent(CalendarDayEvent event, DateTime date) =

@@ -1,4 +1,4 @@
-use collab_user::core::Reminder;
+use collab_define::reminder::{ObjectType, Reminder};
 
 use flowy_derive::ProtoBuf;
 
@@ -38,10 +38,11 @@ impl From<ReminderPB> for Reminder {
       id: value.id,
       scheduled_at: value.scheduled_at,
       is_ack: value.is_ack,
-      ty: value.ty,
+      ty: ObjectType::Document,
       title: value.title,
       message: value.message,
-      reminder_object_id: value.reminder_object_id,
+      meta: Default::default(),
+      object_id: value.reminder_object_id,
     }
   }
 }
@@ -52,10 +53,10 @@ impl From<Reminder> for ReminderPB {
       id: value.id,
       scheduled_at: value.scheduled_at,
       is_ack: value.is_ack,
-      ty: value.ty,
+      ty: value.ty as i64,
       title: value.title,
       message: value.message,
-      reminder_object_id: value.reminder_object_id,
+      reminder_object_id: value.object_id,
     }
   }
 }

@@ -12,7 +12,7 @@ fn upgrade_folder(
 ) -> FlowyResult<Arc<FolderManager>> {
   let folder = folder_manager
     .upgrade()
-    .ok_or(FlowyError::internal().context("The folder manager is already dropped"))?;
+    .ok_or(FlowyError::internal().with_context("The folder manager is already dropped"))?;
   Ok(folder)
 }
 
@@ -45,10 +45,10 @@ pub(crate) async fn open_workspace_handler(
   let folder = upgrade_folder(folder)?;
   let params: WorkspaceIdPB = data.into_inner();
   match params.value {
-    None => Err(FlowyError::workspace_id().context("workspace id should not be empty")),
+    None => Err(FlowyError::workspace_id().with_context("workspace id should not be empty")),
     Some(workspace_id) => {
       if workspace_id.is_empty() {
-        Err(FlowyError::workspace_id().context("workspace id should not be empty"))
+        Err(FlowyError::workspace_id().with_context("workspace id should not be empty"))
       } else {
         let workspace = folder.open_workspace(&workspace_id).await?;
         let views = folder.get_workspace_views(&workspace_id).await?;

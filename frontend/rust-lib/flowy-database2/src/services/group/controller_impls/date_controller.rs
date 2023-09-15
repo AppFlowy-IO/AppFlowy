@@ -112,7 +112,7 @@ impl GroupCustomize for DateGroupController {
         &setting_content,
       );
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(&row_detail.meta));
+      new_group.group.rows.push(RowMetaPB::from(row_detail));
       inserted_group = Some(new_group);
     }
 
@@ -164,7 +164,7 @@ impl GroupCustomize for DateGroupController {
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {
@@ -455,7 +455,6 @@ mod tests {
 
   use chrono::{offset, Days, Duration, NaiveDateTime};
 
-  use crate::entities::FieldType;
   use crate::services::{
     field::{date_type_option::DateTypeOption, DateCellData},
     group::controller_impls::date_controller::{
@@ -481,9 +480,9 @@ mod tests {
     let today = offset::Local::now();
     let three_days_before = today.checked_add_signed(Duration::days(-3)).unwrap();
 
-    let mut local_date_type_option = DateTypeOption::new(FieldType::DateTime);
+    let mut local_date_type_option = DateTypeOption::new();
     local_date_type_option.timezone_id = today.offset().to_string();
-    let mut default_date_type_option = DateTypeOption::new(FieldType::DateTime);
+    let mut default_date_type_option = DateTypeOption::new();
     default_date_type_option.timezone_id = "".to_string();
 
     let tests = vec![

@@ -3,9 +3,12 @@ use thiserror::Error;
 
 use flowy_derive::ProtoBuf_Enum;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum)]
+#[derive(
+  Debug, Default, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum,
+)]
 #[repr(u8)]
 pub enum ErrorCode {
+  #[default]
   #[error("Internal error")]
   Internal = 0,
 
@@ -226,6 +229,17 @@ pub enum ErrorCode {
 
   #[error("It appears that the collaboration object's data has not been fully synchronized")]
   CollabDataNotSync = 75,
+
+  #[error("It appears that the workspace data has not been fully synchronized")]
+  WorkspaceDataNotSync = 76,
+
+  #[error("Excess storage limited")]
+  ExcessStorageLimited = 77,
+
+  #[error("Parse url failed")]
+  InvalidURL = 78,
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 79,
 }
 
 impl ErrorCode {

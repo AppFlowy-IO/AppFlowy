@@ -31,7 +31,7 @@ pub fn add_or_remove_select_option_row(
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {
@@ -104,7 +104,7 @@ pub fn move_group_row(
   }
 
   if group.id == *to_group_id {
-    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta));
+    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from((*row_detail).clone()));
     match to_index {
       None => {
         changeset.inserted_rows.push(inserted_row);

@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../grid/presentation/layout/sizes.dart';
@@ -11,9 +11,15 @@ import 'date_cell_bloc.dart';
 import 'date_editor.dart';
 
 class DateCellStyle extends GridCellStyle {
+  String? placeholder;
   Alignment alignment;
+  EdgeInsets? cellPadding;
 
-  DateCellStyle({this.alignment = Alignment.center});
+  DateCellStyle({
+    this.placeholder,
+    this.alignment = Alignment.center,
+    this.cellPadding,
+  });
 }
 
 abstract class GridCellDelegate {
@@ -22,20 +28,12 @@ abstract class GridCellDelegate {
 }
 
 class GridDateCell extends GridCellWidget {
-  final bool editable;
-
-  /// The [GridDateCell] is used by Field Type [FieldType.DateTime],
-  /// [FieldType.CreatedTime], [FieldType.LastEditedTime]. So it needs
-  /// to know the field type.
-  final FieldType fieldType;
   final CellControllerBuilder cellControllerBuilder;
   late final DateCellStyle? cellStyle;
 
   GridDateCell({
     GridCellStyle? style,
-    required this.fieldType,
     required this.cellControllerBuilder,
-    this.editable = true,
     Key? key,
   }) : super(key: key) {
     if (style != null) {
@@ -72,33 +70,30 @@ class _DateCellState extends GridCellState<GridDateCell> {
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          Widget dateTextWidget = GridDateCellText(
-            dateStr: state.dateStr,
-            alignment: alignment,
+          return AppFlowyPopover(
+            controller: _popover,
+            triggerActions: PopoverTriggerFlags.none,
+            direction: PopoverDirection.bottomWithLeftAligned,
+            constraints: BoxConstraints.loose(const Size(260, 520)),
+            margin: EdgeInsets.zero,
+            child: GridDateCellText(
+              dateStr: state.dateStr,
+              placeholder: widget.cellStyle?.placeholder ?? "",
+              alignment: alignment,
+              cellPadding:
+                  widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
+            ),
+            popupBuilder: (BuildContext popoverContent) {
+              return DateCellEditor(
+                cellController:
+                    widget.cellControllerBuilder.build() as DateCellController,
+                onDismissed: () => widget.onCellFocus.value = false,
+              );
+            },
+            onClose: () {
+              widget.onCellFocus.value = false;
+            },
           );
-
-          // If the cell is editable, wrap it in a popover.
-          if (widget.editable) {
-            dateTextWidget = AppFlowyPopover(
-              controller: _popover,
-              triggerActions: PopoverTriggerFlags.none,
-              direction: PopoverDirection.bottomWithLeftAligned,
-              constraints: BoxConstraints.loose(const Size(260, 520)),
-              margin: EdgeInsets.zero,
-              child: dateTextWidget,
-              popupBuilder: (BuildContext popoverContent) {
-                return DateCellEditor(
-                  cellController: widget.cellControllerBuilder.build()
-                      as DateCellController,
-                  onDismissed: () => widget.onCellFocus.value = false,
-                );
-              },
-              onClose: () {
-                widget.onCellFocus.value = false;
-              },
-            );
-          }
-          return dateTextWidget;
         },
       ),
     );
@@ -113,10 +108,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   void requestBeginFocus() {
     _popover.show();
-
-    if (widget.editable) {
-      widget.onCellFocus.value = true;
-    }
+    widget.onCellFocus.value = true;
   }
 
   @override
@@ -125,24 +117,31 @@ class _DateCellState extends GridCellState<GridDateCell> {
 
 class GridDateCellText extends StatelessWidget {
   final String dateStr;
+  final String placeholder;
   final Alignment alignment;
+  final EdgeInsets cellPadding;
   const GridDateCellText({
     required this.dateStr,
+    required this.placeholder,
     required this.alignment,
+    required this.cellPadding,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: GridSize.cellContentInsets,
-          child: FlowyText.medium(
-            dateStr,
-            maxLines: null,
-          ),
+    final isPlaceholder = dateStr.isEmpty;
+    final text = isPlaceholder ? placeholder : dateStr;
+    return Align(
+      alignment: alignment,
+      child: Padding(
+        padding: cellPadding,
+        child: FlowyText.medium(
+          text,
+          color: isPlaceholder
+              ? Theme.of(context).hintColor
+              : AFThemeExtension.of(context).textColor,
+          maxLines: null,
         ),
       ),
     );

@@ -1,16 +1,17 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -119,7 +120,7 @@ class ShareActionListState extends State<ShareActionList> {
             final exportPath = await getIt<FilePickerService>().saveFile(
               dialogTitle: '',
               // encode the file name in case it contains special characters
-              fileName: '${Uri.encodeComponent(name)}.md',
+              fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
               docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));

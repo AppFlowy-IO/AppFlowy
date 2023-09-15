@@ -34,7 +34,6 @@ AppFlowyEnv getAppFlowyEnv() {
     enable_sync: true,
     url: Env.supabaseUrl,
     anon_key: Env.supabaseAnonKey,
-    jwt_secret: Env.supabaseJwtSecret,
   );
 
   return AppFlowyEnv(
@@ -45,7 +44,7 @@ AppFlowyEnv getAppFlowyEnv() {
 /// The default directory to store the user data. The directory can be
 /// customized by the user via the [ApplicationDataStorage]
 Future<Directory> appFlowyApplicationDataDirectory() async {
-  switch (integrationEnv()) {
+  switch (integrationMode()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
         ..create();

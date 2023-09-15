@@ -70,7 +70,7 @@ pub fn open_user_db(root: &str, user_id: i64) -> Result<Arc<ConnectionPool>, Flo
   let dir = user_db_path_from_uid(root, user_id);
   tracing::debug!("open sqlite db {} at path: {:?}", user_id, dir);
   let db = flowy_sqlite::init(&dir)
-    .map_err(|e| FlowyError::internal().context(format!("open user db failed, {:?}", e)))?;
+    .map_err(|e| FlowyError::internal().with_context(format!("open user db failed, {:?}", e)))?;
   let pool = db.get_pool();
   write_guard.insert(user_id.to_owned(), db);
   drop(write_guard);

@@ -1,14 +1,17 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-
-import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
@@ -279,6 +282,14 @@ extension CommonOperations on WidgetTester {
     // create a new page
     await tapAddViewButton(name: parentName ?? gettingStarted);
     await tapButtonWithName(layout.menuName);
+    final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
+      KVKeys.showRenameDialogWhenCreatingNewFile,
+      (value) => bool.parse(value),
+    );
+    final showRenameDialog = settingsOrFailure.fold((l) => false, (r) => r);
+    if (showRenameDialog) {
+      await tapOKButton();
+    }
     await pumpAndSettle();
 
     // hover on it and change it's name
@@ -408,6 +419,14 @@ extension CommonOperations on WidgetTester {
     await gesture.moveTo(offset, timeStamp: const Duration(milliseconds: 400));
     await gesture.up();
     await pumpAndSettle();
+  }
+
+  // tap the button with [FlowySvgData]
+  Future<void> tapButtonWithFlowySvgData(FlowySvgData svg) async {
+    final button = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg.path == svg.path,
+    );
+    await tapButton(button);
   }
 }
 

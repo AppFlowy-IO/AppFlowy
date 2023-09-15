@@ -13,7 +13,9 @@ async fn undo_redo_test() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()));
+  _ = test
+    .create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()))
+    .await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -35,9 +37,11 @@ async fn undo_redo_test() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
+      block: Some(text_block),
       parent_id: Some(page_id),
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.apply_action(vec![insert_text_action]);

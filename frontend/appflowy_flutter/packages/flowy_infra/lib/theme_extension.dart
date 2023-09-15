@@ -23,6 +23,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color progressBarBGColor;
   final Color toggleButtonBGColor;
   final Color calloutBGColor;
+  final Color tableCellBGColor;
 
   final TextStyle code;
   final TextStyle callout;
@@ -46,6 +47,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.toggleOffFill,
     required this.textColor,
     required this.calloutBGColor,
+    required this.tableCellBGColor,
     required this.code,
     required this.callout,
     required this.caption,
@@ -72,6 +74,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? tint9,
     Color? textColor,
     Color? calloutBGColor,
+    Color? tableCellBGColor,
     Color? greyHover,
     Color? greySelect,
     Color? lightGreyHover,
@@ -96,6 +99,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint9: tint9 ?? this.tint9,
       textColor: textColor ?? this.textColor,
       calloutBGColor: calloutBGColor ?? this.calloutBGColor,
+      tableCellBGColor: tableCellBGColor ?? this.tableCellBGColor,
       greyHover: greyHover ?? this.greyHover,
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
@@ -128,6 +132,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint9: Color.lerp(tint9, other.tint9, t)!,
       textColor: Color.lerp(textColor, other.textColor, t)!,
       calloutBGColor: Color.lerp(calloutBGColor, other.calloutBGColor, t)!,
+      tableCellBGColor:
+          Color.lerp(tableCellBGColor, other.tableCellBGColor, t)!,
       greyHover: Color.lerp(greyHover, other.greyHover, t)!,
       greySelect: Color.lerp(greySelect, other.greySelect, t)!,
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,

@@ -8,6 +8,7 @@ use collab_folder::core::{RepeatedViewIdentifier, ViewIcon, ViewIdentifier, View
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
+use flowy_folder_deps::cloud::gen_view_id;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
@@ -62,7 +63,7 @@ impl ViewBuilder {
   pub fn new(parent_view_id: String) -> Self {
     Self {
       parent_view_id,
-      view_id: gen_view_id(),
+      view_id: gen_view_id().to_string(),
       name: Default::default(),
       desc: Default::default(),
       layout: ViewLayout::Document,
@@ -258,10 +259,6 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     layout,
     icon: None,
   }
-}
-
-pub fn gen_view_id() -> String {
-  uuid::Uuid::new_v4().to_string()
 }
 
 #[cfg(test)]

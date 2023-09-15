@@ -16,11 +16,11 @@ async fn restore_document() {
   let uid = test.user.user_id().unwrap();
   let document_a = test
     .create_document(uid, &doc_id, Some(data.clone()))
+    .await
     .unwrap();
   let data_a = document_a.lock().get_document_data().unwrap();
   assert_eq!(data_a, data);
 
-  // open a document
   let data_b = test
     .get_document(&doc_id)
     .await
@@ -33,7 +33,7 @@ async fn restore_document() {
   assert_eq!(data_b, data);
 
   // restore
-  _ = test.create_document(uid, &doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
   // open a document
   let data_b = test
     .get_document(&doc_id)
@@ -56,7 +56,7 @@ async fn document_apply_insert_action() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(uid, &doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -75,9 +75,11 @@ async fn document_apply_insert_action() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
       parent_id: None,
       prev_id: None,
+      block: Some(text_block),
+      delta: None,
+      text_id: None,
     },
   };
   document.lock().apply_action(vec![insert_text_action]);
@@ -107,7 +109,7 @@ async fn document_apply_update_page_action() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(uid, &doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -122,9 +124,11 @@ async fn document_apply_update_page_action() {
   let action = BlockAction {
     action: BlockActionType::Update,
     payload: BlockActionPayload {
-      block: page_block_clone,
       parent_id: None,
       prev_id: None,
+      block: Some(page_block_clone),
+      delta: None,
+      text_id: None,
     },
   };
   let actions = vec![action];
@@ -148,7 +152,7 @@ async fn document_apply_update_action() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(uid, &doc_id, Some(data.clone()));
+  _ = test.create_document(uid, &doc_id, Some(data.clone())).await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -168,9 +172,11 @@ async fn document_apply_update_action() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
+      block: Some(text_block),
       parent_id: None,
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.lock().apply_action(vec![insert_text_action]);
@@ -191,9 +197,11 @@ async fn document_apply_update_action() {
   let update_text_action = BlockAction {
     action: BlockActionType::Update,
     payload: BlockActionPayload {
-      block: updated_text_block,
+      block: Some(updated_text_block),
       parent_id: None,
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.lock().apply_action(vec![update_text_action]);

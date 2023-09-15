@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/workspace/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,14 +24,18 @@ const _white = Color(0xFFFFFFFF);
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
 
-  AppearanceSettingsCubit(AppearanceSettingsPB setting)
-      : _setting = setting,
+  AppearanceSettingsCubit(
+    AppearanceSettingsPB setting,
+    AppTheme appTheme,
+  )   : _setting = setting,
         super(
           AppearanceSettingsState.initial(
-            setting.theme,
+            appTheme,
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
+            setting.layoutDirection,
+            setting.textDirection,
             setting.locale,
             setting.isMenuCollapsed,
             setting.menuOffset,
@@ -65,6 +71,19 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setThemeMode(
       currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
     );
+  }
+
+  void setLayoutDirection(LayoutDirection layoutDirection) {
+    _setting.layoutDirection = layoutDirection.toLayoutDirectionPB();
+    _saveAppearanceSettings();
+    emit(state.copyWith(layoutDirection: layoutDirection));
+  }
+
+  void setTextDirection(AppFlowyTextDirection? textDirection) {
+    _setting.textDirection =
+        textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
+    _saveAppearanceSettings();
+    emit(state.copyWith(textDirection: textDirection));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -188,6 +207,56 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
   }
 }
 
+enum LayoutDirection {
+  ltrLayout,
+  rtlLayout;
+
+  static LayoutDirection fromLayoutDirectionPB(
+    LayoutDirectionPB layoutDirectionPB,
+  ) =>
+      layoutDirectionPB == LayoutDirectionPB.RTLLayout
+          ? LayoutDirection.rtlLayout
+          : LayoutDirection.ltrLayout;
+
+  LayoutDirectionPB toLayoutDirectionPB() => this == LayoutDirection.rtlLayout
+      ? LayoutDirectionPB.RTLLayout
+      : LayoutDirectionPB.LTRLayout;
+}
+
+enum AppFlowyTextDirection {
+  ltr,
+  rtl,
+  auto;
+
+  static AppFlowyTextDirection? fromTextDirectionPB(
+    TextDirectionPB? textDirectionPB,
+  ) {
+    switch (textDirectionPB) {
+      case TextDirectionPB.LTR:
+        return AppFlowyTextDirection.ltr;
+      case TextDirectionPB.RTL:
+        return AppFlowyTextDirection.rtl;
+      case TextDirectionPB.AUTO:
+        return AppFlowyTextDirection.auto;
+      default:
+        return null;
+    }
+  }
+
+  TextDirectionPB toTextDirectionPB() {
+    switch (this) {
+      case AppFlowyTextDirection.ltr:
+        return TextDirectionPB.LTR;
+      case AppFlowyTextDirection.rtl:
+        return TextDirectionPB.RTL;
+      case AppFlowyTextDirection.auto:
+        return TextDirectionPB.AUTO;
+      default:
+        return TextDirectionPB.FALLBACK;
+    }
+  }
+}
+
 @freezed
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const AppearanceSettingsState._();
@@ -197,24 +266,30 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required ThemeMode themeMode,
     required String font,
     required String monospaceFont,
+    required LayoutDirection layoutDirection,
+    required AppFlowyTextDirection? textDirection,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
-    String themeName,
+    AppTheme appTheme,
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
+    LayoutDirectionPB layoutDirectionPB,
+    TextDirectionPB? textDirectionPB,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
   ) {
     return AppearanceSettingsState(
-      appTheme: AppTheme.fallback,
+      appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
+      layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
+      textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
@@ -266,7 +341,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       onSurface: theme.hoverFG,
       // grey hover color
       inverseSurface: theme.hoverBG3,
-      onError: theme.shader7,
+      onError: theme.onPrimary,
       error: theme.red,
       outline: theme.shader4,
       surfaceVariant: theme.sidebarBg,
@@ -279,7 +354,15 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       MaterialState.dragged,
     };
 
-    return ThemeData(
+    if (PlatformExtension.isMobile) {
+      // Mobile version has only one theme(light mode) for now.
+      // The desktop theme and the mobile theme are independent.
+      final mobileThemeData = getMobileThemeData();
+      return mobileThemeData;
+    }
+
+    // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
+    final desktopThemeData = ThemeData(
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
@@ -360,6 +443,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontColor: theme.shader3,
           ),
           calloutBGColor: theme.hoverBG3,
+          tableCellBGColor: theme.surface,
           caption: _getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
@@ -369,6 +453,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
         )
       ],
     );
+    return desktopThemeData;
   }
 
   TextStyle _getFontStyle({

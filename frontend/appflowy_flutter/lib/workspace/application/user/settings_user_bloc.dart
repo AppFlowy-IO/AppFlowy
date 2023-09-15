@@ -57,6 +57,14 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
         openHistoricalUser: (HistoricalUserPB historicalUser) async {
           await UserBackendService.openHistoricalUser(historicalUser);
         },
+        updateUserEmail: (String email) {
+          _userService.updateUserProfile(email: email).then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
+        },
       );
     });
   }
@@ -96,6 +104,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
+  const factory SettingsUserEvent.updateUserEmail(String email) = _UpdateEmail;
   const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
       _UpdateUserIcon;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =

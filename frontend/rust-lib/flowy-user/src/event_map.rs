@@ -5,7 +5,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserService};
+use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
 use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
@@ -54,6 +54,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
+    .event(UserEvent::ResetWorkspace, reset_workspace_handler)
 }
 
 pub struct SignUpContext {
@@ -87,7 +88,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   /// Will be called after the user signed up.
   fn did_sign_up(
     &self,
-    context: SignUpContext,
+    is_new_user: bool,
     user_profile: &UserProfile,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -101,11 +102,11 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  fn set_enable_sync(&self, enable_sync: bool);
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool);
   fn set_encrypt_secret(&self, secret: String);
   fn set_auth_type(&self, auth_type: AuthType);
   fn set_device_id(&self, device_id: &str);
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
   fn service_name(&self) -> String;
 }
 
@@ -113,8 +114,8 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
-  fn set_enable_sync(&self, enable_sync: bool) {
-    (**self).set_enable_sync(enable_sync)
+  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
+    (**self).set_enable_sync(uid, enable_sync)
   }
 
   fn set_encrypt_secret(&self, secret: String) {
@@ -129,7 +130,7 @@ where
     (**self).set_device_id(device_id)
   }
 
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
+  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
     (**self).get_user_service()
   }
 
@@ -162,7 +163,7 @@ impl UserStatusCallback for DefaultUserStatusCallback {
 
   fn did_sign_up(
     &self,
-    _context: SignUpContext,
+    _is_new_user: bool,
     _user_profile: &UserProfile,
     _user_workspace: &UserWorkspace,
     _device_id: &str,
@@ -271,4 +272,7 @@ pub enum UserEvent {
 
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 30,
 }

@@ -1,5 +1,6 @@
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -18,7 +19,7 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignInPayloadPB.create()
       ..email = email
@@ -35,7 +36,7 @@ class AppFlowyAuthService implements AuthService {
     required String email,
     required String password,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     final request = SignUpPayloadPB.create()
       ..name = name
@@ -52,7 +53,7 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<void> signOut({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     await UserEventSignOut().send();
     return;
@@ -61,7 +62,7 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) {
     const password = "Guest!@123456";
     final uid = uuid();
@@ -77,11 +78,11 @@ class AppFlowyAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
     AuthTypePB authType = AuthTypePB.Local,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     return left(
       FlowyError.create()
-        ..code = 0
+        ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",
     );
   }
@@ -94,11 +95,11 @@ class AppFlowyAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
     required String email,
-    Map<String, String> map = const {},
+    Map<String, String> params = const {},
   }) async {
     return left(
       FlowyError.create()
-        ..code = 0
+        ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",
     );
   }

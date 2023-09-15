@@ -33,7 +33,7 @@ impl CSVExport {
       .collect::<Vec<String>>();
     wtr
       .write_record(&field_records)
-      .map_err(|e| FlowyError::internal().context(e))?;
+      .map_err(|e| FlowyError::internal().with_context(e))?;
 
     // Write rows
     let mut field_by_field_id = IndexMap::new();
@@ -63,8 +63,8 @@ impl CSVExport {
 
     let data = wtr
       .into_inner()
-      .map_err(|e| FlowyError::internal().context(e))?;
-    let csv = String::from_utf8(data).map_err(|e| FlowyError::internal().context(e))?;
+      .map_err(|e| FlowyError::internal().with_context(e))?;
+    let csv = String::from_utf8(data).map_err(|e| FlowyError::internal().with_context(e))?;
     Ok(csv)
   }
 }

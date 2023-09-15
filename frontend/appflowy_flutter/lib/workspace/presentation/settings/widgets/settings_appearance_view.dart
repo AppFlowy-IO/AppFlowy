@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/create_file_setting.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +29,13 @@ class SettingsAppearanceView extends StatelessWidget {
                 ThemeFontFamilySetting(
                   currentFontFamily: state.font,
                 ),
+                LayoutDirectionSetting(
+                  currentLayoutDirection: state.layoutDirection,
+                ),
+                TextDirectionSetting(
+                  currentTextDirection: state.textDirection,
+                ),
+                CreateFileSettings(),
               ],
             );
           },

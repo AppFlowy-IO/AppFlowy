@@ -29,7 +29,7 @@ pub(crate) async fn get_key_value_handler(
   data: AFPluginData<KeyPB>,
 ) -> DataResult<KeyValuePB, FlowyError> {
   match store_preferences.upgrade() {
-    None => Err(FlowyError::internal().context("The store preferences is already drop"))?,
+    None => Err(FlowyError::internal().with_context("The store preferences is already drop"))?,
     Some(store_preferences) => {
       let data = data.into_inner();
       let value = store_preferences.get_str(&data.key);
@@ -46,7 +46,7 @@ pub(crate) async fn remove_key_value_handler(
   data: AFPluginData<KeyPB>,
 ) -> FlowyResult<()> {
   match store_preferences.upgrade() {
-    None => Err(FlowyError::internal().context("The store preferences is already drop"))?,
+    None => Err(FlowyError::internal().with_context("The store preferences is already drop"))?,
     Some(store_preferences) => {
       let data = data.into_inner();
       store_preferences.remove(&data.key);

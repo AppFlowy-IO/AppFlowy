@@ -5,4 +5,5 @@ mod entities;
 pub mod define;
 // mod queue;
 pub mod api;
+pub mod file_storage;
 mod server;

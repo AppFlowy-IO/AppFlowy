@@ -1,6 +1,6 @@
 use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
-use collab_database::user::DatabaseRecord;
+use collab_database::user::DatabaseWithViews;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
@@ -197,8 +197,8 @@ pub struct DatabaseDescriptionPB {
   pub database_id: String,
 }
 
-impl From<DatabaseRecord> for DatabaseDescriptionPB {
-  fn from(data: DatabaseRecord) -> Self {
+impl From<DatabaseWithViews> for DatabaseDescriptionPB {
+  fn from(data: DatabaseWithViews) -> Self {
     Self {
       name: data.name,
       database_id: data.database_id,

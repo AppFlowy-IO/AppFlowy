@@ -1,5 +1,6 @@
 import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'mask.dart';
 import 'mutex.dart';
 
@@ -130,7 +131,6 @@ class PopoverState extends State<Popover> {
               }
               _removeRootOverlay();
             },
-            onExit: () => _removeRootOverlay(),
           ),
         );
       }
@@ -147,7 +147,17 @@ class PopoverState extends State<Popover> {
         ),
       );
 
-      return Stack(children: children);
+      return FocusScope(
+        onKey: (node, event) {
+          if (event is RawKeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.escape) {
+            _removeRootOverlay();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: Stack(children: children),
+      );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
   }
@@ -194,7 +204,7 @@ class PopoverState extends State<Popover> {
       },
       child: Listener(
         child: widget.child,
-        onPointerDown: (PointerDownEvent event) {
+        onPointerDown: (_) {
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }
@@ -240,14 +250,17 @@ class PopoverContainer extends StatefulWidget {
 class PopoverContainerState extends State<PopoverContainer> {
   @override
   Widget build(BuildContext context) {
-    return CustomSingleChildLayout(
-      delegate: PopoverLayoutDelegate(
-        direction: widget.direction,
-        link: widget.popoverLink,
-        offset: widget.offset,
-        windowPadding: widget.windowPadding,
+    return Focus(
+      autofocus: true,
+      child: CustomSingleChildLayout(
+        delegate: PopoverLayoutDelegate(
+          direction: widget.direction,
+          link: widget.popoverLink,
+          offset: widget.offset,
+          windowPadding: widget.windowPadding,
+        ),
+        child: widget.popupBuilder(context),
       ),
-      child: widget.popupBuilder(context),
     );
   }
 

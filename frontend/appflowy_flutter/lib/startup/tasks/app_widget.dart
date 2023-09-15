@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -28,6 +29,7 @@ class InitAppWidgetTask extends LaunchTask {
     final app = ApplicationWidget(
       key: ValueKey(context),
       appearanceSetting: appearanceSetting,
+      appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
 
@@ -56,6 +58,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('tr', 'TR'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
+          Locale('fa'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
@@ -72,16 +75,18 @@ class InitAppWidgetTask extends LaunchTask {
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
   final AppearanceSettingsPB appearanceSetting;
+  final AppTheme appTheme;
 
   const ApplicationWidget({
     Key? key,
     required this.child,
+    required this.appTheme,
     required this.appearanceSetting,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting)
+    final cubit = AppearanceSettingsCubit(appearanceSetting, appTheme)
       ..readLocaleWhenAppLaunch(context);
 
     return MultiBlocProvider(
@@ -135,4 +140,17 @@ class ApplicationBlocObserver extends BlocObserver {
   //   Log.debug("$event");
   //   super.onEvent(bloc, event);
   // }
+}
+
+Future<AppTheme> appTheme(String themeName) async {
+  if (themeName.isEmpty) {
+    return AppTheme.fallback;
+  } else {
+    try {
+      return await AppTheme.fromName(themeName);
+    } catch (e) {
+      Log.error(e);
+      return AppTheme.fallback;
+    }
+  }
 }

@@ -61,7 +61,7 @@ impl FlowyCoreTest {
 
   pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
     let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
-      "info",
+      "debug",
       vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
     );
 
@@ -259,12 +259,12 @@ impl FlowyCoreTest {
   pub async fn create_document(
     &self,
     parent_id: &str,
-    name: &str,
+    name: String,
     initial_data: Vec<u8>,
   ) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
-      name: name.to_string(),
+      name,
       desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Document,

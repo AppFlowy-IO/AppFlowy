@@ -48,6 +48,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 9)]
   pub encryption_type: EncryptionTypePB,
+
+  #[pb(index = 10)]
+  pub workspace_id: String,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -78,6 +81,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       auth_type: user_profile.auth_type.into(),
       encryption_sign,
       encryption_type: encryption_ty,
+      workspace_id: user_profile.workspace_id,
     }
   }
 }
@@ -273,4 +277,13 @@ impl From<HistoricalUser> for HistoricalUserPB {
       device_id: historical_user.device_id,
     }
   }
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct ResetWorkspacePB {
+  #[pb(index = 1)]
+  pub uid: i64,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }

@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
+collab-define = { version = "0.1.0" }
 appflowy-integrate = {version = "0.1.0" }
 flowy-folder-deps = { path = "../flowy-folder-deps" }
 

@@ -2,11 +2,15 @@ use flowy_core::DEFAULT_NAME;
 use flowy_folder2::entities::ViewLayoutPB;
 use flowy_test::FlowyCoreTest;
 
-use crate::user::migration_test::util::unzip_history_user_db;
+use crate::util::unzip_history_user_db;
 
 #[tokio::test]
 async fn migrate_020_historical_empty_document_test() {
-  let (cleaner, user_db_path) = unzip_history_user_db("020_historical_user_data").unwrap();
+  let (cleaner, user_db_path) = unzip_history_user_db(
+    "./tests/user/migration_test/history_user_db",
+    "020_historical_user_data",
+  )
+  .unwrap();
   let test = FlowyCoreTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
 
   let mut views = test.get_all_workspace_views().await;

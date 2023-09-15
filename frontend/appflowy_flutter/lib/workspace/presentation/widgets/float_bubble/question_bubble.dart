@@ -29,8 +29,29 @@ class QuestionBubble extends StatelessWidget {
   }
 }
 
-class BubbleActionList extends StatelessWidget {
+class BubbleActionList extends StatefulWidget {
   const BubbleActionList({Key? key}) : super(key: key);
+
+  @override
+  State<BubbleActionList> createState() => _BubbleActionListState();
+}
+
+class _BubbleActionListState extends State<BubbleActionList> {
+  bool isOpen = false;
+
+  Color get fontColor => isOpen
+      ? Theme.of(context).colorScheme.onPrimary
+      : Theme.of(context).colorScheme.tertiary;
+
+  Color get fillColor => isOpen
+      ? Theme.of(context).colorScheme.primary
+      : Theme.of(context).colorScheme.tertiaryContainer;
+
+  void toggle() {
+    setState(() {
+      isOpen = !isOpen;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +70,18 @@ class BubbleActionList extends StatelessWidget {
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontWeight: FontWeight.w600,
-          fontColor: Theme.of(context).colorScheme.tertiary,
-          fillColor: Theme.of(context).colorScheme.tertiaryContainer,
-          hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
+          fontColor: fontColor,
+          fillColor: fillColor,
+          hoverColor: Theme.of(context).colorScheme.primary,
           mainAxisAlignment: MainAxisAlignment.center,
           radius: Corners.s10Border,
-          onPressed: () => controller.show(),
+          onPressed: () {
+            toggle();
+            controller.show();
+          },
         );
       },
+      onClosed: toggle,
       onSelected: (action, controller) {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {

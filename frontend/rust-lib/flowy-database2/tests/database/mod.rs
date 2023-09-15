@@ -1,6 +1,7 @@
 mod block_test;
 mod cell_test;
 mod database_editor;
+mod field_settings_test;
 mod field_test;
 mod filter_test;
 mod group_test;

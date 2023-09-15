@@ -2,8 +2,9 @@ use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabType, RocksCollabDB};
+use appflowy_integrate::RocksCollabDB;
 use collab::core::collab::MutexCollab;
+use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
@@ -12,6 +13,7 @@ use parking_lot::RwLock;
 
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
@@ -28,6 +30,7 @@ pub struct DocumentManager {
   documents: Arc<RwLock<HashMap<String, Arc<MutexDocument>>>>,
   #[allow(dead_code)]
   cloud_service: Arc<dyn DocumentCloudService>,
+  storage_service: Weak<dyn FileStorageService>,
 }
 
 impl DocumentManager {
@@ -35,12 +38,14 @@ impl DocumentManager {
     user: Arc<dyn DocumentUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DocumentCloudService>,
+    storage_service: Weak<dyn FileStorageService>,
   ) -> Self {
     Self {
       user,
       collab_builder,
       documents: Default::default(),
       cloud_service,
+      storage_service,
     }
   }
 
@@ -57,21 +62,26 @@ impl DocumentManager {
   ///
   /// if the document already exists, return the existing document.
   /// if the data is None, will create a document with default data.
-  pub fn create_document(
+  pub async fn create_document(
     &self,
     uid: i64,
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<Arc<MutexDocument>> {
     tracing::trace!("create a document: {:?}", doc_id);
-    let collab = self.collab_for_document(uid, doc_id, vec![])?;
-    let data = data.unwrap_or_else(default_document_data);
-    let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
-    Ok(document)
+
+    if self.is_doc_exist(doc_id).unwrap_or(false) {
+      self.get_document(doc_id).await
+    } else {
+      let collab = self.collab_for_document(uid, doc_id, vec![]).await?;
+      let data = data.unwrap_or_else(default_document_data);
+      let document = Arc::new(MutexDocument::create_with_data(collab, data)?);
+      Ok(document)
+    }
   }
 
   /// Return the document
-  #[tracing::instrument(level = "debug", skip_all)]
+  #[tracing::instrument(level = "debug", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.read().get(doc_id) {
       return Ok(doc.clone());
@@ -83,10 +93,7 @@ impl DocumentManager {
     }
 
     let uid = self.user.user_id()?;
-    let db = self.user.collab_db(uid)?;
-    let collab = self
-      .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+    let collab = self.collab_for_document(uid, doc_id, updates).await?;
     let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
     // save the document to the memory and read it from the memory if we open the same document again.
@@ -101,14 +108,10 @@ impl DocumentManager {
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      if let Ok(document_updates) = self.cloud_service.get_document_updates(doc_id).await {
-        updates = document_updates;
-      } else {
-        return Err(FlowyError::collab_not_sync());
-      }
+      updates = self.cloud_service.get_document_updates(doc_id).await?;
     }
     let uid = self.user.user_id()?;
-    let collab = self.collab_for_document(uid, doc_id, updates)?;
+    let collab = self.collab_for_document(uid, doc_id, updates).await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
@@ -153,7 +156,7 @@ impl DocumentManager {
     Ok(snapshots)
   }
 
-  fn collab_for_document(
+  async fn collab_for_document(
     &self,
     uid: i64,
     doc_id: &str,
@@ -180,5 +183,10 @@ impl DocumentManager {
   #[cfg(debug_assertions)]
   pub fn get_cloud_service(&self) -> &Arc<dyn DocumentCloudService> {
     &self.cloud_service
+  }
+  /// Only expose this method for testing
+  #[cfg(debug_assertions)]
+  pub fn get_file_storage_service(&self) -> &Weak<dyn FileStorageService> {
+    &self.storage_service
   }
 }

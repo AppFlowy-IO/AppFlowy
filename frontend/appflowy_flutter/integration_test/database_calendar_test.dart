@@ -9,7 +9,7 @@ import 'util/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('calendar database view', () {
+  group('calendar', () {
     testWidgets('update calendar layout', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -116,6 +116,7 @@ void main() {
       tester.assertRowDetailPageOpened();
 
       // Duplicate the event
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDuplicateRowButton();
       await tester.dismissRowDetailPage();
 
@@ -125,6 +126,7 @@ void main() {
 
       // Delete an event
       await tester.openCalendarEvent(index: 1);
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDeleteRowButton();
 
       // Check that there is 1 event
@@ -155,6 +157,7 @@ void main() {
 
       // Delete the event
       await tester.openCalendarEvent(index: 0, date: sameDayNextWeek);
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDeleteRowButton();
 
       // Create a new event in today's calendar cell

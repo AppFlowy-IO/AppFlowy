@@ -177,7 +177,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           await context.read<SettingsLocationCubit>().setCustomPath(path);
           await FlowyRunner.run(
             FlowyApp(),
-            integrationEnv(),
+            integrationMode(),
             config: const LaunchConfiguration(
               autoRegistrationSupported: true,
             ),
@@ -252,7 +252,7 @@ class _RecoverDefaultStorageButtonState
             .resetDataStoragePathToApplicationDefault();
         await FlowyRunner.run(
           FlowyApp(),
-          integrationEnv(),
+          integrationMode(),
           config: const LaunchConfiguration(
             autoRegistrationSupported: true,
           ),

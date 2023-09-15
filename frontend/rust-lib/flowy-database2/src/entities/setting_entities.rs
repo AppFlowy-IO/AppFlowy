@@ -9,8 +9,9 @@ use flowy_error::ErrorCode;
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
-  UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams, UpdateSortPayloadPB,
+  DeleteSortPayloadPB, RepeatedFieldSettingsPB, RepeatedFilterPB, RepeatedGroupSettingPB,
+  RepeatedSortPB, UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams,
+  UpdateSortPayloadPB,
 };
 use crate::services::setting::CalendarLayoutSetting;
 
@@ -31,6 +32,9 @@ pub struct DatabaseViewSettingPB {
 
   #[pb(index = 5)]
   pub sorts: RepeatedSortPB,
+
+  #[pb(index = 6)]
+  pub field_settings: RepeatedFieldSettingsPB,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]

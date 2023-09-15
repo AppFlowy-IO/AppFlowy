@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -16,18 +17,25 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   GridHeaderBloc({
     required this.viewId,
     required this.fieldController,
-  }) : super(GridHeaderState.initial(fieldController.fieldInfos)) {
+  }) : super(GridHeaderState.initial()) {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialHeader value) async {
             _startListening();
+            add(
+              GridHeaderEvent.didReceiveFieldUpdate(fieldController.fieldInfos),
+            );
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
             emit(
               state.copyWith(
                 fields: value.fields
-                    .where((element) => element.field.visibility)
+                    .where(
+                      (element) =>
+                          element.visibility != null &&
+                          element.visibility != FieldVisibility.AlwaysHidden,
+                    )
                     .toList(),
               ),
             );
@@ -83,9 +91,5 @@ class GridHeaderState with _$GridHeaderState {
   const factory GridHeaderState({required List<FieldInfo> fields}) =
       _GridHeaderState;
 
-  factory GridHeaderState.initial(List<FieldInfo> fields) {
-    // final List<FieldPB> newFields = List.from(fields);
-    // newFields.retainWhere((field) => field.visibility);
-    return GridHeaderState(fields: fields);
-  }
+  factory GridHeaderState.initial() => const GridHeaderState(fields: []);
 }

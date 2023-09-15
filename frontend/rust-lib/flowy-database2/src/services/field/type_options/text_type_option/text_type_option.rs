@@ -125,7 +125,10 @@ impl CellDataChangeset for RichTextTypeOption {
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     if changeset.len() > 10000 {
-      Err(FlowyError::text_too_long().context("The len of the text should not be more than 10000"))
+      Err(
+        FlowyError::text_too_long()
+          .with_context("The len of the text should not be more than 10000"),
+      )
     } else {
       let text_cell_data = StrCellData(changeset);
       Ok((text_cell_data.clone().into(), text_cell_data))
@@ -235,14 +238,14 @@ impl TypeOptionCellData for StrCellData {
 
 impl From<&Cell> for StrCellData {
   fn from(cell: &Cell) -> Self {
-    Self(cell.get_str_value("data").unwrap_or_default())
+    Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
   }
 }
 
 impl From<StrCellData> for Cell {
   fn from(data: StrCellData) -> Self {
     new_cell_builder(FieldType::RichText)
-      .insert_str_value("data", data.0)
+      .insert_str_value(CELL_DATA, data.0)
       .build()
   }
 }

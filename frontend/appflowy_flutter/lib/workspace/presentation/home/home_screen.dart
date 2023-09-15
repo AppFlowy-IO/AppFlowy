@@ -25,17 +25,21 @@ import '../widgets/edit_panel/edit_panel.dart';
 import 'home_layout.dart';
 import 'home_stack.dart';
 
-class HomeScreen extends StatefulWidget {
-  final UserProfilePB user;
+class DesktopHomeScreen extends StatefulWidget {
+  static const routeName = '/DesktopHomeScreen';
+  final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
-  const HomeScreen(this.user, this.workspaceSetting, {Key? key})
-      : super(key: key);
+  const DesktopHomeScreen({
+    super.key,
+    required this.userProfile,
+    required this.workspaceSetting,
+  });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -43,14 +47,14 @@ class _HomeScreenState extends State<HomeScreen> {
         BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
         BlocProvider<HomeBloc>(
           create: (context) {
-            return HomeBloc(widget.user, widget.workspaceSetting)
+            return HomeBloc(widget.userProfile, widget.workspaceSetting)
               ..add(const HomeEvent.initial());
           },
         ),
         BlocProvider<HomeSettingBloc>(
           create: (context) {
             return HomeSettingBloc(
-              widget.user,
+              widget.userProfile,
               widget.workspaceSetting,
               context.read<AppearanceSettingsCubit>(),
             )..add(const HomeSettingEvent.initial());
@@ -104,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final layout = HomeLayout(context, constraints);
         final homeStack = HomeStack(
           layout: layout,
-          delegate: HomeScreenStackAdaptor(
+          delegate: DesktopHomeScreenStackAdaptor(
             buildContext: context,
           ),
         );
@@ -136,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     final workspaceSetting = widget.workspaceSetting;
     final homeMenu = HomeSideBar(
-      user: widget.user,
+      user: widget.userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
@@ -255,10 +259,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class HomeScreenStackAdaptor extends HomeStackDelegate {
+class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
   final BuildContext buildContext;
 
-  HomeScreenStackAdaptor({
+  DesktopHomeScreenStackAdaptor({
     required this.buildContext,
   });
 

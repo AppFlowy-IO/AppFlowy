@@ -2,6 +2,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 
 import 'cell_controller.dart';
@@ -13,7 +14,8 @@ typedef NumberCellController = CellController<String, String>;
 typedef SelectOptionCellController
     = CellController<SelectOptionCellDataPB, String>;
 typedef ChecklistCellController = CellController<ChecklistCellDataPB, String>;
-typedef DateCellController = CellController<DateCellDataPB, DateCellData>;
+typedef DateCellController = CellController<DateCellDataPB, String>;
+typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 
 class CellControllerBuilder {
@@ -41,20 +43,31 @@ class CellControllerBuilder {
               TextCellDataPersistence(cellContext: _cellContext),
         );
       case FieldType.DateTime:
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
         final cellDataLoader = CellDataLoader(
           cellContext: _cellContext,
           parser: DateCellDataParser(),
           reloadOnFieldChanged: true,
         );
-
         return DateCellController(
           cellContext: _cellContext,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           cellDataPersistence:
-              DateCellDataPersistence(cellContext: _cellContext),
+              TextCellDataPersistence(cellContext: _cellContext),
+        );
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        final cellDataLoader = CellDataLoader(
+          cellContext: _cellContext,
+          parser: TimestampCellDataParser(),
+          reloadOnFieldChanged: true,
+        );
+        return TimestampCellController(
+          cellContext: _cellContext,
+          cellCache: _cellCache,
+          cellDataLoader: cellDataLoader,
+          cellDataPersistence:
+              TextCellDataPersistence(cellContext: _cellContext),
         );
       case FieldType.Number:
         final cellDataLoader = CellDataLoader(

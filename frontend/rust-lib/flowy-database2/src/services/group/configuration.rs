@@ -223,7 +223,9 @@ where
         })?;
         Ok(())
       },
-      _ => Err(FlowyError::record_not_found().context("Moving group failed. Groups are not exist")),
+      _ => Err(
+        FlowyError::record_not_found().with_context("Moving group failed. Groups are not exist"),
+      ),
     }
   }
 

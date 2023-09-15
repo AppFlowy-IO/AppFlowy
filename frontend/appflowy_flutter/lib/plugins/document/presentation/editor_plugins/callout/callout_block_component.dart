@@ -139,7 +139,7 @@ class _CalloutBlockComponentWidgetState
   Color get backgroundColor {
     final colorString =
         node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return colorString.toColor() ?? Colors.transparent;
+    return colorString.tryToColor() ?? Colors.transparent;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
@@ -195,7 +195,18 @@ class _CalloutBlockComponentWidgetState
       child: child,
     );
 
-    if (widget.actionBuilder != null) {
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,
@@ -212,6 +223,7 @@ class _CalloutBlockComponentWidgetState
       padding: padding,
       child: AppFlowyRichText(
         key: forwardKey,
+        delegate: this,
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
@@ -221,6 +233,8 @@ class _CalloutBlockComponentWidgetState
         placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
           placeholderTextStyle,
         ),
+        cursorColor: editorState.editorStyle.cursorColor,
+        selectionColor: editorState.editorStyle.selectionColor,
       ),
     );
   }

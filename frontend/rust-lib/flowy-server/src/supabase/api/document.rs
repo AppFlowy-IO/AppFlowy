@@ -1,8 +1,8 @@
 use anyhow::Error;
 use collab::core::origin::CollabOrigin;
+use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_plugins::cloud_storage::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -26,6 +26,7 @@ impl<T> DocumentCloudService for SupabaseDocumentServiceImpl<T>
 where
   T: SupabaseServerService,
 {
+  #[tracing::instrument(level = "debug", skip(self))]
   fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
@@ -70,6 +71,7 @@ where
     })
   }
 
+  #[tracing::instrument(level = "debug", skip(self))]
   fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();

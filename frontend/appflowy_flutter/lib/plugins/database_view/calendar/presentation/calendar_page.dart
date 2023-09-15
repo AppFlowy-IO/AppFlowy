@@ -285,10 +285,7 @@ class _CalendarPageState extends State<CalendarPage> {
       rowCache: _calendarBloc.rowCache,
       onCreateEvent: (date) {
         _calendarBloc.add(
-          CalendarEvent.createEvent(
-            date,
-            LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-          ),
+          CalendarEvent.createEvent(date),
         );
       },
     );

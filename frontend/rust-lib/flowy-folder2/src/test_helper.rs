@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
+use flowy_folder_deps::cloud::gen_view_id;
+
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::FolderManager;
-use crate::view_operation::gen_view_id;
-use std::collections::HashMap;
 
 #[cfg(feature = "test_helper")]
 impl FolderManager {
@@ -34,7 +36,7 @@ impl FolderManager {
     layout: ViewLayoutPB,
     ext: HashMap<String, String>,
   ) -> String {
-    let view_id = gen_view_id();
+    let view_id = gen_view_id().to_string();
     let params = CreateViewParams {
       parent_view_id: app_id.to_string(),
       name: name.to_string(),

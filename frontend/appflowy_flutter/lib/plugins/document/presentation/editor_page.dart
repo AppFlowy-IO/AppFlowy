@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -50,21 +51,31 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
+    customCopyCommand,
+    customPasteCommand,
+    customCutCommand,
     ...standardCommandShortcutEvents,
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    smartEditItem,
-    paragraphItem,
-    ...headingItems,
+    smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    ...(headingItems
+      ..forEach(
+        (e) => e.isActive = onlyShowInSingleSelectionAndTextType,
+      )),
     ...markdownFormatItems,
-    quoteItem,
-    bulletedListItem,
-    numberedListItem,
+    quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    bulletedListItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    numberedListItem
+      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     inlineMathEquationItem,
     linkItem,
+    alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
+    ...textDirectionItems
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -141,11 +152,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
+    final editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
+
     final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
+      editorScrollController: editorScrollController,
       // setup the auto focus parameters
       autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
@@ -156,21 +172,25 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      contextMenuItems: customContextMenuItems,
       header: widget.header,
       footer: const VSpace(200),
     );
 
+    final layoutDirection =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                LayoutDirection.rtlLayout
+            ? TextDirection.rtl
+            : TextDirection.ltr;
+
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: double.infinity,
-          maxHeight: double.infinity,
-        ),
-        child: FloatingToolbar(
-          style: styleCustomizer.floatingToolbarStyleBuilder(),
-          items: toolbarItems,
-          editorState: widget.editorState,
-          scrollController: effectiveScrollController,
+      child: FloatingToolbar(
+        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        items: toolbarItems,
+        editorState: widget.editorState,
+        editorScrollController: editorScrollController,
+        child: Directionality(
+          textDirection: layoutDirection,
           child: editor,
         ),
       ),
@@ -234,6 +254,28 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             node: node,
             state: state,
           ),
+        ),
+      ),
+      TableBlockKeys.type: TableBlockComponentBuilder(
+        menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+            TableMenu(
+          node: node,
+          editorState: editorState,
+          position: position,
+          dir: dir,
+          onBuild: onBuild,
+          onClose: onClose,
+        ),
+      ),
+      TableCellBlockKeys.type: TableCellBlockComponentBuilder(
+        menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+            TableMenu(
+          node: node,
+          editorState: editorState,
+          position: position,
+          dir: dir,
+          onBuild: onBuild,
+          onClose: onClose,
         ),
       ),
       DatabaseBlockKeys.gridType: DatabaseViewBlockComponentBuilder(
@@ -333,7 +375,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
       ];
 
-      builder.showActions = (_) => true;
+      builder.showActions =
+          (node) => node.parent?.type != TableCellBlockKeys.type;
       builder.actionBuilder = (context, state) {
         final top = builder.configuration.padding(context.node).top;
         final padding = context.node.type == HeadingBlockKeys.type

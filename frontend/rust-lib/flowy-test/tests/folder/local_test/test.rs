@@ -127,7 +127,7 @@ async fn delete_view_event_test() {
     .await
     .error()
     .unwrap();
-  assert_eq!(error.code, ErrorCode::RecordNotFound.value());
+  assert_eq!(error.code, ErrorCode::RecordNotFound);
 }
 
 #[tokio::test]
@@ -150,7 +150,7 @@ async fn put_back_trash_event_test() {
     .await
     .error()
     .unwrap();
-  assert_eq!(error.code, ErrorCode::RecordNotFound.value());
+  assert_eq!(error.code, ErrorCode::RecordNotFound);
 
   let payload = TrashIdPB {
     id: view.id.clone(),
@@ -480,7 +480,7 @@ async fn create_parent_view_with_invalid_name() {
         .error()
         .unwrap()
         .code,
-      code.value()
+      code
     )
   }
 }

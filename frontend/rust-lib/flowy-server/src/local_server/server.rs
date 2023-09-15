@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
+use collab_define::CollabObject;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
@@ -8,10 +9,11 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_storage::FileStorageService;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 // };
-use flowy_user_deps::cloud::UserService;
+use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 
 use crate::local_server::impls::{
@@ -48,7 +50,7 @@ impl LocalServer {
 }
 
 impl AppFlowyServer for LocalServer {
-  fn user_service(&self) -> Arc<dyn UserService> {
+  fn user_service(&self) -> Arc<dyn UserCloudService> {
     Arc::new(LocalServerUserAuthServiceImpl {
       db: self.local_db.clone(),
     })
@@ -69,6 +71,10 @@ impl AppFlowyServer for LocalServer {
   }
 
   fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    None
+  }
+
+  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
     None
   }
 }

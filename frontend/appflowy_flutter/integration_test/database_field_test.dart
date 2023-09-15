@@ -106,26 +106,6 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('hide field', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
-
-      // create a field
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-      await tester.renameField('New field 1');
-      await tester.dismissFieldEditor();
-
-      // Delete the field
-      await tester.tapGridFieldWithName('New field 1');
-      await tester.tapHidePropertyButton();
-
-      await tester.noFieldWithName('New field 1');
-      await tester.pumpAndSettle();
-    });
-
     testWidgets('create checklist field ', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();

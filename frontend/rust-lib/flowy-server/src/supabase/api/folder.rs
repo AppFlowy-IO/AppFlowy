@@ -3,7 +3,7 @@ use std::str::FromStr;
 use anyhow::Error;
 use chrono::{DateTime, Utc};
 use collab::core::origin::CollabOrigin;
-use collab_plugins::cloud_storage::CollabType;
+use collab_define::CollabType;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 
@@ -12,10 +12,11 @@ use flowy_folder_deps::cloud::{
 };
 use lib_infra::future::FutureResult;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::request::{
   get_snapshots_from_server, get_updates_from_server, FetchObjectUpdateAction,
 };
-use crate::supabase::api::util::{ExtendedResponse, InsertParamsBuilder};
+use crate::supabase::api::util::InsertParamsBuilder;
 use crate::supabase::api::SupabaseServerService;
 use crate::supabase::define::*;
 
@@ -72,7 +73,7 @@ where
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, postgrest).await?;
+      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
       let updates = updates
         .into_iter()
         .map(|item| item.value)

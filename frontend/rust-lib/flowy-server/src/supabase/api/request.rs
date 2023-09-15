@@ -7,7 +7,8 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab_plugins::cloud_storage::{CollabObject, CollabType, RemoteCollabSnapshot};
+use collab_define::{CollabObject, CollabType};
+use collab_plugins::cloud_storage::RemoteCollabSnapshot;
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Condition, RetryIf};
@@ -15,8 +16,9 @@ use tokio_retry::{Action, Condition, RetryIf};
 use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
 use lib_infra::util::md5;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::util::{
-  BinaryColumnDecoder, ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  BinaryColumnDecoder, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
   SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
@@ -66,12 +68,14 @@ impl Action for FetchObjectUpdateAction {
     Box::pin(async move {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
-        Some(postgrest) => match get_updates_from_server(&object_id, &object_ty, postgrest).await {
-          Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
-          Err(err) => {
-            tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
-            Err(err)
-          },
+        Some(postgrest) => {
+          match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
+            Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+            Err(err) => {
+              tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+              Err(err)
+            },
+          }
         },
       }
     })
@@ -285,7 +289,7 @@ pub async fn batch_get_updates_from_server(
 pub async fn get_updates_from_server(
   object_id: &str,
   object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
+  postgrest: &Arc<PostgresWrapper>,
 ) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))
@@ -413,7 +417,7 @@ pub struct UpdateItem {
   pub value: Vec<u8>,
 }
 
-pub struct RetryCondition(Weak<PostgresWrapper>);
+pub struct RetryCondition(pub Weak<PostgresWrapper>);
 impl Condition<anyhow::Error> for RetryCondition {
   fn should_retry(&mut self, _error: &anyhow::Error) -> bool {
     self.0.upgrade().is_some()

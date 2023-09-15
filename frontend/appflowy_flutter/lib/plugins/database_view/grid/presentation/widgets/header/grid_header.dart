@@ -42,12 +42,10 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = getIt<GridHeaderBloc>(
+        return getIt<GridHeaderBloc>(
           param1: widget.viewId,
           param2: widget.fieldController,
-        );
-        bloc.add(const GridHeaderEvent.initial());
-        return bloc;
+        )..add(const GridHeaderEvent.initial());
       },
       child: BlocBuilder<GridHeaderBloc, GridHeaderState>(
         buildWhen: (previous, current) =>
@@ -97,7 +95,6 @@ class _GridHeaderState extends State<_GridHeader> {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final cells = state.fields
-            .where((fieldInfo) => fieldInfo.field.visibility)
             .map(
               (field) => FieldContext(
                 viewId: widget.viewId,

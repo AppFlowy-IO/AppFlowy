@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
@@ -44,7 +45,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
           final cells = state.fieldContexts.map((field) {
-            return _GridPropertyCell(
+            return GridPropertyCell(
               key: ValueKey(field.id),
               viewId: widget.viewId,
               fieldInfo: field,
@@ -75,12 +76,13 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
   }
 }
 
-class _GridPropertyCell extends StatefulWidget {
+@visibleForTesting
+class GridPropertyCell extends StatefulWidget {
   final FieldInfo fieldInfo;
   final String viewId;
   final PopoverMutex popoverMutex;
 
-  const _GridPropertyCell({
+  const GridPropertyCell({
     super.key,
     required this.fieldInfo,
     required this.viewId,
@@ -88,26 +90,22 @@ class _GridPropertyCell extends StatefulWidget {
   });
 
   @override
-  State<_GridPropertyCell> createState() => _GridPropertyCellState();
+  State<GridPropertyCell> createState() => _GridPropertyCellState();
 }
 
-class _GridPropertyCellState extends State<_GridPropertyCell> {
+class _GridPropertyCellState extends State<GridPropertyCell> {
   final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    final checkmark = FlowySvg(
-      widget.fieldInfo.field.visibility ? FlowySvgs.show_m : FlowySvgs.hide_m,
+    final visiblity = widget.fieldInfo.visibility;
+    final visibleIcon = FlowySvg(
+      visiblity != null && visiblity != FieldVisibility.AlwaysHidden
+          ? FlowySvgs.show_m
+          : FlowySvgs.hide_m,
       color: Theme.of(context).iconTheme.color,
     );
 
-    return SizedBox(
-      height: GridSize.popoverItemHeight,
-      child: _editFieldButton(context, checkmark),
-    );
-  }
-
-  Widget _editFieldButton(BuildContext context, Widget checkmark) {
     return AppFlowyPopover(
       mutex: widget.popoverMutex,
       controller: _popoverController,
@@ -116,30 +114,40 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
       constraints: BoxConstraints.loose(const Size(240, 400)),
       triggerActions: PopoverTriggerFlags.none,
       margin: EdgeInsets.zero,
-      child: FlowyButton(
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
-          widget.fieldInfo.name,
-          color: AFThemeExtension.of(context).textColor,
-        ),
-        leftIcon: FlowySvg(
-          widget.fieldInfo.fieldType.icon(),
-          color: Theme.of(context).iconTheme.color,
-        ),
-        rightIcon: FlowyIconButton(
-          hoverColor: Colors.transparent,
-          onPressed: () {
-            context.read<DatabasePropertyBloc>().add(
-                  DatabasePropertyEvent.setFieldVisibility(
-                    widget.fieldInfo.id,
-                    !widget.fieldInfo.field.visibility,
-                  ),
-                );
-          },
-          icon: checkmark.padding(all: 6.0),
-        ),
-        onTap: () => _popoverController.show(),
-      ).padding(horizontal: 6.0),
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FlowyButton(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          text: FlowyText.medium(
+            widget.fieldInfo.name,
+            color: AFThemeExtension.of(context).textColor,
+          ),
+          leftIcon: FlowySvg(
+            widget.fieldInfo.fieldType.icon(),
+            color: Theme.of(context).iconTheme.color,
+          ),
+          rightIcon: FlowyIconButton(
+            hoverColor: Colors.transparent,
+            onPressed: () {
+              if (widget.fieldInfo.fieldSettings == null) {
+                return;
+              }
+
+              final newVisiblity = _newFieldVisibility(
+                widget.fieldInfo.fieldSettings!.visibility,
+              );
+              context.read<DatabasePropertyBloc>().add(
+                    DatabasePropertyEvent.setFieldVisibility(
+                      widget.fieldInfo.id,
+                      newVisiblity,
+                    ),
+                  );
+            },
+            icon: visibleIcon.padding(all: 6.0),
+          ),
+          onTap: () => _popoverController.show(),
+        ).padding(horizontal: 6.0),
+      ),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
@@ -150,5 +158,13 @@ class _GridPropertyCellState extends State<_GridPropertyCell> {
         );
       },
     );
+  }
+
+  FieldVisibility _newFieldVisibility(FieldVisibility current) {
+    return switch (current) {
+      FieldVisibility.AlwaysShown => FieldVisibility.AlwaysHidden,
+      FieldVisibility.AlwaysHidden => FieldVisibility.AlwaysShown,
+      _ => FieldVisibility.AlwaysHidden,
+    };
   }
 }

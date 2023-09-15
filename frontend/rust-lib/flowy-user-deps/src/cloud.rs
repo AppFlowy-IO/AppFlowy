@@ -58,7 +58,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
-pub trait UserService: Send + Sync {
+pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
@@ -109,6 +109,8 @@ pub trait UserService: Send + Sync {
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
     None
   }
+
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error>;
 
   fn create_collab_object(
     &self,

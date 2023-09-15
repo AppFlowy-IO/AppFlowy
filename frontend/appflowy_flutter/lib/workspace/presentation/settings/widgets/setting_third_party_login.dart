@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:dartz/dartz.dart';
@@ -31,6 +31,14 @@ class SettingThirdPartyLogin extends StatelessWidget {
           final indicator = state.isSubmitting
               ? const CircularProgressIndicator.adaptive()
               : const SizedBox.shrink();
+
+          final promptMessage = state.isSubmitting
+              ? FlowyText.medium(
+                  LocaleKeys.signIn_syncPromptMessage.tr(),
+                  maxLines: null,
+                )
+              : const SizedBox.shrink();
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,9 +53,10 @@ class SettingThirdPartyLogin extends StatelessWidget {
                 ],
               ),
               const VSpace(6),
-              const ThirdPartySignInButtons(
-                mainAxisAlignment: MainAxisAlignment.start,
-              ),
+              promptMessage,
+              const VSpace(6),
+              const ThirdPartySignInButtons(),
+              const VSpace(6),
             ],
           );
         },

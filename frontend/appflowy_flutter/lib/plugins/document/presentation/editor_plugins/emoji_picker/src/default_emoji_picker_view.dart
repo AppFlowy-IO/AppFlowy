@@ -1,6 +1,6 @@
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-
 import 'config.dart';
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
@@ -284,10 +284,11 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
 
   Widget _buildNoRecent() {
     return Center(
-        child: Text(
-      widget.config.noRecentsText,
-      style: widget.config.noRecentsStyle,
-      textAlign: TextAlign.center,
-    ),);
+        child: FlowyText.regular(
+        widget.config.noRecentsText,
+        color: Theme.of(context).colorScheme.tertiary.withAlpha(77),
+        fontSize: widget.config.noRecentsStyle.fontSize,
+        textAlign: TextAlign.center,
+      ),);
   }
 }

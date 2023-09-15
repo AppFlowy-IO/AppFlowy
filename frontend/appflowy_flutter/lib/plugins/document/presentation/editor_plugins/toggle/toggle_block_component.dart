@@ -132,7 +132,7 @@ class _ToggleListBlockComponentWidgetState
   EdgeInsets get indentPadding => configuration.indentPadding(
         node,
         calculateTextDirection(
-          defaultTextDirection: Directionality.maybeOf(context),
+          layoutDirection: Directionality.maybeOf(context),
         ),
       );
 
@@ -146,9 +146,12 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
-  Widget buildComponent(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = false,
+  }) {
     final textDirection = calculateTextDirection(
-      defaultTextDirection: Directionality.maybeOf(context),
+      layoutDirection: Directionality.maybeOf(context),
     );
 
     Widget child = Container(
@@ -171,6 +174,7 @@ class _ToggleListBlockComponentWidgetState
           Expanded(
             child: AppFlowyRichText(
               key: forwardKey,
+              delegate: this,
               node: widget.node,
               editorState: editorState,
               placeholderText: placeholderText,
@@ -183,6 +187,8 @@ class _ToggleListBlockComponentWidgetState
                 placeholderTextStyle,
               ),
               textDirection: textDirection,
+              cursorColor: editorState.editorStyle.cursorColor,
+              selectionColor: editorState.editorStyle.selectionColor,
             ),
           ),
         ],
@@ -195,7 +201,18 @@ class _ToggleListBlockComponentWidgetState
       child: child,
     );
 
-    if (widget.actionBuilder != null) {
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,

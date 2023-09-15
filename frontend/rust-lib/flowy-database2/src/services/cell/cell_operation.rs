@@ -209,7 +209,7 @@ pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
 
 pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
   let cell_data = serde_json::to_string(&DateCellChangeset {
-    date: Some(timestamp.to_string()),
+    date: Some(timestamp),
     time: None,
     include_time,
     clear_flag: None,

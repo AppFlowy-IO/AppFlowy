@@ -120,9 +120,6 @@ script = [
   product=${PRODUCT_NAME}
   cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/${LINUX_ARCH}/${BUILD_FLAG}/bundle \
   ${output_path}/${product}
-
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/linux/appflowy.desktop.temp ${output_path}/${product}
-  cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/assets/images/flowy_logo.svg ${output_path}/${product}
   """,
 ]
 script_runner = "@shell"
@@ -164,8 +161,8 @@ linux_alias = "create-release-archive-linux"
 
 [tasks.create-release-archive-linux]
 script = [
-  "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}/${TARGET_OS}/Release",
-  "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *",
+  # "cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}/${TARGET_OS}/Release",
+  # "tar -czf ${PRODUCT_NAME}-${TARGET_OS}-x86.tar.gz *",
 ]
 
 [tasks.create-release-archive-windows]
