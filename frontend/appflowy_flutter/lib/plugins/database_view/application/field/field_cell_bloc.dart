@@ -30,9 +30,11 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             emit(state.copyWith(field: cellContext.field));
           },
           startUpdateWidth: (offset) {
-            if (state.width + offset >= 100) {
+            if (state.width + offset >= 50) {
               final width = state.width + offset;
               emit(state.copyWith(width: width));
+            } else {
+              emit(state.copyWith(width: 50));
             }
           },
           endUpdateWidth: () {
