@@ -3,14 +3,21 @@ import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.da
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TimestampCellStyle extends GridCellStyle {
+  String? placeholder;
   Alignment alignment;
+  EdgeInsets? cellPadding;
 
-  TimestampCellStyle({this.alignment = Alignment.center});
+  TimestampCellStyle({
+    this.placeholder,
+    this.alignment = Alignment.center,
+    this.cellPadding,
+  });
 }
 
 class GridTimestampCell extends GridCellWidget {
@@ -51,16 +58,28 @@ class _TimestampCellState extends GridCellState<GridTimestampCell> {
 
   @override
   Widget build(BuildContext context) {
-    final alignment = widget.cellStyle != null
-        ? widget.cellStyle!.alignment
-        : Alignment.centerLeft;
+    final alignment = widget.cellStyle?.alignment ?? Alignment.centerLeft;
+    final placeholder = widget.cellStyle?.placeholder ?? "";
+    final padding = widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets;
+
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         builder: (context, state) {
-          return GridTimestampCellText(
-            dateStr: state.dateStr,
+          final isEmpty = state.dateStr.isEmpty;
+          final text = isEmpty ? placeholder : state.dateStr;
+          return Align(
             alignment: alignment,
+            child: Padding(
+              padding: padding,
+              child: FlowyText.medium(
+                text,
+                color: isEmpty
+                    ? Theme.of(context).hintColor
+                    : AFThemeExtension.of(context).textColor,
+                maxLines: null,
+              ),
+            ),
           );
         },
       ),
@@ -79,31 +98,5 @@ class _TimestampCellState extends GridCellState<GridTimestampCell> {
   @override
   void requestBeginFocus() {
     return;
-  }
-}
-
-class GridTimestampCellText extends StatelessWidget {
-  final String dateStr;
-  final Alignment alignment;
-  const GridTimestampCellText({
-    required this.dateStr,
-    required this.alignment,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: GridSize.cellContentInsets,
-          child: FlowyText.medium(
-            dateStr,
-            maxLines: null,
-          ),
-        ),
-      ),
-    );
   }
 }

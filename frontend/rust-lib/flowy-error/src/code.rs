@@ -241,6 +241,9 @@ pub enum ErrorCode {
 
   #[error("Require Email Confirmation, Sign in after email confirmation")]
   AwaitingEmailConfirmation = 79,
+
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 80,
 }
 
 impl ErrorCode {

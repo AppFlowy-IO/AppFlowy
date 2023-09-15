@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -9,8 +11,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class FlowyTestContext {
   FlowyTestContext({
@@ -39,8 +41,8 @@ extension AppFlowyTestBase on WidgetTester {
       IntegrationMode.integrationTest,
     );
 
-    await wait(3000);
-    await pumpAndSettle(const Duration(seconds: 2));
+    await waitUntilSignInPageShow();
+
     return FlowyTestContext(
       applicationDataDirectory: directory,
     );
@@ -76,6 +78,27 @@ extension AppFlowyTestBase on WidgetTester {
     MockApplicationDataStorage.initialPath = directory.path;
 
     return directory.path;
+  }
+
+  Future<void> waitUntilSignInPageShow() async {
+    final finder = find.byType(GoButton);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
+  }
+
+  Future<void> pumpUntilFound(
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    bool timerDone = false;
+    final timer = Timer(timeout, () => timerDone = true);
+    while (timerDone != true) {
+      await pump();
+      if (any(finder)) {
+        timerDone = true;
+      }
+    }
+    timer.cancel();
   }
 
   Future<void> tapButton(

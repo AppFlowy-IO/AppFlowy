@@ -17,11 +17,12 @@ class DocumentBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: Theme.of(context).colorScheme.primary,
+        color: colorScheme.error,
         child: FittedBox(
           alignment: Alignment.center,
           fit: BoxFit.scaleDown,
@@ -29,7 +30,8 @@ class DocumentBanner extends StatelessWidget {
             children: [
               FlowyText.medium(
                 LocaleKeys.deletePagePrompt_text.tr(),
-                color: Colors.white,
+                color: colorScheme.onError,
+                fontSize: 14,
               ),
               const HSpace(20),
               BaseStyledButton(
@@ -37,15 +39,14 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Theme.of(context).colorScheme.primary,
                 highlightColor: Theme.of(context).colorScheme.primaryContainer,
-                outlineColor: Colors.white,
+                outlineColor: colorScheme.onError,
                 borderRadius: Corners.s8Border,
                 onPressed: onRestore,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_restore.tr(),
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 14,
+                  color: colorScheme.onError,
+                  fontSize: 13,
                 ),
               ),
               const HSpace(20),
@@ -54,15 +55,14 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Theme.of(context).colorScheme.primaryContainer,
                 highlightColor: Theme.of(context).colorScheme.primary,
-                outlineColor: Colors.white,
+                outlineColor: colorScheme.onError,
                 borderRadius: Corners.s8Border,
                 onPressed: onDelete,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 14,
+                  color: colorScheme.onError,
+                  fontSize: 13,
                 ),
               ),
             ],

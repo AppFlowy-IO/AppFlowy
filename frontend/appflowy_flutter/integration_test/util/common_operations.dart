@@ -1,7 +1,10 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
-import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -279,7 +282,14 @@ extension CommonOperations on WidgetTester {
     // create a new page
     await tapAddViewButton(name: parentName ?? gettingStarted);
     await tapButtonWithName(layout.menuName);
-    await tapOKButton();
+    final settingsOrFailure = await getIt<KeyValueStorage>().getWithFormat(
+      KVKeys.showRenameDialogWhenCreatingNewFile,
+      (value) => bool.parse(value),
+    );
+    final showRenameDialog = settingsOrFailure.fold((l) => false, (r) => r);
+    if (showRenameDialog) {
+      await tapOKButton();
+    }
     await pumpAndSettle();
 
     // hover on it and change it's name

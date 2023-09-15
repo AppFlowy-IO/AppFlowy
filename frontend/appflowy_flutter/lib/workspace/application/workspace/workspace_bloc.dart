@@ -6,12 +6,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 
-part 'welcome_bloc.freezed.dart';
+part 'workspace_bloc.freezed.dart';
 
-class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
+class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
   final UserBackendService userService;
-  WelcomeBloc({required this.userService}) : super(WelcomeState.initial()) {
-    on<WelcomeEvent>(
+  WorkspaceBloc({
+    required this.userService,
+  }) : super(WorkspaceState.initial()) {
+    on<WorkspaceEvent>(
       (event, emit) async {
         await event.map(
           initial: (e) async {
@@ -39,7 +41,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     );
   }
 
-  Future<void> _fetchWorkspaces(Emitter<WelcomeState> emit) async {
+  Future<void> _fetchWorkspaces(Emitter<WorkspaceState> emit) async {
     final workspacesOrFailed = await userService.getWorkspaces();
     emit(
       workspacesOrFailed.fold(
@@ -57,7 +59,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 
   Future<void> _openWorkspace(
     WorkspacePB workspace,
-    Emitter<WelcomeState> emit,
+    Emitter<WorkspaceState> emit,
   ) async {
     final result = await userService.openWorkspace(workspace.id);
     emit(
@@ -74,7 +76,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
   Future<void> _createWorkspace(
     String name,
     String desc,
-    Emitter<WelcomeState> emit,
+    Emitter<WorkspaceState> emit,
   ) async {
     final result = await userService.createWorkspace(name, desc);
     emit(
@@ -92,27 +94,26 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
 }
 
 @freezed
-class WelcomeEvent with _$WelcomeEvent {
-  const factory WelcomeEvent.initial() = Initial;
-  // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
-  const factory WelcomeEvent.createWorkspace(String name, String desc) =
+class WorkspaceEvent with _$WorkspaceEvent {
+  const factory WorkspaceEvent.initial() = Initial;
+  const factory WorkspaceEvent.createWorkspace(String name, String desc) =
       CreateWorkspace;
-  const factory WelcomeEvent.openWorkspace(WorkspacePB workspace) =
+  const factory WorkspaceEvent.openWorkspace(WorkspacePB workspace) =
       OpenWorkspace;
-  const factory WelcomeEvent.workspacesReveived(
+  const factory WorkspaceEvent.workspacesReveived(
     Either<List<WorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
 }
 
 @freezed
-class WelcomeState with _$WelcomeState {
-  const factory WelcomeState({
+class WorkspaceState with _$WorkspaceState {
+  const factory WorkspaceState({
     required bool isLoading,
     required List<WorkspacePB> workspaces,
     required Either<Unit, FlowyError> successOrFailure,
-  }) = _WelcomeState;
+  }) = _WorkspaceState;
 
-  factory WelcomeState.initial() => WelcomeState(
+  factory WorkspaceState.initial() => WorkspaceState(
         isLoading: false,
         workspaces: List.empty(),
         successOrFailure: left(unit),

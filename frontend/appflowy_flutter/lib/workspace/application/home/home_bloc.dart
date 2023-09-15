@@ -13,9 +13,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _workspaceListener;
 
   HomeBloc(
-    UserProfilePB user,
+    UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
-  )   : _workspaceListener = UserWorkspaceListener(userProfile: user),
+  )   : _workspaceListener = UserWorkspaceListener(userProfile: userProfile),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>(
       (event, emit) async {

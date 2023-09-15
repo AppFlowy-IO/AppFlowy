@@ -653,7 +653,7 @@ async fn update_checklist_cell_test() {
 
   assert_eq!(cell.options.len(), 3);
   assert_eq!(cell.selected_options.len(), 2);
-  assert_eq!(cell.percentage, 0.6);
+  assert_eq!(cell.percentage, 0.67);
 }
 
 // The number of groups should be 0 if there is no group by field in grid

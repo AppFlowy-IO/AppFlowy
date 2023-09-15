@@ -1370,6 +1370,7 @@ version = "0.1.0"
 dependencies = [
  "appflowy-integrate",
  "bytes",
+ "collab-define",
  "console-subscriber",
  "diesel",
  "flowy-config",
@@ -1406,7 +1407,7 @@ name = "flowy-database-deps"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "collab-plugins",
+ "collab-define",
  "flowy-error",
  "lib-infra",
 ]
@@ -1424,6 +1425,7 @@ dependencies = [
  "chrono-tz",
  "collab",
  "collab-database",
+ "collab-define",
  "csv",
  "dashmap",
  "fancy-regex 0.10.0",
@@ -1488,6 +1490,7 @@ dependencies = [
  "appflowy-integrate",
  "bytes",
  "collab",
+ "collab-define",
  "collab-document",
  "flowy-codegen",
  "flowy-derive",
@@ -1569,6 +1572,7 @@ dependencies = [
  "bytes",
  "chrono",
  "collab",
+ "collab-define",
  "collab-folder",
  "flowy-codegen",
  "flowy-derive",
@@ -1626,6 +1630,7 @@ dependencies = [
  "chrono",
  "client-api",
  "collab",
+ "collab-define",
  "collab-document",
  "collab-plugins",
  "config",
@@ -1776,6 +1781,7 @@ dependencies = [
  "chrono",
  "collab",
  "collab-database",
+ "collab-define",
  "collab-document",
  "collab-folder",
  "collab-user",

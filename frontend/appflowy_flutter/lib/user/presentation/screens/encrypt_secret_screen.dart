@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
+import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,9 +9,10 @@ import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/encrypt_secret_bloc.dart';
+import '../../application/encrypt_secret_bloc.dart';
 
 class EncryptSecretScreen extends StatefulWidget {
+  static const routeName = "/EncryptSecretScreen";
   final UserProfilePB user;
   const EncryptSecretScreen({required this.user, super.key});
 

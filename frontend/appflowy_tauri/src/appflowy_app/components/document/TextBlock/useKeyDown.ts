@@ -83,18 +83,9 @@ export function useKeyDown(id: string) {
           );
         },
       },
-      {
-        // handle @ key for mention panel
-        canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          return e.key === '@';
-        },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
-          dispatch(openMention({ docId }));
-        },
-      },
       ...turnIntoEvents,
     ];
-  }, [docId, commonKeyEvents, controller, dispatch, id, turnIntoEvents]);
+  }, [commonKeyEvents, controller, dispatch, id, turnIntoEvents]);
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {

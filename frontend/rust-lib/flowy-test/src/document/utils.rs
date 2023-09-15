@@ -8,13 +8,12 @@ pub fn gen_id() -> String {
   nanoid!(10)
 }
 
-pub fn gen_text_block_data(text: &str) -> String {
-  json!({
-    "delta": [{
-      "insert": text
-    }]
-  })
-  .to_string()
+pub fn gen_text_block_data() -> String {
+  json!({}).to_string()
+}
+
+pub fn gen_delta_str(text: &str) -> String {
+  json!([{ "insert": text }]).to_string()
 }
 
 pub struct ParseDocumentData {
@@ -56,13 +55,17 @@ pub fn gen_insert_block_action(document: OpenDocumentData) -> BlockActionPB {
     data,
     parent_id: page_id.clone(),
     children_id: gen_id(),
+    external_id: None,
+    external_type: None,
   };
   BlockActionPB {
     action: BlockActionTypePB::Insert,
     payload: BlockActionPayloadPB {
-      block: new_block,
+      block: Some(new_block),
       prev_id: Some(first_block_id),
       parent_id: Some(page_id),
+      text_id: None,
+      delta: None,
     },
   }
 }

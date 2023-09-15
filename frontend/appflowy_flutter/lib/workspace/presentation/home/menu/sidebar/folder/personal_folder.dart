@@ -4,8 +4,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -118,14 +118,14 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
               width: iconSize,
               icon: const FlowySvg(FlowySvgs.add_s),
               onPressed: () {
-                NavigatorTextFieldDialog(
-                  title: LocaleKeys.newPageText.tr(),
-                  value: '',
-                  confirm: (value) {
-                    if (value.isNotEmpty) {
+                createViewAndShowRenameDialogIfNeeded(
+                  context,
+                  LocaleKeys.newPageText.tr(),
+                  (viewName) {
+                    if (viewName.isNotEmpty) {
                       context.read<MenuBloc>().add(
                             MenuEvent.createApp(
-                              value,
+                              viewName,
                               index: 0,
                             ),
                           );
@@ -133,7 +133,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                       widget.onAdded();
                     }
                   },
-                ).show(context);
+                );
               },
             ),
           ]

@@ -377,7 +377,7 @@
       "addSort": "Agregar clasificación"
     },
     "checklist": {
-      "panelTitle": "Agregar un elemento"
+      "addNew": "Agregar un elemento"
     },
     "referencedGridPrefix": "Vista de"
   },

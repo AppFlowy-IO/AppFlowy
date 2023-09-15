@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_plugins::cloud_storage::CollabObject;
+use collab_define::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserCloudService;

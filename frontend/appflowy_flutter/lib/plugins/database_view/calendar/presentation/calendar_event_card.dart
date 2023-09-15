@@ -167,6 +167,29 @@ class EventCard extends StatelessWidget {
       );
     });
 
+    renderHook.addTimestampCellHook((cellData, cardData, _) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 3,
+                child: FlowyText.regular(
+                  cellData.dateTime,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+
     renderHook.addSelectOptionHook((selectedOptions, cardData, _) {
       if (selectedOptions.isEmpty) {
         return const SizedBox.shrink();

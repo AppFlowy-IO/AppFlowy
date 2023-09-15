@@ -10,9 +10,10 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../application/workspace_error_bloc.dart';
+import '../../application/workspace_error_bloc.dart';
 
 class WorkspaceErrorScreen extends StatelessWidget {
+  static const routeName = "/WorkspaceErrorScreen";
   final FlowyError error;
   final UserFolderPB userFolder;
   const WorkspaceErrorScreen({

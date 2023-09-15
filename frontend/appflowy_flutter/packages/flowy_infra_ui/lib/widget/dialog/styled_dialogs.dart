@@ -1,9 +1,10 @@
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
+import 'dart:ui';
+
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/dialog/dialog_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 
 extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
@@ -71,7 +72,7 @@ class StyledDialog extends StatelessWidget {
             maxWidth: maxWidth ?? double.infinity,
           ),
           child: ClipRRect(
-            borderRadius: borderRadius,
+            borderRadius: borderRadius ?? BorderRadius.zero,
             child: SingleChildScrollView(
               physics: StyledScrollPhysics(),
               //https://medium.com/saugo360/https-medium-com-saugo360-flutter-using-overlay-to-display-floating-widgets-2e6d0e8decb9

@@ -135,7 +135,40 @@ void main() {
       }
     });
 
-    testWidgets('check document is exist in row detail page', (tester) async {
+    testWidgets('change order of fields and cells', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Assert that the first field in the row details page is the select
+      // option tyoe
+      tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
+
+      // Reorder first field in list
+      final gesture = await tester.hoverOnFieldInRowDetail(index: 0);
+      await tester.pumpAndSettle();
+      await tester.reorderFieldInRowDetail(offset: 30);
+
+      // Orders changed, now the checkbox is first
+      tester.assertFirstFieldInRowDetailByType(FieldType.Checkbox);
+      await gesture.removePointer();
+      await tester.pumpAndSettle();
+
+      // Reorder second field in list
+      await tester.hoverOnFieldInRowDetail(index: 1);
+      await tester.pumpAndSettle();
+      await tester.reorderFieldInRowDetail(offset: -30);
+
+      // First field is now back to select option
+      tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
+    });
+
+    testWidgets('check document exists in row detail page', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
@@ -149,7 +182,7 @@ void main() {
       await tester.assertDocumentExistInRowDetailPage();
     });
 
-    testWidgets('update the content of the document and re-open it',
+    testWidgets('update the contents of the document and re-open it',
         (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
@@ -239,6 +272,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDeleteRowButton();
       await tester.tapEscButton();
 
@@ -255,6 +289,7 @@ void main() {
       // Hover first row and then open the row page
       await tester.openFirstRowDetailPage();
 
+      await tester.tapRowDetailPageRowActionButton();
       await tester.tapRowDetailPageDuplicateRowButton();
       await tester.tapEscButton();
 

@@ -1,22 +1,34 @@
 import 'package:appflowy/env/env.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
+import 'package:appflowy/user/application/splash_bloc.dart';
+import 'package:appflowy/user/domain/auth_state.dart';
+import 'package:appflowy/user/presentation/helpers/helpers.dart';
+import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../startup/startup.dart';
-import '../application/splash_bloc.dart';
-import '../domain/auth_state.dart';
-import 'router.dart';
-
+// [[diagram: splash screen]]
+// ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
+// │  SplashScreen  │──────────▶│SplashBloc│────▶│ISplashUser │─────┐
+// └────────────────┘           └──────────┘     └────────────┘     │
+//                                                                  │
+//                                                                  ▼
+//    ┌───────────┐            ┌─────────────┐                 ┌────────┐
+//    │HomeScreen │◀───────────│BlocListener │◀────────────────│RustSDK │
+//    └───────────┘            └─────────────┘                 └────────┘
+//           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
   const SplashScreen({
-    Key? key,
+    super.key,
     required this.autoRegister,
-  }) : super(key: key);
+  });
 
+  static const routeName = '/SplashScreen';
   final bool autoRegister;
 
   @override
@@ -75,15 +87,13 @@ class SplashScreen extends StatelessWidget {
           final result = await FolderEventGetCurrentWorkspace().send();
           result.fold(
             (workspaceSetting) {
-              getIt<SplashRoute>().pushHomeScreen(
+              getIt<SplashRouter>().pushHomeScreen(
                 context,
                 userProfile,
                 workspaceSetting,
               );
             },
-            (error) {
-              handleOpenWorkspaceError(context, error);
-            },
+            (error) => handleOpenWorkspaceError(context, error),
           );
         }
       },
@@ -94,11 +104,14 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
+    Log.debug(
+      '_handleUnauthenticated -> Supabase is enabled: $isSupabaseEnabled',
+    );
     // if the env is not configured, we will skip to the 'skip login screen'.
     if (isSupabaseEnabled) {
-      getIt<SplashRoute>().pushSignInScreen(context);
+      getIt<SplashRouter>().pushSignInScreen(context);
     } else {
-      getIt<SplashRoute>().pushSkipLoginScreen(context);
+      getIt<SplashRouter>().pushSkipLoginScreen(context);
     }
   }
 
@@ -111,27 +124,41 @@ class SplashScreen extends StatelessWidget {
 }
 
 class Body extends StatelessWidget {
-  const Body({Key? key}) : super(key: key);
+  const Body({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      child: PlatformExtension.isMobile
+          ? const FlowySvg(
+              FlowySvgs.flowy_logo_xl,
+              blendMode: null,
+            )
+          : const _DesktopSplashBody(),
+    );
+  }
+}
+
+class _DesktopSplashBody extends StatelessWidget {
+  const _DesktopSplashBody();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    return Container(
-      alignment: Alignment.center,
-      child: SingleChildScrollView(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image(
-              fit: BoxFit.cover,
-              width: size.width,
-              height: size.height,
-              image:
-                  const AssetImage('assets/images/appflowy_launch_splash.jpg'),
+    return SingleChildScrollView(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image(
+            fit: BoxFit.cover,
+            width: size.width,
+            height: size.height,
+            image: const AssetImage(
+              'assets/images/appflowy_launch_splash.jpg',
             ),
-            const CircularProgressIndicator.adaptive(),
-          ],
-        ),
+          ),
+          const CircularProgressIndicator.adaptive(),
+        ],
       ),
     );
   }
