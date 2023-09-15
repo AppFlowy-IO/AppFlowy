@@ -35,6 +35,30 @@ mod tests {
       stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
       "Mar 14, 2022 09:56"
     );
+
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      end_timestamp: Some(1648533809),
+      include_time: true,
+      is_range: false,
+    };
+
+    assert_eq!(
+      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      "Mar 14, 2022 09:56"
+    );
+
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      end_timestamp: Some(1648533809),
+      include_time: true,
+      is_range: true,
+    };
+
+    assert_eq!(
+      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      "Mar 14, 2022 09:56 → Mar 29, 2022 06:03"
+    );
   }
 
   fn to_text_cell(s: String) -> Cell {
