@@ -24,8 +24,11 @@ class CreateFileSettings extends StatelessWidget {
           value: cubit,
           child: BlocBuilder<CreateFileSettingsCubit, bool>(
             builder: (context, state) {
+              _prevSetting = state;
               return Switch(
                 value: state,
+                splashRadius: 0,
+                activeColor: Theme.of(context).colorScheme.primary,
                 onChanged: (value) {
                   cubit.toggle(value: value);
                   _prevSetting = value;
