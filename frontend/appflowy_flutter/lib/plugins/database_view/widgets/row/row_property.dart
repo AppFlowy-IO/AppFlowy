@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -19,13 +20,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'accessory/cell_accessory.dart';
 import 'cell_builder.dart';
-import 'cells/checkbox_cell/checkbox_cell.dart';
-import 'cells/date_cell/date_cell.dart';
-import 'cells/number_cell/number_cell.dart';
-import 'cells/select_option_cell/select_option_cell.dart';
-import 'cells/text_cell/text_cell.dart';
-import 'cells/timestamp_cell/timestamp_cell.dart';
-import 'cells/url_cell/url_cell.dart';
 
 /// Display the row properties in a list. Only use this widget in the
 /// [RowDetailPage].
@@ -251,8 +245,9 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       );
     case FieldType.Checklist:
-      return SelectOptionCellStyle(
+      return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       );
     case FieldType.Number:
       return GridNumberCellStyle(

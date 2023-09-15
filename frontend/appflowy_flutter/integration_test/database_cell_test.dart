@@ -456,9 +456,6 @@ void main() {
     // assert that the checklist editor is shown
     tester.assertChecklistEditorVisible(visible: true);
 
-    // assert that new task editor is shown
-    tester.assertNewCheckListTaskEditorVisible(visible: true);
-
     // create a new task with enter
     await tester.createNewChecklistTask(name: "task 0", enter: true);
 
@@ -481,7 +478,6 @@ void main() {
 
     // dismiss new task editor
     await tester.dismissCellEditor();
-    tester.assertNewCheckListTaskEditorVisible(visible: false);
 
     // dismiss checklist cell editor
     await tester.dismissCellEditor();
@@ -489,11 +485,8 @@ void main() {
     // assert that progress bar is shown in grid at 0%
     tester.assertChecklistCellInGrid(rowIndex: 0, percent: 0);
 
-    // start editing the first checklist cell again, click on new task button
+    // start editing the first checklist cell again
     await tester.tapChecklistCellInGrid(rowIndex: 0);
-    tester.assertNewCheckListTaskEditorVisible(visible: false);
-    await tester.tapChecklistNewTaskButton();
-    tester.assertNewCheckListTaskEditorVisible(visible: true);
 
     // create another task with the create button
     await tester.createNewChecklistTask(name: "task 2", button: true);
@@ -539,9 +532,6 @@ void main() {
 
     // delete the remaining task
     await tester.deleteChecklistTask(index: 0);
-
-    // assert that the new task editor is shown
-    tester.assertNewCheckListTaskEditorVisible(visible: true);
 
     // dismiss the cell editor
     await tester.dismissCellEditor();

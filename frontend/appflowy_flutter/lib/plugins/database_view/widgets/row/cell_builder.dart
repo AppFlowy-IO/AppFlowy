@@ -67,6 +67,7 @@ class GridCellBuilder {
       case FieldType.Checklist:
         return GridChecklistCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.Number:
