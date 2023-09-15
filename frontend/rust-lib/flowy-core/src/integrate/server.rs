@@ -128,7 +128,12 @@ impl AppFlowyServerProvider {
             ),
           )
         })?;
-        let server = Arc::new(AFCloudServer::new(config));
+        tracing::trace!("🔑AppFlowy cloud config: {:?}", config);
+        let server = Arc::new(AFCloudServer::new(
+          config,
+          *self.enable_sync.read(),
+          self.device_id.clone(),
+        ));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerProviderType::Supabase => {

@@ -2,34 +2,34 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use collab_define::CollabObject;
-use tokio::sync::Mutex;
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
-use crate::af_cloud::configuration::AFCloudConfiguration;
+use crate::af_cloud::{AFCloudClient, AFServer};
 
-pub(crate) struct AFCloudUserAuthServiceImpl {
-  config: AFCloudConfiguration,
-  client: Arc<Mutex<client_api::Client>>,
+pub(crate) struct AFCloudUserAuthServiceImpl<T> {
+  server: T,
 }
 
-impl AFCloudUserAuthServiceImpl {
-  pub(crate) fn new(config: AFCloudConfiguration, client: client_api::Client) -> Self {
-    let client = Arc::new(Mutex::new(client));
-    Self { config, client }
+impl<T> AFCloudUserAuthServiceImpl<T> {
+  pub(crate) fn new(server: T) -> Self {
+    Self { server }
   }
 }
 
-impl UserCloudService for AFCloudUserAuthServiceImpl {
+impl<T> UserCloudService for AFCloudUserAuthServiceImpl<T>
+where
+  T: AFServer,
+{
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
-    let c = self.client.clone();
+    let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
-      let resp = user_sign_up_request(c, params).await?;
+      let resp = user_sign_up_request(try_get_client?, params).await?;
       Ok(resp)
     })
   }
@@ -109,17 +109,14 @@ impl UserCloudService for AFCloudUserAuthServiceImpl {
 }
 
 pub async fn user_sign_up_request(
-  client: Arc<Mutex<client_api::Client>>,
+  client: Arc<AFCloudClient>,
   params: SignUpParams,
 ) -> Result<SignUpResponse, FlowyError> {
-  let mut client = client.try_lock().map_err(|e| {
-    FlowyError::new(
-      ErrorCode::UnexpectedEmpty,
-      format!("Client is not available: {}", e),
-    )
-  })?;
-
-  let user = client.sign_up(&params.email, &params.password).await?;
+  let user = client
+    .read()
+    .await
+    .sign_up(&params.email, &params.password)
+    .await?;
   todo!()
   // tracing::info!("User signed up: {:?}", user);
   // match user.confirmed_at {
