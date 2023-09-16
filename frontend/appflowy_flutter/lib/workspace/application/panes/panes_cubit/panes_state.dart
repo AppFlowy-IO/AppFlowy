@@ -1,23 +1,16 @@
 part of 'panes_cubit.dart';
 
-enum PaneDraggableHoverPosition {
-  none,
-  top,
-  left,
-  right,
-  bottom,
-  whole,
-}
-
 class PanesState extends Equatable {
   final PaneNode root;
   final int count;
   final PaneNode activePane;
+  final bool allowPaneDrag;
 
   const PanesState({
     required this.activePane,
     required this.root,
     required this.count,
+    required this.allowPaneDrag,
   });
 
   factory PanesState.initial() {
@@ -29,6 +22,7 @@ class PanesState extends Equatable {
     );
     return PanesState(
       activePane: pane,
+      allowPaneDrag: false,
       root: pane,
       count: 1,
     );
@@ -36,16 +30,18 @@ class PanesState extends Equatable {
 
   PanesState copyWith({
     PaneNode? activePane,
+    bool? allowPaneDrag,
     PaneNode? root,
     int? count,
   }) {
     return PanesState(
       root: root ?? this.root,
+      allowPaneDrag: allowPaneDrag ?? this.allowPaneDrag,
       activePane: activePane ?? this.activePane,
       count: count ?? this.count,
     );
   }
 
   @override
-  List<Object?> get props => [root, count, activePane];
+  List<Object?> get props => [root, count, activePane, allowPaneDrag];
 }

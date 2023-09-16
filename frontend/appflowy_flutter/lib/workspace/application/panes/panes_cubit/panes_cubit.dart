@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -29,7 +30,14 @@ class PanesCubit extends Cubit<PanesState> {
     _setLatestOpenView();
   }
 
-  void split(ViewPB view, SplitDirection splitDirection) {
+  void split(
+    ViewPB view,
+    SplitDirection splitDirection, {
+    String? targetPaneId,
+  }) {
+    if (state.count >= 4) {
+      return;
+    }
     final direction =
         [SplitDirection.right, SplitDirection.down].contains(splitDirection)
             ? Direction.front
@@ -42,7 +50,7 @@ class PanesCubit extends Cubit<PanesState> {
 
     final root = panesService.splitHandler(
       state.root,
-      state.activePane.paneId,
+      targetPaneId ?? state.activePane.paneId,
       view,
       direction,
       axis,
@@ -111,18 +119,18 @@ class PanesCubit extends Cubit<PanesState> {
   void movePane(
     PaneNode from,
     PaneNode to,
-    PaneDraggableHoverPosition position,
+    FlowyDraggableHoverPosition position,
   ) {
     final direction = [
-      PaneDraggableHoverPosition.top,
-      PaneDraggableHoverPosition.left
+      FlowyDraggableHoverPosition.top,
+      FlowyDraggableHoverPosition.left
     ].contains(position)
         ? Direction.front
         : Direction.back;
 
     final axis = [
-      PaneDraggableHoverPosition.left,
-      PaneDraggableHoverPosition.right
+      FlowyDraggableHoverPosition.left,
+      FlowyDraggableHoverPosition.right
     ].contains(position)
         ? Axis.vertical
         : Axis.horizontal;
@@ -141,5 +149,9 @@ class PanesCubit extends Cubit<PanesState> {
       ),
     );
     closePane(from.paneId);
+  }
+
+  void allowPaneDragging(bool value) {
+    emit(state.copyWith(allowPaneDrag: value));
   }
 }
