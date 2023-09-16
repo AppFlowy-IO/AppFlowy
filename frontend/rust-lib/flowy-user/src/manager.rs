@@ -597,6 +597,7 @@ impl UserManager {
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,
+      "",
       new_user,
       &new_collab_db,
     )

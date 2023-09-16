@@ -29,7 +29,6 @@ tracing = { version = "0.1", features = ["log"] }
 lib-dispatch = { workspace = true }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true }
-flowy-net = { workspace = true }
 flowy-server = { workspace = true }
 flowy-server-config = { workspace = true }
 collab-integrate = { workspace = true }

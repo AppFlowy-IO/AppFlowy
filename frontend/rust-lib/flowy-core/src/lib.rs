@@ -12,7 +12,7 @@ use std::{
 
 use tokio::sync::RwLock;
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabIntegrateType};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
@@ -31,9 +31,7 @@ use module::make_plugins;
 pub use module::*;
 
 use crate::deps_resolve::*;
-use crate::integrate::server::{
-  current_server_provider, AppFlowyServerProvider, ServerProviderType,
-};
+use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
 
 mod deps_resolve;
 mod integrate;
@@ -121,7 +119,7 @@ pub struct AppFlowyCore {
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
-  pub server_provider: Arc<AppFlowyServerProvider>,
+  pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
 }
@@ -147,7 +145,7 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let provider_type = current_server_provider(&store_preference);
-    let server_provider = Arc::new(AppFlowyServerProvider::new(
+    let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       provider_type,
       Arc::downgrade(&store_preference),
@@ -282,7 +280,7 @@ struct UserStatusCallbackImpl {
   folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager>,
   document_manager: Arc<DocumentManager>,
-  server_provider: Arc<AppFlowyServerProvider>,
+  server_provider: Arc<ServerProvider>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -449,12 +447,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 }
 
-impl From<ServerProviderType> for CollabIntegrateType {
-  fn from(server_provider: ServerProviderType) -> Self {
+impl From<ServerType> for CollabSource {
+  fn from(server_provider: ServerType) -> Self {
     match server_provider {
-      ServerProviderType::Local => CollabIntegrateType::Local,
-      ServerProviderType::AppFlowyCloud => CollabIntegrateType::Local,
-      ServerProviderType::Supabase => CollabIntegrateType::Supabase,
+      ServerType::Local => CollabSource::Local,
+      ServerType::AppFlowyCloud => CollabSource::Local,
+      ServerType::Supabase => CollabSource::Supabase,
     }
   }
 }

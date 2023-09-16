@@ -27,13 +27,13 @@ async fn supabase_create_workspace_test() {
   for _i in 0..3 {
     let row_id = uuid::Uuid::new_v4().to_string();
     row_ids.push(row_id.clone());
-    let collab_object = CollabObject {
-      object_id: row_id,
-      uid: user.user_id,
-      ty: CollabType::DatabaseRow,
-      meta: Default::default(),
-    }
-    .with_workspace_id(user.latest_workspace.id.clone());
+    let collab_object = CollabObject::new(
+      user.user_id,
+      row_id,
+      CollabType::DatabaseRow,
+      "fake_device_id".to_string(),
+      user.latest_workspace.id.clone(),
+    );
     collab_service
       .send_update(&collab_object, 0, vec![1, 2, 3])
       .await

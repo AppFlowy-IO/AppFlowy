@@ -9,7 +9,6 @@ edition = "2018"
 flowy-core = { workspace = true }
 flowy-user = { workspace = true }
 flowy-user-deps = { workspace = true }
-flowy-net = { path = "../flowy-net"}
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
 flowy-folder-deps = { workspace = true }
 flowy-database2 = { path = "../flowy-database2" }
@@ -46,6 +45,7 @@ collab-document = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
+collab-define = { version = "0.1.0" }
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
 zip = "0.6.6"

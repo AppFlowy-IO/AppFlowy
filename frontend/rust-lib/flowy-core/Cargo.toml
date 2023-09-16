@@ -10,7 +10,6 @@ lib-dispatch = { workspace = true }
 lib-log = { workspace = true }
 flowy-user = { workspace = true }
 flowy-user-deps = { workspace = true }
-flowy-net = { workspace = true }
 flowy-folder2 = { workspace = true }
 flowy-folder-deps = { workspace = true }
 flowy-database2 = { workspace = true }
@@ -25,6 +24,8 @@ flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }
 collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
 collab-define = { version = "0.1.0" }
+collab-plugins = { version = "0.1.0", features = ["sync_plugin"] }
+collab = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }
 uuid = { version = "1.3.3", features = ["v4"] }
 flowy-storage = { workspace = true }
@@ -35,6 +36,7 @@ bytes = "1.4"
 tokio = { version = "1.26", features = ["full"] }
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
+anyhow = "1.0.75"
 
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
@@ -49,7 +51,6 @@ native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
-    "flowy-net/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
     "flowy-document2/dart",
@@ -57,7 +58,6 @@ dart = [
 ]
 ts = [
     "flowy-user/ts",
-    "flowy-net/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",
     "flowy-document2/ts",

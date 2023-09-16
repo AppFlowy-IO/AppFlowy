@@ -23,7 +23,6 @@ tracing = { version = "0.1", features = ["log"] }
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
-flowy-net = { path = "../../rust-lib/flowy-net" }
 
 [features]
 # by default Tauri runs in production mode
@@ -34,7 +33,7 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5bcf9574f93e839e909832b88eed5031fe4a78eb" }
 
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }

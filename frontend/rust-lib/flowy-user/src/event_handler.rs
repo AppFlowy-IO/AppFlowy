@@ -453,6 +453,7 @@ pub async fn reset_workspace_handler(
       "The workspace id is empty",
     ));
   }
-  manager.reset_workspace(reset_pb).await?;
+  let session = manager.get_session()?;
+  manager.reset_workspace(reset_pb, session.device_id).await?;
   Ok(())
 }

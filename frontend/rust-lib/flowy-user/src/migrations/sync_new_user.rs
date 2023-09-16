@@ -22,16 +22,27 @@ use crate::migrations::MigrationUser;
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn sync_user_data_to_cloud(
   user_service: Arc<dyn UserCloudService>,
+  device_id: &str,
   new_user: &MigrationUser,
   collab_db: &Arc<RocksCollabDB>,
 ) -> FlowyResult<()> {
   let workspace_id = new_user.session.user_workspace.id.clone();
   let uid = new_user.session.user_id;
-  let folder = Arc::new(sync_folder(uid, &workspace_id, collab_db, user_service.clone()).await?);
+  let folder = Arc::new(
+    sync_folder(
+      uid,
+      &workspace_id,
+      device_id,
+      collab_db,
+      user_service.clone(),
+    )
+    .await?,
+  );
 
   let database_records = sync_database_views(
     uid,
     &workspace_id,
+    device_id,
     &new_user.session.user_workspace.database_views_aggregate_id,
     collab_db,
     user_service.clone(),
@@ -46,6 +57,7 @@ pub async fn sync_user_data_to_cloud(
       folder.clone(),
       database_records.clone(),
       workspace_id.to_string(),
+      device_id.to_string(),
       view,
       collab_db.clone(),
       user_service.clone(),
@@ -63,6 +75,7 @@ fn sync_views(
   folder: Arc<MutexFolder>,
   database_records: Vec<Arc<DatabaseWithViews>>,
   workspace_id: String,
+  device_id: String,
   view: Arc<View>,
   collab_db: Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
@@ -77,8 +90,13 @@ fn sync_views(
       object_id
     );
 
-    let collab_object =
-      CollabObject::new(uid, object_id, collab_type).with_workspace_id(workspace_id.to_string());
+    let collab_object = CollabObject::new(
+      uid,
+      object_id,
+      collab_type,
+      workspace_id.to_string(),
+      device_id.clone(),
+    );
 
     match view.layout {
       ViewLayout::Document => {
@@ -108,8 +126,13 @@ fn sync_views(
           tracing::debug!("sync row: {}", row_id);
           let document_id = database_row_document_id_from_row_id(&row_id);
 
-          let database_row_collab_object = CollabObject::new(uid, row_id, CollabType::DatabaseRow)
-            .with_workspace_id(workspace_id.to_string());
+          let database_row_collab_object = CollabObject::new(
+            uid,
+            row_id,
+            CollabType::DatabaseRow,
+            workspace_id.to_string(),
+            device_id.clone(),
+          );
           let database_row_update =
             get_collab_init_update(uid, &database_row_collab_object, &collab_db)?;
           tracing::info!(
@@ -122,8 +145,13 @@ fn sync_views(
             .create_collab_object(&database_row_collab_object, database_row_update)
             .await;
 
-          let database_row_document = CollabObject::new(uid, document_id, CollabType::Document)
-            .with_workspace_id(workspace_id.to_string());
+          let database_row_document = CollabObject::new(
+            uid,
+            document_id,
+            CollabType::Document,
+            workspace_id.to_string(),
+            device_id.to_string(),
+          );
           // sync document in the row if exist
           if let Ok(document_update) =
             get_collab_init_update(uid, &database_row_document, &collab_db)
@@ -149,6 +177,7 @@ fn sync_views(
         folder.clone(),
         database_records.clone(),
         workspace_id.clone(),
+        device_id.to_string(),
         child_view,
         collab_db.clone(),
         user_service.clone(),
@@ -210,6 +239,7 @@ fn get_database_init_update(
 async fn sync_folder(
   uid: i64,
   workspace_id: &str,
+  device_id: &str,
   collab_db: &Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
@@ -231,8 +261,13 @@ async fn sync_folder(
     )
   };
 
-  let collab_object = CollabObject::new(uid, workspace_id.to_string(), CollabType::Folder)
-    .with_workspace_id(workspace_id.to_string());
+  let collab_object = CollabObject::new(
+    uid,
+    workspace_id.to_string(),
+    CollabType::Folder,
+    workspace_id.to_string(),
+    device_id.to_string(),
+  );
   tracing::info!(
     "sync object: {} with update: {}",
     collab_object,
@@ -251,6 +286,7 @@ async fn sync_folder(
 async fn sync_database_views(
   uid: i64,
   workspace_id: &str,
+  device_id: &str,
   database_views_aggregate_id: &str,
   collab_db: &Arc<RocksCollabDB>,
   user_service: Arc<dyn UserCloudService>,
@@ -259,8 +295,9 @@ async fn sync_database_views(
     uid,
     database_views_aggregate_id.to_string(),
     CollabType::WorkspaceDatabase,
-  )
-  .with_workspace_id(workspace_id.to_string());
+    workspace_id.to_string(),
+    device_id.to_string(),
+  );
 
   // Use the temporary result to short the lifetime of the TransactionMut
   let result = {

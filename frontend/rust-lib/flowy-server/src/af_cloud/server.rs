@@ -2,8 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_define::CollabObject;
-use collab_plugins::cloud_storage::RemoteCollabStorage;
+use client_api::ws::{BusinessID, WSClient, WSClientConfig, WSObjectHandler};
 use tokio::sync::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -12,6 +11,7 @@ use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
+use lib_infra::future::FutureResult;
 
 use crate::af_cloud::configuration::AFCloudConfiguration;
 use crate::af_cloud::impls::{
@@ -27,6 +27,7 @@ pub struct AFCloudServer {
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: AtomicBool,
   device_id: Arc<parking_lot::RwLock<String>>,
+  ws_client: Arc<RwLock<WSClient>>,
 }
 
 impl AFCloudServer {
@@ -39,12 +40,19 @@ impl AFCloudServer {
     let client = client_api::Client::from(http_client, &config.base_url(), &config.ws_addr());
     let enable_sync = AtomicBool::new(enable_sync);
 
+    let ws_client = WSClient::new(WSClientConfig {
+      buffer_capacity: 100,
+      ping_per_secs: 2,
+      retry_connect_per_pings: 5,
+    });
+    let ws_client = Arc::new(RwLock::new(ws_client));
     let client = Arc::new(RwLock::new(client));
     Self {
       config,
       client,
       enable_sync,
       device_id,
+      ws_client,
     }
   }
 
@@ -82,8 +90,29 @@ impl AppFlowyServer for AFCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
-  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
-    None
+  fn collab_ws_client(
+    &self,
+    object_id: &str,
+  ) -> FutureResult<Option<Arc<WSObjectHandler>>, anyhow::Error> {
+    if self.enable_sync.load(Ordering::SeqCst) {
+      let object_id = object_id.to_string();
+      let weak_ws_client = Arc::downgrade(&self.ws_client);
+      FutureResult::new(async move {
+        match weak_ws_client.upgrade() {
+          None => Ok(None),
+          Some(ws_client) => Ok(
+            ws_client
+              .read()
+              .await
+              .subscribe(BusinessID::CollabId, object_id)
+              .await
+              .ok(),
+          ),
+        }
+      })
+    } else {
+      FutureResult::new(async { Ok(None) })
+    }
   }
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
@@ -93,7 +122,7 @@ impl AppFlowyServer for AFCloudServer {
 
 pub trait AFServer: Send + Sync + 'static {
   fn get_client(&self) -> Option<Arc<AFCloudClient>>;
-  fn try_get_client(&self) -> Result<Arc<AFCloudClient>, anyhow::Error>;
+  fn try_get_client(&self) -> Result<Arc<AFCloudClient>, Error>;
 }
 
 #[derive(Clone)]

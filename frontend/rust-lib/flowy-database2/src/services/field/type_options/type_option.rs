@@ -271,7 +271,6 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
       date_format: DateFormat::Friendly,
       time_format: TimeFormat::TwelveHour,
       include_time: true,
-      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

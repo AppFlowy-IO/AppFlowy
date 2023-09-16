@@ -575,7 +575,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7#1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5bcf9574f93e839e909832b88eed5031fe4a78eb#5bcf9574f93e839e909832b88eed5031fe4a78eb"
 dependencies = [
  "anyhow",
  "bytes",
@@ -586,6 +586,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "serde_repr",
  "shared_entity",
  "storage-entity",
  "thiserror",
@@ -625,7 +626,6 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -644,7 +644,6 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -674,7 +673,6 @@ dependencies = [
 [[package]]
 name = "collab-define"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "collab",
@@ -686,7 +684,6 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -698,7 +695,6 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "collab",
@@ -718,7 +714,6 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "chrono",
@@ -740,6 +735,7 @@ name = "collab-integrate"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "collab",
  "collab-database",
  "collab-define",
@@ -757,7 +753,6 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "async-trait",
  "bincode",
@@ -778,7 +773,6 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -806,7 +800,6 @@ dependencies = [
 [[package]]
 name = "collab-sync-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "bytes",
  "collab",
@@ -821,7 +814,6 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3f235e#3f235e3e21fa520fde50d512f3b6ad54283fa732"
 dependencies = [
  "anyhow",
  "collab",
@@ -1058,7 +1050,6 @@ dependencies = [
  "flowy-codegen",
  "flowy-core",
  "flowy-derive",
- "flowy-net",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
@@ -1367,9 +1358,12 @@ dependencies = [
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
+ "collab",
  "collab-define",
  "collab-integrate",
+ "collab-plugins",
  "console-subscriber",
  "diesel",
  "flowy-config",
@@ -1380,7 +1374,6 @@ dependencies = [
  "flowy-error",
  "flowy-folder-deps",
  "flowy-folder2",
- "flowy-net",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1596,17 +1589,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-net"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-codegen",
- "lib-dispatch",
- "protobuf",
- "tracing",
-]
-
-[[package]]
 name = "flowy-notification"
 version = "0.1.0"
 dependencies = [
@@ -1734,6 +1716,7 @@ dependencies = [
  "bytes",
  "collab",
  "collab-database",
+ "collab-define",
  "collab-document",
  "collab-folder",
  "collab-plugins",
@@ -1746,7 +1729,6 @@ dependencies = [
  "flowy-encrypt",
  "flowy-folder-deps",
  "flowy-folder2",
- "flowy-net",
  "flowy-notification",
  "flowy-server",
  "flowy-server-config",
@@ -2072,7 +2054,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7#1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5bcf9574f93e839e909832b88eed5031fe4a78eb#5bcf9574f93e839e909832b88eed5031fe4a78eb"
 dependencies = [
  "serde",
  "serde_json",
@@ -4079,7 +4061,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7#1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5bcf9574f93e839e909832b88eed5031fe4a78eb#5bcf9574f93e839e909832b88eed5031fe4a78eb"
 dependencies = [
  "anyhow",
  "opener",
@@ -4291,7 +4273,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7#1f5ed9e59c0baee58b7c881fcd2b4884a83d21a7"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5bcf9574f93e839e909832b88eed5031fe4a78eb#5bcf9574f93e839e909832b88eed5031fe4a78eb"
 dependencies = [
  "chrono",
  "collab-define",

@@ -34,25 +34,25 @@ where
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, Error> {
     todo!()
   }
 
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error> {
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     todo!()
   }
 
   fn update_user(
     &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
+    _credential: UserCredentials,
+    _params: UpdateUserProfileParams,
   ) -> FutureResult<(), Error> {
     todo!()
   }
 
   fn get_user_profile(
     &self,
-    credential: UserCredentials,
+    _credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, Error> {
     todo!()
   }
@@ -112,7 +112,7 @@ pub async fn user_sign_up_request(
   client: Arc<AFCloudClient>,
   params: SignUpParams,
 ) -> Result<SignUpResponse, FlowyError> {
-  let user = client
+  client
     .read()
     .await
     .sign_up(&params.email, &params.password)

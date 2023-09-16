@@ -19,6 +19,7 @@ anyhow = "1.0"
 tracing = "0.1"
 parking_lot = "0.12.1"
 futures = "0.3"
+async-trait = "0.1.73"
 
 [features]
 default = []
