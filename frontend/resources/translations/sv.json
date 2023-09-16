@@ -381,7 +381,7 @@
       "addSort": "Lägg till sortering"
     },
     "checklist": {
-      "panelTitle": "Lägg till ett objekt"
+      "addNew": "Lägg till ett objekt"
     },
     "referencedGridPrefix": "Utsikt över"
   },
@@ -393,8 +393,8 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Välj en styrelse att länka till",
-        "createANewBoard": "Skapa en ny styrelse"
+        "selectABoardToLinkTo": "Välj en tavla att länka till",
+        "createANewBoard": "Skapa en ny tavla"
       },
       "grid": {
         "selectAGridToLinkTo": "Välj ett rutnät att länka till",
@@ -409,7 +409,7 @@
       "outline": "Skissera"
     },
     "plugins": {
-      "referencedBoard": "Refererad styrelse",
+      "referencedBoard": "Refererad tavla",
       "referencedGrid": "Refererade rutnät",
       "referencedCalendar": "Refererad kalender",
       "autoGeneratorMenuItemName": "OpenAI Writer",
@@ -528,7 +528,7 @@
     "column": {
       "create_new_card": "Nytt"
     },
-    "menuName": "Styrelse",
+    "menuName": "Tavla",
     "referencedBoardPrefix": "Utsikt över"
   },
   "moreAction": {

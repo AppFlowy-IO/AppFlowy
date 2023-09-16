@@ -238,6 +238,8 @@ pub enum ErrorCode {
 
   #[error("Parse url failed")]
   InvalidURL = 78,
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 79,
 }
 
 impl ErrorCode {

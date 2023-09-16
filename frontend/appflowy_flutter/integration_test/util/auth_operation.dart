@@ -1,4 +1,4 @@
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/sync_setting_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,15 +7,15 @@ import 'base.dart';
 
 extension AppFlowyAuthTest on WidgetTester {
   Future<void> tapGoogleLoginInButton() async {
-    await tapButton(find.byType(GoogleSignUpButton));
+    await tapButton(find.byKey(const Key('signInWithGoogleButton')));
   }
 
   Future<void> tapSignInAsGuest() async {
-    await tapButton(find.byType(SignInAsGuestButton));
+    await tapButton(find.byType(SignInAnonymousButton));
   }
 
   void expectToSeeGoogleLoginButton() {
-    expect(find.byType(GoogleSignUpButton), findsOneWidget);
+    expect(find.byKey(const Key('signInWithGoogleButton')), findsOneWidget);
   }
 
   void assertSwitchValue(Finder finder, bool value) {

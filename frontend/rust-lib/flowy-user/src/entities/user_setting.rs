@@ -50,6 +50,16 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 9)]
   #[serde(default)]
   pub menu_offset: f64,
+
+  #[pb(index = 10)]
+  #[serde(default)]
+  pub layout_direction: LayoutDirectionPB,
+
+  // If the value is FALLBACK which is the default value then it will fall back
+  // to layout direction and it will use that as default text direction.
+  #[pb(index = 11)]
+  #[serde(default)]
+  pub text_direction: TextDirectionPB,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -60,6 +70,22 @@ pub enum ThemeModePB {
   Dark = 1,
   #[default]
   System = 2,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum LayoutDirectionPB {
+  #[default]
+  LTRLayout = 0,
+  RTLLayout = 1,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum TextDirectionPB {
+  LTR = 0,
+  RTL = 1,
+  AUTO = 2,
+  #[default]
+  FALLBACK = 3,
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
@@ -99,6 +125,8 @@ impl std::default::Default for AppearanceSettingsPB {
       setting_key_value: HashMap::default(),
       is_menu_collapsed: APPEARANCE_DEFAULT_IS_MENU_COLLAPSED,
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
+      layout_direction: LayoutDirectionPB::default(),
+      text_direction: TextDirectionPB::default(),
     }
   }
 }

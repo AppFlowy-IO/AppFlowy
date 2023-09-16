@@ -4,6 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:protobuf/protobuf.dart';
 
 class ChecklistCellBackendService {
   final String viewId;
@@ -52,14 +53,19 @@ class ChecklistCellBackendService {
     return DatabaseEventUpdateChecklistCell(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> update({
+  Future<Either<Unit, FlowyError>> updateName({
     required SelectOptionPB option,
+    required name,
   }) {
+    option.freeze();
+    final newOption = option.rebuild((option) {
+      option.name = name;
+    });
     final payload = ChecklistCellDataChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
       ..rowId = rowId
-      ..updateOptions.add(option);
+      ..updateOptions.add(newOption);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
   }

@@ -438,7 +438,7 @@
       "panelTitle": "Selecione uma opção ou crie uma"
     },
     "checklist": {
-      "panelTitle": "Adicionar um item"
+      "addNew": "Adicionar um item"
     },
     "menuName": "Grade",
     "deleteView": "Tem certeza de que deseja excluir esta visualização?",

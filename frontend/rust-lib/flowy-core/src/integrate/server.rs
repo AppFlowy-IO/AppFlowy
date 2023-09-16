@@ -3,8 +3,9 @@ use std::fmt::{Display, Formatter};
 use std::sync::{Arc, Weak};
 
 use appflowy_integrate::collab_builder::{CollabStorageProvider, CollabStorageType};
-use appflowy_integrate::{CollabObject, CollabType, RemoteCollabStorage, YrsDocAction};
+use appflowy_integrate::{RemoteCollabStorage, YrsDocAction};
 use bytes::Bytes;
+use collab_define::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_repr::*;
 

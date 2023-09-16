@@ -50,6 +50,8 @@ PODS:
     - Toast
   - integration_test (0.0.1):
     - Flutter
+  - irondash_engine_context (0.0.1):
+    - Flutter
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -65,6 +67,8 @@ PODS:
     - Flutter
     - FlutterMacOS
   - sign_in_with_apple (0.0.1):
+    - Flutter
+  - super_native_extensions (0.0.1):
     - Flutter
   - SwiftyGif (5.4.3)
   - Toast (4.0.0)
@@ -83,11 +87,13 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - irondash_engine_context (from `.symlinks/plugins/irondash_engine_context/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - rich_clipboard_ios (from `.symlinks/plugins/rich_clipboard_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - super_native_extensions (from `.symlinks/plugins/super_native_extensions/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
@@ -119,6 +125,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  irondash_engine_context:
+    :path: ".symlinks/plugins/irondash_engine_context/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -129,6 +137,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  super_native_extensions:
+    :path: ".symlinks/plugins/super_native_extensions/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
@@ -146,6 +156,7 @@ SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
   integration_test: 13825b8a9334a850581300559b8839134b124670
+  irondash_engine_context: 3458bf979b90d616ffb8ae03a150bafe2e860cc9
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -153,6 +164,7 @@ SPEC CHECKSUMS:
   SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
   shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
+  super_native_extensions: 49e897b6039bb784226e7354e502a3c68e1659b5
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4

@@ -1,9 +1,8 @@
+import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/presentation/sign_in_screen.dart';
-import 'package:appflowy/user/presentation/sign_up_screen.dart';
-import 'package:appflowy/user/presentation/skip_log_in_screen.dart';
-import 'package:appflowy/user/presentation/welcome_screen.dart';
+import 'package:appflowy/user/presentation/screens/screens.dart';
+import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -13,64 +12,77 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
-
-import 'encrypt_secret_screen.dart';
-import 'workspace_error_screen.dart';
-
-const routerNameRoot = '/';
-const routerNameSignUp = '/signUp';
-const routerNameSignIn = '/signIn';
-const routerNameSkipLogIn = '/skipLogIn';
-const routerNameWelcome = '/welcome';
-const routerNameHome = '/home';
+import 'package:appflowy/util/platform_extension.dart';
 
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
 
-  void pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) {
-    getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
+  void pushWorkspaceStartScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+  ) {
+    getIt<SplashRouter>().pushWorkspaceStartScreen(context, userProfile);
   }
 
   void pushSignUpScreen(BuildContext context) {
     Navigator.of(context).push(
       PageRoutes.fade(
         () => SignUpScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: routerNameSignUp),
+        const RouteSettings(name: SignUpScreen.routeName),
       ),
     );
   }
 
-  void pushHomeScreenWithWorkSpace(
-    BuildContext context,
-    UserProfilePB profile,
-    WorkspaceSettingPB workspaceSetting,
-  ) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => HomeScreen(
-          profile,
-          workspaceSetting,
-          key: ValueKey(profile.id),
-        ),
-        const RouteSettings(name: routerNameHome),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
-  }
-
+  /// Navigates to the home screen based on the current workspace and platform.
+  ///
+  /// This function takes in a [BuildContext] and a [UserProfilePB] object to
+  /// determine the user's settings and then navigate to the appropriate home screen
+  /// (`MobileHomeScreen` for mobile platforms, `DesktopHomeScreen` for others).
+  ///
+  /// It first fetches the current workspace settings using [FolderEventGetCurrentWorkspace].
+  /// If the workspace settings are successfully fetched, it navigates to the home screen.
+  /// If there's an error, it defaults to the workspace start screen.
+  ///
+  /// @param [context] BuildContext for navigating to the appropriate screen.
+  /// @param [userProfile] UserProfilePB object containing the details of the current user.
+  ///
   Future<void> pushHomeScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
     final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
-      (workspaceSettingPB) => pushHomeScreenWithWorkSpace(
-        context,
-        userProfile,
-        workspaceSettingPB,
-      ),
-      (r) => pushWelcomeScreen(context, userProfile),
+      (workspaceSetting) {
+        if (PlatformExtension.isMobile) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => MobileHomeScreen(
+                key: ValueKey(userProfile.id),
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
+            ),
+            // pop up all the pages until [SplashScreen]
+            (route) => route.settings.name == SplashScreen.routeName,
+          );
+        } else {
+          Navigator.push(
+            context,
+            PageRoutes.fade(
+              () => DesktopHomeScreen(
+                key: ValueKey(userProfile.id),
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
+              const RouteSettings(
+                name: DesktopHomeScreen.routeName,
+              ),
+              RouteDurations.slow.inMilliseconds * .001,
+            ),
+          );
+        }
+      },
+      (error) => pushWorkspaceStartScreen(context, userProfile),
     );
   }
 
@@ -85,7 +97,7 @@ class AuthRouter {
           user: userProfile,
           key: ValueKey(userProfile.id),
         ),
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: EncryptSecretScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -103,23 +115,23 @@ class AuthRouter {
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: WorkspaceErrorScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
   }
 }
 
-class SplashRoute {
-  Future<void> pushWelcomeScreen(
+class SplashRouter {
+  Future<void> pushWorkspaceStartScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final screen = WelcomeScreen(userProfile: userProfile);
+    final screen = WorkspaceStartScreen(userProfile: userProfile);
     await Navigator.of(context).push(
       PageRoutes.fade(
         () => screen,
-        const RouteSettings(name: routerNameWelcome),
+        const RouteSettings(name: WorkspaceStartScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -138,18 +150,35 @@ class SplashRoute {
     UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => HomeScreen(
-          userProfile,
-          workspaceSetting,
-          key: ValueKey(userProfile.id),
+    if (PlatformExtension.isMobile) {
+      Navigator.pushAndRemoveUntil<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => MobileHomeScreen(
+            key: ValueKey(userProfile.id),
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
+          ),
         ),
-        const RouteSettings(name: routerNameWelcome),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
+        // pop up all the pages until [SplashScreen]
+        (route) => route.settings.name == SplashScreen.routeName,
+      );
+    } else {
+      Navigator.push(
+        context,
+        PageRoutes.fade(
+          () => DesktopHomeScreen(
+            userProfile: userProfile,
+            workspaceSetting: workspaceSetting,
+            key: ValueKey(userProfile.id),
+          ),
+          const RouteSettings(
+            name: DesktopHomeScreen.routeName,
+          ),
+          RouteDurations.slow.inMilliseconds * .001,
+        ),
+      );
+    }
   }
 
   void pushSignInScreen(BuildContext context) {
@@ -157,7 +186,7 @@ class SplashRoute {
       context,
       PageRoutes.fade(
         () => SignInScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: routerNameSignIn),
+        const RouteSettings(name: SignInScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );
@@ -171,7 +200,7 @@ class SplashRoute {
           router: getIt<AuthRouter>(),
           authService: getIt<AuthService>(),
         ),
-        const RouteSettings(name: routerNameSkipLogIn),
+        const RouteSettings(name: SkipLogInScreen.routeName),
         RouteDurations.slow.inMilliseconds * .001,
       ),
     );

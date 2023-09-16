@@ -130,11 +130,8 @@ impl CellDataDecoder for TimestampTypeOption {
     decoded_field_type: &FieldType,
     _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    // Return default data if the type_option_cell_data is not FieldType::DateTime.
-    // It happens when switching from one field to another.
-    // For example:
-    // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
-    if !decoded_field_type.is_date() {
+    // Return default data if the type_option_cell_data is not FieldType::CreatedTime nor FieldType::LastEditedTime
+    if !decoded_field_type.is_last_edited_time() && !decoded_field_type.is_created_time() {
       return Ok(Default::default());
     }
 
@@ -177,7 +174,7 @@ impl TypeOptionCellDataFilter for TimestampTypeOption {
     field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_date() {
+    if !field_type.is_last_edited_time() && !field_type.is_created_time() {
       return true;
     }
 

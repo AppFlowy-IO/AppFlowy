@@ -43,16 +43,32 @@ CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
     // 3. image
     // 4. plain text
 
+    // try to paste the content in order, if any of them is failed, then try the next one
     if (inAppJson != null && inAppJson.isNotEmpty) {
       await editorState.deleteSelectionIfNeeded();
-      await editorState.pasteInAppJson(inAppJson);
-    } else if (html != null && html.isNotEmpty) {
+      final result = await editorState.pasteInAppJson(inAppJson);
+      if (result) {
+        return;
+      }
+    }
+
+    if (html != null && html.isNotEmpty) {
       await editorState.deleteSelectionIfNeeded();
-      await editorState.pasteHtml(html);
-    } else if (image != null && image.$2?.isNotEmpty == true) {
+      final result = await editorState.pasteHtml(html);
+      if (result) {
+        return;
+      }
+    }
+
+    if (image != null && image.$2?.isNotEmpty == true) {
       await editorState.deleteSelectionIfNeeded();
-      await editorState.pasteImage(image.$1, image.$2!);
-    } else if (plainText != null && plainText.isNotEmpty) {
+      final result = await editorState.pasteImage(image.$1, image.$2!);
+      if (result) {
+        return;
+      }
+    }
+
+    if (plainText != null && plainText.isNotEmpty) {
       await editorState.pastePlainText(plainText);
     }
   }();

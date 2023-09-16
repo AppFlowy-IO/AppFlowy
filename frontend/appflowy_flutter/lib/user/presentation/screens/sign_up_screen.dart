@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_up_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/user/presentation/widgets/background.dart';
+import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -23,6 +23,7 @@ class SignUpScreen extends StatelessWidget {
     required this.router,
   });
 
+  static const routeName = '/SignUpScreen';
   final AuthRouter router;
 
   @override
@@ -46,7 +47,7 @@ class SignUpScreen extends StatelessWidget {
     Either<UserProfilePB, FlowyError> result,
   ) {
     result.fold(
-      (user) => router.pushWelcomeScreen(context, user),
+      (user) => router.pushWorkspaceStartScreen(context, user),
       (error) => showSnapBar(context, error.msg),
     );
   }
@@ -54,8 +55,8 @@ class SignUpScreen extends StatelessWidget {
 
 class SignUpForm extends StatelessWidget {
   const SignUpForm({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +90,8 @@ class SignUpForm extends StatelessWidget {
 
 class SignUpPrompt extends StatelessWidget {
   const SignUpPrompt({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,8 +119,8 @@ class SignUpPrompt extends StatelessWidget {
 
 class SignUpButton extends StatelessWidget {
   const SignUpButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +138,8 @@ class SignUpButton extends StatelessWidget {
 
 class PasswordTextField extends StatelessWidget {
   const PasswordTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,8 +171,8 @@ class PasswordTextField extends StatelessWidget {
 
 class RepeatPasswordTextField extends StatelessWidget {
   const RepeatPasswordTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -203,8 +204,8 @@ class RepeatPasswordTextField extends StatelessWidget {
 
 class EmailTextField extends StatelessWidget {
   const EmailTextField({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,23 +1,20 @@
+import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-import '../../../application/cell/cell_service.dart';
-import '../../../application/field/field_service.dart';
-import '../../../application/row/row_controller.dart';
+
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final RowBackendService rowService;
   final RowController rowController;
 
   RowDetailBloc({
     required this.rowController,
-  })  : rowService = RowBackendService(viewId: rowController.viewId),
-        super(RowDetailState.initial()) {
+  }) : super(RowDetailState.initial()) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
@@ -58,14 +55,8 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               (err) => Log.error(err),
             );
           },
-          deleteRow: (rowId) async {
-            await rowService.deleteRow(rowId);
-          },
-          duplicateRow: (String rowId, String? groupId) async {
-            await rowService.duplicateRow(
-              rowId: rowId,
-              groupId: groupId,
-            );
+          reorderField: (fieldId, fromIndex, toIndex) async {
+            await _reorderField(fieldId, fromIndex, toIndex, emit);
           },
         );
       },
@@ -94,6 +85,25 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
       fieldId: fieldId,
     );
   }
+
+  Future<void> _reorderField(
+    String fieldId,
+    int fromIndex,
+    int toIndex,
+    Emitter<RowDetailState> emit,
+  ) async {
+    final cells = List<DatabaseCellContext>.from(state.cells);
+    cells.insert(toIndex, cells.removeAt(fromIndex));
+    emit(state.copyWith(cells: cells));
+
+    final fieldService =
+        FieldBackendService(viewId: rowController.viewId, fieldId: fieldId);
+    final result = await fieldService.moveField(
+      fromIndex,
+      toIndex,
+    );
+    result.fold((l) {}, (err) => Log.error(err));
+  }
 }
 
 @freezed
@@ -102,9 +112,11 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
   const factory RowDetailEvent.showField(String fieldId) = _ShowField;
   const factory RowDetailEvent.hideField(String fieldId) = _HideField;
-  const factory RowDetailEvent.deleteRow(String rowId) = _DeleteRow;
-  const factory RowDetailEvent.duplicateRow(String rowId, String? groupId) =
-      _DuplicateRow;
+  const factory RowDetailEvent.reorderField(
+    String fieldId,
+    int fromIndex,
+    int toIndex,
+  ) = _ReorderField;
   const factory RowDetailEvent.didReceiveCellDatas(
     List<DatabaseCellContext> gridCells,
   ) = _DidReceiveCellDatas;
