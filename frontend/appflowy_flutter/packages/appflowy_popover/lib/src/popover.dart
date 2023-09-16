@@ -202,9 +202,9 @@ class PopoverState extends State<Popover> {
           showOverlay();
         }
       },
-      child: GestureDetector(
+      child: Listener(
         child: widget.child,
-        onTap: () {
+        onPointerDown: (_) {
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }

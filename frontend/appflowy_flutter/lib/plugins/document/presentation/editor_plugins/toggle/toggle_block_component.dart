@@ -146,7 +146,10 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
-  Widget buildComponent(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = false,
+  }) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
