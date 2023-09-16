@@ -312,6 +312,7 @@ class _IncludeTimeButton extends StatelessWidget {
   }
 }
 
+@visibleForTesting
 class EndTimeButton extends StatelessWidget {
   const EndTimeButton({super.key});
 

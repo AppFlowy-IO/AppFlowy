@@ -67,16 +67,13 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    let timestamp = cell_data.timestamp;
     let include_time = cell_data.include_time;
     let is_range = cell_data.is_range;
+
+    let timestamp = cell_data.timestamp;
     let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
 
-    let end_timestamp = if cell_data.end_timestamp.is_some() {
-      cell_data.end_timestamp
-    } else {
-      cell_data.timestamp
-    };
+    let end_timestamp = cell_data.end_timestamp;
     let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
     DateCellDataPB {
@@ -144,6 +141,8 @@ impl DateTypeOption {
     }
   }
 
+  /// combine the changeset_timestamp and parsed_time if provided. if
+  /// changeset_timestamp is None, fallback to previous_timestamp
   fn timestamp_from_parsed_time_previous_and_new_timestamp(
     &self,
     parsed_time: Option<NaiveTime>,
@@ -293,17 +292,29 @@ impl CellDataChangeset for DateTypeOption {
     let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
     let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
 
+    tracing::trace!(
+      "include time: {:?}, is_range: {:?}, parsed_start_time: {:?}, parsed_end_time: {:?}",
+      include_time,
+      is_range,
+      parsed_start_time,
+      parsed_end_time
+    );
+
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
       parsed_start_time,
       previous_timestamp,
       changeset.date,
     );
 
-    let end_timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      parsed_end_time,
-      previous_end_timestamp,
-      changeset.end_date,
-    );
+    let end_timestamp = if is_range {
+      self.timestamp_from_parsed_time_previous_and_new_timestamp(
+        parsed_end_time,
+        previous_end_timestamp,
+        changeset.end_date,
+      )
+    } else {
+      None // completely clear end timestamp if is_range is false
+    };
 
     let cell_data = DateCellData {
       timestamp,
