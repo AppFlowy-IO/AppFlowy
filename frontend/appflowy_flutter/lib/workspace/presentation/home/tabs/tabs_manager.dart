@@ -2,19 +2,24 @@ import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class TabsManager extends StatefulWidget {
   final PageController pageController;
   final Tabs tabs;
+  final bool allowPaneDrag;
   final PaneNode pane;
   const TabsManager({
     super.key,
     required this.tabs,
     required this.pageController,
     required this.pane,
+    required this.allowPaneDrag,
   });
 
   @override
@@ -61,16 +66,14 @@ class _TabsManagerState extends State<TabsManager>
     if (_controller.length == 1) {
       return const SizedBox.shrink();
     }
-
     return Container(
       alignment: Alignment.bottomLeft,
       height: HomeSizes.tabBarHeigth,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
       ),
-
-      /// TODO(Xazin): Custom Reorderable TabBar
       child: TabBar(
+        dragStartBehavior: DragStartBehavior.down,
         padding: EdgeInsets.zero,
         labelPadding: EdgeInsets.zero,
         indicator: BoxDecoration(
@@ -85,12 +88,24 @@ class _TabsManagerState extends State<TabsManager>
             .selectTab(pane: widget.pane, index: newIndex),
         tabs: widget.tabs.pageManagers
             .map(
-              (pm) => FlowyTab(
-                paneNode: widget.pane,
-                key: UniqueKey(),
-                pageManager: pm,
-                isCurrent: widget.tabs.currentPageManager == pm,
-              ),
+              (pm) => !widget.allowPaneDrag
+                  ? DraggableTabItem(
+                      tabContext: context,
+                      tabs: widget.tabs,
+                      pageManager: pm,
+                      child: FlowyTab(
+                        paneNode: widget.pane,
+                        key: UniqueKey(),
+                        pageManager: pm,
+                        isCurrent: widget.tabs.currentPageManager == pm,
+                      ),
+                    )
+                  : FlowyTab(
+                      paneNode: widget.pane,
+                      key: UniqueKey(),
+                      pageManager: pm,
+                      isCurrent: widget.tabs.currentPageManager == pm,
+                    ),
             )
             .toList(),
       ),
@@ -100,7 +115,6 @@ class _TabsManagerState extends State<TabsManager>
   @override
   void dispose() {
     _controller.dispose();
-    widget.tabs.dispose();
     super.dispose();
   }
 }

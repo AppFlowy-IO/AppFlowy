@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,6 @@ class Tabs extends ChangeNotifier {
     currentIndex = currentIndex > _pageManagers.length - 1 && currentIndex > 0
         ? currentIndex - 1
         : currentIndex;
-
     notifyListeners();
   }
 
@@ -78,5 +78,39 @@ class Tabs extends ChangeNotifier {
       currentIndex = index;
       notifyListeners();
     }
+  }
+
+  void move({
+    required PageManager from,
+    required PageManager to,
+    required TabDraggableHoverPosition position,
+  }) {
+    switch (position) {
+      case TabDraggableHoverPosition.center:
+      case TabDraggableHoverPosition.none:
+        return;
+      case TabDraggableHoverPosition.left:
+        {
+          pageManagers.remove(from);
+          pageManagers.insert(
+            (pageManagers.indexOf(to) - 1)
+                .clamp(0, pageManagers.length)
+                .floor(),
+            from,
+          );
+          break;
+        }
+      case TabDraggableHoverPosition.right:
+        {
+          final index = pageManagers.indexOf(to);
+          if (index + 1 >= pageManagers.length) {
+            pageManagers.add(from);
+          } else {
+            pageManagers.insert(index, from);
+          }
+          break;
+        }
+    }
+    notifyListeners();
   }
 }

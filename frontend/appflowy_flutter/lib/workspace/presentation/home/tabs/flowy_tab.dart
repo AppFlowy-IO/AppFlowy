@@ -40,33 +40,27 @@ class _FlowyTabState extends State<FlowyTab> {
           decoration: BoxDecoration(
             color: _getBackgroundColor(),
           ),
-          child: ChangeNotifierProvider.value(
-            value: widget.pageManager.notifier,
-            child: Consumer<PageNotifier>(
-              builder: (context, value, child) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: widget.pageManager.notifier
-                          .tabBarWidget(widget.pageManager.plugin.id),
-                    ),
-                    Visibility(
-                      visible: _isHovering,
-                      child: FlowyIconButton(
-                        onPressed: _closeTab,
-                        hoverColor: Theme.of(context).hoverColor,
-                        iconColorOnHover:
-                            Theme.of(context).colorScheme.onSurface,
-                        icon: const FlowySvg(
-                          FlowySvgs.close_s,
-                          size: Size.fromWidth(16),
-                        ),
-                      ),
-                    ),
-                  ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: widget.pageManager.notifier
+                      .tabBarWidget(widget.pageManager.plugin.id),
                 ),
-              ),
+                Visibility(
+                  visible: _isHovering,
+                  child: FlowyIconButton(
+                    onPressed: _closeTab,
+                    hoverColor: Theme.of(context).hoverColor,
+                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                    icon: const FlowySvg(
+                      FlowySvgs.close_s,
+                      size: Size.fromWidth(16),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
