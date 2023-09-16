@@ -5,6 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/panes/flowy_pane_group.dart';
@@ -188,6 +189,14 @@ class PageManager {
     return _notifier.plugin.widgetBuilder.leftBarItem;
   }
 
+  Future<ViewPB?> get view async {
+    final response = await ViewBackendService.getView(_notifier._plugin.id);
+    return response.fold(
+      (l) => l,
+      (r) => null,
+    );
+  }
+
   Plugin get plugin => _notifier.plugin;
 
   void setPlugin(Plugin newPlugin) {
@@ -277,7 +286,7 @@ class HomeTopBar extends StatelessWidget {
             ),
             BlocBuilder<PanesCubit, PanesState>(
               builder: (context, state) {
-                if (state.count <= 0) {
+                if (state.count <= 1) {
                   return const SizedBox.shrink();
                 }
 

@@ -1,5 +1,9 @@
+import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
+import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -13,18 +17,19 @@ enum DraggableHoverPosition {
   bottom,
 }
 
+//TODO(squidrye):refactor cross draggables and add edge cases
 class DraggableViewItem extends StatefulWidget {
-  const DraggableViewItem({
+  DraggableViewItem({
     super.key,
-    required this.view,
+    required ViewPB view,
     this.feedback,
     required this.child,
     this.isFirstChild = false,
-  });
+  }) : view = CrossDraggablesEntity(draggable: view);
 
   final Widget child;
   final WidgetBuilder? feedback;
-  final ViewPB view;
+  final CrossDraggablesEntity view;
   final bool isFirstChild;
 
   @override
@@ -67,14 +72,29 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       ],
     );
 
-    return DraggableItem<ViewPB>(
+    return DraggableItem<CrossDraggablesEntity>(
       data: widget.view,
       onWillAccept: (data) => true,
-      onMove: (data) {
+      onMove: (data) async {
+        ViewPB? view;
+        if (data.data.crossDraggableType == CrossDraggableType.view) {
+          view = data.data.draggable as ViewPB;
+        } else if (data.data.crossDraggableType == CrossDraggableType.pane) {
+          view = await (data.data.draggable as PaneNode)
+              .tabs
+              .currentPageManager
+              .view;
+        } else if (data.data.crossDraggableType == CrossDraggableType.tab) {
+          view = await (data.data.draggable as (Tabs, PageManager)).$2.view;
+        } else {
+          view = null;
+        }
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
         final position = _computeHoverPosition(offset, renderBox.size);
-        if (!_shouldAccept(data.data, position)) {
+        if (view != null && !_shouldAccept(view, position)) {
+          return;
+        } else if (view == null) {
           return;
         }
         setState(() {
@@ -87,8 +107,19 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       onLeave: (_) => setState(
         () => position = DraggableHoverPosition.none,
       ),
-      onAccept: (data) {
-        _move(data, widget.view);
+      onAccept: (data) async {
+        ViewPB? from;
+        if (data.crossDraggableType == CrossDraggableType.view) {
+          from = data.draggable as ViewPB;
+        } else if (data.crossDraggableType == CrossDraggableType.pane) {
+          from = await (data.draggable as PaneNode).tabs.currentPageManager.view
+              as ViewPB;
+        } else if (data.crossDraggableType == CrossDraggableType.tab) {
+          from = await (data.draggable as (Tabs, PageManager)).$2.view;
+        }
+        final to = widget.view.draggable as ViewPB;
+        if (from == null) return;
+        _move(from, to);
         setState(
           () => position = DraggableHoverPosition.none,
         );
@@ -155,19 +186,20 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   bool _shouldAccept(ViewPB data, DraggableHoverPosition position) {
+    final view = widget.view.draggable as ViewPB;
     // could not move the view to a database
-    if (widget.view.layout.isDatabaseView &&
+    if (view.layout.isDatabaseView &&
         position == DraggableHoverPosition.center) {
       return false;
     }
 
     // ignore moving the view to itself
-    if (data.id == widget.view.id) {
+    if (data.id == view.id) {
       return false;
     }
 
     // ignore moving the view to its child view
-    if (data.containsView(widget.view)) {
+    if (data.containsView(view)) {
       return false;
     }
 
