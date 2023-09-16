@@ -19,21 +19,11 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
-}
-
-impl Default for DateTypeOption {
-  fn default() -> Self {
-    Self {
-      date_format: Default::default(),
-      time_format: Default::default(),
-      timezone_id: Default::default(),
-    }
-  }
 }
 
 impl TypeOption for DateTypeOption {
@@ -85,7 +75,7 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     let end_timestamp = if cell_data.end_timestamp.is_some() {
       cell_data.end_timestamp
     } else {
-      cell_data.timestamp.clone()
+      cell_data.timestamp
     };
     let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
@@ -245,12 +235,10 @@ impl CellDataDecoder for DateTypeOption {
       } else {
         "".to_string()
       }
+    } else if include_time {
+      format!("{} {}", date, time).trim().to_string()
     } else {
-      if include_time {
-        format!("{} {}", date, time).trim().to_string()
-      } else {
-        date
-      }
+      date
     }
   }
 
