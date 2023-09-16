@@ -8,6 +8,7 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
+typedef KeyUpHandler = void Function(HotKey hotKey);
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -19,14 +20,19 @@ typedef KeyDownHandler = void Function(HotKey hotKey);
 class HotKeyItem {
   final HotKey hotKey;
   final KeyDownHandler? keyDownHandler;
+  final KeyUpHandler? keyUpHandler;
 
   HotKeyItem({
     required this.hotKey,
     this.keyDownHandler,
+    this.keyUpHandler,
   });
 
-  void register() =>
-      hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
+  void register() => hotKeyManager.register(
+        hotKey,
+        keyDownHandler: keyDownHandler,
+        keyUpHandler: keyUpHandler,
+      );
 }
 
 class HomeHotKeys extends StatelessWidget {
@@ -70,6 +76,16 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => context.read<PanesCubit>().closeCurrentTab(),
+    ).register();
+
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.controlLeft,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => context.read<PanesCubit>().allowPaneDragging(true),
+      keyUpHandler: (_) => context.read<PanesCubit>().allowPaneDragging(false),
     ).register();
 
     // Go to previous tab
