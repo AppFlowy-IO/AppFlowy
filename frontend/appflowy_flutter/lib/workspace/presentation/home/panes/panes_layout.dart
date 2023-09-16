@@ -48,10 +48,10 @@ class PaneLayout {
         parentPane.axis == Axis.horizontal ? accumulatedHeight : null;
 
     resizerWidth =
-        parentPane.axis == Axis.vertical ? 5 : parentPaneConstraints.maxWidth;
+        parentPane.axis == Axis.vertical ? 3 : parentPaneConstraints.maxWidth;
 
     resizerHeight = parentPane.axis == Axis.horizontal
-        ? 5
+        ? 3
         : parentPaneConstraints.maxHeight;
 
     resizeCursorType = parentPane.axis == Axis.vertical

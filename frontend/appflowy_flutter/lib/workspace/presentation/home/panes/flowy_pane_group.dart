@@ -95,31 +95,29 @@ class FlowyPaneGroup extends StatelessWidget {
         cursor: paneLayout.resizeCursorType,
         child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragUpdate: (details) {
-            node.sizeController.resize(
-              paneLayout.childPaneWidth,
-              sizeController.flex,
-              indexNode.$1,
-              details.delta.dx,
-            );
-          },
-          // onHorizontalDragEnd: (_) => node.sizeController.resize(
-          //   paneLayout.childPaneWidth,
-          //   sizeController.flex,
-          //   indexNode.$1,
-          //   state.resizeOffset,
-          // ),
+          onHorizontalDragUpdate: (details) => node.sizeController.resize(
+            paneLayout.childPaneWidth,
+            sizeController.flex,
+            indexNode.$1,
+            details.delta.dx,
+          ),
           onVerticalDragUpdate: (details) => node.sizeController.resize(
             paneLayout.childPaneHeight,
             sizeController.flex,
             indexNode.$1,
             details.delta.dy,
           ),
-          behavior: HitTestBehavior.translucent,
+          behavior: HitTestBehavior.opaque,
           child: Container(
-            color: Colors.lightBlue,
             width: paneLayout.resizerWidth,
             height: paneLayout.resizerHeight,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              border: Border(
+                top: BorderSide(color: Theme.of(context).dividerColor),
+                left: BorderSide(color: Theme.of(context).dividerColor),
+              ),
+            ),
           ),
         ),
       ),
