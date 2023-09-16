@@ -48,20 +48,3 @@ class PaneNode extends Equatable {
     return '${(paneId, axis)} =>  Children($children) \n';
   }
 }
-
-/// find a node that satisfies some condition
-PaneNode? depthFirstSearch(
-  PaneNode? node,
-  bool Function(PaneNode n) predicate,
-) {
-  if (node == null) {
-    return node;
-  }
-  if (predicate(node)) return node;
-  for (int i = 0; i < node.children.length; i++) {
-    final n = depthFirstSearch(node.children[i], predicate);
-    if (n != null) return n;
-  }
-
-  return null;
-}
