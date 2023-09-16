@@ -43,7 +43,13 @@ class PanesService {
               pageManagers: node.tabs.pageManagers,
             ),
           ),
-          fromNode?.copyWith(paneId: nanoid()) ??
+          fromNode?.copyWith(
+                paneId: nanoid(),
+                tabs: Tabs(
+                  currentIndex: fromNode.tabs.currentIndex,
+                  pageManagers: fromNode.tabs.pageManagers,
+                ),
+              ) ??
               PaneNode(
                 sizeController: PaneSizeController.intial(),
                 paneId: nanoid(),
@@ -65,7 +71,13 @@ class PanesService {
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
-          final newNode = fromNode?.copyWith(paneId: nanoid()) ??
+          final newNode = fromNode?.copyWith(
+                paneId: nanoid(),
+                tabs: Tabs(
+                  currentIndex: fromNode.tabs.currentIndex,
+                  pageManagers: fromNode.tabs.pageManagers,
+                ),
+              ) ??
               PaneNode(
                 sizeController: PaneSizeController.intial(),
                 paneId: nanoid(),
@@ -86,6 +98,19 @@ class PanesService {
           }
           final ret = node.copyWith(
             paneId: nanoid(),
+            tabs: Tabs(),
+            children: node.children
+                .map(
+                  (e) => e.copyWith(
+                    sizeController:
+                        PaneSizeController(flex: e.sizeController.flex),
+                    tabs: Tabs(
+                      currentIndex: e.tabs.currentIndex,
+                      pageManagers: e.tabs.pageManagers,
+                    ),
+                  ),
+                )
+                .toList(),
             sizeController: PaneSizeController(
               flex: List.generate(
                 node.children.length,
