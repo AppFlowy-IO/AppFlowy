@@ -66,7 +66,8 @@ class CardAccessoryContainer extends StatelessWidget {
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: decoration,
-      child: child,
+      child: ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(4)),child: child),
     );
   }
 }
