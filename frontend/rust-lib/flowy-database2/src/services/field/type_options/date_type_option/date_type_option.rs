@@ -22,21 +22,11 @@ use crate::services::sort::SortCondition;
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
-}
-
-impl Default for DateTypeOption {
-  fn default() -> Self {
-    Self {
-      date_format: Default::default(),
-      time_format: Default::default(),
-      timezone_id: Default::default(),
-    }
-  }
 }
 
 impl TypeOption for DateTypeOption {
@@ -113,7 +103,7 @@ impl DateTypeOption {
     if let Some(timestamp) = timestamp {
       let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
       let offset = self.get_timezone_offset(naive);
-      let date_time = DateTime::<Local>::from_utc(naive, offset);
+      let date_time = DateTime::<Local>::from_naive_utc_and_offset(naive, offset);
 
       let fmt = self.date_format.format_str();
       let date = format!("{}", date_time.format(fmt));

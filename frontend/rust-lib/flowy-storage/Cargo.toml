@@ -14,4 +14,4 @@ bytes = "1.0.1"
 mime_guess = "2.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 url = "2.2.2"
-flowy-error = { path = "../flowy-error", features = ["impl_from_reqwest"] }
+flowy-error = { workspace = true, features = ["impl_from_reqwest"] }

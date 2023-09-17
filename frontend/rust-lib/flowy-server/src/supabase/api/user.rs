@@ -292,9 +292,12 @@ where
             .upgrade()
             .ok_or(anyhow::anyhow!("postgrest is not available"))?;
 
-          let updates =
-            get_updates_from_server(&collab_object.object_id, &collab_object.ty, &postgrest)
-              .await?;
+          let updates = get_updates_from_server(
+            &collab_object.object_id,
+            &collab_object.collab_type,
+            &postgrest,
+          )
+          .await?;
 
           flush_collab_with_update(
             &collab_object,

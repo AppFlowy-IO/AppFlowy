@@ -23,7 +23,6 @@ tracing = { version = "0.1", features = ["log"] }
 lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
 flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["ts"] }
-flowy-net = { path = "../../rust-lib/flowy-net" }
 
 [features]
 # by default Tauri runs in production mode
@@ -34,24 +33,33 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
+
+# ⚠️⚠️⚠️
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_collab_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
 
 #collab = { path = "../../../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
 #collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
 #collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
-#appflowy-integrate = { path = "../../../../AppFlowy-Collab/appflowy-integrate" }
 #collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
+#collab-persistence = { path = "../../../../AppFlowy-Collab/collab-persistence" }
 #collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
+#collab-sync-protocol = { path = "../../../../AppFlowy-Collab/collab-sync-protocol" }
 
 
 

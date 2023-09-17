@@ -1,8 +1,6 @@
 use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use collab::core::collab::MutexCollab;
 use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
@@ -11,6 +9,8 @@ use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_storage::FileStorageService;
