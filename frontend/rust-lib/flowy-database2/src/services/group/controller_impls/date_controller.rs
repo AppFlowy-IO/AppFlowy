@@ -443,7 +443,7 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &str) -> DateTi
         Err(_) => *Local::now().offset(),
       };
 
-      DateTime::<Local>::from_utc(naive, offset)
+      DateTime::<Local>::from_naive_utc_and_offset(naive, offset)
     },
     None => DateTime::default(),
   }

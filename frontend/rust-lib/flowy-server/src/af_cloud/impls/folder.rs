@@ -1,24 +1,18 @@
 use anyhow::Error;
 
-use flowy_folder_deps::cloud::{
-  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
-};
+use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
 
-pub(crate) struct AFCloudFolderCloudServiceImpl();
+use crate::af_cloud::AFServer;
 
-impl FolderCloudService for AFCloudFolderCloudServiceImpl {
-  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let name = name.to_string();
-    FutureResult::new(async move {
-      Ok(Workspace {
-        id: gen_workspace_id().to_string(),
-        name: name.to_string(),
-        child_views: Default::default(),
-        created_at: timestamp(),
-      })
-    })
+pub(crate) struct AFCloudFolderCloudServiceImpl<T>(pub T);
+
+impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
+where
+  T: AFServer,
+{
+  fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
+    FutureResult::new(async move { todo!() })
   }
 
   fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {

@@ -10,9 +10,9 @@ use std::{
   },
 };
 
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
@@ -31,9 +31,7 @@ use module::make_plugins;
 pub use module::*;
 
 use crate::deps_resolve::*;
-use crate::integrate::server::{
-  current_server_provider, AppFlowyServerProvider, ServerProviderType,
-};
+use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
 
 mod deps_resolve;
 mod integrate;
@@ -121,7 +119,7 @@ pub struct AppFlowyCore {
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
-  pub server_provider: Arc<AppFlowyServerProvider>,
+  pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
 }
@@ -147,7 +145,7 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let provider_type = current_server_provider(&store_preference);
-    let server_provider = Arc::new(AppFlowyServerProvider::new(
+    let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       provider_type,
       Arc::downgrade(&store_preference),
@@ -282,7 +280,7 @@ struct UserStatusCallbackImpl {
   folder_manager: Arc<FolderManager>,
   database_manager: Arc<DatabaseManager>,
   document_manager: Arc<DocumentManager>,
-  server_provider: Arc<AppFlowyServerProvider>,
+  server_provider: Arc<ServerProvider>,
   #[allow(dead_code)]
   config: AppFlowyCoreConfig,
 }
@@ -298,7 +296,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     _device_id: &str,
   ) -> Fut<FlowyResult<()>> {
     let user_workspace = user_workspace.clone();
-    let collab_builder = self.collab_builder.clone();
+    self.collab_builder.initialize(user_workspace.id.clone());
+
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
@@ -315,7 +314,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     }
 
     to_fut(async move {
-      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize(
           user_id,
@@ -419,13 +417,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let user_workspace = user_workspace.clone();
-    let collab_builder = self.collab_builder.clone();
+    self.collab_builder.initialize(user_workspace.id.clone());
+
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
 
     to_fut(async move {
-      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize_with_workspace_id(user_id, &user_workspace.id)
         .await?;
@@ -449,12 +447,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 }
 
-impl From<ServerProviderType> for CollabStorageType {
-  fn from(server_provider: ServerProviderType) -> Self {
+impl From<ServerType> for CollabSource {
+  fn from(server_provider: ServerType) -> Self {
     match server_provider {
-      ServerProviderType::Local => CollabStorageType::Local,
-      ServerProviderType::AppFlowyCloud => CollabStorageType::Local,
-      ServerProviderType::Supabase => CollabStorageType::Supabase,
+      ServerType::Local => CollabSource::Local,
+      ServerType::AppFlowyCloud => CollabSource::Local,
+      ServerType::Supabase => CollabSource::Supabase,
     }
   }
 }
