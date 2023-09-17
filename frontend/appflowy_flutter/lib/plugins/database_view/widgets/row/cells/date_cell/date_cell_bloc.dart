@@ -86,19 +86,10 @@ String _dateStrFromCellData(DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData.isRange) {
     if (cellData.includeTime) {
-      if (cellData.hasEndTimestamp()) {
-        dateStr =
-            "${cellData.date} ${cellData.time} → ${cellData.endDate} ${cellData.endTime}";
-      } else {
-        dateStr =
-            "${cellData.date} ${cellData.time} → ${cellData.date} ${cellData.time}";
-      }
+      dateStr =
+          "${cellData.date} ${cellData.time} → ${cellData.endDate} ${cellData.endTime}";
     } else {
-      if (cellData.hasEndTimestamp()) {
-        dateStr = "${cellData.date} → ${cellData.endDate}";
-      } else {
-        dateStr = "${cellData.date} → ${cellData.date}";
-      }
+      dateStr = "${cellData.date} → ${cellData.endDate}";
     }
   } else {
     if (cellData.includeTime) {

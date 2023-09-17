@@ -290,15 +290,6 @@ impl CellDataChangeset for DateTypeOption {
 
     // parse the time string, which is in the local timezone
     let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
-    let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
-
-    tracing::trace!(
-      "include time: {:?}, is_range: {:?}, parsed_start_time: {:?}, parsed_end_time: {:?}",
-      include_time,
-      is_range,
-      parsed_start_time,
-      parsed_end_time
-    );
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
       parsed_start_time,
@@ -306,15 +297,23 @@ impl CellDataChangeset for DateTypeOption {
       changeset.date,
     );
 
-    let end_timestamp = if is_range {
-      self.timestamp_from_parsed_time_previous_and_new_timestamp(
-        parsed_end_time,
-        previous_end_timestamp,
-        changeset.end_date,
-      )
-    } else {
-      None // completely clear end timestamp if is_range is false
-    };
+    let end_timestamp =
+      if is_range && changeset.end_date.is_none() && previous_end_timestamp.is_none() {
+        // just toggled is_range so no passed in or existing end time data
+        timestamp
+      } else if is_range {
+        // parse the changeset's end time data or fallback to previous version
+        let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
+
+        self.timestamp_from_parsed_time_previous_and_new_timestamp(
+          parsed_end_time,
+          previous_end_timestamp,
+          changeset.end_date,
+        )
+      } else {
+        // clear the end time data
+        None
+      };
 
     let cell_data = DateCellData {
       timestamp,

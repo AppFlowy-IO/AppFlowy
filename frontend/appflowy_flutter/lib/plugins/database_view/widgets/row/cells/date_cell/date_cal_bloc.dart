@@ -48,8 +48,8 @@ class DateCellCalendarBloc
                 endTime: endTime,
                 includeTime: includeTime,
                 isRange: isRange,
-                startDay: isRange ? dateTime : state.startDay,
-                endDay: isRange ? endDateTime : state.endDay,
+                startDay: isRange ? dateTime : null,
+                endDay: isRange ? endDateTime : null,
               ),
             );
           },
@@ -156,22 +156,19 @@ class DateCellCalendarBloc
       (err) {
         switch (err.code) {
           case ErrorCode.InvalidDateTimeFormat:
-            if (isClosed) return;
-            if (newDate != null) {
-              add(
-                DateCellCalendarEvent.didReceiveTimeFormatError(
-                  timeFormatPrompt(err),
-                  null,
-                ),
-              );
-            } else {
-              add(
-                DateCellCalendarEvent.didReceiveTimeFormatError(
-                  null,
-                  timeFormatPrompt(err),
-                ),
-              );
+            if (isClosed) {
+              return;
             }
+            // to determine which textfield should show error
+            final (startError, endError) = newDate != null
+                ? (timeFormatPrompt(err), null)
+                : (null, timeFormatPrompt(err));
+            add(
+              DateCellCalendarEvent.didReceiveTimeFormatError(
+                startError,
+                endError,
+              ),
+            );
             break;
           default:
             Log.error(err);
@@ -189,10 +186,7 @@ class DateCellCalendarBloc
         }
 
         add(
-          const DateCellCalendarEvent.didReceiveTimeFormatError(
-            null,
-            null,
-          ),
+          const DateCellCalendarEvent.didReceiveTimeFormatError(null, null),
         );
       },
       (err) => Log.error(err),

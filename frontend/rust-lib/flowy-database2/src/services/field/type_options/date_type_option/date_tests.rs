@@ -454,22 +454,28 @@ mod tests {
   }
 
   #[test]
-  fn data_is_range_but_no_end_timestamp() {
+  fn turn_on_date_range() {
     let type_option = DateTypeOption::test();
     let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
 
+    let old_cell_data = initialize_date_cell(
+      &type_option,
+      DateCellChangeset {
+        date: Some(1653609600),
+        time: Some("08:00".to_owned()),
+        include_time: Some(true),
+        ..Default::default()
+      },
+    );
     assert_date(
       &type_option,
       &field,
       DateCellChangeset {
-        date: Some(1653609600),
-        end_date: None,
-        include_time: Some(false),
         is_range: Some(true),
         ..Default::default()
       },
-      None,
-      "May 27, 2022 → May 27, 2022",
+      Some(old_cell_data),
+      "May 27, 2022 08:00 → May 27, 2022 08:00",
     );
   }
 
