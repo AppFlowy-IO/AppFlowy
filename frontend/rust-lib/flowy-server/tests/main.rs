@@ -9,7 +9,7 @@ mod supabase_test;
 pub fn setup_log() {
   static START: Once = Once::new();
   START.call_once(|| {
-    let level = "debug";
+    let level = "trace";
     let mut filters = vec![];
     filters.push(format!("flowy_server={}", level));
     std::env::set_var("RUST_LOG", filters.join(","));
