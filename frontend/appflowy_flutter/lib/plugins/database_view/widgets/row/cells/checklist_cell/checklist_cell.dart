@@ -28,11 +28,7 @@ class GridChecklistCell extends GridCellWidget {
     GridCellStyle? style,
     super.key,
   }) {
-    if (style != null) {
-      cellStyle = (style as ChecklistCellStyle);
-    } else {
-      cellStyle = null;
-    }
+    cellStyle = style as ChecklistCellStyle?;
   }
 
   @override

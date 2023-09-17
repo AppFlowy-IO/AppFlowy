@@ -252,10 +252,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
 
   void _debounceOnChangedText(String text) {
     _debounceOnChanged?.cancel();
-    _debounceOnChanged = Timer(const Duration(milliseconds: 300), () async {
-      if (mounted) {
-        _submitUpdateTaskDescription(text);
-      }
+    _debounceOnChanged = Timer(const Duration(milliseconds: 300), () {
+      _submitUpdateTaskDescription(text);
     });
   }
 
