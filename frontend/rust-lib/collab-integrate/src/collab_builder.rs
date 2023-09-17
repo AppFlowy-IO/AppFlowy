@@ -196,7 +196,7 @@ impl AppFlowyCollabBuilder {
     {
       let cloud_storage = self.cloud_storage.read();
       let cloud_storage_type = cloud_storage.storage_source();
-      let collab_object = self.collab_object(uid, object_id, object_type.clone())?;
+      let collab_object = self.collab_object(uid, object_id, object_type)?;
       match cloud_storage_type {
         CollabSource::AFCloud => {
           #[cfg(feature = "appflowy_cloud_integrate")]
@@ -251,7 +251,7 @@ impl CollabStorageProvider for DefaultCollabStorageProvider {
     CollabSource::Local
   }
 
-  async fn get_plugins(&self, context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
+  async fn get_plugins(&self, _context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
     vec![]
   }
 

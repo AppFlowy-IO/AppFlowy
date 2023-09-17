@@ -11,7 +11,7 @@ impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
+  fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
     FutureResult::new(async move { todo!() })
   }
 

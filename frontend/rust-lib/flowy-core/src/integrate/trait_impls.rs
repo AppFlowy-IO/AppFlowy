@@ -107,7 +107,7 @@ impl UserCloudServiceProvider for ServerProvider {
       return Ok(user_service.clone());
     }
 
-    let server_type = self.get_server_type().clone();
+    let server_type = self.get_server_type();
     let user_service = self.get_server(&server_type)?.user_service();
     self
       .cache_user_service
@@ -261,7 +261,7 @@ impl DocumentCloudService for ServerProvider {
 #[async_trait]
 impl CollabStorageProvider for ServerProvider {
   fn storage_source(&self) -> CollabSource {
-    self.get_server_type().clone().into()
+    self.get_server_type().into()
   }
 
   async fn get_plugins(&self, context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
@@ -269,7 +269,7 @@ impl CollabStorageProvider for ServerProvider {
     match context {
       CollabPluginContext::Local => {},
       CollabPluginContext::AppFlowyCloud {
-        uid,
+        uid: _,
         collab_object,
         local_collab,
       } => {
@@ -285,7 +285,8 @@ impl CollabStorageProvider for ServerProvider {
               let sync_plugin = SyncPlugin::new(origin, sync_object, local_collab, sink, stream);
               plugins.push(Arc::new(sync_plugin));
             },
-            _ => {},
+            Ok(None) => {},
+            Err(err) => tracing::error!("🔴Failed to get collab ws channel: {:?}", err),
           }
         }
       },

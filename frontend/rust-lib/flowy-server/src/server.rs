@@ -87,13 +87,13 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Returns
   ///
   /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
-  fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
 
   fn collab_ws_channel(
     &self,
-    object_id: &str,
+    _object_id: &str,
   ) -> FutureResult<Option<Arc<WebSocketChannel>>, anyhow::Error> {
     FutureResult::new(async { Ok(None) })
   }

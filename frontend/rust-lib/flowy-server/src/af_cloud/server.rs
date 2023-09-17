@@ -23,9 +23,11 @@ use crate::AppFlowyServer;
 pub(crate) type AFCloudClient = RwLock<client_api::Client>;
 
 pub struct AFCloudServer {
+  #[allow(dead_code)]
   pub(crate) config: AFCloudConfiguration,
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: AtomicBool,
+  #[allow(dead_code)]
   device_id: Arc<parking_lot::RwLock<String>>,
   ws_client: Arc<RwLock<WSClient>>,
 }
