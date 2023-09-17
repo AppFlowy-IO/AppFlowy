@@ -30,27 +30,20 @@ class SettingsLanguageView extends StatelessWidget {
   }
 }
 
-class LanguageSelector extends StatefulWidget {
+class LanguageSelector extends StatelessWidget {
   final Locale currentLocale;
+  
   const LanguageSelector({
     super.key,
     required this.currentLocale,
   });
 
   @override
-  State<LanguageSelector> createState() => _LanguageSelectorState();
-}
-
-class _LanguageSelectorState extends State<LanguageSelector> {
-  final controller = PopoverController();
-
-  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      controller: controller,
       direction: PopoverDirection.bottomWithRightAligned,
       child: FlowyTextButton(
-        languageFromLocale(widget.currentLocale),
+        languageFromLocale(currentLocale),
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
         onPressed: () {},
