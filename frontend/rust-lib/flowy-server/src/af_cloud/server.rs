@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::ws::{BusinessID, WSClient, WSClientConfig, WSObjectHandler};
+use client_api::ws::{BusinessID, WSClient, WSClientConfig, WebSocketChannel};
 use tokio::sync::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -90,16 +90,19 @@ impl AppFlowyServer for AFCloudServer {
     Arc::new(AFCloudDocumentCloudServiceImpl(server))
   }
 
-  fn collab_ws_client(
+  fn collab_ws_channel(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<Arc<WSObjectHandler>>, anyhow::Error> {
+  ) -> FutureResult<Option<Arc<WebSocketChannel>>, anyhow::Error> {
     if self.enable_sync.load(Ordering::SeqCst) {
       let object_id = object_id.to_string();
       let weak_ws_client = Arc::downgrade(&self.ws_client);
       FutureResult::new(async move {
         match weak_ws_client.upgrade() {
-          None => Ok(None),
+          None => {
+            tracing::warn!("🟡Collab WS client is dropped");
+            Ok(None)
+          },
           Some(ws_client) => Ok(
             ws_client
               .read()

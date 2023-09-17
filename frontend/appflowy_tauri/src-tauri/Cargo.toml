@@ -33,25 +33,27 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5bcf9574f93e839e909832b88eed5031fe4a78eb" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f50f295a6e308aca50a0c5f5d490c6379771b4bc" }
 
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
-collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "3f235e" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
+collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
 
 #collab = { path = "../../../../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
 #collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
 #collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
 #collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
+#collab-persistence = { path = "../../../../AppFlowy-Collab/collab-persistence" }
 #collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
+#collab-sync-protocol = { path = "../../../../AppFlowy-Collab/collab-sync-protocol" }
 
 
 

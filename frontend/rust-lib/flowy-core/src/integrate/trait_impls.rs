@@ -274,14 +274,14 @@ impl CollabStorageProvider for ServerProvider {
         local_collab,
       } => {
         if let Ok(server) = self.get_server(&ServerType::AppFlowyCloud) {
-          match server.collab_ws_client(&collab_object.object_id).await {
-            Ok(Some(handler)) => {
+          match server.collab_ws_channel(&collab_object.object_id).await {
+            Ok(Some(channel)) => {
               let origin = CollabOrigin::Client(CollabClient::new(
                 collab_object.uid,
                 collab_object.device_id.clone(),
               ));
               let sync_object = SyncObject::from(collab_object);
-              let (sink, stream) = (handler.sink(), handler.stream());
+              let (sink, stream) = (channel.sink(), channel.stream());
               let sync_plugin = SyncPlugin::new(origin, sync_object, local_collab, sink, stream);
               plugins.push(Arc::new(sync_plugin));
             },
