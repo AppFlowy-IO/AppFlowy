@@ -10,7 +10,7 @@ use crate::supabase_test::util::{
 };
 
 #[tokio::test]
-async fn supabase_create_workspace_test() {
+async fn supabase_create_database_test() {
   if get_supabase_ci_config().is_none() {
     return;
   }
@@ -31,8 +31,8 @@ async fn supabase_create_workspace_test() {
       user.user_id,
       row_id,
       CollabType::DatabaseRow,
-      "fake_device_id".to_string(),
       user.latest_workspace.id.clone(),
+      "fake_device_id".to_string(),
     );
     collab_service
       .send_update(&collab_object, 0, vec![1, 2, 3])

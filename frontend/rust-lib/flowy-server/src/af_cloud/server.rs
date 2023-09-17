@@ -2,7 +2,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::Error;
+use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{BusinessID, WSClient, WSClientConfig, WebSocketChannel};
+use client_api::Client;
 use tokio::sync::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -39,7 +41,8 @@ impl AFCloudServer {
     device_id: Arc<parking_lot::RwLock<String>>,
   ) -> Self {
     let http_client = reqwest::Client::new();
-    let client = client_api::Client::from(http_client, &config.base_url(), &config.ws_addr());
+    let api_client = client_api::Client::from(http_client, &config.base_url(), &config.ws_addr());
+    let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = AtomicBool::new(enable_sync);
 
     let ws_client = WSClient::new(WSClientConfig {
@@ -48,10 +51,12 @@ impl AFCloudServer {
       retry_connect_per_pings: 5,
     });
     let ws_client = Arc::new(RwLock::new(ws_client));
-    let client = Arc::new(RwLock::new(client));
+    let api_client = Arc::new(RwLock::new(api_client));
+
+    spawn_ws_conn(&device_id, token_state_rx, &ws_client, &api_client);
     Self {
       config,
-      client,
+      client: api_client,
       enable_sync,
       device_id,
       ws_client,
@@ -123,6 +128,47 @@ impl AppFlowyServer for AFCloudServer {
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
     None
   }
+}
+
+/// Spawns a new asynchronous task to handle WebSocket connections based on token state.
+///
+/// This function listens to the `token_state_rx` channel for token state updates. Depending on the
+/// received state, it either refreshes the WebSocket connection or disconnects from it.
+fn spawn_ws_conn(
+  device_id: &Arc<parking_lot::RwLock<String>>,
+  mut token_state_rx: TokenStateReceiver,
+  ws_client: &Arc<RwLock<WSClient>>,
+  api_client: &Arc<RwLock<Client>>,
+) {
+  let weak_device_id = Arc::downgrade(device_id);
+  let weak_ws_client = Arc::downgrade(ws_client);
+  let weak_api_client = Arc::downgrade(api_client);
+  tokio::spawn(async move {
+    while let Ok(token_state) = token_state_rx.recv().await {
+      tracing::info!("🟢Token state: {:?}", token_state);
+      match token_state {
+        TokenState::Refresh => {
+          if let (Some(api_client), Some(ws_client), Some(device_id)) = (
+            weak_api_client.upgrade(),
+            weak_ws_client.upgrade(),
+            weak_device_id.upgrade(),
+          ) {
+            let device_id = device_id.read().clone();
+            if let Ok(ws_addr) = api_client.read().await.ws_url(&device_id) {
+              tracing::info!("🟢Connecting to websocket");
+              let _ = ws_client.write().await.connect(ws_addr).await;
+            }
+          }
+        },
+        TokenState::Invalid => {
+          if let Some(ws_client) = weak_ws_client.upgrade() {
+            tracing::info!("🟡Disconnecting from websocket");
+            ws_client.write().await.disconnect().await;
+          }
+        },
+      }
+    }
+  });
 }
 
 pub trait AFServer: Send + Sync + 'static {

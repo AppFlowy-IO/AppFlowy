@@ -42,9 +42,9 @@ async fn supabase_get_folder_test() {
   let collab_object = CollabObject::new(
     user.user_id,
     user.latest_workspace.id.clone(),
-    CollabType::DatabaseRow,
-    "fake_device_id".to_string(),
+    CollabType::Folder,
     user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
   );
 
   let doc = Doc::with_client_id(1);
@@ -116,9 +116,9 @@ async fn supabase_duplicate_updates_test() {
   let collab_object = CollabObject::new(
     user.user_id,
     user.latest_workspace.id.clone(),
-    CollabType::DatabaseRow,
-    "fake_device_id".to_string(),
+    CollabType::Folder,
     user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
   );
   let doc = Doc::with_client_id(1);
   let map = { doc.get_or_insert_map("map") };
@@ -223,9 +223,9 @@ async fn supabase_diff_state_vector_test() {
   let collab_object = CollabObject::new(
     user.user_id,
     user.latest_workspace.id.clone(),
-    CollabType::DatabaseRow,
-    "fake_device_id".to_string(),
+    CollabType::Folder,
     user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
   );
   let doc = Doc::with_client_id(1);
   let map = { doc.get_or_insert_map("map") };

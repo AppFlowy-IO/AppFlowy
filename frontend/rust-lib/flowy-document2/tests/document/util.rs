@@ -57,18 +57,15 @@ impl FakeUser {
 }
 
 impl DocumentUser for FakeUser {
-  fn user_id(&self) -> Result<i64, flowy_error::FlowyError> {
+  fn user_id(&self) -> Result<i64, FlowyError> {
     Ok(1)
   }
 
-  fn token(&self) -> Result<Option<String>, flowy_error::FlowyError> {
+  fn token(&self) -> Result<Option<String>, FlowyError> {
     Ok(None)
   }
 
-  fn collab_db(
-    &self,
-    _uid: i64,
-  ) -> Result<std::sync::Weak<RocksCollabDB>, flowy_error::FlowyError> {
+  fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<RocksCollabDB>, FlowyError> {
     Ok(Arc::downgrade(&self.collab_db))
   }
 }
@@ -92,6 +89,7 @@ pub fn db() -> Arc<RocksCollabDB> {
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
   let builder = AppFlowyCollabBuilder::new(DefaultCollabStorageProvider());
   builder.set_sync_device(uuid::Uuid::new_v4().to_string());
+  builder.initialize(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
 

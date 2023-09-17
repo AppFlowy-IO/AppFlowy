@@ -73,7 +73,7 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f50f295a6e308aca50a0c5f5d490c6379771b4bc" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
 
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
