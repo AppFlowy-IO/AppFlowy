@@ -108,7 +108,7 @@ impl TimestampTypeOption {
     if let Some(timestamp) = timestamp {
       let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
       let offset = Local::now().offset().fix();
-      let date_time = DateTime::<Local>::from_utc(naive, offset);
+      let date_time = DateTime::<Local>::from_naive_utc_and_offset(naive, offset);
 
       let fmt = self.date_format.format_str();
       let date = format!("{}", date_time.format(fmt));

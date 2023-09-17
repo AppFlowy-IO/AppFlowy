@@ -910,10 +910,7 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_get_field_settings(
-    &self,
-    field_ids: &Vec<String>,
-  ) -> HashMap<String, FieldSettings> {
+  pub async fn v_get_field_settings(&self, field_ids: &[String]) -> HashMap<String, FieldSettings> {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 

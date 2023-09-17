@@ -292,7 +292,7 @@ mod tests {
     let native_timestamp = 1647251762;
     let native = NaiveDateTime::from_timestamp_opt(native_timestamp, 0).unwrap();
 
-    let utc = chrono::DateTime::<chrono::Utc>::from_utc(native, chrono::Utc);
+    let utc = chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(native, chrono::Utc);
     // utc_timestamp doesn't  carry timezone
     let utc_timestamp = utc.timestamp();
     assert_eq!(native_timestamp, utc_timestamp);
@@ -304,7 +304,8 @@ mod tests {
 
     // Mon Mar 14 2022 17:56:02 GMT+0800 (China Standard Time)
     let gmt_8_offset = FixedOffset::east_opt(8 * 3600).unwrap();
-    let china_local = chrono::DateTime::<chrono::Local>::from_utc(native, gmt_8_offset);
+    let china_local =
+      chrono::DateTime::<chrono::Local>::from_naive_utc_and_offset(native, gmt_8_offset);
     let china_local_time = format!(
       "{}",
       china_local.format_with_items(StrftimeItems::new(&format))
