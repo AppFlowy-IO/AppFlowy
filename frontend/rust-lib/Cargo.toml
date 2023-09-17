@@ -75,10 +75,12 @@ incremental = false
 [patch.crates-io]
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
 
+# ⚠️⚠️⚠️
 # Please using the following command to update the revision id
 # Current directory: frontend
 # Run the script:
 # scripts/tool/update_collab_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
 collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "20eff3" }
