@@ -2,7 +2,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, useContext, useMemo, useRef } from 'react';
 import { VerticalScrollElementRefContext } from '../../database.context';
 import { useDatabase } from '../../database.hooks';
-import { VirtualizedList } from '../_shared';
+import { VirtualizedList, useAutoScroll } from '../_shared';
 import { GridRow, RenderRow, RenderRowType } from '../GridRow';
 
 const getRenderRowKey = (row: RenderRow) => {
@@ -64,16 +64,19 @@ export const GridTable: FC = () => {
     estimateSize: (i) => fields[i].width ?? defaultColumnWidth,
   });
 
+  const listeners = useAutoScroll({ horizontal: true, vertical: false });
+
   return (
     <div
       ref={horizontalScrollElementRef}
       className="flex w-full overflow-x-auto"
       style={{ minHeight: 'calc(100% - 132px)' }}
+      {...listeners}
     >
       <VirtualizedList
         className="flex flex-col basis-full px-16"
         virtualizer={rowVirtualizer}
-        itemClassName="flex border-t border-line-divider"
+        itemClassName="flex"
         renderItem={index => (
           <GridRow row={renderRows[index]} virtualizer={columnVirtualizer} />
         )}

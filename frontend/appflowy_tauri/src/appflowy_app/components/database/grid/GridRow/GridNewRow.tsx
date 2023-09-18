@@ -17,7 +17,7 @@ export const GridNewRow = () => {
   }, [viewId, lastRowId]);
 
   return (
-    <div className="flex grow">
+    <div className="flex grow border-b border-line-divider">
       <Button
         className="grow justify-start"
         onClick={handleClick}

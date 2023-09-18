@@ -21,7 +21,7 @@ export const GridFieldRow: FC<GridFieldRowProps> = ({
   };
 
   return (
-    <div className="flex grow">
+    <div className="flex grow border-b border-line-divider">
       <VirtualizedList
         className="flex"
         virtualizer={virtualizer}
