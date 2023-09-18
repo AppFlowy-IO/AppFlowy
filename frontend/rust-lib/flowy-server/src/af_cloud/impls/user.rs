@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
+use client_api::entity::{AFWorkspace, AFWorkspaces};
 use collab_define::CollabObject;
 
 use flowy_error::FlowyError;
@@ -8,7 +9,6 @@ use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
-use storage_entity::{AFWorkspace, AFWorkspaces};
 
 use crate::af_cloud::{AFCloudClient, AFServer};
 

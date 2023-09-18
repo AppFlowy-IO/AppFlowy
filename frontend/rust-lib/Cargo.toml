@@ -78,8 +78,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "7ae645" }
-storage-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "7ae645", package = "storage-entity" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d5f95208b2e201901d3b954556ac8a7230eb9601" }
 
 # Please using the following command to update the revision id
 # Current directory: frontend
