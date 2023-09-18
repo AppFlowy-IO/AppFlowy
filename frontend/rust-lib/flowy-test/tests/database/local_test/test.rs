@@ -527,7 +527,7 @@ async fn update_date_cell_event_test() {
   let error = test
     .update_date_cell(DateChangesetPB {
       cell_id: cell_path,
-      date: Some(timestamp.clone()),
+      date: Some(timestamp),
       time: None,
       include_time: None,
       clear_flag: None,

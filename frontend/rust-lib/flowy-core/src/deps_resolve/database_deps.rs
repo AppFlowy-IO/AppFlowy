@@ -1,9 +1,9 @@
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_database2::{DatabaseManager, DatabaseUser};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
