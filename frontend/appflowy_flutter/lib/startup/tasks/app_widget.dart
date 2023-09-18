@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -98,7 +99,7 @@ class ApplicationWidget extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp(
+        builder: (context, state) => MaterialApp.router(
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
@@ -108,8 +109,7 @@ class ApplicationWidget extends StatelessWidget {
               [AppFlowyEditorLocalizations.delegate],
           supportedLocales: context.supportedLocales,
           locale: state.locale,
-          navigatorKey: AppGlobals.rootNavKey,
-          home: child,
+          routerConfig: generateRouter(child),
         ),
       ),
     );

@@ -26,7 +26,11 @@ class SignInScreen extends StatelessWidget {
         listener: (context, state) {
           state.successOrFail.fold(
             () => null,
-            (result) => handleSuccessOrFail(result, context, router),
+            (userProfileResult) => handleUserProfileResult(
+              userProfileResult,
+              context,
+              router,
+            ),
           );
         },
         builder: (context, state) {

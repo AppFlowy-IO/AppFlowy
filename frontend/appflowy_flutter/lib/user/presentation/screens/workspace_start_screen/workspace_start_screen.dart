@@ -11,6 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class WorkspaceStartScreen extends StatelessWidget {
   final UserProfilePB userProfile;
   static const routeName = "/WorkspaceStartScreen";
+
+  /// To choose which screen is going to open
   const WorkspaceStartScreen({
     super.key,
     required this.userProfile,

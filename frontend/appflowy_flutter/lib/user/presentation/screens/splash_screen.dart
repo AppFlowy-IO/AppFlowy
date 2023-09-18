@@ -23,12 +23,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //    └───────────┘            └─────────────┘                 └────────┘
 //           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
+  /// Root Page of the app.
   const SplashScreen({
     super.key,
     required this.autoRegister,
   });
 
-  static const routeName = '/SplashScreen';
   final bool autoRegister;
 
   @override

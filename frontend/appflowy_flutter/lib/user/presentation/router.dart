@@ -1,18 +1,17 @@
 import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/util/platform_extension.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
@@ -25,12 +24,7 @@ class AuthRouter {
   }
 
   void pushSignUpScreen(BuildContext context) {
-    Navigator.of(context).push(
-      PageRoutes.fade(
-        () => SignUpScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: SignUpScreen.routeName),
-      ),
-    );
+    context.push(SignUpScreen.routeName);
   }
 
   /// Navigates to the home screen based on the current workspace and platform.
@@ -53,32 +47,25 @@ class AuthRouter {
     final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
       (workspaceSetting) {
+        // This function is used on SignInScreen and SkipLogInScreen.
+        // We use [context.go] to replace the previous page(SignInScreen or SkipLogInScreen), thus when user press back button, it will close the app rather than back to SignInScreen or SkipLogInScreen.
         if (PlatformExtension.isMobile) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => MobileHomeScreen(
-                key: ValueKey(userProfile.id),
-                userProfile: userProfile,
-                workspaceSetting: workspaceSetting,
-              ),
-            ),
-            // pop up all the pages until [SplashScreen]
-            (route) => route.settings.name == SplashScreen.routeName,
+          context.go(
+            MobileHomeScreen.routeName,
+            extra: {
+              'key': ValueKey(userProfile.id),
+              'userProfile': userProfile,
+              'workspaceSetting': workspaceSetting,
+            },
           );
         } else {
-          Navigator.push(
-            context,
-            PageRoutes.fade(
-              () => DesktopHomeScreen(
-                key: ValueKey(userProfile.id),
-                userProfile: userProfile,
-                workspaceSetting: workspaceSetting,
-              ),
-              const RouteSettings(
-                name: DesktopHomeScreen.routeName,
-              ),
-              RouteDurations.slow.inMilliseconds * .001,
-            ),
+          context.go(
+            DesktopHomeScreen.routeName,
+            extra: {
+              'key': ValueKey(userProfile.id),
+              'userProfile': userProfile,
+              'workspaceSetting': workspaceSetting,
+            },
           );
         }
       },
@@ -90,16 +77,13 @@ class AuthRouter {
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => EncryptSecretScreen(
-          user: userProfile,
-          key: ValueKey(userProfile.id),
-        ),
-        const RouteSettings(name: EncryptSecretScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
+    // After log in,push EncryptionScreen on the top SignInScreen
+    context.push(
+      EncryptSecretScreen.routeName,
+      extra: {
+        'userProfile': userProfile,
+        'key': ValueKey(userProfile.id),
+      },
     );
   }
 
@@ -108,32 +92,28 @@ class AuthRouter {
     UserFolderPB userFolder,
     FlowyError error,
   ) async {
-    final screen = WorkspaceErrorScreen(
-      userFolder: userFolder,
-      error: error,
-    );
-    await Navigator.of(context).push(
-      PageRoutes.fade(
-        () => screen,
-        const RouteSettings(name: WorkspaceErrorScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
+    await context.push(
+      WorkspaceErrorScreen.routeName,
+      extra: {
+        'userFolder': userFolder,
+        'error': error,
+      },
     );
   }
 }
 
 class SplashRouter {
+  // Unused for now, it was planed to be used in SignUpScreen.
+  // To let user choose workspace than navigate to corresponding home screen.
   Future<void> pushWorkspaceStartScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final screen = WorkspaceStartScreen(userProfile: userProfile);
-    await Navigator.of(context).push(
-      PageRoutes.fade(
-        () => screen,
-        const RouteSettings(name: WorkspaceStartScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
+    await context.push(
+      WorkspaceStartScreen.routeName,
+      extra: {
+        'userProfile': userProfile,
+      },
     );
 
     FolderEventGetCurrentWorkspace().send().then((result) {
@@ -151,58 +131,32 @@ class SplashRouter {
     WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
-      Navigator.pushAndRemoveUntil<void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => MobileHomeScreen(
-            key: ValueKey(userProfile.id),
-            userProfile: userProfile,
-            workspaceSetting: workspaceSetting,
-          ),
-        ),
-        // pop up all the pages until [SplashScreen]
-        (route) => route.settings.name == SplashScreen.routeName,
+      // Push on the top of SplashScreen
+      context.push(
+        MobileHomeScreen.routeName,
+        extra: {
+          'key': ValueKey(userProfile.id),
+          'userProfile': userProfile,
+          'workspaceSetting': workspaceSetting,
+        },
       );
     } else {
-      Navigator.push(
-        context,
-        PageRoutes.fade(
-          () => DesktopHomeScreen(
-            userProfile: userProfile,
-            workspaceSetting: workspaceSetting,
-            key: ValueKey(userProfile.id),
-          ),
-          const RouteSettings(
-            name: DesktopHomeScreen.routeName,
-          ),
-          RouteDurations.slow.inMilliseconds * .001,
-        ),
+      context.push(
+        DesktopHomeScreen.routeName,
+        extra: {
+          'key': ValueKey(userProfile.id),
+          'userProfile': userProfile,
+          'workspaceSetting': workspaceSetting,
+        },
       );
     }
   }
 
   void pushSignInScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => SignInScreen(router: getIt<AuthRouter>()),
-        const RouteSettings(name: SignInScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
+    context.push(SignInScreen.routeName);
   }
 
   void pushSkipLoginScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      PageRoutes.fade(
-        () => SkipLogInScreen(
-          router: getIt<AuthRouter>(),
-          authService: getIt<AuthService>(),
-        ),
-        const RouteSettings(name: SkipLogInScreen.routeName),
-        RouteDurations.slow.inMilliseconds * .001,
-      ),
-    );
+    context.push(SkipLogInScreen.routeName);
   }
 }
