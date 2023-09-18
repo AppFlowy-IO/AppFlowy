@@ -24,15 +24,15 @@ crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
 parking_lot = "0.12.1"
 tracing = { version = "0.1", features = ["log"] }
-appflowy-integrate = {version = "0.1.0" }
 
-lib-dispatch = { path = "../lib-dispatch" }
-flowy-core = { path = "../flowy-core" }
-flowy-notification = { path = "../flowy-notification" }
-flowy-net = { path = "../flowy-net" }
+# workspace
+lib-dispatch = { workspace = true }
+flowy-core = { workspace = true }
+flowy-notification = { workspace = true }
+flowy-server = { workspace = true }
+flowy-server-config = { workspace = true }
+collab-integrate = { workspace = true }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-server = { path = "../flowy-server" }
-flowy-server-config = { path = "../flowy-server-config" }
 
 [features]
 default = ["dart", "rev-sqlite"]

@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
-use appflowy_integrate::RocksCollabDB;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 
+use collab_integrate::RocksCollabDB;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;

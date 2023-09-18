@@ -2,7 +2,6 @@
 members = [
   "lib-dispatch",
   "lib-log",
-  "flowy-net",
   "flowy-core",
   "dart-ffi",
   "flowy-user",
@@ -24,7 +23,32 @@ members = [
   "flowy-encrypt",
   "flowy-plugins",
   "flowy-storage",
+  "collab-integrate",
 ]
+
+[workspace.dependencies]
+lib-dispatch = { workspace = true, path = "lib-dispatch" }
+lib-log = { workspace = true, path = "lib-log" }
+flowy-core = { workspace = true, path = "flowy-core" }
+dart-ffi = { workspace = true, path = "dart-ffi" }
+flowy-user = { workspace = true, path = "flowy-user" }
+flowy-user-deps = { workspace = true, path = "flowy-user-deps" }
+flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
+flowy-folder2 = { workspace = true, path = "flowy-folder2" }
+flowy-folder-deps = { workspace = true, path = "flowy-folder-deps" }
+flowy-notification = { workspace = true, path = "flowy-notification" }
+flowy-document2 = { workspace = true, path = "flowy-document2" }
+flowy-document-deps = { workspace = true, path = "flowy-document-deps" }
+flowy-error = { workspace = true, path = "flowy-error" }
+flowy-database2 = { workspace = true, path = "flowy-database2" }
+flowy-database-deps = { workspace = true, path = "flowy-database-deps" }
+flowy-task = { workspace = true, path = "flowy-task" }
+flowy-server = { workspace = true, path = "flowy-server" }
+flowy-server-config = { workspace = true, path = "flowy-server-config" }
+flowy-config = { workspace = true, path = "flowy-config" }
+flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
+flowy-storage = { workspace = true, path = "flowy-storage" }
+collab-integrate = { workspace = true, path = "collab-integrate" }
 
 [profile.dev]
 opt-level = 0
@@ -50,20 +74,30 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9bb9a7" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
+
+# ⚠️⚠️⚠️
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_collab_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 
 #collab = { path = "../AppFlowy-Collab/collab" }
 #collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
 #collab-database= { path = "../AppFlowy-Collab/collab-database" }
 #collab-document = { path = "../AppFlowy-Collab/collab-document" }
 #collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
-#appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
+#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
 #collab-user = { path = "../AppFlowy-Collab/collab-user" }
 #collab-define = { path = "../AppFlowy-Collab/collab-define" }
+#collab-sync-protocol = { path = "../AppFlowy-Collab/collab-sync-protocol" }

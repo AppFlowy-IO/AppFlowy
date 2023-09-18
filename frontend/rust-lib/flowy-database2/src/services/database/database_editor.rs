@@ -1464,7 +1464,7 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     field_id: &str,
     visibility: Option<FieldVisibility>,
   ) {
-    let field_settings_map = self.get_field_settings(view_id, &vec![field_id.to_string()]);
+    let field_settings_map = self.get_field_settings(view_id, &[field_id.to_string()]);
 
     let new_field_settings = if let Some(field_settings) = field_settings_map.get(field_id) {
       let mut field_settings = field_settings.to_owned();

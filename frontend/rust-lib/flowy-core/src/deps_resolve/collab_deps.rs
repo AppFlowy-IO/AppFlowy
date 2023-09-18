@@ -1,10 +1,10 @@
 use std::sync::Weak;
 
-use appflowy_integrate::{
-  calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
-};
 use diesel::SqliteConnection;
 
+use collab_integrate::{
+  calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
+};
 use flowy_error::FlowyError;
 use flowy_sqlite::{
   insert_or_ignore_into,

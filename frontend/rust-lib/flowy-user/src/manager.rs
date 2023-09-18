@@ -1,13 +1,13 @@
 use std::string::ToString;
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -597,6 +597,7 @@ impl UserManager {
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,
+      "",
       new_user,
       &new_collab_db,
     )
