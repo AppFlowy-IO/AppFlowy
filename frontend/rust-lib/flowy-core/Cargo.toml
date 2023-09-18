@@ -23,7 +23,7 @@ flowy-server = { workspace = true }
 flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }
 collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
-flowy-plugins = { workspace = true }
+flowy-ai = { workspace = true }
 collab-define = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0", features = ["sync_plugin"] }
 collab = { version = "0.1.0" }
@@ -55,7 +55,6 @@ dart = [
     "flowy-folder2/dart",
     "flowy-database2/dart",
     "flowy-document2/dart",
-     "flowy-plugins/dart",
     "flowy-config/dart",
 ]
 ts = [
@@ -63,7 +62,6 @@ ts = [
     "flowy-folder2/ts",
     "flowy-database2/ts",
     "flowy-document2/ts",
-    "flowy-plugins/ts",
     "flowy-config/ts",
 ]
 rev-sqlite = [

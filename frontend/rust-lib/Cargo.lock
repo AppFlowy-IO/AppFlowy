@@ -1318,6 +1318,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-ai"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "lib-dispatch",
+ "lib-infra",
+ "protobuf",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "strum_macros 0.21.1",
+]
+
+[[package]]
 name = "flowy-ast"
 version = "0.1.0"
 dependencies = [
@@ -1376,6 +1393,7 @@ dependencies = [
  "collab-plugins",
  "console-subscriber",
  "diesel",
+ "flowy-ai",
  "flowy-config",
  "flowy-database-deps",
  "flowy-database2",
@@ -1384,7 +1402,6 @@ dependencies = [
  "flowy-error",
  "flowy-folder-deps",
  "flowy-folder2",
- "flowy-plugins",
  "flowy-server",
  "flowy-server-config",
  "flowy-sqlite",
@@ -1611,24 +1628,6 @@ dependencies = [
  "protobuf",
  "serde",
  "tracing",
-]
-
-[[package]]
-name = "flowy-plugins"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-notification",
- "lib-dispatch",
- "lib-infra",
- "protobuf",
- "reqwest",
- "serde",
- "serde_json",
- "strum_macros 0.21.1",
 ]
 
 [[package]]
