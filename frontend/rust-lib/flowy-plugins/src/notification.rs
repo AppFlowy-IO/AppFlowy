@@ -15,6 +15,7 @@ impl std::convert::From<OpenAINotification> for i32 {
   }
 }
 
+#[allow(dead_code)]
 pub(crate) fn send_notification(id: &str, ty: OpenAINotification) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, OPEN_AI_NOTIFICATION)
 }

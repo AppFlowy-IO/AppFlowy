@@ -58,14 +58,14 @@ pub(crate) async fn request_text_completion(
     .await?;
 
   // Extract index and content
-  let choice = &response.choices[0];
+  let _choice = &response.choices[0];
 
   let params: TextCompletionParams = data.into_inner().try_into()?;
 
-  return data_result_ok(TextCompletionDataPB {
+  data_result_ok(TextCompletionDataPB {
     request_id: params.request_id,
     model: params.model,
     index: response.choices[0].index,
     content: response.choices[0].message.content.to_string(),
-  });
+  })
 }

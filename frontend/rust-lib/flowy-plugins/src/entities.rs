@@ -33,13 +33,12 @@ pub struct TextCompletionParams {
 impl TryInto<TextCompletionParams> for TextCompletionPayloadPB {
   type Error = ErrorCode;
   fn try_into(self) -> Result<TextCompletionParams, Self::Error> {
-    // TODO: validate
-    return Ok(TextCompletionParams {
+    Ok(TextCompletionParams {
       request_id: self.request_id,
       model: self.model,
       prompt: self.prompt,
       open_ai_key: self.open_ai_key,
-    });
+    })
   }
 }
 
