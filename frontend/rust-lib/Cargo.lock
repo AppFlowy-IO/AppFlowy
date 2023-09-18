@@ -575,7 +575,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f8f6a#8f8f6af0f9fa1229d43e0dcbc54c62cc41ccaa3b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7ae645#7ae645a7c1350a163b6490d9522a224422cde537"
 dependencies = [
  "anyhow",
  "bytes",
@@ -583,6 +583,7 @@ dependencies = [
  "futures-util",
  "gotrue-entity",
  "opener",
+ "parking_lot",
  "reqwest",
  "serde",
  "serde_json",
@@ -2064,7 +2065,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f8f6a#8f8f6af0f9fa1229d43e0dcbc54c62cc41ccaa3b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7ae645#7ae645a7c1350a163b6490d9522a224422cde537"
 dependencies = [
  "serde",
  "serde_json",
@@ -4071,7 +4072,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f8f6a#8f8f6af0f9fa1229d43e0dcbc54c62cc41ccaa3b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7ae645#7ae645a7c1350a163b6490d9522a224422cde537"
 dependencies = [
  "anyhow",
  "opener",
@@ -4283,7 +4284,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=8f8f6a#8f8f6af0f9fa1229d43e0dcbc54c62cc41ccaa3b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=7ae645#7ae645a7c1350a163b6490d9522a224422cde537"
 dependencies = [
  "chrono",
  "collab-define",
