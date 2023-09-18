@@ -8,6 +8,7 @@ use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use storage_entity::{AFWorkspace, AFWorkspaces};
 
 use crate::af_cloud::{AFCloudClient, AFServer};
 
@@ -153,24 +154,52 @@ pub async fn user_sign_in_request(
     .sign_in_password(&params.email, &params.password)
     .await?;
 
-  let client2 = client.clone();
-  let mut write_client1 = client.write().await;
-  let mut write_client2 = client2.write().await;
-
-  let (profile, workspaces) =
-    tokio::try_join!(write_client1.profile(), write_client2.workspaces())?;
+  let (mut wc1, mut wc2) = tokio::join!(client.write(), client.write());
+  let (profile, workspaces) = tokio::try_join!(wc1.profile(), wc2.workspaces())?;
 
   // https://github.com/AppFlowy-IO/AppFlowy-Cloud/pull/59
   // use the `get_latest` when it's ready
+  let _latest_workspace: AFWorkspace = todo!();
 
   Ok(SignInResponse {
     user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
     name: profile.name.ok_or(anyhow!("no name found"))?,
     latest_workspace: todo!(),
-    user_workspaces: todo!(),
-    email: todo!(),
-    token: todo!(),
-    device_id: todo!(),
-    encryption_type: todo!(),
+    user_workspaces: to_userworkspaces(workspaces)?,
+    email: profile.email,
+    token: match client.read().await.token() {
+      Some(t) => Some(t.access_token.to_owned()),
+      None => None,
+    },
+    device_id: "".to_owned(),
+    encryption_type: match profile.encryption_sign {
+      Some(e) => EncryptionType::SelfEncryption(e),
+      None => EncryptionType::NoEncryption,
+    },
   })
+}
+
+fn to_userworkspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyError> {
+  Ok(UserWorkspace {
+    id: af_workspace.workspace_id.to_string(),
+    name: af_workspace
+      .workspace_name
+      .ok_or(anyhow!("no workspace_name found"))?,
+    created_at: af_workspace
+      .created_at
+      .ok_or(anyhow!("no created_at found"))?,
+    database_views_aggregate_id: af_workspace
+      .database_storage_id
+      .ok_or(anyhow!("no database_views_aggregate_id found"))?
+      .to_string(),
+  })
+}
+
+fn to_userworkspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>, FlowyError> {
+  let mut result = Vec::with_capacity(af_workspaces.len());
+  for item in af_workspaces.0.into_iter() {
+    let user_workspace = to_userworkspace(item)?;
+    result.push(user_workspace);
+  }
+  Ok(result)
 }
