@@ -6,12 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-sqlite = { path = "../flowy-sqlite" }
+# workspace
+flowy-sqlite = { workspace = true }
+lib-dispatch = { workspace = true }
+flowy-error = { workspace = true }
+
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-lib-dispatch = { path = "../lib-dispatch" }
 protobuf = {version = "2.28.0"}
 bytes = { version = "1.4" }
-flowy-error = { path = "../flowy-error" }
 strum_macros = "0.21"
 
 [build-dependencies]

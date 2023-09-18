@@ -3,7 +3,6 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use appflowy_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
@@ -15,6 +14,7 @@ use collab_database::user::DatabaseWithViewsArray;
 use collab_folder::core::Folder;
 use parking_lot::{Mutex, RwLock};
 
+use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::gen_view_id;
 

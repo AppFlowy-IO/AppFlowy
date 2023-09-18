@@ -41,3 +41,5 @@ pubspec.lock
 # ignore the deb filegit
 frontend/package
 frontend/*.deb
+
+**/Cargo.toml.bak

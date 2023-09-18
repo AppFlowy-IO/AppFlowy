@@ -180,20 +180,26 @@ class OutlineItemWidget extends StatelessWidget {
       style: HoverStyle(
         hoverColor: Theme.of(context).hoverColor,
       ),
-      child: GestureDetector(
-        onTap: () => scrollToBlock(context),
-        child: Row(
-          textDirection: textDirection,
-          children: [
-            HSpace(node.leftIndent),
-            Text(
-              node.outlineItemText,
-              style: style,
-              textDirection: textDirection,
-            )
-          ],
-        ),
-      ),
+      builder: (context, onHover) {
+        return GestureDetector(
+          onTap: () => scrollToBlock(context),
+          child: Row(
+            textDirection: textDirection,
+            children: [
+              HSpace(node.leftIndent),
+              Text(
+                node.outlineItemText,
+                textDirection: textDirection,
+                style: style.copyWith(
+                  color: onHover
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : null,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
