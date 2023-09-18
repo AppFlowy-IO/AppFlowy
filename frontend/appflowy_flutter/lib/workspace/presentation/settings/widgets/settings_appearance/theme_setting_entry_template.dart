@@ -64,7 +64,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
   }
 }
 
-class ThemeValueDropDown extends StatelessWidget {
+class ThemeValueDropDown extends StatefulWidget {
   const ThemeValueDropDown({
     super.key,
     required this.currentValue,
@@ -79,19 +79,24 @@ class ThemeValueDropDown extends StatelessWidget {
   final void Function()? onClose;
 
   @override
+  State<ThemeValueDropDown> createState() => _ThemeValueDropDownState();
+}
+
+class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      key: popoverKey,
+      key: widget.popoverKey,
       direction: PopoverDirection.bottomWithRightAligned,
-      popupBuilder: popupBuilder,
+      popupBuilder: widget.popupBuilder,
       constraints: const BoxConstraints(
         minWidth: 80,
         maxWidth: 160,
         maxHeight: 400,
       ),
-      onClose: onClose,
+      onClose: widget.onClose,
       child: FlowyTextButton(
-        currentValue,
+        widget.currentValue,
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
       ),
