@@ -1649,6 +1649,7 @@ dependencies = [
  "serde",
  "serde-aux",
  "serde_json",
+ "shared_entity",
  "thiserror",
  "tokio",
  "tokio-retry",

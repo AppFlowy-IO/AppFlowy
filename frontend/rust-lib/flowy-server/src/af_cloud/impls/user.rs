@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use collab_define::CollabObject;
 
 use flowy_error::FlowyError;
@@ -117,22 +117,60 @@ pub async fn user_sign_up_request(
     .await
     .sign_up(&params.email, &params.password)
     .await?;
-  todo!()
-  // tracing::info!("User signed up: {:?}", user);
-  // match user.confirmed_at {
-  //   Some(_) => {
-  //       // User is already confirmed, help her/him to sign in
-  //       let token = client.sign_in_password(&params.email, &params.password).await?;
-  //
-  //       // TODO:
-  //       // Query workspace list
-  //       // Query user profile
-  //
-  //       todo!()
-  //   },
-  //   None => Err(FlowyError::new(
-  //     ErrorCode::AwaitingEmailConfirmation,
-  //     "Awaiting email confirmation".to_string(),
-  //   )),
-  // }
+
+  let sign_in_resp = user_sign_in_request(
+    client,
+    SignInParams {
+      email: params.email,
+      password: params.password,
+      name: params.name,
+      auth_type: params.auth_type,
+      device_id: params.device_id,
+    },
+  )
+  .await?;
+
+  Ok(SignUpResponse {
+    user_id: sign_in_resp.user_id(),
+    name: sign_in_resp.name,
+    latest_workspace: sign_in_resp.latest_workspace,
+    user_workspaces: sign_in_resp.user_workspaces,
+    is_new_user: false, // TODO: how to know?
+    email: sign_in_resp.email,
+    token: sign_in_resp.token,
+    device_id: sign_in_resp.device_id,
+    encryption_type: sign_in_resp.encryption_type,
+  })
+}
+
+pub async fn user_sign_in_request(
+  client: Arc<AFCloudClient>,
+  params: SignInParams,
+) -> Result<SignInResponse, FlowyError> {
+  client
+    .write()
+    .await
+    .sign_in_password(&params.email, &params.password)
+    .await?;
+
+  let client2 = client.clone();
+  let mut write_client1 = client.write().await;
+  let mut write_client2 = client2.write().await;
+
+  let (profile, workspaces) =
+    tokio::try_join!(write_client1.profile(), write_client2.workspaces())?;
+
+  // https://github.com/AppFlowy-IO/AppFlowy-Cloud/pull/59
+  // use the `get_latest` when it's ready
+
+  Ok(SignInResponse {
+    user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
+    name: profile.name.ok_or(anyhow!("no name found"))?,
+    latest_workspace: todo!(),
+    user_workspaces: todo!(),
+    email: todo!(),
+    token: todo!(),
+    device_id: todo!(),
+    encryption_type: todo!(),
+  })
 }

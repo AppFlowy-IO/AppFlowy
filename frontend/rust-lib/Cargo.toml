@@ -74,6 +74,7 @@ incremental = false
 
 [patch.crates-io]
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "7ae645" }
+shared-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "7ae645", package = "shared_entity" }
 
 # ⚠️⚠️⚠️
 # Please using the following command to update the revision id
