@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::{AFWorkspace, AFWorkspaces};
+use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces};
 use collab_define::CollabObject;
 
 use flowy_error::FlowyError;
@@ -35,12 +35,18 @@ where
     })
   }
 
-  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, Error> {
-    todo!()
+  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let params = params.unbox_or_error::<SignInParams>()?;
+      let resp = user_sign_in_request(try_get_client?, params).await?;
+      Ok(resp)
+    })
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
-    todo!()
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move { Ok(try_get_client?.write().await.sign_out().await?) })
   }
 
   fn update_user(
@@ -55,15 +61,34 @@ where
     &self,
     _credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, Error> {
-    todo!()
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let profile = client.write().await.profile().await?;
+      let encryption_type = encryption_type_from_profile(&profile);
+      Ok(Some(UserProfile {
+        email: profile.email.unwrap_or("".to_string()),
+        name: profile.name.unwrap_or("".to_string()),
+        token: token_from_client(client).await.unwrap_or("".to_string()),
+        icon_url: "".to_owned(),
+        openai_key: "".to_owned(),
+        workspace_id: match profile.latest_workspace_id {
+          Some(w) => w.to_string(),
+          None => "".to_string(),
+        },
+        auth_type: AuthType::SelfHosted,
+        encryption_type,
+        uid: profile.uid.ok_or(anyhow!("no uid found"))?,
+      }))
+    })
   }
 
-  fn get_user_workspaces(
-    &self,
-    _uid: i64,
-  ) -> FutureResult<std::vec::Vec<flowy_user_deps::entities::UserWorkspace>, Error> {
-    // TODO(nathan): implement the RESTful API for this
-    todo!()
+  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let workspaces = try_get_client?.write().await.workspaces().await?;
+      Ok(to_userworkspaces(workspaces)?)
+    })
   }
 
   fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
@@ -167,16 +192,24 @@ pub async fn user_sign_in_request(
     latest_workspace: todo!(),
     user_workspaces: to_userworkspaces(workspaces)?,
     email: profile.email,
-    token: match client.read().await.token() {
-      Some(t) => Some(t.access_token.to_owned()),
-      None => None,
-    },
+    token: token_from_client(client).await,
     device_id: "".to_owned(),
-    encryption_type: match profile.encryption_sign {
-      Some(e) => EncryptionType::SelfEncryption(e),
-      None => EncryptionType::NoEncryption,
-    },
+    encryption_type: encryption_type_from_profile(&profile),
   })
+}
+
+async fn token_from_client(client: Arc<AFCloudClient>) -> Option<String> {
+  match client.read().await.token() {
+    Some(t) => Some(t.access_token.to_owned()),
+    None => None,
+  }
+}
+
+fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {
+  match &profile.encryption_sign {
+    Some(e) => EncryptionType::SelfEncryption(e.to_string()),
+    None => EncryptionType::NoEncryption,
+  }
 }
 
 fn to_userworkspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyError> {
