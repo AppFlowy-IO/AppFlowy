@@ -91,9 +91,21 @@ where
     })
   }
 
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
-    FutureResult::new(async { Ok(()) })
+  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let token = credential.token.ok_or(anyhow!("expecting token"))?;
+      let uuid = credential.uuid.ok_or(anyhow!("expecting uuid"))?;
+      let user = try_get_client?
+        .write()
+        .await
+        .user_info(token.as_str())
+        .await?;
+      if user.id != uuid {
+        return Err(anyhow!("invalid user"));
+      }
+      Ok(())
+    })
   }
 
   fn add_workspace_member(
