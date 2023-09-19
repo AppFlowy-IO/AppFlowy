@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -22,7 +24,10 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           remindersOrFailure.fold(
             (error) => Log.error(error),
-            (reminders) => emit(state.copyWith(reminders: reminders)),
+            (reminders) {
+              _scheduleAcknowledgement(reminders);
+              emit(state.copyWith(reminders: reminders));
+            },
           );
         },
         remove: (reminderId) async {
@@ -69,12 +74,16 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             meta: reminder.meta,
           );
 
+          if (!newReminder.isAck) {
+            _schedule(newReminder);
+          }
+
           final failureOrUnit =
               await reminderService.updateReminder(reminder: newReminder);
 
           failureOrUnit.fold(
             (error) => Log.error(error),
-            (r) {
+            (_) {
               final index =
                   state.reminders.indexWhere((r) => r.id == reminderId);
               final reminders = [...state.reminders];
@@ -84,8 +93,64 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
+        acknowledge: (reminder) async {
+          final reminderUpdate = ReminderPB(
+            id: reminder.id,
+            objectId: reminder.objectId,
+            scheduledAt: reminder.scheduledAt,
+            isAck: true,
+            title: reminder.title,
+            message: reminder.message,
+            meta: reminder.meta,
+          );
+
+          final failureOrUnit = await reminderService.updateReminder(
+            reminder: reminderUpdate,
+          );
+
+          failureOrUnit.fold(
+            (error) => Log.error(error),
+            (_) {
+              final index =
+                  state.reminders.indexWhere((r) => r.id == reminder.id);
+              final reminders = [...state.reminders];
+              reminders.replaceRange(index, index + 1, [reminderUpdate]);
+
+              emit(state.copyWith(reminders: reminders));
+            },
+          );
+        },
       );
     });
+  }
+
+  void _scheduleAcknowledgement(List<ReminderPB> reminders) {
+    final filteredReminders = reminders.where((reminder) => !reminder.isAck);
+    for (final reminder in filteredReminders) {
+      _schedule(reminder);
+    }
+  }
+
+  void _schedule(ReminderPB reminder) {
+    final now = DateTime.now();
+
+    final reminderDate = DateTime.fromMillisecondsSinceEpoch(
+      reminder.scheduledAt.toInt() * 1000,
+    );
+
+    final difference = reminderDate.difference(now);
+    if (difference.isNegative) {
+      _acknowledgeReminder(reminder);
+    } else {
+      Timer(
+        reminderDate.difference(now),
+        () => _acknowledgeReminder(reminder),
+      );
+    }
+  }
+
+  void _acknowledgeReminder(ReminderPB reminder) {
+    add(ReminderEvent.acknowledge(reminder: reminder));
   }
 }
 
@@ -104,6 +169,10 @@ class ReminderEvent with _$ReminderEvent {
     required String reminderId,
     required DateTime date,
   }) = _Update;
+
+  const factory ReminderEvent.acknowledge({
+    required ReminderPB reminder,
+  }) = _Acknowledge;
 }
 
 class ReminderState {

@@ -31,7 +31,7 @@ class ReminderReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
-  static const maxSearchLength = 20;
+  static const maxSearchLength = 25;
   Future<InlineActionsResult> reminderReferenceDelegate([
     String? search,
   ]) async {
@@ -202,10 +202,7 @@ class ReminderReferenceService {
       label: FlowyText.regular(labelStr.capitalize()),
       keywords: [labelStr.toLowerCase(), ...?keywords],
       onSelected: (context, editorState, menuService) =>
-          _insertReminderReference(
-        editorState,
-        date,
-      ),
+          _insertReminderReference(editorState, date),
     );
   }
 
