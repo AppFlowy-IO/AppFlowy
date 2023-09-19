@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart';
 class DateService {
   static Future<Either<FlowyError, DateTime>> queryDate(String search) async {
     final query = DateQueryPB.create()..query = search;
-    final result = (await AIEventQueryDate(query).send()).swap();
+    final result = (await DateEventQueryDate(query).send()).swap();
     return result.fold((l) => left(l), (r) {
       final date = DateTime.tryParse(r.date);
       if (date != null) {

@@ -78,8 +78,7 @@ class _CellCalendarWidget extends StatefulWidget {
   const _CellCalendarWidget({
     required this.cellContext,
     required this.dateTypeOptionPB,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CellCalendarWidget> createState() => _CellCalendarWidgetState();
@@ -353,8 +352,7 @@ class _TimeTextField extends StatefulWidget {
     required this.timeStr,
     required this.popoverMutex,
     required this.isEndTime,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();
