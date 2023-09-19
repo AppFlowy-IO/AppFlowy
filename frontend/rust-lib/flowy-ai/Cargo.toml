@@ -12,3 +12,5 @@ serde_json = "1.0"
 anyhow = "1.0.75"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 async-openai = "0.14.2"
+tokio = { version = "1.12", features = ["rt", "sync"] }
+dotenv = "0.15.0"
