@@ -1574,7 +1574,6 @@ name = "flowy-ai"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-codegen",
  "flowy-derive",
  "flowy-error",
  "flowy-notification",

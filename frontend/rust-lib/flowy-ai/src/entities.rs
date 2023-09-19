@@ -1,25 +1,20 @@
-use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
 /*
  model="text-davinci-003",
  prompt="Write a tagline for an ice cream shop."
 */
-#[derive(Default, ProtoBuf)]
+#[derive(Default)]
 pub struct TextCompletionPayloadPB {
-  #[pb(index = 1)]
   pub request_id: String,
 
   // Model: Either text-davinci-003 or gpt-3.5-turbo
-  #[pb(index = 2)]
   pub model: String,
 
   // Prompt to query gpt
-  #[pb(index = 3)]
   pub prompt: String,
 
   // User open_ai_key for authentication
-  #[pb(index = 4)]
   pub open_ai_key: String,
 }
 
@@ -64,17 +59,13 @@ impl TryInto<TextCompletionParams> for TextCompletionPayloadPB {
 }
 
 */
-#[derive(Default, ProtoBuf)]
+#[derive(Default)]
 pub struct TextCompletionDataPB {
-  #[pb(index = 1)]
   pub request_id: String,
 
-  #[pb(index = 2)]
   pub model: String,
 
-  #[pb(index = 3)]
   pub index: i32,
 
-  #[pb(index = 4)]
   pub content: String,
 }
