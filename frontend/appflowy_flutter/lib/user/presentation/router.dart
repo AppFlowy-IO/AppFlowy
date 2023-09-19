@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
+import 'package:appflowy/mobile/presentation/home/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';

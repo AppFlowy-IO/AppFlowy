@@ -1,9 +1,12 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // TODO(yijing): This is just a placeholder for now.
 class MobileHomeScreen extends StatelessWidget {
@@ -34,13 +37,25 @@ class MobileHomeScreen extends StatelessWidget {
         snapshots.data?[1].fold((error) => null, (userProfilePB) {
           userProfile = userProfilePB as UserProfilePB?;
         });
-
+        // TODO(yijing): implement home page later
         return Scaffold(
           key: ValueKey(userProfile?.id),
+          // TODO(yijing):Need to change to workspace when it is ready
           appBar: AppBar(
-            title: const Text("MobileHomeScreen"),
+            title: Text(
+              userProfile?.email.toString() ?? 'No email found',
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  // TODO(yijing): Navigate to setting page
+                },
+                icon: const FlowySvg(
+                  FlowySvgs.m_setting_m,
+                ),
+              )
+            ],
           ),
-          // TODO(yijing): implement home page later
           body: Center(
             child: Column(
               children: [

@@ -111,7 +111,7 @@ GoRouter generateRouter(Widget child) {
           // using a BottomNavigationBar). The StatefulNavigationShell is passed
           // to be able access the state of the shell and to navigate to other
           // branches in a stateful way.
-          return ScaffoldWithNavBar(navigationShell: navigationShell);
+          return MobileBottomNavigationBar(navigationShell: navigationShell);
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
@@ -139,7 +139,7 @@ GoRouter generateRouter(Widget child) {
                 path: '/b',
                 builder: (BuildContext context, GoRouterState state) =>
                     const RootPlaceholderScreen(
-                  label: 'B',
+                  label: 'Favorite',
                   detailsPath: '/b/details/1',
                   secondDetailsPath: '/b/details/2',
                 ),
@@ -148,7 +148,7 @@ GoRouter generateRouter(Widget child) {
                     path: 'details/:param',
                     builder: (BuildContext context, GoRouterState state) =>
                         DetailsPlaceholderScreen(
-                      label: 'B',
+                      label: 'Favorite details',
                       param: state.pathParameters['param'],
                     ),
                   ),
@@ -166,7 +166,7 @@ GoRouter generateRouter(Widget child) {
                 path: '/c',
                 builder: (BuildContext context, GoRouterState state) =>
                     const RootPlaceholderScreen(
-                  label: 'C',
+                  label: 'Add Document',
                   detailsPath: '/c/details',
                 ),
                 routes: <RouteBase>[
@@ -174,7 +174,7 @@ GoRouter generateRouter(Widget child) {
                     path: 'details',
                     builder: (BuildContext context, GoRouterState state) =>
                         DetailsPlaceholderScreen(
-                      label: 'C',
+                      label: 'Add Document details',
                       extra: state.extra,
                     ),
                   ),
@@ -188,14 +188,16 @@ GoRouter generateRouter(Widget child) {
                 path: '/d',
                 builder: (BuildContext context, GoRouterState state) =>
                     const RootPlaceholderScreen(
-                  label: 'D root',
+                  label: 'Search',
                   detailsPath: '/d/details',
                 ),
                 routes: <RouteBase>[
                   GoRoute(
                     path: 'details',
                     builder: (BuildContext context, GoRouterState state) =>
-                        const DetailsPlaceholderScreen(label: 'D details'),
+                        const DetailsPlaceholderScreen(
+                      label: 'Search Page details',
+                    ),
                   ),
                 ],
               ),
@@ -207,14 +209,16 @@ GoRouter generateRouter(Widget child) {
                 path: '/e',
                 builder: (BuildContext context, GoRouterState state) =>
                     const RootPlaceholderScreen(
-                  label: 'E root',
+                  label: 'Notification',
                   detailsPath: '/e/details',
                 ),
                 routes: <RouteBase>[
                   GoRoute(
                     path: 'details',
                     builder: (BuildContext context, GoRouterState state) =>
-                        const DetailsPlaceholderScreen(label: 'E details'),
+                        const DetailsPlaceholderScreen(
+                      label: 'Notification Page details',
+                    ),
                   ),
                 ],
               ),
