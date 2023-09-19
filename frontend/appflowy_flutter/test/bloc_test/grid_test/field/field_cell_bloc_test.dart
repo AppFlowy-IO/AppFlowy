@@ -30,6 +30,7 @@ void main() {
       )..add(const FieldCellEvent.initial()),
       act: (bloc) {
         width = bloc.state.width;
+        bloc.add(const FieldCellEvent.onResizeStart());
         bloc.add(const FieldCellEvent.startUpdateWidth(100));
         bloc.add(const FieldCellEvent.endUpdateWidth());
       },
@@ -39,7 +40,7 @@ void main() {
     );
 
     blocTest(
-      'field width should not be less than 50px',
+      'field width should not be lesser than 50px',
       build: () => FieldCellBloc(
         cellContext: FieldContext(
           field: context.fieldContexts[0].field,
@@ -47,6 +48,7 @@ void main() {
         ),
       )..add(const FieldCellEvent.initial()),
       act: (bloc) {
+        bloc.add(const FieldCellEvent.onResizeStart());
         bloc.add(const FieldCellEvent.startUpdateWidth(-110));
         bloc.add(const FieldCellEvent.endUpdateWidth());
       },
