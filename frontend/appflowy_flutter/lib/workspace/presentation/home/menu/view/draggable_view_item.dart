@@ -1,9 +1,6 @@
-import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -75,54 +72,34 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableItem<CrossDraggablesEntity>(
       data: widget.view,
       onWillAccept: (data) => true,
-      onMove: (data) async {
-        ViewPB? view;
+      onMove: (data) {
         if (data.data.crossDraggableType == CrossDraggableType.view) {
-          view = data.data.draggable as ViewPB;
-        } else if (data.data.crossDraggableType == CrossDraggableType.pane) {
-          view = await (data.data.draggable as PaneNode)
-              .tabs
-              .currentPageManager
-              .view;
-        } else if (data.data.crossDraggableType == CrossDraggableType.tab) {
-          view = await (data.data.draggable as (Tabs, PageManager)).$2.view;
-        } else {
-          view = null;
+          final view = data.data.draggable as ViewPB;
+          final renderBox = context.findRenderObject() as RenderBox;
+          final offset = renderBox.globalToLocal(data.offset);
+          final position = _computeHoverPosition(offset, renderBox.size);
+          if (!_shouldAccept(view, position)) {
+            return;
+          }
+          setState(() {
+            Log.debug(
+              'offset: $offset, position: $position, size: ${renderBox.size}',
+            );
+            this.position = position;
+          });
         }
-        final renderBox = context.findRenderObject() as RenderBox;
-        final offset = renderBox.globalToLocal(data.offset);
-        final position = _computeHoverPosition(offset, renderBox.size);
-        if (view != null && !_shouldAccept(view, position)) {
-          return;
-        } else if (view == null) {
-          return;
-        }
-        setState(() {
-          Log.debug(
-            'offset: $offset, position: $position, size: ${renderBox.size}',
-          );
-          this.position = position;
-        });
       },
       onLeave: (_) => setState(
         () => position = DraggableHoverPosition.none,
       ),
-      onAccept: (data) async {
-        ViewPB? from;
+      onAccept: (data) {
         if (data.crossDraggableType == CrossDraggableType.view) {
-          from = data.draggable as ViewPB;
-        } else if (data.crossDraggableType == CrossDraggableType.pane) {
-          from = await (data.draggable as PaneNode).tabs.currentPageManager.view
-              as ViewPB;
-        } else if (data.crossDraggableType == CrossDraggableType.tab) {
-          from = await (data.draggable as (Tabs, PageManager)).$2.view;
+          final from = data.draggable as ViewPB;
+          _move(from, widget.view.draggable as ViewPB);
+          setState(
+            () => position = DraggableHoverPosition.none,
+          );
         }
-        final to = widget.view.draggable as ViewPB;
-        if (from == null) return;
-        _move(from, to);
-        setState(
-          () => position = DraggableHoverPosition.none,
-        );
       },
       feedback: IntrinsicWidth(
         child: Opacity(

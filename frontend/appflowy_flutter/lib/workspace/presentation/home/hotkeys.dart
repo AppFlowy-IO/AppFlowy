@@ -78,16 +78,6 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => context.read<PanesCubit>().closeCurrentTab(),
     ).register();
 
-    HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.controlLeft,
-        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
-        scope: HotKeyScope.inapp,
-      ),
-      keyDownHandler: (_) => context.read<PanesCubit>().allowPaneDragging(true),
-      keyUpHandler: (_) => context.read<PanesCubit>().allowPaneDragging(false),
-    ).register();
-
     // Go to previous tab
     HotKeyItem(
       hotKey: HotKey(

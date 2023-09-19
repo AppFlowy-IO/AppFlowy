@@ -12,14 +12,12 @@ import 'package:provider/provider.dart';
 class TabsManager extends StatefulWidget {
   final PageController pageController;
   final Tabs tabs;
-  final bool allowPaneDrag;
   final PaneNode pane;
   const TabsManager({
     super.key,
     required this.tabs,
     required this.pageController,
     required this.pane,
-    required this.allowPaneDrag,
   });
 
   @override
@@ -88,24 +86,20 @@ class _TabsManagerState extends State<TabsManager>
             .selectTab(pane: widget.pane, index: newIndex),
         tabs: widget.tabs.pageManagers
             .map(
-              (pm) => !widget.allowPaneDrag
-                  ? DraggableTabItem(
-                      tabContext: context,
-                      tabs: widget.tabs,
-                      pageManager: pm,
-                      child: FlowyTab(
-                        paneNode: widget.pane,
-                        key: UniqueKey(),
-                        pageManager: pm,
-                        isCurrent: widget.tabs.currentPageManager == pm,
-                      ),
-                    )
-                  : FlowyTab(
-                      paneNode: widget.pane,
-                      key: UniqueKey(),
-                      pageManager: pm,
-                      isCurrent: widget.tabs.currentPageManager == pm,
-                    ),
+              (pm) => SizedBox(
+                width: HomeSizes.tabBarWidth,
+                height: HomeSizes.tabBarHeigth,
+                child: DraggableTabItem(
+                  tabs: widget.tabs,
+                  pageManager: pm,
+                  child: FlowyTab(
+                    key: ValueKey(pm.notifier.plugin.id),
+                    paneNode: widget.pane,
+                    pageManager: pm,
+                    isCurrent: widget.tabs.currentPageManager == pm,
+                  ),
+                ),
+              ),
             )
             .toList(),
       ),
