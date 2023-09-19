@@ -92,7 +92,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
         Log.error(error);
       },
       (user) {
-        widget.authRouter.pushHomeScreen(context, user);
+        widget.authRouter.goHomeScreen(context, user);
       },
     );
   }

@@ -15,7 +15,7 @@ void handleUserProfileResult(
       if (userProfile.encryptionType == EncryptionTypePB.Symmetric) {
         authRouter.pushEncryptionScreen(context, userProfile);
       } else {
-        authRouter.pushHomeScreen(context, userProfile);
+        authRouter.goHomeScreen(context, userProfile);
       }
     },
     (error) {

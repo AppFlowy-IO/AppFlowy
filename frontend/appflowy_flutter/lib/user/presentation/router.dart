@@ -2,10 +2,9 @@ import 'package:appflowy/mobile/presentation/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
-import 'package:appflowy/workspace/presentation/home/home_screen.dart';
+import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_infra_ui/widget/route/animation.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -40,23 +39,18 @@ class AuthRouter {
   /// @param [context] BuildContext for navigating to the appropriate screen.
   /// @param [userProfile] UserProfilePB object containing the details of the current user.
   ///
-  Future<void> pushHomeScreen(
+  Future<void> goHomeScreen(
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
     final result = await FolderEventGetCurrentWorkspace().send();
     result.fold(
       (workspaceSetting) {
-        // This function is used on SignInScreen and SkipLogInScreen.
-        // We use [context.go] to replace the previous page(SignInScreen or SkipLogInScreen), thus when user press back button, it will close the app rather than back to SignInScreen or SkipLogInScreen.
+        // Replace SignInScreen or SkipLogInScreen as root page.
+        // If user click back button, it will exit app rather than go back to SignInScreen or SkipLogInScreen
         if (PlatformExtension.isMobile) {
           context.go(
             MobileHomeScreen.routeName,
-            extra: {
-              'key': ValueKey(userProfile.id),
-              'userProfile': userProfile,
-              'workspaceSetting': workspaceSetting,
-            },
           );
         } else {
           context.go(
@@ -131,14 +125,8 @@ class SplashRouter {
     WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
-      // Push on the top of SplashScreen
       context.push(
         MobileHomeScreen.routeName,
-        extra: {
-          'key': ValueKey(userProfile.id),
-          'userProfile': userProfile,
-          'workspaceSetting': workspaceSetting,
-        },
       );
     } else {
       context.push(
@@ -152,11 +140,24 @@ class SplashRouter {
     }
   }
 
-  void pushSignInScreen(BuildContext context) {
-    context.push(SignInScreen.routeName);
-  }
-
-  void pushSkipLoginScreen(BuildContext context) {
-    context.push(SkipLogInScreen.routeName);
+  void goHomeScreen(
+    BuildContext context,
+    UserProfilePB userProfile,
+    WorkspaceSettingPB workspaceSetting,
+  ) {
+    if (PlatformExtension.isMobile) {
+      context.go(
+        MobileHomeScreen.routeName,
+      );
+    } else {
+      context.go(
+        DesktopHomeScreen.routeName,
+        extra: {
+          'key': ValueKey(userProfile.id),
+          'userProfile': userProfile,
+          'workspaceSetting': workspaceSetting,
+        },
+      );
+    }
   }
 }
