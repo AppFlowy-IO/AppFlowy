@@ -155,10 +155,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           onSelected: (action, controller) async {
             switch (action.inner) {
               case _ActionType.viewDatabase:
-                getIt<PanesCubit>().openTab(
-                  plugin: viewPB.plugin(),
-                  view: viewPB,
-                );
+                getIt<PanesCubit>().openTab(plugin: viewPB.plugin());
                 break;
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;

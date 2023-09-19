@@ -108,10 +108,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       Log.error('Page($pageId) not found');
       return;
     }
-    getIt<PanesCubit>().openTab(
-      plugin: view.plugin(),
-      view: view,
-    );
+    getIt<PanesCubit>().openTab(plugin: view.plugin());
   }
 
   Future<ViewPB?> fetchView(String pageId) async {

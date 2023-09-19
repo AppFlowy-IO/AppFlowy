@@ -76,7 +76,6 @@ class FlowyPane extends StatelessWidget {
                             children: value.pageManagers
                                 .map(
                                   (pm) => PageStack(
-                                    pane: node,
                                     pageManager: pm,
                                     delegate: delegate,
                                   ),

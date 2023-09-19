@@ -1,7 +1,10 @@
+import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class Tabs extends ChangeNotifier {
@@ -10,17 +13,21 @@ class Tabs extends ChangeNotifier {
   int get pages => _pageManagers.length;
   PageManager get currentPageManager => _pageManagers[currentIndex];
   List<PageManager> get pageManagers => _pageManagers;
+  final MenuSharedState menuSharedState;
 
   Tabs({this.currentIndex = 0, List<PageManager>? pageManagers})
-      : _pageManagers = pageManagers ?? [PageManager()];
+      : _pageManagers = pageManagers ?? [PageManager()],
+        menuSharedState = getIt<MenuSharedState>();
 
-  void openView(Plugin plugin, ViewPB view) {
+  void openView(Plugin plugin) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (!selectExistingPlugin) {
       _pageManagers.add(PageManager()..setPlugin(plugin));
     }
     currentIndex = _pageManagers.length - 1;
+
+    setLatestOpenView();
     notifyListeners();
   }
 
@@ -39,6 +46,8 @@ class Tabs extends ChangeNotifier {
     currentIndex = currentIndex > _pageManagers.length - 1 && currentIndex > 0
         ? currentIndex - 1
         : currentIndex;
+
+    setLatestOpenView();
     notifyListeners();
   }
 
@@ -70,14 +79,26 @@ class Tabs extends ChangeNotifier {
     if (!selectExistingPlugin) {
       _pageManagers[currentIndex].setPlugin(plugin);
     }
+    setLatestOpenView();
     notifyListeners();
   }
 
   void selectTab({required int index}) {
     if (index != currentIndex && index >= 0 && index < pages) {
       currentIndex = index;
+      setLatestOpenView();
       notifyListeners();
     }
+  }
+
+  void transferTab({required PageManager pm}) {
+    final selectExistingPlugin = _selectPluginIfOpen(pm.plugin.id);
+
+    if (!selectExistingPlugin) {
+      _pageManagers.add(PageManager()..setPlugin(pm.plugin));
+    }
+    currentIndex = _pageManagers.length - 1;
+    notifyListeners();
   }
 
   void move({
@@ -85,32 +106,47 @@ class Tabs extends ChangeNotifier {
     required PageManager to,
     required TabDraggableHoverPosition position,
   }) {
-    switch (position) {
-      case TabDraggableHoverPosition.center:
-      case TabDraggableHoverPosition.none:
-        return;
-      case TabDraggableHoverPosition.left:
-        {
-          pageManagers.remove(from);
-          pageManagers.insert(
-            (pageManagers.indexOf(to) - 1)
-                .clamp(0, pageManagers.length)
-                .floor(),
-            from,
-          );
-          break;
-        }
-      case TabDraggableHoverPosition.right:
-        {
-          final index = pageManagers.indexOf(to);
-          if (index + 1 >= pageManagers.length) {
-            pageManagers.add(from);
-          } else {
-            pageManagers.insert(index, from);
+    pageManagers.remove(from);
+    final selectExistingPlugin = _selectPluginIfOpen(from.plugin.id);
+
+    if (!selectExistingPlugin) {
+      switch (position) {
+        case TabDraggableHoverPosition.none:
+          return;
+        case TabDraggableHoverPosition.left:
+          {
+            final index = pageManagers.indexOf(to);
+            pageManagers.insert(
+              index,
+              from,
+            );
+            currentIndex = index;
+            break;
           }
-          break;
-        }
+        case TabDraggableHoverPosition.right:
+          {
+            final index = pageManagers.indexOf(to);
+            if (index + 1 == pageManagers.length) {
+              pageManagers.add(from);
+            } else {
+              pageManagers.insert(index + 1, from);
+            }
+            currentIndex = index + 1;
+            break;
+          }
+      }
     }
     notifyListeners();
+  }
+
+  void setLatestOpenView([ViewPB? view]) {
+    if (view != null) {
+      menuSharedState.latestOpenView = view;
+    } else {
+      final notifier = currentPageManager.plugin.notifier;
+      if (notifier is ViewPluginNotifier) {
+        menuSharedState.latestOpenView = notifier.view;
+      }
+    }
   }
 }

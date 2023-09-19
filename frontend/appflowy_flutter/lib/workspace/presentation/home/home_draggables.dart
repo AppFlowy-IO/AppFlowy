@@ -5,6 +5,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 
 enum CrossDraggableType { view, tab, pane, none }
 
+class TabNode {
+  final PageManager pageManager;
+  final Tabs tabs;
+
+  TabNode(this.tabs, this.pageManager);
+}
+
 class CrossDraggablesEntity {
   late final dynamic draggable;
   late final CrossDraggableType crossDraggableType;
@@ -18,7 +25,7 @@ class CrossDraggablesEntity {
     } else if (draggable is PaneNode) {
       this.draggable = draggable;
       crossDraggableType = CrossDraggableType.pane;
-    } else if (draggable is (Tabs, PageManager)) {
+    } else if (draggable is TabNode) {
       this.draggable = draggable;
       crossDraggableType = CrossDraggableType.tab;
     } else {
