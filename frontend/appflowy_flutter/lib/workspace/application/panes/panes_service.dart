@@ -170,7 +170,7 @@ class PanesService {
           return node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
-            sizeController: PaneSizeController.intial(),
+            sizeController: PaneSizeController(flex: node.sizeController.flex),
             tabs: Tabs(
               currentIndex: node.children.first.tabs.currentIndex,
               pageManagers: node.children.first.tabs.pageManagers,

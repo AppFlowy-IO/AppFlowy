@@ -91,16 +91,6 @@ class Tabs extends ChangeNotifier {
     }
   }
 
-  void transferTab({required PageManager pm}) {
-    final selectExistingPlugin = _selectPluginIfOpen(pm.plugin.id);
-
-    if (!selectExistingPlugin) {
-      _pageManagers.add(PageManager()..setPlugin(pm.plugin));
-    }
-    currentIndex = _pageManagers.length - 1;
-    notifyListeners();
-  }
-
   void move({
     required PageManager from,
     required PageManager to,
@@ -136,6 +126,7 @@ class Tabs extends ChangeNotifier {
           }
       }
     }
+    setLatestOpenView();
     notifyListeners();
   }
 

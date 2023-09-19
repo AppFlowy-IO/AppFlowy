@@ -12,7 +12,7 @@ import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-//TODO(squidrye):refactor cross draggables and add edge cases
+//TODO(squidrye):refactor cross draggable
 enum FlowyDraggableHoverPosition { none, top, left, right, bottom, tab }
 
 class DraggablePaneItem extends StatefulWidget {
@@ -51,12 +51,7 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
       },
       child: DraggableItem<CrossDraggablesEntity>(
         data: widget.pane,
-        onWillAccept: (data) =>
-            (data?.crossDraggableType == CrossDraggableType.pane &&
-                    (data?.draggable as PaneNode).paneId ==
-                        (widget.pane.draggable as PaneNode).paneId)
-                ? false
-                : true,
+        onWillAccept: (data) => _shouldAccept(data!, position),
         onMove: (data) {
           final renderBox = widget.paneContext.findRenderObject() as RenderBox;
           final offset = renderBox.globalToLocal(data.offset);
@@ -227,7 +222,7 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
             fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
             (to.draggable as PaneNode)
                 .tabs
-                .transferTab(pm: fromTab.pageManager);
+                .openView(fromTab.pageManager.plugin);
             return;
           }
         default:
