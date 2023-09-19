@@ -70,6 +70,7 @@ pub async fn sync_user_data_to_cloud(
   Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn sync_views(
   uid: i64,
   folder: Arc<MutexFolder>,
