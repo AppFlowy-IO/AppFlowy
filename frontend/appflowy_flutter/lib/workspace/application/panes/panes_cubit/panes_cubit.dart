@@ -1,11 +1,9 @@
-import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +13,7 @@ import '../panes.dart';
 
 part 'panes_state.dart';
 
-enum SplitDirection { left, right, up, down }
+enum SplitDirection { left, right, up, down, none }
 
 class PanesCubit extends Cubit<PanesState> {
   final PanesService panesService;
@@ -27,11 +25,11 @@ class PanesCubit extends Cubit<PanesState> {
 
   void setActivePane(PaneNode activePane) {
     emit(state.copyWith(activePane: activePane));
-    _setLatestOpenView();
+    state.activePane.tabs.setLatestOpenView();
   }
 
   void split(
-    ViewPB view,
+    Plugin plugin,
     SplitDirection splitDirection, {
     String? targetPaneId,
   }) {
@@ -51,7 +49,7 @@ class PanesCubit extends Cubit<PanesState> {
     final root = panesService.splitHandler(
       state.root,
       targetPaneId ?? state.activePane.paneId,
-      view,
+      plugin,
       direction,
       axis,
       setActivePane,
@@ -75,45 +73,23 @@ class PanesCubit extends Cubit<PanesState> {
     );
   }
 
-  void openTab({required Plugin plugin, required ViewPB view}) {
-    state.activePane.tabs.openView(plugin, view);
-    _setLatestOpenView();
+  void openTab({required Plugin plugin}) {
+    state.activePane.tabs.openView(plugin);
   }
 
-  void openPlugin({required Plugin plugin, ViewPB? view}) {
+  void openPlugin({required Plugin plugin}) {
     state.activePane.tabs.openPlugin(plugin: plugin);
-    _setLatestOpenView();
   }
 
   void selectTab({required int index, PaneNode? pane}) {
     if (pane != null) emit(state.copyWith(activePane: pane));
     state.activePane.tabs.selectTab(index: index);
-    _setLatestOpenView();
-  }
-
-  void closeTab({required String pluginId, PaneNode? pane}) {
-    if (pane != null) emit(state.copyWith(activePane: pane));
-    state.activePane.tabs.closeView(pluginId);
-    _setLatestOpenView();
   }
 
   void closeCurrentTab() {
     state.activePane.tabs.closeView(
       state.activePane.tabs.currentPageManager.plugin.id,
     );
-    _setLatestOpenView();
-  }
-
-  void _setLatestOpenView([ViewPB? view]) {
-    if (view != null) {
-      menuSharedState.latestOpenView = view;
-    } else {
-      final pageManager = state.activePane.tabs.currentPageManager;
-      final notifier = pageManager.plugin.notifier;
-      if (notifier is ViewPluginNotifier) {
-        menuSharedState.latestOpenView = notifier.view;
-      }
-    }
   }
 
   void movePane(
@@ -125,8 +101,8 @@ class PanesCubit extends Cubit<PanesState> {
       FlowyDraggableHoverPosition.top,
       FlowyDraggableHoverPosition.left
     ].contains(position)
-        ? Direction.front
-        : Direction.back;
+        ? Direction.back
+        : Direction.front;
 
     final axis = [
       FlowyDraggableHoverPosition.left,
@@ -146,12 +122,13 @@ class PanesCubit extends Cubit<PanesState> {
           setActivePane,
           from,
         ),
+        count: state.count + 1,
       ),
     );
     closePane(from.paneId);
   }
 
-  void allowPaneDragging(bool value) {
-    emit(state.copyWith(allowPaneDrag: value));
+  void setOffset(Offset offset) {
+    emit(state.copyWith(dragOffset: offset));
   }
 }

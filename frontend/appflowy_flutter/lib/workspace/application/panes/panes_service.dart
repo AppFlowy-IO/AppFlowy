@@ -1,9 +1,8 @@
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -13,7 +12,7 @@ class PanesService {
   PaneNode splitHandler(
     PaneNode node,
     String targetPaneId,
-    ViewPB? view,
+    Plugin? plugin,
     Direction direction,
     Axis axis,
     void Function(PaneNode) activePane,
@@ -24,43 +23,54 @@ class PanesService {
     if (node.paneId == targetPaneId) {
       ///we create a holder node which would replace current target and add
       ///target node + new node as its children
-      final newNode = PaneNode(
+      final newHolderNode = PaneNode(
         sizeController: PaneSizeController(flex: [0.5, 0.5]),
         paneId: nanoid(),
         children: const [],
         axis: axis,
         tabs: null,
       );
-      final ret = newNode.copyWith(
-        children: [
-          node.copyWith(
-            paneId: nanoid(),
-            parent: newNode,
+      final oldChildNode = node.copyWith(
+        paneId: nanoid(),
+        parent: newHolderNode,
+        sizeController: PaneSizeController.intial(),
+        axis: null,
+        tabs: Tabs(
+          currentIndex: node.tabs.currentIndex,
+          pageManagers: node.tabs.pageManagers,
+        ),
+      );
+      final newChildNode = fromNode?.copyWith(
+            parent: newHolderNode,
             sizeController: PaneSizeController.intial(),
+            paneId: nanoid(),
+            children: const [],
             axis: null,
             tabs: Tabs(
-              currentIndex: node.tabs.currentIndex,
-              pageManagers: node.tabs.pageManagers,
+              currentIndex: fromNode.tabs.currentIndex,
+              pageManagers: fromNode.tabs.pageManagers,
             ),
-          ),
-          fromNode?.copyWith(
-                paneId: nanoid(),
-                tabs: Tabs(
-                  currentIndex: fromNode.tabs.currentIndex,
-                  pageManagers: fromNode.tabs.pageManagers,
-                ),
-              ) ??
-              PaneNode(
-                sizeController: PaneSizeController.intial(),
-                paneId: nanoid(),
-                children: const [],
-                parent: newNode,
-                axis: null,
-                tabs: Tabs(
-                  pageManagers: [PageManager()..setPlugin(view!.plugin())],
-                ),
-              )
-        ],
+          ) ??
+          PaneNode(
+            sizeController: PaneSizeController.intial(),
+            paneId: nanoid(),
+            children: const [],
+            parent: newHolderNode,
+            axis: null,
+            tabs: Tabs(
+              pageManagers: [PageManager()..setPlugin(plugin!)],
+            ),
+          );
+      final ret = newHolderNode.copyWith(
+        children: direction == Direction.front
+            ? [
+                oldChildNode,
+                newChildNode,
+              ]
+            : [
+                newChildNode,
+                oldChildNode,
+              ],
       );
       activePane(ret.children[0]);
       return ret;
@@ -84,7 +94,7 @@ class PanesService {
                 children: const [],
                 parent: node.parent,
                 tabs: Tabs(
-                  pageManagers: [PageManager()..setPlugin(view!.plugin())],
+                  pageManagers: [PageManager()..setPlugin(plugin!)],
                 ),
               );
           if (direction == Direction.front) {
@@ -132,7 +142,7 @@ class PanesService {
           (e) => splitHandler(
             e,
             targetPaneId,
-            view,
+            plugin,
             direction,
             axis,
             activePane,
@@ -160,6 +170,11 @@ class PanesService {
           return node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
+            sizeController: PaneSizeController.intial(),
+            tabs: Tabs(
+              currentIndex: node.children.first.tabs.currentIndex,
+              pageManagers: node.children.first.tabs.pageManagers,
+            ),
           );
         }
         return node.copyWith(

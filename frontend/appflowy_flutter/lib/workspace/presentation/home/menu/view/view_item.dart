@@ -74,10 +74,9 @@ class ViewItem extends StatelessWidget {
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&
             p.lastCreatedView?.id != c.lastCreatedView!.id,
-        listener: (context, state) => context.read<PanesCubit>().openPlugin(
-              plugin: state.lastCreatedView!.plugin(),
-              view: state.lastCreatedView!,
-            ),
+        listener: (context, state) => context
+            .read<PanesCubit>()
+            .openPlugin(plugin: state.lastCreatedView!.plugin()),
         builder: (context, state) {
           // don't remove this code. it's related to the backend service.
           view.childViews
@@ -410,18 +409,24 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context
-                  .read<PanesCubit>()
-                  .openTab(plugin: widget.view.plugin(), view: widget.view);
+              context.read<PanesCubit>().openTab(plugin: widget.view.plugin());
               break;
             case ViewMoreActionType.splitDown:
               context
                   .read<PanesCubit>()
-                  .split(widget.view, SplitDirection.down);
+                  .split(widget.view.plugin(), SplitDirection.down);
             case ViewMoreActionType.splitRight:
               context
                   .read<PanesCubit>()
-                  .split(widget.view, SplitDirection.right);
+                  .split(widget.view.plugin(), SplitDirection.right);
+            case ViewMoreActionType.splitLeft:
+              context
+                  .read<PanesCubit>()
+                  .split(widget.view.plugin(), SplitDirection.left);
+            case ViewMoreActionType.splitUp:
+              context
+                  .read<PanesCubit>()
+                  .split(widget.view.plugin(), SplitDirection.up);
             default:
               throw UnsupportedError('$action is not supported');
           }

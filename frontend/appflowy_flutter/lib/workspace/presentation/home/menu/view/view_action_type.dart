@@ -14,6 +14,8 @@ enum ViewMoreActionType {
   openInNewTab,
   splitRight,
   splitDown,
+  splitUp,
+  splitLeft,
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
@@ -39,6 +41,10 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return 'Split Down';
       case ViewMoreActionType.splitRight:
         return 'Split Right';
+      case ViewMoreActionType.splitLeft:
+        return 'Split Left';
+      case ViewMoreActionType.splitUp:
+        return 'Split Up';
     }
   }
 
@@ -62,9 +68,13 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return const FlowySvg(FlowySvgs.full_view_s);
 
       case ViewMoreActionType.splitDown:
-        return const Icon(Icons.vertical_split);
-      case ViewMoreActionType.splitRight:
         return const Icon(Icons.horizontal_split);
+      case ViewMoreActionType.splitRight:
+        return const Icon(Icons.vertical_split);
+      case ViewMoreActionType.splitUp:
+        return const Icon(Icons.horizontal_split);
+      case ViewMoreActionType.splitLeft:
+        return const Icon(Icons.vertical_split);
     }
   }
 }

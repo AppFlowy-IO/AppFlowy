@@ -4,13 +4,13 @@ class PanesState extends Equatable {
   final PaneNode root;
   final int count;
   final PaneNode activePane;
-  final bool allowPaneDrag;
+  final Offset dragOffset;
 
   const PanesState({
     required this.activePane,
     required this.root,
     required this.count,
-    required this.allowPaneDrag,
+    required this.dragOffset,
   });
 
   factory PanesState.initial() {
@@ -22,9 +22,9 @@ class PanesState extends Equatable {
     );
     return PanesState(
       activePane: pane,
-      allowPaneDrag: false,
       root: pane,
       count: 1,
+      dragOffset: const Offset(0, 0),
     );
   }
 
@@ -33,15 +33,16 @@ class PanesState extends Equatable {
     bool? allowPaneDrag,
     PaneNode? root,
     int? count,
+    Offset? dragOffset,
   }) {
     return PanesState(
       root: root ?? this.root,
-      allowPaneDrag: allowPaneDrag ?? this.allowPaneDrag,
       activePane: activePane ?? this.activePane,
       count: count ?? this.count,
+      dragOffset: dragOffset ?? this.dragOffset,
     );
   }
 
   @override
-  List<Object?> get props => [root, count, activePane, allowPaneDrag];
+  List<Object?> get props => [root, count, activePane, dragOffset];
 }

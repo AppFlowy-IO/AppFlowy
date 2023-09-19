@@ -32,6 +32,8 @@ class ViewMoreActionButton extends StatelessWidget {
           : ViewMoreActionType.favorite,
       ViewMoreActionType.splitDown,
       ViewMoreActionType.splitRight,
+      ViewMoreActionType.splitLeft,
+      ViewMoreActionType.splitUp,
     ];
     return PopoverActionList<ViewMoreActionTypeWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,

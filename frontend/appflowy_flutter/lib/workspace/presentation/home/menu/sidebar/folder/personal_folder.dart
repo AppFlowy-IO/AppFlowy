@@ -57,16 +57,15 @@ class PersonalFolder extends StatelessWidget {
                       if (RawKeyboard.instance.isControlPressed) {
                         context
                             .read<PanesCubit>()
-                            .openTab(plugin: view.plugin(), view: view);
+                            .openTab(plugin: view.plugin());
                       }
-
                       context
                           .read<PanesCubit>()
-                          .openPlugin(plugin: view.plugin(), view: view);
+                          .openPlugin(plugin: view.plugin());
                     },
                     onTertiarySelected: (view) => context
                         .read<PanesCubit>()
-                        .openTab(plugin: view.plugin(), view: view),
+                        .openTab(plugin: view.plugin()),
                   ),
                 )
             ],
