@@ -11,11 +11,11 @@ use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_deps::cloud::FolderCloudService;
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
-use crate::af_cloud::configuration::AFCloudConfiguration;
 use crate::af_cloud::impls::{
   AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFolderCloudServiceImpl,
   AFCloudUserAuthServiceImpl,
@@ -41,7 +41,7 @@ impl AFCloudServer {
     device_id: Arc<parking_lot::RwLock<String>>,
   ) -> Self {
     let http_client = reqwest::Client::new();
-    let api_client = client_api::Client::from(http_client, &config.base_url(), &config.ws_addr());
+    let api_client = client_api::Client::from(http_client, &config.base_url, &config.ws_base_url);
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = AtomicBool::new(enable_sync);
 
