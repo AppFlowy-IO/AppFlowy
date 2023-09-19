@@ -2,25 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-<<<<<<< HEAD
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
-=======
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
->>>>>>> main
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-<<<<<<< HEAD
-=======
-
-import 'package:flowy_infra/theme_extension.dart';
->>>>>>> main
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,11 +40,6 @@ class _DateCellEditor extends State<DateCellEditor> {
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
-<<<<<<< HEAD
-=======
-        } else {
-          return const SizedBox.shrink();
->>>>>>> main
         }
 
         return const SizedBox.shrink();
@@ -110,10 +91,6 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
       child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
         builder: (context, state) {
           final List<Widget> children = [
-<<<<<<< HEAD
-            _buildCalendar(context),
-            const TypeOptionSeparator(spacing: 12.0),
-=======
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: state.includeTime
@@ -141,7 +118,6 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             const VSpace(4.0),
             const _IncludeTimeButton(),
             const TypeOptionSeparator(spacing: 8.0),
->>>>>>> main
             DateTypeOptionButton(popoverMutex: popoverMutex),
             const VSpace(4.0),
             const ClearDateButton(),
@@ -181,32 +157,6 @@ class _DatePickerState extends State<DatePicker> {
   Widget build(BuildContext context) {
     return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
       builder: (context, state) {
-<<<<<<< HEAD
-        return AppFlowyCalendar(
-          selectedDate: state.dateTime,
-          focusedDay: state.focusedDay,
-          format: state.format,
-          includeTime: state.includeTime,
-          onTimeChanged: (time) {
-            if (time != null) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setTime(time));
-            }
-          },
-          onIncludeTimeChanged: (includeTime) => context
-              .read<DateCellCalendarBloc>()
-              .add(DateCellCalendarEvent.setIncludeTime(includeTime)),
-          onDaySelected: (selectedDay, focusedDay, _) => context
-              .read<DateCellCalendarBloc>()
-              .add(DateCellCalendarEvent.selectDay(selectedDay.toLocal().date)),
-          onFormatChanged: (format) => context
-              .read<DateCellCalendarBloc>()
-              .add(DateCellCalendarEvent.setCalFormat(format)),
-          onPageChanged: (focusedDay) => context
-              .read<DateCellCalendarBloc>()
-              .add(DateCellCalendarEvent.setFocusedDay(focusedDay)),
-=======
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -466,7 +416,6 @@ class _TimeTextFieldState extends State<_TimeTextField> {
               }
             },
           ),
->>>>>>> main
         );
       },
     );

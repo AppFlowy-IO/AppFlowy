@@ -290,7 +290,6 @@
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
       "pluginsLabel": "Plugins",
-<<<<<<< HEAD
       "dateFormat": {
         "label": "Date format",
         "local": "Local",
@@ -303,10 +302,8 @@
         "label": "Time format",
         "twelveHour": "Twelve hour",
         "twentyFourHour": "Twenty four hour"
-      }
-=======
+      },
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
->>>>>>> main
     },
     "files": {
       "copy": "Copy",

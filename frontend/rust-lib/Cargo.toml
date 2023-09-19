@@ -22,9 +22,9 @@ members = [
   "flowy-config",
   "flowy-encrypt",
   "flowy-storage",
-  "flowy-date",
   "collab-integrate",
   "flowy-ai",
+  "flowy-date",
 ]
 
 [workspace.dependencies]
