@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -12,7 +12,6 @@ class FlowyTab extends StatefulWidget {
   final PageManager pageManager;
   final PaneNode paneNode;
   final bool isCurrent;
-
   const FlowyTab({
     super.key,
     required this.pageManager,
@@ -30,6 +29,7 @@ class _FlowyTabState extends State<FlowyTab> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTertiaryTapUp: _closeTab,
       child: MouseRegion(
         onEnter: (_) => _setHovering(true),
@@ -86,7 +86,7 @@ class _FlowyTabState extends State<FlowyTab> {
     return Theme.of(context).colorScheme.surfaceVariant;
   }
 
-  void _closeTab([TapUpDetails? details]) => context
-      .read<PanesCubit>()
-      .closeTab(pluginId: widget.pageManager.plugin.id, pane: widget.paneNode);
+  void _closeTab([TapUpDetails? details]) =>
+      Provider.of<Tabs>(context, listen: false)
+          .closeView(widget.pageManager.plugin.id);
 }

@@ -1,25 +1,19 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:flutter/material.dart';
 
 //TODO(squidrye):refactor cross draggables and add edge cases
-enum FlowyDraggableHoverPosition {
-  none,
-  top,
-  left,
-  right,
-  bottom,
-}
+enum FlowyDraggableHoverPosition { none, top, left, right, bottom, tab }
 
 class DraggablePaneItem extends StatefulWidget {
   const DraggablePaneItem({
@@ -28,6 +22,7 @@ class DraggablePaneItem extends StatefulWidget {
     this.feedback,
     required this.child,
     required this.paneContext,
+    required this.size,
     this.allowDrag = true,
   });
 
@@ -36,6 +31,7 @@ class DraggablePaneItem extends StatefulWidget {
   final Widget child;
   final BuildContext paneContext;
   final bool allowDrag;
+  final Size size;
 
   @override
   State<DraggablePaneItem> createState() => _DraggablePaneItemState();
@@ -43,55 +39,67 @@ class DraggablePaneItem extends StatefulWidget {
 
 class _DraggablePaneItemState extends State<DraggablePaneItem> {
   FlowyDraggableHoverPosition position = FlowyDraggableHoverPosition.none;
-  Size? size;
+  final ValueNotifier<Offset> dragStartPosition = ValueNotifier(Offset.zero);
   @override
   Widget build(BuildContext context) {
-    return DraggableItem<CrossDraggablesEntity>(
-      data: widget.pane,
-      onWillAccept: (data) =>
-          data?.crossDraggableType == CrossDraggableType.pane
-              ? widget.allowDrag
-              : true,
-      onMove: widget.allowDrag
-          ? (data) {
-              final renderBox =
-                  widget.paneContext.findRenderObject() as RenderBox;
-              final offset = renderBox.globalToLocal(data.offset);
-              setState(() {
-                size = renderBox.size;
-              });
-              final positionN = _computeHoverPosition(offset, renderBox);
-              if (!_shouldAccept(data.data, position)) {
-                return;
-              }
-              setState(() {
-                position = positionN;
-              });
-            }
-          : null,
-      onLeave: (_) => setState(() {
-        position = FlowyDraggableHoverPosition.none;
-      }),
-      onAccept: (data) {
-        _move(data, widget.pane);
-        setState(() {
-          position = FlowyDraggableHoverPosition.none;
-        });
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      dragStartBehavior: DragStartBehavior.down,
+      onPanDown: (details) {
+        dragStartPosition.value = details.localPosition;
+        context.read<PanesCubit>().setOffset(details.localPosition);
       },
-      enableAutoScroll: false,
-      feedback: Material(
-        child: IntrinsicWidth(
-          child: Opacity(
-            opacity: 0.5,
-            child: widget.feedback?.call(context) ?? widget.child,
+      child: DraggableItem<CrossDraggablesEntity>(
+        data: widget.pane,
+        onWillAccept: (data) =>
+            (data?.crossDraggableType == CrossDraggableType.pane &&
+                    (data?.draggable as PaneNode).paneId ==
+                        (widget.pane.draggable as PaneNode).paneId)
+                ? false
+                : true,
+        onMove: (data) {
+          final renderBox = widget.paneContext.findRenderObject() as RenderBox;
+          final offset = renderBox.globalToLocal(data.offset);
+          final positionN = _computeHoverPosition(
+            offset,
+            renderBox,
+            context.read<PanesCubit>().state.dragOffset,
+            data.data.crossDraggableType,
+          );
+          if (!_shouldAccept(data.data, position)) {
+            return;
+          }
+          setState(() {
+            position = positionN;
+          });
+        },
+        onLeave: (_) => setState(() {
+          position = FlowyDraggableHoverPosition.none;
+        }),
+        onAccept: (data) {
+          _move(data, widget.pane);
+          setState(() {
+            position = FlowyDraggableHoverPosition.none;
+          });
+        },
+        enableAutoScroll: false,
+        feedback: Transform.translate(
+          offset: context.read<PanesCubit>().state.dragOffset,
+          child: Material(
+            child: IntrinsicWidth(
+              child: Opacity(
+                opacity: 0.5,
+                child: widget.feedback?.call(context) ?? widget.child,
+              ),
+            ),
           ),
         ),
-      ),
-      child: Stack(
-        children: [
-          widget.child,
-          _buildChildren(widget.paneContext, position),
-        ],
+        child: Stack(
+          children: [
+            widget.child,
+            _buildChildren(widget.paneContext, position),
+          ],
+        ),
       ),
     );
   }
@@ -107,49 +115,75 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
       FlowyDraggableHoverPosition.top => Positioned(
           top: top,
           child: Container(
-            height: (size!.height) / 2,
-            width: size!.width,
+            height: (widget.size.height) / 2,
+            width: widget.size.width,
             color: Theme.of(context).hoverColor.withOpacity(0.5),
           ),
         ),
-      FlowyDraggableHoverPosition.none => const SizedBox.shrink(),
       FlowyDraggableHoverPosition.left => Positioned(
           left: 0,
           top: top,
           child: Container(
-            width: size!.width / 2,
-            height: size!.height,
+            width: widget.size.width / 2,
+            height: widget.size.height,
             color: Theme.of(context).hoverColor.withOpacity(0.5),
           ),
         ),
       FlowyDraggableHoverPosition.right => Positioned(
           top: top,
-          left: size!.width / 2,
+          left: widget.size.width / 2,
           child: Container(
-            width: size!.width / 2,
-            height: size!.height,
+            width: widget.size.width / 2,
+            height: widget.size.height,
             color: Theme.of(context).hoverColor.withOpacity(0.5),
           ),
         ),
       FlowyDraggableHoverPosition.bottom => Positioned(
-          top: size!.height / 2,
+          top: widget.size.height / 2,
           child: Container(
-            height: size!.height / 2,
-            width: size!.width,
+            height: widget.size.height / 2,
+            width: widget.size.width,
             color: Theme.of(context).hoverColor.withOpacity(0.5),
           ),
         ),
+      FlowyDraggableHoverPosition.tab => Positioned(
+          top: 0,
+          child: Container(
+            height: top,
+            width: widget.size.width,
+            color: Theme.of(context).hoverColor.withOpacity(0.5),
+          ),
+        ),
+      FlowyDraggableHoverPosition.none => const SizedBox.shrink(),
     };
   }
 
   FlowyDraggableHoverPosition _computeHoverPosition(
     Offset offset,
     RenderBox box,
+    Offset dragOffset,
+    CrossDraggableType type,
   ) {
-    final Offset center = Offset(size!.width / 2, size!.height / 2);
-    final double angleInRadians =
-        atan2(offset.dy - center.dy, offset.dx - center.dx);
+    final top = (widget.pane.draggable as PaneNode).tabs.pages > 1
+        ? HomeSizes.tabBarHeigth + HomeSizes.topBarHeight
+        : HomeSizes.topBarHeight;
 
+    final relativeOffset = switch (type) {
+      CrossDraggableType.none => offset,
+      CrossDraggableType.tab => offset,
+      CrossDraggableType.view => offset,
+      CrossDraggableType.pane =>
+        Offset(offset.dx + dragOffset.dx, offset.dy + dragOffset.dy),
+    };
+    if (relativeOffset.dy <= top) {
+      return FlowyDraggableHoverPosition.tab;
+    }
+
+    final Offset center = Offset(widget.size.width / 2, widget.size.height / 2);
+    final double angleInRadians = atan2(
+      relativeOffset.dy - center.dy,
+      relativeOffset.dx - center.dx,
+    );
     final double angleInDegrees = math.degrees(angleInRadians);
     double normalizedAngle = angleInDegrees % 360;
     if (normalizedAngle < 0) {
@@ -170,43 +204,75 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
   }
 
   bool _shouldAccept(
-      CrossDraggablesEntity data, FlowyDraggableHoverPosition position) {
+    CrossDraggablesEntity data,
+    FlowyDraggableHoverPosition position,
+  ) {
+    if (data.crossDraggableType == CrossDraggableType.pane &&
+        (data.draggable as PaneNode).paneId ==
+            (widget.pane.draggable as PaneNode).paneId) return false;
     return true;
   }
 
-  void _move(CrossDraggablesEntity from, CrossDraggablesEntity to) async {
-    Log.warn("From ${from.crossDraggableType} TO ${to.crossDraggableType}");
-    final direction = switch (position) {
-      FlowyDraggableHoverPosition.top => SplitDirection.down,
-      FlowyDraggableHoverPosition.bottom => SplitDirection.down,
-      FlowyDraggableHoverPosition.left => SplitDirection.right,
-      FlowyDraggableHoverPosition.right => SplitDirection.right,
-      FlowyDraggableHoverPosition.none => SplitDirection.down,
-    };
-    if (from.crossDraggableType == CrossDraggableType.view) {
-      getIt<PanesCubit>().split(
-        (from.draggable as ViewPB),
-        direction,
-        targetPaneId: (to.draggable as PaneNode).paneId,
-      );
-      return;
-    } else if (from.crossDraggableType == CrossDraggableType.tab) {
-      final view = await (from.draggable as (Tabs, PageManager)).$2.view;
-      Log.warn(view);
-      if (view == null) {
-        return;
+  void _move(CrossDraggablesEntity from, CrossDraggablesEntity to) {
+    if (position == FlowyDraggableHoverPosition.tab) {
+      switch (from.crossDraggableType) {
+        case CrossDraggableType.view:
+          (to.draggable as PaneNode)
+              .tabs
+              .openView((from.draggable as ViewPB).plugin());
+          return;
+        case CrossDraggableType.tab:
+          {
+            final fromTab = from.draggable as TabNode;
+            fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
+            (to.draggable as PaneNode)
+                .tabs
+                .transferTab(pm: fromTab.pageManager);
+            return;
+          }
+        default:
+          return;
       }
-      getIt<PanesCubit>().split(
-        view,
-        direction,
-        targetPaneId: (to.draggable as PaneNode).paneId,
-      );
-      return;
     }
-    getIt<PanesCubit>().movePane(
-      from.draggable as PaneNode,
-      to.draggable as PaneNode,
-      position,
-    );
+
+    final direction = switch (position) {
+      FlowyDraggableHoverPosition.top => SplitDirection.up,
+      FlowyDraggableHoverPosition.bottom => SplitDirection.down,
+      FlowyDraggableHoverPosition.left => SplitDirection.left,
+      FlowyDraggableHoverPosition.right => SplitDirection.right,
+      FlowyDraggableHoverPosition.none => SplitDirection.none,
+      FlowyDraggableHoverPosition.tab => SplitDirection.none,
+    };
+
+    switch (from.crossDraggableType) {
+      case CrossDraggableType.pane:
+        getIt<PanesCubit>().movePane(
+          from.draggable as PaneNode,
+          to.draggable as PaneNode,
+          position,
+        );
+        return;
+
+      case CrossDraggableType.tab:
+        final plugin = (from.draggable as TabNode).pageManager.plugin;
+        (from.draggable as TabNode).tabs.closeView(plugin.id);
+        getIt<PanesCubit>().split(
+          plugin,
+          direction,
+          targetPaneId: (to.draggable as PaneNode).paneId,
+        );
+        return;
+
+      case CrossDraggableType.view:
+        getIt<PanesCubit>().split(
+          (from.draggable as ViewPB).plugin(),
+          direction,
+          targetPaneId: (to.draggable as PaneNode).paneId,
+        );
+        return;
+
+      case CrossDraggableType.none:
+        return;
+    }
   }
 }
