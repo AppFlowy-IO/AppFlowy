@@ -1,11 +1,9 @@
-import 'package:appflowy/env/env.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
