@@ -27,7 +27,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "Mar 14, 2022",
@@ -41,7 +41,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "2022/03/14",
@@ -55,7 +55,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "2022-03-14",
@@ -69,7 +69,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "03/14/2022",
@@ -83,7 +83,7 @@ mod tests {
               date: Some(1647251762),
               time: None,
               include_time: None,
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "14/03/2022",
@@ -109,7 +109,7 @@ mod tests {
               date: Some(1653609600),
               time: None,
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 00:00",
@@ -121,7 +121,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("9:00".to_owned()),
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 09:00",
@@ -133,7 +133,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("23:00".to_owned()),
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 23:00",
@@ -147,7 +147,7 @@ mod tests {
               date: Some(1653609600),
               time: None,
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 12:00 AM",
@@ -159,7 +159,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("9:00 AM".to_owned()),
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 09:00 AM",
@@ -171,7 +171,7 @@ mod tests {
               date: Some(1653609600),
               time: Some("11:23 pm".to_owned()),
               include_time: Some(true),
-              clear_flag: None,
+              ..Default::default()
             },
             None,
             "May 27, 2022 11:23 PM",
@@ -195,7 +195,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("1:".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00",
@@ -216,7 +216,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00",
@@ -235,7 +235,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("00:00".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
       None,
       "May 27, 2022 00:00",
@@ -256,7 +256,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("1:00 am".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
       None,
       "May 27, 2022 01:00 AM",
@@ -280,7 +280,7 @@ mod tests {
         date: Some(1653609600),
         time: Some("20:00".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
       None,
       "May 27, 2022 08:00 PM",
@@ -329,7 +329,7 @@ mod tests {
         date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
     );
     assert_date(
@@ -339,7 +339,7 @@ mod tests {
         date: Some(1701302400),
         time: None,
         include_time: None,
-        clear_flag: None,
+        ..Default::default()
       },
       Some(old_cell_data),
       "Nov 30, 2023 08:00",
@@ -357,7 +357,7 @@ mod tests {
         date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
     );
     assert_date(
@@ -367,7 +367,7 @@ mod tests {
         date: None,
         time: Some("14:00".to_owned()),
         include_time: None,
-        clear_flag: None,
+        ..Default::default()
       },
       Some(old_cell_data),
       "Nov 15, 2023 14:00",
@@ -385,7 +385,7 @@ mod tests {
         date: Some(1700006400),
         time: Some("08:00".to_owned()),
         include_time: Some(true),
-        clear_flag: None,
+        ..Default::default()
       },
     );
     assert_date(
@@ -396,9 +396,139 @@ mod tests {
         time: None,
         include_time: Some(true),
         clear_flag: Some(true),
+        ..Default::default()
       },
       Some(old_cell_data),
       "",
+    );
+  }
+
+  #[test]
+  fn end_date_time_test() {
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: Some(1653609600),
+        end_date: Some(1653782400),
+        include_time: Some(false),
+        is_range: Some(true),
+        ..Default::default()
+      },
+      None,
+      "May 27, 2022 → May 29, 2022",
+    );
+
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: Some(1653609600),
+        time: Some("20:00".to_owned()),
+        end_date: Some(1653782400),
+        end_time: Some("08:00".to_owned()),
+        include_time: Some(true),
+        is_range: Some(true),
+        ..Default::default()
+      },
+      None,
+      "May 27, 2022 20:00 → May 29, 2022 08:00",
+    );
+
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: Some(1653609600),
+        time: Some("20:00".to_owned()),
+        end_date: Some(1653782400),
+        include_time: Some(true),
+        is_range: Some(true),
+        ..Default::default()
+      },
+      None,
+      "May 27, 2022 20:00 → May 29, 2022 00:00",
+    );
+  }
+
+  #[test]
+  fn turn_on_date_range() {
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+
+    let old_cell_data = initialize_date_cell(
+      &type_option,
+      DateCellChangeset {
+        date: Some(1653609600),
+        time: Some("08:00".to_owned()),
+        include_time: Some(true),
+        ..Default::default()
+      },
+    );
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        is_range: Some(true),
+        ..Default::default()
+      },
+      Some(old_cell_data),
+      "May 27, 2022 08:00 → May 27, 2022 08:00",
+    );
+  }
+
+  #[test]
+  fn add_an_end_time() {
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+
+    let old_cell_data = initialize_date_cell(
+      &type_option,
+      DateCellChangeset {
+        date: Some(1653609600),
+        time: Some("08:00".to_owned()),
+        include_time: Some(true),
+        ..Default::default()
+      },
+    );
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: None,
+        time: None,
+        end_date: Some(1700006400),
+        end_time: Some("16:00".to_owned()),
+        include_time: Some(true),
+        is_range: Some(true),
+        ..Default::default()
+      },
+      Some(old_cell_data),
+      "May 27, 2022 08:00 → Nov 15, 2023 16:00",
+    );
+  }
+
+  #[test]
+  #[should_panic]
+  fn end_date_with_no_start_date() {
+    let type_option = DateTypeOption::test();
+    let field = FieldBuilder::from_field_type(FieldType::DateTime).build();
+
+    assert_date(
+      &type_option,
+      &field,
+      DateCellChangeset {
+        date: None,
+        end_date: Some(1653782400),
+        include_time: Some(false),
+        is_range: Some(true),
+        ..Default::default()
+      },
+      None,
+      "→ May 29, 2022",
     );
   }
 
