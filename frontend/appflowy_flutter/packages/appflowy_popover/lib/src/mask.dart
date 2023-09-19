@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 typedef EntryMap = LinkedHashMap<PopoverState, OverlayEntryContext>;
 
@@ -67,50 +66,19 @@ class OverlayEntryContext {
   );
 }
 
-class PopoverMask extends StatefulWidget {
+class PopoverMask extends StatelessWidget {
   final void Function() onTap;
-  final void Function()? onExit;
   final Decoration? decoration;
 
-  const PopoverMask(
-      {Key? key, required this.onTap, this.onExit, this.decoration})
+  const PopoverMask({Key? key, required this.onTap, this.decoration})
       : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _PopoverMaskState();
-}
-
-class _PopoverMaskState extends State<PopoverMask> {
-  @override
-  void initState() {
-    HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
-    super.initState();
-  }
-
-  bool _handleGlobalKeyEvent(KeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.escape &&
-        event is KeyDownEvent) {
-      if (widget.onExit != null) {
-        widget.onExit!();
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  @override
-  void deactivate() {
-    HardwareKeyboard.instance.removeHandler(_handleGlobalKeyEvent);
-    super.deactivate();
-  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
-        decoration: widget.decoration,
+        decoration: decoration,
       ),
     );
   }

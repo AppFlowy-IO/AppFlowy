@@ -558,8 +558,6 @@ impl FieldType {
 
   pub fn is_date(&self) -> bool {
     matches!(self, FieldType::DateTime)
-      || matches!(self, FieldType::LastEditedTime)
-      || matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_single_select(&self) -> bool {

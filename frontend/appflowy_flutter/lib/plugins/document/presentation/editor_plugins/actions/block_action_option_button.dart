@@ -1,12 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option_action.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BlockOptionButton extends StatelessWidget {
   const BlockOptionButton({
@@ -38,13 +40,23 @@ class BlockOptionButton extends StatelessWidget {
     }).toList();
 
     return PopoverActionList<PopoverAction>(
-      direction: PopoverDirection.leftWithCenterAligned,
+      direction:
+          context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                  LayoutDirection.rtlLayout
+              ? PopoverDirection.rightWithCenterAligned
+              : PopoverDirection.leftWithCenterAligned,
       actions: popoverActions,
-      onPopupBuilder: () => blockComponentState.alwaysShowActions = true,
+      onPopupBuilder: () {
+        keepEditorFocusNotifier.value += 1;
+        blockComponentState.alwaysShowActions = true;
+      },
       onClosed: () {
-        editorState.selectionType = null;
-        editorState.selection = null;
-        blockComponentState.alwaysShowActions = false;
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          editorState.selectionType = null;
+          editorState.selection = null;
+          blockComponentState.alwaysShowActions = false;
+          keepEditorFocusNotifier.value -= 1;
+        });
       },
       onSelected: (action, controller) {
         if (action is OptionActionWrapper) {

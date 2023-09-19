@@ -105,20 +105,25 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+        constraints: BoxConstraints(
+            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
-        isDense: true,
+        isDense: false,
         hintText: widget.hintText,
         errorText: widget.errorText,
+        errorStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .copyWith(color: Theme.of(context).colorScheme.error),
         hintStyle: Theme.of(context)
             .textTheme
             .bodySmall!
@@ -130,21 +135,21 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             color: Theme.of(context).colorScheme.primary,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
       ),
     );

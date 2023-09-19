@@ -154,29 +154,33 @@ class FieldCellButton extends StatelessWidget {
   final FieldPB field;
   final int? maxLines;
   final BorderRadius? radius;
+  final EdgeInsets? margin;
   const FieldCellButton({
     required this.field,
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
+    this.margin,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      hoverColor: AFThemeExtension.of(context).greyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: FlowySvg(
         field.fieldType.icon(),
+        color: Theme.of(context).iconTheme.color,
       ),
       radius: radius,
       text: FlowyText.medium(
         field.name,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
+        color: AFThemeExtension.of(context).textColor,
       ),
-      margin: GridSize.cellContentInsets,
+      margin: margin ?? GridSize.cellContentInsets,
     );
   }
 }

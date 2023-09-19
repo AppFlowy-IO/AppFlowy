@@ -1,7 +1,6 @@
+use collab_define::reminder::Reminder;
 use std::convert::TryFrom;
 use std::sync::Weak;
-
-use appflowy_integrate::reminder::Reminder;
 
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;

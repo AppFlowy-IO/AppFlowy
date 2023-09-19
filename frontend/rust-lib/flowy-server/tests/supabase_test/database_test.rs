@@ -1,4 +1,4 @@
-use collab_plugins::cloud_storage::{CollabObject, CollabType};
+use collab_define::{CollabObject, CollabType};
 use uuid::Uuid;
 
 use flowy_user_deps::entities::SignUpResponse;
@@ -10,7 +10,7 @@ use crate::supabase_test::util::{
 };
 
 #[tokio::test]
-async fn supabase_create_workspace_test() {
+async fn supabase_create_database_test() {
   if get_supabase_ci_config().is_none() {
     return;
   }
@@ -27,13 +27,13 @@ async fn supabase_create_workspace_test() {
   for _i in 0..3 {
     let row_id = uuid::Uuid::new_v4().to_string();
     row_ids.push(row_id.clone());
-    let collab_object = CollabObject {
-      object_id: row_id,
-      uid: user.user_id,
-      ty: CollabType::DatabaseRow,
-      meta: Default::default(),
-    }
-    .with_workspace_id(user.latest_workspace.id.clone());
+    let collab_object = CollabObject::new(
+      user.user_id,
+      row_id,
+      CollabType::DatabaseRow,
+      user.latest_workspace.id.clone(),
+      "fake_device_id".to_string(),
+    );
     collab_service
       .send_update(&collab_object, 0, vec![1, 2, 3])
       .await

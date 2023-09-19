@@ -12,18 +12,19 @@ bytes = "1.4"
 anyhow = "1.0"
 thiserror = "1.0"
 
-lib-dispatch = { path = "../lib-dispatch", optional = true }
+lib-dispatch = { workspace = true, optional = true }
 serde_json = {version = "1.0", optional = true}
 serde_repr = { version = "0.1" }
 serde = "1.0"
 reqwest = { version = "0.11.14", optional = true, features = ["native-tls-vendored"] }
-flowy-sqlite = { path = "../flowy-sqlite", optional = true}
+flowy-sqlite = { workspace = true, optional = true}
 r2d2 = { version = "0.8", optional = true}
 url = { version = "2.2", optional = true }
 collab-database = { version = "0.1.0", optional = true }
 collab-document = { version = "0.1.0", optional = true }
 tokio-postgres = { version = "0.7.8", optional = true }
 tokio = { version = "1.0", optional = true }
+client-api = { version = "0.1.0", optional = true }
 
 [features]
 impl_from_dispatch_error = ["lib-dispatch"]
@@ -34,6 +35,7 @@ impl_from_collab = ["collab-database", "collab-document", "impl_from_reqwest"]
 impl_from_postgres = ["tokio-postgres"]
 impl_from_tokio= ["tokio"]
 impl_from_url= ["url"]
+impl_from_appflowy_cloud = ["client-api"]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
 

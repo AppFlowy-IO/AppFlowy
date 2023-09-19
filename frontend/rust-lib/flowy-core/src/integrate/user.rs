@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_error::FlowyResult;
@@ -11,7 +10,7 @@ use flowy_user_deps::cloud::UserCloudConfig;
 use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
-use crate::integrate::server::AppFlowyServerProvider;
+use crate::integrate::server::ServerProvider;
 use crate::AppFlowyCoreConfig;
 
 pub(crate) struct UserStatusCallbackImpl {
@@ -19,7 +18,7 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) folder_manager: Arc<FolderManager>,
   pub(crate) database_manager: Arc<DatabaseManager>,
   pub(crate) document_manager: Arc<DocumentManager>,
-  pub(crate) server_provider: Arc<AppFlowyServerProvider>,
+  pub(crate) server_provider: Arc<ServerProvider>,
   #[allow(dead_code)]
   pub(crate) config: AppFlowyCoreConfig,
 }

@@ -1,7 +1,6 @@
 [workspace]
 members = [
   "lib-ot",
-  "lib-ws",
   "lib-infra",
   "flowy-derive",
   "flowy-ast",

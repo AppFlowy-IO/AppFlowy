@@ -1,5 +1,5 @@
 use assert_json_diff::assert_json_eq;
-use collab_plugins::cloud_storage::{CollabObject, CollabType};
+use collab_define::{CollabObject, CollabType};
 use serde_json::json;
 use uuid::Uuid;
 use yrs::types::ToJson;
@@ -39,13 +39,13 @@ async fn supabase_get_folder_test() {
   let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
-  let collab_object = CollabObject {
-    object_id: user.latest_workspace.id.clone(),
-    uid: user.user_id,
-    ty: CollabType::Folder,
-    meta: Default::default(),
-  }
-  .with_workspace_id(user.latest_workspace.id.clone());
+  let collab_object = CollabObject::new(
+    user.user_id,
+    user.latest_workspace.id.clone(),
+    CollabType::Folder,
+    user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
+  );
 
   let doc = Doc::with_client_id(1);
   let map = { doc.get_or_insert_map("map") };
@@ -113,13 +113,13 @@ async fn supabase_duplicate_updates_test() {
   let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
-  let collab_object = CollabObject {
-    object_id: user.latest_workspace.id.clone(),
-    uid: user.user_id,
-    ty: CollabType::Folder,
-    meta: Default::default(),
-  }
-  .with_workspace_id(user.latest_workspace.id.clone());
+  let collab_object = CollabObject::new(
+    user.user_id,
+    user.latest_workspace.id.clone(),
+    CollabType::Folder,
+    user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
+  );
   let doc = Doc::with_client_id(1);
   let map = { doc.get_or_insert_map("map") };
   let mut duplicated_updates = vec![];
@@ -220,13 +220,13 @@ async fn supabase_diff_state_vector_test() {
   let params = third_party_sign_up_param(uuid);
   let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
-  let collab_object = CollabObject {
-    object_id: user.latest_workspace.id.clone(),
-    uid: user.user_id,
-    ty: CollabType::Folder,
-    meta: Default::default(),
-  }
-  .with_workspace_id(user.latest_workspace.id.clone());
+  let collab_object = CollabObject::new(
+    user.user_id,
+    user.latest_workspace.id.clone(),
+    CollabType::Folder,
+    user.latest_workspace.id.clone(),
+    "fake_device_id".to_string(),
+  );
   let doc = Doc::with_client_id(1);
   let map = { doc.get_or_insert_map("map") };
   let array = { doc.get_or_insert_array("array") };

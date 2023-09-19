@@ -29,6 +29,8 @@ class KVKeys {
       'kDocumentAppearanceFontSize';
   static const String kDocumentAppearanceFontFamily =
       'kDocumentAppearanceFontFamily';
+  static const String kDocumentAppearanceDefaultTextDirection =
+      'kDocumentAppearanceDefaultTextDirection';
 
   /// The key for saving the expanded views
   ///
@@ -41,4 +43,10 @@ class KVKeys {
   /// The value is a json string with the following format:
   ///  {'SidebarFolderCategoryType.value': true}
   static const String expandedFolders = 'expandedFolders';
+
+  /// The key for saving if showing the rename dialog when creating a new file
+  ///
+  /// The value is a boolean string.
+  static const String showRenameDialogWhenCreatingNewFile =
+      'showRenameDialogWhenCreatingNewFile';
 }

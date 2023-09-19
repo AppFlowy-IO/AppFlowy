@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use collab_plugins::cloud_storage::{CollabObject, RemoteCollabStorage};
+use client_api::ws::WebSocketChannel;
+use collab_define::CollabObject;
+use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
@@ -8,6 +10,7 @@ use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
+use lib_infra::future::FutureResult;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;
@@ -84,7 +87,16 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Returns
   ///
   /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
-  fn collab_storage(&self, collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>>;
+  fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
+    None
+  }
+
+  fn collab_ws_channel(
+    &self,
+    _object_id: &str,
+  ) -> FutureResult<Option<Arc<WebSocketChannel>>, anyhow::Error> {
+    FutureResult::new(async { Ok(None) })
+  }
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>>;
 }

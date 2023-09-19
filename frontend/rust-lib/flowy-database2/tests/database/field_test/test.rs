@@ -31,7 +31,7 @@ async fn grid_create_field() {
   ];
   test.run_scripts(scripts).await;
 
-  let (params, field) = create_date_field(&test.view_id(), FieldType::CreatedTime);
+  let (params, field) = create_timestamp_field(&test.view_id(), FieldType::CreatedTime);
   let scripts = vec![
     CreateField { params },
     AssertFieldTypeOptionEqual {

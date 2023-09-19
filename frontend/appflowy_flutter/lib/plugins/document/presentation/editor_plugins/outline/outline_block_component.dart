@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -70,7 +71,7 @@ class OutlineBlockWidget extends BlockComponentStatefulWidget {
 }
 
 class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
-    with BlockComponentConfigurable {
+    with BlockComponentConfigurable, BlockComponentTextDirectionMixin {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
@@ -84,9 +85,10 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     if (colorString == null) {
       return Colors.transparent;
     }
-    return colorString.toColor() ?? Colors.transparent;
+    return colorString.tryToColor() ?? Colors.transparent;
   }
 
+  @override
   late EditorState editorState = context.read<EditorState>();
   late Stream<(TransactionTime, Transaction)> stream =
       editorState.transactionStream;
@@ -109,6 +111,10 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   }
 
   Widget _buildOutlineBlock() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
     final children = getHeadingNodes()
         .map(
           (e) => Container(
@@ -116,7 +122,10 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               bottom: 4.0,
             ),
             width: double.infinity,
-            child: OutlineItemWidget(node: e),
+            child: OutlineItemWidget(
+              node: e,
+              textDirection: textDirection,
+            ),
           ),
         )
         .toList();
@@ -136,7 +145,9 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        textDirection: textDirection,
         children: children,
       ),
     );
@@ -152,11 +163,13 @@ class OutlineItemWidget extends StatelessWidget {
   OutlineItemWidget({
     super.key,
     required this.node,
+    required this.textDirection,
   }) {
     assert(node.type == HeadingBlockKeys.type);
   }
 
   final Node node;
+  final TextDirection textDirection;
 
   @override
   Widget build(BuildContext context) {
@@ -167,27 +180,37 @@ class OutlineItemWidget extends StatelessWidget {
       style: HoverStyle(
         hoverColor: Theme.of(context).hoverColor,
       ),
-      child: GestureDetector(
-        onTap: () => updateBlockSelection(context),
-        child: Container(
-          padding: EdgeInsets.only(left: node.leftIndent),
-          child: Text(
-            node.outlineItemText,
-            style: style,
+      builder: (context, onHover) {
+        return GestureDetector(
+          onTap: () => scrollToBlock(context),
+          child: Row(
+            textDirection: textDirection,
+            children: [
+              HSpace(node.leftIndent),
+              Text(
+                node.outlineItemText,
+                textDirection: textDirection,
+                style: style.copyWith(
+                  color: onHover
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : null,
+                ),
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  void updateBlockSelection(BuildContext context) async {
+  void scrollToBlock(BuildContext context) {
     final editorState = context.read<EditorState>();
-    editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection.collapsed(
-      Position(path: node.path, offset: node.delta?.length ?? 0),
-    );
+    final editorScrollController = context.read<EditorScrollController>();
+    editorScrollController.itemScrollController.jumpTo(index: node.path.first);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selectionType = null;
+      editorState.selection = Selection.collapsed(
+        Position(path: node.path, offset: node.delta?.length ?? 0),
+      );
     });
   }
 }

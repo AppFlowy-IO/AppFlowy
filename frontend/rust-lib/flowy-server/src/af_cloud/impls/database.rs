@@ -1,14 +1,19 @@
 use anyhow::Error;
-use collab_plugins::cloud_storage::CollabType;
+use collab_define::CollabType;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
 };
 use lib_infra::future::FutureResult;
 
-pub(crate) struct AFCloudDatabaseCloudServiceImpl();
+use crate::af_cloud::AFServer;
 
-impl DatabaseCloudService for AFCloudDatabaseCloudServiceImpl {
+pub(crate) struct AFCloudDatabaseCloudServiceImpl<T>(pub T);
+
+impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
+where
+  T: AFServer,
+{
   fn get_collab_update(
     &self,
     _object_id: &str,

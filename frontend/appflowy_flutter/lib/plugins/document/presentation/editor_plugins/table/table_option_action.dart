@@ -112,7 +112,7 @@ class TableColorOptionAction extends PopoverActionCell {
             ? TableCellBlockKeys.colBackgroundColor
             : TableCellBlockKeys.rowBackgroundColor;
         final bgColor = cell?.attributes[key] as String?;
-        final selectedColor = bgColor?.toColor();
+        final selectedColor = bgColor?.tryToColor();
         // get default background color from themeExtension
         final defaultColor = AFThemeExtension.of(context).tableCellBGColor;
         final colors = [

@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use collab_define::reminder::{ObjectType, Reminder, ReminderMeta};
-
 use flowy_derive::ProtoBuf;
+use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default, Clone)]
 pub struct ReminderPB {

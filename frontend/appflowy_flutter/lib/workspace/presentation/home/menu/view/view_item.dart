@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -248,21 +249,23 @@ class SingleInnerViewItem extends StatefulWidget {
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
+  bool _isHovering = false;
+
   @override
   Widget build(BuildContext context) {
     if (widget.isFeedback) {
       return _buildViewItem(false);
     }
 
-    return FlowyHover(
-      style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.secondary,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
+      child: FlowyHover(
+        isSelected: () =>
+            widget.showActions ||
+            getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+        child: _buildViewItem(_isHovering),
       ),
-      buildWhenOnHover: () => !widget.showActions,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
@@ -350,22 +353,21 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           createNewView,
         ) {
           if (createNewView) {
-            NavigatorTextFieldDialog(
-              title: _convertLayoutToHintText(pluginBuilder.layoutType!),
-              value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-              autoSelectAllText: true,
-              confirm: (value) {
-                if (value.isNotEmpty) {
+            createViewAndShowRenameDialogIfNeeded(
+              context,
+              _convertLayoutToHintText(pluginBuilder.layoutType!),
+              (viewName) {
+                if (viewName.isNotEmpty) {
                   context.read<ViewBloc>().add(
                         ViewEvent.createView(
-                          value,
+                          viewName,
                           pluginBuilder.layoutType!,
                           openAfterCreated: openAfterCreated,
                         ),
                       );
                 }
               },
-            ).show(context);
+            );
           }
           context.read<ViewBloc>().add(
                 const ViewEvent.setIsExpanded(true),

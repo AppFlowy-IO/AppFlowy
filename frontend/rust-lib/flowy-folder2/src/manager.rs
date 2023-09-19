@@ -2,10 +2,9 @@ use std::collections::HashSet;
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB, YrsDocAction};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
+use collab_define::CollabType;
 use collab_folder::core::{
   FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
   View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
@@ -15,6 +14,8 @@ use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
 use tracing::{event, Level};
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
 

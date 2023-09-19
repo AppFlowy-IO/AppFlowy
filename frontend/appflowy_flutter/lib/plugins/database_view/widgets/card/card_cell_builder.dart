@@ -10,6 +10,7 @@ import 'cells/date_card_cell.dart';
 import 'cells/number_card_cell.dart';
 import 'cells/select_option_card_cell.dart';
 import 'cells/text_card_cell.dart';
+import 'cells/timestamp_card_cell.dart';
 import 'cells/url_card_cell.dart';
 
 // T represents as the Generic card data
@@ -39,10 +40,20 @@ class CardCellBuilder<CustomCardData> {
           key: key,
         );
       case FieldType.DateTime:
-      case FieldType.LastEditedTime:
-      case FieldType.CreatedTime:
         return DateCardCell<CustomCardData>(
           renderHook: renderHook?.renderHook[FieldType.DateTime],
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.LastEditedTime:
+        return TimestampCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.LastEditedTime],
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
+      case FieldType.CreatedTime:
+        return TimestampCardCell<CustomCardData>(
+          renderHook: renderHook?.renderHook[FieldType.CreatedTime],
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

@@ -80,7 +80,20 @@ class DateCardCellState with _$DateCardCellState {
 String _dateStrFromCellData(DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData != null) {
-    dateStr = "${cellData.date} ${cellData.time}";
+    if (cellData.isRange) {
+      if (cellData.includeTime) {
+        dateStr =
+            "${cellData.date} ${cellData.time} → ${cellData.endDate} ${cellData.endTime}";
+      } else {
+        dateStr = "${cellData.date} → ${cellData.endDate}";
+      }
+    } else {
+      if (cellData.includeTime) {
+        dateStr = "${cellData.date} ${cellData.time}";
+      } else {
+        dateStr = cellData.date;
+      }
+    }
   }
   return dateStr;
 }

@@ -1,8 +1,12 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+<<<<<<< HEAD
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
+=======
+import 'package:appflowy/workspace/application/appearance.dart';
+>>>>>>> main
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
@@ -73,6 +77,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
+    // TODO: enable it in version 0.3.3
+    // ...textDirectionItems,
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -143,11 +149,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
+    final editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
+
     final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
+      editorScrollController: editorScrollController,
       // setup the auto focus parameters
       autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
@@ -163,17 +174,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       footer: const VSpace(200),
     );
 
+    final layoutDirection =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+                LayoutDirection.rtlLayout
+            ? TextDirection.rtl
+            : TextDirection.ltr;
+
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: double.infinity,
-          maxHeight: double.infinity,
-        ),
-        child: FloatingToolbar(
-          style: styleCustomizer.floatingToolbarStyleBuilder(),
-          items: toolbarItems,
-          editorState: widget.editorState,
-          scrollController: effectiveScrollController,
+      child: FloatingToolbar(
+        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        items: toolbarItems,
+        editorState: widget.editorState,
+        editorScrollController: editorScrollController,
+        child: Directionality(
+          textDirection: layoutDirection,
           child: editor,
         ),
       ),

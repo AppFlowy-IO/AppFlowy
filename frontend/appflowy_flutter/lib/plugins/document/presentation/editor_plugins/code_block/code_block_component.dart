@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
@@ -98,7 +98,11 @@ class CodeBlockComponentWidget extends BlockComponentStatefulWidget {
 }
 
 class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
-    with SelectableMixin, DefaultSelectableMixin, BlockComponentConfigurable {
+    with
+        SelectableMixin,
+        DefaultSelectableMixin,
+        BlockComponentConfigurable,
+        BlockComponentTextDirectionMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -127,6 +131,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     'C#',
     'CPP',
     'Clojure',
+    'CS',
     'CSS',
     'Dart',
     'Docker',
@@ -174,6 +179,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     ..add('c')
     ..sort();
 
+  @override
   late final editorState = context.read<EditorState>();
 
   String? get language => node.attributes[CodeBlockKeys.language] as String?;
@@ -181,6 +187,9 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -190,9 +199,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        textDirection: textDirection,
         children: [
           _buildSwitchLanguageButton(context),
-          _buildCodeBlock(context),
+          _buildCodeBlock(context, textDirection),
         ],
       ),
     );
@@ -200,6 +210,17 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     child = Padding(
       key: blockComponentKey,
       padding: padding,
+      child: child,
+    );
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
       child: child,
     );
 
@@ -214,7 +235,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     return child;
   }
 
-  Widget _buildCodeBlock(BuildContext context) {
+  Widget _buildCodeBlock(BuildContext context, TextDirection textDirection) {
     final delta = node.delta ?? Delta();
     final content = delta.toPlainText();
 
@@ -234,6 +255,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       padding: widget.padding,
       child: AppFlowyRichText(
         key: forwardKey,
+        delegate: this,
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
@@ -245,6 +267,9 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         placeholderTextSpanDecorator: (textSpan) => TextSpan(
           style: textStyle,
         ),
+        textDirection: textDirection,
+        cursorColor: editorState.editorStyle.cursorColor,
+        selectionColor: editorState.editorStyle.selectionColor,
       ),
     );
   }

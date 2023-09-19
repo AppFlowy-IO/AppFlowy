@@ -4,9 +4,9 @@ use std::sync::Weak;
 use std::time::Duration;
 use std::{fmt, sync::Arc};
 
-use appflowy_integrate::collab_builder::{AppFlowyCollabBuilder, CollabStorageType};
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
 use flowy_folder2::manager::FolderManager;
@@ -23,9 +23,7 @@ pub use module::*;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
 use crate::integrate::log::{create_log_filter, init_log};
-use crate::integrate::server::{
-  current_server_provider, AppFlowyServerProvider, ServerProviderType,
-};
+use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
 use crate::integrate::user::UserStatusCallbackImpl;
 
 mod deps_resolve;
@@ -77,7 +75,7 @@ pub struct AppFlowyCore {
   pub folder_manager: Arc<FolderManager>,
   pub database_manager: Arc<DatabaseManager>,
   pub event_dispatcher: Arc<AFPluginDispatcher>,
-  pub server_provider: Arc<AppFlowyServerProvider>,
+  pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
 }
@@ -103,7 +101,7 @@ impl AppFlowyCore {
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
     let provider_type = current_server_provider(&store_preference);
-    let server_provider = Arc::new(AppFlowyServerProvider::new(
+    let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       provider_type,
       Arc::downgrade(&store_preference),
@@ -230,12 +228,12 @@ fn init_user_manager(
   )
 }
 
-impl From<ServerProviderType> for CollabStorageType {
-  fn from(server_provider: ServerProviderType) -> Self {
-    match server_provider {
-      ServerProviderType::Local => CollabStorageType::Local,
-      ServerProviderType::AppFlowyCloud => CollabStorageType::Local,
-      ServerProviderType::Supabase => CollabStorageType::Supabase,
+impl From<ServerType> for CollabSource {
+  fn from(server_type: ServerType) -> Self {
+    match server_type {
+      ServerType::Local => CollabSource::Local,
+      ServerType::AppFlowyCloud => CollabSource::Local,
+      ServerType::Supabase => CollabSource::Supabase,
     }
   }
 }

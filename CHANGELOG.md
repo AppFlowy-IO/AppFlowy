@@ -1,5 +1,18 @@
 # Release Notes
 
+## Version 0.3.2 - 09/18/2023
+
+### New Features
+
+- Improve the performance of the editor, now it is much faster when editing a large document.
+- Support for reordering the rows of the database on Windows.
+- Revamp the row detail page of the database.
+- Revamp the checklist cell editor of the database.
+
+### Bug fixes
+
+- Some UI issues
+
 ## Version 0.3.1 - 09/04/2023
 
 ### New Features

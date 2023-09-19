@@ -8,24 +8,25 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
-appflowy-integrate = {version = "0.1.0" }
-flowy-database-deps = { path = "../flowy-database-deps" }
+collab-define = { version = "0.1.0" }
+collab-integrate = { workspace = true }
+flowy-database-deps = { workspace = true }
 
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-notification = { path = "../flowy-notification" }
+flowy-notification  = { workspace = true }
 parking_lot = "0.12.1"
 protobuf = {version = "2.28.0"}
-flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error", "impl_from_collab"]}
-lib-dispatch = { path = "../lib-dispatch" }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab"]}
+lib-dispatch = { workspace = true }
 tokio = { version = "1.26", features = ["sync"] }
-flowy-task= { path = "../flowy-task" }
+flowy-task= { workspace = true }
 bytes = { version = "1.4" }
 tracing = { version = "0.1", features = ["log"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.27", default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
 rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"

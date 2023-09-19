@@ -1,96 +1,60 @@
-use anyhow::Error;
-use collab_plugins::cloud_storage::CollabObject;
+use std::sync::Arc;
 
-use flowy_error::{ErrorCode, FlowyError};
+use anyhow::Error;
+use collab_define::CollabObject;
+
+use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
-use crate::af_cloud::configuration::{AFCloudConfiguration, HEADER_TOKEN};
-use crate::request::HttpRequestBuilder;
+use crate::af_cloud::{AFCloudClient, AFServer};
 
-pub(crate) struct AFCloudUserAuthServiceImpl {
-  config: AFCloudConfiguration,
+pub(crate) struct AFCloudUserAuthServiceImpl<T> {
+  server: T,
 }
 
-impl AFCloudUserAuthServiceImpl {
-  pub(crate) fn new(config: AFCloudConfiguration) -> Self {
-    Self { config }
+impl<T> AFCloudUserAuthServiceImpl<T> {
+  pub(crate) fn new(server: T) -> Self {
+    Self { server }
   }
 }
 
-impl UserCloudService for AFCloudUserAuthServiceImpl {
+impl<T> UserCloudService for AFCloudUserAuthServiceImpl<T>
+where
+  T: AFServer,
+{
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
-    let url = self.config.sign_up_url();
+    let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
-      let resp = user_sign_up_request(params, &url).await?;
+      let resp = user_sign_up_request(try_get_client?, params).await?;
       Ok(resp)
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
-    let url = self.config.sign_in_url();
-    FutureResult::new(async move {
-      let params = params.unbox_or_error::<SignInParams>()?;
-      let resp = user_sign_in_request(params, &url).await?;
-      Ok(resp)
-    })
+  fn sign_in(&self, _params: BoxAny) -> FutureResult<SignInResponse, Error> {
+    todo!()
   }
 
-  fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error> {
-    match token {
-      None => FutureResult::new(async {
-        Err(FlowyError::new(ErrorCode::InvalidParams, "Token should not be empty").into())
-      }),
-      Some(token) => {
-        let token = token;
-        let url = self.config.sign_out_url();
-        FutureResult::new(async move {
-          let _ = user_sign_out_request(&token, &url).await;
-          Ok(())
-        })
-      },
-    }
+  fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
+    todo!()
   }
 
   fn update_user(
     &self,
-    credential: UserCredentials,
-    params: UpdateUserProfileParams,
+    _credential: UserCredentials,
+    _params: UpdateUserProfileParams,
   ) -> FutureResult<(), Error> {
-    match credential.token {
-      None => FutureResult::new(async {
-        Err(FlowyError::new(ErrorCode::InvalidParams, "Token should not be empty").into())
-      }),
-      Some(token) => {
-        let token = token;
-        let url = self.config.user_profile_url();
-        FutureResult::new(async move {
-          update_user_profile_request(&token, params, &url).await?;
-          Ok(())
-        })
-      },
-    }
+    todo!()
   }
 
   fn get_user_profile(
     &self,
-    credential: UserCredentials,
+    _credential: UserCredentials,
   ) -> FutureResult<Option<UserProfile>, Error> {
-    let url = self.config.user_profile_url();
-    FutureResult::new(async move {
-      match credential.token {
-        None => {
-          Err(FlowyError::new(ErrorCode::UnexpectedEmpty, "Token should not be empty").into())
-        },
-        Some(token) => {
-          let profile = get_user_profile_request(&token, &url).await?;
-          Ok(Some(profile))
-        },
-      }
-    })
+    todo!()
   }
 
   fn get_user_workspaces(
@@ -145,53 +109,30 @@ impl UserCloudService for AFCloudUserAuthServiceImpl {
 }
 
 pub async fn user_sign_up_request(
+  client: Arc<AFCloudClient>,
   params: SignUpParams,
-  url: &str,
 ) -> Result<SignUpResponse, FlowyError> {
-  let response = request_builder().post(url).json(params)?.response().await?;
-  Ok(response)
-}
-
-pub async fn user_sign_in_request(
-  params: SignInParams,
-  url: &str,
-) -> Result<SignInResponse, FlowyError> {
-  let response = request_builder().post(url).json(params)?.response().await?;
-  Ok(response)
-}
-
-pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), FlowyError> {
-  request_builder()
-    .delete(url)
-    .header(HEADER_TOKEN, token)
-    .send()
+  client
+    .read()
+    .await
+    .sign_up(&params.email, &params.password)
     .await?;
-  Ok(())
-}
-
-pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, FlowyError> {
-  let user_profile = request_builder()
-    .get(url)
-    .header(HEADER_TOKEN, token)
-    .response()
-    .await?;
-  Ok(user_profile)
-}
-
-pub async fn update_user_profile_request(
-  token: &str,
-  params: UpdateUserProfileParams,
-  url: &str,
-) -> Result<(), FlowyError> {
-  request_builder()
-    .patch(url)
-    .header(HEADER_TOKEN, token)
-    .json(params)?
-    .send()
-    .await?;
-  Ok(())
-}
-
-fn request_builder() -> HttpRequestBuilder {
-  HttpRequestBuilder::new()
+  todo!()
+  // tracing::info!("User signed up: {:?}", user);
+  // match user.confirmed_at {
+  //   Some(_) => {
+  //       // User is already confirmed, help her/him to sign in
+  //       let token = client.sign_in_password(&params.email, &params.password).await?;
+  //
+  //       // TODO:
+  //       // Query workspace list
+  //       // Query user profile
+  //
+  //       todo!()
+  //   },
+  //   None => Err(FlowyError::new(
+  //     ErrorCode::AwaitingEmailConfirmation,
+  //     "Awaiting email confirmation".to_string(),
+  //   )),
+  // }
 }

@@ -115,7 +115,12 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
 
 class _CalloutBlockComponentWidgetState
     extends State<CalloutBlockComponentWidget>
-    with SelectableMixin, DefaultSelectableMixin, BlockComponentConfigurable {
+    with
+        SelectableMixin,
+        DefaultSelectableMixin,
+        BlockComponentConfigurable,
+        BlockComponentTextDirectionMixin,
+        BlockComponentAlignMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -139,26 +144,35 @@ class _CalloutBlockComponentWidgetState
   Color get backgroundColor {
     final colorString =
         node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return colorString.toColor() ?? Colors.transparent;
+    return colorString.tryToColor() ?? Colors.transparent;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
   String get emoji => node.attributes[CalloutBlockKeys.icon] ?? '📌';
 
   // get access to the editor state via provider
+  @override
   late final editorState = Provider.of<EditorState>(context, listen: false);
 
   // build the callout block widget
   @override
   Widget build(BuildContext context) {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: backgroundColor,
       ),
       width: double.infinity,
+      alignment: alignment,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        textDirection: textDirection,
         children: [
           // the emoji picker button for the note
           Padding(
@@ -178,10 +192,10 @@ class _CalloutBlockComponentWidgetState
               },
             ),
           ),
-          Expanded(
+          Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: buildCalloutBlockComponent(context),
+              child: buildCalloutBlockComponent(context, textDirection),
             ),
           ),
           const HSpace(8.0),
@@ -192,6 +206,17 @@ class _CalloutBlockComponentWidgetState
     child = Padding(
       key: blockComponentKey,
       padding: padding,
+      child: child,
+    );
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
       child: child,
     );
 
@@ -207,11 +232,15 @@ class _CalloutBlockComponentWidgetState
   }
 
   // build the richtext child
-  Widget buildCalloutBlockComponent(BuildContext context) {
+  Widget buildCalloutBlockComponent(
+    BuildContext context,
+    TextDirection textDirection,
+  ) {
     return Padding(
       padding: padding,
       child: AppFlowyRichText(
         key: forwardKey,
+        delegate: this,
         node: widget.node,
         editorState: editorState,
         placeholderText: placeholderText,
@@ -221,6 +250,9 @@ class _CalloutBlockComponentWidgetState
         placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
           placeholderTextStyle,
         ),
+        textDirection: textDirection,
+        cursorColor: editorState.editorStyle.cursorColor,
+        selectionColor: editorState.editorStyle.selectionColor,
       ),
     );
   }

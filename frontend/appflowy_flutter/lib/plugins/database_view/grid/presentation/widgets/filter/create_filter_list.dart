@@ -114,7 +114,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
 class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
   _FilterTextFieldDelegate();
 
-  double fixHeight = 46;
+  double fixHeight = 36;
 
   @override
   Widget build(
@@ -123,7 +123,7 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return Container(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(bottom: 4),
       height: fixHeight,
       child: FlowyTextField(
         hintText: LocaleKeys.grid_settings_filterBy.tr(),
