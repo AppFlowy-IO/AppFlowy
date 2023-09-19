@@ -28,11 +28,15 @@ class FlowyPaneGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (node.children.isEmpty) {
-      return FlowyPane(
-        node: node,
-        delegate: delegate,
-        layout: layout,
-        paneContext: context,
+      return MouseRegion(
+        onEnter: (_) => context.read<PanesCubit>().setActivePane(node),
+        child: FlowyPane(
+          node: node,
+          delegate: delegate,
+          layout: layout,
+          paneContext: context,
+          size: Size(groupWidth, groupHeight),
+        ),
       );
     }
     return SizedBox(
@@ -43,35 +47,30 @@ class FlowyPaneGroup extends StatelessWidget {
             children: [
               ...node.children.indexed
                   .map(
-                    (indexNode) => GestureDetector(
-                      child: ChangeNotifierProvider<PaneSizeController>(
-                        create: (context) => node.sizeController,
-                        builder: (context, widget) =>
-                            Consumer<PaneSizeController>(
-                          builder: (context, sizeController, child) {
-                            final paneLayout = PaneLayout(
-                              childPane: indexNode,
-                              parentPane: node,
-                              sizeController: sizeController,
-                              parentPaneConstraints: constraints,
-                            );
-                            return Stack(
-                              children: [
-                                _resolveFlowyPanes(paneLayout, indexNode),
-                                _resizeBar(
-                                  sizeController,
-                                  indexNode,
-                                  context,
-                                  paneLayout,
-                                )
-                              ],
-                            );
-                          },
-                        ),
+                    (indexNode) => ChangeNotifierProvider<PaneSizeController>(
+                      create: (context) => node.sizeController,
+                      builder: (context, widget) =>
+                          Consumer<PaneSizeController>(
+                        builder: (context, sizeController, child) {
+                          final paneLayout = PaneLayout(
+                            childPane: indexNode,
+                            parentPane: node,
+                            sizeController: sizeController,
+                            parentPaneConstraints: constraints,
+                          );
+                          return Stack(
+                            children: [
+                              _resolveFlowyPanes(paneLayout, indexNode),
+                              _resizeBar(
+                                sizeController,
+                                indexNode,
+                                context,
+                                paneLayout,
+                              )
+                            ],
+                          );
+                        },
                       ),
-                      onTap: () {
-                        context.read<PanesCubit>().setActivePane(indexNode.$2);
-                      },
                     ),
                   )
                   .toList(),
