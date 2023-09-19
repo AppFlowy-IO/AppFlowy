@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,7 +17,6 @@ class MobileBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
-    final branches = navigationShell.route.branches;
 
     return Scaffold(
       body: navigationShell,

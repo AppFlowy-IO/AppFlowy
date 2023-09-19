@@ -4,9 +4,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 // TODO(yijing): This is just a placeholder for now.
 class MobileHomeScreen extends StatelessWidget {
