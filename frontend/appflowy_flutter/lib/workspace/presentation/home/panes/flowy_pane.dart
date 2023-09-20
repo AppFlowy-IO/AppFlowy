@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-class FlowyPane extends StatelessWidget {
+class FlowyPane extends StatefulWidget {
   final PaneNode node;
   final HomeLayout layout;
   final HomeStackDelegate delegate;
@@ -23,21 +23,29 @@ class FlowyPane extends StatelessWidget {
     required this.paneContext,
     required this.size,
   });
+
+  @override
+  State<FlowyPane> createState() => _FlowyPaneState();
+}
+
+class _FlowyPaneState extends State<FlowyPane> {
   final pageController = PageController();
+
+  final horizontalController = ScrollController();
+
+  final verticalController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<Tabs>(
-      create: (context) => node.tabs,
+      create: (context) => widget.node.tabs,
       child: Consumer<Tabs>(
         builder: (context, value, child) {
-          final horizontalController = ScrollController();
-          final verticalController = ScrollController();
           return DraggablePaneItem(
-            size: size,
-            paneContext: paneContext,
-            pane: CrossDraggablesEntity(draggable: node),
-            feedback: (context) => node.tabs.currentPageManager.title(),
+            size: widget.size,
+            paneContext: widget.paneContext,
+            pane: CrossDraggablesEntity(draggable: widget.node),
+            feedback: (context) => widget.node.tabs.currentPageManager.title(),
             child: Scrollbar(
               controller: verticalController,
               child: SingleChildScrollView(
@@ -55,17 +63,17 @@ class FlowyPane extends StatelessWidget {
                           children: [
                             Padding(
                               padding: EdgeInsets.only(
-                                left: layout.menuSpacing,
+                                left: widget.layout.menuSpacing,
                               ),
                               child: TabsManager(
-                                pane: node,
+                                pane: widget.node,
                                 pageController: pageController,
                                 tabs: value,
                               ),
                             ),
                             value.currentPageManager.stackTopBar(
-                              layout: layout,
-                              paneId: node.paneId,
+                              layout: widget.layout,
+                              paneId: widget.node.paneId,
                             ),
                           ],
                         ),
@@ -77,7 +85,7 @@ class FlowyPane extends StatelessWidget {
                                 .map(
                                   (pm) => PageStack(
                                     pageManager: pm,
-                                    delegate: delegate,
+                                    delegate: widget.delegate,
                                   ),
                                 )
                                 .toList(),
@@ -85,8 +93,8 @@ class FlowyPane extends StatelessWidget {
                         ),
                       ],
                     ).constrained(
-                      width: layout.homePageWidth,
-                      height: layout.homePageHeight,
+                      width: widget.layout.homePageWidth,
+                      height: widget.layout.homePageHeight,
                     ),
                   ),
                 ),
@@ -96,5 +104,12 @@ class FlowyPane extends StatelessWidget {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    horizontalController.dispose();
+    verticalController.dispose();
+    super.dispose();
   }
 }

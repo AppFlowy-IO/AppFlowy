@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
@@ -39,62 +38,54 @@ class DraggablePaneItem extends StatefulWidget {
 
 class _DraggablePaneItemState extends State<DraggablePaneItem> {
   FlowyDraggableHoverPosition position = FlowyDraggableHoverPosition.none;
-  final ValueNotifier<Offset> dragStartPosition = ValueNotifier(Offset.zero);
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      dragStartBehavior: DragStartBehavior.down,
-      onPanDown: (details) {
-        dragStartPosition.value = details.localPosition;
-        context.read<PanesCubit>().setOffset(details.localPosition);
+    return DraggableItem<CrossDraggablesEntity>(
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      data: widget.pane,
+      onWillAccept: (data) => _shouldAccept(data!, position),
+      onMove: (data) {
+        final renderBox = widget.paneContext.findRenderObject() as RenderBox;
+        final offset = renderBox.globalToLocal(data.offset);
+        final positionN = _computeHoverPosition(
+          offset,
+          renderBox,
+          context.read<PanesCubit>().state.dragOffset,
+          data.data.crossDraggableType,
+        );
+        if (!_shouldAccept(data.data, position)) {
+          return;
+        }
+        setState(() {
+          position = positionN;
+        });
       },
-      child: DraggableItem<CrossDraggablesEntity>(
-        data: widget.pane,
-        onWillAccept: (data) => _shouldAccept(data!, position),
-        onMove: (data) {
-          final renderBox = widget.paneContext.findRenderObject() as RenderBox;
-          final offset = renderBox.globalToLocal(data.offset);
-          final positionN = _computeHoverPosition(
-            offset,
-            renderBox,
-            context.read<PanesCubit>().state.dragOffset,
-            data.data.crossDraggableType,
-          );
-          if (!_shouldAccept(data.data, position)) {
-            return;
-          }
-          setState(() {
-            position = positionN;
-          });
-        },
-        onLeave: (_) => setState(() {
+      onLeave: (_) => setState(() {
+        position = FlowyDraggableHoverPosition.none;
+      }),
+      onAccept: (data) {
+        _move(data, widget.pane);
+        setState(() {
           position = FlowyDraggableHoverPosition.none;
-        }),
-        onAccept: (data) {
-          _move(data, widget.pane);
-          setState(() {
-            position = FlowyDraggableHoverPosition.none;
-          });
-        },
-        enableAutoScroll: false,
-        feedback: Transform.translate(
-          offset: context.read<PanesCubit>().state.dragOffset,
-          child: Material(
-            child: IntrinsicWidth(
-              child: Opacity(
-                opacity: 0.5,
-                child: widget.feedback?.call(context) ?? widget.child,
-              ),
+        });
+      },
+      enableAutoScroll: false,
+      feedback: Transform.translate(
+        offset: context.read<PanesCubit>().state.dragOffset,
+        child: Material(
+          child: IntrinsicWidth(
+            child: Opacity(
+              opacity: 0.5,
+              child: widget.feedback?.call(context) ?? widget.child,
             ),
           ),
         ),
-        child: Stack(
-          children: [
-            widget.child,
-            _buildChildren(widget.paneContext, position),
-          ],
-        ),
+      ),
+      child: Stack(
+        children: [
+          widget.child,
+          _buildChildren(widget.paneContext, position),
+        ],
       ),
     );
   }

@@ -11,6 +11,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     this.onWillAccept,
     this.onMove,
     this.onLeave,
+    this.dragAnchorStrategy,
     this.enableAutoScroll = true,
     this.hitTestSize = const Size(100, 100),
   });
@@ -25,6 +26,8 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   final DragTargetWillAccept<T>? onWillAccept;
   final DragTargetMove<T>? onMove;
   final DragTargetLeave<T>? onLeave;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)?
+      dragAnchorStrategy;
 
   /// Whether to enable auto scroll when dragging.
   ///
@@ -76,6 +79,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           autoScroller?.stopAutoScroll();
           dragTarget = null;
         },
+        dragAnchorStrategy:
+            widget.dragAnchorStrategy ?? childDragAnchorStrategy,
       ),
     );
   }

@@ -112,8 +112,12 @@ class PanesService {
             children: node.children
                 .map(
                   (e) => e.copyWith(
-                    sizeController:
-                        PaneSizeController(flex: e.sizeController.flex),
+                    sizeController: PaneSizeController(
+                      flex: List.generate(
+                        node.children.length,
+                        (_) => 1 / (node.children.length),
+                      ),
+                    ),
                     tabs: Tabs(
                       currentIndex: e.tabs.currentIndex,
                       pageManagers: e.tabs.pageManagers,
@@ -170,7 +174,6 @@ class PanesService {
           return node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
-            sizeController: PaneSizeController(flex: node.sizeController.flex),
             tabs: Tabs(
               currentIndex: node.children.first.tabs.currentIndex,
               pageManagers: node.children.first.tabs.pageManagers,
