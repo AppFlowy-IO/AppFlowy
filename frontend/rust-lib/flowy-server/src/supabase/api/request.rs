@@ -150,7 +150,7 @@ pub async fn create_snapshot(
     .insert(
       InsertParamsBuilder::new()
         .insert(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.object_id.clone())
-        .insert("name", object.ty.to_string())
+        .insert("name", object.collab_type.to_string())
         .insert(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN, encrypt)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)

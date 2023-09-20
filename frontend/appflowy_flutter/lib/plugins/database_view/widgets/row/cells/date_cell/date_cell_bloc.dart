@@ -79,8 +79,19 @@ class DateCellState with _$DateCellState {
 }
 
 String _dateStrFromCellData(DateCellDataPB? cellData) {
+  if (cellData == null || !cellData.hasTimestamp()) {
+    return "";
+  }
+
   String dateStr = "";
-  if (cellData != null) {
+  if (cellData.isRange) {
+    if (cellData.includeTime) {
+      dateStr =
+          "${cellData.date} ${cellData.time} → ${cellData.endDate} ${cellData.endTime}";
+    } else {
+      dateStr = "${cellData.date} → ${cellData.endDate}";
+    }
+  } else {
     if (cellData.includeTime) {
       dateStr = "${cellData.date} ${cellData.time}";
     } else {

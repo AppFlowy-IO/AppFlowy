@@ -29,12 +29,13 @@ class SettingsAppearanceView extends StatelessWidget {
                 ThemeFontFamilySetting(
                   currentFontFamily: state.font,
                 ),
-                LayoutDirectionSetting(
-                  currentLayoutDirection: state.layoutDirection,
-                ),
-                TextDirectionSetting(
-                  currentTextDirection: state.textDirection,
-                ),
+                // TODO: enablt them in version 0.3.3
+                // LayoutDirectionSetting(
+                //   currentLayoutDirection: state.layoutDirection,
+                // ),
+                // TextDirectionSetting(
+                //   currentTextDirection: state.textDirection,
+                // ),
                 CreateFileSettings(),
               ],
             );

@@ -641,7 +641,10 @@ pub(crate) async fn update_date_cell_handler(
   let cell_changeset = DateCellChangeset {
     date: data.date,
     time: data.time,
+    end_date: data.end_date,
+    end_time: data.end_time,
     include_time: data.include_time,
+    is_range: data.is_range,
     clear_flag: data.clear_flag,
   };
   let database_editor = manager.get_database_with_view_id(&cell_id.view_id).await?;
