@@ -149,7 +149,6 @@ Future<AppTheme> appTheme(String themeName) async {
     try {
       return await AppTheme.fromName(themeName);
     } catch (e) {
-      Log.error(e);
       return AppTheme.fallback;
     }
   }

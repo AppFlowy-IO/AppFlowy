@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -17,10 +16,7 @@ class UserBackendService {
 
   static Future<Either<FlowyError, UserProfilePB>>
       getCurrentUserProfile() async {
-    final result = await UserEventGetUserProfile().send().then((value) {
-      value.fold((l) => null, (r) => Log.info(r));
-      return value;
-    });
+    final result = await UserEventGetUserProfile().send();
     return result.swap();
   }
 
