@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces};
+use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams};
 use collab_define::CollabObject;
 
 use flowy_error::FlowyError;
@@ -138,11 +138,23 @@ where
 
   fn create_collab_object(
     &self,
-    _collab_object: &CollabObject,
-    _data: Vec<u8>,
+    collab_object: &CollabObject,
+    data: Vec<u8>,
   ) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
-    FutureResult::new(async { Ok(()) })
+    let try_get_client = self.server.try_get_client();
+    let collab_object = collab_object.clone();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let params = InsertCollabParams::new(
+        collab_object.uid,
+        collab_object.object_id.clone(),
+        collab_object.collab_type.clone(),
+        data,
+        collab_object.workspace_id.clone(),
+      );
+      client.write().await.create_collab(params).await?;
+      Ok(())
+    })
   }
 }
 

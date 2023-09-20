@@ -670,7 +670,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0676db7ed6f614fd71ea4d5d591e3828c561ac06#0676db7ed6f614fd71ea4d5d591e3828c561ac06"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=59ec0efe2aa5f319e359c032859367e0371f2727#59ec0efe2aa5f319e359c032859367e0371f2727"
 dependencies = [
  "anyhow",
  "bytes",
@@ -692,7 +692,6 @@ dependencies = [
  "tokio-tungstenite",
  "tracing",
  "url",
- "uuid",
 ]
 
 [[package]]
@@ -1264,6 +1263,12 @@ dependencies = [
  "once_cell",
  "parking_lot_core",
 ]
+
+[[package]]
+name = "data-encoding"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 
 [[package]]
 name = "derivative"
@@ -2449,7 +2454,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0676db7ed6f614fd71ea4d5d591e3828c561ac06#0676db7ed6f614fd71ea4d5d591e3828c561ac06"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=59ec0efe2aa5f319e359c032859367e0371f2727#59ec0efe2aa5f319e359c032859367e0371f2727"
 dependencies = [
  "serde",
  "serde_json",
@@ -4973,7 +4978,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0676db7ed6f614fd71ea4d5d591e3828c561ac06#0676db7ed6f614fd71ea4d5d591e3828c561ac06"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=59ec0efe2aa5f319e359c032859367e0371f2727#59ec0efe2aa5f319e359c032859367e0371f2727"
 dependencies = [
  "anyhow",
  "opener",
@@ -5234,7 +5239,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0676db7ed6f614fd71ea4d5d591e3828c561ac06#0676db7ed6f614fd71ea4d5d591e3828c561ac06"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=59ec0efe2aa5f319e359c032859367e0371f2727#59ec0efe2aa5f319e359c032859367e0371f2727"
 dependencies = [
  "chrono",
  "collab-define",
@@ -5882,9 +5887,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.18.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54319c93411147bced34cb5609a80e0a8e44c5999c93903a81cd866630ec0bfd"
+checksum = "2b2dbec703c26b00d74844519606ef15d09a7d6857860f84ad223dec002ddea2"
 dependencies = [
  "futures-util",
  "log",
@@ -6095,13 +6100,13 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 
 [[package]]
 name = "tungstenite"
-version = "0.18.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30ee6ab729cd4cf0fd55218530c4522ed30b7b6081752839b68fcec8d0960788"
+checksum = "e862a1c4128df0112ab625f55cd5c934bcb4312ba80b39ae4b4835a3fd58e649"
 dependencies = [
- "base64 0.13.1",
  "byteorder",
  "bytes",
+ "data-encoding",
  "http",
  "httparse",
  "log",

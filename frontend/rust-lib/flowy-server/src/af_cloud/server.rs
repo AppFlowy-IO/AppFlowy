@@ -143,6 +143,32 @@ fn spawn_ws_conn(
   let weak_device_id = Arc::downgrade(device_id);
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
+
+  tokio::spawn(async move {
+    if let Some(ws_client) = weak_ws_client.upgrade() {
+      let mut state_recv = ws_client.read().await.subscribe_connect_state().await;
+      while let Ok(state) = state_recv.recv().await {
+        if !state.is_timeout() {
+          continue;
+        }
+
+        // Try to reconnect if the connection is timed out.
+        if let (Some(api_client), Some(device_id)) =
+          (weak_api_client.upgrade(), weak_device_id.upgrade())
+        {
+          let device_id = device_id.read().clone();
+          if let Ok(ws_addr) = api_client.read().await.ws_url(&device_id) {
+            tracing::info!("🟢WebSocket Reconnecting");
+            let _ = ws_client.write().await.connect(ws_addr).await;
+          }
+        }
+      }
+    }
+  });
+
+  let weak_device_id = Arc::downgrade(device_id);
+  let weak_ws_client = Arc::downgrade(ws_client);
+  let weak_api_client = Arc::downgrade(api_client);
   tokio::spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       tracing::info!("🟢Token state: {:?}", token_state);
@@ -155,14 +181,14 @@ fn spawn_ws_conn(
           ) {
             let device_id = device_id.read().clone();
             if let Ok(ws_addr) = api_client.read().await.ws_url(&device_id) {
-              tracing::info!("🟢Connecting to websocket");
+              tracing::info!("🟢WebSocket Connecting");
               let _ = ws_client.write().await.connect(ws_addr).await;
             }
           }
         },
         TokenState::Invalid => {
           if let Some(ws_client) = weak_ws_client.upgrade() {
-            tracing::info!("🟡Disconnecting from websocket");
+            tracing::info!("🟡WebSocket Disconnecting");
             ws_client.write().await.disconnect().await;
           }
         },

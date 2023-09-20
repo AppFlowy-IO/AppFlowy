@@ -6,12 +6,12 @@ use parking_lot::RwLock;
 use serde_repr::*;
 
 use collab_integrate::YrsDocAction;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_server::af_cloud::configuration::appflowy_cloud_server_configuration;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_server::af_cloud::AFCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::database::{
@@ -112,15 +112,7 @@ impl ServerProvider {
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
       ServerType::AppFlowyCloud => {
-        let config = appflowy_cloud_server_configuration().map_err(|e| {
-          FlowyError::new(
-            ErrorCode::InvalidAuthConfig,
-            format!(
-              "Missing self host config: {:?}. Error: {:?}",
-              server_type, e
-            ),
-          )
-        })?;
+        let config = AFCloudConfiguration::from_env()?;
         tracing::trace!("🔑AppFlowy cloud config: {:?}", config);
         let server = Arc::new(AFCloudServer::new(
           config,
