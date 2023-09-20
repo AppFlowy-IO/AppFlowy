@@ -75,6 +75,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
+    customizeFontToolbarItem,
     ...textDirectionItems,
   ];
 
