@@ -436,7 +436,9 @@
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
       "newRow": "New row",
-      "action": "Action"
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Drag to move"
     },
     "selectOption": {
       "create": "Create",

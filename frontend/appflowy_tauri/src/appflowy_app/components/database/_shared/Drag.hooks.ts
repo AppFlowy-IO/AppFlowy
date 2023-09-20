@@ -109,6 +109,7 @@ export const useDraggable = ({
 
   return {
     isDragging,
+    previewRef,
     attributes,
     listeners,
     setPreviewRef,
@@ -119,6 +120,7 @@ interface UseDroppableOptions {
   accept: string;
   dropEffect?: DataTransfer['dropEffect'];
   disabled?: boolean;
+  onDragOver?: DragEventHandler,
   onDrop?: (data: DragItem) => void;
 }
 
@@ -126,6 +128,7 @@ export const useDroppable = ({
   accept,
   dropEffect = 'move',
   disabled,
+  onDragOver: handleDragOver,
   onDrop: handleDrop,
 }: UseDroppableOptions) => {
   const context = useContext(DndContext);
@@ -158,7 +161,8 @@ export const useDroppable = ({
     event.dataTransfer.dropEffect = dropEffect;
 
     setDragOver(true);
-  }, [ canDrop, dropEffect ]);
+    handleDragOver?.(event);
+  }, [ canDrop, dropEffect, handleDragOver ]);
 
   const onDragLeave = useCallback(() => {
     if (!canDrop) {

@@ -14,10 +14,14 @@ export function debounce(fn: (...args: any[]) => void, delay: number) {
   return debounceFn;
 }
 
-export function throttle(fn: (...args: any[]) => void, delay: number, immediate = true) {
+export function throttle<T extends (...args: any[]) => void = (...args: any[]) => void>(
+  fn: T,
+  delay: number,
+  immediate = true,
+): T {
   let timeout: NodeJS.Timeout | null = null;
 
-  return (...args: any[]) => {
+  const run = (...args: Parameters<T>) => {
     if (!timeout) {
       timeout = setTimeout(() => {
         timeout = null;
@@ -26,6 +30,8 @@ export function throttle(fn: (...args: any[]) => void, delay: number, immediate 
       immediate && fn.apply(undefined, args);
     }
   };
+
+  return run as T;
 }
 
 export function get<T = any>(obj: any, path: string[], defaultValue?: any): T {
