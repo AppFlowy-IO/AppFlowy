@@ -127,8 +127,4 @@ class PanesCubit extends Cubit<PanesState> {
     );
     closePane(from.paneId);
   }
-
-  void setOffset(Offset offset) {
-    emit(state.copyWith(dragOffset: offset));
-  }
 }

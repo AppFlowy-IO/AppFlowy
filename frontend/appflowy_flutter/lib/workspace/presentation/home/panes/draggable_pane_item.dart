@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -50,7 +49,6 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
         final positionN = _computeHoverPosition(
           offset,
           renderBox,
-          context.read<PanesCubit>().state.dragOffset,
           data.data.crossDraggableType,
         );
         if (!_shouldAccept(data.data, position)) {
@@ -70,14 +68,11 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
         });
       },
       enableAutoScroll: false,
-      feedback: Transform.translate(
-        offset: context.read<PanesCubit>().state.dragOffset,
-        child: Material(
-          child: IntrinsicWidth(
-            child: Opacity(
-              opacity: 0.5,
-              child: widget.feedback?.call(context) ?? widget.child,
-            ),
+      feedback: Material(
+        child: IntrinsicWidth(
+          child: Opacity(
+            opacity: 0.5,
+            child: widget.feedback?.call(context) ?? widget.child,
           ),
         ),
       ),
@@ -147,28 +142,20 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
   FlowyDraggableHoverPosition _computeHoverPosition(
     Offset offset,
     RenderBox box,
-    Offset dragOffset,
     CrossDraggableType type,
   ) {
     final top = (widget.pane.draggable as PaneNode).tabs.pages > 1
         ? HomeSizes.tabBarHeigth + HomeSizes.topBarHeight
         : HomeSizes.topBarHeight;
 
-    final relativeOffset = switch (type) {
-      CrossDraggableType.none => offset,
-      CrossDraggableType.tab => offset,
-      CrossDraggableType.view => offset,
-      CrossDraggableType.pane =>
-        Offset(offset.dx + dragOffset.dx, offset.dy + dragOffset.dy),
-    };
-    if (relativeOffset.dy <= top) {
+    if (offset.dy <= top) {
       return FlowyDraggableHoverPosition.tab;
     }
 
     final Offset center = Offset(widget.size.width / 2, widget.size.height / 2);
     final double angleInRadians = atan2(
-      relativeOffset.dy - center.dy,
-      relativeOffset.dx - center.dx,
+      offset.dy - center.dy,
+      offset.dx - center.dx,
     );
     final double angleInDegrees = math.degrees(angleInRadians);
     double normalizedAngle = angleInDegrees % 360;

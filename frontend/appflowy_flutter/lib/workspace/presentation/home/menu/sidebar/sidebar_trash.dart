@@ -32,7 +32,8 @@ class SidebarTrashButton extends StatelessWidget {
               onTap: () {
                 getIt<MenuSharedState>().latestOpenView = null;
                 getIt<PanesCubit>().openPlugin(
-                    plugin: makePlugin(pluginType: PluginType.trash));
+                  plugin: makePlugin(pluginType: PluginType.trash),
+                );
               },
               child: _buildTextButton(context),
             ),
