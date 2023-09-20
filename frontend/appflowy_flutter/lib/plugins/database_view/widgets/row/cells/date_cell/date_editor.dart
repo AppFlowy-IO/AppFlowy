@@ -3,6 +3,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
@@ -111,18 +113,31 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
               duration: const Duration(milliseconds: 300),
               child: state.includeTime
                   ? _TimeTextField(
+                      isEndTime: false,
                       timeStr: state.time,
                       popoverMutex: popoverMutex,
                     )
                   : const SizedBox.shrink(),
             ),
+            if (state.includeTime && state.isRange) const VSpace(8.0),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: state.includeTime && state.isRange
+                  ? _TimeTextField(
+                      isEndTime: true,
+                      timeStr: state.endTime,
+                      popoverMutex: popoverMutex,
+                    )
+                  : const SizedBox.shrink(),
+            ),
             const DatePicker(),
-            const VSpace(8.0),
-            const TypeOptionSeparator(spacing: 8.0),
+            const TypeOptionSeparator(spacing: 12.0),
+            const EndTimeButton(),
+            const VSpace(4.0),
             const _IncludeTimeButton(),
             const TypeOptionSeparator(spacing: 8.0),
             DateTypeOptionButton(popoverMutex: popoverMutex),
-            VSpace(GridSize.typeOptionSeparatorHeight),
+            const VSpace(4.0),
             const ClearDateButton(),
           ];
 
@@ -145,8 +160,16 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   }
 }
 
-class DatePicker extends StatelessWidget {
+class DatePicker extends StatefulWidget {
   const DatePicker({super.key});
+
+  @override
+  State<DatePicker> createState() => _DatePickerState();
+}
+
+class _DatePickerState extends State<DatePicker> {
+  DateTime _focusedDay = DateTime.now();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   Widget build(BuildContext context) {
@@ -162,10 +185,15 @@ class DatePicker extends StatelessWidget {
           child: TableCalendar(
             firstDay: kFirstDay,
             lastDay: kLastDay,
-            focusedDay: state.focusedDay,
+            focusedDay: _focusedDay,
             rowHeight: 26.0 + 7.0,
-            calendarFormat: state.format,
+            calendarFormat: _calendarFormat,
             daysOfWeekHeight: 17.0 + 8.0,
+            rangeSelectionMode: state.isRange
+                ? RangeSelectionMode.enforced
+                : RangeSelectionMode.disabled,
+            rangeStartDay: state.isRange ? state.startDay : null,
+            rangeEndDay: state.isRange ? state.endDay : null,
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -198,15 +226,29 @@ class DatePicker extends StatelessWidget {
               ),
               weekendDecoration: boxDecoration,
               outsideDecoration: boxDecoration,
+              rangeStartDecoration: boxDecoration.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              rangeEndDecoration: boxDecoration.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
               defaultTextStyle: textStyle,
               weekendTextStyle: textStyle,
               selectedTextStyle: textStyle.copyWith(
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              rangeStartTextStyle: textStyle.copyWith(
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              rangeEndTextStyle: textStyle.copyWith(
                 color: Theme.of(context).colorScheme.surface,
               ),
               todayTextStyle: textStyle,
               outsideTextStyle: textStyle.copyWith(
                 color: Theme.of(context).disabledColor,
               ),
+              rangeHighlightColor:
+                  Theme.of(context).colorScheme.secondaryContainer,
             ),
             calendarBuilders: CalendarBuilders(
               dowBuilder: (context, day) {
@@ -223,22 +265,24 @@ class DatePicker extends StatelessWidget {
                 );
               },
             ),
-            selectedDayPredicate: (day) => isSameDay(state.dateTime, day),
+            selectedDayPredicate: (day) =>
+                state.isRange ? false : isSameDay(state.dateTime, day),
             onDaySelected: (selectedDay, focusedDay) {
               context.read<DateCellCalendarBloc>().add(
                     DateCellCalendarEvent.selectDay(selectedDay.toLocal().date),
                   );
             },
-            onFormatChanged: (format) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setCalFormat(format));
+            onRangeSelected: (start, end, focusedDay) {
+              context.read<DateCellCalendarBloc>().add(
+                    DateCellCalendarEvent.selectDateRange(start, end),
+                  );
             },
-            onPageChanged: (focusedDay) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setFocusedDay(focusedDay));
-            },
+            onFormatChanged: (calendarFormat) => setState(() {
+              _calendarFormat = calendarFormat;
+            }),
+            onPageChanged: (focusedDay) => setState(() {
+              _focusedDay = focusedDay;
+            }),
           ),
         );
       },
@@ -268,13 +312,57 @@ class _IncludeTimeButton extends StatelessWidget {
   }
 }
 
+@visibleForTesting
+class EndTimeButton extends StatelessWidget {
+  const EndTimeButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<DateCellCalendarBloc, DateCellCalendarState, bool>(
+      selector: (state) => state.isRange,
+      builder: (context, isRange) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: SizedBox(
+            height: GridSize.popoverItemHeight,
+            child: Padding(
+              padding: GridSize.typeOptionContentInsets,
+              child: Row(
+                children: [
+                  FlowySvg(
+                    FlowySvgs.date_s,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                  const HSpace(6),
+                  FlowyText.medium(LocaleKeys.grid_field_isRange.tr()),
+                  const Spacer(),
+                  Toggle(
+                    value: isRange,
+                    onChanged: (value) => context
+                        .read<DateCellCalendarBloc>()
+                        .add(DateCellCalendarEvent.setIsRange(!value)),
+                    style: ToggleStyle.big,
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _TimeTextField extends StatefulWidget {
+  final bool isEndTime;
   final String? timeStr;
   final PopoverMutex popoverMutex;
 
   const _TimeTextField({
     required this.timeStr,
     required this.popoverMutex,
+    required this.isEndTime,
     Key? key,
   }) : super(key: key);
 
@@ -309,21 +397,41 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DateCellCalendarBloc, DateCellCalendarState>(
-      listener: (context, state) => _textController.text = state.time ?? "",
+      listener: (context, state) {
+        if (widget.isEndTime) {
+          _textController.text = state.endTime ?? "";
+        } else {
+          _textController.text = state.time ?? "";
+        }
+      },
       builder: (context, state) {
+        String text = "";
+        if (!widget.isEndTime && state.time != null) {
+          text = state.time!;
+        } else if (state.endTime != null) {
+          text = state.endTime!;
+        }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: FlowyTextField(
-            text: state.time ?? "",
+            text: text,
             focusNode: _focusNode,
             controller: _textController,
             submitOnLeave: true,
             hintText: state.timeHintText,
-            errorText: state.timeFormatError,
+            errorText: widget.isEndTime
+                ? state.parseEndTimeError
+                : state.parseTimeError,
             onSubmitted: (timeStr) {
-              context
-                  .read<DateCellCalendarBloc>()
-                  .add(DateCellCalendarEvent.setTime(timeStr));
+              if (widget.isEndTime) {
+                context
+                    .read<DateCellCalendarBloc>()
+                    .add(DateCellCalendarEvent.setEndTime(timeStr));
+              } else {
+                context
+                    .read<DateCellCalendarBloc>()
+                    .add(DateCellCalendarEvent.setTime(timeStr));
+              }
             },
           ),
         );
