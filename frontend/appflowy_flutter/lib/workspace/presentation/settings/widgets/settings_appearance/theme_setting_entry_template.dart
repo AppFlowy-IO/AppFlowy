@@ -31,6 +31,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
             children: [
               FlowyText.medium(
                 label,
+                fontSize: 13,
                 overflow: TextOverflow.ellipsis,
               ),
               if (hint != null)

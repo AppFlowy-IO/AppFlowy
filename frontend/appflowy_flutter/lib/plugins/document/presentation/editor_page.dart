@@ -75,8 +75,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
-    // TODO: enable it in version 0.3.3
-    // ...textDirectionItems,
+    ...textDirectionItems,
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
