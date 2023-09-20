@@ -161,6 +161,7 @@ enum AddButtonAction {
       case AddButtonAction.board:
         return FlowySvgs.board_s;
       case AddButtonAction.calendar:
+        return FlowySvgs.date_s;
       case AddButtonAction.grid:
         return FlowySvgs.grid_s;
     }
