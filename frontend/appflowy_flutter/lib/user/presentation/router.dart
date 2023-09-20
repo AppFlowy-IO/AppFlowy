@@ -1,7 +1,6 @@
 import 'package:appflowy/mobile/presentation/home/mobile_home_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
-import 'package:appflowy/user/presentation/screens/workspace_start_screen/workspace_start_screen.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
