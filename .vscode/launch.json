@@ -1,0 +1,128 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "appflowy_flutter",
+            "cwd": "frontend\\appflowy_flutter",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "appflowy_flutter (profile mode)",
+            "cwd": "frontend\\appflowy_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "appflowy_flutter (release mode)",
+            "cwd": "frontend\\appflowy_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "appflowy_backend",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_backend",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "appflowy_backend (profile mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_backend",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "appflowy_backend (release mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_backend",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "appflowy_popover",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_popover",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "appflowy_popover (profile mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_popover",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "appflowy_popover (release mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\appflowy_popover",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "flowy_infra",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "flowy_infra (profile mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "flowy_infra (release mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "flowy_infra_ui",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra_ui",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "flowy_infra_ui (profile mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra_ui",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "flowy_infra_ui (release mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_infra_ui",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "flowy_svg",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_svg",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "flowy_svg (profile mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_svg",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "flowy_svg (release mode)",
+            "cwd": "frontend\\appflowy_flutter\\packages\\flowy_svg",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
