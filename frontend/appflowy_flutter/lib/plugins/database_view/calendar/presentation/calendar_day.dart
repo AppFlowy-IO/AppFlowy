@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -88,7 +90,7 @@ class CalendarDayCard extends StatelessWidget {
                           height: double.infinity,
                           color:
                               candidate.isEmpty ? null : hoverBackgroundColor,
-                          padding: const EdgeInsets.only(top: 4.0),
+                          padding: const EdgeInsets.only(top: 5.0),
                           child: child,
                         ),
                         if (candidate.isEmpty)
@@ -172,6 +174,35 @@ class NewEventButton extends StatelessWidget {
             fillColor: Theme.of(context).colorScheme.background,
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
             width: 22,
+            tooltipText: LocaleKeys.calendar_newEventButtonTooltip.tr(),
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? const Color(0xffd0d3d6)
+                      : const Color(0xff59647a),
+                  width: 0.5,
+                ),
+              ),
+              borderRadius: Corners.s5Border,
+              boxShadow: [
+                BoxShadow(
+                  spreadRadius: -2,
+                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  blurRadius: 2,
+                ),
+                BoxShadow(
+                  spreadRadius: 0,
+                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  blurRadius: 4,
+                ),
+                BoxShadow(
+                  spreadRadius: 2,
+                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -1,15 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/bloc/text_card_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +18,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../application/calendar_bloc.dart';
 import 'calendar_event_editor.dart';
-import 'calendar_page.dart';
 
 class EventCard extends StatefulWidget {
   final CalendarDayEvent event;
@@ -104,6 +100,23 @@ class _EventCardState extends State<EventCard> {
         ),
       ),
       borderRadius: Corners.s6Border,
+      boxShadow: [
+        BoxShadow(
+          spreadRadius: -2,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+          blurRadius: 2,
+        ),
+        BoxShadow(
+          spreadRadius: 0,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+          blurRadius: 4,
+        ),
+        BoxShadow(
+          spreadRadius: 2,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+          blurRadius: 8,
+        ),
+      ],
     );
 
     return Draggable<CalendarDayEvent>(

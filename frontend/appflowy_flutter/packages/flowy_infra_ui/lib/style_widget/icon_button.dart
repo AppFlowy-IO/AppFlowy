@@ -16,6 +16,7 @@ class FlowyIconButton extends StatelessWidget {
   final String? tooltipText;
   final InlineSpan? richTooltipText;
   final bool preferBelow;
+  final BoxDecoration? decoration;
 
   const FlowyIconButton({
     Key? key,
@@ -27,6 +28,7 @@ class FlowyIconButton extends StatelessWidget {
     this.iconColorOnHover,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
+    this.decoration,
     this.tooltipText,
     this.richTooltipText,
     this.preferBelow = true,
@@ -47,11 +49,12 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
-    return ConstrainedBox(
+    return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
         height: size.height,
       ),
+      decoration: decoration,
       child: Tooltip(
         preferBelow: preferBelow,
         message: tooltipMessage,

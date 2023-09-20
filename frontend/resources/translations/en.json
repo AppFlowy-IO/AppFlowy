@@ -659,6 +659,7 @@
   "calendar": {
     "menuName": "Calendar",
     "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
     "navigation": {
       "today": "Today",
       "jumpToday": "Jump to Today",
