@@ -3,7 +3,7 @@ import { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from '
 import { Database } from '$app/interfaces/database';
 import * as service from '$app/components/database/database_bd_svc';
 import { useViewId } from '../../database.hooks';
-import { CellText } from '../_shared';
+import { CellText } from '../../_shared';
 
 export const GridTextCell: FC<{
   rowId: string;

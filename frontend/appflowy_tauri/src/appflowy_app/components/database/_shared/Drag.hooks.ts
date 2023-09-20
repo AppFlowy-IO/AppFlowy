@@ -35,6 +35,8 @@ export interface UseDraggableOptions {
   effectAllowed?: DataTransfer['effectAllowed'];
   data?: Record<string, any>;
   disabled?: boolean;
+  onDragStart?: DragEventHandler;
+  onDragEnd?: DragEventHandler;
 }
 
 export const useDraggable = ({
@@ -42,6 +44,8 @@ export const useDraggable = ({
   effectAllowed = 'copyMove',
   data,
   disabled,
+  onDragStart: handleDragStart,
+  onDragEnd: handleDragEnd,
 }: UseDraggableOptions) => {
   const context = useContext(DndContext);
   const typeRef = useRef(type);
@@ -88,12 +92,15 @@ export const useDraggable = ({
 
       dataTransfer.setDragImage(previewNode, clientX - rect.x, clientY - rect.y);
     }
-  }, [ context, effectAllowed ]);
 
-  const onDragEnd = useCallback(() => {
+    handleDragStart?.(event);
+  }, [ context, effectAllowed, handleDragStart ]);
+
+  const onDragEnd = useCallback<DragEventHandler>((event) => {
     setIsDragging(false);
     context.dragging = undefined;
-  }, [ context ]);
+    handleDragEnd?.(event);
+  }, [ context, handleDragEnd ]);
 
   const listeners = useMemo(() => ({
     onDragStart,

@@ -87,7 +87,8 @@ export interface UseAutoScrollOnEdgeOptions {
   horizontal?: boolean;
   vertical?: boolean;
   edgeGap?: number | Partial<EdgeGap>;
-  disabled?: boolean
+  step?: number;
+  disabled?: boolean;
 }
 
 const defaultEdgeGap = 30;
@@ -100,6 +101,7 @@ const defaultEdgeGap = 30;
  * @param {boolean} [options.horizontal] - Whether the auto scroll is enabled horizontally. Defaults to false.
  * @param {boolean} [options.vertical] - Whether the auto scroll is enabled vertically. Defaults to false.
  * @param {number | { top: number, bottom: number, left: number, right: number }} [options.edgeGap] - The edge gap for the auto scroll. Defaults to 30.
+ * @param {boolean} [options.step] - Determine the pixels to scroll each time. Defaults to 2.
  * @param {boolean} [options.disabled] - Whether the auto scroll is disabled. Defaults to false.
  *
  * @return {Object} The auto scroll event handlers.
@@ -128,6 +130,7 @@ export const useAutoScrollOnEdge = ({
   horizontal = false,
   vertical = false,
   edgeGap = defaultEdgeGap,
+  step = 2,
   disabled,
 }: UseAutoScrollOnEdgeOptions = {}) => {
   const gaps = useMemo<EdgeGap>(() => {
@@ -151,7 +154,7 @@ export const useAutoScrollOnEdge = ({
 
   const leaveEdge = useRef<Direction>();
 
-  const keepScroll = useRef(interval(scrollElement, 16));
+  const keepScroll = useRef(interval(scrollElement, 1));
 
   useEffect(() => {
     if (disabled) {
@@ -171,11 +174,11 @@ export const useAutoScrollOnEdge = ({
     );
 
     if (leaveEdge.current) {
-      keepScroll.current(scrollParent, leaveEdge.current, 20);
+      keepScroll.current(scrollParent, leaveEdge.current, step);
     } else {
       keepScroll.current.cancel();
     }
-  }, [horizontal, vertical, gaps]);
+  }, [horizontal, vertical, gaps, step]);
 
   const onMouseLeave = useCallback<MouseEventHandler>((event) => {
     if (!leaveEdge.current) {
@@ -184,8 +187,8 @@ export const useAutoScrollOnEdge = ({
 
     const scrollParent = event.currentTarget;
 
-    keepScroll.current(scrollParent, leaveEdge.current, 40);
-  }, []);
+    keepScroll.current(scrollParent, leaveEdge.current, step * 2);
+  }, [step]);
 
   if (disabled) {
     return {};

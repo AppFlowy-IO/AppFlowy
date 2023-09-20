@@ -14,3 +14,15 @@ export const DatabaseContext = createContext<Database>(proxy({
   layoutSetting: {},
   isLinked: false,
 }));
+
+export interface DatabaseUIStateDescriptor {
+  enableVerticalAutoScroll: boolean;
+  enableHorizontalAutoScroll: boolean;
+}
+
+const defaultDatabaseUIState: DatabaseUIStateDescriptor = proxy({
+  enableVerticalAutoScroll: false,
+  enableHorizontalAutoScroll: false,
+});
+
+export const DatabaseUIState = createContext<DatabaseUIStateDescriptor>(defaultDatabaseUIState);

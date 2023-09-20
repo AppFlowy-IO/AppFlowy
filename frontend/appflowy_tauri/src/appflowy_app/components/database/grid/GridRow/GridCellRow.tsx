@@ -1,12 +1,13 @@
 import { Virtualizer } from '@tanstack/react-virtual';
 import { IconButton } from '@mui/material';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useContext, useState } from 'react';
 import { Database } from '$app/interfaces/database';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import { useDatabase, useViewId } from '../../database.hooks';
 import * as service from '../../database_bd_svc';
+import { DatabaseUIState } from '../../database.context';
 import { GridCell } from '../GridCell';
-import { DragItem, DragType, VirtualizedList, useDraggable, useDroppable } from '../_shared';
+import { DragItem, DragType, VirtualizedList, useDraggable, useDroppable } from '../../_shared';
 import { GridCellRowActions } from './GridCellRowActions';
 
 export interface GridCellRowProps {
@@ -20,6 +21,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({
 }) => {
   const viewId = useViewId();
   const { fields } = useDatabase();
+  const uiState = useContext(DatabaseUIState);
   const [ hover, setHover ] = useState(false);
   const {
     isDragging,
@@ -31,6 +33,12 @@ export const GridCellRow: FC<GridCellRowProps> = ({
     data: {
       row,
     },
+    onDragStart: useCallback(() => {
+      uiState.enableVerticalAutoScroll = true;
+    }, [uiState]),
+    onDragEnd: useCallback(() => {
+      uiState.enableVerticalAutoScroll = false;
+    }, [uiState]),
   });
 
   const onDrop = useCallback(({ data }: DragItem) => {
@@ -63,7 +71,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({
       {...dropListeners}
     >
       <GridCellRowActions
-        className="ml-[-49px]"
+        className={`ml-[-49px] ${hover ? 'visible' : 'invisible'}`}
         rowId={row.id}
       >
         <IconButton

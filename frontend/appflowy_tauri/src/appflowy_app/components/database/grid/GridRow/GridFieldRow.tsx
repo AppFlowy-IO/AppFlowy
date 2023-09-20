@@ -5,7 +5,7 @@ import { FieldType } from '@/services/backend';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import * as service from '$app/components/database/database_bd_svc';
 import { useDatabase } from '../../database.hooks';
-import { VirtualizedList } from '../_shared';
+import { VirtualizedList } from '../../_shared';
 import { GridField } from '../GridField';
 
 export interface GridFieldRowProps {
