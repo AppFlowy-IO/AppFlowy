@@ -252,7 +252,7 @@ class _DayBadge extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: isToday ? Theme.of(context).colorScheme.primary : null,
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(10),
             ),
             width: isToday ? 18 : null,
             height: isToday ? 18 : null,

@@ -15,7 +15,7 @@ class CalendarSize {
 
   static double get scrollBarSize => 8 * scale;
   static double get navigatorButtonWidth => 20 * scale;
-  static double get navigatorButtonHeight => 25 * scale;
+  static double get navigatorButtonHeight => 24 * scale;
   static EdgeInsets get daysOfWeekInsets =>
-      EdgeInsets.symmetric(vertical: 10.0 * scale);
+      EdgeInsets.only(top: 12.0 * scale, bottom: 5.0 * scale);
 }
