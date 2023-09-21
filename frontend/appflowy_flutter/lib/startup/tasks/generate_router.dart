@@ -13,209 +13,21 @@ GoRouter generateRouter(Widget child) {
     navigatorKey: AppGlobals.rootNavKey,
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        // Root route is SplashScreen.
-        // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
-        pageBuilder: (context, state) => MaterialPage(
-          child: child,
-        ),
-      ),
+      // Root route is SplashScreen.
+      // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
+      _rootRoute(child),
       // Routes in both desktop and mobile
-      GoRoute(
-        path: SignInScreen.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            child: const SignInScreen(),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
-      GoRoute(
-        path: SkipLogInScreen.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            child: const SkipLogInScreen(),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
-      GoRoute(
-        path: EncryptSecretScreen.routeName,
-        pageBuilder: (context, state) {
-          final args = state.extra as Map<String, dynamic>;
-          return CustomTransitionPage(
-            child: EncryptSecretScreen(
-              user: args[EncryptSecretScreen.argUser],
-              key: args[EncryptSecretScreen.argKey],
-            ),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
-      GoRoute(
-        path: WorkspaceErrorScreen.routeName,
-        pageBuilder: (context, state) {
-          final args = state.extra as Map<String, dynamic>;
-          return CustomTransitionPage(
-            child: WorkspaceErrorScreen(
-              error: args[WorkspaceErrorScreen.argError],
-              userFolder: args[WorkspaceErrorScreen.argUserFolder],
-            ),
-            transitionsBuilder: _buildFadeTransition,
-            transitionDuration: _slowDuration,
-          );
-        },
-      ),
+      _signInScreenRoute(),
+      _skipLogInScreenRoute(),
+      _encryptSecretScreenRoute(),
+      _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!PlatformExtension.isMobile)
-        GoRoute(
-          path: DesktopHomeScreen.routeName,
-          pageBuilder: (context, state) {
-            final args = state.extra as Map<String, dynamic>;
-            return CustomTransitionPage(
-              child: DesktopHomeScreen(
-                key: args[DesktopHomeScreen.argKey],
-                userProfile: args[DesktopHomeScreen.argUserProfile],
-                workspaceSetting: args[DesktopHomeScreen.argWorkspaceSetting],
-              ),
-              transitionsBuilder: _buildFadeTransition,
-              transitionDuration: _slowDuration,
-            );
-          },
-        ),
+      if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
-      // We use StatefulShellRoute to create a StatefulNavigationShell(ScaffoldWithNavBar) to access to multiple pages, and each page retains its own state.
-      if (PlatformExtension.isMobile)
-        StatefulShellRoute.indexedStack(
-          builder: (
-            BuildContext context,
-            GoRouterState state,
-            StatefulNavigationShell navigationShell,
-          ) {
-            // Return the widget that implements the custom shell (in this case
-            // using a BottomNavigationBar). The StatefulNavigationShell is passed
-            // to be able access the state of the shell and to navigate to other
-            // branches in a stateful way.
-            return MobileBottomNavigationBar(navigationShell: navigationShell);
-          },
-          branches: <StatefulShellBranch>[
-            StatefulShellBranch(
-              routes: <RouteBase>[
-                GoRoute(
-                  // The screen to display as the root in the first tab of the
-                  // bottom navigation bar.
-                  path: MobileHomeScreen.routeName,
-                  builder: (BuildContext context, GoRouterState state) {
-                    return const MobileHomeScreen();
-                  },
-                ),
-              ],
-            ),
-            // TODO(yijing): implement other tabs later
-            // The following code comes from the example of StatefulShellRoute.indexedStack. I left there just for placeholder purpose. They will be updated in the future.
-            // The route branch for the second tab of the bottom navigation bar.
-            StatefulShellBranch(
-              // It's not necessary to provide a navigatorKey if it isn't also
-              // needed elsewhere. If not provided, a default key will be used.
-              routes: <RouteBase>[
-                GoRoute(
-                  // The screen to display as the root in the second tab of the
-                  // bottom navigation bar.
-                  path: '/b',
-                  builder: (BuildContext context, GoRouterState state) =>
-                      const RootPlaceholderScreen(
-                    label: 'Favorite',
-                    detailsPath: '/b/details/1',
-                    secondDetailsPath: '/b/details/2',
-                  ),
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: 'details/:param',
-                      builder: (BuildContext context, GoRouterState state) =>
-                          DetailsPlaceholderScreen(
-                        label: 'Favorite details',
-                        param: state.pathParameters['param'],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+      if (PlatformExtension.isMobile) _mobileHomeScreenWithNavigationBarRoute(),
 
-            // The route branch for the third tab of the bottom navigation bar.
-            StatefulShellBranch(
-              routes: <RouteBase>[
-                GoRoute(
-                  // The screen to display as the root in the third tab of the
-                  // bottom navigation bar.
-                  path: '/c',
-                  builder: (BuildContext context, GoRouterState state) =>
-                      const RootPlaceholderScreen(
-                    label: 'Add Document',
-                    detailsPath: '/c/details',
-                  ),
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: 'details',
-                      builder: (BuildContext context, GoRouterState state) =>
-                          DetailsPlaceholderScreen(
-                        label: 'Add Document details',
-                        extra: state.extra,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: <RouteBase>[
-                GoRoute(
-                  path: '/d',
-                  builder: (BuildContext context, GoRouterState state) =>
-                      const RootPlaceholderScreen(
-                    label: 'Search',
-                    detailsPath: '/d/details',
-                  ),
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: 'details',
-                      builder: (BuildContext context, GoRouterState state) =>
-                          const DetailsPlaceholderScreen(
-                        label: 'Search Page details',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: <RouteBase>[
-                GoRoute(
-                  path: '/e',
-                  builder: (BuildContext context, GoRouterState state) =>
-                      const RootPlaceholderScreen(
-                    label: 'Notification',
-                    detailsPath: '/e/details',
-                  ),
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: 'details',
-                      builder: (BuildContext context, GoRouterState state) =>
-                          const DetailsPlaceholderScreen(
-                        label: 'Notification Page details',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      // Unused for now, it may need to be used in the future.
+      // Unused routes for now, it may need to be used in the future.
+      // TODO(yijing): extract route method like other routes when it comes to be used.
       // Desktop and Mobile
       GoRoute(
         path: WorkspaceStartScreen.routeName,
@@ -243,6 +55,224 @@ GoRouter generateRouter(Widget child) {
         },
       ),
     ],
+  );
+}
+
+/// We use StatefulShellRoute to create a StatefulNavigationShell(ScaffoldWithNavBar) to access to multiple pages, and each page retains its own state.
+StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
+  return StatefulShellRoute.indexedStack(
+    builder: (
+      BuildContext context,
+      GoRouterState state,
+      StatefulNavigationShell navigationShell,
+    ) {
+      // Return the widget that implements the custom shell (in this case
+      // using a BottomNavigationBar). The StatefulNavigationShell is passed
+      // to be able access the state of the shell and to navigate to other
+      // branches in a stateful way.
+      return MobileBottomNavigationBar(navigationShell: navigationShell);
+    },
+    branches: <StatefulShellBranch>[
+      StatefulShellBranch(
+        routes: <RouteBase>[
+          GoRoute(
+            // The screen to display as the root in the first tab of the
+            // bottom navigation bar.
+            path: MobileHomeScreen.routeName,
+            builder: (BuildContext context, GoRouterState state) {
+              return const MobileHomeScreen();
+            },
+          ),
+        ],
+      ),
+      // TODO(yijing): implement other tabs later
+      // The following code comes from the example of StatefulShellRoute.indexedStack. I left there just for placeholder purpose. They will be updated in the future.
+      // The route branch for the second tab of the bottom navigation bar.
+      StatefulShellBranch(
+        // It's not necessary to provide a navigatorKey if it isn't also
+        // needed elsewhere. If not provided, a default key will be used.
+        routes: <RouteBase>[
+          GoRoute(
+            // The screen to display as the root in the second tab of the
+            // bottom navigation bar.
+            path: '/b',
+            builder: (BuildContext context, GoRouterState state) =>
+                const RootPlaceholderScreen(
+              label: 'Favorite',
+              detailsPath: '/b/details/1',
+              secondDetailsPath: '/b/details/2',
+            ),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'details/:param',
+                builder: (BuildContext context, GoRouterState state) =>
+                    DetailsPlaceholderScreen(
+                  label: 'Favorite details',
+                  param: state.pathParameters['param'],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      // The route branch for the third tab of the bottom navigation bar.
+      StatefulShellBranch(
+        routes: <RouteBase>[
+          GoRoute(
+            // The screen to display as the root in the third tab of the
+            // bottom navigation bar.
+            path: '/c',
+            builder: (BuildContext context, GoRouterState state) =>
+                const RootPlaceholderScreen(
+              label: 'Add Document',
+              detailsPath: '/c/details',
+            ),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'details',
+                builder: (BuildContext context, GoRouterState state) =>
+                    DetailsPlaceholderScreen(
+                  label: 'Add Document details',
+                  extra: state.extra,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: <RouteBase>[
+          GoRoute(
+            path: '/d',
+            builder: (BuildContext context, GoRouterState state) =>
+                const RootPlaceholderScreen(
+              label: 'Search',
+              detailsPath: '/d/details',
+            ),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'details',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const DetailsPlaceholderScreen(
+                  label: 'Search Page details',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: <RouteBase>[
+          GoRoute(
+            path: '/e',
+            builder: (BuildContext context, GoRouterState state) =>
+                const RootPlaceholderScreen(
+              label: 'Notification',
+              detailsPath: '/e/details',
+            ),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'details',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const DetailsPlaceholderScreen(
+                  label: 'Notification Page details',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+GoRoute _desktopHomeScreenRoute() {
+  return GoRoute(
+    path: DesktopHomeScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      return CustomTransitionPage(
+        child: DesktopHomeScreen(
+          key: args[DesktopHomeScreen.argKey],
+          userProfile: args[DesktopHomeScreen.argUserProfile],
+          workspaceSetting: args[DesktopHomeScreen.argWorkspaceSetting],
+        ),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _workspaceErrorScreenRoute() {
+  return GoRoute(
+    path: WorkspaceErrorScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      return CustomTransitionPage(
+        child: WorkspaceErrorScreen(
+          error: args[WorkspaceErrorScreen.argError],
+          userFolder: args[WorkspaceErrorScreen.argUserFolder],
+        ),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _encryptSecretScreenRoute() {
+  return GoRoute(
+    path: EncryptSecretScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      return CustomTransitionPage(
+        child: EncryptSecretScreen(
+          user: args[EncryptSecretScreen.argUser],
+          key: args[EncryptSecretScreen.argKey],
+        ),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _skipLogInScreenRoute() {
+  return GoRoute(
+    path: SkipLogInScreen.routeName,
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        child: const SkipLogInScreen(),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _signInScreenRoute() {
+  return GoRoute(
+    path: SignInScreen.routeName,
+    pageBuilder: (context, state) {
+      return CustomTransitionPage(
+        child: const SignInScreen(),
+        transitionsBuilder: _buildFadeTransition,
+        transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _rootRoute(Widget child) {
+  return GoRoute(
+    path: '/',
+    // Root route is SplashScreen.
+    // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
+    pageBuilder: (context, state) => MaterialPage(
+      child: child,
+    ),
   );
 }
 
