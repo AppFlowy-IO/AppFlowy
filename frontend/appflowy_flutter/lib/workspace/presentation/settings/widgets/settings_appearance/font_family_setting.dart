@@ -148,7 +148,10 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
   }
 
-  Widget _fontFamilyItemButton(BuildContext context, TextStyle style) {
+  Widget _fontFamilyItemButton(
+    BuildContext context,
+    TextStyle style,
+  ) {
     final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
     return SizedBox(
       key: UniqueKey(),
@@ -179,6 +182,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
                   .syncFontFamily(fontFamily);
             }
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );

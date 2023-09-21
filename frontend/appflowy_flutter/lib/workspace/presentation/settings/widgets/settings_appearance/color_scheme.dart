@@ -156,6 +156,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 if (currentTheme != theme) {
                   context.read<AppearanceSettingsCubit>().setTheme(theme);
                 }
+                PopoverContainer.of(context).close();
               },
             ),
           ),
