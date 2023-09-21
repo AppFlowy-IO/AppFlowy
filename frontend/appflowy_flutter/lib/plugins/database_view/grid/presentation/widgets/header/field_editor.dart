@@ -52,14 +52,17 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final bool requireSpace = widget.onDeleted != null ||
+        widget.onHidden != null ||
+        !widget.typeOptionLoader.field.isPrimary;
+
     final List<Widget> children = [
       FieldNameTextField(popoverMutex: popoverMutex),
+      if (requireSpace) const VSpace(4),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
-      if (!widget.typeOptionLoader.field.isPrimary) ...[
-        const VSpace(4),
+      if (!widget.typeOptionLoader.field.isPrimary)
         FieldTypeOptionCell(popoverMutex: popoverMutex),
-      ],
     ];
     return BlocProvider(
       create: (context) {
