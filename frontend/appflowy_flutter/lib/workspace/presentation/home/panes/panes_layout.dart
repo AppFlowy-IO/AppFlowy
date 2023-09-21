@@ -1,5 +1,4 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,29 +15,27 @@ class PaneLayout {
   late SystemMouseCursor resizeCursorType;
   final (int, PaneNode) childPane;
   final PaneNode parentPane;
-  final PaneSizeController sizeController;
+  final List<double> flex;
 
   PaneLayout({
     required BoxConstraints parentPaneConstraints,
-    required this.sizeController,
+    required this.flex,
     required this.childPane,
     required this.parentPane,
   }) {
     childPaneWidth = parentPane.axis == Axis.vertical
-        ? parentPaneConstraints.maxWidth * sizeController.flex[childPane.$1]
+        ? parentPaneConstraints.maxWidth * flex[childPane.$1]
         : parentPaneConstraints.maxWidth;
 
     childPaneHeight = parentPane.axis == Axis.horizontal
-        ? parentPaneConstraints.maxHeight * sizeController.flex[childPane.$1]
+        ? parentPaneConstraints.maxHeight * flex[childPane.$1]
         : parentPaneConstraints.maxHeight;
 
     double accumulatedWidth = 0;
     double accumulatedHeight = 0;
     for (int i = 0; i < childPane.$1; i++) {
-      accumulatedWidth +=
-          parentPaneConstraints.maxWidth * sizeController.flex[i];
-      accumulatedHeight +=
-          parentPaneConstraints.maxHeight * sizeController.flex[i];
+      accumulatedWidth += parentPaneConstraints.maxWidth * flex[i];
+      accumulatedHeight += parentPaneConstraints.maxHeight * flex[i];
     }
 
     childPaneLPosition =

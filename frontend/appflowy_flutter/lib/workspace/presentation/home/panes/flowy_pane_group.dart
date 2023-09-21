@@ -1,12 +1,12 @@
+import 'package:appflowy/workspace/application/panes/pane_node_cubit/cubit/pane_node_cubit.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'flowy_pane.dart';
 
@@ -28,8 +28,9 @@ class FlowyPaneGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (node.children.isEmpty) {
-      return MouseRegion(
-        onEnter: (_) => context.read<PanesCubit>().setActivePane(node),
+      return Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => context.read<PanesCubit>().setActivePane(node),
         child: FlowyPane(
           node: node,
           delegate: delegate,
@@ -39,42 +40,39 @@ class FlowyPaneGroup extends StatelessWidget {
         ),
       );
     }
-    return SizedBox(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Stack(
-            key: ValueKey(node.paneId),
-            children: [
-              ...node.children.indexed
-                  .map(
-                    (indexNode) => ChangeNotifierProvider<PaneSizeController>(
-                      create: (context) => node.sizeController,
-                      builder: (context, widget) =>
-                          Consumer<PaneSizeController>(
-                        builder: (context, sizeController, child) {
-                          final paneLayout = PaneLayout(
-                            childPane: indexNode,
-                            parentPane: node,
-                            sizeController: sizeController,
-                            parentPaneConstraints: constraints,
-                          );
-                          return Stack(
-                            children: [
-                              _resolveFlowyPanes(paneLayout, indexNode),
-                              _resizeBar(
-                                sizeController,
-                                indexNode,
-                                context,
-                                paneLayout,
-                              )
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ],
+
+    return BlocProvider(
+      key: ValueKey(node.paneId),
+      create: (context) => PaneNodeCubit(node.children.length),
+      child: BlocBuilder<PaneNodeCubit, PaneNodeState>(
+        builder: (context, state) {
+          return SizedBox(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    ...node.children.indexed.map((indexNode) {
+                      final paneLayout = PaneLayout(
+                        childPane: indexNode,
+                        parentPane: node,
+                        flex: state.flex,
+                        parentPaneConstraints: constraints,
+                      );
+                      return Stack(
+                        children: [
+                          _resolveFlowyPanes(paneLayout, indexNode),
+                          _resizeBar(
+                            indexNode,
+                            context,
+                            paneLayout,
+                          )
+                        ],
+                      );
+                    }).toList(),
+                  ],
+                );
+              },
+            ),
           );
         },
       ),
@@ -82,7 +80,6 @@ class FlowyPaneGroup extends StatelessWidget {
   }
 
   Widget _resizeBar(
-    PaneSizeController sizeController,
     (int, PaneNode) indexNode,
     BuildContext context,
     PaneLayout paneLayout,
@@ -94,18 +91,18 @@ class FlowyPaneGroup extends StatelessWidget {
         cursor: paneLayout.resizeCursorType,
         child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragUpdate: (details) => node.sizeController.resize(
-            paneLayout.childPaneWidth,
-            sizeController.flex,
-            indexNode.$1,
-            details.delta.dx,
-          ),
-          onVerticalDragUpdate: (details) => node.sizeController.resize(
-            paneLayout.childPaneHeight,
-            sizeController.flex,
-            indexNode.$1,
-            details.delta.dy,
-          ),
+          onHorizontalDragUpdate: (details) =>
+              context.read<PaneNodeCubit>().resize(
+                    paneLayout.childPaneWidth,
+                    indexNode.$1,
+                    details.delta.dx,
+                  ),
+          onVerticalDragUpdate: (details) =>
+              context.read<PaneNodeCubit>().resize(
+                    paneLayout.childPaneHeight,
+                    indexNode.$1,
+                    details.delta.dy,
+                  ),
           behavior: HitTestBehavior.opaque,
           child: Container(
             width: paneLayout.resizerWidth,

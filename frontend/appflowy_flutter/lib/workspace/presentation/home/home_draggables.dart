@@ -6,8 +6,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 enum CrossDraggableType { view, tab, pane, none }
 
 class TabNode {
-  final PageManager pageManager;
   final Tabs tabs;
+  final PageManager pageManager;
 
   TabNode(this.tabs, this.pageManager);
 }
@@ -34,3 +34,22 @@ class CrossDraggablesEntity {
     }
   }
 }
+
+// abstract class CrossDraggablesEntity {}
+
+// class DraggableViewEntity extends CrossDraggablesEntity {
+//   ViewPB view;
+//   DraggableViewEntity({required this.view});
+// }
+
+// class DraggablePaneEntity extends CrossDraggablesEntity {
+//   PaneNode paneNode;
+//   DraggablePaneEntity({required this.paneNode});
+// }
+
+// class DraggableTabEntity extends CrossDraggablesEntity {
+//   final PageManager pageManager;
+//   final Tabs tabs;
+
+//   DraggableTabEntity(this.tabs, this.pageManager);
+// }

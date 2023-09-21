@@ -1,6 +1,5 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/size_controller.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,6 @@ class PanesService {
       ///we create a holder node which would replace current target and add
       ///target node + new node as its children
       final newHolderNode = PaneNode(
-        sizeController: PaneSizeController(flex: [0.5, 0.5]),
         paneId: nanoid(),
         children: const [],
         axis: axis,
@@ -33,7 +31,6 @@ class PanesService {
       final oldChildNode = node.copyWith(
         paneId: nanoid(),
         parent: newHolderNode,
-        sizeController: PaneSizeController.intial(),
         axis: null,
         tabs: Tabs(
           currentIndex: node.tabs.currentIndex,
@@ -42,7 +39,6 @@ class PanesService {
       );
       final newChildNode = fromNode?.copyWith(
             parent: newHolderNode,
-            sizeController: PaneSizeController.intial(),
             paneId: nanoid(),
             children: const [],
             axis: null,
@@ -52,7 +48,6 @@ class PanesService {
             ),
           ) ??
           PaneNode(
-            sizeController: PaneSizeController.intial(),
             paneId: nanoid(),
             children: const [],
             parent: newHolderNode,
@@ -89,7 +84,6 @@ class PanesService {
                 ),
               ) ??
               PaneNode(
-                sizeController: PaneSizeController.intial(),
                 paneId: nanoid(),
                 children: const [],
                 parent: node.parent,
@@ -112,12 +106,6 @@ class PanesService {
             children: node.children
                 .map(
                   (e) => e.copyWith(
-                    sizeController: PaneSizeController(
-                      flex: List.generate(
-                        node.children.length,
-                        (_) => 1 / (node.children.length),
-                      ),
-                    ),
                     tabs: Tabs(
                       currentIndex: e.tabs.currentIndex,
                       pageManagers: e.tabs.pageManagers,
@@ -125,12 +113,6 @@ class PanesService {
                   ),
                 )
                 .toList(),
-            sizeController: PaneSizeController(
-              flex: List.generate(
-                node.children.length,
-                (_) => 1 / (node.children.length),
-              ),
-            ),
           );
           activePane(ret.children[i]);
           return ret;
@@ -185,12 +167,6 @@ class PanesService {
           tabs: Tabs(
             currentIndex: node.tabs.currentIndex,
             pageManagers: node.tabs.pageManagers,
-          ),
-          sizeController: PaneSizeController(
-            flex: List.generate(
-              node.children.length,
-              (_) => 1 / (node.children.length),
-            ),
           ),
         );
       }
