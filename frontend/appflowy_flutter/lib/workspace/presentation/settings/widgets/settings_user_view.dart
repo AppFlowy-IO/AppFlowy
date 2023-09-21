@@ -9,11 +9,13 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/flowy_tooltip.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -70,57 +72,56 @@ class SettingsUserView extends StatelessWidget {
   Row _buildUserIconSetting(BuildContext context) {
     return Row(
       children: [
-        UserAvatar(
-          iconUrl: user.iconUrl,
-          name: user.name,
-          isLarge: true,
-        ),
-        const HSpace(8),
-        Column(
-          children: [
-            FlowyIconButton(
-              width: 24,
-              tooltipText: LocaleKeys.settings_user_tooltipRemoveIcon.tr(),
-              icon: const FlowySvg(FlowySvgs.restore_s),
-              onPressed: () => context
-                  .read<SettingsUserViewBloc>()
-                  .add(const SettingsUserEvent.updateUserIcon()),
-            ),
-            const VSpace(4),
-            FlowyIconButton(
-              width: 24,
-              tooltipText: LocaleKeys.settings_user_tooltipSelectIcon.tr(),
-              icon: const FlowySvg(FlowySvgs.emoji_s),
-              onPressed: () => showDialog(
-                context: context,
-                builder: (dialogContext) {
-                  return SimpleDialog(
-                    title: FlowyText.medium(
-                      LocaleKeys.settings_user_selectAnIcon.tr(),
-                      fontSize: FontSizes.s16,
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => showDialog(
+            context: context,
+            builder: (dialogContext) {
+              return SimpleDialog(
+                title: FlowyText.medium(
+                  LocaleKeys.settings_user_selectAnIcon.tr(),
+                  fontSize: FontSizes.s16,
+                ),
+                children: [
+                  SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: IconGallery(
+                      user.iconUrl,
+                      (iconUrl, isSelected) {
+                        context.read<SettingsUserViewBloc>().add(
+                              SettingsUserEvent.updateUserIcon(
+                                iconUrl: isSelected ? "" : iconUrl,
+                              ),
+                            );
+                        Navigator.of(context).pop();
+                      },
                     ),
-                    children: [
-                      SizedBox(
-                        height: 300,
-                        width: 300,
-                        child: IconGallery(
-                          user.iconUrl,
-                          (iconUrl, isSelected) {
-                            context.read<SettingsUserViewBloc>().add(
-                                  SettingsUserEvent.updateUserIcon(
-                                    iconUrl: isSelected ? "" : iconUrl,
-                                  ),
-                                );
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      )
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ],
+              );
+            },
+          ),
+          child: FlowyHover(
+            style: const HoverStyle.transparent(),
+            builder: (context, onHover) {
+              Widget avatar = UserAvatar(
+                iconUrl: user.iconUrl,
+                name: user.name,
+                isLarge: true,
+              );
+
+              if (onHover) {
+                avatar = _avatarOverlay(
+                  context: context,
+                  hasIcon: user.iconUrl.isNotEmpty,
+                  child: avatar,
+                );
+              }
+
+              return avatar;
+            },
+          ),
         ),
         const HSpace(12),
         Flexible(child: _renderUserNameInput(context)),
@@ -162,6 +163,44 @@ class SettingsUserView extends StatelessWidget {
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
   }
+
+  Widget _avatarOverlay({
+    required BuildContext context,
+    required bool hasIcon,
+    required Widget child,
+  }) =>
+      FlowyTooltip.delayedTooltip(
+        message: LocaleKeys.settings_user_tooltipSelectIcon.tr(),
+        child: Stack(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              foregroundDecoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withOpacity(hasIcon ? 0.8 : 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: child,
+            ),
+            const Positioned(
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: FlowySvg(FlowySvgs.emoji_s),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 @visibleForTesting
