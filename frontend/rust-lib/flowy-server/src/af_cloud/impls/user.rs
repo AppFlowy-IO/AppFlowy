@@ -76,7 +76,7 @@ where
           Some(w) => w.to_string(),
           None => "".to_string(),
         },
-        auth_type: AuthType::SelfHosted,
+        auth_type: AuthType::AFCloud,
         encryption_type,
         uid: profile.uid.ok_or(anyhow!("no uid found"))?,
       }))

@@ -155,7 +155,7 @@ impl From<AuthType> for ServerType {
   fn from(auth_provider: AuthType) -> Self {
     match auth_provider {
       AuthType::Local => ServerType::Local,
-      AuthType::SelfHosted => ServerType::AppFlowyCloud,
+      AuthType::AFCloud => ServerType::AppFlowyCloud,
       AuthType::Supabase => ServerType::Supabase,
     }
   }

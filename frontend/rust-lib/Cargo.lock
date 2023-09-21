@@ -515,16 +515,15 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chrono"
-version = "0.4.29"
+version = "0.4.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d87d9d13be47a5b7c3907137f1290b0459a7f80efb26be8c52afb11963bccb02"
+checksum = "7f2c685bad3eb3d45a01354cedb7d5faa66194d1d58ba6e267a8de788f79db38"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
  "js-sys",
  "num-traits",
  "serde",
- "time 0.1.45",
  "wasm-bindgen",
  "windows-targets",
 ]
@@ -575,7 +574,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca0813e26577490b50ab044f32664249a775c88e#ca0813e26577490b50ab044f32664249a775c88e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2072,7 +2071,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca0813e26577490b50ab044f32664249a775c88e#ca0813e26577490b50ab044f32664249a775c88e"
 dependencies = [
  "serde",
  "serde_json",
@@ -4079,7 +4078,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca0813e26577490b50ab044f32664249a775c88e#ca0813e26577490b50ab044f32664249a775c88e"
 dependencies = [
  "anyhow",
  "opener",
@@ -4292,7 +4291,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca0813e26577490b50ab044f32664249a775c88e#ca0813e26577490b50ab044f32664249a775c88e"
 dependencies = [
  "chrono",
  "collab-define",
@@ -4479,17 +4478,6 @@ checksum = "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
 dependencies = [
  "cfg-if",
  "once_cell",
-]
-
-[[package]]
-name = "time"
-version = "0.1.45"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b797afad3f312d1c66a56d11d0316f916356d11bd158fbc6ca6389ff6bf805a"
-dependencies = [
- "libc",
- "wasi 0.10.0+wasi-snapshot-preview1",
- "winapi",
 ]
 
 [[package]]
@@ -5124,12 +5112,6 @@ checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
 name = "wasi"
-version = "0.10.0+wasi-snapshot-preview1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
-
-[[package]]
-name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
@@ -5426,7 +5408,7 @@ dependencies = [
  "hmac",
  "pbkdf2 0.11.0",
  "sha1",
- "time 0.3.28",
+ "time",
  "zstd",
 ]
 

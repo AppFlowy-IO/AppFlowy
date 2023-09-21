@@ -326,7 +326,7 @@ pub enum AuthType {
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  SelfHosted = 1,
+  AFCloud = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
@@ -347,7 +347,7 @@ impl From<i32> for AuthType {
   fn from(value: i32) -> Self {
     match value {
       0 => AuthType::Local,
-      1 => AuthType::SelfHosted,
+      1 => AuthType::AFCloud,
       2 => AuthType::Supabase,
       _ => AuthType::Local,
     }
