@@ -39,7 +39,7 @@ extension _StartWithsSort on List<InlineActionsResult> {
       );
 }
 
-const _invalidSearchesAmount = 15;
+const _invalidSearchesAmount = 20;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -90,8 +90,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     invalidCounter = results.every((group) => group.results.isEmpty)
         ? invalidCounter + 1
         : 0;
+
     if (invalidCounter >= _invalidSearchesAmount) {
-      widget.onDismiss();
+      return widget.onDismiss();
     }
 
     _resetSelection();

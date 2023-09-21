@@ -31,13 +31,10 @@ class ReminderReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
-  static const maxSearchLength = 25;
   Future<InlineActionsResult> reminderReferenceDelegate([
     String? search,
   ]) async {
-    if (search != null &&
-        search.isNotEmpty &&
-        search.length > maxSearchLength) {
+    if (search == null || search.isEmpty) {
       return _groupFromResults();
     }
 
