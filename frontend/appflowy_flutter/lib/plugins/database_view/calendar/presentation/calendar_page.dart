@@ -124,19 +124,6 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
             BlocListener<CalendarBloc, CalendarState>(
-              listenWhen: (p, c) => p.editingEvent != c.editingEvent,
-              listener: (context, state) {
-                if (state.editingEvent != null) {
-                  showEventDetails(
-                    context: context,
-                    event: state.editingEvent!.event!.event,
-                    viewId: widget.view.id,
-                    rowCache: _calendarBloc.rowCache,
-                  );
-                }
-              },
-            ),
-            BlocListener<CalendarBloc, CalendarState>(
               // Event create by click the + button or double click on the
               // calendar
               listenWhen: (p, c) => p.newEvent != c.newEvent,

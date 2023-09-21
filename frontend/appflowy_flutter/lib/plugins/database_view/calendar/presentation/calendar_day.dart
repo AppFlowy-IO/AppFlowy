@@ -19,7 +19,7 @@ class CalendarDayCard extends StatelessWidget {
   final bool isToday;
   final bool isInMonth;
   final DateTime date;
-  final RowCache _rowCache;
+  final RowCache rowCache;
   final List<CalendarDayEvent> events;
   final void Function(DateTime) onCreateEvent;
 
@@ -29,11 +29,10 @@ class CalendarDayCard extends StatelessWidget {
     required this.isInMonth,
     required this.date,
     required this.onCreateEvent,
-    required RowCache rowCache,
+    required this.rowCache,
     required this.events,
-    Key? key,
-  })  : _rowCache = rowCache,
-        super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +68,7 @@ class CalendarDayCard extends StatelessWidget {
                   _EventList(
                     events: events,
                     viewId: viewId,
-                    rowCache: _rowCache,
+                    rowCache: rowCache,
                     constraints: constraints,
                   ),
               ],
@@ -287,18 +286,24 @@ class _EventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final editingEvent = context.watch<CalendarBloc>().state.editingEvent;
     return Flexible(
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(
           scrollbars: true,
         ),
         child: ListView.separated(
-          itemBuilder: (BuildContext context, int index) => EventCard(
-            event: events[index],
-            viewId: viewId,
-            rowCache: rowCache,
-            constraints: constraints,
-          ),
+          itemBuilder: (BuildContext context, int index) {
+            final autoEdit =
+                editingEvent?.event?.eventId == events[index].eventId;
+            return EventCard(
+              event: events[index],
+              viewId: viewId,
+              rowCache: rowCache,
+              constraints: constraints,
+              autoEdit: autoEdit,
+            );
+          },
           itemCount: events.length,
           padding: const EdgeInsets.fromLTRB(4.0, 0, 4.0, 4.0),
           separatorBuilder: (BuildContext context, int index) =>

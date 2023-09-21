@@ -24,12 +24,14 @@ class EventCard extends StatefulWidget {
   final String viewId;
   final RowCache rowCache;
   final BoxConstraints constraints;
+  final bool autoEdit;
 
   const EventCard({
     required this.event,
     required this.viewId,
     required this.rowCache,
     required this.constraints,
+    required this.autoEdit,
     super.key,
   });
 
@@ -44,6 +46,11 @@ class _EventCardState extends State<EventCard> {
   void initState() {
     super.initState();
     _popoverController = PopoverController();
+    if (widget.autoEdit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _popoverController.show();
+      });
+    }
   }
 
   @override
