@@ -177,7 +177,7 @@ class _DatePickerState extends State<DatePicker> {
       builder: (context, state) {
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).cardColor,
           shape: BoxShape.circle,
         );
         return Padding(
