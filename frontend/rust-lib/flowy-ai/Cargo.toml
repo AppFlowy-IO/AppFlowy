@@ -1,0 +1,16 @@
+[package]
+name = "flowy-ai"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0.75"
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+async-openai = "0.14.2"
+tokio = { version = "1.12", features = ["rt", "sync"] }
+dotenv = "0.15.0"

@@ -87,7 +87,13 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
         color: Theme.of(context).colorScheme.onTertiary,
         borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
-      popupBuilder: (_) => _AlignButtons(onAlignChanged: widget.onAlignChanged),
+      popupBuilder: (_) {
+        keepEditorFocusNotifier.value += 1;
+        return _AlignButtons(onAlignChanged: widget.onAlignChanged);
+      },
+      onClose: () {
+        keepEditorFocusNotifier.value -= 1;
+      },
       child: widget.child,
     );
   }

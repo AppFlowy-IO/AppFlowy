@@ -32,6 +32,7 @@ class SettingsLanguageView extends StatelessWidget {
 
 class LanguageSelector extends StatelessWidget {
   final Locale currentLocale;
+  
   const LanguageSelector({
     super.key,
     required this.currentLocale,
@@ -49,9 +50,7 @@ class LanguageSelector extends StatelessWidget {
       ),
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
-        return LanguageItemsListView(
-          allLocales: allLocales,
-        );
+        return LanguageItemsListView(allLocales: allLocales);
       },
     );
   }
@@ -74,7 +73,10 @@ class LanguageItemsListView extends StatelessWidget {
       child: ListView.builder(
         itemBuilder: (context, index) {
           final locale = allLocales[index];
-          return LanguageItem(locale: locale, currentLocale: state.locale);
+          return LanguageItem(
+            locale: locale,
+            currentLocale: state.locale,
+          );
         },
         itemCount: allLocales.length,
       ),
@@ -85,6 +87,7 @@ class LanguageItemsListView extends StatelessWidget {
 class LanguageItem extends StatelessWidget {
   final Locale locale;
   final Locale currentLocale;
+
   const LanguageItem({
     super.key,
     required this.locale,
@@ -105,6 +108,7 @@ class LanguageItem extends StatelessWidget {
           if (currentLocale != locale) {
             context.read<AppearanceSettingsCubit>().setLocale(context, locale);
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );

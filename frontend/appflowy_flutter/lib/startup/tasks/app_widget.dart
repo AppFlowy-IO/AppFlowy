@@ -56,6 +56,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('ru', 'RU'),
           Locale('sv'),
           Locale('tr', 'TR'),
+          Locale('ur'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
           Locale('fa'),
@@ -149,7 +150,6 @@ Future<AppTheme> appTheme(String themeName) async {
     try {
       return await AppTheme.fromName(themeName);
     } catch (e) {
-      Log.error(e);
       return AppTheme.fallback;
     }
   }

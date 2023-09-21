@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::RocksCollabDB;
 use bytes::Bytes;
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::RocksCollabDB;
 use flowy_database2::entities::DatabaseLayoutPB;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_database2::template::{make_default_board, make_default_calendar, make_default_grid};

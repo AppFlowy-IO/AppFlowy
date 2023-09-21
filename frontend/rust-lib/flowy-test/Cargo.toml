@@ -6,24 +6,23 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-core = { path = "../flowy-core" }
-flowy-user = { path = "../flowy-user"}
-flowy-user-deps = { path = "../flowy-user-deps"}
-flowy-net = { path = "../flowy-net"}
+flowy-core = { workspace = true }
+flowy-user = { workspace = true }
+flowy-user-deps = { workspace = true }
 flowy-folder2 = { path = "../flowy-folder2", features = ["test_helper"] }
-flowy-folder-deps = { path = "../flowy-folder-deps" }
+flowy-folder-deps = { workspace = true }
 flowy-database2 = { path = "../flowy-database2" }
-flowy-database-deps = { path = "../flowy-database-deps" }
+flowy-database-deps = { workspace = true }
 flowy-document2 = { path = "../flowy-document2" }
-flowy-document-deps = { path = "../flowy-document-deps" }
-flowy-encrypt = { path = "../flowy-encrypt" }
-lib-dispatch = { path = "../lib-dispatch" }
+flowy-document-deps = { workspace = true }
+flowy-encrypt = { workspace = true }
+lib-dispatch = { workspace = true }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-server = { path = "../flowy-server" }
-flowy-server-config = { path = "../flowy-server-config" }
-flowy-notification = { path = "../flowy-notification" }
+flowy-server-config = { workspace = true }
+flowy-notification  = { workspace = true }
 anyhow = "1.0.71"
-flowy-storage = { path = "../flowy-storage" }
+flowy-storage = { workspace = true }
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
@@ -46,6 +45,7 @@ collab-document = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
+collab-define = { version = "0.1.0" }
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
 zip = "0.6.6"

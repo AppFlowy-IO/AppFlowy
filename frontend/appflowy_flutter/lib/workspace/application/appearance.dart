@@ -450,7 +450,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontWeight: FontWeight.w400,
             fontColor: theme.hint,
           ),
-        )
+        ),
       ],
     );
     return desktopThemeData;

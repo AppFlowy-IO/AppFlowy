@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
+  static const double width = 340;
   const AuthFormContainer({
     super.key,
     required this.children,
@@ -11,9 +10,8 @@ class AuthFormContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return SizedBox(
-      width: min(size.width, 340),
+      width: width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: children,

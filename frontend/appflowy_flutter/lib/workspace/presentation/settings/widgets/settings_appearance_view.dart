@@ -19,22 +19,25 @@ class SettingsAppearanceView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BrightnessSetting(
-                  currentThemeMode: state.themeMode,
-                ),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
                 ),
+                BrightnessSetting(
+                  currentThemeMode: state.themeMode,
+                ),
+                const Divider(),
                 ThemeFontFamilySetting(
                   currentFontFamily: state.font,
                 ),
+                const Divider(),
                 LayoutDirectionSetting(
                   currentLayoutDirection: state.layoutDirection,
                 ),
                 TextDirectionSetting(
                   currentTextDirection: state.textDirection,
                 ),
+                const Divider(),
                 CreateFileSettings(),
               ],
             );
