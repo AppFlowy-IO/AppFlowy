@@ -331,7 +331,8 @@
     "user": {
       "name": "Name",
       "email": "Email",
-      "icon": "Icon",
+      "tooltipRemoveIcon": "Remove icon",
+      "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
       "clickToLogout": "Click to logout the current user"

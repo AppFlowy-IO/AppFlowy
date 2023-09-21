@@ -105,8 +105,9 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory SettingsUserEvent.updateUserEmail(String email) = _UpdateEmail;
-  const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
-      _UpdateUserIcon;
+  const factory SettingsUserEvent.updateUserIcon({
+    @Default("") String iconUrl,
+  }) = _UpdateUserIcon;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(

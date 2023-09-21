@@ -291,7 +291,6 @@
     },
     "user": {
       "name": "Nome",
-      "icon": "Ícone",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
       "email": "E-mail",
