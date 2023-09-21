@@ -23,7 +23,7 @@ use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_user::entities::{
-  AuthTypePB, ThirdPartyAuthPB, UpdateCloudConfigPB, UserCloudConfigPB, UserProfilePB,
+  AuthTypePB, OAuthPB, UpdateCloudConfigPB, UserCloudConfigPB, UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
@@ -120,13 +120,13 @@ impl FlowyCoreTest {
 
   pub async fn supabase_party_sign_up(&self) -> UserProfilePB {
     let map = third_party_sign_up_param(Uuid::new_v4().to_string());
-    let payload = ThirdPartyAuthPB {
+    let payload = OAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     EventBuilder::new(self.clone())
-      .event(ThirdPartyAuth)
+      .event(OAuth)
       .payload(payload)
       .async_send()
       .await
@@ -160,13 +160,13 @@ impl FlowyCoreTest {
       USER_EMAIL.to_string(),
       email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(10))),
     );
-    let payload = ThirdPartyAuthPB {
+    let payload = OAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())
-      .event(ThirdPartyAuth)
+      .event(OAuth)
       .payload(payload)
       .async_send()
       .await

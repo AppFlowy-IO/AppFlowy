@@ -58,7 +58,7 @@ class MockAuthService implements AuthService {
       final uuid = response.user!.id;
       final email = response.user!.email!;
 
-      final payload = ThirdPartyAuthPB(
+      final payload = OAuthPB(
         authType: AuthTypePB.Supabase,
         map: {
           AuthServiceMapKeys.uuid: uuid,
@@ -66,9 +66,8 @@ class MockAuthService implements AuthService {
           AuthServiceMapKeys.deviceId: 'MockDeviceId'
         },
       );
-      return UserEventThirdPartyAuth(payload)
-          .send()
-          .then((value) => value.swap());
+
+      return UserEventOAuth(payload).send().then((value) => value.swap());
     } on AuthException catch (e) {
       Log.error(e);
       return Left(AuthError.supabaseSignInError);

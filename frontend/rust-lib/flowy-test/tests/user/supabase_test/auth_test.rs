@@ -14,9 +14,7 @@ use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
-use flowy_user::entities::{
-  AuthTypePB, ThirdPartyAuthPB, UpdateUserProfilePayloadPB, UserProfilePB,
-};
+use flowy_user::entities::{AuthTypePB, OAuthPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -32,13 +30,13 @@ async fn third_party_sign_up_test() {
       USER_EMAIL.to_string(),
       format!("{}@appflowy.io", nanoid!(6)),
     );
-    let payload = ThirdPartyAuthPB {
+    let payload = OAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
+      .event(OAuth)
       .payload(payload)
       .async_send()
       .await
@@ -74,8 +72,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     map.insert(USER_EMAIL.to_string(), email.clone());
 
     let response_1 = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
-      .payload(ThirdPartyAuthPB {
+      .event(OAuth)
+      .payload(OAuthPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })
@@ -85,8 +83,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     dbg!(&response_1);
 
     let response_2 = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
-      .payload(ThirdPartyAuthPB {
+      .event(OAuth)
+      .payload(OAuthPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })

@@ -79,7 +79,7 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct ThirdPartyAuthPB {
+pub struct OAuthPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.
   /// Supabase:

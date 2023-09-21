@@ -177,13 +177,12 @@ class SupabaseAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> _setupAuth({
     required Map<String, String> map,
   }) async {
-    final payload = ThirdPartyAuthPB(
+    final payload = OAuthPB(
       authType: AuthTypePB.Supabase,
       map: map,
     );
-    return UserEventThirdPartyAuth(payload)
-        .send()
-        .then((value) => value.swap());
+
+    return UserEventOAuth(payload).send().then((value) => value.swap());
   }
 }
 

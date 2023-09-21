@@ -353,7 +353,7 @@ impl From<i32> for AuthType {
     }
   }
 }
-pub struct ThirdPartyParams {
+pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
   pub device_id: String,

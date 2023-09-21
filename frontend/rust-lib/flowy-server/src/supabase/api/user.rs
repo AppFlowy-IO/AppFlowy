@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
@@ -67,7 +68,7 @@ where
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let params = third_party_params_from_box_any(params)?;
+      let params = oauth_params_from_box_any(params)?;
       let is_new_user = postgrest
         .from(USER_TABLE)
         .select("uid")
@@ -135,7 +136,7 @@ where
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let params = third_party_params_from_box_any(params)?;
+      let params = oauth_params_from_box_any(params)?;
       let uuid = params.uuid;
       let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
@@ -623,4 +624,16 @@ fn empty_workspace_update(collab_object: &CollabObject) -> Vec<u8> {
   });
   folder.set_current_workspace(&workspace_id);
   collab.encode_as_update_v1().0
+}
+
+fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {
+  let map: HashMap<String, String> = any.unbox_or_error()?;
+  let uuid = uuid_from_map(&map)?;
+  let email = map.get("email").cloned().unwrap_or_default();
+  let device_id = map.get("device_id").cloned().unwrap_or_default();
+  Ok(SupabaseOAuthParams {
+    uuid,
+    email,
+    device_id,
+  })
 }

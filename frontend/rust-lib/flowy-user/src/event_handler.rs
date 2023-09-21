@@ -178,8 +178,8 @@ pub async fn get_user_setting(
 /// Only used for third party auth.
 /// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn third_party_auth_handler(
-  data: AFPluginData<ThirdPartyAuthPB>,
+pub async fn oauth_handler(
+  data: AFPluginData<OAuthPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;

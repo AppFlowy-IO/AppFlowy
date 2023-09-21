@@ -13,8 +13,8 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  SignInResponse, SignUpResponse, ThirdPartyParams, UpdateUserProfileParams, UserCredentials,
-  UserProfile, UserWorkspace,
+  SignInResponse, SignUpResponse, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserWorkspace,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -127,18 +127,6 @@ pub struct UserUpdate {
   pub name: String,
   pub email: String,
   pub encryption_sign: String,
-}
-
-pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {
-  let map: HashMap<String, String> = any.unbox_or_error()?;
-  let uuid = uuid_from_map(&map)?;
-  let email = map.get("email").cloned().unwrap_or_default();
-  let device_id = map.get("device_id").cloned().unwrap_or_default();
-  Ok(ThirdPartyParams {
-    uuid,
-    email,
-    device_id,
-  })
 }
 
 pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
