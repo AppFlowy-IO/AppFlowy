@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class BrightnessSetting extends StatelessWidget {
           trailing: [
             ThemeValueDropDown(
               currentValue: _themeModeLabelText(currentThemeMode),
-              popupBuilder: (_) => Column(
+              popupBuilder: (context) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _themeModeItemButton(context, ThemeMode.light),
@@ -52,7 +53,10 @@ class BrightnessSetting extends StatelessWidget {
         ],
       );
 
-  Widget _themeModeItemButton(BuildContext context, ThemeMode themeMode) {
+  Widget _themeModeItemButton(
+    BuildContext context,
+    ThemeMode themeMode,
+  ) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -66,6 +70,7 @@ class BrightnessSetting extends StatelessWidget {
           if (currentThemeMode != themeMode) {
             context.read<AppearanceSettingsCubit>().setThemeMode(themeMode);
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );

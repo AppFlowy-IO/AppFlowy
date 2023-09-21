@@ -17,11 +17,8 @@ class DatabaseBlockKeys {
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   DatabaseViewBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {

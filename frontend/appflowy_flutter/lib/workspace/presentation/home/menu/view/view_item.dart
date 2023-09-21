@@ -249,23 +249,22 @@ class SingleInnerViewItem extends StatefulWidget {
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
-  bool _isHovering = false;
-
   @override
   Widget build(BuildContext context) {
     if (widget.isFeedback) {
       return _buildViewItem(false);
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: FlowyHover(
-        isSelected: () =>
-            widget.showActions ||
-            getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
-        child: _buildViewItem(_isHovering),
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.secondary,
       ),
+      resetHoverOnRebuild: widget.showActions,
+      buildWhenOnHover: () => !widget.showActions,
+      builder: (_, onHover) => _buildViewItem(onHover),
+      isSelected: () =>
+          widget.showActions ||
+          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
