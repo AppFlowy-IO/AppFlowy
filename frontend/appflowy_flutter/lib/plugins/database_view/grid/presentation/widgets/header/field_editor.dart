@@ -54,11 +54,12 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget build(BuildContext context) {
     final List<Widget> children = [
       FieldNameTextField(popoverMutex: popoverMutex),
-      const SizedBox(height: 8),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
-      if (!widget.typeOptionLoader.field.isPrimary)
+      if (!widget.typeOptionLoader.field.isPrimary) ...[
+        const VSpace(4),
         FieldTypeOptionCell(popoverMutex: popoverMutex),
+      ],
     ];
     return BlocProvider(
       create: (context) {
