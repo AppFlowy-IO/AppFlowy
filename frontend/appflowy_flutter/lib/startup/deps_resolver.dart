@@ -104,7 +104,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
         getIt.registerFactory<AuthService>(() => SupabaseAuthService());
       }
       break;
-    case CloudType.aFCloud:
+    case CloudType.appflowyCloud:
       getIt.registerFactory<AuthService>(() => AFCloudAuthService());
       break;
   }

@@ -67,7 +67,7 @@ bool get isCloudEnabled {
 enum CloudType {
   unknown,
   supabase,
-  aFCloud;
+  appflowyCloud;
 
   bool get isEnabled => this == CloudType.unknown;
 }
@@ -88,7 +88,7 @@ CloudType currentCloudType() {
       Log.error("AppFlowy cloud is not configured");
       return CloudType.unknown;
     } else {
-      return CloudType.aFCloud;
+      return CloudType.appflowyCloud;
     }
   }
 
