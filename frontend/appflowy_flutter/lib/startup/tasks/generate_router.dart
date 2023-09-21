@@ -35,7 +35,7 @@ GoRouter generateRouter(Widget child) {
           final args = state.extra as Map<String, dynamic>;
           return CustomTransitionPage(
             child: WorkspaceStartScreen(
-              userProfile: args['userProfile'],
+              userProfile: args[WorkspaceStartScreen.argUserProfile],
             ),
             transitionsBuilder: _buildFadeTransition,
             transitionDuration: _slowDuration,

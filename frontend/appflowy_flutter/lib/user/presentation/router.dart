@@ -55,9 +55,9 @@ class AuthRouter {
           context.go(
             DesktopHomeScreen.routeName,
             extra: {
-              'key': ValueKey(userProfile.id),
-              'userProfile': userProfile,
-              'workspaceSetting': workspaceSetting,
+              DesktopHomeScreen.argKey: ValueKey(userProfile.id),
+              DesktopHomeScreen.argUserProfile: userProfile,
+              DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
             },
           );
         }
@@ -74,8 +74,8 @@ class AuthRouter {
     context.push(
       EncryptSecretScreen.routeName,
       extra: {
-        'userProfile': userProfile,
-        'key': ValueKey(userProfile.id),
+        EncryptSecretScreen.argUser: userProfile,
+        EncryptSecretScreen.argKey: ValueKey(userProfile.id),
       },
     );
   }
@@ -88,8 +88,8 @@ class AuthRouter {
     await context.push(
       WorkspaceErrorScreen.routeName,
       extra: {
-        'userFolder': userFolder,
-        'error': error,
+        WorkspaceErrorScreen.argUserFolder: userFolder,
+        WorkspaceErrorScreen.argError: error,
       },
     );
   }
@@ -105,7 +105,7 @@ class SplashRouter {
     await context.push(
       WorkspaceStartScreen.routeName,
       extra: {
-        'userProfile': userProfile,
+        WorkspaceStartScreen.argUserProfile: userProfile,
       },
     );
 
@@ -131,9 +131,9 @@ class SplashRouter {
       context.push(
         DesktopHomeScreen.routeName,
         extra: {
-          'key': ValueKey(userProfile.id),
-          'userProfile': userProfile,
-          'workspaceSetting': workspaceSetting,
+          DesktopHomeScreen.argKey: ValueKey(userProfile.id),
+          DesktopHomeScreen.argUserProfile: userProfile,
+          DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
         },
       );
     }
@@ -152,9 +152,9 @@ class SplashRouter {
       context.go(
         DesktopHomeScreen.routeName,
         extra: {
-          'key': ValueKey(userProfile.id),
-          'userProfile': userProfile,
-          'workspaceSetting': workspaceSetting,
+          DesktopHomeScreen.argKey: ValueKey(userProfile.id),
+          DesktopHomeScreen.argUserProfile: userProfile,
+          DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
         },
       );
     }
