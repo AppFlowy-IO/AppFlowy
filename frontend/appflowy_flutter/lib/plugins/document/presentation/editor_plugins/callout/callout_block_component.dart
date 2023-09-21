@@ -61,12 +61,9 @@ SelectionMenuItem calloutItem = SelectionMenuItem.node(
 // building the callout block widget
 class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   CalloutBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
     required this.defaultColor,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   final Color defaultColor;
 

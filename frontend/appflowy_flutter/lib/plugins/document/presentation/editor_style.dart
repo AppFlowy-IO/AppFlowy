@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_mat
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -191,6 +192,15 @@ class EditorStyleCustomizer {
     final attributes = text.attributes;
     if (attributes == null) {
       return textSpan;
+    }
+
+    // try to refresh font here.
+    if (attributes.fontFamily != null) {
+      try {
+        GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+      } catch (e) {
+        // ignore
+      }
     }
 
     // customize the inline mention block, like inline page
