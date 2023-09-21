@@ -27,6 +27,11 @@ import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatefulWidget {
   static const routeName = '/DesktopHomeScreen';
+  // arguments names to used in GoRouter
+  static const argUserProfile = 'userProfile';
+  static const argWorkspaceSetting = 'workspaceSetting';
+  static const argKey = 'key';
+
   final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
   const DesktopHomeScreen({

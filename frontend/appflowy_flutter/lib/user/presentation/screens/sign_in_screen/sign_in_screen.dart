@@ -12,11 +12,9 @@ import '../../helpers/helpers.dart';
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
     super.key,
-    required this.router,
   });
 
   static const routeName = '/SignInScreen';
-  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +27,7 @@ class SignInScreen extends StatelessWidget {
             (userProfileResult) => handleUserProfileResult(
               userProfileResult,
               context,
-              router,
+              getIt<AuthRouter>(),
             ),
           );
         },
