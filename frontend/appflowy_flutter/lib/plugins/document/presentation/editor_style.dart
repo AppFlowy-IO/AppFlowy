@@ -1,7 +1,11 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+
+import 'package:appflowy/util/google_font_family_extension.dart';
+
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -200,6 +204,15 @@ class EditorStyleCustomizer {
     final attributes = text.attributes;
     if (attributes == null) {
       return textSpan;
+    }
+
+    // try to refresh font here.
+    if (attributes.fontFamily != null) {
+      try {
+        GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+      } catch (e) {
+        // ignore
+      }
     }
 
     // Inline Mentions (Page Reference, Date, Reminder, etc.)

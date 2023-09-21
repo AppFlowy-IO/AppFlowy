@@ -34,7 +34,7 @@ class TransactionAdapter {
   final DocumentService documentService;
   final String documentId;
 
-  final bool _enableDebug = true;
+  final bool _enableDebug = false;
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
     final stopwatch = Stopwatch()..start();

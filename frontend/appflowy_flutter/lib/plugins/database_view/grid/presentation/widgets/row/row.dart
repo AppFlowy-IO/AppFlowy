@@ -257,7 +257,10 @@ class RowContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _makeCells(context, state.cellByFieldId),
+            children: [
+              ..._makeCells(context, state.cellByFieldId),
+              _finalCellDecoration(context),
+            ],
           ),
         );
       },
@@ -301,6 +304,23 @@ class RowContent extends StatelessWidget {
         );
       },
     ).toList();
+  }
+
+  Widget _finalCellDecoration(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: Container(
+        width: GridSize.trailHeaderPadding,
+        padding: GridSize.headerContentInsets,
+        constraints: const BoxConstraints(minHeight: 46),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+        ),
+        child: const SizedBox.shrink(),
+      ),
+    );
   }
 }
 

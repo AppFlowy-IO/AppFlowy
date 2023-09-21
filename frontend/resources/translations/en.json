@@ -265,13 +265,13 @@
       },
       "layoutDirection": {
         "label": "Layout Direction",
-        "hint": "To start aligning elements from left or right of the screen.",
+        "hint": "Control the flow of content on your screen, from left to right or right to left.",
         "ltr": "LTR",
         "rtl": "RTL"
       },
       "textDirection": {
         "label": "Default text direction",
-        "hint": "Default text direction when the text direction is not set on the element.",
+        "hint": "Specify whether text should start from left or right as the default.",
         "ltr": "LTR",
         "rtl": "RTL",
         "auto": "AUTO",

@@ -339,10 +339,6 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   ThemeData get lightTheme => _getThemeData(Brightness.light);
   ThemeData get darkTheme => _getThemeData(Brightness.dark);
 
-  // only support LTR layout in version 0.3.2, enable it in version 0.3.3
-  LayoutDirectionPB get layoutDirectionPB => LayoutDirectionPB.LTRLayout;
-  TextDirectionPB get textDirectionPB => TextDirectionPB.LTR;
-
   ThemeData _getThemeData(Brightness brightness) {
     // Poppins and SF Mono are not well supported in some languages, so use the
     // built-in font for the following languages.
