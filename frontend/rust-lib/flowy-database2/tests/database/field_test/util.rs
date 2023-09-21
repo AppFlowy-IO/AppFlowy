@@ -102,7 +102,10 @@ pub fn make_date_cell_string(timestamp: i64) -> String {
   serde_json::to_string(&DateCellChangeset {
     date: Some(timestamp),
     time: None,
+    end_date: None,
+    end_time: None,
     include_time: Some(false),
+    is_range: Some(false),
     clear_flag: None,
   })
   .unwrap()

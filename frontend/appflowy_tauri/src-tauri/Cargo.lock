@@ -1578,6 +1578,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-ai"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-notification",
+ "lib-dispatch",
+ "lib-infra",
+ "protobuf",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "strum_macros 0.21.1",
+]
+
+[[package]]
 name = "flowy-ast"
 version = "0.1.0"
 dependencies = [
@@ -1635,6 +1652,7 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "diesel",
+ "flowy-ai",
  "flowy-config",
  "flowy-database-deps",
  "flowy-database2",

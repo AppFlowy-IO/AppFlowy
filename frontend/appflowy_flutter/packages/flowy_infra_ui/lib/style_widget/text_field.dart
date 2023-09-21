@@ -107,7 +107,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
-        constraints: const BoxConstraints(maxHeight: 32),
+        constraints: BoxConstraints(
+            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
@@ -119,6 +120,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         isDense: false,
         hintText: widget.hintText,
         errorText: widget.errorText,
+        errorStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .copyWith(color: Theme.of(context).colorScheme.error),
         hintStyle: Theme.of(context)
             .textTheme
             .bodySmall!

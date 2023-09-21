@@ -185,7 +185,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('edit time cell', (tester) async {
+    testWidgets('edit date time cell', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
