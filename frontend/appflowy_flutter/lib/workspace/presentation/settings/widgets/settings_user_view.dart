@@ -76,31 +76,29 @@ class SettingsUserView extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: () => showDialog(
             context: context,
-            builder: (dialogContext) {
-              return SimpleDialog(
-                title: FlowyText.medium(
-                  LocaleKeys.settings_user_selectAnIcon.tr(),
-                  fontSize: FontSizes.s16,
-                ),
-                children: [
-                  SizedBox(
-                    height: 300,
-                    width: 300,
-                    child: IconGallery(
-                      user.iconUrl,
-                      (iconUrl, isSelected) {
-                        context.read<SettingsUserViewBloc>().add(
-                              SettingsUserEvent.updateUserIcon(
-                                iconUrl: isSelected ? "" : iconUrl,
-                              ),
-                            );
-                        Navigator.of(context).pop();
-                      },
-                    ),
+            builder: (dialogContext) => SimpleDialog(
+              title: FlowyText.medium(
+                LocaleKeys.settings_user_selectAnIcon.tr(),
+                fontSize: FontSizes.s16,
+              ),
+              children: [
+                SizedBox(
+                  height: 300,
+                  width: 300,
+                  child: IconGallery(
+                    selectedIcon: user.iconUrl,
+                    onSelectIcon: (iconUrl, isSelected) {
+                      final event = isSelected
+                          ? const SettingsUserEvent.removeUserIcon()
+                          : SettingsUserEvent.updateUserIcon(iconUrl: iconUrl);
+
+                      context.read<SettingsUserViewBloc>().add(event);
+                      Navigator.of(context).pop();
+                    },
                   ),
-                ],
-              );
-            },
+                ),
+              ],
+            ),
           ),
           child: FlowyHover(
             style: const HoverStyle.transparent(),
@@ -404,14 +402,16 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   }
 }
 
+typedef SelectIconCallback = void Function(String iconUrl, bool isSelected);
+
 class IconGallery extends StatelessWidget {
   final String selectedIcon;
-  final SetIconFunction setIcon;
+  final SelectIconCallback onSelectIcon;
 
-  const IconGallery(
-    this.selectedIcon,
-    this.setIcon, {
+  const IconGallery({
     super.key,
+    required this.selectedIcon,
+    required this.onSelectIcon,
   });
 
   Future<List<String>> _getIcons(BuildContext context) async {
@@ -436,50 +436,48 @@ class IconGallery extends StatelessWidget {
     return FutureBuilder<List<String>>(
       future: _getIcons(context),
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return GridView.count(
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
-            children: (snapshot.data ?? []).map((String iconUrl) {
-              return IconOption(
-                FlowySvgData('emoji/$iconUrl'),
-                iconUrl,
-                setIcon,
-                iconUrl == selectedIcon,
-              );
-            }).toList(),
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+            children: (snapshot.data!)
+                .map(
+                  (String iconUrl) => IconOption(
+                    emoji: FlowySvgData('emoji/$iconUrl'),
+                    iconUrl: iconUrl,
+                    onSelectIcon: onSelectIcon,
+                    isSelected: iconUrl == selectedIcon,
+                  ),
+                )
+                .toList(),
           );
         }
+
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
 }
 
-typedef SetIconFunction = void Function(String iconUrl, bool isSelected);
-
 class IconOption extends StatelessWidget {
   final FlowySvgData emoji;
   final String iconUrl;
-  final SetIconFunction setIcon;
+  final SelectIconCallback onSelectIcon;
   final bool isSelected;
 
-  IconOption(
-    this.emoji,
-    this.iconUrl,
-    this.setIcon,
-    this.isSelected,
-  ) : super(key: ValueKey(emoji));
+  IconOption({
+    required this.emoji,
+    required this.iconUrl,
+    required this.onSelectIcon,
+    required this.isSelected,
+  }) : super(key: ValueKey(emoji));
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: Corners.s8Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-      onTap: () => setIcon(iconUrl, isSelected),
+      onTap: () => onSelectIcon(iconUrl, isSelected),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: isSelected
