@@ -74,7 +74,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
             controller: _popover,
             triggerActions: PopoverTriggerFlags.none,
             direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(260, 520)),
+            constraints: BoxConstraints.loose(const Size(260, 620)),
             margin: EdgeInsets.zero,
             child: GridDateCellText(
               dateStr: state.dateStr,

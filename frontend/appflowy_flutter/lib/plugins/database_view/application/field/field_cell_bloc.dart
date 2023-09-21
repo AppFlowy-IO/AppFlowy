@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,8 +31,11 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           didReceiveFieldUpdate: (field) {
             emit(state.copyWith(field: cellContext.field));
           },
+          onResizeStart: () {
+            emit(state.copyWith(resizeStart: state.width));
+          },
           startUpdateWidth: (offset) {
-            final width = state.width + offset;
+            final width = max(offset + state.resizeStart, 50).toDouble();
             emit(state.copyWith(width: width));
           },
           endUpdateWidth: () {
@@ -66,6 +71,7 @@ class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
   const factory FieldCellEvent.didReceiveFieldUpdate(FieldPB field) =
       _DidReceiveFieldUpdate;
+  const factory FieldCellEvent.onResizeStart() = _OnResizeStart;
   const factory FieldCellEvent.startUpdateWidth(double offset) =
       _StartUpdateWidth;
   const factory FieldCellEvent.endUpdateWidth() = _EndUpdateWidth;
@@ -77,11 +83,13 @@ class FieldCellState with _$FieldCellState {
     required String viewId,
     required FieldPB field,
     required double width,
+    required double resizeStart,
   }) = _FieldCellState;
 
   factory FieldCellState.initial(FieldContext cellContext) => FieldCellState(
         viewId: cellContext.viewId,
         field: cellContext.field,
         width: cellContext.field.width.toDouble(),
+        resizeStart: 0,
       );
 }

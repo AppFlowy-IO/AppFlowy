@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use assert_json_diff::assert_json_eq;
 use collab_database::rows::database_row_document_id_from_row_id;
+use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_folder::core::FolderData;
 use nanoid::nanoid;
@@ -9,7 +10,7 @@ use serde_json::json;
 
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
-use flowy_server::supabase::define::{CollabType, USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;

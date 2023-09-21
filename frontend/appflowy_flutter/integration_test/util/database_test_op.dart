@@ -25,6 +25,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
@@ -330,7 +331,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> toggleIncludeTime() async {
-    final findDateEditor = find.byType(DateCellEditor);
+    final findDateEditor = find.byType(IncludeTimeButton);
+    final findToggle = find.byType(Toggle);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findToggle,
+    );
+    await tapButton(finder);
+  }
+
+  Future<void> toggleDateRange() async {
+    final findDateEditor = find.byType(EndTimeButton);
     final findToggle = find.byType(Toggle);
     final finder = find.descendant(
       of: findDateEditor,
