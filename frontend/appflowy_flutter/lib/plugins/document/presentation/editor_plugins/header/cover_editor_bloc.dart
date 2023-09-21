@@ -16,18 +16,28 @@ class ChangeCoverPopoverBloc
   final Node node;
   late final SharedPreferences _prefs;
   final _initCompleter = Completer<void>();
-  ChangeCoverPopoverBloc({required this.editorState, required this.node})
-      : super(const ChangeCoverPopoverState.initial()) {
+
+  ChangeCoverPopoverBloc({
+    required this.editorState,
+    required this.node,
+  }) : super(const ChangeCoverPopoverState.initial()) {
     SharedPreferences.getInstance().then((prefs) {
       _prefs = prefs;
       _initCompleter.complete();
     });
+
     on<ChangeCoverPopoverEvent>((event, emit) async {
       await event.map(
         fetchPickedImagePaths:
             (FetchPickedImagePaths fetchPickedImagePaths) async {
           final imageNames = await _getPreviouslyPickedImagePaths();
-          emit(ChangeCoverPopoverState.loaded(imageNames));
+
+          emit(
+            ChangeCoverPopoverState.loaded(
+              imageNames,
+              selectLatestImage: fetchPickedImagePaths.selectLatestImage,
+            ),
+          );
         },
         deleteImage: (DeleteImage deleteImage) async {
           final currentState = state;
@@ -100,8 +110,9 @@ class ChangeCoverPopoverBloc
 
 @freezed
 class ChangeCoverPopoverEvent with _$ChangeCoverPopoverEvent {
-  const factory ChangeCoverPopoverEvent.fetchPickedImagePaths() =
-      FetchPickedImagePaths;
+  const factory ChangeCoverPopoverEvent.fetchPickedImagePaths({
+    @Default(false) bool selectLatestImage,
+  }) = FetchPickedImagePaths;
 
   const factory ChangeCoverPopoverEvent.deleteImage(String path) = DeleteImage;
   const factory ChangeCoverPopoverEvent.clearAllImages() = ClearAllImages;
@@ -112,6 +123,7 @@ class ChangeCoverPopoverState with _$ChangeCoverPopoverState {
   const factory ChangeCoverPopoverState.initial() = Initial;
   const factory ChangeCoverPopoverState.loading() = Loading;
   const factory ChangeCoverPopoverState.loaded(
-    List<String> imageNames,
-  ) = Loaded;
+    List<String> imageNames, {
+    @Default(false) selectLatestImage,
+  }) = Loaded;
 }
