@@ -47,7 +47,6 @@ class CalendarEventEditor extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           EventEditorControls(rowController: rowController),
-          const EventTitleTextField(),
           Flexible(
             child: EventPropertyList(
               dateFieldId: layoutSettings.fieldId,
@@ -108,34 +107,6 @@ class EventEditorControls extends StatelessWidget {
   }
 }
 
-class EventTitleTextField extends StatelessWidget {
-  const EventTitleTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<CalendarEventEditorBloc, CalendarEventEditorState>(
-      builder: (context, state) {
-        final primaryCellContext =
-            state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
-
-        if (primaryCellContext == null) {
-          return const SizedBox.shrink();
-        }
-
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
-          child: FlowyTextField(
-            autoFocus: true,
-            text: primaryCellContext.fieldId,
-            textStyle:
-                Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
-          ),
-        );
-      },
-    );
-  }
-}
-
 class EventPropertyList extends StatelessWidget {
   final String dateFieldId;
   final GridCellBuilder cellBuilder;
@@ -159,17 +130,54 @@ class EventPropertyList extends StatelessWidget {
         }
         reorderedList.insert(0, reorderedList.removeAt(dateFieldIndex));
 
-        final children = reorderedList
-            .map(
-              (cell) =>
-                  PropertyCell(cellContext: cell, cellBuilder: cellBuilder),
-            )
-            .toList();
+        final children = <Widget>[
+          EventTitleTextField(cellBuilder: cellBuilder),
+          ...reorderedList.map(
+            (cell) => PropertyCell(cellContext: cell, cellBuilder: cellBuilder),
+          ),
+        ];
 
         return ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.only(bottom: 16.0),
           children: children,
+        );
+      },
+    );
+  }
+}
+
+class EventTitleTextField extends StatelessWidget {
+  final GridCellBuilder cellBuilder;
+
+  const EventTitleTextField({super.key, required this.cellBuilder});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CalendarEventEditorBloc, CalendarEventEditorState>(
+      builder: (context, state) {
+        final primaryCellContext =
+            state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
+
+        if (primaryCellContext == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
+          child: cellBuilder.build(
+            primaryCellContext,
+            style: GridTextCellStyle(
+              cellPadding: EdgeInsets.zero,
+              placeholder: LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
+              textStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 11),
+              autofocus: true,
+              useRoundedBorder: true,
+            ),
+          ),
         );
       },
     );

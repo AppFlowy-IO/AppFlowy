@@ -247,7 +247,9 @@ class RequestFocusListener extends ChangeNotifier {
   }
 }
 
-abstract class GridCellStyle {}
+abstract class GridCellStyle {
+  const GridCellStyle();
+}
 
 class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FlowyTextField extends StatefulWidget {
-  final String hintText;
+  final String? hintText;
   final String text;
   final TextStyle? textStyle;
   final void Function(String)? onChanged;
