@@ -8,8 +8,8 @@ class MobileBottomNavigationBar extends StatelessWidget {
   /// Constructs an [MobileBottomNavigationBar].
   const MobileBottomNavigationBar({
     required this.navigationShell,
-    Key? key,
-  }) : super(key: key ?? const ValueKey<String>('MobileBottomNavigationBar'));
+    super.key,
+  });
 
   /// The navigation shell and container for the branch Navigators.
   final StatefulNavigationShell navigationShell;
@@ -30,6 +30,7 @@ class MobileBottomNavigationBar extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
+            // There is no text shown on the bottom navigation bar, but Exception will be thrown if label is null here.
             label: 'home',
             icon: const FlowySvg(FlowySvgs.m_home_unselected_lg),
             activeIcon: FlowySvg(

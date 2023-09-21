@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+// TODO(yijing): delete this after implementing the real screen inside bottom navigation bar.
 /// For demonstration purposes
 class DetailsPlaceholderScreen extends StatefulWidget {
   /// Constructs a [DetailsScreen].

@@ -24,16 +24,15 @@ class MobileHomeScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        WorkspaceSettingPB? workspaceSetting;
-        UserProfilePB? userProfile;
-        snapshots.data?[0].fold(
+        final workspaceSetting = snapshots.data?[0].fold(
           (workspaceSettingPB) {
-            workspaceSetting = workspaceSettingPB as WorkspaceSettingPB?;
+            return workspaceSettingPB as WorkspaceSettingPB?;
           },
           (error) => null,
         );
-        snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          userProfile = userProfilePB as UserProfilePB?;
+        final userProfile =
+            snapshots.data?[1].fold((error) => null, (userProfilePB) {
+          return userProfilePB as UserProfilePB?;
         });
         // TODO(yijing): implement home page later
         return Scaffold(
