@@ -28,14 +28,14 @@ abstract class Env {
   /// AppFlowy Cloud Configuration
   @EnviedField(
     obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_URL',
+    varName: 'APPFLOWY_CLOUD_BASE_URL',
     defaultValue: '',
   )
   static final String afCloudBaseUrl = _Env.afCloudBaseUrl;
 
   @EnviedField(
     obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_WS_URL',
+    varName: 'APPFLOWY_CLOUD_BASE_WS_URL',
     defaultValue: '',
   )
   static final String afCloudBaseWSUrl = _Env.afCloudBaseWSUrl;
