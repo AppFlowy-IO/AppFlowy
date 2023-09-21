@@ -105,10 +105,10 @@ class SplashScreen extends StatelessWidget {
 
   void _handleUnauthenticated(BuildContext context, Unauthenticated result) {
     Log.debug(
-      '_handleUnauthenticated -> Supabase is enabled: $isSupabaseEnabled',
+      '_handleUnauthenticated -> Supabase is enabled: $isCloudEnabled',
     );
     // if the env is not configured, we will skip to the 'skip login screen'.
-    if (isSupabaseEnabled) {
+    if (isCloudEnabled) {
       getIt<SplashRouter>().pushSignInScreen(context);
     } else {
       getIt<SplashRouter>().pushSkipLoginScreen(context);

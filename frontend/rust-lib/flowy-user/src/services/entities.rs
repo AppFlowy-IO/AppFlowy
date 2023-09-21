@@ -162,7 +162,7 @@ impl From<AuthTypePB> for AuthType {
     match pb {
       AuthTypePB::Supabase => AuthType::Supabase,
       AuthTypePB::Local => AuthType::Local,
-      AuthTypePB::SelfHosted => AuthType::AFCloud,
+      AuthTypePB::AFCloud => AuthType::AFCloud,
     }
   }
 }
@@ -172,7 +172,7 @@ impl From<AuthType> for AuthTypePB {
     match auth_type {
       AuthType::Supabase => AuthTypePB::Supabase,
       AuthType::Local => AuthTypePB::Local,
-      AuthType::AFCloud => AuthTypePB::SelfHosted,
+      AuthType::AFCloud => AuthTypePB::AFCloud,
     }
   }
 }

@@ -41,7 +41,7 @@ impl AFCloudServer {
     device_id: Arc<parking_lot::RwLock<String>>,
   ) -> Self {
     let http_client = reqwest::Client::new();
-    let api_client = client_api::Client::from(http_client, &config.base_url, &config.ws_base_url);
+    let api_client = client_api::Client::from(http_client, &config.base_url, &config.base_ws_url);
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = AtomicBool::new(enable_sync);
 

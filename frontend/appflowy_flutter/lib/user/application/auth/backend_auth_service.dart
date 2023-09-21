@@ -13,12 +13,15 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import '../../../generated/locale_keys.g.dart';
 import 'device_id.dart';
 
-class AppFlowyAuthService implements AuthService {
+class BackendAuthService implements AuthService {
+  final AuthTypePB authType;
+
+  BackendAuthService(this.authType);
+
   @override
   Future<Either<FlowyError, UserProfilePB>> signIn({
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) async {
     final request = SignInPayloadPB.create()
@@ -35,7 +38,6 @@ class AppFlowyAuthService implements AuthService {
     required String name,
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) async {
     final request = SignUpPayloadPB.create()
@@ -52,7 +54,6 @@ class AppFlowyAuthService implements AuthService {
 
   @override
   Future<void> signOut({
-    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) async {
     await UserEventSignOut().send();
@@ -61,7 +62,6 @@ class AppFlowyAuthService implements AuthService {
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
-    AuthTypePB authType = AuthTypePB.Local,
     Map<String, String> params = const {},
   }) {
     const password = "Guest!@123456";

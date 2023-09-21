@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -20,14 +20,14 @@ class MockAuthService implements AuthService {
   SupabaseClient get _client => Supabase.instance.client;
   GoTrueClient get _auth => _client.auth;
 
-  final AppFlowyAuthService _appFlowyAuthService = AppFlowyAuthService();
+  final BackendAuthService _appFlowyAuthService =
+      BackendAuthService(AuthTypePB.Supabase);
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUp({
     required String name,
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     throw UnimplementedError();
@@ -37,7 +37,6 @@ class MockAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signIn({
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     throw UnimplementedError();
@@ -46,7 +45,6 @@ class MockAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     try {
@@ -75,18 +73,13 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut({
-    AuthTypePB authType = AuthTypePB.Supabase,
-  }) async {
+  Future<void> signOut() async {
     await _auth.signOut();
-    await _appFlowyAuthService.signOut(
-      authType: authType,
-    );
+    await _appFlowyAuthService.signOut();
   }
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.

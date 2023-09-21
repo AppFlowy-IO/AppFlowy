@@ -60,7 +60,7 @@ class SettingsMenu extends StatelessWidget {
         ),
 
         // Only show supabase setting if supabase is enabled and the current auth type is not local
-        if (isSupabaseEnabled &&
+        if (isCloudEnabled &&
             context.read<SettingsDialogBloc>().state.userProfile.authType !=
                 AuthTypePB.Local)
           SettingsMenuElement(

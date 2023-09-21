@@ -67,7 +67,7 @@ void main() {
   // Appearance integration test
   appearance_test_runner.main();
 
-  if (isSupabaseEnabled) {
+  if (isCloudEnabled) {
     auth_test_runner.main();
   }
 

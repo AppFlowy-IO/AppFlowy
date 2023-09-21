@@ -51,7 +51,7 @@ class SettingsUserView extends StatelessWidget {
             children: [
               _renderUserNameInput(context),
 
-              if (isSupabaseEnabled) ...[
+              if (isCloudEnabled) ...[
                 const VSpace(20),
                 UserEmailInput(user.email)
               ],
@@ -80,7 +80,7 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (!isSupabaseEnabled) {
+    if (!isCloudEnabled) {
       return const SizedBox.shrink();
     }
 

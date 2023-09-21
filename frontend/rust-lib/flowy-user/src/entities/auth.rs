@@ -95,7 +95,7 @@ pub struct OAuthPB {
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,
-  SelfHosted = 1,
+  AFCloud = 1,
   Supabase = 2,
 }
 
