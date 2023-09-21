@@ -475,9 +475,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "bytes"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be"
+checksum = "a2bd12c1caf447e69cd4528f47f94d203fd2582878ecb9e9465484c4148a8223"
 dependencies = [
  "serde",
 ]
@@ -670,7 +670,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=df9c71edb29471fd54513ca8643bf5b327c82b1d#df9c71edb29471fd54513ca8643bf5b327c82b1d"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2473,7 +2473,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=df9c71edb29471fd54513ca8643bf5b327c82b1d#df9c71edb29471fd54513ca8643bf5b327c82b1d"
 dependencies = [
  "serde",
  "serde_json",
@@ -3976,18 +3976,18 @@ dependencies = [
 
 [[package]]
 name = "pin-project"
-version = "1.1.0"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c95a7476719eab1e366eaf73d0260af3021184f18177925b07f54b30089ceead"
+checksum = "fda4ed1c6c173e3fc7a83629421152e01d7b1f9b7f65fb301e490e8cfc656422"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.1.0"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39407670928234ebc5e6e580247dd567ad73a3578460c5990f9503df207e8f07"
+checksum = "4359fd9c9171ec6e8c62926d6faaf553a8dc3f64e1507e76da7911b4f6a04405"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4997,9 +4997,10 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=df9c71edb29471fd54513ca8643bf5b327c82b1d#df9c71edb29471fd54513ca8643bf5b327c82b1d"
 dependencies = [
  "anyhow",
+ "gotrue-entity",
  "opener",
  "reqwest",
  "serde",
@@ -5259,7 +5260,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storage-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=a200efc6ff4684be92d85dd969a29c663005f04e#a200efc6ff4684be92d85dd969a29c663005f04e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=df9c71edb29471fd54513ca8643bf5b327c82b1d#df9c71edb29471fd54513ca8643bf5b327c82b1d"
 dependencies = [
  "chrono",
  "collab-define",

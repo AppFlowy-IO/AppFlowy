@@ -1,10 +1,11 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams};
 use collab_define::CollabObject;
 
-use flowy_error::FlowyError;
+use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
@@ -29,7 +30,7 @@ where
   fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      let params = params.unbox_or_error::<SignUpParams>()?;
+      let params = oauth_params_from_box_any(params)?;
       let resp = user_sign_up_request(try_get_client?, params).await?;
       Ok(resp)
     })
@@ -160,37 +161,34 @@ where
 
 pub async fn user_sign_up_request(
   client: Arc<AFCloudClient>,
-  params: SignUpParams,
+  params: AFCloudOAuthParams,
 ) -> Result<SignUpResponse, FlowyError> {
-  client
-    .read()
-    .await
-    .sign_up(&params.email, &params.password)
-    .await?;
-
-  let sign_in_resp = user_sign_in_request(
-    client,
-    SignInParams {
-      email: params.email,
-      password: params.password,
-      name: params.name,
-      auth_type: params.auth_type,
-      device_id: params.device_id,
-    },
-  )
-  .await?;
-
-  Ok(SignUpResponse {
-    user_id: sign_in_resp.user_id(),
-    name: sign_in_resp.name,
-    latest_workspace: sign_in_resp.latest_workspace,
-    user_workspaces: sign_in_resp.user_workspaces,
-    is_new_user: false, // TODO: how to know?
-    email: sign_in_resp.email,
-    token: sign_in_resp.token,
-    device_id: sign_in_resp.device_id,
-    encryption_type: sign_in_resp.encryption_type,
-  })
+  client.write().await.sign_in_url(&params.oauth_url).await?;
+  //
+  // let sign_in_resp = user_sign_in_request(
+  //   client,
+  //   SignInParams {
+  //     email: params.email,
+  //     password: params.password,
+  //     name: params.name,
+  //     auth_type: AuthType::AFCloud,
+  //     device_id: params.device_id,
+  //   },
+  // )
+  // .await?;
+  //
+  // Ok(SignUpResponse {
+  //   user_id: sign_in_resp.user_id(),
+  //   name: sign_in_resp.name,
+  //   latest_workspace: sign_in_resp.latest_workspace,
+  //   user_workspaces: sign_in_resp.user_workspaces,
+  //   is_new_user: false, // TODO: how to know?
+  //   email: sign_in_resp.email,
+  //   token: sign_in_resp.token,
+  //   device_id: sign_in_resp.device_id,
+  //   encryption_type: sign_in_resp.encryption_type,
+  // })
+  todo!()
 }
 
 pub async fn user_sign_in_request(
@@ -259,4 +257,17 @@ fn to_userworkspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>, 
     result.push(user_workspace);
   }
   Ok(result)
+}
+
+fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, Error> {
+  let map: HashMap<String, String> = any.unbox_or_error()?;
+  let oauth_url = map
+    .get("token")
+    .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing token field"))?
+    .as_str();
+  let device_id = map.get("device_id").cloned().unwrap_or_default();
+  Ok(AFCloudOAuthParams {
+    oauth_url: oauth_url.to_string(),
+    device_id,
+  })
 }

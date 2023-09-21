@@ -129,7 +129,7 @@ impl UserAuthResponse for SignUpResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is SelfHosted
+  /// Currently, the token is only used when the [AuthType] is AFCloud
   pub token: Option<String>,
 
   /// The user id
@@ -356,5 +356,10 @@ impl From<i32> for AuthType {
 pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
+  pub device_id: String,
+}
+
+pub struct AFCloudOAuthParams {
+  pub oauth_url: String,
   pub device_id: String,
 }
