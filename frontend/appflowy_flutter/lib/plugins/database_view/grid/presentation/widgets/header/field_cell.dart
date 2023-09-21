@@ -125,10 +125,15 @@ class _DragToExpandLine extends StatelessWidget {
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: (details) {
+          context
+              .read<FieldCellBloc>()
+              .add(const FieldCellEvent.onResizeStart());
+        },
         onHorizontalDragUpdate: (value) {
           context
               .read<FieldCellBloc>()
-              .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
+              .add(FieldCellEvent.startUpdateWidth(value.localPosition.dx));
         },
         onHorizontalDragEnd: (end) {
           context
