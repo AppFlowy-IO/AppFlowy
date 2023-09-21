@@ -438,6 +438,18 @@ class _TimeTextFieldState extends State<_TimeTextField> {
       },
     );
   }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
+  }
 }
 
 @visibleForTesting

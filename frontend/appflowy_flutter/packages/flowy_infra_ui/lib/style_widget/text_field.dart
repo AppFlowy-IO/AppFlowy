@@ -160,7 +160,9 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   void dispose() {
     focusNode.removeListener(notifyDidEndEditing);
-    focusNode.dispose();
+    if (widget.focusNode == null) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 

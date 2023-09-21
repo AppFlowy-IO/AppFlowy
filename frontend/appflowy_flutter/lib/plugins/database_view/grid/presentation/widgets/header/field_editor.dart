@@ -205,6 +205,17 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
       },
     );
   }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(() {
+      if (focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    focusNode.dispose();
+    super.dispose();
+  }
 }
 
 class _DeleteFieldButton extends StatelessWidget {
