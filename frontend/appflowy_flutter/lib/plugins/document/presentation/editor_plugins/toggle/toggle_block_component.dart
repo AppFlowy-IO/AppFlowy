@@ -55,12 +55,9 @@ SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
 
 class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
     this.padding = const EdgeInsets.all(0),
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   final EdgeInsets padding;
 
