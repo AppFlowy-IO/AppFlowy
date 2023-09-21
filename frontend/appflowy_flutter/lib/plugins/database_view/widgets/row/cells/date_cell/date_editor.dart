@@ -100,55 +100,32 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> children = [
+      StartTextField(popoverMutex: popoverMutex),
+      EndTextField(popoverMutex: popoverMutex),
+      const DatePicker(),
+      const TypeOptionSeparator(spacing: 12.0),
+      const EndTimeButton(),
+      const VSpace(4.0),
+      const _IncludeTimeButton(),
+      const TypeOptionSeparator(spacing: 8.0),
+      DateTypeOptionButton(popoverMutex: popoverMutex),
+      const VSpace(4.0),
+      const ClearDateButton(),
+    ];
+
     return BlocProvider(
       create: (context) => DateCellCalendarBloc(
         dateTypeOptionPB: widget.dateTypeOptionPB,
         cellData: widget.cellContext.getCellData(),
         cellController: widget.cellContext,
       )..add(const DateCellCalendarEvent.initial()),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          final List<Widget> children = [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime
-                  ? _TimeTextField(
-                      isEndTime: false,
-                      timeStr: state.time,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            if (state.includeTime && state.isRange) const VSpace(8.0),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime && state.isRange
-                  ? _TimeTextField(
-                      isEndTime: true,
-                      timeStr: state.endTime,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            const DatePicker(),
-            const TypeOptionSeparator(spacing: 12.0),
-            const EndTimeButton(),
-            const VSpace(4.0),
-            const _IncludeTimeButton(),
-            const TypeOptionSeparator(spacing: 8.0),
-            DateTypeOptionButton(popoverMutex: popoverMutex),
-            const VSpace(4.0),
-            const ClearDateButton(),
-          ];
-
-          return ListView.builder(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
-            padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
-          );
-        },
+      child: ListView.builder(
+        shrinkWrap: true,
+        controller: ScrollController(),
+        itemCount: children.length,
+        itemBuilder: (BuildContext context, int index) => children[index],
+        padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
       ),
     );
   }
@@ -157,6 +134,55 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   void dispose() {
     popoverMutex.dispose();
     super.dispose();
+  }
+}
+
+class StartTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const StartTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime
+              ? _TimeTextField(
+                  isEndTime: false,
+                  timeStr: state.time,
+                  popoverMutex: popoverMutex,
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+}
+
+class EndTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const EndTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime && state.isRange
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: _TimeTextField(
+                    isEndTime: true,
+                    timeStr: state.endTime,
+                    popoverMutex: popoverMutex,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
   }
 }
 
