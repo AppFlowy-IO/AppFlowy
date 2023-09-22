@@ -647,6 +647,9 @@
         "label": "Link to page",
         "tooltip": "Click to open page"
       }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
     }
   },
   "board": {
