@@ -46,7 +46,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -494,15 +493,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     }
   }
 
-  void assertNewCheckListTaskEditorVisible({required bool visible}) {
-    final editor = find.byType(NewTaskItem);
-    if (visible) {
-      expect(editor, findsOneWidget);
-    } else {
-      expect(editor, findsNothing);
-    }
-  }
-
   Future<void> createNewChecklistTask({
     required String name,
     enter = false,
@@ -515,10 +505,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await enterText(textField, name);
-    await pumpAndSettle(const Duration(milliseconds: 300));
+    await pumpAndSettle();
     if (enter) {
       await testTextInput.receiveAction(TextInputAction.done);
-      await pumpAndSettle(const Duration(milliseconds: 300));
+      await pumpAndSettle();
     } else {
       await tapButton(
         find.descendant(
@@ -555,11 +545,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     await enterText(textField, name);
     await testTextInput.receiveAction(TextInputAction.done);
-    await pumpAndSettle(const Duration(milliseconds: 300));
-  }
-
-  Future<void> tapChecklistNewTaskButton() async {
-    await tapButton(find.byType(ChecklistNewTaskButton));
+    await pumpAndSettle();
   }
 
   Future<void> checkChecklistTask({required int index}) async {
