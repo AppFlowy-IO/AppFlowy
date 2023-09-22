@@ -1,6 +1,5 @@
 part of 'pane_node_cubit.dart';
 
-@freezed
 class PaneNodeState extends Equatable {
   final List<double> flex;
   const PaneNodeState({required this.flex});

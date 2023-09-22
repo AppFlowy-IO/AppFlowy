@@ -1,7 +1,7 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
-import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
+import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +48,6 @@ class PanesCubit extends Cubit<PanesState> {
       plugin: plugin,
       direction: direction,
       axis: axis,
-      setActivePaneCallback: setActivePane,
     );
 
     emit(
@@ -57,6 +56,7 @@ class PanesCubit extends Cubit<PanesState> {
         count: state.count + 1,
       ),
     );
+    setActivePane(state.root.children.last);
   }
 
   void closePane({required String paneId}) {
@@ -65,11 +65,13 @@ class PanesCubit extends Cubit<PanesState> {
         root: panesService.closePaneHandler(
           node: state.root,
           targetPaneId: paneId,
-          setActivePaneCallback: setActivePane,
         ),
         count: state.count - 1,
       ),
     );
+
+    final children = state.root.children;
+    setActivePane(children.isEmpty ? state.root : children.last);
   }
 
   void openTab({required Plugin plugin}) {
@@ -117,7 +119,6 @@ class PanesCubit extends Cubit<PanesState> {
           targetPaneId: to.paneId,
           direction: direction,
           axis: axis,
-          setActivePaneCallback: setActivePane,
           fromNode: from,
         ),
         count: state.count + 1,

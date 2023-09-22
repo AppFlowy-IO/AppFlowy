@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
@@ -13,7 +13,6 @@ class PanesService {
     required String targetPaneId,
     required Direction direction,
     required Axis axis,
-    required void Function(PaneNode) setActivePaneCallback,
     PaneNode? fromNode,
     Plugin? plugin,
   }) {
@@ -32,8 +31,7 @@ class PanesService {
         paneId: nanoid(),
         parent: newHolderNode,
         axis: null,
-        tabs: Tabs(
-          currentIndex: node.tabs.currentIndex,
+        tabs: TabsController(
           pageManagers: node.tabs.pageManagers,
         ),
       );
@@ -42,8 +40,7 @@ class PanesService {
             paneId: nanoid(),
             children: const [],
             axis: null,
-            tabs: Tabs(
-              currentIndex: fromNode.tabs.currentIndex,
+            tabs: TabsController(
               pageManagers: fromNode.tabs.pageManagers,
             ),
           ) ??
@@ -52,9 +49,8 @@ class PanesService {
             children: const [],
             parent: newHolderNode,
             axis: null,
-            tabs: Tabs(
-              pageManagers: [PageManager()..setPlugin(plugin!)],
-            ),
+            tabs: TabsController(pageManagers: [PageManager()])
+              ..openPlugin(plugin: plugin!),
           );
       final ret = newHolderNode.copyWith(
         children: direction == Direction.front
@@ -67,7 +63,6 @@ class PanesService {
                 oldChildNode,
               ],
       );
-      setActivePaneCallback(ret.children[0]);
       return ret;
     }
 
@@ -78,8 +73,7 @@ class PanesService {
         if (node.children[i].paneId == targetPaneId) {
           final newNode = fromNode?.copyWith(
                 paneId: nanoid(),
-                tabs: Tabs(
-                  currentIndex: fromNode.tabs.currentIndex,
+                tabs: TabsController(
                   pageManagers: fromNode.tabs.pageManagers,
                 ),
               ) ??
@@ -87,9 +81,8 @@ class PanesService {
                 paneId: nanoid(),
                 children: const [],
                 parent: node.parent,
-                tabs: Tabs(
-                  pageManagers: [PageManager()..setPlugin(plugin!)],
-                ),
+                tabs: TabsController(pageManagers: [PageManager()])
+                  ..openPlugin(plugin: plugin!),
               );
           if (direction == Direction.front) {
             if (i == node.children.length) {
@@ -102,19 +95,17 @@ class PanesService {
           }
           final ret = node.copyWith(
             paneId: nanoid(),
-            tabs: Tabs(),
+            tabs: TabsController(),
             children: node.children
                 .map(
                   (e) => e.copyWith(
-                    tabs: Tabs(
-                      currentIndex: e.tabs.currentIndex,
+                    tabs: TabsController(
                       pageManagers: e.tabs.pageManagers,
                     ),
                   ),
                 )
                 .toList(),
           );
-          setActivePaneCallback(ret.children[i]);
           return ret;
         }
       }
@@ -131,7 +122,6 @@ class PanesService {
             plugin: plugin,
             direction: direction,
             axis: axis,
-            setActivePaneCallback: setActivePaneCallback,
             fromNode: fromNode,
           ),
         )
@@ -142,35 +132,39 @@ class PanesService {
   PaneNode closePaneHandler({
     required PaneNode node,
     required String targetPaneId,
-    required Function(PaneNode) setActivePaneCallback,
   }) {
     if (node.paneId == targetPaneId) {
       return node;
     }
-    for (final element in node.children) {
+    for (var i = 0; i < node.children.length; i++) {
+      final element = node.children[i];
       if (element.paneId == targetPaneId) {
-        node.children.remove(element);
-        setActivePaneCallback(node);
-
+        node.children.remove(element..tabs.closeAllViews);
         if (node.children.length == 1) {
-          setActivePaneCallback(node.children.first);
-          return node.children.first.copyWith(
+          final ret = node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
-            tabs: Tabs(
-              currentIndex: node.children.first.tabs.currentIndex,
+            tabs: TabsController(
               pageManagers: node.children.first.tabs.pageManagers,
             ),
           );
+          return ret;
         }
 
-        return node.copyWith(
+        final ret = node.copyWith(
+          children: node.children
+              .map(
+                (e) => e.copyWith(
+                  tabs: TabsController(
+                    pageManagers: e.tabs.pageManagers,
+                  ),
+                ),
+              )
+              .toList(),
           paneId: nanoid(),
-          tabs: Tabs(
-            currentIndex: node.tabs.currentIndex,
-            pageManagers: node.tabs.pageManagers,
-          ),
         );
+
+        return ret;
       }
     }
 
@@ -178,7 +172,6 @@ class PanesService {
       return closePaneHandler(
         node: childNode,
         targetPaneId: targetPaneId,
-        setActivePaneCallback: setActivePaneCallback,
       );
     }).toList();
 
