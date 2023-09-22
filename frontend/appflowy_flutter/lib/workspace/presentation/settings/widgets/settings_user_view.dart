@@ -12,6 +12,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/flowy_tooltip.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -74,32 +75,7 @@ class SettingsUserView extends StatelessWidget {
       children: [
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => showDialog(
-            context: context,
-            builder: (dialogContext) => SimpleDialog(
-              title: FlowyText.medium(
-                LocaleKeys.settings_user_selectAnIcon.tr(),
-                fontSize: FontSizes.s16,
-              ),
-              children: [
-                SizedBox(
-                  height: 300,
-                  width: 300,
-                  child: IconGallery(
-                    selectedIcon: user.iconUrl,
-                    onSelectIcon: (iconUrl, isSelected) {
-                      final event = isSelected
-                          ? const SettingsUserEvent.removeUserIcon()
-                          : SettingsUserEvent.updateUserIcon(iconUrl: iconUrl);
-
-                      context.read<SettingsUserViewBloc>().add(event);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          onTap: () => _showIconPickerDialog(context),
           child: FlowyHover(
             style: const HoverStyle.transparent(),
             builder: (context, onHover) {
@@ -127,6 +103,82 @@ class SettingsUserView extends StatelessWidget {
     );
   }
 
+  Future<void> _showIconPickerDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: FlowyText.medium(
+          LocaleKeys.settings_user_selectAnIcon.tr(),
+          fontSize: FontSizes.s16,
+        ),
+        children: [
+          SizedBox(
+            height: 300,
+            width: 300,
+            child: IconGallery(
+              defaultOption: _defaultIconOption(context),
+              selectedIcon: user.iconUrl,
+              onSelectIcon: (iconUrl, isSelected) {
+                if (isSelected) {
+                  return Navigator.of(context).pop();
+                }
+
+                context
+                    .read<SettingsUserViewBloc>()
+                    .add(SettingsUserEvent.updateUserIcon(iconUrl: iconUrl));
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Returns a Widget that is the Default Option for the
+  // Icon Gallery, enabling users to choose the auto-generated
+  // icon again.
+  Widget _defaultIconOption(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        context
+            .read<SettingsUserViewBloc>()
+            .add(const SettingsUserEvent.removeUserIcon());
+        Navigator.of(context).pop();
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: user.iconUrl.isEmpty
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+        ),
+        child: FlowyHover(
+          style: HoverStyle(
+            hoverColor: user.iconUrl.isEmpty
+                ? Colors.transparent
+                : Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: UserAvatar(
+                iconUrl: "",
+                name: user.name,
+                isLarge: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Renders either a login or logout button based on the user's authentication status, or nothing if Supabase is not enabled.
   ///
   /// This function checks the current user's authentication type and Supabase
@@ -142,9 +194,7 @@ class SettingsUserView extends StatelessWidget {
 
     // If the user is logged in locally, render a third-party login button.
     if (state.userProfile.authType == AuthTypePB.Local) {
-      return SettingThirdPartyLogin(
-        didLogin: didLogin,
-      );
+      return SettingThirdPartyLogin(didLogin: didLogin);
     }
 
     return SettingLogoutButton(user: user, didLogout: didLogout);
@@ -407,11 +457,13 @@ typedef SelectIconCallback = void Function(String iconUrl, bool isSelected);
 class IconGallery extends StatelessWidget {
   final String selectedIcon;
   final SelectIconCallback onSelectIcon;
+  final Widget? defaultOption;
 
   const IconGallery({
     super.key,
     required this.selectedIcon,
     required this.onSelectIcon,
+    this.defaultOption,
   });
 
   Future<List<String>> _getIcons(BuildContext context) async {
@@ -440,16 +492,21 @@ class IconGallery extends StatelessWidget {
           return GridView.count(
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
-            children: (snapshot.data!)
-                .map(
-                  (String iconUrl) => IconOption(
-                    emoji: FlowySvgData('emoji/$iconUrl'),
-                    iconUrl: iconUrl,
-                    onSelectIcon: onSelectIcon,
-                    isSelected: iconUrl == selectedIcon,
-                  ),
-                )
-                .toList(),
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+            children: [
+              if (defaultOption != null) defaultOption!,
+              ...snapshot.data!
+                  .mapIndexed(
+                    (int index, String iconUrl) => IconOption(
+                      emoji: FlowySvgData('emoji/$iconUrl'),
+                      iconUrl: iconUrl,
+                      onSelectIcon: onSelectIcon,
+                      isSelected: iconUrl == selectedIcon,
+                    ),
+                  )
+                  .toList(),
+            ],
           );
         }
 
