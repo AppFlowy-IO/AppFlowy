@@ -63,6 +63,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date) async {
             await _createEvent(date);
           },
+          newEventPopupDisplayed: () {
+            emit(state.copyWith(editingEvent: null));
+          },
           moveEvent: (CalendarDayEvent event, DateTime date) async {
             await _moveEvent(event, date);
           },
@@ -377,6 +380,10 @@ class CalendarEvent with _$CalendarEvent {
   const factory CalendarEvent.didCreateEvent(
     CalendarEventData<CalendarDayEvent> event,
   ) = _DidReceiveNewEvent;
+
+  // Called after creating a new event
+  const factory CalendarEvent.newEventPopupDisplayed() =
+      _NewEventPopupDisplayed;
 
   // Called when receive a new event
   const factory CalendarEvent.didReceiveEvent(

@@ -49,6 +49,9 @@ class _EventCardState extends State<EventCard> {
     if (widget.autoEdit) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _popoverController.show();
+        context
+            .read<CalendarBloc>()
+            .add(const CalendarEvent.newEventPopupDisplayed());
       });
     }
   }
@@ -83,7 +86,7 @@ class _EventCardState extends State<EventCard> {
       styleConfiguration: RowCardStyleConfiguration(
         showAccessory: false,
         cellPadding: EdgeInsets.zero,
-        cardPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        cardPadding: const EdgeInsets.all(6),
         hoverStyle: HoverStyle(
           hoverColor: Theme.of(context).brightness == Brightness.light
               ? const Color(0x0F1F2329)

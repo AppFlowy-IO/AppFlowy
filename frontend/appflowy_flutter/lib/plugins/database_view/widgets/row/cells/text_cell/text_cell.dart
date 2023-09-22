@@ -59,8 +59,9 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = TextCellBloc(cellController: cellController);
-    _cellBloc.add(const TextCellEvent.initial());
+    _cellBloc = TextCellBloc(cellController: cellController)
+      ..add(const TextCellEvent.initial());
+    print("init state ${_cellBloc.state.content}");
     _controller = TextEditingController(text: _cellBloc.state.content);
     super.initState();
   }
