@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
@@ -20,6 +21,8 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
@@ -35,6 +38,8 @@ class InitAppWidgetTask extends LaunchTask {
       appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
+
+    await NotificationService.initialize();
 
     Bloc.observer = ApplicationBlocObserver();
     runApp(
@@ -72,7 +77,7 @@ class InitAppWidgetTask extends LaunchTask {
       ),
     );
 
-    return Future(() => {});
+    return;
   }
 }
 

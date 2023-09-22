@@ -108,6 +108,11 @@ dependencies:
   hive_flutter: ^1.1.0
   super_clipboard: ^0.6.3
 
+  # Notifications
+  # TODO: Consider implementing custom package
+  # to gather notification handling for all platforms
+  local_notifier: ^0.1.5
+
 dev_dependencies:
   flutter_lints: ^2.0.1
 

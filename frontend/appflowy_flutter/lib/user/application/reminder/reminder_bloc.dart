@@ -1,10 +1,16 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,9 +19,11 @@ part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   late final ReminderService reminderService;
+  late final Timer timer;
 
   ReminderBloc() : super(ReminderState()) {
     reminderService = const ReminderService();
+    timer = _periodicCheck();
 
     on<ReminderEvent>((event, emit) async {
       await event.when(
@@ -25,7 +33,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           remindersOrFailure.fold(
             (error) => Log.error(error),
             (reminders) {
-              _scheduleAcknowledgement(reminders);
               emit(state.copyWith(reminders: reminders));
             },
           );
@@ -74,10 +81,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             meta: reminder.meta,
           );
 
-          if (!newReminder.isAck) {
-            _schedule(newReminder);
-          }
-
           final failureOrUnit =
               await reminderService.updateReminder(reminder: newReminder);
 
@@ -124,33 +127,36 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
     });
   }
 
-  void _scheduleAcknowledgement(List<ReminderPB> reminders) {
-    final filteredReminders = reminders.where((reminder) => !reminder.isAck);
-    for (final reminder in filteredReminders) {
-      _schedule(reminder);
-    }
-  }
+  Timer _periodicCheck() {
+    return Timer.periodic(
+      const Duration(minutes: 1),
+      (_) {
+        final now = DateTime.now();
+        for (final reminder in state.reminders) {
+          if (reminder.isAck) {
+            continue;
+          }
 
-  void _schedule(ReminderPB reminder) {
-    final now = DateTime.now();
+          final scheduledAt = DateTime.fromMillisecondsSinceEpoch(
+            reminder.scheduledAt.toInt() * 1000,
+          );
 
-    final reminderDate = DateTime.fromMillisecondsSinceEpoch(
-      reminder.scheduledAt.toInt() * 1000,
+          if (scheduledAt.isBefore(now)) {
+            NotificationMessage(
+              title: LocaleKeys.reminderNotification_title.tr(),
+              body: LocaleKeys.reminderNotification_message.tr(),
+              onClick: () => getIt<NotificationActionBloc>().add(
+                NotificationActionEvent.performAction(
+                  action: NotificationAction(objectId: reminder.objectId),
+                ),
+              ),
+            );
+
+            add(ReminderEvent.acknowledge(reminder: reminder));
+          }
+        }
+      },
     );
-
-    final difference = reminderDate.difference(now);
-    if (difference.isNegative) {
-      _acknowledgeReminder(reminder);
-    } else {
-      Timer(
-        reminderDate.difference(now),
-        () => _acknowledgeReminder(reminder),
-      );
-    }
-  }
-
-  void _acknowledgeReminder(ReminderPB reminder) {
-    add(ReminderEvent.acknowledge(reminder: reminder));
   }
 }
 
