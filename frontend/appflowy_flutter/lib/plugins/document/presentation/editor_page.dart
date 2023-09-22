@@ -137,6 +137,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
+
+    // keep the previous font style when typing new text.
+    AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
   @override
