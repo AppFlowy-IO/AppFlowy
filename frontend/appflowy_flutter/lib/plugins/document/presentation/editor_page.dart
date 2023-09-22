@@ -76,7 +76,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     buildTextColorItem(),
     buildHighlightColorItem(),
     customizeFontToolbarItem,
-    ...textDirectionItems,
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -152,9 +151,30 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   @override
+  void reassemble() {
+    super.reassemble();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
+
+    final isRTL =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+            LayoutDirection.rtlLayout;
+    final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+
+    // only show the rtl item when the layout direction is ltr.
+    for (final item in textDirectionItems) {
+      if (isRTL) {
+        if (toolbarItems.every((element) => element.id != item.id)) {
+          toolbarItems.add(item);
+        }
+      } else {
+        toolbarItems.removeWhere((element) => element.id == item.id);
+      }
+    }
 
     final editorScrollController = EditorScrollController(
       editorState: widget.editorState,
@@ -180,12 +200,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       header: widget.header,
       footer: const VSpace(200),
     );
-
-    final layoutDirection =
-        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
-                LayoutDirection.rtlLayout
-            ? TextDirection.rtl
-            : TextDirection.ltr;
 
     return Center(
       child: FloatingToolbar(
