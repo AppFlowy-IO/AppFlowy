@@ -151,11 +151,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
