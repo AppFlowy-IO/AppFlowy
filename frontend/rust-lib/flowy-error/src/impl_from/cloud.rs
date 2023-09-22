@@ -21,6 +21,7 @@ impl From<AppError> for FlowyError {
       client_api::error::ErrorCode::InvalidOAuthProvider => ErrorCode::InvalidAuthConfig,
       client_api::error::ErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       client_api::error::ErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
+      client_api::error::ErrorCode::UserNameIsEmpty => ErrorCode::UserNameIsEmpty,
     };
 
     FlowyError::new(code, error.message)

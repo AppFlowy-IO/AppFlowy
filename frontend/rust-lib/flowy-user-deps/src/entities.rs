@@ -81,7 +81,7 @@ pub struct SignUpParams {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SignUpResponse {
+pub struct AuthResponse {
   pub user_id: i64,
   pub name: String,
   pub latest_workspace: UserWorkspace,
@@ -93,7 +93,7 @@ pub struct SignUpResponse {
   pub encryption_type: EncryptionType,
 }
 
-impl UserAuthResponse for SignUpResponse {
+impl UserAuthResponse for AuthResponse {
   fn user_id(&self) -> i64 {
     self.user_id
   }

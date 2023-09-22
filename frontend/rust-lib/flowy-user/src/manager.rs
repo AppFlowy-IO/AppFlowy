@@ -187,7 +187,7 @@ impl UserManager {
     auth_type: AuthType,
   ) -> Result<UserProfile, FlowyError> {
     self.update_auth_type(&auth_type).await;
-    let response: SignInResponse = self
+    let response: AuthResponse = self
       .cloud_services
       .get_user_service()?
       .sign_in(params)
@@ -244,7 +244,7 @@ impl UserManager {
 
     let migration_user = self.get_migration_user(&auth_type).await;
     let auth_service = self.cloud_services.get_user_service()?;
-    let response: SignUpResponse = auth_service.sign_up(params).await?;
+    let response: AuthResponse = auth_service.sign_up(params).await?;
     let user_profile = UserProfile::from((&response, &auth_type));
     if user_profile.encryption_type.is_need_encrypt_secret() {
       self
@@ -292,7 +292,7 @@ impl UserManager {
     &self,
     user_profile: &UserProfile,
     migration_user: Option<MigrationUser>,
-    response: SignUpResponse,
+    response: AuthResponse,
     auth_type: &AuthType,
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);

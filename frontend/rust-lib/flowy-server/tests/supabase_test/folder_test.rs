@@ -6,7 +6,7 @@ use yrs::types::ToJson;
 use yrs::updates::decoder::Decode;
 use yrs::{merge_updates_v1, Array, Doc, Map, MapPrelim, ReadTxn, StateVector, Transact, Update};
 
-use flowy_user_deps::entities::SignUpResponse;
+use flowy_user_deps::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
@@ -37,7 +37,7 @@ async fn supabase_get_folder_test() {
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject::new(
     user.user_id,
@@ -111,7 +111,7 @@ async fn supabase_duplicate_updates_test() {
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject::new(
     user.user_id,
@@ -218,7 +218,7 @@ async fn supabase_diff_state_vector_test() {
   let collab_service = collab_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   let collab_object = CollabObject::new(
     user.user_id,

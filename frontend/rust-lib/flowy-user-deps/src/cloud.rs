@@ -13,8 +13,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  SignInResponse, SignUpResponse, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserWorkspace,
+  AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,11 +61,11 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error>;
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
 
   /// Sign in an account
   /// The type of the params is defined the this trait's implementation.
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error>;
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
 
   /// Sign out an account
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;

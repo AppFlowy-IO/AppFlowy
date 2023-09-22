@@ -64,7 +64,7 @@ impl<T> UserCloudService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -118,7 +118,7 @@ where
         user_profile.name
       };
 
-      Ok(SignUpResponse {
+      Ok(AuthResponse {
         user_id: user_profile.uid,
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
@@ -132,7 +132,7 @@ where
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -147,11 +147,12 @@ where
         .find(|user_workspace| user_workspace.id == response.latest_workspace_id)
         .cloned();
 
-      Ok(SignInResponse {
+      Ok(AuthResponse {
         user_id: response.uid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
+        is_new_user: false,
         email: None,
         token: None,
         device_id: params.device_id,

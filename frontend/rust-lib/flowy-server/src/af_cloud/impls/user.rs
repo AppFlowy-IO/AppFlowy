@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
+use client_api::entity::dto::UserUpdateParams;
 use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams};
 use collab_define::CollabObject;
 
@@ -27,7 +28,7 @@ impl<T> UserCloudService for AFCloudUserAuthServiceImpl<T>
 where
   T: AFServer,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let params = oauth_params_from_box_any(params)?;
@@ -37,26 +38,38 @@ where
   }
 
   // Zack: Not sure if this is needed anymore since sign_up handles both cases
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      let params = params.unbox_or_error::<SignInParams>()?;
-      let resp = user_sign_in_request(try_get_client?, params).await?;
+      let client = try_get_client?;
+      let params = oauth_params_from_box_any(params)?;
+      let resp = user_sign_in_with_url(client, params).await?;
       Ok(resp)
     })
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move { Ok(try_get_client?.write().await.sign_out().await?) })
+    FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
   }
 
   fn update_user(
     &self,
     _credential: UserCredentials,
-    _params: UpdateUserProfileParams,
+    params: UpdateUserProfileParams,
   ) -> FutureResult<(), Error> {
-    todo!()
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client
+        .update(UserUpdateParams {
+          name: params.name,
+          email: params.email,
+          password: params.password,
+        })
+        .await?;
+      Ok(())
+    })
   }
 
   fn get_user_profile(
@@ -66,7 +79,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let profile = client.write().await.profile().await?;
+      let profile = client.profile().await?;
       let encryption_type = encryption_type_from_profile(&profile);
       Ok(Some(UserProfile {
         email: profile.email.unwrap_or("".to_string()),
@@ -88,8 +101,8 @@ where
   fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      let workspaces = try_get_client?.write().await.workspaces().await?;
-      Ok(to_userworkspaces(workspaces)?)
+      let workspaces = try_get_client?.workspaces().await?;
+      Ok(to_user_workspaces(workspaces)?)
     })
   }
 
@@ -103,13 +116,8 @@ where
 
       // from cloud
       let client = try_get_client?;
-      let profile = client.write().await.profile().await?;
-      let read_client = client.read().await;
-      let client_token = read_client
-        .token()
-        .ok_or(anyhow!("no token found"))?
-        .access_token
-        .as_str();
+      let profile = client.profile().await?;
+      let client_token = client.access_token()?;
 
       // compare and check
       if uuid != profile.uuid.ok_or(anyhow!("expecting uuid"))?.to_string() {
@@ -169,7 +177,7 @@ where
         data,
         collab_object.workspace_id.clone(),
       );
-      client.write().await.create_collab(params).await?;
+      client.create_collab(params).await?;
       Ok(())
     })
   }
@@ -178,77 +186,42 @@ where
 pub async fn user_sign_up_request(
   client: Arc<AFCloudClient>,
   params: AFCloudOAuthParams,
-) -> Result<SignUpResponse, FlowyError> {
-  let url = params.oauth_url;
-  user_sign_in_with_url(client, &url).await
+) -> Result<AuthResponse, FlowyError> {
+  user_sign_in_with_url(client, params).await
 }
 
 pub async fn user_sign_in_with_url(
   client: Arc<AFCloudClient>,
-  url: &str,
-) -> Result<SignUpResponse, FlowyError> {
-  let is_new_user = client.write().await.sign_in_url(url).await?;
+  params: AFCloudOAuthParams,
+) -> Result<AuthResponse, FlowyError> {
+  let is_new_user = client.sign_in_url(&params.oauth_url).await?;
+  let (profile, af_workspaces) = tokio::try_join!(client.profile(), client.workspaces())?;
 
-  let (mut wc1, mut wc2) = tokio::join!(client.write(), client.write());
-  let (profile, af_workspaces) = tokio::try_join!(wc1.profile(), wc2.workspaces())?;
-
-  let latest_workspace = to_userworkspace(
+  let latest_workspace = to_user_workspace(
     af_workspaces
       .get_latest(&profile)
       .or(af_workspaces.first().cloned())
       .ok_or(anyhow!("no workspace found"))?,
   )?;
 
-  let user_workspaces = to_userworkspaces(af_workspaces)?;
+  let user_workspaces = to_user_workspaces(af_workspaces)?;
   let encryption_type = encryption_type_from_profile(&profile);
 
-  Ok(SignUpResponse {
+  Ok(AuthResponse {
     user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
     name: profile.name.ok_or(anyhow!("no name found"))?,
     latest_workspace,
     user_workspaces,
     email: profile.email,
     token: token_from_client(client.clone()).await,
-    device_id: "".to_owned(),
+    device_id: params.device_id,
     encryption_type,
     is_new_user,
   })
 }
 
-pub async fn user_sign_in_request(
-  client: Arc<AFCloudClient>,
-  params: SignInParams,
-) -> Result<SignInResponse, FlowyError> {
-  client
-    .write()
-    .await
-    .sign_in_password(&params.email, &params.password)
-    .await?;
-
-  let (mut wc1, mut wc2) = tokio::join!(client.write(), client.write());
-  let (profile, workspaces) = tokio::try_join!(wc1.profile(), wc2.workspaces())?;
-
-  // https://github.com/AppFlowy-IO/AppFlowy-Cloud/pull/59
-  // use the `get_latest` when it's ready
-  let _latest_workspace: AFWorkspace = todo!();
-
-  Ok(SignInResponse {
-    user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
-    name: profile.name.ok_or(anyhow!("no name found"))?,
-    latest_workspace: todo!(),
-    user_workspaces: to_userworkspaces(workspaces)?,
-    email: profile.email,
-    token: token_from_client(client).await,
-    device_id: "".to_owned(),
-    encryption_type: encryption_type_from_profile(&profile),
-  })
-}
-
 async fn token_from_client(client: Arc<AFCloudClient>) -> Option<String> {
-  match client.read().await.token() {
-    Some(t) => Some(t.access_token.to_owned()),
-    None => None,
-  }
+  client.access_token().ok()
 }
 
 fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {
@@ -258,7 +231,7 @@ fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {
   }
 }
 
-fn to_userworkspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyError> {
+fn to_user_workspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyError> {
   Ok(UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace
@@ -274,10 +247,10 @@ fn to_userworkspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyErr
   })
 }
 
-fn to_userworkspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>, FlowyError> {
+fn to_user_workspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>, FlowyError> {
   let mut result = Vec::with_capacity(af_workspaces.len());
   for item in af_workspaces.0.into_iter() {
-    let user_workspace = to_userworkspace(item)?;
+    let user_workspace = to_user_workspace(item)?;
     result.push(user_workspace);
   }
   Ok(result)

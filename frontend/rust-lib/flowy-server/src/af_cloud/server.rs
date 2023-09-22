@@ -22,7 +22,7 @@ use crate::af_cloud::impls::{
 };
 use crate::AppFlowyServer;
 
-pub(crate) type AFCloudClient = RwLock<client_api::Client>;
+pub(crate) type AFCloudClient = client_api::Client;
 
 pub struct AFCloudServer {
   #[allow(dead_code)]
@@ -51,7 +51,7 @@ impl AFCloudServer {
       retry_connect_per_pings: 5,
     });
     let ws_client = Arc::new(RwLock::new(ws_client));
-    let api_client = Arc::new(RwLock::new(api_client));
+    let api_client = Arc::new(api_client);
 
     spawn_ws_conn(&device_id, token_state_rx, &ws_client, &api_client);
     Self {
@@ -139,7 +139,7 @@ fn spawn_ws_conn(
   device_id: &Arc<parking_lot::RwLock<String>>,
   mut token_state_rx: TokenStateReceiver,
   ws_client: &Arc<RwLock<WSClient>>,
-  api_client: &Arc<RwLock<Client>>,
+  api_client: &Arc<Client>,
 ) {
   let weak_device_id = Arc::downgrade(device_id);
   let weak_ws_client = Arc::downgrade(ws_client);
@@ -158,7 +158,7 @@ fn spawn_ws_conn(
           (weak_api_client.upgrade(), weak_device_id.upgrade())
         {
           let device_id = device_id.read().clone();
-          if let Ok(ws_addr) = api_client.read().await.ws_url(&device_id) {
+          if let Ok(ws_addr) = api_client.ws_url(&device_id) {
             tracing::info!("🟢WebSocket Reconnecting");
             let _ = ws_client.write().await.connect(ws_addr).await;
           }
@@ -181,7 +181,7 @@ fn spawn_ws_conn(
             weak_device_id.upgrade(),
           ) {
             let device_id = device_id.read().clone();
-            if let Ok(ws_addr) = api_client.read().await.ws_url(&device_id) {
+            if let Ok(ws_addr) = api_client.ws_url(&device_id) {
               tracing::info!("🟢WebSocket Connecting");
               let _ = ws_client.write().await.connect(ws_addr).await;
             }
