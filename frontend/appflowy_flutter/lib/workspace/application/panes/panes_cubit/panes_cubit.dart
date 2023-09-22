@@ -1,8 +1,6 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -17,10 +15,8 @@ enum SplitDirection { left, right, up, down, none }
 
 class PanesCubit extends Cubit<PanesState> {
   final PanesService panesService;
-  late final MenuSharedState menuSharedState;
   PanesCubit({required double offset})
       : panesService = PanesService(),
-        menuSharedState = getIt<MenuSharedState>(),
         super(PanesState.initial());
 
   void setActivePane(PaneNode activePane) {
@@ -28,9 +24,9 @@ class PanesCubit extends Cubit<PanesState> {
     state.activePane.tabs.setLatestOpenView();
   }
 
-  void split(
-    Plugin plugin,
-    SplitDirection splitDirection, {
+  void split({
+    required Plugin plugin,
+    required SplitDirection splitDirection,
     String? targetPaneId,
   }) {
     if (state.count >= 4) {
@@ -47,13 +43,12 @@ class PanesCubit extends Cubit<PanesState> {
             : Axis.vertical;
 
     final root = panesService.splitHandler(
-      state.root,
-      targetPaneId ?? state.activePane.paneId,
-      plugin,
-      direction,
-      axis,
-      setActivePane,
-      null,
+      node: state.root,
+      targetPaneId: targetPaneId ?? state.activePane.paneId,
+      plugin: plugin,
+      direction: direction,
+      axis: axis,
+      setActivePaneCallback: setActivePane,
     );
 
     emit(
@@ -64,10 +59,14 @@ class PanesCubit extends Cubit<PanesState> {
     );
   }
 
-  void closePane(String paneId) {
+  void closePane({required String paneId}) {
     emit(
       state.copyWith(
-        root: panesService.closePaneHandler(state.root, paneId, setActivePane),
+        root: panesService.closePaneHandler(
+          node: state.root,
+          targetPaneId: paneId,
+          setActivePaneCallback: setActivePane,
+        ),
         count: state.count - 1,
       ),
     );
@@ -114,17 +113,16 @@ class PanesCubit extends Cubit<PanesState> {
     emit(
       state.copyWith(
         root: panesService.splitHandler(
-          state.root,
-          to.paneId,
-          null,
-          direction,
-          axis,
-          setActivePane,
-          from,
+          node: state.root,
+          targetPaneId: to.paneId,
+          direction: direction,
+          axis: axis,
+          setActivePaneCallback: setActivePane,
+          fromNode: from,
         ),
         count: state.count + 1,
       ),
     );
-    closePane(from.paneId);
+    closePane(paneId: from.paneId);
   }
 }

@@ -10,7 +10,6 @@ import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-//TODO(squidrye):refactor cross draggable
 enum FlowyDraggableHoverPosition { none, top, left, right, bottom, tab }
 
 class DraggablePaneItem extends StatefulWidget {
@@ -230,16 +229,16 @@ class _DraggablePaneItemState extends State<DraggablePaneItem> {
         final plugin = (from.draggable as TabNode).pageManager.plugin;
         (from.draggable as TabNode).tabs.closeView(plugin.id);
         getIt<PanesCubit>().split(
-          plugin,
-          direction,
+          plugin: plugin,
+          splitDirection: direction,
           targetPaneId: (to.draggable as PaneNode).paneId,
         );
         return;
 
       case CrossDraggableType.view:
         getIt<PanesCubit>().split(
-          (from.draggable as ViewPB).plugin(),
-          direction,
+          plugin: (from.draggable as ViewPB).plugin(),
+          splitDirection: direction,
           targetPaneId: (to.draggable as PaneNode).paneId,
         );
         return;

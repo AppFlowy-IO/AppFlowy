@@ -15,7 +15,7 @@ class FlowyPane extends StatefulWidget {
   final HomeStackDelegate delegate;
   final BuildContext paneContext;
   final Size size;
-  FlowyPane({
+  const FlowyPane({
     super.key,
     required this.node,
     required this.layout,

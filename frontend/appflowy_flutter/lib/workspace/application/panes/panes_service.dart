@@ -8,15 +8,15 @@ import 'package:nanoid/nanoid.dart';
 enum Direction { front, back }
 
 class PanesService {
-  PaneNode splitHandler(
-    PaneNode node,
-    String targetPaneId,
-    Plugin? plugin,
-    Direction direction,
-    Axis axis,
-    void Function(PaneNode) activePane,
+  PaneNode splitHandler({
+    required PaneNode node,
+    required String targetPaneId,
+    required Direction direction,
+    required Axis axis,
+    required void Function(PaneNode) setActivePaneCallback,
     PaneNode? fromNode,
-  ) {
+    Plugin? plugin,
+  }) {
     /// This is a recursive handler, following condition checks if passed node
     /// is our target node
     if (node.paneId == targetPaneId) {
@@ -67,7 +67,7 @@ class PanesService {
                 oldChildNode,
               ],
       );
-      activePane(ret.children[0]);
+      setActivePaneCallback(ret.children[0]);
       return ret;
     }
 
@@ -114,7 +114,7 @@ class PanesService {
                 )
                 .toList(),
           );
-          activePane(ret.children[i]);
+          setActivePaneCallback(ret.children[i]);
           return ret;
         }
       }
@@ -125,34 +125,35 @@ class PanesService {
     ///children
     final newChildren = node.children
         .map(
-          (e) => splitHandler(
-            e,
-            targetPaneId,
-            plugin,
-            direction,
-            axis,
-            activePane,
-            fromNode,
+          (childNode) => splitHandler(
+            node: childNode,
+            targetPaneId: targetPaneId,
+            plugin: plugin,
+            direction: direction,
+            axis: axis,
+            setActivePaneCallback: setActivePaneCallback,
+            fromNode: fromNode,
           ),
         )
         .toList();
     return node.copyWith(children: newChildren);
   }
 
-  PaneNode closePaneHandler(
-    PaneNode node,
-    String targetPaneId,
-    Function(PaneNode) setActiveNode,
-  ) {
+  PaneNode closePaneHandler({
+    required PaneNode node,
+    required String targetPaneId,
+    required Function(PaneNode) setActivePaneCallback,
+  }) {
     if (node.paneId == targetPaneId) {
       return node;
     }
     for (final element in node.children) {
       if (element.paneId == targetPaneId) {
         node.children.remove(element);
-        setActiveNode(node);
+        setActivePaneCallback(node);
+
         if (node.children.length == 1) {
-          setActiveNode(node.children.first);
+          setActivePaneCallback(node.children.first);
           return node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
@@ -162,6 +163,7 @@ class PanesService {
             ),
           );
         }
+
         return node.copyWith(
           paneId: nanoid(),
           tabs: Tabs(
@@ -172,26 +174,14 @@ class PanesService {
       }
     }
 
-    final newChildren = node.children.map((e) {
+    final newChildren = node.children.map((childNode) {
       return closePaneHandler(
-        e,
-        targetPaneId,
-        setActiveNode,
+        node: childNode,
+        targetPaneId: targetPaneId,
+        setActivePaneCallback: setActivePaneCallback,
       );
     }).toList();
 
     return node.copyWith(children: newChildren);
-  }
-
-  int countNodeHandler(PaneNode root) {
-    if (root.children.isEmpty) {
-      return 1;
-    }
-    int totalCount = 1;
-    for (final child in root.children) {
-      totalCount += countNodeHandler(child);
-    }
-
-    return totalCount;
   }
 }

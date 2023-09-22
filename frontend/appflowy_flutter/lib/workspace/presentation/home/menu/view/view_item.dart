@@ -413,21 +413,28 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<PanesCubit>().openTab(plugin: widget.view.plugin());
               break;
             case ViewMoreActionType.splitDown:
-              context
-                  .read<PanesCubit>()
-                  .split(widget.view.plugin(), SplitDirection.down);
+              context.read<PanesCubit>().split(
+                    plugin: widget.view.plugin(),
+                    splitDirection: SplitDirection.down,
+                  );
+
             case ViewMoreActionType.splitRight:
-              context
-                  .read<PanesCubit>()
-                  .split(widget.view.plugin(), SplitDirection.right);
+              context.read<PanesCubit>().split(
+                    plugin: widget.view.plugin(),
+                    splitDirection: SplitDirection.right,
+                  );
+
             case ViewMoreActionType.splitLeft:
-              context
-                  .read<PanesCubit>()
-                  .split(widget.view.plugin(), SplitDirection.left);
+              context.read<PanesCubit>().split(
+                    plugin: widget.view.plugin(),
+                    splitDirection: SplitDirection.left,
+                  );
+
             case ViewMoreActionType.splitUp:
-              context
-                  .read<PanesCubit>()
-                  .split(widget.view.plugin(), SplitDirection.up);
+              context.read<PanesCubit>().split(
+                    plugin: widget.view.plugin(),
+                    splitDirection: SplitDirection.up,
+                  );
             default:
               throw UnsupportedError('$action is not supported');
           }

@@ -14,7 +14,6 @@ enum DraggableHoverPosition {
   bottom,
 }
 
-//TODO(squidrye):refactor cross draggables and add edge cases
 class DraggableViewItem extends StatefulWidget {
   DraggableViewItem({
     super.key,

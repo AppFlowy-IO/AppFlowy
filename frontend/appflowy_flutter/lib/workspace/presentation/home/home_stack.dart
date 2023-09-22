@@ -282,7 +282,8 @@ class HomeTopBar extends StatelessWidget {
                 }
 
                 return IconButton(
-                  onPressed: () => context.read<PanesCubit>().closePane(paneId),
+                  onPressed: () =>
+                      context.read<PanesCubit>().closePane(paneId: paneId),
                   icon: const Icon(Icons.close_sharp),
                 );
               },
