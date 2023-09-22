@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -87,6 +87,6 @@ class _FlowyTabState extends State<FlowyTab> {
   }
 
   void _closeTab([TapUpDetails? details]) =>
-      Provider.of<Tabs>(context, listen: false)
+      Provider.of<TabsController>(context, listen: false)
           .closeView(widget.pageManager.plugin.id);
 }

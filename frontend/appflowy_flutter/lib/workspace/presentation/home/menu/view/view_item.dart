@@ -423,18 +423,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                     plugin: widget.view.plugin(),
                     splitDirection: SplitDirection.right,
                   );
-
-            case ViewMoreActionType.splitLeft:
-              context.read<PanesCubit>().split(
-                    plugin: widget.view.plugin(),
-                    splitDirection: SplitDirection.left,
-                  );
-
-            case ViewMoreActionType.splitUp:
-              context.read<PanesCubit>().split(
-                    plugin: widget.view.plugin(),
-                    splitDirection: SplitDirection.up,
-                  );
             default:
               throw UnsupportedError('$action is not supported');
           }
