@@ -106,6 +106,7 @@ class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
             widget.currentValue,
             fontColor: Theme.of(context).colorScheme.onBackground,
             fillColor: Colors.transparent,
+            onPressed: () {},
           ),
     );
   }
