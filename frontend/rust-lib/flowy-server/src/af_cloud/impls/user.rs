@@ -95,15 +95,30 @@ where
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
+      // from params
       let token = credential.token.ok_or(anyhow!("expecting token"))?;
       let uuid = credential.uuid.ok_or(anyhow!("expecting uuid"))?;
-      let user = try_get_client?
-        .write()
-        .await
-        .user_info(token.as_str())
-        .await?;
-      if user.id != uuid {
-        return Err(anyhow!("invalid user"));
+      let uid = credential.uid.ok_or(anyhow!("expecting uid"))?;
+
+      // from cloud
+      let client = try_get_client?;
+      let profile = client.write().await.profile().await?;
+      let read_client = client.read().await;
+      let client_token = read_client
+        .token()
+        .ok_or(anyhow!("no token found"))?
+        .access_token
+        .as_str();
+
+      // compare and check
+      if uuid != profile.uuid.ok_or(anyhow!("expecting uuid"))?.to_string() {
+        return Err(anyhow!("uuid mismatch"));
+      }
+      if uid != profile.uid.ok_or(anyhow!("expecting uid"))? {
+        return Err(anyhow!("uid mismatch"));
+      }
+      if token != client_token {
+        return Err(anyhow!("token mismatch"));
       }
       Ok(())
     })
