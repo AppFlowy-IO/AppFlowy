@@ -1,9 +1,10 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
+import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,15 +38,14 @@ class _FlowyPaneState extends State<FlowyPane> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Tabs>(
+    return ChangeNotifierProvider<TabsController>(
       create: (context) => widget.node.tabs,
-      child: Consumer<Tabs>(
+      child: Consumer<TabsController>(
         builder: (context, value, child) {
-          return DraggablePaneItem(
+          return DraggablePaneTarget(
             size: widget.size,
             paneContext: widget.paneContext,
             pane: CrossDraggablesEntity(draggable: widget.node),
-            feedback: (context) => widget.node.tabs.currentPageManager.title(),
             child: Scrollbar(
               controller: verticalController,
               child: SingleChildScrollView(
@@ -59,23 +59,30 @@ class _FlowyPaneState extends State<FlowyPane> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: widget.layout.menuSpacing,
+                        DraggablePaneItem(
+                          size: widget.size,
+                          paneContext: widget.paneContext,
+                          pane: CrossDraggablesEntity(draggable: widget.node),
+                          feedback: (context) =>
+                              widget.node.tabs.currentPageManager.title(),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: widget.layout.menuSpacing,
+                                ),
+                                child: TabsManager(
+                                  pane: widget.node,
+                                  pageController: pageController,
+                                  tabs: value,
+                                ),
                               ),
-                              child: TabsManager(
-                                pane: widget.node,
-                                pageController: pageController,
-                                tabs: value,
+                              value.currentPageManager.stackTopBar(
+                                layout: widget.layout,
+                                paneId: widget.node.paneId,
                               ),
-                            ),
-                            value.currentPageManager.stackTopBar(
-                              layout: widget.layout,
-                              paneId: widget.node.paneId,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         Expanded(
                           child: PageView(

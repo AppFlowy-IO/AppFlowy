@@ -1,11 +1,11 @@
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/draggable_item/combined_draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 
 enum TabDraggableHoverPosition {
   none,
@@ -19,7 +19,7 @@ class DraggableTabItem extends StatefulWidget {
     this.feedback,
     required this.child,
     required this.pageManager,
-    required Tabs tabs,
+    required TabsController tabs,
   }) : tabs = CrossDraggablesEntity(draggable: TabNode(tabs, pageManager));
 
   final Widget child;
@@ -56,7 +56,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       child: widget.child,
     );
 
-    return DraggableItem<CrossDraggablesEntity>(
+    return CombinedDraggableItem<CrossDraggablesEntity>(
       enableAutoScroll: false,
       data: widget.tabs,
       onWillAccept: (data) => true,
@@ -112,7 +112,11 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
     } else if (type == CrossDraggableType.tab) {
       final fromTab = from.draggable as TabNode;
       final plugin = (from.draggable as TabNode).pageManager.plugin;
-      fromTab.tabs.closeView(plugin.id);
+      if (fromTab.tabs != to.tabs) {
+        fromTab.tabs.closeView(plugin.id);
+      } else {
+        to.tabs.closeView(plugin.id);
+      }
       to.tabs.move(
         from: fromTab.pageManager,
         to: to.pageManager,

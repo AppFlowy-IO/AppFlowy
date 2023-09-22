@@ -1,7 +1,7 @@
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
-import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/draggable_item/combined_draggable_item.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +68,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       ],
     );
 
-    return DraggableItem<CrossDraggablesEntity>(
+    return CombinedDraggableItem<CrossDraggablesEntity>(
       data: widget.view,
       onWillAccept: (data) => true,
       onMove: (data) {
