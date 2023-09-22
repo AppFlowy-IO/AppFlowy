@@ -16,6 +16,7 @@ final customizeFontToolbarItem = ToolbarItem(
       cursor: SystemMouseCursors.click,
       child: FontFamilyDropDown(
         currentFontFamily: '',
+        offset: const Offset(0, 12),
         popoverController: popoverController,
         onOpen: () => keepEditorFocusNotifier.value += 1,
         onClose: () => keepEditorFocusNotifier.value -= 1,
