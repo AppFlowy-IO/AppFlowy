@@ -118,6 +118,15 @@ class HoverStyle {
     this.hoverColor,
     this.foregroundColorOnHover,
   });
+
+  const HoverStyle.transparent({
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
+    this.borderRadius = const BorderRadius.all(Radius.circular(6)),
+    this.contentMargin = EdgeInsets.zero,
+    this.backgroundColor = Colors.transparent,
+    this.foregroundColorOnHover,
+  }) : hoverColor = Colors.transparent;
 }
 
 class FlowyHoverContainer extends StatelessWidget {

@@ -267,7 +267,6 @@
     },
     "user": {
       "name": "名字",
-      "icon": "图标",
       "selectAnIcon": "选择一个图标",
       "pleaseInputYourOpenAIKey": "请输入您的 OpenAI 密钥"
     }

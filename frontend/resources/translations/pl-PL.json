@@ -240,7 +240,6 @@
     },
     "user": {
       "name": "Nazwa",
-      "icon": "Ikona",
       "selectAnIcon": "Wybierz ikonę",
       "pleaseInputYourOpenAIKey": "wprowadź swój klucz OpenAI"
     }
