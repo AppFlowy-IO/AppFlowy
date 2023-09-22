@@ -1,6 +1,6 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
-import 'package:appflowy/workspace/application/tabs/tabs.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 
 class TabsManager extends StatefulWidget {
   final PageController pageController;
-  final Tabs tabs;
+  final TabsController tabs;
   final PaneNode pane;
   const TabsManager({
     super.key,
