@@ -36,6 +36,7 @@ where
     })
   }
 
+  // Zack: Not sure if this is needed anymore since sign_up handles both cases
   fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -178,32 +179,40 @@ pub async fn user_sign_up_request(
   client: Arc<AFCloudClient>,
   params: AFCloudOAuthParams,
 ) -> Result<SignUpResponse, FlowyError> {
-  client.write().await.sign_in_url(&params.oauth_url).await?;
-  //
-  // let sign_in_resp = user_sign_in_request(
-  //   client,
-  //   SignInParams {
-  //     email: params.email,
-  //     password: params.password,
-  //     name: params.name,
-  //     auth_type: AuthType::AFCloud,
-  //     device_id: params.device_id,
-  //   },
-  // )
-  // .await?;
-  //
-  // Ok(SignUpResponse {
-  //   user_id: sign_in_resp.user_id(),
-  //   name: sign_in_resp.name,
-  //   latest_workspace: sign_in_resp.latest_workspace,
-  //   user_workspaces: sign_in_resp.user_workspaces,
-  //   is_new_user: false, // TODO: how to know?
-  //   email: sign_in_resp.email,
-  //   token: sign_in_resp.token,
-  //   device_id: sign_in_resp.device_id,
-  //   encryption_type: sign_in_resp.encryption_type,
-  // })
-  todo!()
+  let url = params.oauth_url;
+  user_sign_in_with_url(client, &url).await
+}
+
+pub async fn user_sign_in_with_url(
+  client: Arc<AFCloudClient>,
+  url: &str,
+) -> Result<SignUpResponse, FlowyError> {
+  let is_new_user = client.write().await.sign_in_url(url).await?;
+
+  let (mut wc1, mut wc2) = tokio::join!(client.write(), client.write());
+  let (profile, af_workspaces) = tokio::try_join!(wc1.profile(), wc2.workspaces())?;
+
+  let latest_workspace = to_userworkspace(
+    af_workspaces
+      .get_latest(&profile)
+      .or(af_workspaces.first().cloned())
+      .ok_or(anyhow!("no workspace found"))?,
+  )?;
+
+  let user_workspaces = to_userworkspaces(af_workspaces)?;
+  let encryption_type = encryption_type_from_profile(&profile);
+
+  Ok(SignUpResponse {
+    user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
+    name: profile.name.ok_or(anyhow!("no name found"))?,
+    latest_workspace,
+    user_workspaces,
+    email: profile.email,
+    token: token_from_client(client.clone()).await,
+    device_id: "".to_owned(),
+    encryption_type,
+    is_new_user,
+  })
 }
 
 pub async fn user_sign_in_request(
