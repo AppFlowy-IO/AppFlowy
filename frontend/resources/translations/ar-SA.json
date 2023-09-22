@@ -258,7 +258,6 @@
         },
         "user": {
             "name": "اسم",
-            "icon": "أيقونة",
             "selectAnIcon": "حدد أيقونة",
             "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح OpenAI الخاص بك"
         }
