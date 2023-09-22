@@ -23,6 +23,8 @@ class InitAppWidgetTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     WidgetsFlutterBinding.ensureInitialized();
 
+    await NotificationService.initialize();
+
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
@@ -38,8 +40,6 @@ class InitAppWidgetTask extends LaunchTask {
       appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
-
-    await NotificationService.initialize();
 
     Bloc.observer = ApplicationBlocObserver();
     runApp(

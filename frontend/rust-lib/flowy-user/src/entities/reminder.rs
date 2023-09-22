@@ -17,12 +17,15 @@ pub struct ReminderPB {
   pub is_ack: bool,
 
   #[pb(index = 5)]
-  pub title: String,
+  pub is_read: bool,
 
   #[pb(index = 6)]
-  pub message: String,
+  pub title: String,
 
   #[pb(index = 7)]
+  pub message: String,
+
+  #[pb(index = 8)]
   pub meta: HashMap<String, String>,
 }
 
@@ -38,6 +41,7 @@ impl From<ReminderPB> for Reminder {
       id: value.id,
       scheduled_at: value.scheduled_at,
       is_ack: value.is_ack,
+      is_read: value.is_read,
       ty: ObjectType::Document,
       title: value.title,
       message: value.message,
@@ -54,6 +58,7 @@ impl From<Reminder> for ReminderPB {
       object_id: value.object_id,
       scheduled_at: value.scheduled_at,
       is_ack: value.is_ack,
+      is_read: value.is_read,
       title: value.title,
       message: value.message,
       meta: value.meta.into_inner(),

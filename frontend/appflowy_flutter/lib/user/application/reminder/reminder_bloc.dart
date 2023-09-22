@@ -123,6 +123,34 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
+        markAsRead: (reminder) async {
+          final reminderUpdate = ReminderPB(
+            id: reminder.id,
+            objectId: reminder.objectId,
+            scheduledAt: reminder.scheduledAt,
+            isAck: reminder.isAck,
+            isRead: true,
+            title: reminder.title,
+            message: reminder.message,
+            meta: reminder.meta,
+          );
+
+          final failureOrUnit = await reminderService.updateReminder(
+            reminder: reminderUpdate,
+          );
+
+          failureOrUnit.fold(
+            (error) => Log.error(error),
+            (_) {
+              final index =
+                  state.reminders.indexWhere((r) => r.id == reminder.id);
+              final reminders = [...state.reminders];
+              reminders.replaceRange(index, index + 1, [reminderUpdate]);
+
+              emit(state.copyWith(reminders: reminders));
+            },
+          );
+        },
       );
     });
   }
@@ -143,6 +171,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           if (scheduledAt.isBefore(now)) {
             NotificationMessage(
+              identifier: reminder.id,
               title: LocaleKeys.reminderNotification_title.tr(),
               body: LocaleKeys.reminderNotification_message.tr(),
               onClick: () => getIt<NotificationActionBloc>().add(
@@ -179,6 +208,10 @@ class ReminderEvent with _$ReminderEvent {
   const factory ReminderEvent.acknowledge({
     required ReminderPB reminder,
   }) = _Acknowledge;
+
+  const factory ReminderEvent.markAsRead({
+    required ReminderPB reminder,
+  }) = _MarkAsRead;
 }
 
 class ReminderState {

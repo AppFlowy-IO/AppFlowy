@@ -11,10 +11,6 @@ abstract class IReminderService {
 
   Future<Either<FlowyError, Unit>> removeReminder({required String reminderId});
 
-  Future<Either<FlowyError, Unit>> acknowledgeReminder({
-    required ReminderPB reminder,
-  });
-
   Future<Either<FlowyError, Unit>> addReminder({required ReminderPB reminder});
 
   Future<Either<FlowyError, Unit>> updateReminder({
@@ -59,16 +55,6 @@ class ReminderService implements IReminderService {
   }) async {
     final request = ReminderIdentifierPB(id: reminderId);
     final unitOrFailure = await UserEventRemoveReminder(request).send();
-
-    return unitOrFailure.swap();
-  }
-
-  @override
-  Future<Either<FlowyError, Unit>> acknowledgeReminder({
-    required ReminderPB reminder,
-  }) async {
-    reminder.isAck = true;
-    final unitOrFailure = await UserEventUpdateReminder(reminder).send();
 
     return unitOrFailure.swap();
   }
