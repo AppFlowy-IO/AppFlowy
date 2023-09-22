@@ -360,6 +360,6 @@ pub struct SupabaseOAuthParams {
 }
 
 pub struct AFCloudOAuthParams {
-  pub oauth_url: String,
+  pub sign_in_url: String,
   pub device_id: String,
 }

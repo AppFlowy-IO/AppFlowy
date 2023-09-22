@@ -13,6 +13,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::{AFCloudClient, AFServer};
+use crate::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
@@ -194,7 +195,7 @@ pub async fn user_sign_in_with_url(
   client: Arc<AFCloudClient>,
   params: AFCloudOAuthParams,
 ) -> Result<AuthResponse, FlowyError> {
-  let is_new_user = client.sign_in_url(&params.oauth_url).await?;
+  let is_new_user = client.sign_in_url(&params.sign_in_url).await?;
   let (profile, af_workspaces) = tokio::try_join!(client.profile(), client.workspaces())?;
 
   let latest_workspace = to_user_workspace(
@@ -258,13 +259,13 @@ fn to_user_workspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>,
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, Error> {
   let map: HashMap<String, String> = any.unbox_or_error()?;
-  let oauth_url = map
-    .get("token")
+  let sign_in_url = map
+    .get(USER_SIGN_IN_URL)
     .ok_or_else(|| FlowyError::new(ErrorCode::MissingAuthField, "Missing token field"))?
     .as_str();
-  let device_id = map.get("device_id").cloned().unwrap_or_default();
+  let device_id = map.get(USER_DEVICE_ID).cloned().unwrap_or_default();
   Ok(AFCloudOAuthParams {
-    oauth_url: oauth_url.to_string(),
+    sign_in_url: sign_in_url.to_string(),
     device_id,
   })
 }
