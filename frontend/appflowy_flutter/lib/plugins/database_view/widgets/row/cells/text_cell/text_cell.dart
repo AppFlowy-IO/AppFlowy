@@ -57,13 +57,12 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
 
   @override
   void initState() {
+    super.initState();
     final cellController =
         widget.cellControllerBuilder.build() as TextCellController;
     _cellBloc = TextCellBloc(cellController: cellController)
       ..add(const TextCellEvent.initial());
-    print("init state ${_cellBloc.state.content}");
     _controller = TextEditingController(text: _cellBloc.state.content);
-    super.initState();
   }
 
   @override
@@ -105,6 +104,10 @@ class _GridTextCellState extends GridEditableTextCell<GridTextCell> {
                         focusNode: focusNode,
                         autoFocus: widget.cellStyle.autofocus,
                         hintText: widget.cellStyle.placeholder,
+                        onChanged: (text) => _cellBloc.add(
+                          TextCellEvent.updateText(text),
+                        ),
+                        debounceDuration: const Duration(milliseconds: 300),
                       )
                     : TextField(
                         controller: _controller,

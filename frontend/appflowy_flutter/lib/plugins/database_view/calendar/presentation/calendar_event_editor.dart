@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -163,43 +162,6 @@ class EventPropertyList extends StatelessWidget {
     );
   }
 }
-
-// class EventTitleTextField extends StatelessWidget {
-//   final GridCellBuilder cellBuilder;
-
-//   const EventTitleTextField({super.key, required this.cellBuilder});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<CalendarEventEditorBloc, CalendarEventEditorState>(
-//       builder: (context, state) {
-//         final primaryCellContext =
-//             state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
-
-//         if (primaryCellContext == null) {
-//           return const SizedBox.shrink();
-//         }
-
-//         return Padding(
-//           padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
-//           child: cellBuilder.build(
-//             primaryCellContext,
-//             style: GridTextCellStyle(
-//               cellPadding: EdgeInsets.zero,
-//               placeholder: LocaleKeys.calendar_defaultNewCalendarTitle.tr(),
-//               textStyle: Theme.of(context)
-//                   .textTheme
-//                   .bodyMedium
-//                   ?.copyWith(fontSize: 11),
-//               autofocus: true,
-//               useRoundedBorder: true,
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 
 class PropertyCell extends StatefulWidget {
   final DatabaseCellContext cellContext;

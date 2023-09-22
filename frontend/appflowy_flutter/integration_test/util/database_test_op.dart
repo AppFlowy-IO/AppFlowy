@@ -1338,6 +1338,26 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> openUnscheduledEventsPopup() async {
+    final button = find.byType(UnscheduledEventsButton);
+    await tapButton(button);
+  }
+
+  void findUnscheduledPopup(Matcher matcher, int numUnscheduledEvents) {
+    expect(find.byType(UnscheduleEventsList), matcher);
+    if (matcher != findsNothing) {
+      expect(
+        find.byType(UnscheduledEventCell),
+        findsNWidgets(numUnscheduledEvents),
+      );
+    }
+  }
+
+  Future<void> clickUnscheduledEvent() async {
+    final unscheduledEvent = find.byType(UnscheduledEventCell);
+    await tapButton(unscheduledEvent);
+  }
+
   Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
     final findAddButton = find.byType(AddDatabaseViewButton);
     await tapButton(findAddButton);

@@ -370,7 +370,11 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 visualDensity: VisualDensity.compact,
               ),
-              onPressed: () => _popoverController.show(),
+              onPressed: () {
+                if (state.unscheduleEvents.isNotEmpty) {
+                  _popoverController.show();
+                }
+              },
               child: FlowyText.regular(
                 "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
                 fontSize: 10,

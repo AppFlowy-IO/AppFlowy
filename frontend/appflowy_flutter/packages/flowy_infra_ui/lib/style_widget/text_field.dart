@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;
-  final String text;
+  final String? text;
   final TextStyle? textStyle;
   final void Function(String)? onChanged;
   final void Function()? onEditingComplete;
@@ -24,7 +24,7 @@ class FlowyTextField extends StatefulWidget {
 
   const FlowyTextField({
     this.hintText = "",
-    this.text = "",
+    this.text,
     this.textStyle,
     this.onChanged,
     this.onEditingComplete,
@@ -57,7 +57,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     focusNode.addListener(notifyDidEndEditing);
 
     controller = widget.controller ?? TextEditingController();
-    controller.text = widget.text;
+    if (widget.text != null) {
+      controller.text = widget.text!;
+    }
+
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
