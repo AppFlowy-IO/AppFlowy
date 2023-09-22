@@ -60,6 +60,7 @@ class FontFamilyDropDown extends StatefulWidget {
     this.onFontFamilyChanged,
     this.child,
     this.popoverController,
+    this.offset,
   });
 
   final String currentFontFamily;
@@ -68,6 +69,7 @@ class FontFamilyDropDown extends StatefulWidget {
   final void Function(String fontFamily)? onFontFamilyChanged;
   final Widget? child;
   final PopoverController? popoverController;
+  final Offset? offset;
 
   @override
   State<FontFamilyDropDown> createState() => _FontFamilyDropDownState();
@@ -87,6 +89,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         query.value = '';
         widget.onClose?.call();
       },
+      offset: widget.offset,
       child: widget.child,
       popupBuilder: (_) {
         widget.onOpen?.call();
