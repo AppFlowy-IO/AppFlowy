@@ -17,8 +17,8 @@ use flowy_user_deps::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::{
-  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFolderCloudServiceImpl,
-  AFCloudUserAuthServiceImpl,
+  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
+  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
 use crate::AppFlowyServer;
 
@@ -126,7 +126,8 @@ impl AppFlowyServer for AFCloudServer {
   }
 
   fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
-    None
+    let client = AFServerImpl(self.get_client());
+    Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
   }
 }
 
