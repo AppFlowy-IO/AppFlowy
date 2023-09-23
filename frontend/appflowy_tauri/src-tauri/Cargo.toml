@@ -44,7 +44,6 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8
 #
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
-
 # ⚠️⚠️⚠️️
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }

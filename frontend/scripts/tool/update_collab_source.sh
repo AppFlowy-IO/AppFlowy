@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Paths to your Cargo.toml files
-REPO_PATH="../AppFlowy-Collab"
+REPO_PATH="./AppFlowy-Collab"
 CARGO_TOML_1="./rust-lib/Cargo.toml"
 REPO_RELATIVE_PATH_1="../AppFlowy-Collab"
 
@@ -31,25 +31,9 @@ switch_deps() {
 }
 
 # Check if AppFlowy-Collab directory exists
-# Check if AppFlowy-Collab directory exists
 if [ ! -d "$REPO_PATH" ]; then
     echo "AppFlowy-Collab directory not found. Cloning the repository..."
     git clone https://github.com/AppFlowy-IO/AppFlowy-Collab.git "$REPO_PATH"
-else
-    # Check if the Cargo.toml file references the git repository for the dependency
-    if grep -q 'git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"' "$CARGO_TOML_1"; then
-        echo "AppFlowy-Collab directory found and Cargo.toml references git repository. Pulling the latest code..."
-        # Save the current directory
-        CURRENT_DIR=$(pwd)
-        # Navigate to the AppFlowy-Collab directory
-        cd "$REPO_PATH"
-        # Pull the latest code
-        git pull
-        # Navigate back to the original directory
-        cd "$CURRENT_DIR"
-    else
-        echo "AppFlowy-Collab directory found, but Cargo.toml does not reference git repository. Skipping git pull."
-    fi
 fi
 
 # Switch dependencies in both Cargo.toml files
