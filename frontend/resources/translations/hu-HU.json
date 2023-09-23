@@ -240,7 +240,6 @@
     },
     "user": {
       "name": "Név",
-      "icon": "Ikon",
       "selectAnIcon": "Válasszon ki egy ikont",
       "pleaseInputYourOpenAIKey": "kérjük, adja meg OpenAI kulcsát"
     }

@@ -143,7 +143,7 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
                     ),
                   );
             },
-            icon: visibleIcon.padding(all: 6.0),
+            icon: visibleIcon.padding(all: 4.0),
           ),
           onTap: () => _popoverController.show(),
         ).padding(horizontal: 6.0),

@@ -252,7 +252,6 @@
     },
     "user": {
       "name": "이름",
-      "icon": "상",
       "selectAnIcon": "아이콘을 선택하세요",
       "pleaseInputYourOpenAIKey": "OpenAI 키를 입력하십시오"
     }

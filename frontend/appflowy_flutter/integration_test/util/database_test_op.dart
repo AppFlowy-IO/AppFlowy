@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/board/presentation/board_page.dar
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_editor.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
@@ -25,6 +26,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/order_panel.dart';
@@ -45,7 +47,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/cells/date_cell/date_
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
@@ -330,7 +331,17 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> toggleIncludeTime() async {
-    final findDateEditor = find.byType(DateCellEditor);
+    final findDateEditor = find.byType(IncludeTimeButton);
+    final findToggle = find.byType(Toggle);
+    final finder = find.descendant(
+      of: findDateEditor,
+      matching: findToggle,
+    );
+    await tapButton(finder);
+  }
+
+  Future<void> toggleDateRange() async {
+    final findDateEditor = find.byType(EndTimeButton);
     final findToggle = find.byType(Toggle);
     final finder = find.descendant(
       of: findDateEditor,
@@ -483,15 +494,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     }
   }
 
-  void assertNewCheckListTaskEditorVisible({required bool visible}) {
-    final editor = find.byType(NewTaskItem);
-    if (visible) {
-      expect(editor, findsOneWidget);
-    } else {
-      expect(editor, findsNothing);
-    }
-  }
-
   Future<void> createNewChecklistTask({
     required String name,
     enter = false,
@@ -504,10 +506,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await enterText(textField, name);
-    await pumpAndSettle(const Duration(milliseconds: 300));
+    await pumpAndSettle();
     if (enter) {
       await testTextInput.receiveAction(TextInputAction.done);
-      await pumpAndSettle(const Duration(milliseconds: 300));
+      await pumpAndSettle();
     } else {
       await tapButton(
         find.descendant(
@@ -544,11 +546,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     await enterText(textField, name);
     await testTextInput.receiveAction(TextInputAction.done);
-    await pumpAndSettle(const Duration(milliseconds: 300));
-  }
-
-  Future<void> tapChecklistNewTaskButton() async {
-    await tapButton(find.byType(ChecklistNewTaskButton));
+    await pumpAndSettle();
   }
 
   Future<void> checkChecklistTask({required int index}) async {
@@ -1294,10 +1292,70 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(cards.at(index));
   }
 
+  void assertEventEditorOpen() {
+    expect(find.byType(CalendarEventEditor), findsOneWidget);
+  }
+
+  Future<void> dismissEventEditor() async {
+    await simulateKeyEvent(LogicalKeyboardKey.escape);
+  }
+
+  Future<void> editEventTitle(String title) async {
+    final textField = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byType(FlowyTextField),
+    );
+
+    await enterText(textField, title);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> openEventToRowDetailPage() async {
+    final button = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.full_view_s,
+      ),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> deleteEventFromEventEditor() async {
+    final button = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+      ),
+    );
+
+    await tapButton(button);
+  }
+
   Future<void> dragDropRescheduleCalendarEvent(DateTime startDate) async {
     final findEventCard = find.byType(EventCard);
     await drag(findEventCard.first, const Offset(0, 300));
     await pumpAndSettle();
+  }
+
+  Future<void> openUnscheduledEventsPopup() async {
+    final button = find.byType(UnscheduledEventsButton);
+    await tapButton(button);
+  }
+
+  void findUnscheduledPopup(Matcher matcher, int numUnscheduledEvents) {
+    expect(find.byType(UnscheduleEventsList), matcher);
+    if (matcher != findsNothing) {
+      expect(
+        find.byType(UnscheduledEventCell),
+        findsNWidgets(numUnscheduledEvents),
+      );
+    }
+  }
+
+  Future<void> clickUnscheduledEvent() async {
+    final unscheduledEvent = find.byType(UnscheduledEventCell);
+    await tapButton(unscheduledEvent);
   }
 
   Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {

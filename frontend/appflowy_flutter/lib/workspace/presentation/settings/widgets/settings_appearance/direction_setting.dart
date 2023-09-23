@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +25,9 @@ class LayoutDirectionSetting extends StatelessWidget {
       hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
         ThemeValueDropDown(
+          key: const ValueKey('layout_direction_option_button'),
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
-          popupBuilder: (_) => Column(
+          popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _layoutDirectionItemButton(context, LayoutDirection.ltrLayout),
@@ -54,6 +56,7 @@ class LayoutDirectionSetting extends StatelessWidget {
                 .read<AppearanceSettingsCubit>()
                 .setLayoutDirection(direction);
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );
@@ -86,7 +89,7 @@ class TextDirectionSetting extends StatelessWidget {
         trailing: [
           ThemeValueDropDown(
             currentValue: _textDirectionLabelText(currentTextDirection),
-            popupBuilder: (_) => Column(
+            popupBuilder: (context) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _textDirectionItemButton(context, null),
@@ -119,6 +122,7 @@ class TextDirectionSetting extends StatelessWidget {
                 .read<DocumentAppearanceCubit>()
                 .syncDefaultTextDirection(textDirection?.name);
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );
