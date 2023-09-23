@@ -51,16 +51,6 @@ collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b
 collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 
-#collab = { path = "../../../../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../../../../AppFlowy-Collab/collab-folder" }
-#collab-document = { path = "../../../../AppFlowy-Collab/collab-document" }
-#collab-database = { path = "../../../../AppFlowy-Collab/collab-database" }
-#collab-plugins = { path = "../../../../AppFlowy-Collab/collab-plugins" }
-#collab-persistence = { path = "../../../../AppFlowy-Collab/collab-persistence" }
-#collab-user = { path = "../../../../AppFlowy-Collab/collab-user" }
-#collab-define = { path = "../../../../AppFlowy-Collab/collab-define" }
-#collab-sync-protocol = { path = "../../../../AppFlowy-Collab/collab-sync-protocol" }
-
 
 
 
