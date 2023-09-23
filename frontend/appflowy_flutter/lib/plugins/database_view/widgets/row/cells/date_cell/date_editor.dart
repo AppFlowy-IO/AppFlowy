@@ -100,32 +100,30 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [
-      StartTextField(popoverMutex: popoverMutex),
-      EndTextField(popoverMutex: popoverMutex),
-      const DatePicker(),
-      const TypeOptionSeparator(spacing: 12.0),
-      const EndTimeButton(),
-      const VSpace(4.0),
-      const _IncludeTimeButton(),
-      const TypeOptionSeparator(spacing: 8.0),
-      DateTypeOptionButton(popoverMutex: popoverMutex),
-      const VSpace(4.0),
-      const ClearDateButton(),
-    ];
-
     return BlocProvider(
       create: (context) => DateCellCalendarBloc(
         dateTypeOptionPB: widget.dateTypeOptionPB,
         cellData: widget.cellContext.getCellData(),
         cellController: widget.cellContext,
       )..add(const DateCellCalendarEvent.initial()),
-      child: ListView.builder(
-        shrinkWrap: true,
-        controller: ScrollController(),
-        itemCount: children.length,
-        itemBuilder: (BuildContext context, int index) => children[index],
+      child: Padding(
         padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StartTextField(popoverMutex: popoverMutex),
+            EndTextField(popoverMutex: popoverMutex),
+            const DatePicker(),
+            const TypeOptionSeparator(spacing: 12.0),
+            const EndTimeButton(),
+            const VSpace(4.0),
+            const _IncludeTimeButton(),
+            const TypeOptionSeparator(spacing: 8.0),
+            DateTypeOptionButton(popoverMutex: popoverMutex),
+            const VSpace(4.0),
+            const ClearDateButton(),
+          ],
+        ),
       ),
     );
   }
