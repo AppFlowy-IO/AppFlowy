@@ -74,6 +74,7 @@ class ThemeValueDropDown extends StatefulWidget {
     this.onClose,
     this.child,
     this.popoverController,
+    this.offset,
   });
 
   final String currentValue;
@@ -82,6 +83,7 @@ class ThemeValueDropDown extends StatefulWidget {
   final void Function()? onClose;
   final Widget? child;
   final PopoverController? popoverController;
+  final Offset? offset;
 
   @override
   State<ThemeValueDropDown> createState() => _ThemeValueDropDownState();
@@ -93,13 +95,14 @@ class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
     return AppFlowyPopover(
       key: widget.popoverKey,
       controller: widget.popoverController,
-      direction: PopoverDirection.bottomWithRightAligned,
+      direction: PopoverDirection.bottomWithCenterAligned,
       popupBuilder: widget.popupBuilder,
       constraints: const BoxConstraints(
         minWidth: 80,
         maxWidth: 160,
         maxHeight: 400,
       ),
+      offset: widget.offset,
       onClose: widget.onClose,
       child: widget.child ??
           FlowyTextButton(

@@ -16,9 +16,11 @@ final customizeFontToolbarItem = ToolbarItem(
       cursor: SystemMouseCursors.click,
       child: FontFamilyDropDown(
         currentFontFamily: '',
+        offset: const Offset(0, 12),
         popoverController: popoverController,
         onOpen: () => keepEditorFocusNotifier.value += 1,
         onClose: () => keepEditorFocusNotifier.value -= 1,
+        showResetButton: true,
         onFontFamilyChanged: (fontFamily) async {
           await popoverController.close();
           try {
@@ -29,6 +31,9 @@ final customizeFontToolbarItem = ToolbarItem(
             Log.error('Failed to set font family: $e');
           }
         },
+        onResetFont: () async => await editorState.formatDelta(selection, {
+          AppFlowyRichTextKeys.fontFamily: null,
+        }),
         child: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.0),
           child: FlowySvg(
