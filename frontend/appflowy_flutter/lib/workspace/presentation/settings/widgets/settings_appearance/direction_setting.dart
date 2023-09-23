@@ -25,6 +25,7 @@ class LayoutDirectionSetting extends StatelessWidget {
       hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
         ThemeValueDropDown(
+          key: const ValueKey('layout_direction_option_button'),
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,

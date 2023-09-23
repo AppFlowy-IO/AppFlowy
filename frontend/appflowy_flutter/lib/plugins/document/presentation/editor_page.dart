@@ -160,16 +160,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             LayoutDirection.rtlLayout;
     final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
-    // only show the rtl item when the layout direction is ltr.
-    for (final item in textDirectionItems) {
-      if (isRTL) {
-        if (toolbarItems.every((element) => element.id != item.id)) {
-          toolbarItems.add(item);
-        }
-      } else {
-        toolbarItems.removeWhere((element) => element.id == item.id);
-      }
-    }
+    _setRTLToolbarItems(isRTL);
 
     final editorScrollController = EditorScrollController(
       editorState: widget.editorState,
@@ -474,5 +465,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       standardCommandShortcutEvents,
       customizeShortcuts,
     );
+  }
+
+  void _setRTLToolbarItems(bool isRTL) {
+    final textDirectionItemIds = textDirectionItems.map((e) => e.id);
+    // clear all the text direction items
+    toolbarItems.removeWhere(
+      (item) => textDirectionItemIds.contains(item.id),
+    );
+    // only show the rtl item when the layout direction is ltr.
+    if (isRTL) {
+      toolbarItems.addAll(textDirectionItems);
+    }
   }
 }
