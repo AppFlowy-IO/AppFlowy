@@ -70,6 +70,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightShader5,
+          calendarWeekendBGColor: const Color(0xFFFBFBFC),
         );
 
   const DefaultColorScheme.dark()
@@ -120,5 +121,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
+          calendarWeekendBGColor: const Color(0xff121212),
         );
 }

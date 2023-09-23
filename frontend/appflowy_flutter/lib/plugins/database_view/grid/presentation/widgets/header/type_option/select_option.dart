@@ -325,4 +325,15 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
       },
     );
   }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
+  }
 }
