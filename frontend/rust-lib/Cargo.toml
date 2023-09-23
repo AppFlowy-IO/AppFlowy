@@ -78,10 +78,14 @@ incremental = false
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
 
 # ⚠️⚠️⚠️
-# Please using the following command to update the revision id
-# Current directory: frontend
-# Run the script:
-# scripts/tool/update_collab_rev.sh  new_rev_id
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
