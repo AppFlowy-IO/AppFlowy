@@ -240,7 +240,6 @@
     },
     "user": {
       "name": "名前",
-      "icon": "アイコン",
       "selectAnIcon": "アイコンを選択してください",
       "pleaseInputYourOpenAIKey": "OpenAI キーを入力してください"
     }

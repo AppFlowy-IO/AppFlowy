@@ -55,12 +55,9 @@ SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
 
 class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
     this.padding = const EdgeInsets.all(0),
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   final EdgeInsets padding;
 
@@ -109,7 +106,8 @@ class _ToggleListBlockComponentWidgetState
         BlockComponentConfigurable,
         BlockComponentBackgroundColorMixin,
         NestedBlockComponentStatefulWidgetMixin,
-        BlockComponentTextDirectionMixin {
+        BlockComponentTextDirectionMixin,
+        BlockComponentAlignMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -146,7 +144,10 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
-  Widget buildComponent(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = false,
+  }) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
@@ -154,8 +155,12 @@ class _ToggleListBlockComponentWidgetState
     Widget child = Container(
       color: backgroundColor,
       width: double.infinity,
+      alignment: alignment,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        textDirection: textDirection,
         children: [
           // the emoji picker button for the note
           FlowyIconButton(
@@ -168,7 +173,7 @@ class _ToggleListBlockComponentWidgetState
           const SizedBox(
             width: 4.0,
           ),
-          Expanded(
+          Flexible(
             child: AppFlowyRichText(
               key: forwardKey,
               delegate: this,
@@ -184,6 +189,7 @@ class _ToggleListBlockComponentWidgetState
                 placeholderTextStyle,
               ),
               textDirection: textDirection,
+              textAlign: alignment?.toTextAlign,
               cursorColor: editorState.editorStyle.cursorColor,
               selectionColor: editorState.editorStyle.selectionColor,
             ),

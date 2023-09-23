@@ -265,13 +265,13 @@
       },
       "layoutDirection": {
         "label": "Layout Direction",
-        "hint": "To start aligning elements from left or right of the screen.",
+        "hint": "Control the flow of content on your screen, from left to right or right to left.",
         "ltr": "LTR",
         "rtl": "RTL"
       },
       "textDirection": {
         "label": "Default text direction",
-        "hint": "Default text direction when the text direction is not set on the element.",
+        "hint": "Specify whether text should start from left or right as the default.",
         "ltr": "LTR",
         "rtl": "RTL",
         "auto": "AUTO",
@@ -289,7 +289,8 @@
       },
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
     },
     "files": {
       "copy": "Copy",
@@ -330,7 +331,7 @@
     "user": {
       "name": "Name",
       "email": "Email",
-      "icon": "Icon",
+      "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
       "clickToLogout": "Click to logout the current user"
@@ -423,6 +424,7 @@
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
+      "isRange": "End date",
       "dateFormatFriendly": "Month Day, Year",
       "dateFormatISO": "Year-Month-Day",
       "dateFormatLocal": "Month/Day/Year",
@@ -645,6 +647,9 @@
         "label": "Link to page",
         "tooltip": "Click to open page"
       }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
     }
   },
   "board": {
@@ -657,6 +662,7 @@
   "calendar": {
     "menuName": "Calendar",
     "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
     "navigation": {
       "today": "Today",
       "jumpToday": "Jump to Today",

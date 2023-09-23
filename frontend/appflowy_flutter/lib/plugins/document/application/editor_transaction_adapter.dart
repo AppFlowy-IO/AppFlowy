@@ -38,7 +38,9 @@ class TransactionAdapter {
 
   Future<void> apply(Transaction transaction, EditorState editorState) async {
     final stopwatch = Stopwatch()..start();
-    Log.debug('transaction => ${transaction.toJson()}');
+    if (_enableDebug) {
+      Log.debug('transaction => ${transaction.toJson()}');
+    }
     final actions = transaction.operations
         .map((op) => op.toBlockAction(editorState, documentId))
         .whereNotNull()
@@ -58,14 +60,18 @@ class TransactionAdapter {
           textId: payload.textId,
           delta: payload.delta,
         );
-        Log.debug('create external text: ${payload.delta}');
+        if (_enableDebug) {
+          Log.debug('create external text: ${payload.delta}');
+        }
       } else if (type == TextDeltaType.update) {
         await documentService.updateExternalText(
           documentId: payload.documentId,
           textId: payload.textId,
           delta: payload.delta,
         );
-        Log.debug('update external text: ${payload.delta}');
+        if (_enableDebug) {
+          Log.debug('update external text: ${payload.delta}');
+        }
       }
     }
     final blockActions =

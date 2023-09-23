@@ -262,16 +262,12 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime => DateTypeOption {
-      ..Default::default()
-    }
-    .into(),
+    FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
       field_type: field_type.clone(),
       date_format: DateFormat::Friendly,
       time_format: TimeFormat::TwelveHour,
       include_time: true,
-      ..Default::default()
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

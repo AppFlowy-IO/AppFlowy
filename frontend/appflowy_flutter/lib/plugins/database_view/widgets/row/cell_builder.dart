@@ -67,6 +67,7 @@ class GridCellBuilder {
       case FieldType.Checklist:
         return GridChecklistCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.Number:
@@ -246,7 +247,9 @@ class RequestFocusListener extends ChangeNotifier {
   }
 }
 
-abstract class GridCellStyle {}
+abstract class GridCellStyle {
+  const GridCellStyle();
+}
 
 class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;

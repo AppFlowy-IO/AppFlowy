@@ -265,7 +265,6 @@
     },
     "user": {
       "name": "Имя",
-      "icon": "Иконка",
       "selectAnIcon": "Выбрать иконку",
       "pleaseInputYourOpenAIKey": "Введите токен OpenAI"
     }

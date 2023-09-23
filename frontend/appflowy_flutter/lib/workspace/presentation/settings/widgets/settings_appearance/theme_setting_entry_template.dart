@@ -31,6 +31,7 @@ class ThemeSettingEntryTemplateWidget extends StatelessWidget {
             children: [
               FlowyText.medium(
                 label,
+                fontSize: 14,
                 overflow: TextOverflow.ellipsis,
               ),
               if (hint != null)
@@ -71,12 +72,18 @@ class ThemeValueDropDown extends StatefulWidget {
     required this.popupBuilder,
     this.popoverKey,
     this.onClose,
+    this.child,
+    this.popoverController,
+    this.offset,
   });
 
   final String currentValue;
   final Key? popoverKey;
   final Widget Function(BuildContext) popupBuilder;
   final void Function()? onClose;
+  final Widget? child;
+  final PopoverController? popoverController;
+  final Offset? offset;
 
   @override
   State<ThemeValueDropDown> createState() => _ThemeValueDropDownState();
@@ -87,19 +94,23 @@ class _ThemeValueDropDownState extends State<ThemeValueDropDown> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       key: widget.popoverKey,
-      direction: PopoverDirection.bottomWithRightAligned,
+      controller: widget.popoverController,
+      direction: PopoverDirection.bottomWithCenterAligned,
       popupBuilder: widget.popupBuilder,
       constraints: const BoxConstraints(
         minWidth: 80,
         maxWidth: 160,
         maxHeight: 400,
       ),
+      offset: widget.offset,
       onClose: widget.onClose,
-      child: FlowyTextButton(
-        widget.currentValue,
-        fontColor: Theme.of(context).colorScheme.onBackground,
-        fillColor: Colors.transparent,
-      ),
+      child: widget.child ??
+          FlowyTextButton(
+            widget.currentValue,
+            fontColor: Theme.of(context).colorScheme.onBackground,
+            fillColor: Colors.transparent,
+            onPressed: () {},
+          ),
     );
   }
 }

@@ -11,7 +11,7 @@ class MobileSignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const spacing = 16;
+    const double spacing = 16;
     // Welcome to Appflowy
     final welcomeString = LocaleKeys.welcomeText.tr();
     final style = Theme.of(context);
@@ -24,7 +24,7 @@ class MobileSignInScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Signing in...'),
-                  VSpace(8),
+                  VSpace(spacing),
                   CircularProgressIndicator(),
                 ],
               ),
@@ -54,7 +54,7 @@ class MobileSignInScreen extends StatelessWidget {
                     style: style.textTheme.displayLarge,
                     textAlign: TextAlign.center,
                   ),
-                  const VSpace(16),
+                  const VSpace(spacing),
                   // TODO(yijing): confirm the subtitle before release app
                   Text(
                     'You are in charge of your data and customizations.',
@@ -65,7 +65,7 @@ class MobileSignInScreen extends StatelessWidget {
                     flex: 2,
                   ),
                   const SignInAnonymousButton(),
-                  const VSpace(16),
+                  const VSpace(spacing),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -80,9 +80,9 @@ class MobileSignInScreen extends StatelessWidget {
                       const Expanded(child: Divider()),
                     ],
                   ),
-                  const VSpace(16),
+                  const VSpace(spacing),
                   const ThirdPartySignInButtons(),
-                  const VSpace(16),
+                  const VSpace(spacing),
                 ],
               ),
             ),

@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -31,24 +33,31 @@ final alignToolbarItem = ToolbarItem(
       data = FlowySvgs.toolbar_align_right_s;
     }
 
-    final child = FlowySvg(
-      data,
-      size: const Size.square(16),
-      color: isHighlight ? highlightColor : Colors.white,
+    final child = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: FlowySvg(
+        data,
+        size: const Size.square(20),
+        color: isHighlight ? highlightColor : Colors.white,
+      ),
     );
-    return _AlignmentButtons(
-      child: child,
-      onAlignChanged: (align) async {
-        await editorState.updateNode(
-          selection,
-          (node) => node.copyWith(
-            attributes: {
-              ...node.attributes,
-              blockComponentAlign: align,
-            },
-          ),
-        );
-      },
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: _AlignmentButtons(
+        child: child,
+        onAlignChanged: (align) async {
+          await editorState.updateNode(
+            selection,
+            (node) => node.copyWith(
+              attributes: {
+                ...node.attributes,
+                blockComponentAlign: align,
+              },
+            ),
+          );
+        },
+      ),
     );
   },
 );
@@ -71,11 +80,21 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       windowPadding: const EdgeInsets.all(0),
-      margin: const EdgeInsets.all(0),
+      margin: const EdgeInsets.all(4),
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onTertiary,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+      ),
+      popupBuilder: (_) {
+        keepEditorFocusNotifier.value += 1;
+        return _AlignButtons(onAlignChanged: widget.onAlignChanged);
+      },
+      onClose: () {
+        keepEditorFocusNotifier.value -= 1;
+      },
       child: widget.child,
-      popupBuilder: (_) => _AlignButtons(onAlignChanged: widget.onAlignChanged),
     );
   }
 }
@@ -97,16 +116,19 @@ class _AlignButtons extends StatelessWidget {
           const HSpace(4),
           _AlignButton(
             icon: FlowySvgs.toolbar_align_left_s,
+            tooltips: LocaleKeys.document_plugins_optionAction_left.tr(),
             onTap: () => onAlignChanged('left'),
           ),
           const _Divider(),
           _AlignButton(
             icon: FlowySvgs.toolbar_align_center_s,
+            tooltips: LocaleKeys.document_plugins_optionAction_center.tr(),
             onTap: () => onAlignChanged('center'),
           ),
           const _Divider(),
           _AlignButton(
             icon: FlowySvgs.toolbar_align_right_s,
+            tooltips: LocaleKeys.document_plugins_optionAction_right.tr(),
             onTap: () => onAlignChanged('right'),
           ),
           const HSpace(4),
@@ -119,19 +141,25 @@ class _AlignButtons extends StatelessWidget {
 class _AlignButton extends StatelessWidget {
   const _AlignButton({
     required this.icon,
+    required this.tooltips,
     required this.onTap,
   });
 
   final FlowySvgData icon;
+  final String tooltips;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: FlowySvg(
-        icon,
-        size: const Size.square(16),
+      child: Tooltip(
+        message: tooltips,
+        child: FlowySvg(
+          icon,
+          size: const Size.square(16),
+          color: Colors.white,
+        ),
       ),
     );
   }

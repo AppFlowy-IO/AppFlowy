@@ -24,7 +24,7 @@ impl BoxAny {
 
   pub fn unbox_or_error<T>(self) -> Result<T>
   where
-    T: Default + 'static,
+    T: 'static,
   {
     match self.0.downcast::<T>() {
       Ok(value) => Ok(*value),
@@ -38,7 +38,7 @@ impl BoxAny {
 
   pub fn unbox_or_none<T>(self) -> Option<T>
   where
-    T: Default + 'static,
+    T: 'static,
   {
     match self.0.downcast::<T>() {
       Ok(value) => Some(*value),

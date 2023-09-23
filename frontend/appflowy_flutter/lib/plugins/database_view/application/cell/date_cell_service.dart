@@ -20,11 +20,15 @@ final class DateCellBackendService {
   Future<Either<Unit, FlowyError>> update({
     DateTime? date,
     String? time,
+    DateTime? endDate,
+    String? endTime,
     required includeTime,
+    required isRange,
   }) {
     final payload = DateChangesetPB.create()
       ..cellId = cellId
-      ..includeTime = includeTime;
+      ..includeTime = includeTime
+      ..isRange = isRange;
 
     if (date != null) {
       final dateTimestamp = date.millisecondsSinceEpoch ~/ 1000;
@@ -32,6 +36,13 @@ final class DateCellBackendService {
     }
     if (time != null) {
       payload.time = time;
+    }
+    if (endDate != null) {
+      final dateTimestamp = endDate.millisecondsSinceEpoch ~/ 1000;
+      payload.endDate = Int64(dateTimestamp);
+    }
+    if (endTime != null) {
+      payload.endTime = endTime;
     }
 
     return DatabaseEventUpdateDateCell(payload).send();

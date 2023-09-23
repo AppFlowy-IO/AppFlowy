@@ -22,21 +22,11 @@ use crate::services::sort::SortCondition;
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
-}
-
-impl Default for DateTypeOption {
-  fn default() -> Self {
-    Self {
-      date_format: Default::default(),
-      time_format: Default::default(),
-      timezone_id: Default::default(),
-    }
-  }
 }
 
 impl TypeOption for DateTypeOption {
@@ -80,15 +70,24 @@ impl TypeOptionCellDataSerde for DateTypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    let timestamp = cell_data.timestamp;
     let include_time = cell_data.include_time;
+    let is_range = cell_data.is_range;
+
+    let timestamp = cell_data.timestamp;
     let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    let end_timestamp = cell_data.end_timestamp;
+    let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
 
     DateCellDataPB {
       date,
       time,
       timestamp: timestamp.unwrap_or_default(),
+      end_date,
+      end_time,
+      end_timestamp: end_timestamp.unwrap_or_default(),
       include_time,
+      is_range,
     }
   }
 
@@ -113,7 +112,7 @@ impl DateTypeOption {
     if let Some(timestamp) = timestamp {
       let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
       let offset = self.get_timezone_offset(naive);
-      let date_time = DateTime::<Local>::from_utc(naive, offset);
+      let date_time = DateTime::<Local>::from_naive_utc_and_offset(naive, offset);
 
       let fmt = self.date_format.format_str();
       let date = format!("{}", date_time.format(fmt));
@@ -145,6 +144,8 @@ impl DateTypeOption {
     }
   }
 
+  /// combine the changeset_timestamp and parsed_time if provided. if
+  /// changeset_timestamp is None, fallback to previous_timestamp
   fn timestamp_from_parsed_time_previous_and_new_timestamp(
     &self,
     parsed_time: Option<NaiveTime>,
@@ -152,7 +153,7 @@ impl DateTypeOption {
     changeset_timestamp: Option<i64>,
   ) -> Option<i64> {
     if let Some(time) = parsed_time {
-      // a valid time is provided, so we replace the time component of old
+      // a valid time is provided, so we replace the time component of old timestamp
       // (or new timestamp if provided) with it.
       let utc_date = changeset_timestamp
         .or(previous_timestamp)
@@ -216,13 +217,30 @@ impl CellDataDecoder for DateTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    let timestamp = cell_data.timestamp;
     let include_time = cell_data.include_time;
-    let (date_string, time_string) = self.formatted_date_time_from_timestamp(&timestamp);
-    if include_time && timestamp.is_some() {
-      format!("{} {}", date_string, time_string)
+    let timestamp = cell_data.timestamp;
+    let is_range = cell_data.is_range;
+
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    if is_range {
+      let (end_date, end_time) = match cell_data.end_timestamp {
+        Some(timestamp) => self.formatted_date_time_from_timestamp(&Some(timestamp)),
+        None => (date.clone(), time.clone()),
+      };
+      if include_time && timestamp.is_some() {
+        format!("{} {} → {} {}", date, time, end_date, end_time)
+          .trim()
+          .to_string()
+      } else if timestamp.is_some() {
+        format!("{} → {}", date, end_date).trim().to_string()
+      } else {
+        "".to_string()
+      }
+    } else if include_time {
+      format!("{} {}", date, time).trim().to_string()
     } else {
-      date_string
+      date
     }
   }
 
@@ -239,25 +257,33 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time) = match cell {
+    let (previous_timestamp, previous_end_timestamp, include_time, is_range) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
-        (cell_data.timestamp, cell_data.include_time)
+        (
+          cell_data.timestamp,
+          cell_data.end_timestamp,
+          cell_data.include_time,
+          cell_data.is_range,
+        )
       },
-      None => (None, false),
+      None => (None, None, false, false),
     };
 
     if changeset.clear_flag == Some(true) {
       let cell_data = DateCellData {
         timestamp: None,
+        end_timestamp: None,
         include_time,
+        is_range,
       };
 
       return Ok((Cell::from(&cell_data), cell_data));
     }
 
-    // update include_time if necessary
+    // update include_time and is_range if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
+    let is_range = changeset.is_range.unwrap_or(is_range);
 
     // Calculate the timestamp in the time zone specified in type option. If
     // a new timestamp is included in the changeset without an accompanying
@@ -265,17 +291,38 @@ impl CellDataChangeset for DateTypeOption {
     // order to change the day without changing the time, the old time string
     // should be passed in as well.
 
-    let parsed_time = self.naive_time_from_time_string(include_time, changeset.time)?;
+    // parse the time string, which is in the local timezone
+    let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      parsed_time,
+      parsed_start_time,
       previous_timestamp,
       changeset.date,
     );
 
+    let end_timestamp =
+      if is_range && changeset.end_date.is_none() && previous_end_timestamp.is_none() {
+        // just toggled is_range so no passed in or existing end time data
+        timestamp
+      } else if is_range {
+        // parse the changeset's end time data or fallback to previous version
+        let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
+
+        self.timestamp_from_parsed_time_previous_and_new_timestamp(
+          parsed_end_time,
+          previous_end_timestamp,
+          changeset.end_date,
+        )
+      } else {
+        // clear the end time data
+        None
+      };
+
     let cell_data = DateCellData {
       timestamp,
+      end_timestamp,
       include_time,
+      is_range,
     };
 
     Ok((Cell::from(&cell_data), cell_data))

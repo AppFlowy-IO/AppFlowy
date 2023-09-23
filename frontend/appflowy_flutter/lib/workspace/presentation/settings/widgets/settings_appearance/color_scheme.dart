@@ -30,8 +30,8 @@ class ColorSchemeSetting extends StatelessWidget {
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
-        ColorSchemeUploadOverlayButton(bloc: bloc),
         ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
+        ColorSchemeUploadOverlayButton(bloc: bloc),
       ],
     );
   }
@@ -156,6 +156,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 if (currentTheme != theme) {
                   context.read<AppearanceSettingsCubit>().setTheme(theme);
                 }
+                PopoverContainer.of(context).close();
               },
             ),
           ),

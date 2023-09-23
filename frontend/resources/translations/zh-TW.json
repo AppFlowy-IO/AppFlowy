@@ -258,7 +258,6 @@
     },
     "user": {
       "name": "名稱",
-      "icon": "圖標",
       "selectAnIcon": "選擇圖標",
       "pleaseInputYourOpenAIKey": "請輸入你的 OpenAI 密鑰"
     }
