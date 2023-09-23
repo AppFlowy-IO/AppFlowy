@@ -40,7 +40,7 @@ class DateCellCalendarBloc
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final (dateTime, endDateTime, time, endTime, includeTime, isRange) =
                 _dateDataFromCellData(cellData);
-            final newEnd =
+            final endDay =
                 isRange == state.isRange && isRange ? endDateTime : null;
             emit(
               state.copyWith(
@@ -51,7 +51,7 @@ class DateCellCalendarBloc
                 includeTime: includeTime,
                 isRange: isRange,
                 startDay: isRange ? dateTime : null,
-                endDay: newEnd,
+                endDay: endDay,
               ),
             );
           },
