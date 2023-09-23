@@ -58,9 +58,12 @@ class UnscheduleEventsBloc
             );
           },
           didReceiveEvent: (CalendarEventPB event) {
+            final events = [...state.allEvents, event];
             emit(
               state.copyWith(
-                allEvents: [...state.allEvents, event],
+                allEvents: events,
+                unscheduleEvents:
+                    events.where((element) => !element.isScheduled).toList(),
               ),
             );
           },

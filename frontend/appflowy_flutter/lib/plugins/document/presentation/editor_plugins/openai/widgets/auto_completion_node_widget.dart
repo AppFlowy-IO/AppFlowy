@@ -127,6 +127,7 @@ class _AutoCompletionBlockComponentState
     _onExit();
     _unsubscribeSelectionGesture();
     controller.dispose();
+    textFieldFocusNode.dispose();
 
     super.dispose();
   }

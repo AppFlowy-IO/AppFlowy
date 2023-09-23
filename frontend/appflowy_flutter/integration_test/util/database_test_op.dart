@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database_view/board/presentation/board_page.dar
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
+import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_editor.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
@@ -1291,10 +1292,70 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(cards.at(index));
   }
 
+  void assertEventEditorOpen() {
+    expect(find.byType(CalendarEventEditor), findsOneWidget);
+  }
+
+  Future<void> dismissEventEditor() async {
+    await simulateKeyEvent(LogicalKeyboardKey.escape);
+  }
+
+  Future<void> editEventTitle(String title) async {
+    final textField = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byType(FlowyTextField),
+    );
+
+    await enterText(textField, title);
+    await pumpAndSettle(const Duration(milliseconds: 300));
+  }
+
+  Future<void> openEventToRowDetailPage() async {
+    final button = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.full_view_s,
+      ),
+    );
+
+    await tapButton(button);
+  }
+
+  Future<void> deleteEventFromEventEditor() async {
+    final button = find.descendant(
+      of: find.byType(CalendarEventEditor),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+      ),
+    );
+
+    await tapButton(button);
+  }
+
   Future<void> dragDropRescheduleCalendarEvent(DateTime startDate) async {
     final findEventCard = find.byType(EventCard);
     await drag(findEventCard.first, const Offset(0, 300));
     await pumpAndSettle();
+  }
+
+  Future<void> openUnscheduledEventsPopup() async {
+    final button = find.byType(UnscheduledEventsButton);
+    await tapButton(button);
+  }
+
+  void findUnscheduledPopup(Matcher matcher, int numUnscheduledEvents) {
+    expect(find.byType(UnscheduleEventsList), matcher);
+    if (matcher != findsNothing) {
+      expect(
+        find.byType(UnscheduledEventCell),
+        findsNWidgets(numUnscheduledEvents),
+      );
+    }
+  }
+
+  Future<void> clickUnscheduledEvent() async {
+    final unscheduledEvent = find.byType(UnscheduledEventCell);
+    await tapButton(unscheduledEvent);
   }
 
   Future<void> tapCreateLinkedDatabaseViewButton(AddButtonAction action) async {
