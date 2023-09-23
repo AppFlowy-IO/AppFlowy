@@ -899,10 +899,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> assertRowCountInGridPage(int num) async {
-    final text = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.text == rowCountString(num),
+    final titleText = find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.text == rowCountString(),
     );
-    expect(text, findsOneWidget);
+    final countText = find.byWidgetPredicate(
+      (widget) => widget is FlowyText && widget.text == ' $num',
+    );
+    expect(titleText, findsOneWidget);
+    expect(countText, findsOneWidget);
   }
 
   Future<void> createField(FieldType fieldType, String name) async {

@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
@@ -414,8 +415,12 @@ class _GridFooter extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               FlowyText.medium(
-                rowCountString(rowCount),
+                rowCountString(),
                 color: Theme.of(context).hintColor,
+              ),
+              FlowyText.medium(
+                ' $rowCount',
+                color: AFThemeExtension.of(context).gridRowCountColor,
               ),
             ],
           ),
@@ -425,6 +430,6 @@ class _GridFooter extends StatelessWidget {
   }
 }
 
-String rowCountString(int count) {
-  return '${LocaleKeys.grid_row_count.tr()} : $count';
+String rowCountString() {
+  return '${LocaleKeys.grid_row_count.tr()} :';
 }
