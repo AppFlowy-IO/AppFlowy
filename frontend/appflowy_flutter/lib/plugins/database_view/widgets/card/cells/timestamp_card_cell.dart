@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/bloc/timestamp_card_cell_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/timestamp_cell/timestamp_cell_bloc.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,19 +18,19 @@ class TimestampCardCell<CustomCardData> extends CardCell {
   }) : super(key: key);
 
   @override
-  State<TimestampCardCell> createState() => _TimestampCardCellState();
+  State<TimestampCardCell> createState() => _TimestampCellState();
 }
 
-class _TimestampCardCellState extends State<TimestampCardCell> {
-  late TimestampCardCellBloc _cellBloc;
+class _TimestampCellState extends State<TimestampCardCell> {
+  late TimestampCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as TimestampCellController;
 
-    _cellBloc = TimestampCardCellBloc(cellController: cellController)
-      ..add(const TimestampCardCellEvent.initial());
+    _cellBloc = TimestampCellBloc(cellController: cellController)
+      ..add(const TimestampCellEvent.initial());
     super.initState();
   }
 
@@ -38,7 +38,7 @@ class _TimestampCardCellState extends State<TimestampCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<TimestampCardCellBloc, TimestampCardCellState>(
+      child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,
         builder: (context, state) {
           if (state.dateStr.isEmpty) {
