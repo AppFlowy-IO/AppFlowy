@@ -74,6 +74,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightSelector,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
+          gridRowCountColor: _black,
         );
 
   const LavenderColorScheme.dark()
@@ -125,5 +126,6 @@ class LavenderColorScheme extends FlowyColorScheme {
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
           calendarWeekendBGColor: const Color(0xff121212),
+          gridRowCountColor: _darkMain1,
         );
 }
