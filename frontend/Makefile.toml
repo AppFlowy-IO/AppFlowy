@@ -136,6 +136,9 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 LINUX_ARCH = "x64"
+OPENSSL_STATIC = 1
+ZSTD_SYS_USE_PKG_CONFIG = 1
+ROCKSDB_LIB_DIR = "/usr/lib/"
 
 [env.production-linux-x86_64]
 CARGO_PROFILE = "release"
@@ -156,7 +159,7 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 LINUX_ARCH = "arm64"
-FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
+FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 
 [env.production-linux-aarch64]
 CARGO_PROFILE = "release"
