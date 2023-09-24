@@ -53,16 +53,9 @@ class SettingsUserView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-<<<<<<< HEAD
-              _renderUserNameInput(context),
-
-              if (isCloudEnabled) ...[
-                const VSpace(20),
-=======
               _buildUserIconSetting(context),
-              if (isSupabaseEnabled) ...[
+              if (isCloudEnabled) ...[
                 const VSpace(12),
->>>>>>> 1b966171c (feat: enable removing user icon (#3487))
                 UserEmailInput(user.email)
               ],
               const VSpace(12),
