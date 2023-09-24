@@ -9,7 +9,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -411,18 +410,21 @@ class _GridFooter extends StatelessWidget {
       builder: (context, rowCount) {
         return Padding(
           padding: GridSize.contentInsets,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              FlowyText.medium(
-                rowCountString(),
-                color: Theme.of(context).hintColor,
-              ),
-              FlowyText.medium(
-                ' $rowCount',
-                color: AFThemeExtension.of(context).gridRowCountColor,
-              ),
-            ],
+          child: RichText(
+            text: TextSpan(
+              text: rowCountString(),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+              children: [
+                TextSpan(
+                  text: ' $rowCount',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AFThemeExtension.of(context).gridRowCountColor,
+                      ),
+                ),
+              ],
+            ),
           ),
         );
       },
