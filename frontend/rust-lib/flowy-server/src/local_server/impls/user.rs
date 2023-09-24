@@ -76,6 +76,14 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
+  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate callback url when using offline mode"
+      ))
+    })
+  }
+
   fn update_user(
     &self,
     _credential: UserCredentials,

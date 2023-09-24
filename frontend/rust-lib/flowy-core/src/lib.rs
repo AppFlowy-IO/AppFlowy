@@ -451,7 +451,7 @@ impl From<ServerType> for CollabSource {
   fn from(server_provider: ServerType) -> Self {
     match server_provider {
       ServerType::Local => CollabSource::Local,
-      ServerType::AppFlowyCloud => CollabSource::Local,
+      ServerType::AFCloud => CollabSource::AFCloud,
       ServerType::Supabase => CollabSource::Supabase,
     }
   }

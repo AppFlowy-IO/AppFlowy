@@ -3,11 +3,10 @@ use std::time::Duration;
 
 use flowy_document2::entities::{DocumentSnapshotStatePB, DocumentSyncStatePB};
 use flowy_document2::notification::DocumentNotification::DidUpdateDocumentSnapshotState;
+use flowy_test::assert_document_data_equal;
 use flowy_test::document::document_event::DocumentEventTest;
 
-use crate::document::supabase_test::helper::{
-  assert_document_data_equal, FlowySupabaseDocumentTest,
-};
+use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
@@ -36,12 +35,7 @@ async fn supabase_document_edit_sync_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
     let document_id = view.id.clone();
-
-    let core = test.deref().deref().clone();
-    let document_event = DocumentEventTest::new_with_core(core);
-    document_event
-      .insert_index(&document_id, "hello world", 0, None)
-      .await;
+    test.insert_text(&document_id, "hello world").await;
 
     // wait all update are send to the remote
     let mut rx = test
@@ -52,7 +46,7 @@ async fn supabase_document_edit_sync_test() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_collab_update(&document_id).await;
+    let update = test.get_document_update(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }
@@ -80,7 +74,7 @@ async fn supabase_document_edit_sync_test2() {
       .unwrap();
 
     let document_data = test.get_document_data(&document_id).await;
-    let update = test.get_collab_update(&document_id).await;
+    let update = test.get_document_update(&document_id).await;
     assert_document_data_equal(&update, &document_id, document_data);
   }
 }

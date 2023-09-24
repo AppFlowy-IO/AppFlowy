@@ -38,6 +38,7 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
     .event(UserEvent::OAuth, oauth_handler)
+    .event(UserEvent::OAuthCallbackURL, get_oauth_url_handler)
     .event(
       UserEvent::GetAllUserWorkspaces,
       get_all_user_workspace_handler,
@@ -227,6 +228,11 @@ pub enum UserEvent {
 
   #[event(input = "OAuthPB", output = "UserProfilePB")]
   OAuth = 10,
+
+  /// Get the OAuth callback url
+  /// Only use when the [AuthType] is AFCloud
+  #[event(input = "OAuthCallbackRequestPB", output = "OAuthCallbackResponsePB")]
+  OAuthCallbackURL = 11,
 
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,

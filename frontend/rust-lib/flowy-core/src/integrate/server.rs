@@ -30,10 +30,10 @@ pub enum ServerType {
   /// Local server provider.
   /// Offline mode, no user authentication and the data is stored locally.
   Local = 0,
-  /// Self-hosted server provider.
+  /// AppFlowy Cloud server provider.
   /// The [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Cloud) is still a work in
   /// progress.
-  AppFlowyCloud = 1,
+  AFCloud = 1,
   /// Supabase server provider.
   /// It uses supabase postgresql database to store data and user authentication.
   Supabase = 2,
@@ -43,7 +43,7 @@ impl Display for ServerType {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
       ServerType::Local => write!(f, "Local"),
-      ServerType::AppFlowyCloud => write!(f, "AppFlowyCloud"),
+      ServerType::AFCloud => write!(f, "AppFlowyCloud"),
       ServerType::Supabase => write!(f, "Supabase"),
     }
   }
@@ -111,7 +111,7 @@ impl ServerProvider {
         let server = Arc::new(LocalServer::new(local_db));
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)
       },
-      ServerType::AppFlowyCloud => {
+      ServerType::AFCloud => {
         let config = AFCloudConfiguration::from_env()?;
         tracing::trace!("🔑AppFlowy cloud config: {:?}", config);
         let server = Arc::new(AFCloudServer::new(
@@ -155,7 +155,7 @@ impl From<AuthType> for ServerType {
   fn from(auth_provider: AuthType) -> Self {
     match auth_provider {
       AuthType::Local => ServerType::Local,
-      AuthType::AFCloud => ServerType::AppFlowyCloud,
+      AuthType::AFCloud => ServerType::AFCloud,
       AuthType::Supabase => ServerType::Supabase,
     }
   }

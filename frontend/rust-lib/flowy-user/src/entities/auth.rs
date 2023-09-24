@@ -92,6 +92,21 @@ pub struct OAuthPB {
   pub auth_type: AuthTypePB,
 }
 
+#[derive(ProtoBuf, Default)]
+pub struct OAuthCallbackRequestPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub auth_type: AuthTypePB,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct OAuthCallbackResponsePB {
+  #[pb(index = 1)]
+  pub sign_in_url: String,
+}
+
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,

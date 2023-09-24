@@ -177,14 +177,14 @@ impl DatabaseCloudService for ServerProvider {
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     let server = self.get_server(&self.get_server_type());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id, object_ty)
+        .get_collab_update(&database_id, collab_type)
         .await
     })
   }
@@ -273,7 +273,7 @@ impl CollabStorageProvider for ServerProvider {
         collab_object,
         local_collab,
       } => {
-        if let Ok(server) = self.get_server(&ServerType::AppFlowyCloud) {
+        if let Ok(server) = self.get_server(&ServerType::AFCloud) {
           match server.collab_ws_channel(&collab_object.object_id).await {
             Ok(Some(channel)) => {
               let origin = CollabOrigin::Client(CollabClient::new(

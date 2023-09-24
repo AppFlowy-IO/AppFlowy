@@ -5,6 +5,12 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use bytes::Bytes;
+use collab::core::collab::MutexCollab;
+use collab::core::origin::CollabOrigin;
+use collab::preclude::updates::decoder::Decode;
+use collab::preclude::Update;
+use collab_document::blocks::DocumentData;
+use collab_document::document::Document;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 use protobuf::ProtobufError;
@@ -21,14 +27,15 @@ use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
-use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
 use flowy_user::entities::{
-  AuthTypePB, OAuthPB, UpdateCloudConfigPB, UserCloudConfigPB, UserProfilePB,
+  AuthTypePB, OAuthCallbackRequestPB, OAuthCallbackResponsePB, OAuthPB, UpdateCloudConfigPB,
+  UserCloudConfigPB, UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
 
-use crate::document::document_event::OpenDocumentData;
+use crate::document::document_event::{DocumentEventTest, OpenDocumentData};
 use crate::event_builder::EventBuilder;
 use crate::user_event::{async_sign_up, SignUpContext};
 
@@ -57,6 +64,26 @@ impl Default for FlowyCoreTest {
 impl FlowyCoreTest {
   pub fn new() -> Self {
     Self::default()
+  }
+
+  pub async fn insert_text(&self, document_id: &str, text: &str) {
+    let document_event = DocumentEventTest::new_with_core(self.clone());
+    document_event
+      .insert_index(document_id, text, 0, None)
+      .await;
+  }
+
+  pub async fn get_document_data(&self, view_id: &str) -> DocumentData {
+    let pb = EventBuilder::new(self.clone())
+      .event(DocumentEvent::GetDocumentData)
+      .payload(OpenDocumentPayloadPB {
+        document_id: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+
+    DocumentData::from(pb)
   }
 
   pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
@@ -148,7 +175,38 @@ impl FlowyCoreTest {
     self.sign_up_as_guest().await.user_profile
   }
 
-  pub async fn third_party_sign_up_with_uuid(
+  pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
+    let payload = OAuthCallbackRequestPB {
+      email: email.to_string(),
+      auth_type: AuthTypePB::AFCloud,
+    };
+    let sign_in_url = EventBuilder::new(self.clone())
+      .event(OAuthCallbackURL)
+      .payload(payload)
+      .async_send()
+      .await
+      .try_parse::<OAuthCallbackResponsePB>()?
+      .sign_in_url;
+
+    let mut map = HashMap::new();
+    map.insert(USER_SIGN_IN_URL.to_string(), sign_in_url);
+    map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
+    let payload = OAuthPB {
+      map,
+      auth_type: AuthTypePB::AFCloud,
+    };
+
+    let user_profile = EventBuilder::new(self.clone())
+      .event(OAuth)
+      .payload(payload)
+      .async_send()
+      .await
+      .try_parse::<UserProfilePB>()?;
+
+    Ok(user_profile)
+  }
+
+  pub async fn supabase_sign_up_with_uuid(
     &self,
     uuid: &str,
     email: Option<String>,
@@ -878,4 +936,15 @@ pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
   );
   params.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
   params
+}
+
+pub fn assert_document_data_equal(collab_update: &[u8], doc_id: &str, expected: DocumentData) {
+  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
+  collab.lock().with_origin_transact_mut(|txn| {
+    let update = Update::decode_v1(collab_update).unwrap();
+    txn.apply_update(update);
+  });
+  let document = Document::open(Arc::new(collab)).unwrap();
+  let actual = document.get_document_data().unwrap();
+  assert_eq!(actual, expected);
 }

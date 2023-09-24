@@ -535,6 +535,18 @@ impl UserManager {
     Ok(())
   }
 
+  pub(crate) async fn generate_sign_in_callback_url(
+    &self,
+    auth_type: &AuthType,
+    email: &str,
+  ) -> Result<String, FlowyError> {
+    self.update_auth_type(auth_type).await;
+
+    let auth_service = self.cloud_services.get_user_service()?;
+    let url = auth_service.generate_sign_in_callback_url(email).await?;
+    Ok(url)
+  }
+
   async fn save_auth_data(
     &self,
     response: &impl UserAuthResponse,

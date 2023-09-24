@@ -51,3 +51,4 @@ dotenv = "0.15.0"
 yrs = "0.16.5"
 assert-json-diff = "2.0.2"
 serde_json = "1.0.104"
+client-api = { version = "0.1.0" }

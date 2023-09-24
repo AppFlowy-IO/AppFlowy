@@ -201,7 +201,17 @@ impl AppFlowyCollabBuilder {
         CollabSource::AFCloud => {
           #[cfg(feature = "appflowy_cloud_integrate")]
           {
-            //
+            let local_collab = Arc::downgrade(&collab);
+            let plugins = block_on(
+              cloud_storage.get_plugins(CollabPluginContext::AppFlowyCloud {
+                uid,
+                collab_object: collab_object.clone(),
+                local_collab,
+              }),
+            );
+            for plugin in plugins {
+              collab.lock().add_plugin(plugin);
+            }
           }
         },
         CollabSource::Supabase => {
