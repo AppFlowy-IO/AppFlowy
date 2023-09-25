@@ -101,8 +101,10 @@ class MentionDateBlock extends StatelessWidget {
                           if (!includeTime) {
                             context.read<ReminderBloc>().add(
                                   ReminderEvent.update(
-                                    reminderId: reminderId!,
-                                    date: parsedDate.withoutTime,
+                                    update: ReminderUpdate(
+                                      id: reminderId!,
+                                      scheduledAt: parsedDate.withoutTime,
+                                    ),
                                   ),
                                 );
                           }
@@ -118,8 +120,10 @@ class MentionDateBlock extends StatelessWidget {
                               date != selectedDay.toIso8601String()) {
                             context.read<ReminderBloc>().add(
                                   ReminderEvent.update(
-                                    reminderId: reminderId!,
-                                    date: selectedDay,
+                                    update: ReminderUpdate(
+                                      id: reminderId!,
+                                      scheduledAt: selectedDay,
+                                    ),
                                   ),
                                 );
                           }

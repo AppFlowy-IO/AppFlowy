@@ -63,89 +63,27 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
-        update: (reminderId, date) async {
+        update: (updateObject) async {
           final reminder =
-              state.reminders.firstWhereOrNull((r) => r.id == reminderId);
+              state.reminders.firstWhereOrNull((r) => r.id == updateObject.id);
 
           if (reminder == null) {
             return;
           }
 
-          final newReminder = ReminderPB(
-            id: reminder.id,
-            objectId: reminder.objectId,
-            scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
-            isAck: date.isBefore(DateTime.now()),
-            title: reminder.title,
-            message: reminder.message,
-            meta: reminder.meta,
-          );
+          final newReminder = updateObject.merge(a: reminder);
 
-          final failureOrUnit =
-              await reminderService.updateReminder(reminder: newReminder);
+          final failureOrUnit = await reminderService.updateReminder(
+            reminder: updateObject.merge(a: reminder),
+          );
 
           failureOrUnit.fold(
             (error) => Log.error(error),
             (_) {
               final index =
-                  state.reminders.indexWhere((r) => r.id == reminderId);
+                  state.reminders.indexWhere((r) => r.id == reminder.id);
               final reminders = [...state.reminders];
               reminders.replaceRange(index, index + 1, [newReminder]);
-
-              emit(state.copyWith(reminders: reminders));
-            },
-          );
-        },
-        acknowledge: (reminder) async {
-          final reminderUpdate = ReminderPB(
-            id: reminder.id,
-            objectId: reminder.objectId,
-            scheduledAt: reminder.scheduledAt,
-            isAck: true,
-            title: reminder.title,
-            message: reminder.message,
-            meta: reminder.meta,
-          );
-
-          final failureOrUnit = await reminderService.updateReminder(
-            reminder: reminderUpdate,
-          );
-
-          failureOrUnit.fold(
-            (error) => Log.error(error),
-            (_) {
-              final index =
-                  state.reminders.indexWhere((r) => r.id == reminder.id);
-              final reminders = [...state.reminders];
-              reminders.replaceRange(index, index + 1, [reminderUpdate]);
-
-              emit(state.copyWith(reminders: reminders));
-            },
-          );
-        },
-        markAsRead: (reminder) async {
-          final reminderUpdate = ReminderPB(
-            id: reminder.id,
-            objectId: reminder.objectId,
-            scheduledAt: reminder.scheduledAt,
-            isAck: reminder.isAck,
-            isRead: true,
-            title: reminder.title,
-            message: reminder.message,
-            meta: reminder.meta,
-          );
-
-          final failureOrUnit = await reminderService.updateReminder(
-            reminder: reminderUpdate,
-          );
-
-          failureOrUnit.fold(
-            (error) => Log.error(error),
-            (_) {
-              final index =
-                  state.reminders.indexWhere((r) => r.id == reminder.id);
-              final reminders = [...state.reminders];
-              reminders.replaceRange(index, index + 1, [reminderUpdate]);
 
               emit(state.copyWith(reminders: reminders));
             },
@@ -181,7 +119,11 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               ),
             );
 
-            add(ReminderEvent.acknowledge(reminder: reminder));
+            add(
+              ReminderEvent.update(
+                update: ReminderUpdate(id: reminder.id, isAck: true),
+              ),
+            );
           }
         }
       },
@@ -201,17 +143,37 @@ class ReminderEvent with _$ReminderEvent {
   const factory ReminderEvent.add({required ReminderPB reminder}) = _Add;
 
   const factory ReminderEvent.update({
-    required String reminderId,
-    required DateTime date,
+    required ReminderUpdate update,
   }) = _Update;
+}
 
-  const factory ReminderEvent.acknowledge({
-    required ReminderPB reminder,
-  }) = _Acknowledge;
+/// Object used to merge updates with
+/// a [ReminderPB]
+class ReminderUpdate {
+  final String id;
+  final bool? isAck;
+  final bool? isRead;
+  final DateTime? scheduledAt;
 
-  const factory ReminderEvent.markAsRead({
-    required ReminderPB reminder,
-  }) = _MarkAsRead;
+  ReminderUpdate({
+    required this.id,
+    this.isAck,
+    this.isRead,
+    this.scheduledAt,
+  });
+
+  ReminderPB merge({required ReminderPB a}) => ReminderPB(
+        id: a.id,
+        objectId: a.objectId,
+        scheduledAt: scheduledAt != null
+            ? Int64(scheduledAt!.millisecondsSinceEpoch ~/ 1000)
+            : a.scheduledAt,
+        isAck: isAck ?? a.isAck,
+        isRead: isRead ?? a.isRead,
+        title: a.title,
+        message: a.message,
+        meta: a.meta,
+      );
 }
 
 class ReminderState {
