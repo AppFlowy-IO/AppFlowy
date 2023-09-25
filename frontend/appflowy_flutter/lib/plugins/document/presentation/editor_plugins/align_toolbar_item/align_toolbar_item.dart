@@ -151,14 +151,17 @@ class _AlignButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Tooltip(
-        message: tooltips,
-        child: FlowySvg(
-          icon,
-          size: const Size.square(16),
-          color: Colors.white,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Tooltip(
+          message: tooltips,
+          child: FlowySvg(
+            icon,
+            size: const Size.square(16),
+            color: Colors.white,
+          ),
         ),
       ),
     );

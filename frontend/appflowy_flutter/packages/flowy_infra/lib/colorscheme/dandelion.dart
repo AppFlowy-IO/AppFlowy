@@ -73,6 +73,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightShader5,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
+          gridRowCountColor: _black,
         );
 
   const DandelionColorScheme.dark()
@@ -124,5 +125,6 @@ class DandelionColorScheme extends FlowyColorScheme {
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
           calendarWeekendBGColor: const Color(0xff121212),
+          gridRowCountColor: _darkMain1,
         );
 }

@@ -36,7 +36,7 @@ class GridChecklistCell extends GridCellWidget {
 }
 
 class GridChecklistCellState extends GridCellState<GridChecklistCell> {
-  late ChecklistCardCellBloc _cellBloc;
+  late ChecklistCellBloc _cellBloc;
   late final PopoverController _popover;
 
   @override
@@ -44,7 +44,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCardCellBloc(cellController: cellController);
+    _cellBloc = ChecklistCellBloc(cellController: cellController);
     _cellBloc.add(const ChecklistCellEvent.initial());
     super.initState();
   }
@@ -74,7 +74,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
           child: Padding(
             padding:
                 widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
-            child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
+            child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
               builder: (context, state) {
                 if (state.allOptions.isEmpty) {
                   return FlowyText.medium(

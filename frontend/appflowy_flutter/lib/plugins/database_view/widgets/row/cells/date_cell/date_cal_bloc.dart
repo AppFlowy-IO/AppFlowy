@@ -40,6 +40,8 @@ class DateCellCalendarBloc
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final (dateTime, endDateTime, time, endTime, includeTime, isRange) =
                 _dateDataFromCellData(cellData);
+            final endDay =
+                isRange == state.isRange && isRange ? endDateTime : null;
             emit(
               state.copyWith(
                 dateTime: dateTime,
@@ -49,7 +51,7 @@ class DateCellCalendarBloc
                 includeTime: includeTime,
                 isRange: isRange,
                 startDay: isRange ? dateTime : null,
-                endDay: isRange ? endDateTime : null,
+                endDay: endDay,
               ),
             );
           },
@@ -78,7 +80,16 @@ class DateCellCalendarBloc
             await _updateDateData(time: time);
           },
           selectDateRange: (DateTime? start, DateTime? end) async {
-            if (end == null) {
+            if (end == null && state.startDay != null && state.endDay == null) {
+              final (newStart, newEnd) = state.startDay!.isBefore(start!)
+                  ? (state.startDay!, start)
+                  : (start, state.startDay!);
+              emit(state.copyWith(startDay: null, endDay: null));
+              await _updateDateData(
+                date: newStart.toLocal().date,
+                endDate: newEnd.toLocal().date,
+              );
+            } else if (end == null) {
               emit(state.copyWith(startDay: start, endDay: null));
             } else {
               await _updateDateData(
@@ -313,15 +324,22 @@ class DateCellCalendarEvent with _$DateCellCalendarEvent {
 @freezed
 class DateCellCalendarState with _$DateCellCalendarState {
   const factory DateCellCalendarState({
+    // the date field's type option
     required DateTypeOptionPB dateTypeOptionPB,
+
+    // used when selecting a date range
     required DateTime? startDay,
     required DateTime? endDay,
+
+    // cell data from the backend
     required DateTime? dateTime,
     required DateTime? endDateTime,
     required String? time,
     required String? endTime,
     required bool includeTime,
     required bool isRange,
+
+    // error and hint text
     required String? parseTimeError,
     required String? parseEndTimeError,
     required String timeHintText,
@@ -365,7 +383,7 @@ String _timeHintText(DateTypeOptionPB typeOption) {
   DateCellDataPB? cellData,
 ) {
   // a null DateCellDataPB may be returned, indicating that all the fields are
-  // at their default values: empty strings and false booleans
+  // their default values: empty strings and false booleans
   if (cellData == null) {
     return (null, null, null, null, false, false);
   }
