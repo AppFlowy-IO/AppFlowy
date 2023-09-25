@@ -6,10 +6,17 @@ use crate::document::af_cloud_test::util::AFCloudDocumentTest;
 use crate::util::receive_with_timeout;
 
 #[tokio::test]
-async fn af_cloud_sign_up_test() {
+async fn af_cloud_edit_document_test() {
   if let Some(test) = AFCloudDocumentTest::new().await {
     let document_id = test.create_document().await;
-    test.insert_text(&document_id, "hello world").await;
+
+    let cloned_test = test.clone();
+    let cloned_document_id = document_id.clone();
+    tokio::spawn(async move {
+      cloned_test
+        .insert_document_text(&cloned_document_id, "hello world", 0)
+        .await;
+    });
 
     // wait all update are send to the remote
     let mut rx = test

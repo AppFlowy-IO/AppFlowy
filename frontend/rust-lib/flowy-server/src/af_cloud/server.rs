@@ -111,10 +111,7 @@ impl AppFlowyServer for AFCloudServer {
       let weak_ws_client = Arc::downgrade(&self.ws_client);
       FutureResult::new(async move {
         match weak_ws_client.upgrade() {
-          None => {
-            tracing::warn!("🟡Collab WS client is dropped");
-            Ok(None)
-          },
+          None => Ok(None),
           Some(ws_client) => Ok(
             ws_client
               .read()
@@ -187,7 +184,6 @@ fn spawn_ws_conn(
           ) {
             let device_id = device_id.read().clone();
             if let Ok(ws_addr) = api_client.ws_url(&device_id) {
-              tracing::info!("🟢WebSocket Connecting");
               let _ = ws_client.write().await.connect(ws_addr).await;
             }
           }

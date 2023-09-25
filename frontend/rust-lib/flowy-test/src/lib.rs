@@ -66,10 +66,10 @@ impl FlowyCoreTest {
     Self::default()
   }
 
-  pub async fn insert_text(&self, document_id: &str, text: &str) {
+  pub async fn insert_document_text(&self, document_id: &str, text: &str, index: usize) {
     let document_event = DocumentEventTest::new_with_core(self.clone());
     document_event
-      .insert_index(document_id, text, 0, None)
+      .insert_index(document_id, text, index, None)
       .await;
   }
 
@@ -88,8 +88,11 @@ impl FlowyCoreTest {
 
   pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
     let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
-      "debug",
-      vec!["flowy_test".to_string(), "lib_dispatch".to_string()],
+      "trace",
+      vec![
+        "flowy_test".to_string(),
+        // "lib_dispatch".to_string()
+      ],
     );
 
     let inner = std::thread::spawn(|| AppFlowyCore::new(config))

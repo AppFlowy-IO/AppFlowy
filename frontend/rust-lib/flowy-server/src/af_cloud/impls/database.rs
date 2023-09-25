@@ -1,5 +1,6 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
+use client_api::error::ErrorCode::RecordNotFound;
 use collab_define::CollabType;
 
 use flowy_database_deps::cloud::{
@@ -27,8 +28,16 @@ where
         object_id,
         collab_type,
       };
-      let data = try_get_client?.get_collab(params).await?;
-      Ok(vec![data])
+      match try_get_client?.get_collab(params).await {
+        Ok(data) => Ok(vec![data]),
+        Err(err) => {
+          if err.code == RecordNotFound {
+            Ok(vec![])
+          } else {
+            Err(Error::new(err))
+          }
+        },
+      }
     })
   }
 

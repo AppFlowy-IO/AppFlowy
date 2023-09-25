@@ -33,6 +33,7 @@ impl FlowySupabaseDocumentTest {
       .await
   }
 
+  #[allow(dead_code)]
   pub async fn get_document_snapshots(&self, view_id: &str) -> RepeatedDocumentSnapshotPB {
     EventBuilder::new(self.inner.deref().clone())
       .event(GetDocumentSnapshots)

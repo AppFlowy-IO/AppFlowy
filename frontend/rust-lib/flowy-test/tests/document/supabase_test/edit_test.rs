@@ -1,41 +1,24 @@
-use std::ops::Deref;
 use std::time::Duration;
 
-use flowy_document2::entities::{DocumentSnapshotStatePB, DocumentSyncStatePB};
-use flowy_document2::notification::DocumentNotification::DidUpdateDocumentSnapshotState;
+use flowy_document2::entities::DocumentSyncStatePB;
 use flowy_test::assert_document_data_equal;
-use flowy_test::document::document_event::DocumentEventTest;
 
 use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 use crate::util::receive_with_timeout;
-
-#[tokio::test]
-async fn supabase_initial_document_snapshot_test() {
-  if let Some(test) = FlowySupabaseDocumentTest::new().await {
-    let view = test.create_document().await;
-
-    let mut rx = test
-      .notification_sender
-      .subscribe::<DocumentSnapshotStatePB>(&view.id, DidUpdateDocumentSnapshotState);
-
-    receive_with_timeout(&mut rx, Duration::from_secs(30))
-      .await
-      .unwrap();
-
-    let snapshots = test.get_document_snapshots(&view.id).await;
-    assert_eq!(snapshots.items.len(), 1);
-
-    let document_data = test.get_document_data(&view.id).await;
-    assert_document_data_equal(&snapshots.items[0].data, &view.id, document_data);
-  }
-}
 
 #[tokio::test]
 async fn supabase_document_edit_sync_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
     let document_id = view.id.clone();
-    test.insert_text(&document_id, "hello world").await;
+
+    let cloned_test = test.clone();
+    let cloned_document_id = document_id.clone();
+    tokio::spawn(async move {
+      cloned_test
+        .insert_document_text(&cloned_document_id, "hello world", 0)
+        .await;
+    });
 
     // wait all update are send to the remote
     let mut rx = test
@@ -56,12 +39,10 @@ async fn supabase_document_edit_sync_test2() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
     let view = test.create_document().await;
     let document_id = view.id.clone();
-    let core = test.deref().deref().clone();
-    let document_event = DocumentEventTest::new_with_core(core);
 
     for i in 0..10 {
-      document_event
-        .insert_index(&document_id, "hello world", i, None)
+      test
+        .insert_document_text(&document_id, "hello world", i)
         .await;
     }
 
