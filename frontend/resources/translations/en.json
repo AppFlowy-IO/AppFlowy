@@ -769,6 +769,9 @@
   },
   "reminderNotification": {
     "title": "Reminder",
-    "message": "Remember to check this before you forget!"
+    "message": "Remember to check this before you forget!",
+    "tooltipDelete": "Delete",
+    "tooltipMarkRead": "Mark as read",
+    "tooltipMarkUnread": "Mark as unread"
   }
 }

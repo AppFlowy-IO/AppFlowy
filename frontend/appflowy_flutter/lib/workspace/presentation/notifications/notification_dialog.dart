@@ -31,8 +31,10 @@ class NotificationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reminderBloc = getIt<ReminderBloc>();
+
     return BlocProvider<ReminderBloc>.value(
-      value: getIt<ReminderBloc>(),
+      value: reminderBloc,
       child: BlocBuilder<ReminderBloc, ReminderState>(
         builder: (context, state) {
           final shownReminders = state.reminders
@@ -81,13 +83,18 @@ class NotificationDialog extends StatelessWidget {
                 else
                   ...shownReminders.map((reminder) {
                     return NotificationItem(
+                      reminderId: reminder.id,
                       key: ValueKey(reminder.id),
                       title: reminder.title,
                       scheduled: reminder.scheduledAt,
                       body: reminder.message,
                       isRead: reminder.isRead,
-                      onDelete: () => context
-                          .read<ReminderBloc>()
+                      onReadChanged: (isRead) => reminderBloc.add(
+                        ReminderEvent.update(
+                          ReminderUpdate(id: reminder.id, isRead: isRead),
+                        ),
+                      ),
+                      onDelete: () => reminderBloc
                           .add(ReminderEvent.remove(reminderId: reminder.id)),
                       onAction: () {
                         final view = views.firstWhereOrNull(
@@ -98,7 +105,7 @@ class NotificationDialog extends StatelessWidget {
                           return;
                         }
 
-                        getIt<ReminderBloc>().add(
+                        reminderBloc.add(
                           ReminderEvent.pressReminder(reminderId: reminder.id),
                         );
 
