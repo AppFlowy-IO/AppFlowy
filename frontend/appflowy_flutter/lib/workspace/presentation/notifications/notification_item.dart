@@ -6,7 +6,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 DateFormat _dateFormat(BuildContext context) => DateFormat('MMM d, y');
 
@@ -75,7 +74,8 @@ class _NotificationItemState extends State<NotificationItem> {
                           ),
                           if (!widget.isRead)
                             Positioned(
-                              top: 1,
+                              bottom: 1,
+                              right: 1,
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
