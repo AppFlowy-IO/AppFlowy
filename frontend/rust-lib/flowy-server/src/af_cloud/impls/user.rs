@@ -136,20 +136,30 @@ where
 
   fn add_workspace_member(
     &self,
-    _user_email: String,
-    _workspace_id: String,
+    user_email: String,
+    workspace_id: String,
   ) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
-    FutureResult::new(async { Ok(()) })
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .add_workspace_members(workspace_id.parse()?, vec![user_email])
+        .await?;
+      Ok(())
+    })
   }
 
   fn remove_workspace_member(
     &self,
-    _user_email: String,
-    _workspace_id: String,
+    user_email: String,
+    workspace_id: String,
   ) -> FutureResult<(), Error> {
-    // TODO(nathan): implement the RESTful API for this
-    FutureResult::new(async { Ok(()) })
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .remove_workspace_members(workspace_id.parse()?, vec![user_email])
+        .await?;
+      Ok(())
+    })
   }
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
