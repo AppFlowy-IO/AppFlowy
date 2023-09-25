@@ -137,3 +137,9 @@ impl From<anyhow::Error> for FlowyError {
       .unwrap_or_else(|err| FlowyError::new(ErrorCode::Internal, err))
   }
 }
+
+impl From<fancy_regex::Error> for FlowyError {
+  fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}

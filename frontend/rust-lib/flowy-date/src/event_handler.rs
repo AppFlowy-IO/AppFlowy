@@ -3,8 +3,15 @@ use date_time_parser::DateParser;
 use fancy_regex::Regex;
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, DataResult};
+use std::sync::OnceLock;
 
 use crate::entities::*;
+
+static YEAR_REGEX: OnceLock<Regex> = OnceLock::new();
+
+fn year_regex() -> &'static Regex {
+  YEAR_REGEX.get_or_init(|| Regex::new(r"\b\d{4}\b").unwrap())
+}
 
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn query_date_handler(
@@ -13,26 +20,13 @@ pub(crate) async fn query_date_handler(
   let query: String = data.into_inner().query;
   let date = DateParser::parse(&query);
 
-  let formatted: String;
-  if date.is_some() {
-    let naive_date = date.unwrap();
-
-    let year_regex = Regex::new(r"\b\d{4}\b").unwrap();
-    let year_match = year_regex.captures(&query).unwrap();
-
-    if year_match.is_some() {
-      let capture = year_match.unwrap().get(0).unwrap().as_str();
-      let year = capture.parse::<i32>().unwrap();
-
-      formatted = NaiveDate::from_ymd_opt(year, naive_date.month(), naive_date.day())
-        .unwrap()
-        .to_string();
-    } else {
-      formatted = naive_date.to_string();
-    }
-  } else {
-    formatted = String::from("-1");
-  }
+  let naive_date = date.unwrap_or_default();
+  let year_match = year_regex().find(&query).unwrap();
+  let formatted = year_match
+    .and_then(|capture| capture.as_str().parse::<i32>().ok())
+    .and_then(|year| NaiveDate::from_ymd_opt(year, naive_date.month0(), naive_date.day0()))
+    .map(|date| date.to_string())
+    .unwrap_or_else(|| naive_date.to_string());
 
   data_result_ok(DateResultPB { date: formatted })
 }

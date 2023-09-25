@@ -16,6 +16,7 @@ async fn user_update_with_name() {
     id: "".to_string(),
     scheduled_at: 0,
     is_ack: false,
+    is_read: false,
     title: "".to_string(),
     message: "".to_string(),
     object_id: "".to_string(),
