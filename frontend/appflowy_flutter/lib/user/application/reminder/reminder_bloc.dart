@@ -18,10 +18,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
+  late final NotificationActionBloc actionBloc;
   late final ReminderService reminderService;
   late final Timer timer;
 
   ReminderBloc() : super(ReminderState()) {
+    actionBloc = getIt<NotificationActionBloc>();
     reminderService = const ReminderService();
     timer = _periodicCheck();
 
@@ -32,9 +34,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
           remindersOrFailure.fold(
             (error) => Log.error(error),
-            (reminders) {
-              emit(state.copyWith(reminders: reminders));
-            },
+            (reminders) => _updateState(emit, reminders),
           );
         },
         remove: (reminderId) async {
@@ -47,7 +47,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               final reminders = [...state.reminders];
               reminders.removeWhere((e) => e.id == reminderId);
 
-              emit(state.copyWith(reminders: reminders));
+              _updateState(emit, reminders);
             },
           );
         },
@@ -59,7 +59,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             (error) => Log.error(error),
             (_) {
               state.reminders.add(reminder);
-              emit(state);
+              _updateState(emit, state.reminders);
             },
           );
         },
@@ -72,7 +72,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           }
 
           final newReminder = updateObject.merge(a: reminder);
-
           final failureOrUnit = await reminderService.updateReminder(
             reminder: updateObject.merge(a: reminder),
           );
@@ -85,12 +84,44 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               final reminders = [...state.reminders];
               reminders.replaceRange(index, index + 1, [newReminder]);
 
-              emit(state.copyWith(reminders: reminders));
+              _updateState(emit, reminders);
             },
+          );
+        },
+        pressReminder: (reminderId) {
+          final reminder =
+              state.reminders.firstWhereOrNull((r) => r.id == reminderId);
+
+          if (reminder == null) {
+            return;
+          }
+
+          add(
+            ReminderEvent.update(
+              ReminderUpdate(id: reminderId, isRead: true),
+            ),
+          );
+
+          actionBloc.add(
+            NotificationActionEvent.performAction(
+              action: NotificationAction(objectId: reminder.objectId),
+            ),
           );
         },
       );
     });
+  }
+
+  void _updateState(Emitter emit, List<ReminderPB> reminders) {
+    final now = DateTime.now();
+    final hasUnreads = reminders.any(
+      (r) =>
+          DateTime.fromMillisecondsSinceEpoch(r.scheduledAt.toInt() * 1000)
+              .isBefore(now) &&
+          !r.isRead,
+    );
+
+    emit(state.copyWith(reminders: reminders, hasUnreads: hasUnreads));
   }
 
   Timer _periodicCheck() {
@@ -112,7 +143,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               identifier: reminder.id,
               title: LocaleKeys.reminderNotification_title.tr(),
               body: LocaleKeys.reminderNotification_message.tr(),
-              onClick: () => getIt<NotificationActionBloc>().add(
+              onClick: () => actionBloc.add(
                 NotificationActionEvent.performAction(
                   action: NotificationAction(objectId: reminder.objectId),
                 ),
@@ -121,7 +152,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
             add(
               ReminderEvent.update(
-                update: ReminderUpdate(id: reminder.id, isAck: true),
+                ReminderUpdate(id: reminder.id, isAck: true),
               ),
             );
           }
@@ -142,9 +173,11 @@ class ReminderEvent with _$ReminderEvent {
   // Add a reminder
   const factory ReminderEvent.add({required ReminderPB reminder}) = _Add;
 
-  const factory ReminderEvent.update({
-    required ReminderUpdate update,
-  }) = _Update;
+  // Update a reminder (eg. isAck, isRead, etc.)
+  const factory ReminderEvent.update(ReminderUpdate update) = _Update;
+
+  const factory ReminderEvent.pressReminder({required String reminderId}) =
+      _PressReminder;
 }
 
 /// Object used to merge updates with
@@ -179,10 +212,19 @@ class ReminderUpdate {
 class ReminderState {
   ReminderState({
     List<ReminderPB>? reminders,
-  }) : reminders = reminders ?? [];
+    bool? hasUnreads,
+  })  : reminders = reminders ?? [],
+        hasUnreads = hasUnreads ?? false;
 
   final List<ReminderPB> reminders;
+  final bool hasUnreads;
 
-  ReminderState copyWith({List<ReminderPB>? reminders}) =>
-      ReminderState(reminders: reminders ?? this.reminders);
+  ReminderState copyWith({
+    List<ReminderPB>? reminders,
+    bool? hasUnreads,
+  }) =>
+      ReminderState(
+        reminders: reminders ?? this.reminders,
+        hasUnreads: hasUnreads ?? this.hasUnreads,
+      );
 }

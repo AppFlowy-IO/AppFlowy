@@ -135,11 +135,11 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
+  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
+
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
   getIt.registerSingleton<ReminderBloc>(ReminderBloc());
-
-  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

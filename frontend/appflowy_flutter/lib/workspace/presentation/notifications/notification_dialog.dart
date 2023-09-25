@@ -1,8 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
@@ -87,6 +85,7 @@ class NotificationDialog extends StatelessWidget {
                       title: reminder.title,
                       scheduled: reminder.scheduledAt,
                       body: reminder.message,
+                      isRead: reminder.isRead,
                       onDelete: () => context
                           .read<ReminderBloc>()
                           .add(ReminderEvent.remove(reminderId: reminder.id)),
@@ -99,11 +98,8 @@ class NotificationDialog extends StatelessWidget {
                           return;
                         }
 
-                        getIt<TabsBloc>().add(
-                          TabsEvent.openPlugin(
-                            plugin: view.plugin(),
-                            view: view,
-                          ),
+                        getIt<ReminderBloc>().add(
+                          ReminderEvent.pressReminder(reminderId: reminder.id),
                         );
 
                         mutex.close();
