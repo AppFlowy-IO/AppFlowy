@@ -95,30 +95,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
         cellData: widget.cellContext.getCellData(),
         cellController: widget.cellContext,
       )..add(const DateCellCalendarEvent.initial()),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          final List<Widget> children = [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime
-                  ? _TimeTextField(
-                      isEndTime: false,
-                      timeStr: state.time,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            if (state.includeTime && state.isRange) const VSpace(8.0),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime && state.isRange
-                  ? _TimeTextField(
-                      isEndTime: true,
-                      timeStr: state.endTime,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StartTextField(popoverMutex: popoverMutex),
+            EndTextField(popoverMutex: popoverMutex),
             const DatePicker(),
             const TypeOptionSeparator(spacing: 12.0),
             const EndTimeButton(),
@@ -128,16 +111,8 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             DateTypeOptionButton(popoverMutex: popoverMutex),
             const VSpace(4.0),
             const ClearDateButton(),
-          ];
-
-          return ListView.builder(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
-            padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -146,6 +121,55 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   void dispose() {
     popoverMutex.dispose();
     super.dispose();
+  }
+}
+
+class StartTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const StartTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime
+              ? _TimeTextField(
+                  isEndTime: false,
+                  timeStr: state.time,
+                  popoverMutex: popoverMutex,
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+}
+
+class EndTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const EndTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime && state.isRange
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: _TimeTextField(
+                    isEndTime: true,
+                    timeStr: state.endTime,
+                    popoverMutex: popoverMutex,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
   }
 }
 
@@ -166,7 +190,7 @@ class _DatePickerState extends State<DatePicker> {
       builder: (context, state) {
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).cardColor,
           shape: BoxShape.circle,
         );
         return Padding(
@@ -425,6 +449,18 @@ class _TimeTextFieldState extends State<_TimeTextField> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
   }
 }
 

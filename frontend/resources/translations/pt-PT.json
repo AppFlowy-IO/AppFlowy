@@ -269,7 +269,6 @@
     },
     "user": {
       "name": "Nome",
-      "icon": "Ícone",
       "selectAnIcon": "Selecione um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
       "email": "E-mail",

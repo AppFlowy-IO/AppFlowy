@@ -34,7 +34,7 @@ flowy-storage = { workspace = true }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
-bytes = "1.4"
+bytes = "1.5"
 tokio = { version = "1.26", features = ["full"] }
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"

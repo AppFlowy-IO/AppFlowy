@@ -344,7 +344,7 @@
     "user": {
       "name": "Name",
       "email": "Email",
-      "icon": "Icon",
+      "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
       "clickToLogout": "Click to logout the current user"
@@ -660,6 +660,9 @@
         "label": "Link to page",
         "tooltip": "Click to open page"
       }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
     }
   },
   "board": {
@@ -672,6 +675,7 @@
   "calendar": {
     "menuName": "Calendar",
     "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
     "navigation": {
       "today": "Today",
       "jumpToday": "Jump to Today",

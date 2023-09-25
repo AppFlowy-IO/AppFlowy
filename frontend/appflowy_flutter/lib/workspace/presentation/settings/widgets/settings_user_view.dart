@@ -9,10 +9,14 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/flowy_tooltip.dart';
+import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,22 +53,126 @@ class SettingsUserView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _renderUserNameInput(context),
-
+              _buildUserIconSetting(context),
               if (isSupabaseEnabled) ...[
-                const VSpace(20),
+                const VSpace(12),
                 UserEmailInput(user.email)
               ],
-
-              const VSpace(20),
-              _renderCurrentIcon(context),
-              const VSpace(20),
+              const VSpace(12),
               _renderCurrentOpenaiKey(context),
-              const VSpace(20),
-              // _renderHistoricalUser(context),
+              const VSpace(12),
               _renderLoginOrLogoutButton(context, state),
-              const VSpace(20),
+              const VSpace(12),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Row _buildUserIconSetting(BuildContext context) {
+    return Row(
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _showIconPickerDialog(context),
+          child: FlowyHover(
+            style: const HoverStyle.transparent(),
+            builder: (context, onHover) {
+              Widget avatar = UserAvatar(
+                iconUrl: user.iconUrl,
+                name: user.name,
+                isLarge: true,
+              );
+
+              if (onHover) {
+                avatar = _avatarOverlay(
+                  context: context,
+                  hasIcon: user.iconUrl.isNotEmpty,
+                  child: avatar,
+                );
+              }
+
+              return avatar;
+            },
+          ),
+        ),
+        const HSpace(12),
+        Flexible(child: _renderUserNameInput(context)),
+      ],
+    );
+  }
+
+  Future<void> _showIconPickerDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: FlowyText.medium(
+          LocaleKeys.settings_user_selectAnIcon.tr(),
+          fontSize: FontSizes.s16,
+        ),
+        children: [
+          SizedBox(
+            height: 300,
+            width: 300,
+            child: IconGallery(
+              defaultOption: _defaultIconOption(context),
+              selectedIcon: user.iconUrl,
+              onSelectIcon: (iconUrl, isSelected) {
+                if (isSelected) {
+                  return Navigator.of(context).pop();
+                }
+
+                context
+                    .read<SettingsUserViewBloc>()
+                    .add(SettingsUserEvent.updateUserIcon(iconUrl: iconUrl));
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Returns a Widget that is the Default Option for the
+  // Icon Gallery, enabling users to choose the auto-generated
+  // icon again.
+  Widget _defaultIconOption(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        context
+            .read<SettingsUserViewBloc>()
+            .add(const SettingsUserEvent.removeUserIcon());
+        Navigator.of(context).pop();
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: user.iconUrl.isEmpty
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+        ),
+        child: FlowyHover(
+          style: HoverStyle(
+            hoverColor: user.iconUrl.isEmpty
+                ? Colors.transparent
+                : Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: UserAvatar(
+                iconUrl: "",
+                name: user.name,
+                isLarge: true,
+              ),
+            ),
           ),
         ),
       ),
@@ -86,9 +194,7 @@ class SettingsUserView extends StatelessWidget {
 
     // If the user is logged in locally, render a third-party login button.
     if (state.userProfile.authType == AuthTypePB.Local) {
-      return SettingThirdPartyLogin(
-        didLogin: didLogin,
-      );
+      return SettingThirdPartyLogin(didLogin: didLogin);
     }
 
     return SettingLogoutButton(user: user, didLogout: didLogout);
@@ -100,20 +206,49 @@ class SettingsUserView extends StatelessWidget {
     return UserNameInput(name);
   }
 
-  Widget _renderCurrentIcon(BuildContext context) {
-    String iconUrl =
-        context.read<SettingsUserViewBloc>().state.userProfile.iconUrl;
-    if (iconUrl.isEmpty) {
-      iconUrl = defaultUserAvatar;
-    }
-    return _CurrentIcon(iconUrl);
-  }
-
   Widget _renderCurrentOpenaiKey(BuildContext context) {
     final String openAIKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
     return _OpenaiKeyInput(openAIKey);
   }
+
+  Widget _avatarOverlay({
+    required BuildContext context,
+    required bool hasIcon,
+    required Widget child,
+  }) =>
+      FlowyTooltip.delayedTooltip(
+        message: LocaleKeys.settings_user_tooltipSelectIcon.tr(),
+        child: Stack(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              foregroundDecoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withOpacity(hasIcon ? 0.8 : 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: child,
+            ),
+            const Positioned(
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: FlowySvg(FlowySvgs.emoji_s),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 @visibleForTesting
@@ -317,69 +452,19 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   }
 }
 
-class _CurrentIcon extends StatelessWidget {
-  final String iconUrl;
-  const _CurrentIcon(this.iconUrl, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    void setIcon(String iconUrl) {
-      context
-          .read<SettingsUserViewBloc>()
-          .add(SettingsUserEvent.updateUserIcon(iconUrl));
-      Navigator.of(context).pop();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          LocaleKeys.settings_user_icon.tr(),
-          style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-        ),
-        InkWell(
-          borderRadius: Corners.s6Border,
-          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                  title: FlowyText.medium(
-                    LocaleKeys.settings_user_selectAnIcon.tr(),
-                    fontSize: FontSizes.s16,
-                  ),
-                  children: [
-                    SizedBox(
-                      height: 300,
-                      width: 300,
-                      child: IconGallery(setIcon),
-                    )
-                  ],
-                );
-              },
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(0, 5, 5, 5),
-            child: FlowySvg(
-              FlowySvgData('emoji/$iconUrl'),
-              size: _iconSize,
-              blendMode: null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+typedef SelectIconCallback = void Function(String iconUrl, bool isSelected);
 
 class IconGallery extends StatelessWidget {
-  final Function setIcon;
-  const IconGallery(this.setIcon, {Key? key}) : super(key: key);
+  final String selectedIcon;
+  final SelectIconCallback onSelectIcon;
+  final Widget? defaultOption;
+
+  const IconGallery({
+    super.key,
+    required this.selectedIcon,
+    required this.onSelectIcon,
+    this.defaultOption,
+  });
 
   Future<List<String>> _getIcons(BuildContext context) async {
     final manifestContent =
@@ -403,23 +488,29 @@ class IconGallery extends StatelessWidget {
     return FutureBuilder<List<String>>(
       future: _getIcons(context),
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return GridView.count(
             padding: const EdgeInsets.all(20),
             crossAxisCount: 5,
-            children: (snapshot.data ?? []).map((String iconUrl) {
-              return IconOption(
-                FlowySvgData('emoji/$iconUrl'),
-                iconUrl,
-                setIcon,
-              );
-            }).toList(),
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+            children: [
+              if (defaultOption != null) defaultOption!,
+              ...snapshot.data!
+                  .mapIndexed(
+                    (int index, String iconUrl) => IconOption(
+                      emoji: FlowySvgData('emoji/$iconUrl'),
+                      iconUrl: iconUrl,
+                      onSelectIcon: onSelectIcon,
+                      isSelected: iconUrl == selectedIcon,
+                    ),
+                  )
+                  .toList(),
+            ],
           );
         }
+
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -428,21 +519,34 @@ class IconGallery extends StatelessWidget {
 class IconOption extends StatelessWidget {
   final FlowySvgData emoji;
   final String iconUrl;
-  final Function setIcon;
+  final SelectIconCallback onSelectIcon;
+  final bool isSelected;
 
-  IconOption(this.emoji, this.iconUrl, this.setIcon, {Key? key})
-      : super(key: ValueKey(emoji));
+  IconOption({
+    required this.emoji,
+    required this.iconUrl,
+    required this.onSelectIcon,
+    required this.isSelected,
+  }) : super(key: ValueKey(emoji));
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: Corners.s6Border,
+      borderRadius: Corners.s8Border,
       hoverColor: Theme.of(context).colorScheme.tertiaryContainer,
-      onTap: () => setIcon(iconUrl),
-      child: FlowySvg(
-        emoji,
-        size: _iconSize,
-        blendMode: null,
+      onTap: () => onSelectIcon(iconUrl, isSelected),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+          borderRadius: Corners.s8Border,
+        ),
+        child: FlowySvg(
+          emoji,
+          size: _iconSize,
+          blendMode: null,
+        ),
       ),
     );
   }

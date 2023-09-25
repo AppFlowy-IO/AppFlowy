@@ -80,10 +80,14 @@ incremental = false
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
 
 # ⚠️⚠️⚠️
-# Please using the following command to update the revision id
-# Current directory: frontend
-# Run the script:
-# scripts/tool/update_collab_rev.sh  new_rev_id
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
 collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
@@ -94,14 +98,3 @@ collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "b
 collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
 collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-
-
-#collab-define = { path = "../AppFlowy-Collab/collab-define" }
-#collab = { path = "../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
-#collab-database= { path = "../AppFlowy-Collab/collab-database" }
-#collab-document = { path = "../AppFlowy-Collab/collab-document" }
-#collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
-#collab-persistence = { path = "../AppFlowy-Collab/collab-persistence" }
-#collab-user = { path = "../AppFlowy-Collab/collab-user" }
-#collab-sync-protocol = { path = "../AppFlowy-Collab/collab-sync-protocol" }

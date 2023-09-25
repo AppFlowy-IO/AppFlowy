@@ -240,7 +240,6 @@
     },
     "user": {
       "name": "İsim",
-      "icon": "Simge",
       "selectAnIcon": "Bir simge seçin",
       "pleaseInputYourOpenAIKey": "lütfen OpenAI anahtarınızı girin"
     }

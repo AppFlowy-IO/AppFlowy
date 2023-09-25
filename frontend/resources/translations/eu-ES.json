@@ -258,7 +258,6 @@
     },
     "user": {
       "name": "Izena",
-      "icon": "Ikonoa",
       "selectAnIcon": "Hautatu ikono bat",
       "pleaseInputYourOpenAIKey": "mesedez sartu zure OpenAI gakoa"
     }

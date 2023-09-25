@@ -52,8 +52,13 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final bool requireSpace = widget.onDeleted != null ||
+        widget.onHidden != null ||
+        !widget.typeOptionLoader.field.isPrimary;
+
     final List<Widget> children = [
       FieldNameTextField(popoverMutex: popoverMutex),
+      if (requireSpace) const VSpace(4),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
       if (!widget.typeOptionLoader.field.isPrimary)
@@ -199,6 +204,17 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(() {
+      if (focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    focusNode.dispose();
+    super.dispose();
   }
 }
 

@@ -8,12 +8,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 part 'checklist_cell_bloc.freezed.dart';
 
-class ChecklistCardCellBloc
-    extends Bloc<ChecklistCellEvent, ChecklistCellState> {
+class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
   final ChecklistCellBackendService _checklistCellSvc;
   void Function()? _onCellChangedFn;
-  ChecklistCardCellBloc({
+  ChecklistCellBloc({
     required this.cellController,
   })  : _checklistCellSvc = ChecklistCellBackendService(
           viewId: cellController.viewId,

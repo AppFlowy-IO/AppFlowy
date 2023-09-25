@@ -296,7 +296,6 @@
     },
     "user": {
       "name": "نام",
-      "icon": "آیکون",
       "selectAnIcon": "انتخاب یک آیکون",
       "pleaseInputYourOpenAIKey": "لطفا کلید OpenAI خود را وارد کنید",
       "clickToLogout": "برای خروج از کاربر فعلی کلیک کنید"

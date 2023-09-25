@@ -472,6 +472,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           toggleOffFill: theme.shader5,
           progressBarBGColor: theme.progressBarBGColor,
           toggleButtonBGColor: theme.toggleButtonBGColor,
+          calendarWeekendBGColor: theme.calendarWeekendBGColor,
+          gridRowCountColor: theme.gridRowCountColor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,

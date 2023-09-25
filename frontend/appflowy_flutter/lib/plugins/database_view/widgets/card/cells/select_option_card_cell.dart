@@ -1,12 +1,13 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/select_option_card_cell_bloc.dart';
+
 import 'card_cell.dart';
 
 class SelectOptionCardCellStyle extends CardCellStyle {}
@@ -29,11 +30,11 @@ class SelectOptionCardCell<CustomCardData>
   }) : super(key: key, cardData: cardData);
 
   @override
-  State<SelectOptionCardCell> createState() => _SelectOptionCardCellState();
+  State<SelectOptionCardCell> createState() => _SelectOptionCellState();
 }
 
-class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
-  late SelectOptionCardCellBloc _cellBloc;
+class _SelectOptionCellState extends State<SelectOptionCardCell> {
+  late SelectOptionCellBloc _cellBloc;
   late PopoverController _popover;
 
   @override
@@ -41,8 +42,8 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as SelectOptionCellController;
-    _cellBloc = SelectOptionCardCellBloc(cellController: cellController)
-      ..add(const SelectOptionCardCellEvent.initial());
+    _cellBloc = SelectOptionCellBloc(cellController: cellController)
+      ..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
 
@@ -50,7 +51,7 @@ class _SelectOptionCardCellState extends State<SelectOptionCardCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<SelectOptionCardCellBloc, SelectOptionCardCellState>(
+      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         buildWhen: (previous, current) {
           return previous.selectedOptions != current.selectedOptions;
         },

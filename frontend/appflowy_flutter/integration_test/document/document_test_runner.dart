@@ -5,6 +5,7 @@ import 'document_codeblock_paste_test.dart' as document_codeblock_paste_test;
 import 'document_copy_and_paste_test.dart' as document_copy_and_paste_test;
 import 'document_create_and_delete_test.dart'
     as document_create_and_delete_test;
+import 'document_text_direction_test.dart' as document_text_direction_test;
 import 'document_with_cover_image_test.dart' as document_with_cover_image_test;
 import 'document_with_database_test.dart' as document_with_database_test;
 import 'document_with_inline_math_equation_test.dart'
@@ -29,4 +30,5 @@ void startTesting() {
   document_copy_and_paste_test.main();
   document_codeblock_paste_test.main();
   document_alignment_test.main();
+  document_text_direction_test.main();
 }

@@ -250,7 +250,6 @@
     },
     "user": {
       "name": "namn",
-      "icon": "Ikon",
       "selectAnIcon": "Välj en ikon",
       "pleaseInputYourOpenAIKey": "vänligen ange din OpenAI-nyckel"
     }
