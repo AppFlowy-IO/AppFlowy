@@ -591,14 +591,20 @@
         "addBefore": "Dodaj przed",
         "delete": "Usuń",
         "clear": "Wyczyść treść",
-        "duplicate": "Duplikuj"
+        "duplicate": "Duplikuj",
+        "bgColor": "Kolor tła"
+      },
+      "contextMenu": {
+        "copy": "Kopiuj",
+        "cut": "Wytnij",
+        "paste": "Wklej"
       }
     },
     "textBlock": {
       "placeholder": "Wpisz „/” dla poleceń"
     },
     "title": {
-      "placeholder": "Nieuprawny"
+      "placeholder": "Brak nazwy"
     },
     "imageBlock": {
       "placeholder": "Kliknij, aby dodać obraz",
@@ -626,6 +632,9 @@
     },
     "inlineLink": {
       "placeholder": "Wklej lub wpisz link",
+      "openInNewTab": "Otwórz w nowej karcie",
+      "copyLink": "Skopiuj link",
+      "removeLink": "Usuń link",
       "url": {
         "label": "Adres URL łącza",
         "placeholder": "Wprowadź adres URL łącza"
@@ -634,6 +643,16 @@
         "label": "Tytuł linku",
         "placeholder": "Wpisz tytuł linku"
       }
+    },
+    "mention": {
+      "placeholder": "Wspomnij o osobie, stronie lub dacie...",
+      "page": {
+        "label": "Link do strony",
+        "tooltip": "Kliknij, aby otworzyć stronę"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Przywróć ustawienia domyślne"
     }
   },
   "board": {
@@ -645,7 +664,8 @@
   },
   "calendar": {
     "menuName": "Kalendarz",
-    "defaultNewCalendarTitle": "Nieuprawny",
+    "defaultNewCalendarTitle": "Brak nazwy",
+    "newEventButtonTooltip": "Dodaj nowe wydarzenie",
     "navigation": {
       "today": "Dzisiaj",
       "jumpToday": "Przejdź do dzisiaj",
