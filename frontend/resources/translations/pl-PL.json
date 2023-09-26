@@ -212,8 +212,8 @@
   },
   "label": {
     "welcome": "Witaj!",
-    "firstName": "Imię Pierwsze",
-    "middleName": "Imię Drugie",
+    "firstName": "Imię",
+    "middleName": "Drugie Imię",
     "lastName": "Nazwisko",
     "stepX": "Krok {X}"
   },
