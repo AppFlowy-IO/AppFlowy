@@ -46,7 +46,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             (_) {
               final reminders = [...state.reminders];
               reminders.removeWhere((e) => e.id == reminderId);
-
               _updateState(emit, reminders);
             },
           );
@@ -83,7 +82,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                   state.reminders.indexWhere((r) => r.id == reminder.id);
               final reminders = [...state.reminders];
               reminders.replaceRange(index, index + 1, [newReminder]);
-
               _updateState(emit, reminders);
             },
           );
@@ -97,9 +95,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           }
 
           add(
-            ReminderEvent.update(
-              ReminderUpdate(id: reminderId, isRead: true),
-            ),
+            ReminderEvent.update(ReminderUpdate(id: reminderId, isRead: true)),
           );
 
           actionBloc.add(
@@ -120,7 +116,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               .isBefore(now) &&
           !r.isRead,
     );
-
     emit(state.copyWith(reminders: reminders, hasUnreads: hasUnreads));
   }
 
@@ -182,6 +177,7 @@ class ReminderEvent with _$ReminderEvent {
 
 /// Object used to merge updates with
 /// a [ReminderPB]
+///
 class ReminderUpdate {
   final String id;
   final bool? isAck;

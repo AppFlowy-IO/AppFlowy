@@ -43,10 +43,7 @@ class ReminderService implements IReminderService {
   Future<Either<FlowyError, List<ReminderPB>>> fetchReminders() async {
     final resultOrFailure = await UserEventGetAllReminders().send();
 
-    return resultOrFailure.swap().fold(
-          (l) => left(l),
-          (r) => right(r.items),
-        );
+    return resultOrFailure.swap().fold((l) => left(l), (r) => right(r.items));
   }
 
   @override

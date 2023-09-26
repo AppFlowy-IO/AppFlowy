@@ -49,27 +49,25 @@ class _IncludeTimeButtonState extends State<IncludeTimeButton> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: _includeTime
-              ? _TimeTextField(
-                  timeStr: _timeString,
-                  popoverMutex: widget.popoverMutex,
-                  timeFormat: widget.timeFormat,
-                  onSubmitted: (value) {
-                    setState(() => _timeString = value);
-                    widget.onSubmitted?.call(_timeString);
-                  },
-                )
-              : const SizedBox.shrink(),
-        ),
-        if (_includeTime) const TypeOptionSeparator(spacing: 12.0),
+        if (_includeTime) ...[
+          _TimeTextField(
+            timeStr: _timeString,
+            popoverMutex: widget.popoverMutex,
+            timeFormat: widget.timeFormat,
+            onSubmitted: (value) {
+              setState(() => _timeString = value);
+              widget.onSubmitted?.call(_timeString);
+            },
+          ),
+          const TypeOptionSeparator(spacing: 12.0),
+        ],
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: SizedBox(
             height: GridSize.popoverItemHeight,
             child: Padding(
-              padding: GridSize.typeOptionContentInsets,
+              padding: GridSize.typeOptionContentInsets -
+                  const EdgeInsets.only(top: 4),
               child: Row(
                 children: [
                   FlowySvg(

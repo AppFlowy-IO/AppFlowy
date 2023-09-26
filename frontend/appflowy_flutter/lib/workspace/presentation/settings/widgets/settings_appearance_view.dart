@@ -25,22 +25,14 @@ class SettingsAppearanceView extends StatelessWidget {
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
                 ),
-                BrightnessSetting(
-                  currentThemeMode: state.themeMode,
-                ),
+                BrightnessSetting(currentThemeMode: state.themeMode),
                 const Divider(),
                 ThemeFontFamilySetting(currentFontFamily: state.font),
-                const Divider(),
-                ThemeFontFamilySetting(
-                  currentFontFamily: state.font,
-                ),
                 const Divider(),
                 LayoutDirectionSetting(
                   currentLayoutDirection: state.layoutDirection,
                 ),
-                TextDirectionSetting(
-                  currentTextDirection: state.textDirection,
-                ),
+                TextDirectionSetting(currentTextDirection: state.textDirection),
                 const Divider(),
                 DateFormatSetting(currentFormat: state.dateFormat),
                 TimeFormatSetting(currentFormat: state.timeFormat),

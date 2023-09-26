@@ -212,25 +212,20 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
     DateTime focusedDay,
     bool includeTime,
   ) {
+    late DateTime timeOfDay;
     switch (widget.timeFormat) {
       case TimeFormatPB.TwelveHour:
-        final timeOfDay = DateFormat.jm().parse(_time ?? '12:00 AM');
-
-        widget.onDaySelected?.call(
-          _dateWithTime(selectedDay, timeOfDay),
-          focusedDay,
-          _includeTime,
-        );
+        timeOfDay = DateFormat.jm().parse(_time ?? '12:00 AM');
         break;
       case TimeFormatPB.TwentyFourHour:
-        final timeOfDay = DateFormat.Hm().parse(_time ?? '00:00');
-
-        widget.onDaySelected?.call(
-          _dateWithTime(selectedDay, timeOfDay),
-          focusedDay,
-          _includeTime,
-        );
+        timeOfDay = DateFormat.Hm().parse(_time ?? '00:00');
         break;
     }
+
+    widget.onDaySelected?.call(
+      _dateWithTime(selectedDay, timeOfDay),
+      focusedDay,
+      _includeTime,
+    );
   }
 }

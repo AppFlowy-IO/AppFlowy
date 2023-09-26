@@ -39,11 +39,8 @@ class TimeFormatSetting extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         text: FlowyText.medium(_formatLabel(format)),
-        rightIcon: currentFormat == format
-            ? const FlowySvg(
-                FlowySvgs.check_s,
-              )
-            : null,
+        rightIcon:
+            currentFormat == format ? const FlowySvg(FlowySvgs.check_s) : null,
         onTap: () {
           if (currentFormat != format) {
             context.read<AppearanceSettingsCubit>().setTimeFormat(format);

@@ -20,8 +20,6 @@ class DateFormatSetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
         label: LocaleKeys.settings_appearance_dateFormat_label.tr(),
-        // onResetRequested:
-        //     context.read<AppearanceSettingsCubit>().resetThemeMode,
         trailing: [
           ThemeValueDropDown(
             currentValue: _formatLabel(currentFormat),
@@ -44,11 +42,8 @@ class DateFormatSetting extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         text: FlowyText.medium(_formatLabel(format)),
-        rightIcon: currentFormat == format
-            ? const FlowySvg(
-                FlowySvgs.check_s,
-              )
-            : null,
+        rightIcon:
+            currentFormat == format ? const FlowySvg(FlowySvgs.check_s) : null,
         onTap: () {
           if (currentFormat != format) {
             context.read<AppearanceSettingsCubit>().setDateFormat(format);

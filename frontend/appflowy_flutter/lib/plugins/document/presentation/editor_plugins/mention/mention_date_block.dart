@@ -29,8 +29,13 @@ class MentionDateBlock extends StatelessWidget {
   final String date;
   final int index;
   final Node node;
+
   final bool isReminder;
+
+  /// If [isReminder] is true, then this must not be
+  /// null or empty
   final String? reminderId;
+
   final bool includeTime;
 
   @override
@@ -69,13 +74,13 @@ class MentionDateBlock extends StatelessWidget {
             );
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: AppFlowyPopover(
                   direction: PopoverDirection.bottomWithLeftAligned,
                   constraints: BoxConstraints.loose(const Size(260, 420)),
-                  popupBuilder: (popoverContext) {
+                  popupBuilder: (_) {
                     return SingleChildScrollView(
                       child: AppFlowyCalendar(
                         format: CalendarFormat.month,
@@ -99,65 +104,50 @@ class MentionDateBlock extends StatelessWidget {
                           // We can remove time from the date/reminder
                           //  block when toggled off.
                           if (!includeTime) {
-                            context.read<ReminderBloc>().add(
-                                  ReminderEvent.update(
-                                    ReminderUpdate(
-                                      id: reminderId!,
-                                      scheduledAt: parsedDate.withoutTime,
-                                    ),
-                                  ),
-                                );
+                            _updateScheduledAt(
+                              context,
+                              reminderId: reminderId!,
+                              selectedDay: parsedDate.withoutTime,
+                            );
                           }
                         },
-                        onDaySelected: (
-                          selectedDay,
-                          focusedDay,
-                          includeTime,
-                        ) {
+                        onDaySelected: (selectedDay, focusedDay, includeTime) {
                           _updateBlock(context, selectedDay, includeTime);
 
                           if (isReminder &&
                               date != selectedDay.toIso8601String()) {
-                            context.read<ReminderBloc>().add(
-                                  ReminderEvent.update(
-                                    ReminderUpdate(
-                                      id: reminderId!,
-                                      scheduledAt: selectedDay,
-                                    ),
-                                  ),
-                                );
+                            _updateScheduledAt(
+                              context,
+                              reminderId: reminderId!,
+                              selectedDay: selectedDay,
+                            );
                           }
                         },
                       ),
                     );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FlowySvg(
-                          isReminder
-                              ? FlowySvgs.clock_alarm_s
-                              : FlowySvgs.date_s,
-                          size: const Size.square(18.0),
-                          color: noReminder
-                              ? Theme.of(context).colorScheme.error
-                              : null,
-                        ),
-                        const HSpace(2),
-                        FlowyText(
-                          formattedDate,
-                          fontSize: fontSize,
-                          color: noReminder
-                              ? Theme.of(context).colorScheme.error
-                              : null,
-                          decoration: reminder?.isAck ?? false
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FlowySvg(
+                        isReminder ? FlowySvgs.clock_alarm_s : FlowySvgs.date_s,
+                        size: const Size.square(18.0),
+                        color: noReminder
+                            ? Theme.of(context).colorScheme.error
+                            : null,
+                      ),
+                      const HSpace(2),
+                      FlowyText(
+                        formattedDate,
+                        fontSize: fontSize,
+                        color: noReminder
+                            ? Theme.of(context).colorScheme.error
+                            : null,
+                        decoration: reminder?.isAck ?? false
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -196,5 +186,20 @@ class MentionDateBlock extends StatelessWidget {
       editorState.selection,
       reason: SelectionUpdateReason.transaction,
     );
+  }
+
+  void _updateScheduledAt(
+    BuildContext context, {
+    required String reminderId,
+    required DateTime selectedDay,
+  }) {
+    context.read<ReminderBloc>().add(
+          ReminderEvent.update(
+            ReminderUpdate(
+              id: reminderId,
+              scheduledAt: selectedDay,
+            ),
+          ),
+        );
   }
 }

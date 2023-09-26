@@ -54,66 +54,58 @@ class _NotificationItemState extends State<NotificationItem> {
             onTap: widget.onAction,
             child: Opacity(
               opacity: widget.isRead ? 0.5 : 1,
-              child: DecoratedBox(
+              child: Container(
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   color: _isHovering && widget.onAction != null
                       ? AFThemeExtension.of(context).lightGreyHover
                       : Colors.transparent,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          const FlowySvg(
-                            FlowySvgs.time_s,
-                            size: Size.square(20),
-                          ),
-                          if (!widget.isRead)
-                            Positioned(
-                              bottom: 1,
-                              right: 1,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AFThemeExtension.of(context).warning,
-                                ),
-                                child: const SizedBox(height: 8, width: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
+                        if (!widget.isRead)
+                          Positioned(
+                            bottom: 1,
+                            right: 1,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AFThemeExtension.of(context).warning,
                               ),
+                              child: const SizedBox(height: 8, width: 8),
                             ),
+                          ),
+                      ],
+                    ),
+                    const HSpace(10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: FlowyText.semibold(widget.title),
+                              ),
+                              FlowyText.regular(
+                                _scheduledString(widget.scheduled),
+                                fontSize: 10,
+                              ),
+                            ],
+                          ),
+                          const VSpace(5),
+                          FlowyText.regular(widget.body, maxLines: 4),
                         ],
                       ),
-                      const HSpace(10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: FlowyText.semibold(widget.title),
-                                ),
-                                FlowyText.regular(
-                                  _scheduledString(widget.scheduled),
-                                  fontSize: 10,
-                                ),
-                              ],
-                            ),
-                            const VSpace(5),
-                            FlowyText.regular(
-                              widget.body,
-                              maxLines: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -150,7 +142,6 @@ class NotificationItemActions extends StatelessWidget {
   });
 
   final bool isRead;
-
   final VoidCallback? onDelete;
   final void Function(bool isRead)? onReadChanged;
 

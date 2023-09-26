@@ -167,7 +167,7 @@ class DateReferenceService {
     final locale = context.locale.toLanguageTag();
 
     if (locale != _locale) {
-      _locale = context.locale.toLanguageTag();
+      _locale = locale;
       _setOptions();
     }
   }

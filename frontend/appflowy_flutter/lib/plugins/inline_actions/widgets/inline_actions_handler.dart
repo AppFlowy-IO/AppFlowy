@@ -193,14 +193,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (_selectedGroup <= groupLength &&
           _selectedIndex <= lengthOfGroup(_selectedGroup)) {
-        handlerOf(
-          _selectedGroup,
-          _selectedIndex,
-        ).onSelected?.call(
-              context,
-              widget.editorState,
-              widget.menuService,
-            );
+        handlerOf(_selectedGroup, _selectedIndex)
+            .onSelected
+            ?.call(context, widget.editorState, widget.menuService);
 
         widget.onDismiss();
         return KeyEventResult.handled;
@@ -211,14 +206,12 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
         widget.onDismiss();
+        widget.editorState.deleteBackward(); // Delete '@'
       } else {
         widget.onSelectionUpdate();
         widget.editorState.deleteBackward();
         _deleteCharacterAtSelection();
       }
-
-      /// Prevents dismissal of context menu by notifying the parent
-      /// that the selection change occurred from the handler.
 
       return KeyEventResult.handled;
     } else if (event.character != null &&
@@ -233,13 +226,11 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
       // Interpolation to avoid having a getter for private variable
       _insertCharacter(event.character!);
-
       return KeyEventResult.handled;
     }
 
     if (moveKeys.contains(event.logicalKey)) {
       _moveSelection(event.logicalKey);
-
       return KeyEventResult.handled;
     }
 
