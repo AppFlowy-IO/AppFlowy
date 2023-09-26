@@ -73,7 +73,7 @@
     "moreOptions": "Więcej opcji"
   },
   "importPanel": {
-    "textAndMarkdown": "Tekst i przeceny",
+    "textAndMarkdown": "Tekst i Markdown",
     "documentFromV010": "Dokument z wersji 0.1.0",
     "databaseFromV010": "Baza danych z wersji 0.1.0",
     "csv": "CSV",
