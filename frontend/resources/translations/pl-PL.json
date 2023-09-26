@@ -26,22 +26,34 @@
     "alreadyHaveAnAccount": "Masz juz konto?",
     "emailHint": "Email",
     "passwordHint": "Hasło",
-    "repeatPasswordHint": "Powtórz hasło"
+    "repeatPasswordHint": "Powtórz hasło",
+    "signUpWith": "Zarejestruj się za pomocą:"
   },
   "signIn": {
     "loginTitle": "Zaloguj do @:appName",
     "loginButtonText": "Logowanie",
+    "loginStartWithAnonymous": "Zacznij od sesji anonimowej",
+    "continueAnonymousUser": "Kontynuuj sesję anonimową",
     "buttonText": "Zaloguj",
     "forgotPassword": "Zapomniałem hasła?",
     "emailHint": "Email",
-    "passwordHint": "Password",
+    "passwordHint": "Hasło",
     "dontHaveAnAccount": "Nie masz konta?",
     "repeatPasswordEmptyError": "Powtórzone hasło nie moze być puste",
     "unmatchedPasswordError": "Hasła nie są takie same",
+    "syncPromptMessage": "Synchronizacja danych może chwilę potrwać. Proszę nie zamykać tej strony",
+    "or": "ALBO",
+    "LogInWithGoogle": "Zaloguj się za pomocą Google",
+    "LogInWithGithub": "Zaloguj się za pomocą Githuba",
+    "LogInWithDiscord": "Zaloguj się za pomocą Discorda",
+    "signInWith": "Zaloguj się korzystając z:",
     "loginAsGuestButtonText": "Zaczynaj"
   },
   "workspace": {
+    "chooseWorkspace": "Wybierz swoją przestrzeń do pracy",
     "create": "Utwórz przestrzeń",
+    "reset": "Zresetuj obszar roboczy",
+    "resetWorkspacePrompt": "Zresetowanie obszaru roboczego spowoduje usunięcie wszystkich znajdujących się w nim stron i danych. Czy na pewno chcesz zresetować obszar roboczy? Alternatywnie możesz skontaktować się z zespołem pomocy technicznej, aby przywrócić obszar roboczy",
     "hint": "przestrzeń robocza",
     "notFoundError": "Przestrzeni nie znaleziono"
   },
