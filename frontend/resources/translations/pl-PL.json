@@ -83,10 +83,19 @@
     "rename": "Zmień nazwę",
     "delete": "Usuń",
     "duplicate": "Duplikuj",
-    "openNewTab": "Otwórz w nowej karcie"
+    "unfavorite": "Usuń z ulubionych",
+    "favorite": "Dodaj do ulubionych",
+    "openNewTab": "Otwórz w nowej karcie",
+    "moveTo": "Przenieś do",
+    "addToFavorites": "Dodaj do ulubionych",
+    "copyLink": "Skopiuj link"
   },
   "blankPageTitle": "Pusta strona",
   "newPageText": "Nowa strona",
+  "newDocumentText": "Nowy dokument",
+  "newGridText": "Nowa siatka",
+  "newCalendarText": "Nowy kalendarz",
+  "newBoardText": "Nowa tablica",
   "trash": {
     "text": "Kosz",
     "restoreAll": "Przywróć Wszystko",
@@ -115,7 +124,7 @@
     "shortcuts": "Skróty",
     "whatsNew": "What's new?",
     "help": "Pomoc & Wsparcie",
-    "markdown": "Obniżka cen",
+    "markdown": "Markdown",
     "debug": {
       "name": "Informacje Debugowania",
       "success": "Skopiowano informacje debugowania do schowka!",
