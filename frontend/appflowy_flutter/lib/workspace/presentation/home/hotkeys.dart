@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -58,8 +59,11 @@ class HomeHotKeys extends StatelessWidget {
         ],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) =>
-          context.read<AppearanceSettingsCubit>().toggleThemeMode(),
+      // We can not use [context.read] here, because it will throw "Looking up a deactivated widget's ancestor is unsafe" exception.
+      // In order to access the AppearanceSettingsCubit, we utilize the rootNavKay to get the context of [MaterialApp] from app_widget.dart.
+      keyDownHandler: (_) => AppGlobals.rootNavKey.currentContext
+          ?.read<AppearanceSettingsCubit>()
+          .toggleThemeMode(),
     ).register();
 
     // Close current tab

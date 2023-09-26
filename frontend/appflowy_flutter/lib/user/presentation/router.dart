@@ -54,11 +54,6 @@ class AuthRouter {
         } else {
           context.go(
             DesktopHomeScreen.routeName,
-            extra: {
-              DesktopHomeScreen.argKey: ValueKey(userProfile.id),
-              DesktopHomeScreen.argUserProfile: userProfile,
-              DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
-            },
           );
         }
       },
@@ -111,8 +106,7 @@ class SplashRouter {
 
     FolderEventGetCurrentWorkspace().send().then((result) {
       result.fold(
-        (workspaceSettingPB) =>
-            pushHomeScreen(context, userProfile, workspaceSettingPB),
+        (workspaceSettingPB) => pushHomeScreen(context),
         (r) => null,
       );
     });
@@ -120,8 +114,6 @@ class SplashRouter {
 
   void pushHomeScreen(
     BuildContext context,
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
       context.push(
@@ -130,19 +122,12 @@ class SplashRouter {
     } else {
       context.push(
         DesktopHomeScreen.routeName,
-        extra: {
-          DesktopHomeScreen.argKey: ValueKey(userProfile.id),
-          DesktopHomeScreen.argUserProfile: userProfile,
-          DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
-        },
       );
     }
   }
 
   void goHomeScreen(
     BuildContext context,
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
   ) {
     if (PlatformExtension.isMobile) {
       context.go(
@@ -151,11 +136,6 @@ class SplashRouter {
     } else {
       context.go(
         DesktopHomeScreen.routeName,
-        extra: {
-          DesktopHomeScreen.argKey: ValueKey(userProfile.id),
-          DesktopHomeScreen.argUserProfile: userProfile,
-          DesktopHomeScreen.argWorkspaceSetting: workspaceSetting,
-        },
       );
     }
   }

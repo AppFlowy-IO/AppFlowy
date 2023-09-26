@@ -1,6 +1,7 @@
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
@@ -12,6 +13,19 @@ GoRouter generateRouter(Widget child) {
   return GoRouter(
     navigatorKey: AppGlobals.rootNavKey,
     initialLocation: '/',
+    redirect: (context, state) async {
+      // Redirect to DesktopHomeScreen when theme mode changes in desktop. In this way, it won't show splash screen again when rendering MaterialApp.
+      final userResponse = await getIt<AuthService>().getUser();
+      final routeName = userResponse.fold(
+        (error) => null,
+        (user) => DesktopHomeScreen.routeName,
+      );
+      if (routeName != null &&
+          state.matchedLocation == '/' &&
+          !PlatformExtension.isMobile) return routeName;
+
+      return null;
+    },
     routes: [
       // Root route is SplashScreen.
       // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
@@ -191,13 +205,8 @@ GoRoute _desktopHomeScreenRoute() {
   return GoRoute(
     path: DesktopHomeScreen.routeName,
     pageBuilder: (context, state) {
-      final args = state.extra as Map<String, dynamic>;
       return CustomTransitionPage(
-        child: DesktopHomeScreen(
-          key: args[DesktopHomeScreen.argKey],
-          userProfile: args[DesktopHomeScreen.argUserProfile],
-          workspaceSetting: args[DesktopHomeScreen.argWorkspaceSetting],
-        ),
+        child: const DesktopHomeScreen(),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,
       );

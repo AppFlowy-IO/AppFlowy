@@ -91,8 +91,6 @@ class SplashScreen extends StatelessWidget {
               // After login, replace Splash screen by corresponding home screen
               getIt<SplashRouter>().goHomeScreen(
                 context,
-                userProfile,
-                workspaceSetting,
               );
             },
             (error) => handleOpenWorkspaceError(context, error),
