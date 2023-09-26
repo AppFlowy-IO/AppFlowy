@@ -236,23 +236,51 @@
       "appearance": "Wygląd",
       "language": "Język",
       "user": "Użytkownik",
-      "files": "Akta",
+      "files": "Pliki",
       "open": "Otwórz Ustawienia",
+      "logout": "Wyloguj",
+      "logoutPrompt": "Czy na pewno się wylogujesz?",
+      "selfEncryptionLogoutPrompt": "Czy na pewno chcesz się wylogować? Upewnij się, że skopiowałeś sekret szyfrowania",
+      "syncSetting": "Ustawienie synchronizacji",
+      "enableSync": "Włącz synchronizację",
+      "enableEncrypt": "Szyfruj dane",
+      "enableEncryptPrompt": "Aktywuj szyfrowanie, aby zabezpieczyć swoje dane tym sekretem. Przechowuj go bezpiecznie; po włączeniu nie można go wyłączyć. Jeśli zostaną utracone, Twoje dane staną się nieodwracalne. Kliknij, aby skopiować",
+      "inputEncryptPrompt": "Wprowadź swój sekret szyfrowania dla",
+      "clickToCopySecret": "Kliknij, aby skopiować sekret",
+      "inputTextFieldHint": "Twój sekret",
+      "historicalUserList": "Historia logowania użytkownika",
+      "historicalUserListTooltip": "Na tej liście wyświetlane są Twoje anonimowe konta. Możesz kliknąć konto, aby wyświetlić jego szczegóły. Konta anonimowe tworzy się poprzez kliknięcie przycisku „Rozpocznij”.",
+      "openHistoricalUser": "Kliknij, aby otworzyć anonimowe konto",
       "supabaseSetting": "Ustawienie Supabase"
     },
     "appearance": {
+      "resetSetting": "Zresetuj to ustawienie",
       "fontFamily": {
         "label": "Rodzina czcionek",
         "search": "Szukaj"
       },
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Tryb tematyczny",
         "light": "Tryb Jasny",
         "dark": "Tryb Ciemny",
         "system": "Adapt to System"
       },
+      "layoutDirection": {
+        "label": "Kierunek układu",
+        "hint": "Kontroluj przepływ treści na ekranie, od lewej do prawej lub od prawej do lewej.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Domyślny kierunek tekstu",
+        "hint": "Określ, czy tekst ma domyślnie zaczynać się od lewej czy prawej strony.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTOMATYCZNY",
+        "fallback": "Taki sam jak kierunek układu"
+      },
       "themeUpload": {
-        "button": "Wgrywać",
+        "button": "Prześlij",
         "description": "Prześlij własny motyw AppFlowy za pomocą przycisku poniżej.",
         "failure": "Przesłany motyw miał nieprawidłowy format.",
         "loading": "Poczekaj, aż zweryfikujemy i prześlemy Twój motyw...",
@@ -263,7 +291,8 @@
       },
       "theme": "Temat",
       "builtInsLabel": "Wbudowane motywy",
-      "pluginsLabel": "Wtyczki"
+      "pluginsLabel": "Wtyczki",
+      "showNamingDialogWhenCreatingPage": "Pokaż okno dialogowe nazewnictwa podczas tworzenia strony"
     },
     "files": {
       "copy": "Kopiuj",
