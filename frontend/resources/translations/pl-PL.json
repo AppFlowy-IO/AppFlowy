@@ -510,7 +510,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Zarys"
+      "outline": "Zarys",
+      "codeBlock": "Blok kodu"
     },
     "plugins": {
       "referencedBoard": "Tablica referencyjna",
@@ -518,16 +519,16 @@
       "referencedCalendar": "Kalendarz odniesienia",
       "autoGeneratorMenuItemName": "Pisarz OpenAI",
       "autoGeneratorTitleName": "OpenAI: Poproś AI o napisanie czegokolwiek...",
-      "autoGeneratorLearnMore": "Ucz się więcej",
-      "autoGeneratorGenerate": "Generować",
+      "autoGeneratorLearnMore": "Dowiedz się więcej",
+      "autoGeneratorGenerate": "Generuj",
       "autoGeneratorHintText": "Zapytaj OpenAI...",
       "autoGeneratorCantGetOpenAIKey": "Nie można uzyskać klucza OpenAI",
-      "autoGeneratorRewrite": "Przepisać",
+      "autoGeneratorRewrite": "Przepisz",
       "smartEdit": "Asystenci SI",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Popraw pisownię",
       "warning": "⚠️ Odpowiedzi AI mogą być niedokładne lub mylące.",
-      "smartEditSummarize": "Podsumować",
+      "smartEditSummarize": "Podsumuj",
       "smartEditImproveWriting": "Popraw pisanie",
       "smartEditMakeLonger": "Dłużej",
       "smartEditCouldNotFetchResult": "Nie można pobrać wyniku z OpenAI",
