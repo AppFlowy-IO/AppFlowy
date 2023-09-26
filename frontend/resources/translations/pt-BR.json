@@ -6,6 +6,16 @@
   "subscribeNewsletterText": "Inscreva-se para receber novidades",
   "letsGoButtonText": "Vamos lá",
   "title": "Título",
+  "youCanAlso": "Você também pode",
+  "and": "e",
+  "blockActions": {
+    "addBelowTooltip": "Clique para adicionar abaixo",
+    "addAboveCmd": "Alt+clique",
+    "addAboveMacCmd": "Opção+clique",
+    "addAboveTooltip": "para adicionar acima",
+    "dragTooltip": "Arraste para mover",
+    "openMenuTooltip": "Clique para abrir o menu"
+  },
   "signUp": {
     "buttonText": "Inscreva-se",
     "title": "Inscreva-se no @:appName",
@@ -22,6 +32,7 @@
   "signIn": {
     "loginTitle": "Conectar-se ao @:appName",
     "loginButtonText": "Conectar-se",
+    "continueAnonymousUser": "Continuar em uma sessão anônima",
     "buttonText": "Entre",
     "forgotPassword": "Esqueceu sua senha?",
     "emailHint": "E-mail",
@@ -29,24 +40,23 @@
     "dontHaveAnAccount": "Não possui uma conta?",
     "repeatPasswordEmptyError": "Senha não pode estar em branco.",
     "unmatchedPasswordError": "As senhas não conferem.",
-    "loginAsGuestButtonText": "Iniciar",
-    "continueAnonymousUser": "Continuar em uma sessão anônima",
+    "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
     "signInWith": "Entrar com:",
-    "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página"
+    "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
     "create": "Crie um espaço de trabalho",
-    "hint": "Espaço de trabalho",
-    "notFoundError": "Espaço de trabalho não encontrado",
+    "reset": "Redefinir espaço de trabalho",
     "resetWorkspacePrompt": "A redefinição do espaço de trabalho excluirá todas as páginas e dados contidos nele. Tem certeza de que deseja redefinir o espaço de trabalho? Alternativamente, você pode entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
-    "reset": "Redefinir espaço de trabalho"
+    "hint": "Espaço de trabalho",
+    "notFoundError": "Espaço de trabalho não encontrado"
   },
   "shareAction": {
     "buttonText": "Compartilhar",
     "workInProgress": "Em breve",
     "markdown": "Marcador",
-    "copyLink": "Copiar link",
-    "csv": "CSV"
+    "csv": "CSV",
+    "copyLink": "Copiar link"
   },
   "moreAction": {
     "small": "pequeno",
@@ -56,19 +66,30 @@
     "import": "Importar",
     "moreOptions": "Mais opções"
   },
+  "importPanel": {
+    "textAndMarkdown": "Texto e Remarcação",
+    "documentFromV010": "Documento de v0.1.0",
+    "databaseFromV010": "Banco de dados de v0.1.0",
+    "csv": "CSV",
+    "database": "Base de dados"
+  },
   "disclosureAction": {
     "rename": "Renomear",
     "delete": "Apagar",
     "duplicate": "Duplicar",
-    "openNewTab": "Abrir em uma nova guia",
     "unfavorite": "Remover dos favoritos",
     "favorite": "Adicionar aos favoritos",
+    "openNewTab": "Abrir em uma nova guia",
     "moveTo": "Mover para",
     "addToFavorites": "Adicionar aos favoritos",
     "copyLink": "Copiar link"
   },
   "blankPageTitle": "Página em branco",
   "newPageText": "Nova página",
+  "newDocumentText": "Novo Documento",
+  "newGridText": "Nova grelha",
+  "newCalendarText": "Novo calendário",
+  "newBoardText": "Novo quadro",
   "trash": {
     "text": "Lixeira",
     "restoreAll": "Restaurar tudo",
@@ -97,19 +118,19 @@
     "shortcuts": "Atalhos",
     "whatsNew": "O que há de novo?",
     "help": "Ajuda e Suporte",
+    "markdown": "Remarcação",
     "debug": {
       "name": "Informação de depuração",
       "success": "Informação de depuração copiada para a área de transferência!",
       "fail": "Falha ao copiar a informação de depuração para a área de transferência"
     },
-    "markdown": "Remarcação",
     "feedback": "Opinião"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Remover, renomear e muito mais...",
     "addPageTooltip": "Adicionar uma nova página.",
     "defaultNewPageName": "Sem título",
-    "renameDialog": "Renomear",
-    "moreButtonToolTip": "Remover, renomear e muito mais..."
+    "renameDialog": "Renomear"
   },
   "toolbar": {
     "undo": "Desfazer",
@@ -135,19 +156,19 @@
     "openAsPage": "Abrir como uma página",
     "addNewRow": "Adicionar uma nova linha",
     "openMenu": "Clique para abrir o menu",
+    "dragRow": "Pressione e segure para reordenar a linha",
     "viewDataBase": "Visualizar banco de dados",
     "referencePage": "Esta {name} é uma referência",
-    "dragRow": "Pressione e segure para reordenar a linha",
     "addBlockBelow": "Adicione um bloco abaixo"
   },
   "sideBar": {
-    "openSidebar": "Abrir barra lateral",
     "closeSidebar": "Fechar barra lateral",
+    "openSidebar": "Abrir barra lateral",
+    "personal": "Pessoal",
     "favorites": "Favoritos",
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
-    "addAPage": "Adicionar uma página",
-    "personal": "Pessoal"
+    "addAPage": "Adicionar uma página"
   },
   "notifications": {
     "export": {
@@ -163,6 +184,7 @@
   },
   "button": {
     "OK": "Ok",
+    "Done": "Feito",
     "Cancel": "Cancelar",
     "signIn": "Conectar",
     "signOut": "Desconectar",
@@ -171,18 +193,17 @@
     "generate": "Gerar",
     "esc": "Sair",
     "keep": "Manter",
-    "tryAGain": "Tentar novamente",
+    "tryAgain": "Tente novamente",
     "discard": "Descartar",
     "replace": "substituir",
-    "Done": "Feito",
-    "tryAgain": "Tente novamente",
     "insertBelow": "Inserir Abaixo",
     "upload": "Carregar",
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
     "done": "Feito",
-    "putback": "Por de volta"
+    "putback": "Por de volta",
+    "tryAGain": "Tentar novamente"
   },
   "label": {
     "welcome": "Bem-vindo!",
@@ -212,32 +233,32 @@
       "user": "Usuário",
       "files": "Arquivos",
       "open": "Abrir Configurações",
-      "supabaseSetting": "Configuração de Supabase",
       "logout": "Sair",
       "logoutPrompt": "Tem certeza de que deseja sair?",
       "selfEncryptionLogoutPrompt": "Tem certeza que deseja sair? Certifique-se de ter copiado o segredo de criptografia",
+      "syncSetting": "Configuração de sincronização",
       "enableSync": "Ativar sincronização",
       "enableEncrypt": "Criptografar dados",
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
-      "historicalUserList": "Histórico de login do usuário",
-      "openHistoricalUser": "Clique para abrir a conta anônima",
-      "syncSetting": "Configuração de sincronização",
       "clickToCopySecret": "Clique para copiar o segredo",
       "inputTextFieldHint": "Seu segredo",
-      "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’"
+      "historicalUserList": "Histórico de login do usuário",
+      "historicalUserListTooltip": "Esta lista exibe suas contas anônimas. Você pode clicar em uma conta para ver seus detalhes. Contas anônimas são criadas clicando no botão ‘Começar’",
+      "openHistoricalUser": "Clique para abrir a conta anônima",
+      "supabaseSetting": "Configuração de Supabase"
     },
     "appearance": {
+      "resetSetting": "Redefinir esta configuração",
+      "fontFamily": {
+        "label": "Família de fontes",
+        "search": "Procurar"
+      },
       "themeMode": {
         "label": "Tema",
         "light": "Modo claro",
         "dark": "Modo escuro",
         "system": "Adaptar-se ao sistema"
-      },
-      "theme": "Tema",
-      "fontFamily": {
-        "label": "Família de fontes",
-        "search": "Procurar"
       },
       "themeUpload": {
         "button": "Carregar",
@@ -249,20 +270,25 @@
         "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
         "urlUploadFailure": "Falha ao abrir url: {}"
       },
+      "theme": "Tema",
       "builtInsLabel": "Temas embutidos",
-      "pluginsLabel": "Plugins",
-      "resetSetting": "Redefinir esta configuração"
+      "pluginsLabel": "Plugins"
     },
     "files": {
+      "copy": "cópia de",
       "defaultLocation": "Onde os seus dados ficam armazenados",
+      "exportData": "Exporte seus dados",
       "doubleTapToCopy": "Clique duas vezes para copiar o caminho",
       "restoreLocation": "Restaurar para o caminho padrão do AppFlowy",
       "customizeLocation": "Abrir outra pasta",
       "restartApp": "Reinicie o aplicativo para que as alterações entrem em vigor.",
       "exportDatabase": "Exportar banco de dados",
       "selectFiles": "Escolha os arquivos que precisam ser exportados",
+      "selectAll": "Selecionar tudo",
+      "deselectAll": "Desmarcar todos",
       "createNewFolder": "Criar uma nova pasta",
       "createNewFolderDesc": "Diga-nos onde pretende armazenar os seus dados ...",
+      "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
       "open": "Abrir",
       "openFolder": "Abra uma pasta existente",
       "openFolderDesc": "Gravar na pasta AppFlowy existente ...",
@@ -271,14 +297,9 @@
       "locationDesc": "Escolha um nome para sua pasta de dados do AppFlowy",
       "browser": "Navegar",
       "create": "Criar",
+      "set": "Definir",
       "folderPath": "Caminho para armazenar sua pasta",
       "locationCannotBeEmpty": "O caminho não pode estar vazio",
-      "copy": "cópia de",
-      "exportData": "Exporte seus dados",
-      "selectAll": "Selecionar tudo",
-      "deselectAll": "Desmarcar todos",
-      "defineWhereYourDataIsStored": "Defina onde seus dados são armazenados",
-      "set": "Definir",
       "pathCopiedSnackbar": "Caminho de armazenamento de arquivo copiado para a área de transferência!",
       "changeLocationTooltips": "Alterar o diretório de dados",
       "change": "Mudar",
@@ -291,9 +312,9 @@
     },
     "user": {
       "name": "Nome",
+      "email": "E-mail",
       "selectAnIcon": "Escolha um ícone",
       "pleaseInputYourOpenAIKey": "por favor insira sua chave OpenAI",
-      "email": "E-mail",
       "clickToLogout": "Clique para sair do usuário atual"
     },
     "shortcuts": {
@@ -309,20 +330,22 @@
     }
   },
   "grid": {
+    "deleteView": "Tem certeza de que deseja excluir esta visualização?",
+    "createView": "Novo",
     "settings": {
       "filter": "Filtro",
       "sort": "Organizar",
       "sortBy": "Organizar por",
-      "Properties": "Propriedades",
+      "properties": "Propriedades",
+      "reorderPropertiesTooltip": "Arraste para reordenar as propriedades",
       "group": "Grupo",
       "addFilter": "Adicionar filtro",
       "deleteFilter": "Apagar filtro",
       "filterBy": "Filtrar por...",
       "typeAValue": "Digite um valor...",
-      "properties": "Propriedades",
-      "reorderPropertiesTooltip": "Arraste para reordenar as propriedades",
       "layout": "Disposição",
-      "databaseLayout": "Disposição"
+      "databaseLayout": "Disposição",
+      "Properties": "Propriedades"
     },
     "textFilter": {
       "contains": "Contém",
@@ -373,6 +396,8 @@
       "textFieldName": "Texto",
       "checkboxFieldName": "Caixa de seleção",
       "dateFieldName": "Data",
+      "updatedAtFieldName": "Hora da última modificação",
+      "createdAtFieldName": "hora criada",
       "numberFieldName": "Números",
       "singleSelectFieldName": "Selecionar",
       "multiSelectFieldName": "Multi seleção",
@@ -385,38 +410,36 @@
       "dateFormatISO": "Ano-Mês-Dia",
       "dateFormatLocal": "Mês/Dia/Ano",
       "dateFormatUS": "Ano/Mês/Dia",
+      "dateFormatDayMonthYear": "Dia mês ano",
       "timeFormat": "Formato de hora",
       "invalidTimeFormat": "Formato inválido",
       "timeFormatTwelveHour": "12 horas",
       "timeFormatTwentyFourHour": "24 horas",
+      "clearDate": "Limpar data",
       "addSelectOption": "Adicionar uma opção",
       "optionTitle": "Opções",
       "addOption": "Adicioar opção",
       "editProperty": "Editar propriedade",
       "newProperty": "Nova coluna",
       "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída",
-      "updatedAtFieldName": "Hora da última modificação",
-      "createdAtFieldName": "hora criada",
-      "dateFormatDayMonthYear": "Dia mês ano",
-      "clearDate": "Limpar data",
       "newColumn": "Nova Coluna"
     },
     "sort": {
       "ascending": "Crescente",
       "descending": "Decrescente",
-      "deleteSort": "Apagar ordenação",
+      "deleteAllSorts": "Apagar todas as ordenações",
       "addSort": "Adicionar ordenação",
-      "deleteAllSorts": "Apagar todas as ordenações"
+      "deleteSort": "Apagar ordenação"
     },
     "row": {
       "duplicate": "Duplicar",
       "delete": "Apagar",
+      "titlePlaceholder": "Sem título",
       "textPlaceholder": "Vazio",
       "copyProperty": "Propriedade copiada para a área de transferência",
       "count": "Contagem",
       "newRow": "Nova linha",
-      "action": "Ação",
-      "titlePlaceholder": "Sem título"
+      "action": "Ação"
     },
     "selectOption": {
       "create": "Criar",
@@ -430,18 +453,16 @@
       "aquaColor": "Áqua",
       "blueColor": "Azul",
       "deleteTag": "Apagar etiqueta",
-      "colorPannelTitle": "Cores",
-      "pannelTitle": "Escolha uma opção ou crie uma",
-      "searchOption": "Procurar uma opção",
       "colorPanelTitle": "cores",
-      "panelTitle": "Selecione uma opção ou crie uma"
+      "panelTitle": "Selecione uma opção ou crie uma",
+      "searchOption": "Procurar uma opção",
+      "colorPannelTitle": "Cores",
+      "pannelTitle": "Escolha uma opção ou crie uma"
     },
     "checklist": {
       "addNew": "Adicionar um item"
     },
     "menuName": "Grade",
-    "deleteView": "Tem certeza de que deseja excluir esta visualização?",
-    "createView": "Novo",
     "referencedGridPrefix": "Vista de"
   },
   "document": {
@@ -464,27 +485,30 @@
         "createANewCalendar": "Criar um novo calendário"
       }
     },
+    "selectionMenu": {
+      "outline": "Contorno",
+      "codeBlock": "Bloco de código"
+    },
     "plugins": {
       "referencedBoard": "Quadro vinculado",
       "referencedGrid": "Grade vinculado",
-      "autoCompletionMenuItemName": "Preenchimento Automático",
+      "referencedCalendar": "calendário referenciado",
       "autoGeneratorMenuItemName": "Gerar nome automaticamente",
       "autoGeneratorTitleName": "Gerar por IA",
       "autoGeneratorLearnMore": "Saiba mais",
       "autoGeneratorGenerate": "Gerar",
       "autoGeneratorHintText": "Diga-nos o que você deseja gerar por IA ...",
       "autoGeneratorCantGetOpenAIKey": "Não foi possível obter a chave da OpenAI",
-      "smartEditFixSpelling": "Corrigir ortografia",
-      "smartEditSummarize": "Resumir",
-      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
-      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI",
-      "referencedCalendar": "calendário referenciado",
       "autoGeneratorRewrite": "Reescrever",
       "smartEdit": "Assistentes de IA",
       "openAI": "OpenAI",
+      "smartEditFixSpelling": "Corrigir ortografia",
       "warning": "⚠️ As respostas da IA podem ser imprecisas ou enganosas.",
+      "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "melhorar a escrita",
       "smartEditMakeLonger": "Faça mais",
+      "smartEditCouldNotFetchResult": "Não foi possível obter o resultado do OpenAI",
+      "smartEditCouldNotFetchKey": "Não foi possível obter a chave OpenAI",
       "smartEditDisabled": "Conecte OpenAI em Configurações",
       "discardResponse": "Deseja descartar as respostas de IA?",
       "createInlineMathEquation": "Criar equação",
@@ -550,11 +574,8 @@
         "copy": "Cópia",
         "cut": "Corte",
         "paste": "Colar"
-      }
-    },
-    "selectionMenu": {
-      "outline": "Contorno",
-      "codeBlock": "Bloco de código"
+      },
+      "autoCompletionMenuItemName": "Preenchimento Automático"
     },
     "textBlock": {
       "placeholder": "Digite '/' para comandos"
@@ -588,6 +609,9 @@
     },
     "inlineLink": {
       "placeholder": "Cole ou digite um link",
+      "openInNewTab": "Abrir em nova aba",
+      "copyLink": "Cópia do link",
+      "removeLink": "Remover link",
       "url": {
         "label": "URL do link",
         "placeholder": "Insira o URL do link"
@@ -595,10 +619,7 @@
       "title": {
         "label": "Título do link",
         "placeholder": "Insira o título do link"
-      },
-      "openInNewTab": "Abrir em nova aba",
-      "copyLink": "Cópia do link",
-      "removeLink": "Remover link"
+      }
     },
     "mention": {
       "placeholder": "Mencione uma pessoa, uma página ou uma data...",
@@ -617,13 +638,13 @@
   },
   "calendar": {
     "menuName": "Calendário",
+    "defaultNewCalendarTitle": "Sem título",
     "navigation": {
       "today": "Hoje",
       "jumpToday": "Pular para hoje",
       "previousMonth": "Mês anterior",
       "nextMonth": "Próximo mês"
     },
-    "defaultNewCalendarTitle": "Sem título",
     "settings": {
       "showWeekNumbers": "Mostrar números da semana",
       "showWeekends": "Mostrar fins de semana",
@@ -635,23 +656,6 @@
       "name": "Layout do calendário"
     },
     "referencedCalendarPrefix": "Vista de"
-  },
-  "youCanAlso": "Você também pode",
-  "and": "e",
-  "blockActions": {
-    "addBelowTooltip": "Clique para adicionar abaixo",
-    "addAboveCmd": "Alt+clique",
-    "addAboveMacCmd": "Opção+clique",
-    "addAboveTooltip": "para adicionar acima",
-    "dragTooltip": "Arraste para mover",
-    "openMenuTooltip": "Clique para abrir o menu"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Texto e Remarcação",
-    "documentFromV010": "Documento de v0.1.0",
-    "databaseFromV010": "Banco de dados de v0.1.0",
-    "csv": "CSV",
-    "database": "Base de dados"
   },
   "errorDialog": {
     "title": "Erro do AppFlowy",
@@ -675,10 +679,6 @@
     "deleteContentTitle": "Tem certeza de que deseja excluir {pageType}?",
     "deleteContentCaption": "se você excluir este {pageType}, poderá restaurá-lo da lixeira."
   },
-  "newDocumentText": "Novo Documento",
-  "newGridText": "Nova grelha",
-  "newCalendarText": "Novo calendário",
-  "newBoardText": "Novo quadro",
   "colors": {
     "custom": "Personalizado",
     "default": "Padrão",

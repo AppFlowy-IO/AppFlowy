@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
   "letsGoButtonText": "Kör igång",
   "title": "Namn",
+  "youCanAlso": "Du kan också",
+  "and": "och",
+  "blockActions": {
+    "addBelowTooltip": "Klicka för att lägga till nedan",
+    "addAboveCmd": "Alt+klicka",
+    "addAboveMacCmd": "Alternativ+klick",
+    "addAboveTooltip": "att lägga till ovan"
+  },
   "signUp": {
     "buttonText": "Registrera dig",
     "title": "Registrera dig på @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Kopiera länk"
   },
+  "moreAction": {
+    "small": "små",
+    "medium": "medium",
+    "large": "stor",
+    "fontSize": "Textstorlek",
+    "import": "Importera",
+    "moreOptions": "Fler alternativ"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Dokument från v0.1.0",
+    "databaseFromV010": "Databas från v0.1.0",
+    "csv": "CSV",
+    "database": "Databas"
+  },
   "disclosureAction": {
     "rename": "Byt namn",
     "delete": "Ta bort",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Sidnamn",
   "questionBubble": {
+    "shortcuts": "Genvägar",
     "whatsNew": "Vad nytt?",
     "help": "Hjälp & Support",
+    "markdown": "Prissänkning",
     "debug": {
       "name": "Felsökningsinfo",
       "success": "Kopierade felsökningsinfo till urklipp!",
       "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
     },
-    "shortcuts": "Genvägar",
-    "markdown": "Prissänkning",
     "feedback": "Respons"
   },
   "menuAppHeader": {
@@ -137,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Gjort",
     "Cancel": "Avbryt",
     "signIn": "Logga in",
     "signOut": "Logga ut",
     "complete": "Slutfört",
     "save": "Spara",
-    "Done": "Gjort",
     "generate": "Generera",
     "esc": "ESC",
     "keep": "Ha kvar",
@@ -183,20 +206,20 @@
       "appearance": "Utseende",
       "language": "Språk",
       "user": "Användare",
-      "open": "Öppna inställningarna",
       "files": "Filer",
+      "open": "Öppna inställningarna",
       "supabaseSetting": "Supabase-inställning"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Typsnittsfamilj",
+        "search": "Sök"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Ljust läge",
         "dark": "Mörkt läge",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Typsnittsfamilj",
-        "search": "Sök"
       },
       "themeUpload": {
         "button": "Ladda upp",
@@ -255,84 +278,23 @@
     }
   },
   "grid": {
+    "deleteView": "Är du säker på att du vill ta bort den här vyn?",
+    "createView": "Ny",
     "settings": {
       "filter": "Filter",
-      "sortBy": "Sortera efter",
-      "Properties": "Egenskaper",
-      "group": "Grupp",
       "sort": "Sortera",
+      "sortBy": "Sortera efter",
       "properties": "Egenskaper",
       "reorderPropertiesTooltip": "Dra för att ändra ordning på egenskaper",
+      "group": "Grupp",
       "addFilter": "Lägg till filter",
       "deleteFilter": "Ta bort filter",
       "filterBy": "Filtrera efter...",
       "typeAValue": "Skriv ett värde...",
       "layout": "Layout",
-      "databaseLayout": "Layout"
+      "databaseLayout": "Layout",
+      "Properties": "Egenskaper"
     },
-    "field": {
-      "hide": "Dölj",
-      "insertLeft": "Infoga till vänster",
-      "insertRight": "Infoga till höger",
-      "duplicate": "Klona",
-      "delete": "Ta bort",
-      "textFieldName": "Text",
-      "checkboxFieldName": "Checkruta",
-      "dateFieldName": "Datum",
-      "numberFieldName": "Siffror",
-      "singleSelectFieldName": "Välj",
-      "multiSelectFieldName": "Välj flera",
-      "urlFieldName": "URL",
-      "numberFormat": "Sifferformat",
-      "dateFormat": "Datumformat",
-      "includeTime": "Inkludera tid",
-      "dateFormatFriendly": "Månad Dag, År",
-      "dateFormatISO": "År-Månad-Dag",
-      "dateFormatLocal": "Månad/Dag/År",
-      "dateFormatUS": "År/Månad/Dag",
-      "timeFormat": "Tidsformat",
-      "invalidTimeFormat": "Ogiltigt format",
-      "timeFormatTwelveHour": "12-timmars",
-      "timeFormatTwentyFourHour": "24-timmars",
-      "addSelectOption": "Lägg till ett alternativ",
-      "optionTitle": "Alternativ",
-      "addOption": "Lägg till alternativ",
-      "editProperty": "Redigera egenskap",
-      "newProperty": "Ny kolumn",
-      "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas.",
-      "updatedAtFieldName": "Senast ändrad tid",
-      "createdAtFieldName": "Skapat tid",
-      "checklistFieldName": "Checklista",
-      "dateFormatDayMonthYear": "Dag månad år"
-    },
-    "row": {
-      "duplicate": "Klona",
-      "delete": "Ta bort",
-      "textPlaceholder": "Tom",
-      "copyProperty": "Kopierade egenskap till urklipp",
-      "count": "Antal",
-      "newRow": "Ny rad",
-      "action": "Handling"
-    },
-    "selectOption": {
-      "create": "Skapa",
-      "purpleColor": "Purpur",
-      "pinkColor": "Rosa",
-      "lightPinkColor": "Ljusrosa",
-      "orangeColor": "Orange",
-      "yellowColor": "Gul",
-      "limeColor": "Lime",
-      "greenColor": "Grön",
-      "aquaColor": "Vatten",
-      "blueColor": "Blå",
-      "deleteTag": "Ta bort tagg",
-      "colorPanelTitle": "Färger",
-      "panelTitle": "Välj ett alternativ eller skapa ett",
-      "searchOption": "Sök efter ett alternativ"
-    },
-    "menuName": "Tabell",
-    "deleteView": "Är du säker på att du vill ta bort den här vyn?",
-    "createView": "Ny",
     "textFilter": {
       "contains": "Innehåller",
       "doesNotContain": "Innehåller inte",
@@ -373,15 +335,76 @@
       "isEmpty": "Är tom",
       "isNotEmpty": "Är inte tom"
     },
+    "field": {
+      "hide": "Dölj",
+      "insertLeft": "Infoga till vänster",
+      "insertRight": "Infoga till höger",
+      "duplicate": "Klona",
+      "delete": "Ta bort",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Checkruta",
+      "dateFieldName": "Datum",
+      "updatedAtFieldName": "Senast ändrad tid",
+      "createdAtFieldName": "Skapat tid",
+      "numberFieldName": "Siffror",
+      "singleSelectFieldName": "Välj",
+      "multiSelectFieldName": "Välj flera",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Checklista",
+      "numberFormat": "Sifferformat",
+      "dateFormat": "Datumformat",
+      "includeTime": "Inkludera tid",
+      "dateFormatFriendly": "Månad Dag, År",
+      "dateFormatISO": "År-Månad-Dag",
+      "dateFormatLocal": "Månad/Dag/År",
+      "dateFormatUS": "År/Månad/Dag",
+      "dateFormatDayMonthYear": "Dag månad år",
+      "timeFormat": "Tidsformat",
+      "invalidTimeFormat": "Ogiltigt format",
+      "timeFormatTwelveHour": "12-timmars",
+      "timeFormatTwentyFourHour": "24-timmars",
+      "addSelectOption": "Lägg till ett alternativ",
+      "optionTitle": "Alternativ",
+      "addOption": "Lägg till alternativ",
+      "editProperty": "Redigera egenskap",
+      "newProperty": "Ny kolumn",
+      "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas."
+    },
     "sort": {
       "ascending": "Stigande",
       "descending": "Nedåtgående",
-      "deleteSort": "Ta bort sortering",
-      "addSort": "Lägg till sortering"
+      "addSort": "Lägg till sortering",
+      "deleteSort": "Ta bort sortering"
+    },
+    "row": {
+      "duplicate": "Klona",
+      "delete": "Ta bort",
+      "textPlaceholder": "Tom",
+      "copyProperty": "Kopierade egenskap till urklipp",
+      "count": "Antal",
+      "newRow": "Ny rad",
+      "action": "Handling"
+    },
+    "selectOption": {
+      "create": "Skapa",
+      "purpleColor": "Purpur",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Ljusrosa",
+      "orangeColor": "Orange",
+      "yellowColor": "Gul",
+      "limeColor": "Lime",
+      "greenColor": "Grön",
+      "aquaColor": "Vatten",
+      "blueColor": "Blå",
+      "deleteTag": "Ta bort tagg",
+      "colorPanelTitle": "Färger",
+      "panelTitle": "Välj ett alternativ eller skapa ett",
+      "searchOption": "Sök efter ett alternativ"
     },
     "checklist": {
       "addNew": "Lägg till ett objekt"
     },
+    "menuName": "Tabell",
     "referencedGridPrefix": "Utsikt över"
   },
   "document": {
@@ -529,29 +552,6 @@
     },
     "menuName": "Tavla",
     "referencedBoardPrefix": "Utsikt över"
-  },
-  "moreAction": {
-    "small": "små",
-    "medium": "medium",
-    "large": "stor",
-    "fontSize": "Textstorlek",
-    "import": "Importera",
-    "moreOptions": "Fler alternativ"
-  },
-  "youCanAlso": "Du kan också",
-  "and": "och",
-  "blockActions": {
-    "addBelowTooltip": "Klicka för att lägga till nedan",
-    "addAboveCmd": "Alt+klicka",
-    "addAboveMacCmd": "Alternativ+klick",
-    "addAboveTooltip": "att lägga till ovan"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Dokument från v0.1.0",
-    "databaseFromV010": "Databas från v0.1.0",
-    "csv": "CSV",
-    "database": "Databas"
   },
   "calendar": {
     "menuName": "Kalender",

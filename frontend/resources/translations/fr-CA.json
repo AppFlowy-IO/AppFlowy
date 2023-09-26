@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Abonnez-vous à notre courriel",
   "letsGoButtonText": "Allons-y",
   "title": "Titre",
+  "youCanAlso": "Vous pouvez aussi",
+  "and": "et",
+  "blockActions": {
+    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
+    "addAboveCmd": "Alt+clic",
+    "addAboveMacCmd": "Option+clic",
+    "addAboveTooltip": "à ajouter au dessus"
+  },
   "signUp": {
     "buttonText": "S'inscrire",
     "title": "S'inscrire à @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Copier le lien"
   },
+  "moreAction": {
+    "small": "petit",
+    "medium": "moyen",
+    "large": "grand",
+    "fontSize": "Taille de police",
+    "import": "Importer",
+    "moreOptions": "Plus d'options"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Texte et Markdown",
+    "documentFromV010": "Document de la v0.1.0",
+    "databaseFromV010": "Base de données à partir de la v0.1.0",
+    "csv": "CSV",
+    "database": "Base de données"
+  },
   "disclosureAction": {
     "rename": "Renommer",
     "delete": "Supprimer",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Nom de la page",
   "questionBubble": {
+    "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
     "help": "Aide et Support Technique",
+    "markdown": "Réduction",
     "debug": {
       "name": "Infos du système",
       "success": "Info copié!",
       "fail": "Impossible de copier l'info"
     },
-    "shortcuts": "Raccourcis",
-    "markdown": "Réduction",
     "feedback": "Retour"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "Ce {nom} est référencé",
     "addBlockBelow": "Ajouter un bloc ci-dessous"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Note exportée vers Markdown",
+      "path": "Documents/fluide"
+    }
+  },
   "contactsPage": {
     "title": "Contacts",
     "whatsHappening": "Quoi de neuf?",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Fait",
     "Cancel": "Annuler",
     "signIn": "Se connecter",
     "signOut": "Se déconnecter",
     "complete": "Achevé",
     "save": "Sauvegarder",
-    "Done": "Fait",
     "generate": "Générer",
     "esc": "ESC",
     "keep": "Donjon",
@@ -172,21 +205,21 @@
     "menu": {
       "appearance": "Apparence",
       "language": "Langue",
-      "open": "Ouvrir les paramètres",
       "user": "Utilisateur",
       "files": "Des dossiers",
+      "open": "Ouvrir les paramètres",
       "supabaseSetting": "Paramètre Supbase"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Famille de polices",
+        "search": "Recherche"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Mode clair",
         "dark": "Mode sombre",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Famille de polices",
-        "search": "Recherche"
       },
       "themeUpload": {
         "button": "Télécharger",
@@ -242,39 +275,6 @@
       "name": "Nom",
       "selectAnIcon": "Sélectionnez une icône",
       "pleaseInputYourOpenAIKey": "veuillez entrer votre clé OpenAI"
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "petit",
-    "medium": "moyen",
-    "large": "grand",
-    "fontSize": "Taille de police",
-    "import": "Importer",
-    "moreOptions": "Plus d'options"
-  },
-  "youCanAlso": "Vous pouvez aussi",
-  "and": "et",
-  "blockActions": {
-    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
-    "addAboveCmd": "Alt+clic",
-    "addAboveMacCmd": "Option+clic",
-    "addAboveTooltip": "à ajouter au dessus"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Texte et Markdown",
-    "documentFromV010": "Document de la v0.1.0",
-    "databaseFromV010": "Base de données à partir de la v0.1.0",
-    "csv": "CSV",
-    "database": "Base de données"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Note exportée vers Markdown",
-      "path": "Documents/fluide"
     }
   },
   "grid": {
@@ -372,8 +372,8 @@
     "sort": {
       "ascending": "Ascendant",
       "descending": "Descendant",
-      "deleteSort": "Supprimer le tri",
-      "addSort": "Ajouter un tri"
+      "addSort": "Ajouter un tri",
+      "deleteSort": "Supprimer le tri"
     },
     "row": {
       "duplicate": "Dupliquer",

@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "S'inscrire à la Newsletter",
   "letsGoButtonText": "Allons-y",
   "title": "Titre",
+  "youCanAlso": "Vous pouvez aussi",
+  "and": "et",
+  "blockActions": {
+    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
+    "addAboveCmd": "Alt+clic",
+    "addAboveMacCmd": "Option+clic",
+    "addAboveTooltip": "à ajouter au dessus"
+  },
   "signUp": {
     "buttonText": "S'inscrire",
     "title": "Inscrivez-vous sur @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Copier le lien"
   },
+  "moreAction": {
+    "small": "petit",
+    "medium": "moyen",
+    "large": "grand",
+    "fontSize": "Taille de police",
+    "import": "Importer",
+    "moreOptions": "Plus d'options"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Texte et Markdown",
+    "documentFromV010": "Document de la v0.1.0",
+    "databaseFromV010": "Base de données à partir de la v0.1.0",
+    "csv": "CSV",
+    "database": "Base de données"
+  },
   "disclosureAction": {
     "rename": "Renommer",
     "delete": "Supprimer",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Nom de la page",
   "questionBubble": {
+    "shortcuts": "Raccourcis",
     "whatsNew": "Nouveautés",
     "help": "Aide et Support",
+    "markdown": "Réduction",
     "debug": {
       "name": "Informations de Débogage",
       "success": "Informations de Débogage copiées dans le presse-papiers !",
       "fail": "Impossible de copier les informations de Débogage dans le presse-papiers"
     },
-    "shortcuts": "Raccourcis",
-    "markdown": "Réduction",
     "feedback": "Retour"
   },
   "menuAppHeader": {
@@ -137,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Fait",
     "Cancel": "Annuler",
     "signIn": "Se connecter",
     "signOut": "Se déconnecter",
     "complete": "Achevé",
     "save": "Enregistrer",
-    "Done": "Fait",
     "generate": "Générer",
     "esc": "ESC",
     "keep": "Donjon",
@@ -183,20 +206,20 @@
       "appearance": "Apparence",
       "language": "Langue",
       "user": "Utilisateur",
-      "open": "Ouvrir les paramètres",
       "files": "Des dossiers",
+      "open": "Ouvrir les paramètres",
       "supabaseSetting": "Paramètre Supbase"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Famille de polices",
+        "search": "Recherche"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Mode clair",
         "dark": "Mode sombre",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Famille de polices",
-        "search": "Recherche"
       },
       "themeUpload": {
         "button": "Télécharger",
@@ -255,84 +278,23 @@
     }
   },
   "grid": {
+    "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
+    "createView": "Nouveau",
     "settings": {
       "filter": "Filtrer",
-      "sortBy": "Filtrer par",
-      "Properties": "Propriétés",
-      "group": "Groupe",
       "sort": "Trier",
+      "sortBy": "Filtrer par",
       "properties": "Propriétés",
       "reorderPropertiesTooltip": "Faites glisser pour réorganiser les propriétés",
+      "group": "Groupe",
       "addFilter": "Ajouter un filtre",
       "deleteFilter": "Supprimer le filtre",
       "filterBy": "Filtrer par...",
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
-      "databaseLayout": "Mise en page"
+      "databaseLayout": "Mise en page",
+      "Properties": "Propriétés"
     },
-    "field": {
-      "hide": "Cacher",
-      "insertLeft": "Insérer à gauche",
-      "insertRight": "Insérer à droite",
-      "duplicate": "Dupliquer",
-      "delete": "Supprimer",
-      "textFieldName": "Texte",
-      "checkboxFieldName": "Case à cocher",
-      "dateFieldName": "Date",
-      "numberFieldName": "Nombre",
-      "singleSelectFieldName": "Sélectionner",
-      "multiSelectFieldName": "Multisélection",
-      "urlFieldName": "URL",
-      "numberFormat": "Format du nombre",
-      "dateFormat": "Format de la date",
-      "includeTime": "Inclure l'heure",
-      "dateFormatFriendly": "Mois Jour, Année",
-      "dateFormatISO": "Année-Mois-Jour",
-      "dateFormatLocal": "Mois/Jour/Année",
-      "dateFormatUS": "Année/Mois/Jour",
-      "timeFormat": "Format du temps",
-      "invalidTimeFormat": "Format invalide",
-      "timeFormatTwelveHour": "12 heures",
-      "timeFormatTwentyFourHour": "24 heures",
-      "addSelectOption": "Ajouter une option",
-      "optionTitle": "Options",
-      "addOption": "Ajouter une option",
-      "editProperty": "Modifier la propriété",
-      "newProperty": "Nouvelle colonne",
-      "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?",
-      "updatedAtFieldName": "Heure de la dernière modification",
-      "createdAtFieldName": "Temps créé",
-      "checklistFieldName": "Liste de contrôle",
-      "dateFormatDayMonthYear": "Jour mois année"
-    },
-    "row": {
-      "duplicate": "Dupliquer",
-      "delete": "Supprimer",
-      "textPlaceholder": "Vide",
-      "copyProperty": "Copie de la propriété dans le presse-papiers",
-      "count": "Nombre",
-      "newRow": "Nouvelle ligne",
-      "action": "Action"
-    },
-    "selectOption": {
-      "create": "Créer",
-      "purpleColor": "Violet",
-      "pinkColor": "Rose",
-      "lightPinkColor": "Rose clair",
-      "orangeColor": "Orange",
-      "yellowColor": "Jaune",
-      "limeColor": "Citron vert",
-      "greenColor": "Vert",
-      "aquaColor": "Aqua",
-      "blueColor": "Bleu",
-      "deleteTag": "Supprimer l'étiquette",
-      "colorPanelTitle": "Couleurs",
-      "panelTitle": "Sélectionnez une option ou créez-en une",
-      "searchOption": "Rechercher une option"
-    },
-    "menuName": "Grille",
-    "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
-    "createView": "Nouveau",
     "textFilter": {
       "contains": "Contient",
       "doesNotContain": "Ne contient pas",
@@ -373,15 +335,76 @@
       "isEmpty": "Est vide",
       "isNotEmpty": "N'est pas vide"
     },
+    "field": {
+      "hide": "Cacher",
+      "insertLeft": "Insérer à gauche",
+      "insertRight": "Insérer à droite",
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "textFieldName": "Texte",
+      "checkboxFieldName": "Case à cocher",
+      "dateFieldName": "Date",
+      "updatedAtFieldName": "Heure de la dernière modification",
+      "createdAtFieldName": "Temps créé",
+      "numberFieldName": "Nombre",
+      "singleSelectFieldName": "Sélectionner",
+      "multiSelectFieldName": "Multisélection",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Liste de contrôle",
+      "numberFormat": "Format du nombre",
+      "dateFormat": "Format de la date",
+      "includeTime": "Inclure l'heure",
+      "dateFormatFriendly": "Mois Jour, Année",
+      "dateFormatISO": "Année-Mois-Jour",
+      "dateFormatLocal": "Mois/Jour/Année",
+      "dateFormatUS": "Année/Mois/Jour",
+      "dateFormatDayMonthYear": "Jour mois année",
+      "timeFormat": "Format du temps",
+      "invalidTimeFormat": "Format invalide",
+      "timeFormatTwelveHour": "12 heures",
+      "timeFormatTwentyFourHour": "24 heures",
+      "addSelectOption": "Ajouter une option",
+      "optionTitle": "Options",
+      "addOption": "Ajouter une option",
+      "editProperty": "Modifier la propriété",
+      "newProperty": "Nouvelle colonne",
+      "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?"
+    },
     "sort": {
       "ascending": "Ascendant",
       "descending": "Descendant",
-      "deleteSort": "Supprimer le tri",
-      "addSort": "Ajouter un tri"
+      "addSort": "Ajouter un tri",
+      "deleteSort": "Supprimer le tri"
+    },
+    "row": {
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "textPlaceholder": "Vide",
+      "copyProperty": "Copie de la propriété dans le presse-papiers",
+      "count": "Nombre",
+      "newRow": "Nouvelle ligne",
+      "action": "Action"
+    },
+    "selectOption": {
+      "create": "Créer",
+      "purpleColor": "Violet",
+      "pinkColor": "Rose",
+      "lightPinkColor": "Rose clair",
+      "orangeColor": "Orange",
+      "yellowColor": "Jaune",
+      "limeColor": "Citron vert",
+      "greenColor": "Vert",
+      "aquaColor": "Aqua",
+      "blueColor": "Bleu",
+      "deleteTag": "Supprimer l'étiquette",
+      "colorPanelTitle": "Couleurs",
+      "panelTitle": "Sélectionnez une option ou créez-en une",
+      "searchOption": "Rechercher une option"
     },
     "checklist": {
       "addNew": "Ajouter un élément"
     },
+    "menuName": "Grille",
     "referencedGridPrefix": "Vue"
   },
   "document": {
@@ -529,29 +552,6 @@
     },
     "menuName": "Conseil",
     "referencedBoardPrefix": "Vue"
-  },
-  "moreAction": {
-    "small": "petit",
-    "medium": "moyen",
-    "large": "grand",
-    "fontSize": "Taille de police",
-    "import": "Importer",
-    "moreOptions": "Plus d'options"
-  },
-  "youCanAlso": "Vous pouvez aussi",
-  "and": "et",
-  "blockActions": {
-    "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
-    "addAboveCmd": "Alt+clic",
-    "addAboveMacCmd": "Option+clic",
-    "addAboveTooltip": "à ajouter au dessus"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Texte et Markdown",
-    "documentFromV010": "Document de la v0.1.0",
-    "databaseFromV010": "Base de données à partir de la v0.1.0",
-    "csv": "CSV",
-    "database": "Base de données"
   },
   "calendar": {
     "menuName": "Calendrier",
