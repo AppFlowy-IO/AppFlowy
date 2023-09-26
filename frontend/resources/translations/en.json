@@ -331,6 +331,9 @@
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
     "createView": "New",
+    "title": {
+      "placeholder": "Untitled"
+    },
     "settings": {
       "filter": "Filter",
       "sort": "Sort",

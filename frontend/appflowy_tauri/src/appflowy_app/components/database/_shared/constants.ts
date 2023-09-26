@@ -3,7 +3,7 @@ export enum DragType {
   Field = 'field',
 }
 
-export enum DragPosition {
+export enum DropPosition {
   Before = 0,
   After = 1,
 }

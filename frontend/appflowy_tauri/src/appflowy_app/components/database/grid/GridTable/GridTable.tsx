@@ -2,7 +2,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { FC, useContext, useMemo, useRef } from 'react';
 import { VerticalScrollElementRefContext } from '../../database.context';
 import { useDatabase } from '../../database.hooks';
-import { VirtualizedList, useAutoScrollOnEdge } from '../../_shared';
+import { VirtualizedList } from '../../_shared';
 import { GridRow, RenderRow, RenderRowType } from '../GridRow';
 
 const getRenderRowKey = (row: RenderRow) => {
@@ -64,17 +64,11 @@ export const GridTable: FC = () => {
     estimateSize: (i) => fields[i].width ?? defaultColumnWidth,
   });
 
-  const listeners = useAutoScrollOnEdge({
-    trigger: 'drag',
-    horizontal: true,
-  });
-
   return (
     <div
       ref={horizontalScrollElementRef}
       className="flex w-full overflow-x-auto"
       style={{ minHeight: 'calc(100% - 132px)' }}
-      {...listeners}
     >
       <VirtualizedList
         className="flex flex-col basis-full px-16"

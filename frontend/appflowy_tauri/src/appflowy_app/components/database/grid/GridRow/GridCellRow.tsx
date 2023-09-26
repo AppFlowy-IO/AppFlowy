@@ -1,15 +1,14 @@
 import { Virtualizer } from '@tanstack/react-virtual';
 import { IconButton, Tooltip } from '@mui/material';
 import { t } from 'i18next';
-import { DragEventHandler, FC, useCallback, useContext, useMemo, useState } from 'react';
+import { DragEventHandler, FC, useCallback, useMemo, useState } from 'react';
 import { Database } from '$app/interfaces/database';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
 import { throttle } from '$app/utils/tool';
 import { useDatabase, useViewId } from '../../database.hooks';
 import * as service from '../../database_bd_svc';
-import { DatabaseUIState } from '../../database.context';
+import { DragItem, DragType, DropPosition, VirtualizedList, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
 import { GridCell } from '../GridCell';
-import { DragItem, DragType, DragPosition, VirtualizedList, useDraggable, useDroppable } from '../../_shared';
 import { GridCellRowActions } from './GridCellRowActions';
 
 export interface GridCellRowProps {
@@ -23,10 +22,10 @@ export const GridCellRow: FC<GridCellRowProps> = ({
 }) => {
   const viewId = useViewId();
   const { fields } = useDatabase();
-  const uiState = useContext(DatabaseUIState);
+
   const [ hover, setHover ] = useState(false);
   const [ openTooltip, setOpenTooltip ] = useState(false);
-  const [ position, setPosition ] = useState<DragPosition>(DragPosition.Before);
+  const [ dropPosition, setDropPosition ] = useState<DropPosition>(DropPosition.Before);
 
   const handleMouseEnter = useCallback(() => {
     setHover(true);
@@ -44,6 +43,10 @@ export const GridCellRow: FC<GridCellRowProps> = ({
     setOpenTooltip(false);
   }, []);
 
+  const dragData = useMemo(() => ({
+    row,
+  }), [row]);
+
   const {
     isDragging,
     attributes,
@@ -52,15 +55,10 @@ export const GridCellRow: FC<GridCellRowProps> = ({
     previewRef,
   } = useDraggable({
     type: DragType.Row,
-    data: {
-      row,
+    data: dragData,
+    scrollOnEdge: {
+      direction: ScrollDirection.Vertical,
     },
-    onDragStart: useCallback(() => {
-      uiState.enableVerticalAutoScroll = true;
-    }, [uiState]),
-    onDragEnd: useCallback(() => {
-      uiState.enableVerticalAutoScroll = false;
-    }, [uiState]),
   });
 
   const onDragOver = useMemo<DragEventHandler>(() => {
@@ -74,7 +72,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({
       const { top, bottom } = element.getBoundingClientRect();
       const middle = (top + bottom) / 2;
 
-      setPosition(event.clientY < middle ? DragPosition.Before : DragPosition.After);
+      setDropPosition(event.clientY < middle ? DropPosition.Before : DropPosition.After);
     }, 20);
   }, [previewRef]);
 
@@ -135,7 +133,7 @@ export const GridCellRow: FC<GridCellRowProps> = ({
           )}
         />
         <div className="min-w-20 grow" />
-        {isOver && <div className={`absolute left-0 right-0 h-0.5 bg-blue-500 z-10 ${position === DragPosition.Before ? 'top-[-1px]' : 'top-full'}`} />}
+        {isOver && <div className={`absolute left-0 right-0 h-0.5 bg-blue-500 z-10 ${dropPosition === DropPosition.Before ? 'top-[-1px]' : 'top-full'}`} />}
       </div>
     </div>
   );
