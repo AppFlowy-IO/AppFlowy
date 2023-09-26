@@ -133,6 +133,7 @@
     "feedback": "Informacja zwrotna"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Usuń, zmień nazwę i więcej...",
     "addPageTooltip": "Szybko dodaj stronę do środka",
     "defaultNewPageName": "Brak tytułu",
     "renameDialog": "Zmień nazwę"
