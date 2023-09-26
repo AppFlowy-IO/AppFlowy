@@ -10,7 +10,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
@@ -196,7 +195,7 @@ class ReminderReferenceService {
     final labelStr = label ?? DateFormat.yMd(_locale).format(date);
 
     return InlineActionsMenuItem(
-      label: FlowyText.regular(labelStr.capitalize()),
+      label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
       onSelected: (context, editorState, menuService) =>
           _insertReminderReference(editorState, date),

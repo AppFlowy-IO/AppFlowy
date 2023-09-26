@@ -161,7 +161,9 @@ class InlineActionsMenu extends InlineActionsMenuService {
   }
 
   (double? left, double? top, double? right, double? bottom) _getPosition(
-      Alignment alignment, Offset offset) {
+    Alignment alignment,
+    Offset offset,
+  ) {
     double? left, top, right, bottom;
     switch (alignment) {
       case Alignment.topLeft:
@@ -190,18 +192,24 @@ class InlineActionsMenuStyle {
   InlineActionsMenuStyle({
     required this.backgroundColor,
     required this.groupTextColor,
+    required this.menuItemTextColor,
     required this.menuItemSelectedColor,
+    required this.menuItemSelectedTextColor,
   });
 
   const InlineActionsMenuStyle.light()
       : backgroundColor = Colors.white,
         groupTextColor = const Color(0xFF555555),
-        menuItemSelectedColor = const Color(0xFFE0F8FF);
+        menuItemTextColor = const Color(0xFF333333),
+        menuItemSelectedColor = const Color(0xFFE0F8FF),
+        menuItemSelectedTextColor = const Color.fromARGB(255, 56, 91, 247);
 
   const InlineActionsMenuStyle.dark()
       : backgroundColor = const Color(0xFF282E3A),
         groupTextColor = const Color(0xFFBBC3CD),
-        menuItemSelectedColor = const Color(0xFF00BCF0);
+        menuItemTextColor = const Color(0xFFBBC3CD),
+        menuItemSelectedColor = const Color(0xFF00BCF0),
+        menuItemSelectedTextColor = const Color(0xFF131720);
 
   /// The background color of the context menu itself
   ///
@@ -211,7 +219,15 @@ class InlineActionsMenuStyle {
   ///
   final Color groupTextColor;
 
-  /// The background of the currently selected [InlineActionsMenuITem]
+  /// The text color of an [InlineActionsMenuItem]
+  ///
+  final Color menuItemTextColor;
+
+  /// The background of the currently selected [InlineActionsMenuItem]
   ///
   final Color menuItemSelectedColor;
+
+  /// The text color of the currently selected [InlineActionsMenuItem]
+  ///
+  final Color menuItemSelectedTextColor;
 }

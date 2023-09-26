@@ -169,7 +169,9 @@ class EditorStyleCustomizer {
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
       groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
+      menuItemTextColor: theme.colorScheme.onBackground,
       menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
 

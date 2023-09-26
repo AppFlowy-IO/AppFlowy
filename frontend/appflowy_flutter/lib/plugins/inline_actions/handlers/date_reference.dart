@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 class DateReferenceService {
@@ -181,7 +180,7 @@ class DateReferenceService {
     final labelStr = label ?? DateFormat.yMd(_locale).format(date);
 
     return InlineActionsMenuItem(
-      label: FlowyText.regular(labelStr.capitalize()),
+      label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
       onSelected: (context, editorState, menuService) => _insertDateReference(
         editorState,

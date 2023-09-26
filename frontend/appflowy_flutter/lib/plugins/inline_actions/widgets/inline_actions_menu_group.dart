@@ -94,7 +94,12 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
                       : MaterialStateProperty.all(Colors.transparent),
                 ),
                 icon: widget.item.icon!.call(widget.isSelected || isHovering),
-                label: widget.item.label,
+                label: FlowyText.regular(
+                  widget.item.label,
+                  color: widget.isSelected
+                      ? widget.style.menuItemSelectedTextColor
+                      : widget.style.menuItemTextColor,
+                ),
               )
             : TextButton(
                 onPressed: _onPressed,
@@ -107,7 +112,12 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
                       : MaterialStateProperty.all(Colors.transparent),
                 ),
                 onHover: (value) => setState(() => isHovering = value),
-                child: widget.item.label,
+                child: FlowyText.regular(
+                  widget.item.label,
+                  color: widget.isSelected
+                      ? widget.style.menuItemSelectedTextColor
+                      : widget.style.menuItemTextColor,
+                ),
               ),
       ),
     );

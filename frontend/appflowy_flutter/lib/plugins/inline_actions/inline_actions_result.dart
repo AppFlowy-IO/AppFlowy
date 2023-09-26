@@ -16,7 +16,7 @@ class InlineActionsMenuItem {
     this.onSelected,
   });
 
-  final Widget label;
+  final String label;
   final Widget Function(bool onSelected)? icon;
   final List<String>? keywords;
   final SelectItemHandler? onSelected;
