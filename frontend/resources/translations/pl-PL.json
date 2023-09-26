@@ -434,32 +434,36 @@
       "dateFormatDayMonthYear": "Dzień/Miesiąc/Rok",
       "timeFormat": "Format czasu",
       "invalidTimeFormat": "Niepoprawny format",
-      "timeFormatTwelveHour": "12 godzin",
+      "timeFormatTwelveHour": "12 godziny",
       "timeFormatTwentyFourHour": "24 godziny",
+      "clearDate": "Wyczyść datę",
       "addSelectOption": "Dodaj opcję",
       "optionTitle": "Opcje",
       "addOption": "Dodaj opcję",
       "editProperty": "Edytuj właściwość",
-      "newProperty": "Nowa nieruchomość",
-      "deleteFieldPromptMessage": "Jesteś pewny? Ta właściwość zostanie usunięta"
+      "newProperty": "Nowa właściwość",
+      "deleteFieldPromptMessage": "Jesteś pewny? Ta właściwość zostanie usunięta",
+      "newColumn": "Nowa kolumna"
     },
     "sort": {
-      "ascending": "rosnąco",
-      "descending": "malejąco",
+      "ascending": "Rosnąco",
+      "descending": "Malejąco",
+      "deleteAllSorts": "Usuń wszystkie sortowania",
       "addSort": "Dodaj sortowanie",
       "deleteSort": "Usuń sortowanie"
     },
     "row": {
-      "duplicate": "Duplikować",
-      "delete": "Usuwać",
+      "duplicate": "Duplikuj",
+      "delete": "Usuń",
+      "titlePlaceholder": "Brak tytułu",
       "textPlaceholder": "Pusty",
       "copyProperty": "Skopiowano właściwość do schowka",
       "count": "Liczyć",
       "newRow": "Nowy rząd",
-      "action": "Działanie"
+      "action": "Akcja"
     },
     "selectOption": {
-      "create": "Tworzyć",
+      "create": "Stwórz",
       "purpleColor": "Fioletowy",
       "pinkColor": "Różowy",
       "lightPinkColor": "Jasnoróżowy",
