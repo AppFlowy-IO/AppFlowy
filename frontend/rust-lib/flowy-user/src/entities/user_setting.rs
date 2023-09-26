@@ -111,7 +111,7 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
-pub const APPEARANCE_DEFAULT_THEME: &str = "light";
+pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
