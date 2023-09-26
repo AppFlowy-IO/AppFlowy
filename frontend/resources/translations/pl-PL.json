@@ -408,7 +408,7 @@
       "isNotEmpty": "Nie jest pusty"
     },
     "field": {
-      "hide": "Ukrywać",
+      "hide": "Ukryj",
       "insertLeft": "Wstaw w lewo",
       "insertRight": "Wstaw w prawo",
       "duplicate": "Duplikować",
