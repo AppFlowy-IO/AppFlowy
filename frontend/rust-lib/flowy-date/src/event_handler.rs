@@ -20,13 +20,17 @@ pub(crate) async fn query_date_handler(
   let query: String = data.into_inner().query;
   let date = DateParser::parse(&query);
 
-  let naive_date = date.unwrap_or_default();
-  let year_match = year_regex().find(&query).unwrap();
-  let formatted = year_match
-    .and_then(|capture| capture.as_str().parse::<i32>().ok())
-    .and_then(|year| NaiveDate::from_ymd_opt(year, naive_date.month0(), naive_date.day0()))
-    .map(|date| date.to_string())
-    .unwrap_or_else(|| naive_date.to_string());
+  match date {
+    Some(naive_date) => {
+      let year_match = year_regex().find(&query).unwrap();
+      let formatted = year_match
+        .and_then(|capture| capture.as_str().parse::<i32>().ok())
+        .and_then(|year| NaiveDate::from_ymd_opt(year, naive_date.month0(), naive_date.day0()))
+        .map(|date| date.to_string())
+        .unwrap_or_else(|| naive_date.to_string());
 
-  data_result_ok(DateResultPB { date: formatted })
+      data_result_ok(DateResultPB { date: formatted })
+    },
+    None => Err(FlowyError::internal().with_context("Failed to parse date from")),
+  }
 }
