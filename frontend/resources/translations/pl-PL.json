@@ -471,15 +471,20 @@
       "yellowColor": "Żółty",
       "limeColor": "Limonka",
       "greenColor": "Zielony",
-      "aquaColor": "wodny",
+      "aquaColor": "Wodny",
       "blueColor": "Niebieski",
       "deleteTag": "Usuń tag",
-      "colorPanelTitle": "Zabarwienie",
+      "colorPanelTitle": "Kolory",
       "panelTitle": "Wybierz opcję lub utwórz ją",
-      "searchOption": "Wyszukaj opcję"
+      "searchOption": "Wyszukaj opcję",
+      "searchOrCreateOption": "Wyszukaj lub utwórz opcję...",
+      "createNew": "Utwórz nowy",
+      "orSelectOne": "Lub wybierz opcję"
     },
     "checklist": {
-      "addNew": "Dodaj element"
+      "taskHint": "Opis zadania",
+      "addNew": "Dodaj element",
+      "submitNewTask": "Stwórz"
     },
     "menuName": "Siatka",
     "referencedGridPrefix": "Widok"
