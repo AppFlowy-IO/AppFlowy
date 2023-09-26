@@ -61,6 +61,7 @@
     "buttonText": "Udostępnij",
     "workInProgress": "Wkrótce",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Skopiuj link"
   },
   "moreAction": {
@@ -69,7 +70,7 @@
     "large": "duży",
     "fontSize": "Rozmiar czcionki",
     "import": "Import",
-    "moreOptions": "Więcej możliwości"
+    "moreOptions": "Więcej opcji"
   },
   "importPanel": {
     "textAndMarkdown": "Tekst i przeceny",
