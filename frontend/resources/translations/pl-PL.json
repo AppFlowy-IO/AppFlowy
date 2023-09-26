@@ -378,7 +378,7 @@
       "isNotEmpty": "Nie jest pusty",
       "choicechipPrefix": {
         "isNot": "Nie",
-        "startWith": "Zaczynać z",
+        "startWith": "Zaczyna się na",
         "endWith": "Kończy się na",
         "isEmpty": "jest pusty",
         "isNotEmpty": "nie jest pusty"
