@@ -169,7 +169,12 @@
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "personal": "Osobisty",
+    "favorites": "Ulubione",
+    "clickToHidePersonal": "Kliknij, aby ukryć sekcję osobistą",
+    "clickToHideFavorites": "Kliknij, aby ukryć ulubioną sekcję",
+    "addAPage": "Dodaj stronę"
   },
   "notifications": {
     "export": {
