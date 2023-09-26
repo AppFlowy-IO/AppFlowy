@@ -82,7 +82,15 @@ class _DatabaseBlockComponentWidgetState
 
     child = Padding(
       padding: padding,
-      child: child,
+      child: FocusScope(
+        skipTraversal: true,
+        onFocusChange: (value) {
+          if (value) {
+            context.read<EditorState>().selection = null;
+          }
+        },
+        child: child,
+      ),
     );
 
     if (widget.showActions && widget.actionBuilder != null) {
