@@ -144,17 +144,17 @@
     "bold": "Pogrubiony",
     "italic": "Kursywa",
     "underline": "Podkreślenie",
-    "strike": "Przekreśl",
+    "strike": "Przekreślenie",
     "numList": "Lista Numerowana",
     "bulletList": "Lista Punktowana",
     "checkList": "Lista Kontrolna",
-    "inlineCode": "Kod Wbudowany",
-    "quote": "Blok cytat",
+    "inlineCode": "Wbudowany Kod",
+    "quote": "Blok cytatu",
     "header": "Nagłówek",
-    "highlight": "Podświetl",
+    "highlight": "Podświetlenie",
     "color": "Kolor",
     "addLink": "Dodaj link",
-    "link": "Połączyć"
+    "link": "Połącz"
   },
   "tooltip": {
     "lightMode": "Przełącz w Tryb Jasny",
