@@ -524,7 +524,7 @@
       "autoGeneratorHintText": "Zapytaj OpenAI...",
       "autoGeneratorCantGetOpenAIKey": "Nie można uzyskać klucza OpenAI",
       "autoGeneratorRewrite": "Przepisz",
-      "smartEdit": "Asystenci SI",
+      "smartEdit": "Asystenci AI",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Popraw pisownię",
       "warning": "⚠️ Odpowiedzi AI mogą być niedokładne lub mylące.",
