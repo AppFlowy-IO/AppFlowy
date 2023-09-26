@@ -13,19 +13,6 @@ GoRouter generateRouter(Widget child) {
   return GoRouter(
     navigatorKey: AppGlobals.rootNavKey,
     initialLocation: '/',
-    redirect: (context, state) async {
-      // Redirect to DesktopHomeScreen when theme mode changes in desktop. In this way, it won't show splash screen again when rendering MaterialApp.
-      final userResponse = await getIt<AuthService>().getUser();
-      final routeName = userResponse.fold(
-        (error) => null,
-        (user) => DesktopHomeScreen.routeName,
-      );
-      if (routeName != null &&
-          state.matchedLocation == '/' &&
-          !PlatformExtension.isMobile) return routeName;
-
-      return null;
-    },
     routes: [
       // Root route is SplashScreen.
       // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
@@ -277,6 +264,17 @@ GoRoute _signInScreenRoute() {
 GoRoute _rootRoute(Widget child) {
   return GoRoute(
     path: '/',
+    redirect: (context, state) async {
+      // Every time before navigating to splash screen, we check if user is already logged in in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
+      final userResponse = await getIt<AuthService>().getUser();
+      final routeName = userResponse.fold(
+        (error) => null,
+        (user) => DesktopHomeScreen.routeName,
+      );
+      if (routeName != null && !PlatformExtension.isMobile) return routeName;
+
+      return null;
+    },
     // Root route is SplashScreen.
     // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
     pageBuilder: (context, state) => MaterialPage(
