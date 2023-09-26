@@ -705,5 +705,36 @@
   "views": {
     "deleteContentTitle": "Czy na pewno chcesz usunąć {pageType}?",
     "deleteContentCaption": "jeśli usuniesz ten {pageType}, możesz go przywrócić z kosza."
+  },
+  "colors": {
+    "custom": "Niestandardowy",
+    "default": "Domyślny",
+    "red": "Czerwony",
+    "orange": "Pomarańczowy",
+    "green": "Zielony",
+    "blue": "Niebieski",
+    "purple": "Fioletowy",
+    "pink": "Różowy",
+    "brown": "brązowy",
+    "gray": "Szary"
+  },
+  "emoji": {
+    "filter": "Filtr",
+    "random": "Losowy",
+    "selectSkinTone": "Wybierz kolor skóry",
+    "remove": "Usuń emoji",
+    "categories": {
+      "smileys": "Buźki i Emocje",
+      "people": "Ludzie i Ciało",
+      "animals": "Zwierzęta i Przyroda",
+      "food": "Jedzenie i Picie",
+      "activities": "Aktywności",
+      "places": "Podróże i Miejsca",
+      "objects": "Obiekty",
+      "symbols": "Symbole",
+      "flags": "Flagi",
+      "nature": "Natura",
+      "frequentlyUsed": "Często używany"
+    }
   }
 }
