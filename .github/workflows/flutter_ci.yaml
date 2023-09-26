@@ -88,7 +88,7 @@ jobs:
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
             sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-            sudo apt-get install keybinder-3.0
+            sudo apt-get install keybinder-3.0 libnotify-dev
           elif [ "$RUNNER_OS" == "Windows" ]; then
             vcpkg integrate install
           elif [ "$RUNNER_OS" == "macOS" ]; then
