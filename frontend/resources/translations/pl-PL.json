@@ -574,10 +574,10 @@
         "moveUp": "Podnieś",
         "moveDown": "Upuść",
         "color": "Kolor",
-        "align": "Wyrównywać",
+        "align": "Wyrównaj",
         "left": "Lewy",
         "center": "Centrum",
-        "right": "Prawidłowy",
+        "right": "Prawy",
         "defaultColor": "Domyślny"
       },
       "image": {
