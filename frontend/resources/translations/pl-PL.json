@@ -585,6 +585,13 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Dodaj nagłówki, aby utworzyć spis treści."
+      },
+      "table": {
+        "addAfter": "Dodaj po",
+        "addBefore": "Dodaj przed",
+        "delete": "Usuń",
+        "clear": "Wyczyść treść",
+        "duplicate": "Duplikuj"
       }
     },
     "textBlock": {
