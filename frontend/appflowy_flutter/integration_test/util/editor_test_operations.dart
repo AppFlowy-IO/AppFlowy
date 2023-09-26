@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
@@ -173,5 +174,35 @@ class EditorOperations {
       reason: SelectionUpdateReason.uiEvent,
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
+  /// hover and click on the + button beside the block component.
+  Future<void> hoverAndClickOptionAddButton(
+    Path path,
+    bool withModifiedKey, // alt on windows or linux, option on macos
+  ) async {
+    final optionAddButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is BlockComponentActionWrapper &&
+          widget.node.path.equals(path),
+    );
+    await tester.hoverOnWidget(
+      optionAddButton,
+      onHover: () async {
+        if (withModifiedKey) {
+          await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+        }
+        await tester.tapButton(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is BlockAddButton &&
+                widget.blockComponentContext.node.path.equals(path),
+          ),
+        );
+        if (withModifiedKey) {
+          await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+        }
+      },
+    );
   }
 }

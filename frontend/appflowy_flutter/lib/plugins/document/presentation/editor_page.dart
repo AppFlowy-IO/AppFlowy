@@ -177,12 +177,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
-      // customize the block builder
+      // customize the block builders
       blockComponentBuilders: blockComponentBuilders,
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      // customize the context menu items
       contextMenuItems: customContextMenuItems,
+      // customize the header and footer.
       header: widget.header,
       footer: const VSpace(200),
     );

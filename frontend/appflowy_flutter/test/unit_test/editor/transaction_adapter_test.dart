@@ -38,7 +38,7 @@ void main() {
       );
       expect(
         actions[0].blockActionPB.payload.prevId,
-        editorState.document.root.children.first.id,
+        '',
         reason: '0 - prev id',
       );
       expect(
