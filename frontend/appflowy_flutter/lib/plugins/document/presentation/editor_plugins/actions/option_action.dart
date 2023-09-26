@@ -243,8 +243,10 @@ class ColorOptionAction extends PopoverActionCell {
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
         final selectedColor = bgColor?.tryToColor();
-        // get default background color from themeExtension
-        final defaultColor = AFThemeExtension.of(context).calloutBGColor;
+        // get default background color for callout block from themeExtension
+        final defaultColor = node.type == CalloutBlockKeys.type
+            ? AFThemeExtension.of(context).calloutBGColor
+            : Colors.transparent;
         final colors = [
           // reset to default background color
           FlowyColorOption(
