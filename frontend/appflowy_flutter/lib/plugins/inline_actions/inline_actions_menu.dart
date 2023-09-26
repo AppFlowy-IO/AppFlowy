@@ -65,24 +65,39 @@ class InlineActionsMenu extends InlineActionsMenuService {
     const double menuHeight = 200.0;
     const Offset menuOffset = Offset(0, 10);
     final Offset editorOffset =
-        editorState.renderBox!.localToGlobal(Offset.zero);
+        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final Size editorSize = editorState.renderBox!.size;
 
     // Default to opening the overlay below
-    bool showBelow = true;
+    Alignment alignment = Alignment.topLeft;
 
     final firstRect = selectionRects.first;
     Offset offset = firstRect.bottomRight + menuOffset;
+
+    // Show above
     if (offset.dy + menuHeight >= editorOffset.dy + editorSize.height) {
-      // Show above
       offset = firstRect.topRight - menuOffset;
-      showBelow = false;
+      alignment = Alignment.bottomLeft;
+
+      offset = Offset(
+        offset.dx,
+        MediaQuery.of(context).size.height - offset.dy,
+      );
     }
 
-    final position = Offset(
-      offset.dx,
-      showBelow ? offset.dy : MediaQuery.of(context).size.height - offset.dy,
-    );
+    // Show on the left
+    if (offset.dx > editorSize.width / 2) {
+      alignment = alignment == Alignment.topLeft
+          ? Alignment.topRight
+          : Alignment.bottomRight;
+
+      offset = Offset(
+        editorSize.width - offset.dx,
+        offset.dy,
+      );
+    }
+
+    final (left, top, right, bottom) = _getPosition(alignment, offset);
 
     _menuEntry = OverlayEntry(
       builder: (context) => SizedBox(
@@ -97,10 +112,10 @@ class InlineActionsMenu extends InlineActionsMenuService {
           child: Stack(
             children: [
               Positioned(
-                top: showBelow ? position.dy : null,
-                bottom: showBelow ? null : position.dy,
-                left: offset.dx,
-                right: 0,
+                top: top,
+                bottom: bottom,
+                left: left,
+                right: right,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: InlineActionsHandler(
@@ -143,6 +158,31 @@ class InlineActionsMenu extends InlineActionsMenuService {
     }
 
     selectionChangedByMenu = false;
+  }
+
+  (double? left, double? top, double? right, double? bottom) _getPosition(
+      Alignment alignment, Offset offset) {
+    double? left, top, right, bottom;
+    switch (alignment) {
+      case Alignment.topLeft:
+        left = offset.dx;
+        top = offset.dy;
+        break;
+      case Alignment.bottomLeft:
+        left = offset.dx;
+        bottom = offset.dy;
+        break;
+      case Alignment.topRight:
+        right = offset.dx;
+        top = offset.dy;
+        break;
+      case Alignment.bottomRight:
+        right = offset.dx;
+        bottom = offset.dy;
+        break;
+    }
+
+    return (left, top, right, bottom);
   }
 }
 
