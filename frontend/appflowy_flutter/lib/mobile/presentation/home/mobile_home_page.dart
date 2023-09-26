@@ -21,7 +21,7 @@ class MobileHomeScreen extends StatelessWidget {
       ]),
       builder: (context, snapshots) {
         if (!snapshots.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator.adaptive());
         }
 
         final workspaceSetting = snapshots.data?[0].fold(
