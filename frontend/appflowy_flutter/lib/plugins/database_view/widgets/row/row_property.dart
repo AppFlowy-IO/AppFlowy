@@ -35,9 +35,8 @@ class RowPropertyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
-      buildWhen: (previous, current) => previous.cells != current.cells,
       builder: (context, state) {
-        final children = state.cells
+        final children = state.visibleCells
             .where((element) => !element.fieldInfo.field.isPrimary)
             .mapIndexed(
               (index, cell) => _PropertyCell(
@@ -48,18 +47,26 @@ class RowPropertyList extends StatelessWidget {
               ),
             )
             .toList();
+
         return ReorderableListView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           onReorder: (oldIndex, newIndex) {
-            final reorderedField = children[oldIndex].cellContext.fieldId;
-            _reorderField(
-              context,
-              state.cells,
-              reorderedField,
-              oldIndex,
-              newIndex,
-            );
+            // when reorderiing downwards, need to update index
+            if (oldIndex < newIndex) {
+              newIndex--;
+            }
+            final reorderedFieldId = children[oldIndex].cellContext.fieldId;
+            final targetFieldId = children[newIndex].cellContext.fieldId;
+
+            context.read<RowDetailBloc>().add(
+                  RowDetailEvent.reorderField(
+                    reorderedFieldId,
+                    targetFieldId,
+                    oldIndex,
+                    newIndex,
+                  ),
+                );
           },
           buildDefaultDragHandles: false,
           proxyDecorator: (child, index, animation) => Material(
@@ -73,7 +80,13 @@ class RowPropertyList extends StatelessWidget {
           ),
           footer: Padding(
             padding: const EdgeInsets.only(left: 20),
-            child: CreateRowFieldButton(viewId: viewId),
+            child: Column(
+              children: [
+                _hiddenFieldsButton(context, state),
+                const VSpace(4),
+                CreateRowFieldButton(viewId: viewId),
+              ],
+            ),
           ),
           children: children,
         );
@@ -81,32 +94,33 @@ class RowPropertyList extends StatelessWidget {
     );
   }
 
-  void _reorderField(
-    BuildContext context,
-    List<DatabaseCellContext> cells,
-    String reorderedFieldId,
-    int oldIndex,
-    int newIndex,
-  ) {
-    // when reorderiing downwards, need to update index
-    if (oldIndex < newIndex) {
-      newIndex--;
+  Widget _hiddenFieldsButton(BuildContext context, RowDetailState state) {
+    if (state.numHiddenFields == 0) {
+      return const SizedBox.shrink();
     }
 
-    // also update index when the index is after the index of the primary field
-    // in the original list of DatabaseCellContext's
-    final primaryFieldIndex =
-        cells.indexWhere((element) => element.fieldInfo.isPrimary);
-    if (oldIndex >= primaryFieldIndex) {
-      oldIndex++;
-    }
-    if (newIndex >= primaryFieldIndex) {
-      newIndex++;
-    }
+    final text = switch (state.showHiddenFields) {
+      false =>
+        LocaleKeys.grid_rowPage_showHiddenFields.plural(state.numHiddenFields),
+      true =>
+        LocaleKeys.grid_rowPage_hideHiddenFields.plural(state.numHiddenFields),
+    };
 
-    context.read<RowDetailBloc>().add(
-          RowDetailEvent.reorderField(reorderedFieldId, oldIndex, newIndex),
-        );
+    return SizedBox(
+      height: 30,
+      child: FlowyButton(
+        text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        leftIcon: RotatedBox(
+          quarterTurns: state.showHiddenFields ? 1 : 3,
+          child: const FlowySvg(FlowySvgs.arrow_left_s),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        onTap: () => context.read<RowDetailBloc>().add(
+              const RowDetailEvent.toggleHiddenFieldVisibility(),
+            ),
+      ),
+    );
   }
 }
 

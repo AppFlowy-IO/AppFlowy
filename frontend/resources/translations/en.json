@@ -443,6 +443,19 @@
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column"
     },
+    "rowPage": {
+      "newField": "Add a new field",
+      "showHiddenFields": {
+        "one": "Show {} hidden field",
+        "many": "Show {} hidden fields",
+        "other": "Show {} hidden fields"
+      },
+      "hideHiddenFields": {
+        "one": "Hide {} hidden field",
+        "many": "Hide {} hidden fields",
+        "other": "Hide {} hidden fields"
+      }
+    },
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",

@@ -14,22 +14,31 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   RowDetailBloc({
     required this.rowController,
-  }) : super(RowDetailState.initial()) {
+  }) : super(RowDetailState.initial(rowController.loadData())) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             await _startListening();
-            final cells = rowController.loadData();
-            if (!isClosed) {
-              add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
-            }
           },
-          didReceiveCellDatas: (cells) {
-            emit(state.copyWith(cells: cells));
+          didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
+            // Log.debug(
+            //   "didReceiveCellDatas ${allCells.length} $numHiddenFields",
+            // );
+            emit(
+              state.copyWith(
+                visibleCells: visibleCells,
+                allCells: allCells,
+                numHiddenFields: numHiddenFields,
+              ),
+            );
           },
           deleteField: (fieldId) {
-            _fieldBackendService(fieldId).deleteField();
+            final fieldService = FieldBackendService(
+              viewId: rowController.viewId,
+              fieldId: fieldId,
+            );
+            fieldService.deleteField();
           },
           showField: (fieldId) async {
             final result =
@@ -55,8 +64,31 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
               (err) => Log.error(err),
             );
           },
-          reorderField: (fieldId, fromIndex, toIndex) async {
-            await _reorderField(fieldId, fromIndex, toIndex, emit);
+          reorderField:
+              (reorderedFieldId, targetFieldId, fromIndex, toIndex) async {
+            await _reorderField(
+              reorderedFieldId,
+              targetFieldId,
+              fromIndex,
+              toIndex,
+              emit,
+            );
+          },
+          toggleHiddenFieldVisibility: () {
+            final showHiddenFields = !state.showHiddenFields;
+            final visibleCells = List<DatabaseCellContext>.from(state.allCells);
+            visibleCells
+                .removeWhere((cellContext) => cellContext.fieldInfo.isPrimary);
+            if (!showHiddenFields) {
+              visibleCells
+                  .removeWhere((cellContext) => !cellContext.isVisible());
+            }
+            emit(
+              state.copyWith(
+                showHiddenFields: showHiddenFields,
+                visibleCells: visibleCells,
+              ),
+            );
           },
         );
       },
@@ -71,36 +103,58 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   Future<void> _startListening() async {
     rowController.addListener(
-      onRowChanged: (cells, reason) {
-        if (!isClosed) {
-          add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
+      onRowChanged: (cellMap, reason) {
+        if (isClosed) {
+          return;
         }
+        final allCells = cellMap.values.toList();
+        final visibleCells = allCells
+            .where(
+              (cellContext) =>
+                  cellContext.isVisible(
+                    showHiddenFields: state.showHiddenFields,
+                  ) &&
+                  !cellContext.fieldInfo.isPrimary,
+            )
+            .toList();
+        // Log.debug(
+        //   "onRowsChanged. Length of cellMap: ${allCells.length}, length of visibleCells: ${visibleCells.length}, showHiddenFields: ${state.showHiddenFields}",
+        // );
+        // print("$visibleCells");
+        add(
+          RowDetailEvent.didReceiveCellDatas(
+            visibleCells,
+            allCells,
+            allCells.length - visibleCells.length - 1,
+          ),
+        );
       },
     );
   }
 
-  FieldBackendService _fieldBackendService(String fieldId) {
-    return FieldBackendService(
-      viewId: rowController.viewId,
-      fieldId: fieldId,
-    );
-  }
-
   Future<void> _reorderField(
-    String fieldId,
+    String reorderedFieldId,
+    String targetFieldId,
     int fromIndex,
     int toIndex,
     Emitter<RowDetailState> emit,
   ) async {
-    final cells = List<DatabaseCellContext>.from(state.cells);
+    final cells = List<DatabaseCellContext>.from(state.visibleCells);
     cells.insert(toIndex, cells.removeAt(fromIndex));
-    emit(state.copyWith(cells: cells));
+    emit(state.copyWith(visibleCells: cells));
 
-    final fieldService =
-        FieldBackendService(viewId: rowController.viewId, fieldId: fieldId);
+    final fromIndexInAllFields =
+        state.allCells.indexWhere((cell) => cell.fieldId == reorderedFieldId);
+    final toIndexInAllFields =
+        state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
+
+    final fieldService = FieldBackendService(
+      viewId: rowController.viewId,
+      fieldId: reorderedFieldId,
+    );
     final result = await fieldService.moveField(
-      fromIndex,
-      toIndex,
+      fromIndexInAllFields,
+      toIndexInAllFields,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }
@@ -113,22 +167,43 @@ class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.showField(String fieldId) = _ShowField;
   const factory RowDetailEvent.hideField(String fieldId) = _HideField;
   const factory RowDetailEvent.reorderField(
-    String fieldId,
+    String reorderFieldID,
+    String targetFieldID,
     int fromIndex,
     int toIndex,
   ) = _ReorderField;
+  const factory RowDetailEvent.toggleHiddenFieldVisibility() =
+      _ToggleHiddenFieldVisibility;
   const factory RowDetailEvent.didReceiveCellDatas(
-    List<DatabaseCellContext> gridCells,
+    List<DatabaseCellContext> visibleCells,
+    List<DatabaseCellContext> allCells,
+    int numHiddenFields,
   ) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<DatabaseCellContext> cells,
+    required List<DatabaseCellContext> visibleCells,
+    required List<DatabaseCellContext> allCells,
+    required bool showHiddenFields,
+    required int numHiddenFields,
   }) = _RowDetailState;
 
-  factory RowDetailState.initial() => RowDetailState(
-        cells: List.empty(),
-      );
+  factory RowDetailState.initial(CellContextByFieldId cellByFieldId) {
+    final allCells = cellByFieldId.values.toList();
+    final visibleCells = allCells
+        .where(
+          (cellContext) =>
+              cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
+        )
+        .toList();
+
+    return RowDetailState(
+      visibleCells: visibleCells,
+      allCells: allCells,
+      showHiddenFields: false,
+      numHiddenFields: allCells.length - visibleCells.length - 1,
+    );
+  }
 }
