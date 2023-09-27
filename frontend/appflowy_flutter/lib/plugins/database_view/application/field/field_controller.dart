@@ -457,6 +457,8 @@ class FieldController {
                 await insertFields(changeset.insertedFields, fieldInfos);
             (updatedFields, fieldInfos) =
                 await updateFields(changeset.updatedFields, fieldInfos);
+
+            _fieldNotifier.fieldInfos = fieldInfos;
             for (final listener in _updatedFieldCallbacks.values) {
               listener(updatedFields);
             }
