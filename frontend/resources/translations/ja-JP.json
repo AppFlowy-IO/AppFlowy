@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "新着情報を受け取る",
   "letsGoButtonText": "Let's Go",
   "title": "タイトル",
+  "youCanAlso": "あなたもすることができます",
+  "and": "と",
+  "blockActions": {
+    "addBelowTooltip": "クリックして下に追加してください",
+    "addAboveCmd": "Alt+クリック",
+    "addAboveMacCmd": "Option+クリック",
+    "addAboveTooltip": "上に追加する"
+  },
   "signUp": {
     "buttonText": "新規登録",
     "title": "@:appNameに新規登録",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Copy Link"
   },
+  "moreAction": {
+    "small": "小さい",
+    "medium": "中くらい",
+    "large": "大きい",
+    "fontSize": "フォントサイズ",
+    "import": "輸入",
+    "moreOptions": "より多くのオプション"
+  },
+  "importPanel": {
+    "textAndMarkdown": "テキストとマークダウン",
+    "documentFromV010": "v0.1.0 のドキュメント",
+    "databaseFromV010": "v0.1.0 以降のデータベース",
+    "csv": "CSV",
+    "database": "データベース"
+  },
   "disclosureAction": {
     "rename": "名前を変更",
     "delete": "削除",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "ページ名",
   "questionBubble": {
+    "shortcuts": "ショートカット",
     "whatsNew": "What's new?",
     "help": "ヘルプとサポート",
+    "markdown": "マークダウン",
     "debug": {
       "name": "デバッグ情報",
       "success": "デバッグ情報をクリップボードにコピーしました！",
       "fail": "デバッグ情報をクリップボードにコピーできませんでした"
     },
-    "shortcuts": "ショートカット",
-    "markdown": "マークダウン",
     "feedback": "フィードバック"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "この {name} は参照されています",
     "addBlockBelow": "以下にブロックを追加します"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "マークダウンにエクスポートされたノート",
+      "path": "ドキュメント/フローティ"
+    }
+  },
   "contactsPage": {
     "title": "連絡先",
     "whatsHappening": "今週はどんなことがありましたか？",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "終わり",
     "Cancel": "キャンセル",
     "signIn": "サインイン",
     "signOut": "サインアウト",
     "complete": "完了",
     "save": "保存",
-    "Done": "終わり",
     "generate": "生成",
     "esc": "ESC",
     "keep": "保つ",
@@ -172,21 +205,21 @@
     "menu": {
       "appearance": "外観",
       "language": "言語",
-      "open": "設定",
       "user": "ユーザー",
       "files": "ファイル",
+      "open": "設定",
       "supabaseSetting": "スーパーベースの設定"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "フォントファミリー",
+        "search": "検索"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "ライトモード",
         "dark": "ダークモード",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "フォントファミリー",
-        "search": "検索"
       },
       "themeUpload": {
         "button": "アップロード",
@@ -245,11 +278,12 @@
     }
   },
   "grid": {
+    "deleteView": "このビューを削除してもよろしいですか?",
+    "createView": "新しい",
     "settings": {
       "filter": "絞り込み",
-      "sortBy": "並び替え",
-      "Properties": "プロパティ",
       "sort": "選別",
+      "sortBy": "並び替え",
       "properties": "プロパティ",
       "reorderPropertiesTooltip": "ドラッグしてプロパティを並べ替えます",
       "group": "グループ",
@@ -258,70 +292,9 @@
       "filterBy": "フィルター条件...",
       "typeAValue": "値を入力してください...",
       "layout": "レイアウト",
-      "databaseLayout": "レイアウト"
+      "databaseLayout": "レイアウト",
+      "Properties": "プロパティ"
     },
-    "field": {
-      "hide": "隠す",
-      "insertLeft": "左に挿入",
-      "insertRight": "右に挿入",
-      "duplicate": "コピーを作成",
-      "delete": "削除",
-      "textFieldName": "テキスト",
-      "checkboxFieldName": "チェックボックス",
-      "dateFieldName": "日付",
-      "numberFieldName": "数値",
-      "singleSelectFieldName": "単一選択",
-      "multiSelectFieldName": "複数選択",
-      "numberFormat": "数値書式",
-      "dateFormat": "日付書式",
-      "includeTime": "時刻を含める",
-      "dateFormatFriendly": "月 日, 年",
-      "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "月/日/年",
-      "dateFormatUS": "年/月/日",
-      "timeFormat": "時刻書式",
-      "timeFormatTwelveHour": "12 時間表記",
-      "timeFormatTwentyFourHour": "24 時間表記",
-      "addSelectOption": "選択候補追加",
-      "optionTitle": "選択候補",
-      "addOption": "選択候補追加",
-      "editProperty": "プロパティの編集",
-      "updatedAtFieldName": "最終変更時刻",
-      "createdAtFieldName": "作成時間",
-      "urlFieldName": "URL",
-      "checklistFieldName": "チェックリスト",
-      "dateFormatDayMonthYear": "日月年",
-      "invalidTimeFormat": "無効な形式",
-      "newProperty": "新しい物件",
-      "deleteFieldPromptMessage": "本気ですか？このプロパティは削除されます"
-    },
-    "row": {
-      "duplicate": "コピーを作成",
-      "delete": "削除",
-      "textPlaceholder": "空白",
-      "copyProperty": "プロパティをクリップボードにコピーしました",
-      "count": "カウント",
-      "newRow": "新しい行",
-      "action": "アクション"
-    },
-    "selectOption": {
-      "purpleColor": "紫",
-      "pinkColor": "ピンク",
-      "lightPinkColor": "ライトピンク",
-      "orangeColor": "オレンジ",
-      "yellowColor": "黄色",
-      "limeColor": "ライム",
-      "greenColor": "緑",
-      "aquaColor": "水色",
-      "blueColor": "青",
-      "deleteTag": "選択候補を削除",
-      "colorPanelTitle": "色",
-      "panelTitle": "選択候補を検索 または 作成する",
-      "searchOption": "選択候補を検索",
-      "create": "作成"
-    },
-    "deleteView": "このビューを削除してもよろしいですか?",
-    "createView": "新しい",
     "textFilter": {
       "contains": "含まれています",
       "doesNotContain": "含まれていない",
@@ -362,50 +335,77 @@
       "isEmpty": "空です",
       "isNotEmpty": "空ではありません"
     },
+    "field": {
+      "hide": "隠す",
+      "insertLeft": "左に挿入",
+      "insertRight": "右に挿入",
+      "duplicate": "コピーを作成",
+      "delete": "削除",
+      "textFieldName": "テキスト",
+      "checkboxFieldName": "チェックボックス",
+      "dateFieldName": "日付",
+      "updatedAtFieldName": "最終変更時刻",
+      "createdAtFieldName": "作成時間",
+      "numberFieldName": "数値",
+      "singleSelectFieldName": "単一選択",
+      "multiSelectFieldName": "複数選択",
+      "urlFieldName": "URL",
+      "checklistFieldName": "チェックリスト",
+      "numberFormat": "数値書式",
+      "dateFormat": "日付書式",
+      "includeTime": "時刻を含める",
+      "dateFormatFriendly": "月 日, 年",
+      "dateFormatISO": "年-月-日",
+      "dateFormatLocal": "月/日/年",
+      "dateFormatUS": "年/月/日",
+      "dateFormatDayMonthYear": "日月年",
+      "timeFormat": "時刻書式",
+      "invalidTimeFormat": "無効な形式",
+      "timeFormatTwelveHour": "12 時間表記",
+      "timeFormatTwentyFourHour": "24 時間表記",
+      "addSelectOption": "選択候補追加",
+      "optionTitle": "選択候補",
+      "addOption": "選択候補追加",
+      "editProperty": "プロパティの編集",
+      "newProperty": "新しい物件",
+      "deleteFieldPromptMessage": "本気ですか？このプロパティは削除されます"
+    },
     "sort": {
       "ascending": "上昇",
       "descending": "降順",
-      "deleteSort": "ソートの削除",
-      "addSort": "並べ替えの追加"
+      "addSort": "並べ替えの追加",
+      "deleteSort": "ソートの削除"
+    },
+    "row": {
+      "duplicate": "コピーを作成",
+      "delete": "削除",
+      "textPlaceholder": "空白",
+      "copyProperty": "プロパティをクリップボードにコピーしました",
+      "count": "カウント",
+      "newRow": "新しい行",
+      "action": "アクション"
+    },
+    "selectOption": {
+      "create": "作成",
+      "purpleColor": "紫",
+      "pinkColor": "ピンク",
+      "lightPinkColor": "ライトピンク",
+      "orangeColor": "オレンジ",
+      "yellowColor": "黄色",
+      "limeColor": "ライム",
+      "greenColor": "緑",
+      "aquaColor": "水色",
+      "blueColor": "青",
+      "deleteTag": "選択候補を削除",
+      "colorPanelTitle": "色",
+      "panelTitle": "選択候補を検索 または 作成する",
+      "searchOption": "選択候補を検索"
     },
     "checklist": {
       "addNew": "アイテムを追加する"
     },
     "menuName": "グリッド",
     "referencedGridPrefix": "のビュー"
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "小さい",
-    "medium": "中くらい",
-    "large": "大きい",
-    "fontSize": "フォントサイズ",
-    "import": "輸入",
-    "moreOptions": "より多くのオプション"
-  },
-  "youCanAlso": "あなたもすることができます",
-  "and": "と",
-  "blockActions": {
-    "addBelowTooltip": "クリックして下に追加してください",
-    "addAboveCmd": "Alt+クリック",
-    "addAboveMacCmd": "Option+クリック",
-    "addAboveTooltip": "上に追加する"
-  },
-  "importPanel": {
-    "textAndMarkdown": "テキストとマークダウン",
-    "documentFromV010": "v0.1.0 のドキュメント",
-    "databaseFromV010": "v0.1.0 以降のデータベース",
-    "csv": "CSV",
-    "database": "データベース"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "マークダウンにエクスポートされたノート",
-      "path": "ドキュメント/フローティ"
-    }
   },
   "document": {
     "menuName": "書類",

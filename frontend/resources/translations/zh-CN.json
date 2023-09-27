@@ -8,6 +8,12 @@
   "title": "标题",
   "youCanAlso": "您还可以",
   "and": "以及",
+  "blockActions": {
+    "addBelowTooltip": "点击下方添加",
+    "addAboveCmd": "Alt+单击",
+    "addAboveMacCmd": "选项+单击",
+    "addAboveTooltip": "添加上面"
+  },
   "signUp": {
     "buttonText": "注册",
     "title": "注册 @:appName 账户",
@@ -23,14 +29,14 @@
   "signIn": {
     "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
-    "loginAsGuestButtonText": "开始使用",
     "buttonText": "登录",
     "forgotPassword": "忘记密码?",
     "emailHint": "邮箱",
     "passwordHint": "密码",
     "dontHaveAnAccount": "没有已注册的账户?",
     "repeatPasswordEmptyError": "确认密码不能为空",
-    "unmatchedPasswordError": "两次密码输入不一致"
+    "unmatchedPasswordError": "两次密码输入不一致",
+    "loginAsGuestButtonText": "开始使用"
   },
   "workspace": {
     "create": "新建空间",
@@ -137,8 +143,8 @@
     "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
-    "openSidebar": "打开侧边栏",
-    "closeSidebar": "关闭侧边栏"
+    "closeSidebar": "关闭侧边栏",
+    "openSidebar": "打开侧边栏"
   },
   "notifications": {
     "export": {
@@ -205,16 +211,15 @@
       "supabaseSetting": "超基设置"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "字体系列",
+        "search": "搜索"
+      },
       "themeMode": {
         "label": "主题模式",
         "light": "日间模式",
         "dark": "夜间模式",
         "system": "系统自适应"
-      },
-      "theme": "主题",
-      "fontFamily": {
-        "label": "字体系列",
-        "search": "搜索"
       },
       "themeUpload": {
         "button": "上传",
@@ -226,6 +231,7 @@
         "filePickerDialogTitle": "选择 .flowy_plugin 文件",
         "urlUploadFailure": "无法打开网址：{}"
       },
+      "theme": "主题",
       "builtInsLabel": "内置主题",
       "pluginsLabel": "插件"
     },
@@ -278,7 +284,8 @@
       "filter": "筛选",
       "sort": "以……排序",
       "sortBy": "排序",
-      "Properties": "属性",
+      "properties": "特性",
+      "reorderPropertiesTooltip": "拖动以重新排序属性",
       "group": "组",
       "addFilter": "添加筛选",
       "deleteFilter": "删除筛选",
@@ -286,8 +293,7 @@
       "typeAValue": "请输入一个值",
       "layout": "布局",
       "databaseLayout": "布局",
-      "properties": "特性",
-      "reorderPropertiesTooltip": "拖动以重新排序属性"
+      "Properties": "属性"
     },
     "textFilter": {
       "contains": "包含",
@@ -367,8 +373,8 @@
     "sort": {
       "ascending": "升序",
       "descending": "降序",
-      "deleteSort": "删除排序",
-      "addSort": "添加排序"
+      "addSort": "添加排序",
+      "deleteSort": "删除排序"
     },
     "row": {
       "duplicate": "复制",
@@ -421,6 +427,9 @@
         "createANewCalendar": "新建日历"
       }
     },
+    "selectionMenu": {
+      "outline": "大纲"
+    },
     "plugins": {
       "referencedBoard": "引用的看板",
       "referencedGrid": "引用的网格",
@@ -443,6 +452,8 @@
       "smartEditCouldNotFetchKey": "无法获取到 OpenAI 密钥",
       "smartEditDisabled": "在设置中连接 OpenAI",
       "discardResponse": "您是否要放弃 AI 继续写作?",
+      "createInlineMathEquation": "创建方程",
+      "toggleList": "切换列表",
       "cover": {
         "changeCover": "修改封面",
         "colors": "颜色",
@@ -486,17 +497,12 @@
         "right": "又",
         "defaultColor": "默认"
       },
-      "createInlineMathEquation": "创建方程",
-      "toggleList": "切换列表",
       "image": {
         "copiedToPasteBoard": "图片链接已复制到剪贴板"
       },
       "outline": {
         "addHeadingToCreateOutline": "添加标题以创建目录。"
       }
-    },
-    "selectionMenu": {
-      "outline": "大纲"
     },
     "textBlock": {
       "placeholder": "输入“/”作为命令"
@@ -572,12 +578,6 @@
     "title": "AppFlowy 错误",
     "howToFixFallback": "对于给您带来的不便, 我们深表歉意! 请在我们的 GitHub 页面上提交 issue 并描述您遇到的错误。",
     "github": "在 GitHub 查看"
-  },
-  "blockActions": {
-    "addBelowTooltip": "点击下方添加",
-    "addAboveCmd": "Alt+单击",
-    "addAboveMacCmd": "选项+单击",
-    "addAboveTooltip": "添加上面"
   },
   "search": {
     "label": "搜索",

@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Iratkozz fel a hírlevelünkre",
   "letsGoButtonText": "Vágjunk bele",
   "title": "Cím",
+  "youCanAlso": "Te is",
+  "and": "és",
+  "blockActions": {
+    "addBelowTooltip": "Kattintson a hozzáadáshoz lent",
+    "addAboveCmd": "Alt+kattintás",
+    "addAboveMacCmd": "Option+kattintás",
+    "addAboveTooltip": "a fentiek hozzáadásához"
+  },
   "signUp": {
     "buttonText": "Regisztráció",
     "title": "Regisztrálj az @:appName -ra",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Link másolása"
   },
+  "moreAction": {
+    "small": "kicsi",
+    "medium": "közepes",
+    "large": "nagy",
+    "fontSize": "Betűméret",
+    "import": "Importálás",
+    "moreOptions": "Több lehetőség"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Szöveg & Markdown",
+    "documentFromV010": "Dokumentum a 0.1.0 verzióból",
+    "databaseFromV010": "Adatbázis a 0.1.0 verziótól",
+    "csv": "CSV",
+    "database": "Adatbázis"
+  },
   "disclosureAction": {
     "rename": "Átnevezés",
     "delete": "Törlés",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Oldalnév",
   "questionBubble": {
+    "shortcuts": "Parancsikonok",
     "whatsNew": "Újdonságok",
     "help": "Segítség & Támogatás",
+    "markdown": "Árleszállítás",
     "debug": {
       "name": "Debug Információ",
       "success": "Debug információ a vágólapra másolva",
       "fail": "A Debug információ nem másolható a vágólapra"
     },
-    "shortcuts": "Parancsikonok",
-    "markdown": "Árleszállítás",
     "feedback": "Visszacsatolás"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "Erre a(z) {name} címre hivatkoznak",
     "addBlockBelow": "Adjon hozzá egy blokkot alább"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Megjegyzés exportálva a Markdownba",
+      "path": "Dokumentumok/flowy"
+    }
+  },
   "contactsPage": {
     "title": "Kontaktok",
     "whatsHappening": "Heti újdonságok",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Kész",
     "Cancel": "Mégse",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
     "save": "Mentés",
-    "Done": "Kész",
     "generate": "generál",
     "esc": "KILÉPÉS",
     "keep": "Tart",
@@ -172,21 +205,21 @@
     "menu": {
       "appearance": "Megjelenés",
       "language": "Nyelv",
-      "open": "Beállítások megnyitása",
       "user": "Felhasználó",
       "files": "Fájlok",
+      "open": "Beállítások megnyitása",
       "supabaseSetting": "Supabase beállítás"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Betűtípus család",
+        "search": "Keresés"
+      },
       "themeMode": {
         "label": "Téma",
         "light": "Világos mód",
         "dark": "Éjjeli mód",
         "system": "Rendszerbeállítás követése"
-      },
-      "fontFamily": {
-        "label": "Betűtípus család",
-        "search": "Keresés"
       },
       "themeUpload": {
         "button": "Feltöltés",
@@ -242,39 +275,6 @@
       "name": "Név",
       "selectAnIcon": "Válasszon ki egy ikont",
       "pleaseInputYourOpenAIKey": "kérjük, adja meg OpenAI kulcsát"
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "kicsi",
-    "medium": "közepes",
-    "large": "nagy",
-    "fontSize": "Betűméret",
-    "import": "Importálás",
-    "moreOptions": "Több lehetőség"
-  },
-  "youCanAlso": "Te is",
-  "and": "és",
-  "blockActions": {
-    "addBelowTooltip": "Kattintson a hozzáadáshoz lent",
-    "addAboveCmd": "Alt+kattintás",
-    "addAboveMacCmd": "Option+kattintás",
-    "addAboveTooltip": "a fentiek hozzáadásához"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Szöveg & Markdown",
-    "documentFromV010": "Dokumentum a 0.1.0 verzióból",
-    "databaseFromV010": "Adatbázis a 0.1.0 verziótól",
-    "csv": "CSV",
-    "database": "Adatbázis"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Megjegyzés exportálva a Markdownba",
-      "path": "Dokumentumok/flowy"
     }
   },
   "grid": {
@@ -372,8 +372,8 @@
     "sort": {
       "ascending": "Emelkedő",
       "descending": "Csökkenő",
-      "deleteSort": "Rendezés törlése",
-      "addSort": "Rendezés hozzáadása"
+      "addSort": "Rendezés hozzáadása",
+      "deleteSort": "Rendezés törlése"
     },
     "row": {
       "duplicate": "Másolat",
