@@ -19,7 +19,7 @@ const _darkShader2 = Color(0xff1A202C);
 const _darkShader3 = Color(0xff363D49);
 const _darkShader5 = Color(0xffBBC3CD);
 const _darkShader6 = Color(0xffF2F2F2);
-const _darkMain1 = Color(0xffe21f74);
+const _darkMain1 = Color(0xffffcb00);
 const _darkInput = Color(0xff282E3A);
 
 class DandelionColorScheme extends FlowyColorScheme {
@@ -98,7 +98,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           shader7: _white,
           bg1: const Color(0xFFD5A200),
           bg2: _black,
-          bg3: const Color(0xff4f4f4f),
+          bg3: _darkMain1,
           bg4: const Color(0xff2c144b),
           tint1: const Color(0x4d9327FF),
           tint2: const Color(0x66FC0088),
@@ -110,7 +110,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           tint8: const Color(0x80008890),
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
-          main2: const Color(0xffe0196f),
+          main2: _darkMain1,
           shadow: _black,
           sidebarBg: const Color(0xff232B38),
           divider: _darkShader3,
