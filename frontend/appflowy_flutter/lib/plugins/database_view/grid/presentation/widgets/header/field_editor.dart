@@ -92,7 +92,7 @@ class _FieldEditorState extends State<FieldEditor> {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: _DeleteFieldButton(
+          child: DeleteFieldButton(
             popoverMutex: popoverMutex,
             onDeleted: () {
               state.field.fold(
@@ -224,15 +224,16 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
   }
 }
 
-class _DeleteFieldButton extends StatelessWidget {
+@visibleForTesting
+class DeleteFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   final VoidCallback? onDeleted;
 
-  const _DeleteFieldButton({
+  const DeleteFieldButton({
     required this.popoverMutex,
     required this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -55,6 +55,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -671,6 +672,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
       kind: PointerDeviceKind.mouse,
     );
     await pumpAndSettle();
+  }
+
+  void assertToggleShowHiddenFieldsVisibility(bool shown) {
+    final button = find.byType(ToggleHiddenFieldsVisibilityButton);
+    if (shown) {
+      expect(button, findsOneWidget);
+    } else {
+      expect(button, findsNothing);
+    }
+  }
+
+  Future<void> toggleShowHiddenFields() async {
+    final button = find.byType(ToggleHiddenFieldsVisibilityButton);
+    await tapButton(button);
+  }
+
+  Future<void> tapDeletePropertyInFieldEditor() async {
+    final deleteButton = find.byType(DeleteFieldButton);
+    await tapButton(deleteButton);
+
+    final confirmButton = find.descendant(
+      of: find.byType(NavigatorAlertDialog),
+      matching: find.byType(PrimaryTextButton),
+    );
+    await tapButton(confirmButton);
   }
 
   Future<void> scrollGridByOffset(Offset offset) async {
