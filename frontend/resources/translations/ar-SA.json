@@ -1,599 +1,599 @@
 {
-    "appName": "AppFlowy",
-    "defaultUsername": "أنا",
-    "welcomeText": "مرحبًا بك في @: appName",
-    "githubStarText": "نجمة على GitHub",
-    "subscribeNewsletterText": "اشترك في النشرة الإخبارية",
-    "letsGoButtonText": "بداية سريعة",
-    "title": "عنوان",
-    "signUp": {
-        "buttonText": "اشتراك",
-        "title": "قم بالتسجيل في @: appName",
-        "getStartedText": "البدء",
-        "emptyPasswordError": "لا يمكن أن تكون كلمة المرور فارغة",
-        "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
-        "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
-        "alreadyHaveAnAccount": "هل لديك حساب؟",
-        "emailHint": "بريد إلكتروني",
-        "passwordHint": "كلمة المرور",
-        "repeatPasswordHint": "اعد كلمة السر"
+  "appName": "AppFlowy",
+  "defaultUsername": "أنا",
+  "welcomeText": "مرحبًا بك في @: appName",
+  "githubStarText": "نجمة على GitHub",
+  "subscribeNewsletterText": "اشترك في النشرة الإخبارية",
+  "letsGoButtonText": "بداية سريعة",
+  "title": "عنوان",
+  "youCanAlso": "بامكانك ايضا",
+  "and": "و",
+  "blockActions": {
+    "addBelowTooltip": "انقر للإضافة أدناه",
+    "addAboveCmd": "Alt + انقر",
+    "addAboveMacCmd": "Option + انقر",
+    "addAboveTooltip": "لإضافة أعلاه"
+  },
+  "signUp": {
+    "buttonText": "اشتراك",
+    "title": "قم بالتسجيل في @: appName",
+    "getStartedText": "البدء",
+    "emptyPasswordError": "لا يمكن أن تكون كلمة المرور فارغة",
+    "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
+    "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
+    "alreadyHaveAnAccount": "هل لديك حساب؟",
+    "emailHint": "بريد إلكتروني",
+    "passwordHint": "كلمة المرور",
+    "repeatPasswordHint": "اعد كلمة السر"
+  },
+  "signIn": {
+    "loginTitle": "تسجيل الدخول إلى @: appName",
+    "loginButtonText": "تسجيل الدخول",
+    "buttonText": "تسجيل الدخول",
+    "forgotPassword": "هل نسيت كلمة السر؟",
+    "emailHint": "بريد إلكتروني",
+    "passwordHint": "كلمة المرور",
+    "dontHaveAnAccount": "ليس لديك حساب؟",
+    "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
+    "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
+    "loginAsGuestButtonText": "البدء"
+  },
+  "workspace": {
+    "create": "قم بإنشاء مساحة عمل",
+    "hint": "مساحة العمل",
+    "notFoundError": "مساحة العمل غير موجودة"
+  },
+  "shareAction": {
+    "buttonText": "مشاركه",
+    "workInProgress": "قريباً",
+    "markdown": "Markdown",
+    "copyLink": "نسخ الرابط"
+  },
+  "moreAction": {
+    "small": "صغير",
+    "medium": "متوسط",
+    "large": "كبير",
+    "fontSize": "حجم الخط",
+    "import": "استيراد",
+    "moreOptions": "المزيد من الخيارات"
+  },
+  "importPanel": {
+    "textAndMarkdown": "نص و Markdown",
+    "documentFromV010": "مستند من الإصدار 0.1.0",
+    "databaseFromV010": "قاعدة بيانات من الإصدار 0.1.0",
+    "csv": "CSV",
+    "database": "قاعدة البيانات"
+  },
+  "disclosureAction": {
+    "rename": "إعادة تسمية",
+    "delete": "يمسح",
+    "duplicate": "كرر",
+    "openNewTab": "افتح في علامة تبويب جديدة"
+  },
+  "blankPageTitle": "صفحة فارغة",
+  "newPageText": "صفحة جديدة",
+  "trash": {
+    "text": "المهملات",
+    "restoreAll": "استعادة الكل",
+    "deleteAll": "حذف الكل",
+    "pageHeader": {
+      "fileName": "اسم الملف",
+      "lastModified": "آخر تعديل",
+      "created": "تم انشاؤها"
     },
-    "signIn": {
-        "loginTitle": "تسجيل الدخول إلى @: appName",
-        "loginButtonText": "تسجيل الدخول",
-        "buttonText": "تسجيل الدخول",
-        "forgotPassword": "هل نسيت كلمة السر؟",
-        "emailHint": "بريد إلكتروني",
-        "passwordHint": "كلمة المرور",
-        "dontHaveAnAccount": "ليس لديك حساب؟",
-        "repeatPasswordEmptyError": "إعادة كلمة المرور لا يمكن أن تكون فارغة",
-        "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
-        "loginAsGuestButtonText": "البدء"
+    "confirmDeleteAll": {
+      "title": "هل أنت متأكد من حذف جميع الصفحات في المهملات؟",
+      "caption": "لا يمكن التراجع عن هذا الإجراء."
     },
-    "workspace": {
-        "create": "قم بإنشاء مساحة عمل",
-        "hint": "مساحة العمل",
-        "notFoundError": "مساحة العمل غير موجودة"
+    "confirmRestoreAll": {
+      "title": "هل أنت متأكد من استعادة جميع الصفحات في المهملات؟",
+      "caption": "لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "deletePagePrompt": {
+    "text": "هذه الصفحة في المهملات",
+    "restore": "استعادة الصفحة",
+    "deletePermanent": "الحذف بشكل نهائي"
+  },
+  "dialogCreatePageNameHint": "اسم الصفحة",
+  "questionBubble": {
+    "shortcuts": "الاختصارات",
+    "whatsNew": "ما هو الجديد؟",
+    "help": "المساعدة والدعم",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "معلومات التصحيح",
+      "success": "تم نسخ معلومات التصحيح إلى الحافظة!",
+      "fail": "تعذر نسخ معلومات التصحيح إلى الحافظة"
     },
-    "shareAction": {
-        "buttonText": "مشاركه",
-        "workInProgress": "قريباً",
-        "markdown": "Markdown",
-        "copyLink": "نسخ الرابط"
+    "feedback": "تعليق"
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "أضف صفحة في الداخل بسرعة",
+    "defaultNewPageName": "بدون عنوان",
+    "renameDialog": "إعادة تسمية"
+  },
+  "toolbar": {
+    "undo": "الغاء التحميل",
+    "redo": "إعادة",
+    "bold": "عريض",
+    "italic": "مائل",
+    "underline": "تسطير",
+    "strike": "يتوسطه خط",
+    "numList": "قائمة مرقمة",
+    "bulletList": "قائمة نقطية",
+    "checkList": "قائمة تدقيق",
+    "inlineCode": "رمز مضمّن",
+    "quote": "كتلة اقتباس",
+    "header": "رأس",
+    "highlight": "تسليط الضوء",
+    "color": "لون",
+    "addLink": "إضافة رابط",
+    "link": "وصلة"
+  },
+  "tooltip": {
+    "lightMode": "قم بالتبديل إلى وضع الإضاءة",
+    "darkMode": "قم بالتبديل إلى الوضع الداكن",
+    "openAsPage": "فتح كصفحة",
+    "addNewRow": "أضف صفًا جديدًا",
+    "openMenu": "انقر لفتح القائمة",
+    "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
+    "viewDataBase": "عرض قاعدة البيانات",
+    "referencePage": "تمت الإشارة إلى هذا {name}",
+    "addBlockBelow": "إضافة كتلة أدناه"
+  },
+  "sideBar": {
+    "closeSidebar": "إغلاق الشريط الجانبي",
+    "openSidebar": "فتح الشريط الجانبي"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "تم تصدير ملاحظة إلى Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "جهات الاتصال",
+    "whatsHappening": "ماذا يحدث هذا الاسبوع؟",
+    "addContact": "إضافة جهة اتصال",
+    "editContact": "تحرير جهة الاتصال"
+  },
+  "button": {
+    "OK": "نعم",
+    "Done": "منتهي",
+    "Cancel": "إلغاء",
+    "signIn": "تسجيل الدخول",
+    "signOut": "خروج",
+    "complete": "مكتمل",
+    "save": "حفظ",
+    "generate": "يولد",
+    "esc": "خروج",
+    "keep": "ابقاء",
+    "tryAgain": "حاول ثانية",
+    "discard": "تجاهل",
+    "replace": "يستبدل",
+    "insertBelow": "إدراج أدناه",
+    "upload": "رفع",
+    "edit": "يحرر",
+    "delete": "يمسح",
+    "duplicate": "ينسخ",
+    "done": "منتهي",
+    "putback": "ضعها بالخلف"
+  },
+  "label": {
+    "welcome": "مرحباً!",
+    "firstName": "الاسم الأول",
+    "middleName": "الاسم الأوسط",
+    "lastName": "اسم العائلة",
+    "stepX": "الخطوة {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "غير قادر على الاتصال بحسابك.",
+      "failedMsg": "يرجى التأكد من إكمال عملية تسجيل الدخول في متصفحك."
     },
-    "moreAction": {
-        "small": "صغير",
-        "medium": "متوسط",
-        "large": "كبير",
-        "fontSize": "حجم الخط",
-        "import": "استيراد",
-        "moreOptions": "المزيد من الخيارات"
+    "google": {
+      "title": "تسجيل الدخول إلى GOOGLE",
+      "instruction1": "لاستيراد جهات اتصال Google الخاصة بك ، ستحتاج إلى ترخيص هذا التطبيق باستخدام متصفح الويب الخاص بك.",
+      "instruction2": "انسخ هذا الرمز إلى الحافظة الخاصة بك عن طريق النقر فوق الرمز أو تحديد النص:",
+      "instruction3": "انتقل إلى الرابط التالي في متصفح الويب الخاص بك ، وأدخل الرمز أعلاه:",
+      "instruction4": "اضغط على الزر أدناه عند الانتهاء من التسجيل:"
+    }
+  },
+  "settings": {
+    "title": "إعدادات",
+    "menu": {
+      "appearance": "مظهر",
+      "language": "لغة",
+      "user": "مستخدم",
+      "files": "الملفات",
+      "open": "أفتح الإعدادات",
+      "supabaseSetting": "إعداد Supabase"
     },
-    "disclosureAction": {
-        "rename": "إعادة تسمية",
-        "delete": "يمسح",
-        "duplicate": "كرر",
-        "openNewTab": "افتح في علامة تبويب جديدة"
+    "appearance": {
+      "fontFamily": {
+        "label": "خط العائلة",
+        "search": "يبحث"
+      },
+      "themeMode": {
+        "label": "وضع السمة",
+        "light": "وضع الضوء",
+        "dark": "الوضع الداكن",
+        "system": "التكيف مع النظام"
+      },
+      "themeUpload": {
+        "button": "رفع",
+        "description": "قم بتحميل قالب AppFlowy الخاص بك باستخدام الزر أدناه.",
+        "failure": "النسق الذي تم تحميله به تنسيق غير صالح.",
+        "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
+        "uploadSuccess": "تم تحميل موضوعك بنجاح",
+        "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
+        "filePickerDialogTitle": "اختر ملف .flowy_plugin",
+        "urlUploadFailure": "فشل فتح عنوان url: {}"
+      },
+      "theme": "سمة",
+      "builtInsLabel": "ثيمات مدمجة",
+      "pluginsLabel": "الإضافات"
     },
-    "blankPageTitle": "صفحة فارغة",
-    "newPageText": "صفحة جديدة",
-    "trash": {
-        "text": "المهملات",
-        "restoreAll": "استعادة الكل",
-        "deleteAll": "حذف الكل",
-        "pageHeader": {
-            "fileName": "اسم الملف",
-            "lastModified": "آخر تعديل",
-            "created": "تم انشاؤها"
-        },
-        "confirmDeleteAll": {
-            "title": "هل أنت متأكد من حذف جميع الصفحات في المهملات؟",
-            "caption": "لا يمكن التراجع عن هذا الإجراء."
-        },
-        "confirmRestoreAll": {
-            "title": "هل أنت متأكد من استعادة جميع الصفحات في المهملات؟",
-            "caption": "لا يمكن التراجع عن هذا الإجراء."
-        }
+    "files": {
+      "copy": "ينسخ",
+      "defaultLocation": "أين يتم تخزين بياناتك الآن",
+      "exportData": "قم بتصدير بياناتك",
+      "doubleTapToCopy": "انقر نقرًا مزدوجًا لنسخ المسار",
+      "restoreLocation": "استعادة المسار الافتراضي AppFlowy",
+      "customizeLocation": "افتح مجلدًا آخر",
+      "restartApp": "يرجى إعادة تشغيل التطبيق لتصبح التغييرات سارية المفعول.",
+      "exportDatabase": "تصدير قاعدة البيانات",
+      "selectFiles": "حدد الملفات التي تريد تصديرها",
+      "selectAll": "اختر الكل",
+      "deselectAll": "الغاء تحديد الكل",
+      "createNewFolder": "انشاء مجلد جديد",
+      "createNewFolderDesc": "أخبرنا بالمكان الذي تريد تخزين بياناتك فيه",
+      "defineWhereYourDataIsStored": "حدد مكان تخزين بياناتك",
+      "open": "يفتح",
+      "openFolder": "افتح مجلدًا موجودًا",
+      "openFolderDesc": "اقرأها واكتبها في مجلد AppFlowy الموجود لديك",
+      "folderHintText": "إسم الملف",
+      "location": "إنشاء مجلد جديد",
+      "locationDesc": "اختر اسمًا لمجلد بيانات AppFlowy",
+      "browser": "تصفح",
+      "create": "يخلق",
+      "set": "تعيين",
+      "folderPath": "مسار لتخزين المجلد الخاص بك",
+      "locationCannotBeEmpty": "لا يمكن أن يكون المسار فارغًا",
+      "pathCopiedSnackbar": "تم نسخ مسار تخزين الملفات إلى الحافظة!",
+      "changeLocationTooltips": "قم بتغيير دليل البيانات",
+      "change": "يتغير",
+      "openLocationTooltips": "افتح دليل بيانات آخر",
+      "openCurrentDataFolder": "افتح دليل البيانات الحالي",
+      "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ AppFlowy",
+      "exportFileSuccess": "تم تصدير الملف بنجاح!",
+      "exportFileFail": "فشل تصدير الملف!",
+      "export": "يصدّر"
     },
-    "deletePagePrompt": {
-        "text": "هذه الصفحة في المهملات",
-        "restore": "استعادة الصفحة",
-        "deletePermanent": "الحذف بشكل نهائي"
+    "user": {
+      "name": "اسم",
+      "selectAnIcon": "حدد أيقونة",
+      "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح OpenAI الخاص بك"
+    }
+  },
+  "grid": {
+    "deleteView": "هل أنت متأكد أنك تريد حذف هذا العرض؟",
+    "createView": "جديد",
+    "settings": {
+      "filter": "منقي",
+      "sort": "نوع",
+      "sortBy": "ترتيب حسب",
+      "properties": "ملكيات",
+      "reorderPropertiesTooltip": "اسحب لإعادة ترتيب الخصائص",
+      "group": "مجموعة",
+      "addFilter": "أضف عامل تصفية",
+      "deleteFilter": "حذف عامل التصفية",
+      "filterBy": "مصنف بواسطة...",
+      "typeAValue": "اكتب قيمة ...",
+      "layout": "تَخطِيط",
+      "databaseLayout": "تَخطِيط",
+      "Properties": "ملكيات"
     },
-    "dialogCreatePageNameHint": "اسم الصفحة",
-    "questionBubble": {
-        "shortcuts": "الاختصارات",
-        "whatsNew": "ما هو الجديد؟",
-        "help": "المساعدة والدعم",
-        "markdown": "Markdown",
-        "debug": {
-            "name": "معلومات التصحيح",
-            "success": "تم نسخ معلومات التصحيح إلى الحافظة!",
-            "fail": "تعذر نسخ معلومات التصحيح إلى الحافظة"
-        },
-        "feedback": "تعليق"
+    "textFilter": {
+      "contains": "يتضمن",
+      "doesNotContain": "لا يحتوي",
+      "endsWith": "ينتهي بـ",
+      "startWith": "ابدا ب",
+      "is": "يكون",
+      "isNot": "ليس",
+      "isEmpty": "فارغ",
+      "isNotEmpty": "ليس فارغا",
+      "choicechipPrefix": {
+        "isNot": "لا",
+        "startWith": "ابدا ب",
+        "endWith": "ينتهي بـ",
+        "isEmpty": "فارغ",
+        "isNotEmpty": "ليس فارغا"
+      }
     },
-    "menuAppHeader": {
-        "addPageTooltip": "أضف صفحة في الداخل بسرعة",
-        "defaultNewPageName": "بدون عنوان",
-        "renameDialog": "إعادة تسمية"
+    "checkboxFilter": {
+      "isChecked": "التحقق",
+      "isUnchecked": "لم يتم التحقق منه",
+      "choicechipPrefix": {
+        "is": "يكون"
+      }
     },
-    "toolbar": {
-        "undo": "الغاء التحميل",
-        "redo": "إعادة",
-        "bold": "عريض",
-        "italic": "مائل",
-        "underline": "تسطير",
-        "strike": "يتوسطه خط",
-        "numList": "قائمة مرقمة",
-        "bulletList": "قائمة نقطية",
-        "checkList": "قائمة تدقيق",
-        "inlineCode": "رمز مضمّن",
-        "quote": "كتلة اقتباس",
-        "header": "رأس",
-        "highlight": "تسليط الضوء",
-        "color": "لون",
-        "addLink": "إضافة رابط",
-        "link": "وصلة"
+    "checklistFilter": {
+      "isComplete": "كاملة",
+      "isIncomplted": "غير مكتمل"
     },
-    "tooltip": {
-        "lightMode": "قم بالتبديل إلى وضع الإضاءة",
-        "darkMode": "قم بالتبديل إلى الوضع الداكن",
-        "openAsPage": "فتح كصفحة",
-        "addNewRow": "أضف صفًا جديدًا",
-        "openMenu": "انقر لفتح القائمة",
-        "viewDataBase": "عرض قاعدة البيانات",
-        "referencePage": "تمت الإشارة إلى هذا {name}",
-        "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
-        "addBlockBelow": "إضافة كتلة أدناه"
+    "singleSelectOptionFilter": {
+      "is": "يكون",
+      "isNot": "ليس",
+      "isEmpty": "فارغ",
+      "isNotEmpty": "ليس فارغا"
     },
-    "sideBar": {
-        "closeSidebar": "إغلاق الشريط الجانبي",
-        "openSidebar": "فتح الشريط الجانبي"
+    "multiSelectOptionFilter": {
+      "contains": "يتضمن",
+      "doesNotContain": "لا يحتوي",
+      "isEmpty": "فارغ",
+      "isNotEmpty": "ليس فارغا"
     },
-    "notifications": {
-        "export": {
-            "markdown": "تم تصدير ملاحظة إلى Markdown",
-            "path": "Documents/flowy"
-        }
+    "field": {
+      "hide": "يخفي",
+      "insertLeft": "أدخل اليسار",
+      "insertRight": "أدخل اليمين",
+      "duplicate": "ينسخ",
+      "delete": "يمسح",
+      "textFieldName": "نص",
+      "checkboxFieldName": "خانة اختيار",
+      "dateFieldName": "تاريخ",
+      "updatedAtFieldName": "وقت آخر تعديل",
+      "createdAtFieldName": "وقت الإنشاء",
+      "numberFieldName": "أعداد",
+      "singleSelectFieldName": "يختار",
+      "multiSelectFieldName": "تحديد متعدد",
+      "urlFieldName": "URL",
+      "checklistFieldName": "قائمة تدقيق",
+      "numberFormat": "تنسيق الأرقام",
+      "dateFormat": "صيغة التاريخ",
+      "includeTime": "أضف الوقت",
+      "dateFormatFriendly": "شهر يوم سنه",
+      "dateFormatISO": "سنة شهر يوم",
+      "dateFormatLocal": "شهر يوم سنه",
+      "dateFormatUS": "سنة شهر يوم",
+      "dateFormatDayMonthYear": "يوم شهر سنة",
+      "timeFormat": "تنسيق الوقت",
+      "invalidTimeFormat": "تنسيق غير صالح",
+      "timeFormatTwelveHour": "12 ساعة",
+      "timeFormatTwentyFourHour": "24 ساعة",
+      "addSelectOption": "أضف خيارًا",
+      "optionTitle": "خيارات",
+      "addOption": "إضافة خيار",
+      "editProperty": "تحرير الملكية",
+      "newProperty": "خاصية جديدة",
+      "deleteFieldPromptMessage": "هل أنت متأكد؟ سيتم حذف هذه الخاصية"
     },
-    "contactsPage": {
-        "title": "جهات الاتصال",
-        "whatsHappening": "ماذا يحدث هذا الاسبوع؟",
-        "addContact": "إضافة جهة اتصال",
-        "editContact": "تحرير جهة الاتصال"
+    "sort": {
+      "ascending": "تصاعدي",
+      "descending": "تنازلي",
+      "addSort": "أضف نوعًا",
+      "deleteSort": "حذف الفرز"
     },
-    "button": {
-        "OK": "نعم",
-        "Done": "منتهي",
-        "Cancel": "إلغاء",
-        "signIn": "تسجيل الدخول",
-        "signOut": "خروج",
-        "complete": "مكتمل",
-        "save": "حفظ",
-        "generate": "يولد",
-        "esc": "خروج",
-        "keep": "ابقاء",
-        "tryAgain": "حاول ثانية",
-        "discard": "تجاهل",
-        "replace": "يستبدل",
-        "insertBelow": "إدراج أدناه",
-        "upload": "رفع",
-        "edit": "يحرر",
+    "row": {
+      "duplicate": "مكرره",
+      "delete": "يمسح",
+      "textPlaceholder": "فارغ",
+      "copyProperty": "نسخ الممتلكات إلى الحافظة",
+      "count": "عدد",
+      "newRow": "صف جديد",
+      "action": "فعل"
+    },
+    "selectOption": {
+      "create": "يخلق",
+      "purpleColor": "أرجواني",
+      "pinkColor": "لون القرنفل",
+      "lightPinkColor": "وردي فاتح",
+      "orangeColor": "البرتقالي",
+      "yellowColor": "أصفر",
+      "limeColor": "جير",
+      "greenColor": "أخضر",
+      "aquaColor": "أكوا",
+      "blueColor": "أزرق",
+      "deleteTag": "حذف العلامة",
+      "colorPanelTitle": "الألوان",
+      "panelTitle": "حدد خيارًا أو أنشئ خيارًا",
+      "searchOption": "ابحث عن خيار"
+    },
+    "checklist": {
+      "addNew": "أضف عنصرًا"
+    },
+    "menuName": "شبكة",
+    "referencedGridPrefix": "نظرا ل"
+  },
+  "document": {
+    "menuName": "وثيقة",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 مساءً",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "حدد لوحة للارتباط بها",
+        "createANewBoard": "قم بإنشاء لوحة جديدة"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "حدد الشبكة للارتباط بها",
+        "createANewGrid": "قم بإنشاء شبكة جديدة"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "حدد تقويمًا للارتباط به",
+        "createANewCalendar": "قم بإنشاء تقويم جديد"
+      }
+    },
+    "selectionMenu": {
+      "outline": "الخطوط العريضة"
+    },
+    "plugins": {
+      "referencedBoard": "المجلس المشار إليه",
+      "referencedGrid": "الشبكة المشار إليها",
+      "referencedCalendar": "التقويم المشار إليه",
+      "autoGeneratorMenuItemName": "كاتب OpenAI",
+      "autoGeneratorTitleName": "OpenAI: اطلب من الذكاء الاصطناعي كتابة أي شيء ...",
+      "autoGeneratorLearnMore": "يتعلم أكثر",
+      "autoGeneratorGenerate": "يولد",
+      "autoGeneratorHintText": "اسأل OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "لا يمكن الحصول على مفتاح OpenAI",
+      "autoGeneratorRewrite": "اعادة كتابة",
+      "smartEdit": "مساعدي الذكاء الاصطناعي",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "أصلح التهجئة",
+      "warning": "⚠️ يمكن أن تكون استجابات الذكاء الاصطناعي غير دقيقة أو مضللة.",
+      "smartEditSummarize": "لخص",
+      "smartEditImproveWriting": "تحسين الكتابة",
+      "smartEditMakeLonger": "اجعله أطول",
+      "smartEditCouldNotFetchResult": "تعذر جلب النتيجة من OpenAI",
+      "smartEditCouldNotFetchKey": "تعذر جلب مفتاح OpenAI",
+      "smartEditDisabled": "قم بتوصيل OpenAI في الإعدادات",
+      "discardResponse": "هل تريد تجاهل استجابات الذكاء الاصطناعي؟",
+      "createInlineMathEquation": "اصنع معادلة",
+      "toggleList": "تبديل القائمة",
+      "cover": {
+        "changeCover": "تبديل الغطاء",
+        "colors": "الألوان",
+        "images": "الصور",
+        "clearAll": "امسح الكل",
+        "abstract": "خلاصة",
+        "addCover": "أضف الغلاف",
+        "addLocalImage": "أضف الصورة المحلية",
+        "invalidImageUrl": "عنوان URL للصورة غير صالح",
+        "failedToAddImageToGallery": "فشل في إضافة الصورة إلى المعرض",
+        "enterImageUrl": "أدخل عنوان URL للصورة",
+        "add": "يضيف",
+        "back": "خلف",
+        "saveToGallery": "حفظ في المعرض",
+        "removeIcon": "إزالة الرمز",
+        "pasteImageUrl": "لصق عنوان URL للصورة",
+        "or": "أو",
+        "pickFromFiles": "اختر من الملفات",
+        "couldNotFetchImage": "تعذر جلب الصورة",
+        "imageSavingFailed": "فشل حفظ الصورة",
+        "addIcon": "إضافة أيقونة",
+        "coverRemoveAlert": "ستتم إزالته من الغلاف بعد حذفه.",
+        "alertDialogConfirmation": "هل أنت متأكد أنك تريد الاستمرار؟"
+      },
+      "mathEquation": {
+        "addMathEquation": "أضف معادلة رياضية",
+        "editMathEquation": "تحرير المعادلة الرياضية"
+      },
+      "optionAction": {
+        "click": "انقر",
+        "toOpenMenu": " لفتح القائمة",
         "delete": "يمسح",
         "duplicate": "ينسخ",
-        "done": "منتهي",
-        "putback": "ضعها بالخلف"
+        "turnInto": "تحول إلى",
+        "moveUp": "تحرك",
+        "moveDown": "تحرك لأسفل",
+        "color": "لون",
+        "align": "محاذاة",
+        "left": "غادر",
+        "center": "مركز",
+        "right": "يمين",
+        "defaultColor": "تقصير"
+      },
+      "image": {
+        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
+      }
     },
-    "label": {
-        "welcome": "مرحباً!",
-        "firstName": "الاسم الأول",
-        "middleName": "الاسم الأوسط",
-        "lastName": "اسم العائلة",
-        "stepX": "الخطوة {X}"
+    "textBlock": {
+      "placeholder": "اكتب \"/\" للأوامر"
     },
-    "oAuth": {
-        "err": {
-            "failedTitle": "غير قادر على الاتصال بحسابك.",
-            "failedMsg": "يرجى التأكد من إكمال عملية تسجيل الدخول في متصفحك."
-        },
-        "google": {
-            "title": "تسجيل الدخول إلى GOOGLE",
-            "instruction1": "لاستيراد جهات اتصال Google الخاصة بك ، ستحتاج إلى ترخيص هذا التطبيق باستخدام متصفح الويب الخاص بك.",
-            "instruction2": "انسخ هذا الرمز إلى الحافظة الخاصة بك عن طريق النقر فوق الرمز أو تحديد النص:",
-            "instruction3": "انتقل إلى الرابط التالي في متصفح الويب الخاص بك ، وأدخل الرمز أعلاه:",
-            "instruction4": "اضغط على الزر أدناه عند الانتهاء من التسجيل:"
-        }
+    "title": {
+      "placeholder": "بدون عنوان"
+    },
+    "imageBlock": {
+      "placeholder": "انقر لإضافة الصورة",
+      "upload": {
+        "label": "رفع",
+        "placeholder": "انقر لتحميل الصورة"
+      },
+      "url": {
+        "label": "رابط الصورة",
+        "placeholder": "أدخل عنوان URL للصورة"
+      },
+      "support": "الحد الأقصى لحجم الصورة هو 5 ميغا بايت. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
+      "error": {
+        "invalidImage": "صورة غير صالحة",
+        "invalidImageSize": "يجب أن يكون حجم الصورة أقل من 5 ميغا بايت",
+        "invalidImageFormat": "تنسيق الصورة غير مدعوم. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
+        "invalidImageUrl": "عنوان URL للصورة غير صالح"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "لغة",
+        "placeholder": "اختار اللغة"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "الصق أو اكتب ارتباطًا",
+      "url": {
+        "label": "URL رابط",
+        "placeholder": "أدخل رابط URL"
+      },
+      "title": {
+        "label": "عنوان الارتباط",
+        "placeholder": "أدخل عنوان الارتباط"
+      }
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "جديد"
+    },
+    "menuName": "سبورة",
+    "referencedBoardPrefix": "نظرا ل"
+  },
+  "calendar": {
+    "menuName": "تقويم",
+    "defaultNewCalendarTitle": "بدون عنوان",
+    "navigation": {
+      "today": "اليوم",
+      "jumpToday": "انتقل إلى اليوم",
+      "previousMonth": "الشهر الماضى",
+      "nextMonth": "الشهر القادم"
     },
     "settings": {
-        "title": "إعدادات",
-        "menu": {
-            "appearance": "مظهر",
-            "language": "لغة",
-            "user": "مستخدم",
-            "files": "الملفات",
-            "open": "أفتح الإعدادات",
-            "supabaseSetting": "إعداد Supabase"
-        },
-        "appearance": {
-            "themeMode": {
-                "label": "وضع السمة",
-                "light": "وضع الضوء",
-                "dark": "الوضع الداكن",
-                "system": "التكيف مع النظام"
-            },
-            "theme": "سمة",
-            "fontFamily": {
-                "label": "خط العائلة",
-                "search": "يبحث"
-            },
-            "themeUpload": {
-                "button": "رفع",
-                "description": "قم بتحميل قالب AppFlowy الخاص بك باستخدام الزر أدناه.",
-                "failure": "النسق الذي تم تحميله به تنسيق غير صالح.",
-                "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
-                "uploadSuccess": "تم تحميل موضوعك بنجاح",
-                "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
-                "filePickerDialogTitle": "اختر ملف .flowy_plugin",
-                "urlUploadFailure": "فشل فتح عنوان url: {}"
-            },
-            "builtInsLabel": "ثيمات مدمجة",
-            "pluginsLabel": "الإضافات"
-        },
-        "files": {
-            "defaultLocation": "أين يتم تخزين بياناتك الآن",
-            "doubleTapToCopy": "انقر نقرًا مزدوجًا لنسخ المسار",
-            "restoreLocation": "استعادة المسار الافتراضي AppFlowy",
-            "customizeLocation": "افتح مجلدًا آخر",
-            "restartApp": "يرجى إعادة تشغيل التطبيق لتصبح التغييرات سارية المفعول.",
-            "exportDatabase": "تصدير قاعدة البيانات",
-            "selectFiles": "حدد الملفات التي تريد تصديرها",
-            "createNewFolder": "انشاء مجلد جديد",
-            "createNewFolderDesc": "أخبرنا بالمكان الذي تريد تخزين بياناتك فيه",
-            "open": "يفتح",
-            "openFolder": "افتح مجلدًا موجودًا",
-            "openFolderDesc": "اقرأها واكتبها في مجلد AppFlowy الموجود لديك",
-            "folderHintText": "إسم الملف",
-            "location": "إنشاء مجلد جديد",
-            "locationDesc": "اختر اسمًا لمجلد بيانات AppFlowy",
-            "browser": "تصفح",
-            "create": "يخلق",
-            "folderPath": "مسار لتخزين المجلد الخاص بك",
-            "locationCannotBeEmpty": "لا يمكن أن يكون المسار فارغًا",
-            "pathCopiedSnackbar": "تم نسخ مسار تخزين الملفات إلى الحافظة!",
-            "copy": "ينسخ",
-            "exportData": "قم بتصدير بياناتك",
-            "selectAll": "اختر الكل",
-            "deselectAll": "الغاء تحديد الكل",
-            "defineWhereYourDataIsStored": "حدد مكان تخزين بياناتك",
-            "set": "تعيين",
-            "changeLocationTooltips": "قم بتغيير دليل البيانات",
-            "change": "يتغير",
-            "openLocationTooltips": "افتح دليل بيانات آخر",
-            "openCurrentDataFolder": "افتح دليل البيانات الحالي",
-            "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ AppFlowy",
-            "exportFileSuccess": "تم تصدير الملف بنجاح!",
-            "exportFileFail": "فشل تصدير الملف!",
-            "export": "يصدّر"
-        },
-        "user": {
-            "name": "اسم",
-            "selectAnIcon": "حدد أيقونة",
-            "pleaseInputYourOpenAIKey": "الرجاء إدخال مفتاح OpenAI الخاص بك"
-        }
+      "showWeekNumbers": "إظهار أرقام الأسبوع",
+      "showWeekends": "عرض عطلات نهاية الأسبوع",
+      "firstDayOfWeek": "اليوم الأول من الأسبوع",
+      "layoutDateField": "تقويم التخطيط بواسطة",
+      "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
+      "clickToAdd": "انقر للإضافة إلى التقويم",
+      "name": "تخطيط التقويم"
     },
-    "grid": {
-        "settings": {
-            "filter": "منقي",
-            "sort": "نوع",
-            "sortBy": "ترتيب حسب",
-            "Properties": "ملكيات",
-            "group": "مجموعة",
-            "addFilter": "أضف عامل تصفية",
-            "deleteFilter": "حذف عامل التصفية",
-            "filterBy": "مصنف بواسطة...",
-            "typeAValue": "اكتب قيمة ...",
-            "layout": "تَخطِيط",
-            "properties": "ملكيات",
-            "reorderPropertiesTooltip": "اسحب لإعادة ترتيب الخصائص",
-            "databaseLayout": "تَخطِيط"
-        },
-        "textFilter": {
-            "contains": "يتضمن",
-            "doesNotContain": "لا يحتوي",
-            "endsWith": "ينتهي بـ",
-            "startWith": "ابدا ب",
-            "is": "يكون",
-            "isNot": "ليس",
-            "isEmpty": "فارغ",
-            "isNotEmpty": "ليس فارغا",
-            "choicechipPrefix": {
-                "isNot": "لا",
-                "startWith": "ابدا ب",
-                "endWith": "ينتهي بـ",
-                "isEmpty": "فارغ",
-                "isNotEmpty": "ليس فارغا"
-            }
-        },
-        "checkboxFilter": {
-            "isChecked": "التحقق",
-            "isUnchecked": "لم يتم التحقق منه",
-            "choicechipPrefix": {
-                "is": "يكون"
-            }
-        },
-        "checklistFilter": {
-            "isComplete": "كاملة",
-            "isIncomplted": "غير مكتمل"
-        },
-        "singleSelectOptionFilter": {
-            "is": "يكون",
-            "isNot": "ليس",
-            "isEmpty": "فارغ",
-            "isNotEmpty": "ليس فارغا"
-        },
-        "multiSelectOptionFilter": {
-            "contains": "يتضمن",
-            "doesNotContain": "لا يحتوي",
-            "isEmpty": "فارغ",
-            "isNotEmpty": "ليس فارغا"
-        },
-        "field": {
-            "hide": "يخفي",
-            "insertLeft": "أدخل اليسار",
-            "insertRight": "أدخل اليمين",
-            "duplicate": "ينسخ",
-            "delete": "يمسح",
-            "textFieldName": "نص",
-            "checkboxFieldName": "خانة اختيار",
-            "dateFieldName": "تاريخ",
-            "numberFieldName": "أعداد",
-            "singleSelectFieldName": "يختار",
-            "multiSelectFieldName": "تحديد متعدد",
-            "urlFieldName": "URL",
-            "checklistFieldName": "قائمة تدقيق",
-            "numberFormat": "تنسيق الأرقام",
-            "dateFormat": "صيغة التاريخ",
-            "includeTime": "أضف الوقت",
-            "dateFormatFriendly": "شهر يوم سنه",
-            "dateFormatISO": "سنة شهر يوم",
-            "dateFormatLocal": "شهر يوم سنه",
-            "dateFormatUS": "سنة شهر يوم",
-            "dateFormatDayMonthYear": "يوم شهر سنة",
-            "timeFormat": "تنسيق الوقت",
-            "invalidTimeFormat": "تنسيق غير صالح",
-            "timeFormatTwelveHour": "12 ساعة",
-            "timeFormatTwentyFourHour": "24 ساعة",
-            "addSelectOption": "أضف خيارًا",
-            "optionTitle": "خيارات",
-            "addOption": "إضافة خيار",
-            "editProperty": "تحرير الملكية",
-            "newProperty": "خاصية جديدة",
-            "deleteFieldPromptMessage": "هل أنت متأكد؟ سيتم حذف هذه الخاصية",
-            "updatedAtFieldName": "وقت آخر تعديل",
-            "createdAtFieldName": "وقت الإنشاء"
-        },
-        "sort": {
-            "ascending": "تصاعدي",
-            "descending": "تنازلي",
-            "deleteSort": "حذف الفرز",
-            "addSort": "أضف نوعًا"
-        },
-        "row": {
-            "duplicate": "مكرره",
-            "delete": "يمسح",
-            "textPlaceholder": "فارغ",
-            "copyProperty": "نسخ الممتلكات إلى الحافظة",
-            "count": "عدد",
-            "newRow": "صف جديد",
-            "action": "فعل"
-        },
-        "selectOption": {
-            "create": "يخلق",
-            "purpleColor": "أرجواني",
-            "pinkColor": "لون القرنفل",
-            "lightPinkColor": "وردي فاتح",
-            "orangeColor": "البرتقالي",
-            "yellowColor": "أصفر",
-            "limeColor": "جير",
-            "greenColor": "أخضر",
-            "aquaColor": "أكوا",
-            "blueColor": "أزرق",
-            "deleteTag": "حذف العلامة",
-            "colorPanelTitle": "الألوان",
-            "panelTitle": "حدد خيارًا أو أنشئ خيارًا",
-            "searchOption": "ابحث عن خيار"
-        },
-        "checklist": {
-            "addNew": "أضف عنصرًا"
-        },
-        "menuName": "شبكة",
-        "referencedGridPrefix": "نظرا ل",
-        "deleteView": "هل أنت متأكد أنك تريد حذف هذا العرض؟",
-        "createView": "جديد"
-    },
-    "document": {
-        "menuName": "وثيقة",
-        "date": {
-            "timeHintTextInTwelveHour": "01:00 مساءً",
-            "timeHintTextInTwentyFourHour": "13:00"
-        },
-        "slashMenu": {
-            "board": {
-                "selectABoardToLinkTo": "حدد لوحة للارتباط بها",
-                "createANewBoard": "قم بإنشاء لوحة جديدة"
-            },
-            "grid": {
-                "selectAGridToLinkTo": "حدد الشبكة للارتباط بها",
-                "createANewGrid": "قم بإنشاء شبكة جديدة"
-            },
-            "calendar": {
-                "selectACalendarToLinkTo": "حدد تقويمًا للارتباط به",
-                "createANewCalendar": "قم بإنشاء تقويم جديد"
-            }
-        },
-        "plugins": {
-            "referencedBoard": "المجلس المشار إليه",
-            "referencedGrid": "الشبكة المشار إليها",
-            "autoGeneratorMenuItemName": "كاتب OpenAI",
-            "autoGeneratorTitleName": "OpenAI: اطلب من الذكاء الاصطناعي كتابة أي شيء ...",
-            "autoGeneratorLearnMore": "يتعلم أكثر",
-            "autoGeneratorGenerate": "يولد",
-            "autoGeneratorHintText": "اسأل OpenAI ...",
-            "autoGeneratorCantGetOpenAIKey": "لا يمكن الحصول على مفتاح OpenAI",
-            "smartEdit": "مساعدي الذكاء الاصطناعي",
-            "openAI": "OpenAI",
-            "smartEditFixSpelling": "أصلح التهجئة",
-            "warning": "⚠️ يمكن أن تكون استجابات الذكاء الاصطناعي غير دقيقة أو مضللة.",
-            "smartEditSummarize": "لخص",
-            "smartEditCouldNotFetchResult": "تعذر جلب النتيجة من OpenAI",
-            "smartEditCouldNotFetchKey": "تعذر جلب مفتاح OpenAI",
-            "smartEditDisabled": "قم بتوصيل OpenAI في الإعدادات",
-            "discardResponse": "هل تريد تجاهل استجابات الذكاء الاصطناعي؟",
-            "cover": {
-                "changeCover": "تبديل الغطاء",
-                "colors": "الألوان",
-                "images": "الصور",
-                "clearAll": "امسح الكل",
-                "abstract": "خلاصة",
-                "addCover": "أضف الغلاف",
-                "addLocalImage": "أضف الصورة المحلية",
-                "invalidImageUrl": "عنوان URL للصورة غير صالح",
-                "failedToAddImageToGallery": "فشل في إضافة الصورة إلى المعرض",
-                "enterImageUrl": "أدخل عنوان URL للصورة",
-                "add": "يضيف",
-                "back": "خلف",
-                "saveToGallery": "حفظ في المعرض",
-                "removeIcon": "إزالة الرمز",
-                "pasteImageUrl": "لصق عنوان URL للصورة",
-                "or": "أو",
-                "pickFromFiles": "اختر من الملفات",
-                "couldNotFetchImage": "تعذر جلب الصورة",
-                "imageSavingFailed": "فشل حفظ الصورة",
-                "addIcon": "إضافة أيقونة",
-                "coverRemoveAlert": "ستتم إزالته من الغلاف بعد حذفه.",
-                "alertDialogConfirmation": "هل أنت متأكد أنك تريد الاستمرار؟"
-            },
-            "mathEquation": {
-                "addMathEquation": "أضف معادلة رياضية",
-                "editMathEquation": "تحرير المعادلة الرياضية"
-            },
-            "referencedCalendar": "التقويم المشار إليه",
-            "autoGeneratorRewrite": "اعادة كتابة",
-            "smartEditImproveWriting": "تحسين الكتابة",
-            "smartEditMakeLonger": "اجعله أطول",
-            "createInlineMathEquation": "اصنع معادلة",
-            "toggleList": "تبديل القائمة",
-            "optionAction": {
-                "click": "انقر",
-                "toOpenMenu": " لفتح القائمة",
-                "delete": "يمسح",
-                "duplicate": "ينسخ",
-                "turnInto": "تحول إلى",
-                "moveUp": "تحرك",
-                "moveDown": "تحرك لأسفل",
-                "color": "لون",
-                "align": "محاذاة",
-                "left": "غادر",
-                "center": "مركز",
-                "right": "يمين",
-                "defaultColor": "تقصير"
-            },
-            "image": {
-                "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
-            },
-            "outline": {
-                "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
-            }
-        },
-        "selectionMenu": {
-            "outline": "الخطوط العريضة"
-        },
-        "textBlock": {
-            "placeholder": "اكتب \"/\" للأوامر"
-        },
-        "title": {
-            "placeholder": "بدون عنوان"
-        },
-        "imageBlock": {
-            "placeholder": "انقر لإضافة الصورة",
-            "upload": {
-                "label": "رفع",
-                "placeholder": "انقر لتحميل الصورة"
-            },
-            "url": {
-                "label": "رابط الصورة",
-                "placeholder": "أدخل عنوان URL للصورة"
-            },
-            "support": "الحد الأقصى لحجم الصورة هو 5 ميغا بايت. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
-            "error": {
-                "invalidImage": "صورة غير صالحة",
-                "invalidImageSize": "يجب أن يكون حجم الصورة أقل من 5 ميغا بايت",
-                "invalidImageFormat": "تنسيق الصورة غير مدعوم. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
-                "invalidImageUrl": "عنوان URL للصورة غير صالح"
-            }
-        },
-        "codeBlock": {
-            "language": {
-                "label": "لغة",
-                "placeholder": "اختار اللغة"
-            }
-        },
-        "inlineLink": {
-            "placeholder": "الصق أو اكتب ارتباطًا",
-            "url": {
-                "label": "URL رابط",
-                "placeholder": "أدخل رابط URL"
-            },
-            "title": {
-                "label": "عنوان الارتباط",
-                "placeholder": "أدخل عنوان الارتباط"
-            }
-        }
-    },
-    "board": {
-        "column": {
-            "create_new_card": "جديد"
-        },
-        "menuName": "سبورة",
-        "referencedBoardPrefix": "نظرا ل"
-    },
-    "calendar": {
-        "menuName": "تقويم",
-        "defaultNewCalendarTitle": "بدون عنوان",
-        "navigation": {
-            "today": "اليوم",
-            "jumpToday": "انتقل إلى اليوم",
-            "previousMonth": "الشهر الماضى",
-            "nextMonth": "الشهر القادم"
-        },
-        "settings": {
-            "showWeekNumbers": "إظهار أرقام الأسبوع",
-            "showWeekends": "عرض عطلات نهاية الأسبوع",
-            "firstDayOfWeek": "اليوم الأول من الأسبوع",
-            "layoutDateField": "تقويم التخطيط بواسطة",
-            "noDateTitle": "بدون تاريخ",
-            "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
-            "clickToAdd": "انقر للإضافة إلى التقويم",
-            "name": "تخطيط التقويم"
-        },
-        "referencedCalendarPrefix": "نظرا ل"
-    },
-    "youCanAlso": "بامكانك ايضا",
-    "and": "و",
-    "blockActions": {
-        "addBelowTooltip": "انقر للإضافة أدناه",
-        "addAboveCmd": "Alt + انقر",
-        "addAboveMacCmd": "Option + انقر",
-        "addAboveTooltip": "لإضافة أعلاه"
-    },
-    "importPanel": {
-        "textAndMarkdown": "نص و Markdown",
-        "documentFromV010": "مستند من الإصدار 0.1.0",
-        "databaseFromV010": "قاعدة بيانات من الإصدار 0.1.0",
-        "csv": "CSV",
-        "database": "قاعدة البيانات"
-    },
-    "errorDialog": {
-        "title": "خطأ AppFlowy",
-        "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
-        "github": "عرض على جيثب"
-    },
-    "search": {
-        "label": "يبحث",
-        "placeholder": {
-            "actions": "إجراءات البحث ..."
-        }
-    },
-    "message": {
-        "copy": {
-            "success": "نسخ!",
-            "fail": "غير قادر على النسخ"
-        }
-    },
-    "unSupportBlock": "الإصدار الحالي لا يدعم هذه الكتلة.",
-    "views": {
-        "deleteContentTitle": "هل أنت متأكد من أنك تريد حذف {pageType}؟",
-        "deleteContentCaption": "إذا قمت بحذف {pageType} هذه ، فيمكنك استعادتها من سلة المهملات."
+    "referencedCalendarPrefix": "نظرا ل"
+  },
+  "errorDialog": {
+    "title": "خطأ AppFlowy",
+    "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
+    "github": "عرض على جيثب"
+  },
+  "search": {
+    "label": "يبحث",
+    "placeholder": {
+      "actions": "إجراءات البحث ..."
     }
+  },
+  "message": {
+    "copy": {
+      "success": "نسخ!",
+      "fail": "غير قادر على النسخ"
+    }
+  },
+  "unSupportBlock": "الإصدار الحالي لا يدعم هذه الكتلة.",
+  "views": {
+    "deleteContentTitle": "هل أنت متأكد من أنك تريد حذف {pageType}؟",
+    "deleteContentCaption": "إذا قمت بحذف {pageType} هذه ، فيمكنك استعادتها من سلة المهملات."
+  }
 }

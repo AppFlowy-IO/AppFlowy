@@ -249,8 +249,9 @@ class _PropertyCellState extends State<PropertyCell> {
           cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         );
       case FieldType.Checklist:
-        return SelectOptionCellStyle(
+        return ChecklistCellStyle(
           placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+          cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         );
       case FieldType.Number:
         return GridNumberCellStyle(
@@ -265,7 +266,6 @@ class _PropertyCellState extends State<PropertyCell> {
           placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
           cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         );
-
       case FieldType.URL:
         return GridURLCellStyle(
           placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),

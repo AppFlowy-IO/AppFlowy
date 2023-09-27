@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Subscriu-me al butlletí",
   "letsGoButtonText": "Endavant",
   "title": "Títol",
+  "youCanAlso": "Tu pots també",
+  "and": "i",
+  "blockActions": {
+    "addBelowTooltip": "Feu clic per afegir a continuació",
+    "addAboveCmd": "Alt+clic",
+    "addAboveMacCmd": "Opció+clic",
+    "addAboveTooltip": "afegir a dalt"
+  },
   "signUp": {
     "buttonText": "Registra't",
     "title": "Registra't a @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Copiar l'enllaç"
   },
+  "moreAction": {
+    "small": "petit",
+    "medium": "mitjà",
+    "large": "gran",
+    "fontSize": "Mida de la font",
+    "import": "Importar",
+    "moreOptions": "Més opcions"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text i rebaixa",
+    "documentFromV010": "Document de la v0.1.0",
+    "databaseFromV010": "Base de dades de la v0.1.0",
+    "csv": "CSV",
+    "database": "Base de dades"
+  },
   "disclosureAction": {
     "rename": "Canviar el nom",
     "delete": "Eliminar",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Nom de la pàgina",
   "questionBubble": {
+    "shortcuts": "Dreceres",
     "whatsNew": "Què hi ha de nou?",
     "help": "Ajuda i Suport",
+    "markdown": "Reducció",
     "debug": {
       "name": "Informació de depuració",
       "success": "S'ha copiat la informació de depuració!",
       "fail": "No es pot copiar la informació de depuració"
     },
-    "shortcuts": "Dreceres",
-    "markdown": "Reducció",
     "feedback": "Feedback"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "Es fa referència a aquest {nom}",
     "addBlockBelow": "Afegeix un bloc a continuació"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Nota exportada a Markdown",
+      "path": "Documents/fluides"
+    }
+  },
   "contactsPage": {
     "title": "Contactes",
     "whatsHappening": "Que passa aquesta setmana?",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Fet",
     "Cancel": "Cancel·lar",
     "signIn": "Iniciar sessió",
     "signOut": "Tancar sessió",
     "complete": "Completar",
     "save": "Guardar",
-    "Done": "Fet",
     "generate": "Generar",
     "esc": "ESC",
     "keep": "Mantenir",
@@ -172,21 +205,21 @@
     "menu": {
       "appearance": "Aparença",
       "language": "Idioma",
-      "open": "Obrir la configuració",
       "user": "Usuari",
       "files": "Fitxers",
+      "open": "Obrir la configuració",
       "supabaseSetting": "Configuració Supabase"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Família de lletres",
+        "search": "Cerca"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Mode Clar",
         "dark": "Mode Fosc",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Família de lletres",
-        "search": "Cerca"
       },
       "themeUpload": {
         "button": "Carrega",
@@ -242,39 +275,6 @@
       "name": "Nom",
       "selectAnIcon": "Seleccioneu una icona",
       "pleaseInputYourOpenAIKey": "si us plau, introduïu la vostra clau OpenAI"
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "petit",
-    "medium": "mitjà",
-    "large": "gran",
-    "fontSize": "Mida de la font",
-    "import": "Importar",
-    "moreOptions": "Més opcions"
-  },
-  "youCanAlso": "Tu pots també",
-  "and": "i",
-  "blockActions": {
-    "addBelowTooltip": "Feu clic per afegir a continuació",
-    "addAboveCmd": "Alt+clic",
-    "addAboveMacCmd": "Opció+clic",
-    "addAboveTooltip": "afegir a dalt"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Text i rebaixa",
-    "documentFromV010": "Document de la v0.1.0",
-    "databaseFromV010": "Base de dades de la v0.1.0",
-    "csv": "CSV",
-    "database": "Base de dades"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Nota exportada a Markdown",
-      "path": "Documents/fluides"
     }
   },
   "grid": {
@@ -372,8 +372,8 @@
     "sort": {
       "ascending": "Ascendent",
       "descending": "Descens",
-      "deleteSort": "Suprimeix l'ordenació",
-      "addSort": "Afegeix ordenació"
+      "addSort": "Afegeix ordenació",
+      "deleteSort": "Suprimeix l'ordenació"
     },
     "row": {
       "duplicate": "Duplicat",

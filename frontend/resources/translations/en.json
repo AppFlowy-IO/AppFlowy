@@ -351,6 +351,9 @@
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
     "createView": "New",
+    "title": {
+      "placeholder": "Untitled"
+    },
     "settings": {
       "filter": "Filter",
       "sort": "Sort",
@@ -471,7 +474,9 @@
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
       "newRow": "New row",
-      "action": "Action"
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Drag to move"
     },
     "selectOption": {
       "create": "Create",

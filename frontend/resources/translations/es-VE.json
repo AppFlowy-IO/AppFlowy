@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Suscribir al boletín",
   "letsGoButtonText": "Vamos",
   "title": "Título",
+  "youCanAlso": "Tú también puedes",
+  "and": "y",
+  "blockActions": {
+    "addBelowTooltip": "Haga clic para agregar a continuación",
+    "addAboveCmd": "Alt+clic",
+    "addAboveMacCmd": "Opción+clic",
+    "addAboveTooltip": "para agregar arriba"
+  },
   "signUp": {
     "buttonText": "Registrar",
     "title": "Registrar en @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Marcador",
     "copyLink": "Copiar enlace"
   },
+  "moreAction": {
+    "small": "pequeño",
+    "medium": "medio",
+    "large": "grande",
+    "fontSize": "Tamaño de fuente",
+    "import": "Importar",
+    "moreOptions": "Mas opciones"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Texto y descuento",
+    "documentFromV010": "Documento de v0.1.0",
+    "databaseFromV010": "Base de datos desde v0.1.0",
+    "csv": "CSV",
+    "database": "Base de datos"
+  },
   "disclosureAction": {
     "rename": "Renombrar",
     "delete": "Eliminar",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Nombre de página",
   "questionBubble": {
+    "shortcuts": "Atajos",
     "whatsNew": "¿Qué hay de nuevo?",
     "help": "Ayuda y Soporte",
+    "markdown": "Reducción",
     "debug": {
       "name": "Información de depuración",
       "success": "¡Información copiada!",
       "fail": "No fue posible copiar la información"
     },
-    "shortcuts": "Atajos",
-    "markdown": "Reducción",
     "feedback": "Comentario"
   },
   "menuAppHeader": {
@@ -119,6 +142,10 @@
     "referencePage": "Se hace referencia a este {nombre}",
     "addBlockBelow": "Añadir un bloque a continuación"
   },
+  "sideBar": {
+    "closeSidebar": "Cerrar panel lateral",
+    "openSidebar": "Abrir panel lateral"
+  },
   "notifications": {
     "export": {
       "markdown": "Nota exportada a Markdown",
@@ -133,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Hecho",
     "Cancel": "Cancelar",
     "signIn": "Ingresar",
     "signOut": "Salir",
     "complete": "Completar",
     "save": "Guardar",
-    "Done": "Hecho",
     "generate": "Generar",
     "esc": "ESC",
     "keep": "Mantener",
@@ -178,21 +205,21 @@
     "menu": {
       "appearance": "Apariencia",
       "language": "Lenguaje",
-      "open": "Abrir ajustes",
       "user": "Usuario",
       "files": "archivos",
+      "open": "Abrir ajustes",
       "supabaseSetting": "Ajuste de base superior"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Familia tipográfica",
+        "search": "Buscar"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Modo Claro",
         "dark": "Modo Oscuro",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Familia tipográfica",
-        "search": "Buscar"
       },
       "themeUpload": {
         "button": "Subir",
@@ -251,11 +278,12 @@
     }
   },
   "grid": {
+    "deleteView": "¿Está seguro de que desea eliminar esta vista?",
+    "createView": "Nuevo",
     "settings": {
       "filter": "Filtrar",
-      "sortBy": "Ordenar por",
-      "Properties": "Propiedades",
       "sort": "Clasificar",
+      "sortBy": "Ordenar por",
       "properties": "Propiedades",
       "reorderPropertiesTooltip": "Arrastre para reordenar las propiedades",
       "group": "Grupo",
@@ -264,71 +292,9 @@
       "filterBy": "Filtrado por...",
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
-      "databaseLayout": "Disposición"
+      "databaseLayout": "Disposición",
+      "Properties": "Propiedades"
     },
-    "field": {
-      "hide": "Ocultar",
-      "insertLeft": "Insertar a la Izquierda",
-      "insertRight": "Insertar a la Derecha",
-      "duplicate": "Duplicar",
-      "delete": "Eliminar",
-      "textFieldName": "Texto",
-      "checkboxFieldName": "Casilla de verificación",
-      "dateFieldName": "Fecha",
-      "numberFieldName": "Números",
-      "singleSelectFieldName": "Seleccionar",
-      "multiSelectFieldName": "Selección múltiple",
-      "urlFieldName": "URL",
-      "numberFormat": "Formato numérico",
-      "dateFormat": "Formato de fecha",
-      "includeTime": "Incluir tiempo",
-      "dateFormatFriendly": "Mes Día, Año",
-      "dateFormatISO": "Año-Mes-Día",
-      "dateFormatLocal": "Mes/Día/Año",
-      "dateFormatUS": "Año/Mes/Día",
-      "timeFormat": "Formato de tiempo",
-      "invalidTimeFormat": "Formato de tiempo inválido",
-      "timeFormatTwelveHour": "12 horas",
-      "timeFormatTwentyFourHour": "24 horas",
-      "addSelectOption": "Añadir una opción",
-      "optionTitle": "Opciones",
-      "addOption": "Añadir opción",
-      "editProperty": "Editar propiedad",
-      "updatedAtFieldName": "Última hora de modificación",
-      "createdAtFieldName": "tiempo creado",
-      "checklistFieldName": "Lista de Verificación",
-      "dateFormatDayMonthYear": "Día mes año",
-      "newProperty": "Nueva propiedad",
-      "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada"
-    },
-    "row": {
-      "duplicate": "Duplicar",
-      "delete": "Eliminar",
-      "textPlaceholder": "Vacío",
-      "copyProperty": "Propiedad copiada al portapapeles",
-      "count": "Contar",
-      "newRow": "Nueva fila",
-      "action": "Acción"
-    },
-    "selectOption": {
-      "create": "Crear",
-      "purpleColor": "Morado",
-      "pinkColor": "Rosa",
-      "lightPinkColor": "Rosa Claro",
-      "orangeColor": "Naranja",
-      "yellowColor": "Amarillo",
-      "limeColor": "Lima",
-      "greenColor": "Verde",
-      "aquaColor": "Agua",
-      "blueColor": "Azul",
-      "deleteTag": "Borrar etiqueta",
-      "colorPanelTitle": "Colores",
-      "panelTitle": "Selecciona una opción o crea una",
-      "searchOption": "Buscar una opción"
-    },
-    "menuName": "Cuadrícula",
-    "deleteView": "¿Está seguro de que desea eliminar esta vista?",
-    "createView": "Nuevo",
     "textFilter": {
       "contains": "Contiene",
       "doesNotContain": "No contiene",
@@ -369,15 +335,76 @@
       "isEmpty": "Esta vacio",
       "isNotEmpty": "No está vacío"
     },
+    "field": {
+      "hide": "Ocultar",
+      "insertLeft": "Insertar a la Izquierda",
+      "insertRight": "Insertar a la Derecha",
+      "duplicate": "Duplicar",
+      "delete": "Eliminar",
+      "textFieldName": "Texto",
+      "checkboxFieldName": "Casilla de verificación",
+      "dateFieldName": "Fecha",
+      "updatedAtFieldName": "Última hora de modificación",
+      "createdAtFieldName": "tiempo creado",
+      "numberFieldName": "Números",
+      "singleSelectFieldName": "Seleccionar",
+      "multiSelectFieldName": "Selección múltiple",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Lista de Verificación",
+      "numberFormat": "Formato numérico",
+      "dateFormat": "Formato de fecha",
+      "includeTime": "Incluir tiempo",
+      "dateFormatFriendly": "Mes Día, Año",
+      "dateFormatISO": "Año-Mes-Día",
+      "dateFormatLocal": "Mes/Día/Año",
+      "dateFormatUS": "Año/Mes/Día",
+      "dateFormatDayMonthYear": "Día mes año",
+      "timeFormat": "Formato de tiempo",
+      "invalidTimeFormat": "Formato de tiempo inválido",
+      "timeFormatTwelveHour": "12 horas",
+      "timeFormatTwentyFourHour": "24 horas",
+      "addSelectOption": "Añadir una opción",
+      "optionTitle": "Opciones",
+      "addOption": "Añadir opción",
+      "editProperty": "Editar propiedad",
+      "newProperty": "Nueva propiedad",
+      "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada"
+    },
     "sort": {
       "ascending": "ascendente",
       "descending": "Descendente",
-      "deleteSort": "Borrar ordenar",
-      "addSort": "Agregar clasificación"
+      "addSort": "Agregar clasificación",
+      "deleteSort": "Borrar ordenar"
+    },
+    "row": {
+      "duplicate": "Duplicar",
+      "delete": "Eliminar",
+      "textPlaceholder": "Vacío",
+      "copyProperty": "Propiedad copiada al portapapeles",
+      "count": "Contar",
+      "newRow": "Nueva fila",
+      "action": "Acción"
+    },
+    "selectOption": {
+      "create": "Crear",
+      "purpleColor": "Morado",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Rosa Claro",
+      "orangeColor": "Naranja",
+      "yellowColor": "Amarillo",
+      "limeColor": "Lima",
+      "greenColor": "Verde",
+      "aquaColor": "Agua",
+      "blueColor": "Azul",
+      "deleteTag": "Borrar etiqueta",
+      "colorPanelTitle": "Colores",
+      "panelTitle": "Selecciona una opción o crea una",
+      "searchOption": "Buscar una opción"
     },
     "checklist": {
       "addNew": "Agregar un elemento"
     },
+    "menuName": "Cuadrícula",
     "referencedGridPrefix": "Vista de"
   },
   "document": {
@@ -519,39 +546,12 @@
       }
     }
   },
-  "sideBar": {
-    "openSidebar": "Abrir panel lateral",
-    "closeSidebar": "Cerrar panel lateral"
-  },
   "board": {
     "column": {
       "create_new_card": "Nuevo"
     },
     "menuName": "Junta",
     "referencedBoardPrefix": "Vista de"
-  },
-  "moreAction": {
-    "small": "pequeño",
-    "medium": "medio",
-    "large": "grande",
-    "fontSize": "Tamaño de fuente",
-    "import": "Importar",
-    "moreOptions": "Mas opciones"
-  },
-  "youCanAlso": "Tú también puedes",
-  "and": "y",
-  "blockActions": {
-    "addBelowTooltip": "Haga clic para agregar a continuación",
-    "addAboveCmd": "Alt+clic",
-    "addAboveMacCmd": "Opción+clic",
-    "addAboveTooltip": "para agregar arriba"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Texto y descuento",
-    "documentFromV010": "Documento de v0.1.0",
-    "databaseFromV010": "Base de datos desde v0.1.0",
-    "csv": "CSV",
-    "database": "Base de datos"
   },
   "calendar": {
     "menuName": "Calendario",
