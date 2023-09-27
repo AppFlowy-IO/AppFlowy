@@ -279,6 +279,7 @@
       },
       "themeUpload": {
         "button": "Upload",
+        "uploadTheme": "Upload theme",
         "description": "Upload your own AppFlowy theme using the button below.",
         "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
