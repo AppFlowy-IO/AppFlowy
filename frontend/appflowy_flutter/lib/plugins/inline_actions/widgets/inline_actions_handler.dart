@@ -322,6 +322,6 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
             .lastIndexOf(inlineActionCharacter) +
         1;
 
-    search = delta.toPlainText().substring(start, _search.length - 1);
+    search = delta.toPlainText().substring(start, _search.length);
   }
 }
