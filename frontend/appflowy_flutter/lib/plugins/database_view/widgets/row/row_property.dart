@@ -67,7 +67,14 @@ class RowPropertyList extends StatelessWidget {
             child: Stack(
               children: [
                 child,
-                const MouseRegion(cursor: SystemMouseCursors.grabbing),
+                const MouseRegion(
+                  cursor: SystemMouseCursors.grabbing,
+                  child: SizedBox(
+                    width: 16,
+                    height: 30,
+                    child: FlowySvg(FlowySvgs.drag_element_s),
+                  ),
+                ),
               ],
             ),
           ),
