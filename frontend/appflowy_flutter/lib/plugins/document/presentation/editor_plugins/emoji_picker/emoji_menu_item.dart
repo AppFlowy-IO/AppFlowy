@@ -32,8 +32,8 @@ void showEmojiPickerMenu(
 
   final alignment = menuService.alignment;
   final offset = menuService.offset;
-  final top = alignment == Alignment.bottomLeft ? offset.dy : null;
-  final bottom = alignment == Alignment.topLeft ? offset.dy : null;
+  final top = alignment == Alignment.topLeft ? offset.dy : null;
+  final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.value += 1;
   final emojiPickerMenuEntry = FullScreenOverlayEntry(
