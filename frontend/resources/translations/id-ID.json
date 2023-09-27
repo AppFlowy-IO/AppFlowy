@@ -36,10 +36,15 @@
     "dontHaveAnAccount": "Belum punya akun?",
     "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
     "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
+    "LogInWithDiscord": "Masuk dengan Discord",
+    "signInWith": "Masuk dengan:",
     "loginAsGuestButtonText": "Memulai"
   },
   "workspace": {
+    "chooseWorkspace": "Pilih workspace anda",
     "create": "Buat workspace",
+    "reset": "Mengulang workspace",
+    "resetWorkspacePrompt": "Mengulang workspace akan menghapus semua page dan data di dalamnya. Apakah anda yakin ingin mengulang workspace? Selain itu, anda bisa menghubungi tim support untuk mengembalikan workspace",
     "hint": "workspace",
     "notFoundError": "Workspace tidak ditemukan"
   },
@@ -47,6 +52,7 @@
     "buttonText": "Bagikan",
     "workInProgress": "Segera",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Salin tautan"
   },
   "moreAction": {
@@ -68,10 +74,19 @@
     "rename": "Ganti nama",
     "delete": "Hapus",
     "duplicate": "Duplikat",
-    "openNewTab": "Buka di tab baru"
+    "unfavorite": "Menggeluarkan dari favorit",
+    "favorite": "Masukkan ke favorit",
+    "openNewTab": "Buka di tab baru",
+    "moveTo": "Pindahkan ke",
+    "addToFavorites": "Masukkan ke Favorit",
+    "copyLink": "Copy Link"
   },
   "blankPageTitle": "Halaman kosong",
   "newPageText": "Halaman baru",
+  "newDocumentText": "Dokumen Baru",
+  "newGridText": "Grid baru",
+  "newCalendarText": "Kalender baru",
+  "newBoardText": "Board baru",
   "trash": {
     "text": "Sampah",
     "restoreAll": "Pulihkan Semua",
@@ -109,6 +124,7 @@
     "feedback": "Masukan"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Menghapus, merubah nama, dan banyak lagi...",
     "addPageTooltip": "Menambahkan halaman di dalam dengan cepat",
     "defaultNewPageName": "Tanpa Judul",
     "renameDialog": "Ganti nama"
@@ -144,7 +160,12 @@
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "personal": "Pribadi",
+    "favorites": "Favorit",
+    "clickToHidePersonal": "Klik untuk menutup seksi pribadi",
+    "clickToHideFavorites": "Klik untuk menutup seksi favorit",
+    "addAPage": "Tambah sebuah page"
   },
   "notifications": {
     "export": {
@@ -208,6 +229,17 @@
       "user": "Pengguna",
       "files": "File",
       "open": "Buka Pengaturan",
+      "logout": "Keluar",
+      "logoutPrompt": "Apakah anda yakin untuk keluar?",
+      "selfEncryptionLogoutPrompt": "Apakah anda yakin mau keluar? Dimohonkan anda telah mengcopy enkripsi rahasianya",
+      "syncSetting": "Sinkronisasi setting",
+      "enableSync": "Aktifkan sinkronisasi",
+      "enableEncrypt": "Enkripsi data",
+      "enableEncryptPrompt": "Aktifkan enkripsi untuk mensecure data anda dengan rahasia ini. Simpan dengan aman; stelah di aktifkan, tidak bisa di matikan lagi. Jika hilang, data anda akan tidak bisa terdapatkan lagi. Klik untuk mengcopy",
+      "inputEncryptPrompt": "Silahkan masukan enkripsi rahasia anda untuk",
+      "clickToCopySecret": "Klik untuk mengcopy rahasia",
+      "inputTextFieldHint": "Rahasia anda",
+      "historicalUserList": "History masuk user",
       "supabaseSetting": "Pengaturan Supabase"
     },
     "appearance": {
