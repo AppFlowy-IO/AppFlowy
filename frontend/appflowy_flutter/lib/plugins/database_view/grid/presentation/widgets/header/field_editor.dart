@@ -23,12 +23,12 @@ class FieldEditor extends StatefulWidget {
   final Function(String)? onDeleted;
   final Function(String)? onToggleVisibility;
   final FieldTypeOptionLoader typeOptionLoader;
-  final FieldInfo fieldInfo;
+  final FieldInfo? fieldInfo;
 
   const FieldEditor({
     required this.viewId,
     required this.typeOptionLoader,
-    required this.fieldInfo,
+    this.fieldInfo,
     this.isGroupingField = false,
     this.onDeleted,
     this.onToggleVisibility,
@@ -113,7 +113,7 @@ class _FieldEditorState extends State<FieldEditor> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FieldVisibilityToggleButton(
             isFieldHidden:
-                widget.fieldInfo.visibility == FieldVisibility.AlwaysHidden,
+                widget.fieldInfo!.visibility == FieldVisibility.AlwaysHidden,
             popoverMutex: popoverMutex,
             onTap: () {
               state.field.fold(
