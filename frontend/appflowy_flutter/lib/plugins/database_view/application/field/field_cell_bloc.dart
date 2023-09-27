@@ -15,13 +15,14 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
-    required FieldContext cellContext,
-  })  : _fieldListener = SingleFieldListener(fieldId: cellContext.field.id),
+    required FieldContext fieldContext,
+  })  : _fieldListener =
+            SingleFieldListener(fieldId: fieldContext.fieldInfo.id),
         _fieldBackendSvc = FieldBackendService(
-          viewId: cellContext.viewId,
-          fieldId: cellContext.field.id,
+          viewId: fieldContext.viewId,
+          fieldId: fieldContext.fieldInfo.id,
         ),
-        super(FieldCellState.initial(cellContext)) {
+        super(FieldCellState.initial(fieldContext)) {
     on<FieldCellEvent>(
       (event, emit) async {
         event.when(
@@ -29,7 +30,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             _startListening();
           },
           didReceiveFieldUpdate: (field) {
-            emit(state.copyWith(field: cellContext.field));
+            emit(state.copyWith(field: fieldContext.fieldInfo.field));
           },
           onResizeStart: () {
             emit(state.copyWith(resizeStart: state.width));
@@ -88,8 +89,8 @@ class FieldCellState with _$FieldCellState {
 
   factory FieldCellState.initial(FieldContext cellContext) => FieldCellState(
         viewId: cellContext.viewId,
-        field: cellContext.field,
-        width: cellContext.field.width.toDouble(),
+        field: cellContext.fieldInfo.field,
+        width: cellContext.fieldInfo.field.width.toDouble(),
         resizeStart: 0,
       );
 }

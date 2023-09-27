@@ -183,6 +183,7 @@ class _PropertyCellState extends State<_PropertyCell> {
   Widget buildFieldEditor() {
     return FieldEditor(
       viewId: widget.cellContext.viewId,
+      fieldInfo: widget.cellContext.fieldInfo,
       isGroupingField: widget.cellContext.fieldInfo.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         viewId: widget.cellContext.viewId,

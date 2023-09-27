@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -21,10 +23,12 @@ class FieldEditor extends StatefulWidget {
   final Function(String)? onDeleted;
   final Function(String)? onToggleVisibility;
   final FieldTypeOptionLoader typeOptionLoader;
+  final FieldInfo fieldInfo;
 
   const FieldEditor({
     required this.viewId,
     required this.typeOptionLoader,
+    required this.fieldInfo,
     this.isGroupingField = false,
     this.onDeleted,
     this.onToggleVisibility,
@@ -108,7 +112,8 @@ class _FieldEditorState extends State<FieldEditor> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FieldVisibilityToggleButton(
-            isFieldHidden:,
+            isFieldHidden:
+                widget.fieldInfo.visibility == FieldVisibility.AlwaysHidden,
             popoverMutex: popoverMutex,
             onTap: () {
               state.field.fold(
