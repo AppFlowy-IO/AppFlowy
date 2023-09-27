@@ -4,15 +4,14 @@ import 'colorscheme.dart';
 
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
-const _lightHover = Color(0xFFe0f8ff);
-const _lightSelector = Color(0xfff2fcff);
 const _lightBg1 = Color(0xFFFFD13E);
-const _lightBg2 = Color(0xffedeef2);
 const _lightShader1 = Color(0xff333333);
 const _lightShader3 = Color(0xff828282);
 const _lightShader5 = Color(0xffe0e0e0);
 const _lightShader6 = Color(0xfff2f2f2);
-const _lightMain1 = Color(0xffe21f74);
+const _lightDandelionYellow = Color(0xffffcb00);
+const _lightDandelionLightYellow = Color(0xffffdf66);
+const _lightDandelionGreen = Color(0xff9bc53d);
 const _lightTint9 = Color(0xffe1fbff);
 
 const _darkShader1 = Color(0xff131720);
@@ -28,20 +27,23 @@ class DandelionColorScheme extends FlowyColorScheme {
       : super(
           surface: Colors.white,
           hover: const Color(0xFFe0f8ff),
-          selector: const Color(0xfff2fcff),
+          // hover effect on setting value
+          selector: _lightDandelionLightYellow,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
           shader1: const Color(0xff333333),
           shader2: const Color(0xff4f4f4f),
           shader3: const Color(0xff828282),
+          // disable text color
           shader4: const Color(0xffbdbdbd),
           shader5: _lightShader5,
           shader6: const Color(0xfff2f2f2),
           shader7: _black,
           bg1: _lightBg1,
           bg2: const Color(0xffedeef2),
-          bg3: const Color(0xffe2e4eb),
+          // Hover color on trash button
+          bg3: _lightDandelionYellow,
           bg4: const Color(0xff2c144b),
           tint1: const Color(0xffe8e0ff),
           tint2: const Color(0xffffe7fd),
@@ -52,26 +54,29 @@ class DandelionColorScheme extends FlowyColorScheme {
           tint7: const Color(0xffddffd6),
           tint8: const Color(0xffdefff1),
           tint9: _lightTint9,
-          main1: _lightMain1,
-          main2: const Color(0xffe0196f),
+          main1: _lightDandelionYellow,
+          // cursor color
+          main2: _lightDandelionYellow,
           shadow: _black,
-          sidebarBg: _lightBg1,
+          sidebarBg: _lightDandelionGreen,
           divider: _lightShader6,
           topbarBg: _white,
           icon: _lightShader1,
           text: _lightShader1,
           input: _white,
           hint: _lightShader3,
-          primary: _lightMain1,
+          primary: _lightDandelionYellow,
           onPrimary: _white,
-          hoverBG1: _lightBg2,
-          hoverBG2: _lightHover,
+          // hover color in sidebar
+          hoverBG1: _lightDandelionYellow,
+          // tool bar hover color
+          hoverBG2: _lightDandelionLightYellow,
           hoverBG3: _lightShader6,
           hoverFG: _lightShader1,
-          questionBubbleBG: _lightSelector,
+          questionBubbleBG: _lightDandelionLightYellow,
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
-          toggleButtonBGColor: _lightShader5,
+          toggleButtonBGColor: _lightDandelionYellow,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
           gridRowCountColor: _black,
         );
