@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Bültene Abone Ol",
   "letsGoButtonText": "Hadi başlayalım.",
   "title": "Başlık",
+  "youCanAlso": "ayrıca yapabilirsin",
+  "and": "Ve",
+  "blockActions": {
+    "addBelowTooltip": "Aşağıya eklemek için tıklayın",
+    "addAboveCmd": "Alt+tıklama",
+    "addAboveMacCmd": "Seçenek+tıklama",
+    "addAboveTooltip": "yukarıya eklemek için"
+  },
   "signUp": {
     "buttonText": "Kayıt Ol",
     "title": "@:appName'e kaydolun.",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Link'i Kopyala"
   },
+  "moreAction": {
+    "small": "küçük",
+    "medium": "orta",
+    "large": "büyük",
+    "fontSize": "Yazı Boyutu",
+    "import": "İçe aktarmak",
+    "moreOptions": "Daha fazla seçenek"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Metin ve İşaretleme",
+    "documentFromV010": "v0.1.0'dan belge",
+    "databaseFromV010": "v0.1.0 veritabanı",
+    "csv": "CSV'ler",
+    "database": "Veri tabanı"
+  },
   "disclosureAction": {
     "rename": "Yeniden adlandır",
     "delete": "Sil",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Sayfa adı",
   "questionBubble": {
+    "shortcuts": "kısayollar",
     "whatsNew": "Yeni ne var?",
     "help": "Yardım & Destek",
+    "markdown": "İşaretleme",
     "debug": {
       "name": "Hata Ayıklama",
       "success": "Hata ayıklama bilgileri panoya kopyalandı!",
       "fail": "Hata ayıklama bilgileri panoya kopyalanamıyor"
     },
-    "shortcuts": "kısayollar",
-    "markdown": "İşaretleme",
     "feedback": "Geri bildirim"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "Bu {name} başvurulmuştur",
     "addBlockBelow": "Aşağıya bir blok ekle"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Notu Markdown'a Aktardı",
+      "path": "Belgeler/akıcı"
+    }
+  },
   "contactsPage": {
     "title": "İletişim",
     "whatsHappening": "Bu hafta neler var?",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "TAMAM",
+    "Done": "Tamamlamak",
     "Cancel": "İptal",
     "signIn": "Oturum Aç",
     "signOut": "Oturum Kapat",
     "complete": "Tamamlandı",
     "save": "Kaydet",
-    "Done": "Tamamlamak",
     "generate": "oluştur",
     "esc": "ESC",
     "keep": "Kale",
@@ -172,21 +205,21 @@
     "menu": {
       "appearance": "Görünüm",
       "language": "Dil",
-      "open": "Ayarları Aç",
       "user": "kullanıcı",
       "files": "Dosyalar",
+      "open": "Ayarları Aç",
       "supabaseSetting": "Supabase Ayarı"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Font ailesi",
+        "search": "Aramak"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Aydınlık Mod",
         "dark": "Karanlık Mod",
         "system": "Adapt to System"
-      },
-      "fontFamily": {
-        "label": "Font ailesi",
-        "search": "Aramak"
       },
       "themeUpload": {
         "button": "Yüklemek",
@@ -242,39 +275,6 @@
       "name": "İsim",
       "selectAnIcon": "Bir simge seçin",
       "pleaseInputYourOpenAIKey": "lütfen OpenAI anahtarınızı girin"
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "küçük",
-    "medium": "orta",
-    "large": "büyük",
-    "fontSize": "Yazı Boyutu",
-    "import": "İçe aktarmak",
-    "moreOptions": "Daha fazla seçenek"
-  },
-  "youCanAlso": "ayrıca yapabilirsin",
-  "and": "Ve",
-  "blockActions": {
-    "addBelowTooltip": "Aşağıya eklemek için tıklayın",
-    "addAboveCmd": "Alt+tıklama",
-    "addAboveMacCmd": "Seçenek+tıklama",
-    "addAboveTooltip": "yukarıya eklemek için"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Metin ve İşaretleme",
-    "documentFromV010": "v0.1.0'dan belge",
-    "databaseFromV010": "v0.1.0 veritabanı",
-    "csv": "CSV'ler",
-    "database": "Veri tabanı"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Notu Markdown'a Aktardı",
-      "path": "Belgeler/akıcı"
     }
   },
   "grid": {
@@ -372,8 +372,8 @@
     "sort": {
       "ascending": "artan",
       "descending": "Azalan",
-      "deleteSort": "Sıralamayı sil",
-      "addSort": "Sıralama ekle"
+      "addSort": "Sıralama ekle",
+      "deleteSort": "Sıralamayı sil"
     },
     "row": {
       "duplicate": "Kopyalamak",

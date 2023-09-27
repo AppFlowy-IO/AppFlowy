@@ -306,7 +306,6 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FlowyTextField(
             autoClearWhenDone: true,
-            maxLength: 30,
             text: text,
             focusNode: _focusNode,
             onCanceled: () {

@@ -5,10 +5,10 @@ import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -410,14 +410,21 @@ class _GridFooter extends StatelessWidget {
       builder: (context, rowCount) {
         return Padding(
           padding: GridSize.contentInsets,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              FlowyText.medium(
-                rowCountString(rowCount),
-                color: Theme.of(context).hintColor,
-              ),
-            ],
+          child: RichText(
+            text: TextSpan(
+              text: rowCountString(),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+              children: [
+                TextSpan(
+                  text: ' $rowCount',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AFThemeExtension.of(context).gridRowCountColor,
+                      ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -425,6 +432,6 @@ class _GridFooter extends StatelessWidget {
   }
 }
 
-String rowCountString(int count) {
-  return '${LocaleKeys.grid_row_count.tr()} : $count';
+String rowCountString() {
+  return '${LocaleKeys.grid_row_count.tr()} :';
 }

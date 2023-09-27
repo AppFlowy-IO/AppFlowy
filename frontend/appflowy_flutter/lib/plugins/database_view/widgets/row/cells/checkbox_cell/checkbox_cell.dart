@@ -1,13 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'checkbox_cell_bloc.dart';
-import '../../../../grid/presentation/layout/sizes.dart';
-import '../../cell_builder.dart';
 
 class GridCheckboxCellStyle extends GridCellStyle {
   EdgeInsets? cellPadding;
@@ -44,10 +43,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
   void initState() {
     final cellController =
         widget.cellControllerBuilder.build() as CheckboxCellController;
-    _cellBloc = CheckboxCellBloc(
-      service: CellBackendService(),
-      cellController: cellController,
-    )..add(const CheckboxCellEvent.initial());
+    _cellBloc = CheckboxCellBloc(cellController: cellController)
+      ..add(const CheckboxCellEvent.initial());
     super.initState();
   }
 

@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/bloc/text_card_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/number_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/url_card_cell.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -179,13 +179,10 @@ class _EventCardState extends State<EventCard> {
   ) {
     final renderHook = RowCardRenderHook<CalendarDayEvent>();
     renderHook.addTextCellHook((cellData, eventData, _) {
-      return BlocBuilder<TextCardCellBloc, TextCardCellState>(
+      return BlocBuilder<TextCellBloc, TextCellState>(
         builder: (context, state) {
-          final isTitle = context
-              .read<TextCardCellBloc>()
-              .cellController
-              .fieldInfo
-              .isPrimary;
+          final isTitle =
+              context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
           final text = isTitle && cellData.isEmpty
               ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;

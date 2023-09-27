@@ -7,7 +7,7 @@ import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -190,12 +190,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
-      // customize the block builder
+      // customize the block builders
       blockComponentBuilders: blockComponentBuilders,
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      // customize the context menu items
       contextMenuItems: customContextMenuItems,
+      // customize the header and footer.
       header: widget.header,
       footer: const VSpace(200),
     );

@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Abonniere den Newsletter",
   "letsGoButtonText": "Los geht's",
   "title": "Titel",
+  "youCanAlso": "Du kannst auch",
+  "and": "Und",
+  "blockActions": {
+    "addBelowTooltip": "Klicken Sie unten, um etwas hinzuzufügen",
+    "addAboveCmd": "Alt+Klick",
+    "addAboveMacCmd": "Wahl+Klick",
+    "addAboveTooltip": "oben hinzufügen"
+  },
   "signUp": {
     "buttonText": "Registrieren",
     "title": "Registriere dich bei @:appName",
@@ -41,6 +49,21 @@
     "markdown": "Markdown",
     "copyLink": "Link kopieren"
   },
+  "moreAction": {
+    "small": "klein",
+    "medium": "mittel",
+    "large": "groß",
+    "fontSize": "Schriftgröße",
+    "import": "Importieren",
+    "moreOptions": "Mehr Optionen"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Dokument von v0.1.0",
+    "databaseFromV010": "Datenbank ab v0.1.0",
+    "csv": "CSV",
+    "database": "Datenbank"
+  },
   "disclosureAction": {
     "rename": "Umbenennen",
     "delete": "Löschen",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Seitenname",
   "questionBubble": {
+    "shortcuts": "Abkürzungen",
     "whatsNew": "Was gibt es Neues?",
     "help": "Hilfe & Support",
+    "markdown": "Abschlag",
     "debug": {
       "name": "Debug-Informationen",
       "success": "Debug-Informationen in die Zwischenablage kopiert!",
       "fail": "Debug-Informationen können nicht in die Zwischenablage kopiert werden"
     },
-    "shortcuts": "Abkürzungen",
-    "markdown": "Abschlag",
     "feedback": "Rückmeldung"
   },
   "menuAppHeader": {
@@ -119,6 +142,16 @@
     "referencePage": "Auf diesen {Name} wird verwiesen",
     "addBlockBelow": "Fügen Sie unten einen Block hinzu"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Notiz nach Markdown exportiert",
+      "path": "Dokumente/fließend"
+    }
+  },
   "contactsPage": {
     "title": "Kontakte",
     "whatsHappening": "Was geschieht diese Woche?",
@@ -127,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Erledigt",
     "Cancel": "Abbrechen",
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "complete": "Fertig",
     "save": "Speichern",
-    "Done": "Erledigt",
     "generate": "Generieren",
     "esc": "ESC",
     "keep": "Halten",
@@ -172,14 +205,12 @@
     "menu": {
       "appearance": "Aussehen",
       "language": "Sprache",
-      "open": "Einstellungen öffnen",
       "user": "Benutzer",
       "files": "Dateien",
+      "open": "Einstellungen öffnen",
       "supabaseSetting": "Supabase-Einstellung"
     },
     "appearance": {
-      "lightLabel": "Heller Modus",
-      "darkLabel": "Dunkler Modus",
       "fontFamily": {
         "label": "Schriftfamilie",
         "search": "Suchen"
@@ -202,14 +233,9 @@
       },
       "theme": "Thema",
       "builtInsLabel": "Integrierte Themes",
-      "pluginsLabel": "Plugins"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "Verknüpfungen",
-      "addNewCommand": "Neuen Befehl hinzufügen",
-      "updateShortcutStep": "Drücken Sie die gewünschte Tastenkombination und drücken Sie ENTER",
-      "shortcutIsAlreadyUsed": "Diese Verknüpfung wird bereits verwendet für: {conflict}",
-      "resetToDefault": "Zurücksetzen"
+      "pluginsLabel": "Plugins",
+      "lightLabel": "Heller Modus",
+      "darkLabel": "Dunkler Modus"
     },
     "files": {
       "copy": "Kopieren",
@@ -251,39 +277,13 @@
       "name": "Name",
       "selectAnIcon": "Wählen Sie ein Symbol aus",
       "pleaseInputYourOpenAIKey": "Bitte geben Sie Ihren OpenAI-Schlüssel ein"
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "klein",
-    "medium": "mittel",
-    "large": "groß",
-    "fontSize": "Schriftgröße",
-    "import": "Importieren",
-    "moreOptions": "Mehr Optionen"
-  },
-  "youCanAlso": "Du kannst auch",
-  "and": "Und",
-  "blockActions": {
-    "addBelowTooltip": "Klicken Sie unten, um etwas hinzuzufügen",
-    "addAboveCmd": "Alt+Klick",
-    "addAboveMacCmd": "Wahl+Klick",
-    "addAboveTooltip": "oben hinzufügen"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Dokument von v0.1.0",
-    "databaseFromV010": "Datenbank ab v0.1.0",
-    "csv": "CSV",
-    "database": "Datenbank"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Notiz nach Markdown exportiert",
-      "path": "Dokumente/fließend"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Verknüpfungen",
+      "addNewCommand": "Neuen Befehl hinzufügen",
+      "updateShortcutStep": "Drücken Sie die gewünschte Tastenkombination und drücken Sie ENTER",
+      "shortcutIsAlreadyUsed": "Diese Verknüpfung wird bereits verwendet für: {conflict}",
+      "resetToDefault": "Zurücksetzen"
     }
   },
   "grid": {
@@ -381,8 +381,8 @@
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "deleteSort": "Sortierung löschen",
-      "addSort": "Sortierung hinzufügen"
+      "addSort": "Sortierung hinzufügen",
+      "deleteSort": "Sortierung löschen"
     },
     "row": {
       "duplicate": "Duplikat",

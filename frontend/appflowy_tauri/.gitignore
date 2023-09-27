@@ -28,3 +28,4 @@ dist-ssr
 **/src/appflowy_app/i18n/translations/
 
 coverage
+**/AppFlowy-Collab
