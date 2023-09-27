@@ -82,8 +82,11 @@ class RowPropertyList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 20),
             child: Column(
               children: [
-                _hiddenFieldsButton(context, state),
-                const VSpace(4),
+                if (context.read<RowDetailBloc>().state.numHiddenFields != 0)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 4.0),
+                    child: ToggleHiddenFieldsVisibilityButton(),
+                  ),
                 CreateRowFieldButton(viewId: viewId),
               ],
             ),
@@ -91,35 +94,6 @@ class RowPropertyList extends StatelessWidget {
           children: children,
         );
       },
-    );
-  }
-
-  Widget _hiddenFieldsButton(BuildContext context, RowDetailState state) {
-    if (state.numHiddenFields == 0) {
-      return const SizedBox.shrink();
-    }
-
-    final text = switch (state.showHiddenFields) {
-      false =>
-        LocaleKeys.grid_rowPage_showHiddenFields.plural(state.numHiddenFields),
-      true =>
-        LocaleKeys.grid_rowPage_hideHiddenFields.plural(state.numHiddenFields),
-    };
-
-    return SizedBox(
-      height: 30,
-      child: FlowyButton(
-        text: FlowyText.medium(text, color: Theme.of(context).hintColor),
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        leftIcon: RotatedBox(
-          quarterTurns: state.showHiddenFields ? 1 : 3,
-          child: const FlowySvg(FlowySvgs.arrow_left_s),
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        onTap: () => context.read<RowDetailBloc>().add(
-              const RowDetailEvent.toggleHiddenFieldVisibility(),
-            ),
-      ),
     );
   }
 }
@@ -214,9 +188,11 @@ class _PropertyCellState extends State<_PropertyCell> {
         viewId: widget.cellContext.viewId,
         field: widget.cellContext.fieldInfo.field,
       ),
-      onHidden: (fieldId) {
+      onToggleVisibility: (fieldId) {
         _popoverController.close();
-        context.read<RowDetailBloc>().add(RowDetailEvent.hideField(fieldId));
+        context
+            .read<RowDetailBloc>()
+            .add(RowDetailEvent.toggleFieldVisibility(fieldId));
       },
       onDeleted: (fieldId) {
         _popoverController.close();
@@ -287,6 +263,43 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
       );
   }
   throw UnimplementedError;
+}
+
+class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
+  const ToggleHiddenFieldsVisibilityButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RowDetailBloc, RowDetailState>(
+      builder: (context, state) {
+        final text = switch (state.showHiddenFields) {
+          false => LocaleKeys.grid_rowPage_showHiddenFields
+              .plural(state.numHiddenFields),
+          true => LocaleKeys.grid_rowPage_hideHiddenFields
+              .plural(state.numHiddenFields),
+        };
+
+        return SizedBox(
+          height: 30,
+          child: FlowyButton(
+            text: FlowyText.medium(text, color: Theme.of(context).hintColor),
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            leftIcon: RotatedBox(
+              quarterTurns: state.showHiddenFields ? 1 : 3,
+              child: FlowySvg(
+                FlowySvgs.arrow_left_s,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            onTap: () => context.read<RowDetailBloc>().add(
+                  const RowDetailEvent.toggleHiddenFieldVisibility(),
+                ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class CreateRowFieldButton extends StatefulWidget {

@@ -22,9 +22,6 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             await _startListening();
           },
           didReceiveCellDatas: (visibleCells, allCells, numHiddenFields) {
-            // Log.debug(
-            //   "didReceiveCellDatas ${allCells.length} $numHiddenFields",
-            // );
             emit(
               state.copyWith(
                 visibleCells: visibleCells,
@@ -40,24 +37,20 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             );
             fieldService.deleteField();
           },
-          showField: (fieldId) async {
+          toggleFieldVisibility: (fieldId) async {
+            final fieldInfo = state.allCells
+                .where((cellContext) => cellContext.fieldId == fieldId)
+                .first
+                .fieldInfo;
+            final fieldVisibility =
+                fieldInfo.visibility == FieldVisibility.AlwaysShown
+                    ? FieldVisibility.AlwaysHidden
+                    : FieldVisibility.AlwaysShown;
             final result =
                 await FieldSettingsBackendService(viewId: rowController.viewId)
                     .updateFieldSettings(
               fieldId: fieldId,
-              fieldVisibility: FieldVisibility.AlwaysShown,
-            );
-            result.fold(
-              (l) {},
-              (err) => Log.error(err),
-            );
-          },
-          hideField: (fieldId) async {
-            final result =
-                await FieldSettingsBackendService(viewId: rowController.viewId)
-                    .updateFieldSettings(
-              fieldId: fieldId,
-              fieldVisibility: FieldVisibility.AlwaysHidden,
+              fieldVisibility: fieldVisibility,
             );
             result.fold(
               (l) {},
@@ -117,10 +110,6 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
                   !cellContext.fieldInfo.isPrimary,
             )
             .toList();
-        // Log.debug(
-        //   "onRowsChanged. Length of cellMap: ${allCells.length}, length of visibleCells: ${visibleCells.length}, showHiddenFields: ${state.showHiddenFields}",
-        // );
-        // print("$visibleCells");
         add(
           RowDetailEvent.didReceiveCellDatas(
             visibleCells,
@@ -164,8 +153,8 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
   const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
-  const factory RowDetailEvent.showField(String fieldId) = _ShowField;
-  const factory RowDetailEvent.hideField(String fieldId) = _HideField;
+  const factory RowDetailEvent.toggleFieldVisibility(String fieldId) =
+      _ToggleFieldVisibility;
   const factory RowDetailEvent.reorderField(
     String reorderFieldID,
     String targetFieldID,

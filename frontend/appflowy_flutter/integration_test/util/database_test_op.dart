@@ -746,7 +746,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapHidePropertyButtonInFieldEditor() async {
-    final button = find.byType(HideFieldButton);
+    final button = find.byType(FieldVisibilityToggleButton);
     await tapButton(button);
   }
 
@@ -899,7 +899,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> assertRowCountInGridPage(int num) async {
-    final text = find.text('${rowCountString()} $num',findRichText: true);
+    final text = find.text('${rowCountString()} $num', findRichText: true);
     expect(text, findsOneWidget);
   }
 

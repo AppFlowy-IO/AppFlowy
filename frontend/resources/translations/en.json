@@ -407,6 +407,7 @@
     },
     "field": {
       "hide": "Hide",
+      "show": "Show",
       "insertLeft": "Insert Left",
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
