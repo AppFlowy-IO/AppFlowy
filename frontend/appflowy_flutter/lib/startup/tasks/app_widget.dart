@@ -1,13 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../user/application/user_settings_service.dart';
 import '../../workspace/application/appearance.dart';
@@ -74,7 +75,7 @@ class InitAppWidgetTask extends LaunchTask {
   }
 }
 
-class ApplicationWidget extends StatelessWidget {
+class ApplicationWidget extends StatefulWidget {
   final Widget child;
   final AppearanceSettingsPB appearanceSetting;
   final AppTheme appTheme;
@@ -87,13 +88,30 @@ class ApplicationWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting, appTheme)
-      ..readLocaleWhenAppLaunch(context);
+  State<ApplicationWidget> createState() => _ApplicationWidgetState();
+}
 
+class _ApplicationWidgetState extends State<ApplicationWidget> {
+  late final GoRouter routerConfig;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // avoid rebuild routerConfig when the appTheme is changed.
+    routerConfig = generateRouter(widget.child);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: cubit),
+        BlocProvider<AppearanceSettingsCubit>(
+          create: (_) => AppearanceSettingsCubit(
+            widget.appearanceSetting,
+            widget.appTheme,
+          )..readLocaleWhenAppLaunch(context),
+        ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
@@ -109,7 +127,7 @@ class ApplicationWidget extends StatelessWidget {
               [AppFlowyEditorLocalizations.delegate],
           supportedLocales: context.supportedLocales,
           locale: state.locale,
-          routerConfig: generateRouter(child),
+          routerConfig: routerConfig,
         ),
       ),
     );
