@@ -215,7 +215,6 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
-          // create
           viewId: widget.viewId,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.viewId,

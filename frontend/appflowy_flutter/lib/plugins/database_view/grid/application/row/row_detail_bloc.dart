@@ -110,11 +110,17 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
                   !cellContext.fieldInfo.isPrimary,
             )
             .toList();
+        final numHiddenFields = allCells
+            .where(
+              (cellContext) =>
+                  !cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
+            )
+            .length;
         add(
           RowDetailEvent.didReceiveCellDatas(
             visibleCells,
             allCells,
-            allCells.length - visibleCells.length - 1,
+            numHiddenFields,
           ),
         );
       },
@@ -188,11 +194,18 @@ class RowDetailState with _$RowDetailState {
         )
         .toList();
 
+    final numHiddenFields = allCells
+        .where(
+          (cellContext) =>
+              !cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
+        )
+        .length;
+
     return RowDetailState(
       visibleCells: visibleCells,
       allCells: allCells,
       showHiddenFields: false,
-      numHiddenFields: allCells.length - visibleCells.length - 1,
+      numHiddenFields: numHiddenFields,
     );
   }
 }
