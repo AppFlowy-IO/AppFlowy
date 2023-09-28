@@ -5,17 +5,17 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:flutter/material.dart';
 
-void handleSuccessOrFail(
-  Either<UserProfilePB, FlowyError> result,
+void handleUserProfileResult(
+  Either<UserProfilePB, FlowyError> userProfileResult,
   BuildContext context,
-  AuthRouter router,
+  AuthRouter authRouter,
 ) {
-  result.fold(
-    (user) {
-      if (user.encryptionType == EncryptionTypePB.Symmetric) {
-        router.pushEncryptionScreen(context, user);
+  userProfileResult.fold(
+    (userProfile) {
+      if (userProfile.encryptionType == EncryptionTypePB.Symmetric) {
+        authRouter.pushEncryptionScreen(context, userProfile);
       } else {
-        router.pushHomeScreen(context, user);
+        authRouter.goHomeScreen(context, userProfile);
       }
     },
     (error) {

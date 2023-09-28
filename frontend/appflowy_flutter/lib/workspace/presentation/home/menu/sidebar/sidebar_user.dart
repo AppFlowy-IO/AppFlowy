@@ -72,7 +72,7 @@ class SidebarUser extends StatelessWidget {
             context: context,
             builder: (dialogContext) {
               return BlocProvider<DocumentAppearanceCubit>.value(
-                value: BlocProvider.of<DocumentAppearanceCubit>(context),
+                value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
                 child: SettingsDialog(
                   userProfile,
                   didLogout: () async {

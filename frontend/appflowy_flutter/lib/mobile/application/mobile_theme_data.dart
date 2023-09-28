@@ -23,7 +23,20 @@ ThemeData getMobileThemeData() {
     primaryColor: mobileColorTheme.primary, //primary 100
     primaryColorLight: const Color(0xFF57B5F8), //primary 80
     dividerColor: mobileColorTheme.outline, //caption
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: mobileColorTheme.background,
+    appBarTheme: AppBarTheme(
+      foregroundColor: mobileColorTheme.onBackground,
+      backgroundColor: mobileColorTheme.background,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        fontFamily: 'Poppins',
+        color: mobileColorTheme.onBackground,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.05,
+      ),
+    ),
     // button
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -72,7 +85,6 @@ ThemeData getMobileThemeData() {
       displayLarge: TextStyle(
         color: Color(0xFF57B5F8),
         fontSize: 32,
-        fontFamily: 'Poppins',
         fontWeight: FontWeight.w700,
         height: 1.20,
         letterSpacing: 0.16,

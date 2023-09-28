@@ -7,6 +7,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class DesktopWorkspaceStartScreen extends StatelessWidget {
   const DesktopWorkspaceStartScreen({super.key, required this.workspaceState});
@@ -101,6 +102,5 @@ Widget _renderCreateButton(BuildContext context) {
 // same method as in mobile
 void _popToWorkspace(BuildContext context, WorkspacePB workspace) {
   context.read<WorkspaceBloc>().add(WorkspaceEvent.openWorkspace(workspace));
-
-  Navigator.of(context).pop(workspace.id);
+  context.pop(workspace.id);
 }
