@@ -70,12 +70,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           toggleHiddenFieldVisibility: () {
             final showHiddenFields = !state.showHiddenFields;
             final visibleCells = List<DatabaseCellContext>.from(state.allCells);
-            visibleCells
-                .removeWhere((cellContext) => cellContext.fieldInfo.isPrimary);
-            if (!showHiddenFields) {
-              visibleCells
-                  .removeWhere((cellContext) => !cellContext.isVisible());
-            }
+            visibleCells.retainWhere(
+              (cellContext) =>
+                  !cellContext.fieldInfo.isPrimary &&
+                  cellContext.isVisible(showHiddenFields: showHiddenFields),
+            );
             emit(
               state.copyWith(
                 showHiddenFields: showHiddenFields,
