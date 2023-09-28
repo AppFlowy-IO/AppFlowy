@@ -54,6 +54,10 @@ class InlineActionsMenu extends InlineActionsMenuService {
 
   @override
   void show() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _show());
+  }
+
+  void _show() {
     dismiss();
 
     final selectionService = editorState.service.selectionService;

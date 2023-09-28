@@ -70,6 +70,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
+  late int startOffset;
 
   String _search = '';
   set search(String search) {
@@ -119,6 +120,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
+
+    startOffset = widget.editorState.selection?.endIndex ?? 0;
   }
 
   @override
@@ -242,6 +245,15 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
           ? widget.editorState.moveCursorForward(SelectionMoveRange.character)
           : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
 
+      /// If cursor moves before @ then dismiss menu
+      /// If cursor moves after @search.length then dismiss menu
+      final selection = widget.editorState.selection;
+      if (selection != null &&
+          (selection.endIndex < startOffset ||
+              selection.endIndex > (startOffset + _search.length))) {
+        widget.onDismiss();
+      }
+
       /// Workaround: When using the move cursor methods, it seems the
       ///  focus goes back to the editor, this makes sure this handler
       ///  receives the next keypress.
@@ -316,12 +328,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    final start = delta
-            .toPlainText()
-            .substring(0, _search.length - 1)
-            .lastIndexOf(inlineActionCharacter) +
-        1;
-
-    search = delta.toPlainText().substring(start, _search.length);
+    search = delta
+        .toPlainText()
+        .substring(startOffset, startOffset - 1 + _search.length);
   }
 }
