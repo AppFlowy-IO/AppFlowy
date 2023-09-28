@@ -28,7 +28,7 @@ class AppFlowyCalendar extends StatefulWidget {
     this.onIncludeTimeChanged,
     this.onTimeChanged,
     this.includeTime = false,
-    this.timeFormat = TimeFormatPB.TwentyFourHour,
+    this.timeFormat = UserTimeFormatPB.TwentyFourHour,
   });
 
   final PopoverMutex? popoverMutex;
@@ -57,7 +57,7 @@ class AppFlowyCalendar extends StatefulWidget {
   final bool includeTime;
 
   // Timeformat for time selector
-  final TimeFormatPB timeFormat;
+  final UserTimeFormatPB timeFormat;
 
   @override
   State<AppFlowyCalendar> createState() => _AppFlowyCalendarState();
@@ -200,8 +200,8 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
   }
 
   String _initialTime(DateTime selectedDay) => switch (widget.timeFormat) {
-        TimeFormatPB.TwelveHour => DateFormat.jm().format(selectedDay),
-        TimeFormatPB.TwentyFourHour => DateFormat.Hm().format(selectedDay),
+        UserTimeFormatPB.TwelveHour => DateFormat.jm().format(selectedDay),
+        UserTimeFormatPB.TwentyFourHour => DateFormat.Hm().format(selectedDay),
         _ => '00:00',
       };
 
@@ -214,10 +214,10 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
   ) {
     late DateTime timeOfDay;
     switch (widget.timeFormat) {
-      case TimeFormatPB.TwelveHour:
+      case UserTimeFormatPB.TwelveHour:
         timeOfDay = DateFormat.jm().parse(_time ?? '12:00 AM');
         break;
-      case TimeFormatPB.TwentyFourHour:
+      case UserTimeFormatPB.TwentyFourHour:
         timeOfDay = DateFormat.Hm().parse(_time ?? '00:00');
         break;
     }

@@ -2,7 +2,6 @@ import 'package:appflowy/date/date_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -102,6 +101,8 @@ class DateReferenceService {
   Future<void> _insertDateReference(
     EditorState editorState,
     DateTime date,
+    int start,
+    int end,
   ) async {
     final selection = editorState.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -114,17 +115,11 @@ class DateReferenceService {
       return;
     }
 
-    final index = selection.endIndex;
-    final lastKeywordIndex = delta
-        .toPlainText()
-        .substring(0, index)
-        .lastIndexOf(inlineActionCharacter);
-
     final transaction = editorState.transaction
       ..replaceText(
         node,
-        lastKeywordIndex,
-        index - lastKeywordIndex,
+        start,
+        end,
         '\$',
         attributes: {
           MentionBlockKeys.mention: {
@@ -182,9 +177,12 @@ class DateReferenceService {
     return InlineActionsMenuItem(
       label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
-      onSelected: (context, editorState, menuService) => _insertDateReference(
+      onSelected: (context, editorState, menuService, replace) =>
+          _insertDateReference(
         editorState,
         date,
+        replace.$1,
+        replace.$2,
       ),
     );
   }

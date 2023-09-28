@@ -21,7 +21,7 @@ class IncludeTimeButton extends StatefulWidget {
     this.includeTime = false,
     this.onChanged,
     this.onSubmitted,
-    this.timeFormat = TimeFormatPB.TwentyFourHour,
+    this.timeFormat = UserTimeFormatPB.TwentyFourHour,
   });
 
   final String? initialTime;
@@ -29,7 +29,7 @@ class IncludeTimeButton extends StatefulWidget {
   final bool includeTime;
   final Function(bool includeTime)? onChanged;
   final Function(String? time)? onSubmitted;
-  final TimeFormatPB timeFormat;
+  final UserTimeFormatPB timeFormat;
 
   @override
   State<IncludeTimeButton> createState() => _IncludeTimeButtonState();
@@ -101,13 +101,13 @@ class _TimeTextField extends StatefulWidget {
     required this.timeStr,
     required this.popoverMutex,
     this.onSubmitted,
-    this.timeFormat = TimeFormatPB.TwentyFourHour,
+    this.timeFormat = UserTimeFormatPB.TwentyFourHour,
   });
 
   final String? timeStr;
   final PopoverMutex? popoverMutex;
   final Function(String? value)? onSubmitted;
-  final TimeFormatPB timeFormat;
+  final UserTimeFormatPB timeFormat;
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();
@@ -174,11 +174,11 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     final msg = LocaleKeys.grid_field_invalidTimeFormat.tr();
 
     switch (widget.timeFormat) {
-      case TimeFormatPB.TwentyFourHour:
+      case UserTimeFormatPB.TwentyFourHour:
         if (!isTwentyFourHourTime(value)) {
           return "$msg. e.g. 13:00";
         }
-      case TimeFormatPB.TwelveHour:
+      case UserTimeFormatPB.TwelveHour:
         if (!isTwelveHourTime(value)) {
           return "$msg. e.g. 01:00 PM";
         }
@@ -188,9 +188,9 @@ class _TimeTextFieldState extends State<_TimeTextField> {
   }
 
   String get hintText => switch (widget.timeFormat) {
-        TimeFormatPB.TwentyFourHour =>
+        UserTimeFormatPB.TwentyFourHour =>
           LocaleKeys.document_date_timeHintTextInTwentyFourHour.tr(),
-        TimeFormatPB.TwelveHour =>
+        UserTimeFormatPB.TwelveHour =>
           LocaleKeys.document_date_timeHintTextInTwelveHour.tr(),
         _ => "",
       };

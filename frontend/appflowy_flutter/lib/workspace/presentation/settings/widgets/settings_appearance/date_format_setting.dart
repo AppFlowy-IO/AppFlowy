@@ -15,7 +15,7 @@ class DateFormatSetting extends StatelessWidget {
     required this.currentFormat,
   });
 
-  final DateFormatPB currentFormat;
+  final UserDateFormatPB currentFormat;
 
   @override
   Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
@@ -26,18 +26,18 @@ class DateFormatSetting extends StatelessWidget {
             popupBuilder: (_) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _formatItem(context, DateFormatPB.Locally),
-                _formatItem(context, DateFormatPB.US),
-                _formatItem(context, DateFormatPB.ISO),
-                _formatItem(context, DateFormatPB.Friendly),
-                _formatItem(context, DateFormatPB.DayMonthYear),
+                _formatItem(context, UserDateFormatPB.Locally),
+                _formatItem(context, UserDateFormatPB.US),
+                _formatItem(context, UserDateFormatPB.ISO),
+                _formatItem(context, UserDateFormatPB.Friendly),
+                _formatItem(context, UserDateFormatPB.DayMonthYear),
               ],
             ),
           ),
         ],
       );
 
-  Widget _formatItem(BuildContext context, DateFormatPB format) {
+  Widget _formatItem(BuildContext context, UserDateFormatPB format) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -53,17 +53,17 @@ class DateFormatSetting extends StatelessWidget {
     );
   }
 
-  String _formatLabel(DateFormatPB format) {
+  String _formatLabel(UserDateFormatPB format) {
     switch (format) {
-      case (DateFormatPB.Locally):
+      case (UserDateFormatPB.Locally):
         return LocaleKeys.settings_appearance_dateFormat_local.tr();
-      case (DateFormatPB.US):
+      case (UserDateFormatPB.US):
         return LocaleKeys.settings_appearance_dateFormat_us.tr();
-      case (DateFormatPB.ISO):
+      case (UserDateFormatPB.ISO):
         return LocaleKeys.settings_appearance_dateFormat_iso.tr();
-      case (DateFormatPB.Friendly):
+      case (UserDateFormatPB.Friendly):
         return LocaleKeys.settings_appearance_dateFormat_friendly.tr();
-      case (DateFormatPB.DayMonthYear):
+      case (UserDateFormatPB.DayMonthYear):
         return LocaleKeys.settings_appearance_dateFormat_dmy.tr();
       default:
         return "";

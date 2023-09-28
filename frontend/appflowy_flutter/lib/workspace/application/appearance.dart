@@ -180,13 +180,13 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setLocale(context, state.locale);
   }
 
-  void setDateFormat(DateFormatPB format) {
+  void setDateFormat(UserDateFormatPB format) {
     _dateTimeSettings.dateFormat = format;
     _saveDateTimeSettings();
     emit(state.copyWith(dateFormat: format));
   }
 
-  void setTimeFormat(TimeFormatPB format) {
+  void setTimeFormat(UserTimeFormatPB format) {
     _dateTimeSettings.timeFormat = format;
     _saveDateTimeSettings();
     emit(state.copyWith(timeFormat: format));
@@ -301,8 +301,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
-    required DateFormatPB dateFormat,
-    required TimeFormatPB timeFormat,
+    required UserDateFormatPB dateFormat,
+    required UserTimeFormatPB timeFormat,
     required String timezoneId,
   }) = _AppearanceSettingsState;
 
@@ -316,8 +316,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
-    DateFormatPB dateFormat,
-    TimeFormatPB timeFormat,
+    UserDateFormatPB dateFormat,
+    UserTimeFormatPB timeFormat,
     String timezoneId,
   ) {
     return AppearanceSettingsState(

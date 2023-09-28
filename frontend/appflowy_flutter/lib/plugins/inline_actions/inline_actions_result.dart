@@ -6,6 +6,7 @@ typedef SelectItemHandler = void Function(
   BuildContext context,
   EditorState editorState,
   InlineActionsMenuService menuService,
+  (int start, int end) replacement,
 );
 
 class InlineActionsMenuItem {

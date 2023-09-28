@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use flowy_derive::ProtoBuf_Enum;
 
 #[derive(ProtoBuf_Enum, Serialize, Deserialize, Debug, Clone, Default, Copy)]
-pub enum DateFormatPB {
+pub enum UserDateFormatPB {
   Locally = 0,
   US = 1,
   ISO = 2,
@@ -12,59 +12,59 @@ pub enum DateFormatPB {
   DayMonthYear = 4,
 }
 
-impl std::convert::From<i64> for DateFormatPB {
+impl std::convert::From<i64> for UserDateFormatPB {
   fn from(value: i64) -> Self {
     match value {
-      0 => DateFormatPB::Locally,
-      1 => DateFormatPB::US,
-      2 => DateFormatPB::ISO,
-      3 => DateFormatPB::Friendly,
-      4 => DateFormatPB::DayMonthYear,
+      0 => UserDateFormatPB::Locally,
+      1 => UserDateFormatPB::US,
+      2 => UserDateFormatPB::ISO,
+      3 => UserDateFormatPB::Friendly,
+      4 => UserDateFormatPB::DayMonthYear,
       _ => {
         tracing::error!("Unsupported date format, fallback to friendly");
-        DateFormatPB::Friendly
+        UserDateFormatPB::Friendly
       },
     }
   }
 }
 
-impl DateFormatPB {
+impl UserDateFormatPB {
   pub fn value(&self) -> i64 {
     *self as i64
   }
   // https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html
   pub fn format_str(&self) -> &'static str {
     match self {
-      DateFormatPB::Locally => "%m/%d/%Y",
-      DateFormatPB::US => "%Y/%m/%d",
-      DateFormatPB::ISO => "%Y-%m-%d",
-      DateFormatPB::Friendly => "%b %d, %Y",
-      DateFormatPB::DayMonthYear => "%d/%m/%Y",
+      UserDateFormatPB::Locally => "%m/%d/%Y",
+      UserDateFormatPB::US => "%Y/%m/%d",
+      UserDateFormatPB::ISO => "%Y-%m-%d",
+      UserDateFormatPB::Friendly => "%b %d, %Y",
+      UserDateFormatPB::DayMonthYear => "%d/%m/%Y",
     }
   }
 }
 
 #[derive(ProtoBuf_Enum, Serialize, Deserialize, Debug, Clone, Default, Copy)]
-pub enum TimeFormatPB {
+pub enum UserTimeFormatPB {
   TwelveHour = 0,
   #[default]
   TwentyFourHour = 1,
 }
 
-impl std::convert::From<i64> for TimeFormatPB {
+impl std::convert::From<i64> for UserTimeFormatPB {
   fn from(value: i64) -> Self {
     match value {
-      0 => TimeFormatPB::TwelveHour,
-      1 => TimeFormatPB::TwentyFourHour,
+      0 => UserTimeFormatPB::TwelveHour,
+      1 => UserTimeFormatPB::TwentyFourHour,
       _ => {
         tracing::error!("Unsupported time format, fallback to TwentyFourHour");
-        TimeFormatPB::TwentyFourHour
+        UserTimeFormatPB::TwentyFourHour
       },
     }
   }
 }
 
-impl TimeFormatPB {
+impl UserTimeFormatPB {
   pub fn value(&self) -> i64 {
     *self as i64
   }
@@ -72,8 +72,8 @@ impl TimeFormatPB {
   // https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html
   pub fn format_str(&self) -> &'static str {
     match self {
-      TimeFormatPB::TwelveHour => "%I:%M %p",
-      TimeFormatPB::TwentyFourHour => "%R",
+      UserTimeFormatPB::TwelveHour => "%I:%M %p",
+      UserTimeFormatPB::TwentyFourHour => "%R",
     }
   }
 }

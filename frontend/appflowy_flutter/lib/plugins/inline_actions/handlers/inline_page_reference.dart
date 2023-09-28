@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -73,7 +72,7 @@ class InlinePageReferenceService {
       final pageSelectionMenuItem = InlineActionsMenuItem(
         keywords: [view.name.toLowerCase()],
         label: view.name,
-        onSelected: (context, editorState, menuService) async {
+        onSelected: (context, editorState, menuService, replace) async {
           final selection = editorState.selection;
           if (selection == null || !selection.isCollapsed) {
             return;
@@ -85,20 +84,14 @@ class InlinePageReferenceService {
             return;
           }
 
-          final index = selection.endIndex;
-          final lastKeywordIndex = delta
-              .toPlainText()
-              .substring(0, index)
-              .lastIndexOf(inlineActionCharacter);
-
           // @page name -> $
           // preload the page infos
           pageMemorizer[view.id] = view;
           final transaction = editorState.transaction
             ..replaceText(
               node,
-              lastKeywordIndex,
-              index - lastKeywordIndex,
+              replace.$1,
+              replace.$2,
               '\$',
               attributes: {
                 MentionBlockKeys.mention: {

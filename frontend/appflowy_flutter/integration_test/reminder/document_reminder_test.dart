@@ -105,8 +105,8 @@ Future<DateTime> _insertReminderTomorrow(WidgetTester tester) async {
   return DateTime.now().add(const Duration(days: 1)).withoutTime;
 }
 
-DateTime _dateWithTime(TimeFormatPB format, DateTime date, String time) {
-  final t = format == TimeFormatPB.TwelveHour
+DateTime _dateWithTime(UserTimeFormatPB format, DateTime date, String time) {
+  final t = format == UserTimeFormatPB.TwelveHour
       ? DateFormat.jm().parse(time)
       : DateFormat.Hm().parse(time);
 

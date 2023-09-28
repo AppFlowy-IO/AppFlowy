@@ -7,7 +7,7 @@ use flowy_user_deps::cloud::UserCloudConfig;
 
 use crate::entities::EncryptionTypePB;
 
-use super::date_time::{DateFormatPB, TimeFormatPB};
+use super::date_time::{UserDateFormatPB, UserTimeFormatPB};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -219,10 +219,10 @@ pub struct NetworkStatePB {
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
 pub struct DateTimeSettingsPB {
   #[pb(index = 1)]
-  pub date_format: DateFormatPB,
+  pub date_format: UserDateFormatPB,
 
   #[pb(index = 2)]
-  pub time_format: TimeFormatPB,
+  pub time_format: UserTimeFormatPB,
 
   #[pb(index = 3)]
   pub timezone_id: String,
@@ -231,8 +231,8 @@ pub struct DateTimeSettingsPB {
 impl std::default::Default for DateTimeSettingsPB {
   fn default() -> Self {
     DateTimeSettingsPB {
-      date_format: DateFormatPB::Friendly,
-      time_format: TimeFormatPB::TwentyFourHour,
+      date_format: UserDateFormatPB::Friendly,
+      time_format: UserTimeFormatPB::TwentyFourHour,
       timezone_id: "".to_owned(),
     }
   }

@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
@@ -116,6 +115,8 @@ class ReminderReferenceService {
   Future<void> _insertReminderReference(
     EditorState editorState,
     DateTime date,
+    int start,
+    int end,
   ) async {
     final selection = editorState.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -128,12 +129,6 @@ class ReminderReferenceService {
       return;
     }
 
-    final index = selection.endIndex;
-    final lastKeywordIndex = delta
-        .toPlainText()
-        .substring(0, index)
-        .lastIndexOf(inlineActionCharacter);
-
     final viewId = context.read<DocumentBloc>().view.id;
     final reminder = _reminderFromDate(date, viewId);
 
@@ -142,8 +137,8 @@ class ReminderReferenceService {
     final transaction = editorState.transaction
       ..replaceText(
         node,
-        lastKeywordIndex,
-        index - lastKeywordIndex,
+        start,
+        end,
         '\$',
         attributes: {
           MentionBlockKeys.mention: {
@@ -197,8 +192,8 @@ class ReminderReferenceService {
     return InlineActionsMenuItem(
       label: labelStr.capitalize(),
       keywords: [labelStr.toLowerCase(), ...?keywords],
-      onSelected: (context, editorState, menuService) =>
-          _insertReminderReference(editorState, date),
+      onSelected: (context, editorState, menuService, replace) =>
+          _insertReminderReference(editorState, date, replace.$1, replace.$2),
     );
   }
 

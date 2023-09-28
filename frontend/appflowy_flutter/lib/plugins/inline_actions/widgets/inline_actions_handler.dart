@@ -196,9 +196,12 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (_selectedGroup <= groupLength &&
           _selectedIndex <= lengthOfGroup(_selectedGroup)) {
-        handlerOf(_selectedGroup, _selectedIndex)
-            .onSelected
-            ?.call(context, widget.editorState, widget.menuService);
+        handlerOf(_selectedGroup, _selectedIndex).onSelected?.call(
+          context,
+          widget.editorState,
+          widget.menuService,
+          (startOffset - 1, _search.length + 1),
+        );
 
         widget.onDismiss();
         return KeyEventResult.handled;

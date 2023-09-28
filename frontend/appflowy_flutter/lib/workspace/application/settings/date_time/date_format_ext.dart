@@ -7,21 +7,21 @@ const _isoFmt = 'ymd';
 const _friendlyFmt = 'MMM d, y';
 const _dmyFmt = 'd/M/y';
 
-extension DateFormatter on DateFormatPB {
+extension DateFormatter on UserDateFormatPB {
   DateFormat get toFormat => DateFormat(_toFormat[this] ?? _friendlyFmt);
 
   String formatDate(
     DateTime date,
     bool includeTime, [
-    TimeFormatPB? timeFormat,
+    UserTimeFormatPB? timeFormat,
   ]) {
     final format = toFormat;
 
     if (includeTime) {
       switch (timeFormat) {
-        case TimeFormatPB.TwentyFourHour:
+        case UserTimeFormatPB.TwentyFourHour:
           return format.add_Hm().format(date);
-        case TimeFormatPB.TwelveHour:
+        case UserTimeFormatPB.TwelveHour:
           return format.add_jm().format(date);
         default:
           return format.format(date);
@@ -33,9 +33,9 @@ extension DateFormatter on DateFormatPB {
 }
 
 final _toFormat = {
-  DateFormatPB.Locally: _localFmt,
-  DateFormatPB.US: _usFmt,
-  DateFormatPB.ISO: _isoFmt,
-  DateFormatPB.Friendly: _friendlyFmt,
-  DateFormatPB.DayMonthYear: _dmyFmt,
+  UserDateFormatPB.Locally: _localFmt,
+  UserDateFormatPB.US: _usFmt,
+  UserDateFormatPB.ISO: _isoFmt,
+  UserDateFormatPB.Friendly: _friendlyFmt,
+  UserDateFormatPB.DayMonthYear: _dmyFmt,
 };

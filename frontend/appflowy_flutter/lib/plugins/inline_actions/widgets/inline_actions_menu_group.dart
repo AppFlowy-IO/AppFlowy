@@ -129,6 +129,7 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
       context,
       widget.editorState,
       widget.menuService,
+      (0, 0),
     );
   }
 }

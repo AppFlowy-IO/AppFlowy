@@ -15,7 +15,7 @@ class TimeFormatSetting extends StatelessWidget {
     required this.currentFormat,
   });
 
-  final TimeFormatPB currentFormat;
+  final UserTimeFormatPB currentFormat;
 
   @override
   Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
@@ -26,15 +26,15 @@ class TimeFormatSetting extends StatelessWidget {
             popupBuilder: (_) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _formatItem(context, TimeFormatPB.TwentyFourHour),
-                _formatItem(context, TimeFormatPB.TwelveHour),
+                _formatItem(context, UserTimeFormatPB.TwentyFourHour),
+                _formatItem(context, UserTimeFormatPB.TwelveHour),
               ],
             ),
           ),
         ],
       );
 
-  Widget _formatItem(BuildContext context, TimeFormatPB format) {
+  Widget _formatItem(BuildContext context, UserTimeFormatPB format) {
     return SizedBox(
       height: 32,
       child: FlowyButton(
@@ -50,11 +50,11 @@ class TimeFormatSetting extends StatelessWidget {
     );
   }
 
-  String _formatLabel(TimeFormatPB format) {
+  String _formatLabel(UserTimeFormatPB format) {
     switch (format) {
-      case (TimeFormatPB.TwentyFourHour):
+      case (UserTimeFormatPB.TwentyFourHour):
         return LocaleKeys.settings_appearance_timeFormat_twentyFourHour.tr();
-      case (TimeFormatPB.TwelveHour):
+      case (UserTimeFormatPB.TwelveHour):
         return LocaleKeys.settings_appearance_timeFormat_twelveHour.tr();
       default:
         return "";
