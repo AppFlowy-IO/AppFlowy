@@ -55,6 +55,6 @@ where
   }
 
   fn service_name(&self) -> String {
-    "SelfHosted".to_string()
+    "AppFlowy Cloud".to_string()
   }
 }

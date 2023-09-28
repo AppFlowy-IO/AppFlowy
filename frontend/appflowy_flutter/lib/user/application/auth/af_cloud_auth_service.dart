@@ -6,7 +6,6 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:dartz/dartz.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AFCloudAuthService implements AuthService {
   AFCloudAuthService();
@@ -66,20 +65,5 @@ class AFCloudAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
-  }
-}
-
-extension on String {
-  Provider toProvider() {
-    switch (this) {
-      case 'github':
-        return Provider.github;
-      case 'google':
-        return Provider.google;
-      case 'discord':
-        return Provider.discord;
-      default:
-        throw UnimplementedError();
-    }
   }
 }
