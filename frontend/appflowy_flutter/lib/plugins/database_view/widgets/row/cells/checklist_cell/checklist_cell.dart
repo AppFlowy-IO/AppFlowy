@@ -10,17 +10,33 @@ import 'checklist_cell_bloc.dart';
 import 'checklist_cell_editor.dart';
 import 'checklist_progress_bar.dart';
 
+class ChecklistCellStyle extends GridCellStyle {
+  String placeholder;
+  EdgeInsets? cellPadding;
+
+  ChecklistCellStyle({
+    required this.placeholder,
+    this.cellPadding,
+  });
+}
+
 class GridChecklistCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
-  GridChecklistCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  late final ChecklistCellStyle? cellStyle;
+  GridChecklistCell({
+    required this.cellControllerBuilder,
+    GridCellStyle? style,
+    super.key,
+  }) {
+    cellStyle = style as ChecklistCellStyle?;
+  }
 
   @override
   GridCellState<GridChecklistCell> createState() => GridChecklistCellState();
 }
 
 class GridChecklistCellState extends GridCellState<GridChecklistCell> {
-  late ChecklistCardCellBloc _cellBloc;
+  late ChecklistCellBloc _cellBloc;
   late final PopoverController _popover;
 
   @override
@@ -28,7 +44,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
     _popover = PopoverController();
     final cellController =
         widget.cellControllerBuilder.build() as ChecklistCellController;
-    _cellBloc = ChecklistCardCellBloc(cellController: cellController);
+    _cellBloc = ChecklistCellBloc(cellController: cellController);
     _cellBloc.add(const ChecklistCellEvent.initial());
     super.initState();
   }
@@ -53,15 +69,22 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
           );
         },
         onClose: () => widget.onCellFocus.value = false,
-        child: Padding(
-          padding: GridSize.cellContentInsets,
-          child: BlocBuilder<ChecklistCardCellBloc, ChecklistCellState>(
-            builder: (context, state) {
-              if (state.allOptions.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return ChecklistProgressBar(percent: state.percent);
-            },
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding:
+                widget.cellStyle?.cellPadding ?? GridSize.cellContentInsets,
+            child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
+              builder: (context, state) {
+                if (state.allOptions.isEmpty) {
+                  return FlowyText.medium(
+                    widget.cellStyle?.placeholder ?? "",
+                    color: Theme.of(context).hintColor,
+                  );
+                }
+                return ChecklistProgressBar(percent: state.percent);
+              },
+            ),
           ),
         ),
       ),

@@ -30,8 +30,8 @@ class ColorSchemeSetting extends StatelessWidget {
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
-        ColorSchemeUploadOverlayButton(bloc: bloc),
         ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
+        ColorSchemeUploadOverlayButton(bloc: bloc),
       ],
     );
   }
@@ -46,11 +46,14 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      icon: const FlowySvg(
+      icon: FlowySvg(
         FlowySvgs.folder_m,
-        size: Size.square(16),
+        size: const Size.square(16),
+        color: Theme.of(context).iconTheme.color,
       ),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
+      hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+      tooltipText: LocaleKeys.settings_appearance_themeUpload_uploadTheme.tr(),
       onPressed: () => Dialogs.show(
         context,
         child: BlocProvider<DynamicPluginBloc>.value(

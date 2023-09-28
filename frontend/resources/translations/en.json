@@ -284,6 +284,7 @@
       },
       "themeUpload": {
         "button": "Upload",
+        "uploadTheme": "Upload theme",
         "description": "Upload your own AppFlowy theme using the button below.",
         "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
@@ -336,7 +337,7 @@
     "user": {
       "name": "Name",
       "email": "Email",
-      "icon": "Icon",
+      "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
       "clickToLogout": "Click to logout the current user"
@@ -356,6 +357,9 @@
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
     "createView": "New",
+    "title": {
+      "placeholder": "Untitled"
+    },
     "settings": {
       "filter": "Filter",
       "sort": "Sort",
@@ -462,7 +466,9 @@
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
       "newRow": "New row",
-      "action": "Action"
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Drag to move"
     },
     "selectOption": {
       "create": "Create",
@@ -652,6 +658,9 @@
         "label": "Link to page",
         "tooltip": "Click to open page"
       }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
     }
   },
   "board": {
@@ -664,6 +673,7 @@
   "calendar": {
     "menuName": "Calendar",
     "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
     "navigation": {
       "today": "Today",
       "jumpToday": "Jump to Today",

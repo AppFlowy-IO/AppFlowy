@@ -3,6 +3,7 @@ import { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from '
 import { Database } from '$app/interfaces/database';
 import * as service from '$app/components/database/database_bd_svc';
 import { useViewId } from '../../database.hooks';
+import { CellText } from '../../_shared';
 
 export const GridTextCell: FC<{
   rowId: string;
@@ -42,19 +43,19 @@ export const GridTextCell: FC<{
 
   return (
     <>
-      <div
+      <CellText
         ref={cellRef}
-        className="relative flex h-full items-center p-3 text-xs font-medium"
+        className="w-full"
         onDoubleClick={handleDoubleClick}
       >
         {cell?.data}
-      </div>
+      </CellText>
       {editing && (
         <Popover
           open={editing}
           anchorEl={cellRef.current}
           PaperProps={{
-            className: 'flex',
+            className: 'flex p-2 border border-blue-400',
             style: { width, borderRadius: 0, boxShadow: 'none' },
           }}
           transformOrigin={{
@@ -65,7 +66,7 @@ export const GridTextCell: FC<{
           onClose={handleClose}
         >
           <TextareaAutosize
-            className="resize-none p-3 text-xs font-medium border border-blue-400"
+            className="resize-none text-sm"
             autoFocus
             autoCorrect="off"
             value={text}

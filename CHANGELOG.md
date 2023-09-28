@@ -1,5 +1,23 @@
 # Release Notes
 
+## Version 0.3.3 - 09/24/2023
+
+### New Features
+- Added an end date field to the time cell in the database.
+- Added Support for customizing the font family from GoogleFonts in the editor.
+- Set the uploaded image to cover by default.
+- Added Support for resetting the user icon on settings page
+- Add Urdu language translations.
+
+### Bug fixes
+- Default colors for the blocks except for the callout were not transparent.
+- Option/Alt + click to add a block above didn't work on the first line.
+- Unable to paste HTML content containing `<mark>` tag.
+- Unable to select the text from anywhere in the line.
+- The selection in the editor didn't clear when editing the inline database.
+- Added a bottom border to new property column in the database.
+- Set minimum width of 50px for grid fields.
+
 ## Version 0.3.2 - 09/18/2023
 
 ### New Features

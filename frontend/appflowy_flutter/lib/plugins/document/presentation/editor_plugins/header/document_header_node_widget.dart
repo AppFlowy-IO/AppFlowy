@@ -324,6 +324,7 @@ class DocumentCover extends StatefulWidget {
 class DocumentCoverState extends State<DocumentCover> {
   bool isOverlayButtonsHidden = true;
   bool isPopoverOpen = false;
+  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -382,12 +383,15 @@ class DocumentCoverState extends State<DocumentCover> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppFlowyPopover(
+            controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
             offset: const Offset(0, 8),
             direction: PopoverDirection.bottomWithCenterAligned,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             onClose: () => isPopoverOpen = false,
             child: RoundedTextButton(
+              onPressed: () => popoverController.show(),
               hoverColor: Theme.of(context).colorScheme.surface,
               textColor: Theme.of(context).colorScheme.tertiary,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),

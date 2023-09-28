@@ -14,6 +14,10 @@ import '../../application/workspace_error_bloc.dart';
 
 class WorkspaceErrorScreen extends StatelessWidget {
   static const routeName = "/WorkspaceErrorScreen";
+  // arguments names to used in GoRouter
+  static const argError = "error";
+  static const argUserFolder = "userFolder";
+
   final FlowyError error;
   final UserFolderPB userFolder;
   const WorkspaceErrorScreen({

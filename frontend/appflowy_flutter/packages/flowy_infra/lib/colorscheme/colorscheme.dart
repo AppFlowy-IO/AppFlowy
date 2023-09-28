@@ -85,6 +85,9 @@ class FlowyColorScheme {
   //editor toolbar BG color
   final Color toolbarColor;
   final Color toggleButtonBGColor;
+  final Color calendarWeekendBGColor;
+  //grid bottom count color
+  final Color gridRowCountColor;
 
   const FlowyColorScheme({
     required this.surface,
@@ -133,6 +136,8 @@ class FlowyColorScheme {
     required this.progressBarBGColor,
     required this.toolbarColor,
     required this.toggleButtonBGColor,
+    required this.calendarWeekendBGColor,
+    required this.gridRowCountColor,
   });
 
   factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>

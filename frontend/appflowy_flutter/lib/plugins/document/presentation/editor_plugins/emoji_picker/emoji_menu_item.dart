@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -32,8 +33,8 @@ void showEmojiPickerMenu(
 
   final alignment = menuService.alignment;
   final offset = menuService.offset;
-  final top = alignment == Alignment.bottomLeft ? offset.dy : null;
-  final bottom = alignment == Alignment.topLeft ? offset.dy : null;
+  final top = alignment == Alignment.topLeft ? offset.dy : null;
+  final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.value += 1;
   final emojiPickerMenuEntry = FullScreenOverlayEntry(
@@ -42,10 +43,15 @@ void showEmojiPickerMenu(
     left: offset.dx,
     dismissCallback: () => keepEditorFocusNotifier.value -= 1,
     builder: (context) => Material(
+      type: MaterialType.transparency,
       child: Container(
         width: 300,
         height: 250,
         padding: const EdgeInsets.all(4.0),
+        decoration: FlowyDecoration.decoration(
+          Theme.of(context).cardColor,
+          Theme.of(context).colorScheme.shadow,
+        ),
         child: EmojiSelectionMenu(
           onSubmitted: (emoji) {
             editorState.insertTextAtCurrentSelection(emoji.emoji);

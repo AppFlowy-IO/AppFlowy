@@ -60,6 +60,9 @@ class FontFamilyDropDown extends StatefulWidget {
     this.onFontFamilyChanged,
     this.child,
     this.popoverController,
+    this.offset,
+    this.showResetButton = false,
+    this.onResetFont,
   });
 
   final String currentFontFamily;
@@ -68,6 +71,9 @@ class FontFamilyDropDown extends StatefulWidget {
   final void Function(String fontFamily)? onFontFamilyChanged;
   final Widget? child;
   final PopoverController? popoverController;
+  final Offset? offset;
+  final bool showResetButton;
+  final VoidCallback? onResetFont;
 
   @override
   State<FontFamilyDropDown> createState() => _FontFamilyDropDownState();
@@ -87,12 +93,20 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         query.value = '';
         widget.onClose?.call();
       },
+      offset: widget.offset,
       child: widget.child,
       popupBuilder: (_) {
         widget.onOpen?.call();
         return CustomScrollView(
           shrinkWrap: true,
           slivers: [
+            if (widget.showResetButton)
+              SliverPersistentHeader(
+                delegate: _ResetFontButton(
+                  onPressed: widget.onResetFont,
+                ),
+                pinned: true,
+              ),
             SliverPadding(
               padding: const EdgeInsets.only(right: 8),
               sliver: SliverToBoxAdapter(
@@ -187,4 +201,37 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       ),
     );
   }
+}
+
+class _ResetFontButton extends SliverPersistentHeaderDelegate {
+  _ResetFontButton({
+    this.onPressed,
+  });
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8, bottom: 8.0),
+      child: FlowyTextButton(
+        LocaleKeys.document_toolbar_resetToDefaultFont.tr(),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => 35;
+
+  @override
+  double get minExtent => 35;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }

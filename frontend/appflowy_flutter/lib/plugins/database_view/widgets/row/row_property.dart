@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
@@ -6,6 +8,7 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/typ
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -19,13 +22,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'accessory/cell_accessory.dart';
 import 'cell_builder.dart';
-import 'cells/checkbox_cell/checkbox_cell.dart';
-import 'cells/date_cell/date_cell.dart';
-import 'cells/number_cell/number_cell.dart';
-import 'cells/select_option_cell/select_option_cell.dart';
-import 'cells/text_cell/text_cell.dart';
-import 'cells/timestamp_cell/timestamp_cell.dart';
-import 'cells/url_cell/url_cell.dart';
 
 /// Display the row properties in a list. Only use this widget in the
 /// [RowDetailPage].
@@ -73,7 +69,16 @@ class RowPropertyList extends StatelessWidget {
             child: Stack(
               children: [
                 child,
-                const MouseRegion(cursor: SystemMouseCursors.grabbing),
+                MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grabbing,
+                  child: const SizedBox(
+                    width: 16,
+                    height: 30,
+                    child: FlowySvg(FlowySvgs.drag_element_s),
+                  ),
+                ),
               ],
             ),
           ),
@@ -141,7 +146,9 @@ class _PropertyCellState extends State<_PropertyCell> {
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
-      cursor: SystemMouseCursors.grab,
+      cursor: Platform.isWindows
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.grab,
       child: SizedBox(
         width: 16,
         height: 30,
@@ -251,8 +258,9 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
         cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       );
     case FieldType.Checklist:
-      return SelectOptionCellStyle(
+      return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
+        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       );
     case FieldType.Number:
       return GridNumberCellStyle(

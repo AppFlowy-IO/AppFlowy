@@ -331,7 +331,6 @@
         "user": {
             "name": "نام",
             "email": "ای میل",
-            "icon": "آئیکن",
             "selectAnIcon": "آئیکن منتخب کریں",
             "pleaseInputYourOpenAIKey": "براہ کرم اپنی OpenAI کی درج کریں",
             "clickToLogout": "موجودہ صارف سے لاگ آؤٹ کرنے کے لیے کلک کریں"

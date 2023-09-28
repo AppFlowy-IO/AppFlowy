@@ -20,7 +20,7 @@ lib-dispatch = { workspace = true }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 protobuf = {version = "2.28.0"}
-bytes = { version = "1.4" }
+bytes = { version = "1.5" }
 nanoid = "0.4.0"
 parking_lot = "0.12.1"
 strum_macros = "0.21"

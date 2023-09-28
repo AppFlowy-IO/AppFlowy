@@ -76,7 +76,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     buildTextColorItem(),
     buildHighlightColorItem(),
     customizeFontToolbarItem,
-    ...textDirectionItems,
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -137,6 +136,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
+
+    // keep the previous font style when typing new text.
+    AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
   @override
@@ -153,6 +155,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
+    final isRTL =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+            LayoutDirection.rtlLayout;
+    final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+
+    _setRTLToolbarItems(isRTL);
+
     final editorScrollController = EditorScrollController(
       editorState: widget.editorState,
       shrinkWrap: widget.shrinkWrap,
@@ -168,21 +177,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
-      // customize the block builder
+      // customize the block builders
       blockComponentBuilders: blockComponentBuilders,
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      // customize the context menu items
       contextMenuItems: customContextMenuItems,
+      // customize the header and footer.
       header: widget.header,
       footer: const VSpace(200),
     );
-
-    final layoutDirection =
-        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
-                LayoutDirection.rtlLayout
-            ? TextDirection.rtl
-            : TextDirection.ltr;
 
     return Center(
       child: FloatingToolbar(
@@ -462,5 +467,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       standardCommandShortcutEvents,
       customizeShortcuts,
     );
+  }
+
+  void _setRTLToolbarItems(bool isRTL) {
+    final textDirectionItemIds = textDirectionItems.map((e) => e.id);
+    // clear all the text direction items
+    toolbarItems.removeWhere(
+      (item) => textDirectionItemIds.contains(item.id),
+    );
+    // only show the rtl item when the layout direction is ltr.
+    if (isRTL) {
+      toolbarItems.addAll(textDirectionItems);
+    }
   }
 }

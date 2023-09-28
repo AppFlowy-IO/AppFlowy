@@ -6,11 +6,13 @@ import 'package:appflowy/user/application/splash_bloc.dart';
 import 'package:appflowy/user/domain/auth_state.dart';
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/router.dart';
+import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 // [[diagram: splash screen]]
 // ┌────────────────┐1.get user ┌──────────┐     ┌────────────┐ 2.send UserEventCheckUser
@@ -23,12 +25,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //    └───────────┘            └─────────────┘                 └────────┘
 //           4. Show HomeScreen or SignIn      3.return AuthState
 class SplashScreen extends StatelessWidget {
+  /// Root Page of the app.
   const SplashScreen({
     super.key,
     required this.autoRegister,
   });
 
-  static const routeName = '/SplashScreen';
   final bool autoRegister;
 
   @override
@@ -50,9 +52,8 @@ class SplashScreen extends StatelessWidget {
 
   BlocProvider<SplashBloc> _buildChild(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        return getIt<SplashBloc>()..add(const SplashEvent.getUser());
-      },
+      create: (context) =>
+          getIt<SplashBloc>()..add(const SplashEvent.getUser()),
       child: Scaffold(
         body: BlocListener<SplashBloc, SplashState>(
           listener: (context, state) {
@@ -87,10 +88,9 @@ class SplashScreen extends StatelessWidget {
           final result = await FolderEventGetCurrentWorkspace().send();
           result.fold(
             (workspaceSetting) {
-              getIt<SplashRouter>().pushHomeScreen(
+              // After login, replace Splash screen by corresponding home screen
+              getIt<SplashRouter>().goHomeScreen(
                 context,
-                userProfile,
-                workspaceSetting,
               );
             },
             (error) => handleOpenWorkspaceError(context, error),
@@ -107,11 +107,12 @@ class SplashScreen extends StatelessWidget {
     Log.trace(
       '_handleUnauthenticated -> Supabase is enabled: $isSupabaseEnabled',
     );
-    // if the env is not configured, we will skip to the 'skip login screen'.
+    // replace Splash screen as root page
     if (isSupabaseEnabled) {
-      getIt<SplashRouter>().pushSignInScreen(context);
+      context.go(SignInScreen.routeName);
     } else {
-      getIt<SplashRouter>().pushSkipLoginScreen(context);
+      // if the env is not configured, we will skip to the 'skip login screen'.
+      context.go(SkipLogInScreen.routeName);
     }
   }
 

@@ -19,7 +19,7 @@ unicode-segmentation = "1.10"
 tracing = { version = "0.1", features = ["log"] }
 flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error"]}
 lib-dispatch = { workspace = true }
-bytes = { version = "1.4" }
+bytes = { version = "1.5" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 tokio = { version = "1.26", features = ["full"] }
 nanoid = "0.4.0"

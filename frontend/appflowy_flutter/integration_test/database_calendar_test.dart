@@ -79,33 +79,33 @@ void main() {
       // Tap on create new event button
       await tester.tapAddCalendarEventButton();
 
-      // Make sure that the row details page is opened
-      tester.assertRowDetailPageOpened();
-
-      // Dismiss the row details page
-      await tester.dismissRowDetailPage();
+      // Make sure that the event editor popup is shown
+      tester.assertEventEditorOpen();
 
       tester.assertNumberOfEventsInCalendar(1);
+
+      // Dismiss the event editor popup
+      await tester.dismissEventEditor();
 
       // Double click on today's calendar cell to create a new event
       await tester.doubleClickCalendarCell(DateTime.now());
 
-      // Make sure that the row details page is opened
-      tester.assertRowDetailPageOpened();
-
-      // Dismiss the row details page
-      await tester.dismissRowDetailPage();
+      // Make sure that the event editor popup is shown
+      tester.assertEventEditorOpen();
 
       // Make sure that the event is inserted in the cell
       tester.assertNumberOfEventsInCalendar(2);
 
+      // Dismiss the event editor popup
+      await tester.dismissEventEditor();
+
       // Click on the event
       await tester.openCalendarEvent(index: 0);
-      tester.assertRowDetailPageOpened();
+      tester.assertEventEditorOpen();
 
       // Change the title of the event
-      await tester.editTitleInRowDetailPage('hello world');
-      await tester.dismissRowDetailPage();
+      await tester.editEventTitle('hello world');
+      await tester.dismissEventEditor();
 
       // Make sure that the event is edited
       tester.assertNumberOfEventsInCalendar(1, title: 'hello world');
@@ -113,6 +113,10 @@ void main() {
 
       // Click on the event
       await tester.openCalendarEvent(index: 1);
+      tester.assertEventEditorOpen();
+
+      // Click on the open icon
+      await tester.openEventToRowDetailPage();
       tester.assertRowDetailPageOpened();
 
       // Duplicate the event
@@ -126,12 +130,23 @@ void main() {
 
       // Delete an event
       await tester.openCalendarEvent(index: 1);
-      await tester.tapRowDetailPageRowActionButton();
-      await tester.tapRowDetailPageDeleteRowButton();
+      await tester.deleteEventFromEventEditor();
 
       // Check that there is 1 event
       tester.assertNumberOfEventsInCalendar(1, title: 'hello world');
       tester.assertNumberOfEventsOnSpecificDay(2, DateTime.now());
+
+      // Delete event from row detail page
+      await tester.openCalendarEvent(index: 1);
+      await tester.openEventToRowDetailPage();
+      tester.assertRowDetailPageOpened();
+
+      await tester.tapRowDetailPageRowActionButton();
+      await tester.tapRowDetailPageDeleteRowButton();
+
+      // Check that there is 0 event
+      tester.assertNumberOfEventsInCalendar(0, title: 'hello world');
+      tester.assertNumberOfEventsOnSpecificDay(1, DateTime.now());
     });
 
     testWidgets('rescheduling events', (tester) async {
@@ -145,7 +160,7 @@ void main() {
       final today = DateTime.now();
       final firstOfThisMonth = DateTime(today.year, today.month, 1);
       await tester.doubleClickCalendarCell(firstOfThisMonth);
-      await tester.dismissRowDetailPage();
+      await tester.dismissEventEditor();
 
       // Drag and drop the event onto the next week, same day
       await tester.dragDropRescheduleCalendarEvent(firstOfThisMonth);
@@ -157,13 +172,12 @@ void main() {
 
       // Delete the event
       await tester.openCalendarEvent(index: 0, date: sameDayNextWeek);
-      await tester.tapRowDetailPageRowActionButton();
-      await tester.tapRowDetailPageDeleteRowButton();
+      await tester.deleteEventFromEventEditor();
 
       // Create a new event in today's calendar cell
       await tester.scrollToToday();
       await tester.doubleClickCalendarCell(today);
-      await tester.dismissRowDetailPage();
+      await tester.dismissEventEditor();
 
       // Make sure that the event is today
       tester.assertNumberOfEventsOnSpecificDay(1, today);
@@ -182,12 +196,43 @@ void main() {
       await tester.selectDay(content: newDate.day);
       await tester.dismissCellEditor();
 
-      // Dismiss the row details page
-      await tester.dismissRowDetailPage();
+      // Dismiss the event editor
+      await tester.dismissEventEditor();
 
       // Make sure that the event is edited
       tester.assertNumberOfEventsInCalendar(1);
       tester.assertNumberOfEventsOnSpecificDay(1, newDate);
+
+      // Click on the unscheduled events button
+      await tester.openUnscheduledEventsPopup();
+
+      // Assert that nothing shows up
+      tester.findUnscheduledPopup(findsNothing, 0);
+
+      // Click on the event in the calendar
+      await tester.openCalendarEvent(index: 0, date: newDate);
+
+      // Open the date editor of the event
+      await tester.tapDateCellInRowDetailPage();
+      await tester.findDateEditor(findsOneWidget);
+
+      // Clear the date of the event
+      await tester.clearDate();
+
+      // Dismiss the event editor
+      await tester.dismissEventEditor();
+      tester.assertNumberOfEventsInCalendar(0);
+
+      // Click on the unscheduled events button
+      await tester.openUnscheduledEventsPopup();
+
+      // Assert that a popup appears and 1 unscheduled event
+      tester.findUnscheduledPopup(findsOneWidget, 1);
+
+      // Click on the unscheduled event
+      await tester.clickUnscheduledEvent();
+
+      tester.assertRowDetailPageOpened();
     });
   });
 }
