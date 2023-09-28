@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:appflowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -25,84 +27,102 @@ import '../widgets/edit_panel/edit_panel.dart';
 import 'home_layout.dart';
 import 'home_stack.dart';
 
-class DesktopHomeScreen extends StatefulWidget {
+class DesktopHomeScreen extends StatelessWidget {
   static const routeName = '/DesktopHomeScreen';
-  final UserProfilePB userProfile;
-  final WorkspaceSettingPB workspaceSetting;
-  const DesktopHomeScreen({
-    super.key,
-    required this.userProfile,
-    required this.workspaceSetting,
-  });
 
-  @override
-  State<DesktopHomeScreen> createState() => _DesktopHomeScreenState();
-}
+  const DesktopHomeScreen({super.key});
 
-class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
-        BlocProvider<HomeBloc>(
-          create: (context) {
-            return HomeBloc(widget.userProfile, widget.workspaceSetting)
-              ..add(const HomeEvent.initial());
-          },
-        ),
-        BlocProvider<HomeSettingBloc>(
-          create: (context) {
-            return HomeSettingBloc(
-              widget.userProfile,
-              widget.workspaceSetting,
-              context.read<AppearanceSettingsCubit>(),
-            )..add(const HomeSettingEvent.initial());
-          },
-        ),
-      ],
-      child: HomeHotKeys(
-        child: Scaffold(
-          body: MultiBlocListener(
-            listeners: [
-              BlocListener<HomeBloc, HomeState>(
-                listenWhen: (p, c) => p.latestView != c.latestView,
-                listener: (context, state) {
-                  final view = state.latestView;
-                  if (view != null) {
-                    // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
-                    // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
-                    final currentPageManager =
-                        context.read<TabsBloc>().state.currentPageManager;
+    return FutureBuilder(
+      future: Future.wait([
+        FolderEventGetCurrentWorkspace().send(),
+        getIt<AuthService>().getUser(),
+      ]),
+      builder: (context, snapshots) {
+        if (!snapshots.hasData) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
 
-                    if (currentPageManager.plugin.pluginType ==
-                        PluginType.blank) {
-                      getIt<TabsBloc>().add(
-                        TabsEvent.openPlugin(
-                          plugin: view.plugin(listenOnViewChanged: true),
-                        ),
-                      );
-                    }
-                  }
-                },
-              ),
-            ],
-            child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
-              buildWhen: (previous, current) => previous != current,
-              builder: (context, state) {
-                return FlowyContainer(
-                  Theme.of(context).colorScheme.surface,
-                  child: _buildBody(context),
-                );
+        final workspaceSetting = snapshots.data?[0].fold(
+          (workspaceSettingPB) {
+            return workspaceSettingPB as WorkspaceSettingPB;
+          },
+          (error) => null,
+        );
+        final userProfile =
+            snapshots.data?[1].fold((error) => null, (userProfilePB) {
+          return userProfilePB as UserProfilePB;
+        });
+        return MultiBlocProvider(
+          key: ValueKey(userProfile!.id),
+          providers: [
+            BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
+            BlocProvider<HomeBloc>(
+              create: (context) {
+                return HomeBloc(userProfile, workspaceSetting!)
+                  ..add(const HomeEvent.initial());
               },
             ),
+            BlocProvider<HomeSettingBloc>(
+              create: (context) {
+                return HomeSettingBloc(
+                  userProfile,
+                  workspaceSetting!,
+                  context.read<AppearanceSettingsCubit>(),
+                )..add(const HomeSettingEvent.initial());
+              },
+            ),
+          ],
+          child: HomeHotKeys(
+            child: Scaffold(
+              body: MultiBlocListener(
+                listeners: [
+                  BlocListener<HomeBloc, HomeState>(
+                    listenWhen: (p, c) => p.latestView != c.latestView,
+                    listener: (context, state) {
+                      final view = state.latestView;
+                      if (view != null) {
+                        // Only open the last opened view if the [TabsState.currentPageManager] current opened plugin is blank and the last opened view is not null.
+                        // All opened widgets that display on the home screen are in the form of plugins. There is a list of built-in plugins defined in the [PluginType] enum, including board, grid and trash.
+                        final currentPageManager =
+                            context.read<TabsBloc>().state.currentPageManager;
+
+                        if (currentPageManager.plugin.pluginType ==
+                            PluginType.blank) {
+                          getIt<TabsBloc>().add(
+                            TabsEvent.openPlugin(
+                              plugin: view.plugin(listenOnViewChanged: true),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ],
+                child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
+                  buildWhen: (previous, current) => previous != current,
+                  builder: (context, state) {
+                    return FlowyContainer(
+                      Theme.of(context).colorScheme.surface,
+                      child:
+                          _buildBody(context, userProfile, workspaceSetting!),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(
+    BuildContext context,
+    UserProfilePB userProfile,
+    WorkspaceSettingPB workspaceSetting,
+  ) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints);
@@ -115,6 +135,8 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
         final menu = _buildHomeSidebar(
           layout: layout,
           context: context,
+          userProfile: userProfile,
+          workspaceSetting: workspaceSetting,
         );
         final homeMenuResizer = _buildHomeMenuResizer(context: context);
         final editPanel = _buildEditPanel(
@@ -137,10 +159,11 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   Widget _buildHomeSidebar({
     required HomeLayout layout,
     required BuildContext context,
+    required UserProfilePB userProfile,
+    required WorkspaceSettingPB workspaceSetting,
   }) {
-    final workspaceSetting = widget.workspaceSetting;
     final homeMenu = HomeSideBar(
-      user: widget.userProfile,
+      user: userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

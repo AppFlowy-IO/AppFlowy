@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "訂閱電子報",
   "letsGoButtonText": "開始使用",
   "title": "標題",
+  "youCanAlso": "你也可以",
+  "and": "和",
+  "blockActions": {
+    "addBelowTooltip": "點擊下方添加",
+    "addAboveCmd": "Alt+單擊",
+    "addAboveMacCmd": "選項+單擊",
+    "addAboveTooltip": "添加上面"
+  },
   "signUp": {
     "buttonText": "註冊",
     "title": "註冊 @:appName",
@@ -49,6 +57,13 @@
     "import": "匯入",
     "moreOptions": "更多的選擇"
   },
+  "importPanel": {
+    "textAndMarkdown": "文本和降價",
+    "documentFromV010": "v0.1.0 的文檔",
+    "databaseFromV010": "v0.1.0 版本的數據庫",
+    "csv": "CSV",
+    "database": "數據庫"
+  },
   "disclosureAction": {
     "rename": "重新命名",
     "delete": "刪除",
@@ -85,12 +100,12 @@
     "shortcuts": "快捷鍵",
     "whatsNew": "新功能",
     "help": "幫助 & 支援",
+    "markdown": "降價",
     "debug": {
       "name": "除錯資訊",
       "success": "已將除錯資訊複製至剪貼簿！",
       "fail": "無法將除錯資訊複製至剪貼簿"
     },
-    "markdown": "降價",
     "feedback": "反饋"
   },
   "menuAppHeader": {
@@ -122,9 +137,9 @@
     "openAsPage": "以頁面開啓",
     "addNewRow": "新增列",
     "openMenu": "點擊以開啟選單",
+    "dragRow": "長按可重新排序行",
     "viewDataBase": "查看資料庫",
     "referencePage": "這個 {name} 已被引用",
-    "dragRow": "長按可重新排序行",
     "addBlockBelow": "在下面添加一個塊"
   },
   "sideBar": {
@@ -145,6 +160,7 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "完畢",
     "Cancel": "取消",
     "signIn": "登入",
     "signOut": "登出",
@@ -157,7 +173,6 @@
     "discard": "放棄變更",
     "replace": "取代",
     "insertBelow": "在下方插入",
-    "Done": "完畢",
     "upload": "上傳",
     "edit": "編輯",
     "delete": "刪除",
@@ -196,16 +211,15 @@
       "supabaseSetting": "超基設置"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "字體系列",
+        "search": "搜索"
+      },
       "themeMode": {
         "label": "主題模式",
         "light": "亮色模式",
         "dark": "暗色模式",
         "system": "系統設定"
-      },
-      "theme": "主題",
-      "fontFamily": {
-        "label": "字體系列",
-        "search": "搜索"
       },
       "themeUpload": {
         "button": "上傳",
@@ -217,19 +231,25 @@
         "filePickerDialogTitle": "選擇 .flowy_plugin 文件",
         "urlUploadFailure": "無法打開網址：{}"
       },
+      "theme": "主題",
       "builtInsLabel": "內置主題",
       "pluginsLabel": "插件"
     },
     "files": {
+      "copy": "複製",
       "defaultLocation": "AppFlowy 資料儲存位置",
+      "exportData": "導出您的數據",
       "doubleTapToCopy": "雙擊以複製路徑",
       "restoreLocation": "恢復為 AppFlowy 預設路徑",
       "customizeLocation": "開啟其他資料夾",
       "restartApp": "請重新啟動應用程式以使更動生效。",
       "exportDatabase": "匯出資料庫",
       "selectFiles": "選擇需要匯出的檔案",
+      "selectAll": "全選",
+      "deselectAll": "取消全選",
       "createNewFolder": "建立新資料夾",
       "createNewFolderDesc": "選擇您想儲存資料的位置",
+      "defineWhereYourDataIsStored": "定義數據的存儲位置",
       "open": "開啟",
       "openFolder": "開啟一個已經存在的資料夾",
       "openFolderDesc": "讀寫至已存在的 AppFlowy 資料夾",
@@ -238,15 +258,10 @@
       "locationDesc": "命名 AppFlowy 資料夾",
       "browser": "瀏覽",
       "create": "建立",
+      "set": "放",
       "folderPath": "儲存資料夾的路徑",
       "locationCannotBeEmpty": "路徑不能爲空",
       "pathCopiedSnackbar": "儲存檔案的路徑已被複製到剪貼簿！",
-      "copy": "複製",
-      "exportData": "導出您的數據",
-      "selectAll": "全選",
-      "deselectAll": "取消全選",
-      "defineWhereYourDataIsStored": "定義數據的存儲位置",
-      "set": "放",
       "changeLocationTooltips": "更改數據目錄",
       "change": "改變",
       "openLocationTooltips": "打開另一個數據目錄",
@@ -263,20 +278,22 @@
     }
   },
   "grid": {
+    "deleteView": "您確定要刪除該視圖嗎？",
+    "createView": "新的",
     "settings": {
       "filter": "篩選",
       "sort": "排序",
       "sortBy": "排序方式",
-      "Properties": "屬性",
+      "properties": "特性",
+      "reorderPropertiesTooltip": "拖動以重新排序屬性",
       "group": "群組",
       "addFilter": "新增篩選器",
       "deleteFilter": "刪除篩選器",
       "filterBy": "以……篩選",
       "typeAValue": "輸入一個值……",
       "layout": "佈局",
-      "properties": "特性",
-      "reorderPropertiesTooltip": "拖動以重新排序屬性",
-      "databaseLayout": "佈局"
+      "databaseLayout": "佈局",
+      "Properties": "屬性"
     },
     "textFilter": {
       "contains": "包含",
@@ -327,6 +344,8 @@
       "textFieldName": "文字",
       "checkboxFieldName": "核取方塊",
       "dateFieldName": "日期",
+      "updatedAtFieldName": "最後修改時間",
+      "createdAtFieldName": "創建時間",
       "numberFieldName": "數字",
       "singleSelectFieldName": "單選",
       "multiSelectFieldName": "多選",
@@ -339,6 +358,7 @@
       "dateFormatISO": "年-月-日",
       "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
+      "dateFormatDayMonthYear": "日月年",
       "timeFormat": "時間格式",
       "invalidTimeFormat": "格式無效",
       "timeFormatTwelveHour": "12 小時制",
@@ -348,16 +368,13 @@
       "addOption": "新增選項",
       "editProperty": "編輯屬性",
       "newProperty": "新屬性",
-      "deleteFieldPromptMessage": "您確定嗎？這個屬性將被刪除",
-      "updatedAtFieldName": "最後修改時間",
-      "createdAtFieldName": "創建時間",
-      "dateFormatDayMonthYear": "日月年"
+      "deleteFieldPromptMessage": "您確定嗎？這個屬性將被刪除"
     },
     "sort": {
       "ascending": "升冪排序",
       "descending": "降冪排序",
-      "deleteSort": "刪除排序",
-      "addSort": "新增排序"
+      "addSort": "新增排序",
+      "deleteSort": "刪除排序"
     },
     "row": {
       "duplicate": "複製",
@@ -388,8 +405,6 @@
       "addNew": "新增物件"
     },
     "menuName": "網格",
-    "deleteView": "您確定要刪除該視圖嗎？",
-    "createView": "新的",
     "referencedGridPrefix": "視圖"
   },
   "document": {
@@ -412,28 +427,38 @@
         "createANewCalendar": "創建新日曆"
       }
     },
+    "selectionMenu": {
+      "outline": "大綱"
+    },
     "plugins": {
       "referencedBoard": "已連結的看板",
       "referencedGrid": "已連結的網格",
+      "referencedCalendar": "參考日曆",
       "autoGeneratorMenuItemName": "OpenAI 寫手",
       "autoGeneratorTitleName": "OpenAI：讓 AI 寫任何東西……",
       "autoGeneratorLearnMore": "瞭解更多",
       "autoGeneratorGenerate": "生成",
       "autoGeneratorHintText": "問 OpenAI……",
       "autoGeneratorCantGetOpenAIKey": "無法取得 OpenAI 密鑰",
+      "autoGeneratorRewrite": "改寫",
       "smartEdit": "AI 助理",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "修正拼寫",
       "warning": "⚠️ AI 的回覆可能不準確或具有誤導性。",
       "smartEditSummarize": "總結",
+      "smartEditImproveWriting": "提高寫作水平",
+      "smartEditMakeLonger": "做得更長",
       "smartEditCouldNotFetchResult": "無法取得 OpenAI 的結果",
       "smartEditCouldNotFetchKey": "無法取得 OpenAI 密鑰",
       "smartEditDisabled": "在設定連結 OpenAI ",
       "discardResponse": "確定捨棄 AI 的回覆？",
+      "createInlineMathEquation": "創建方程",
+      "toggleList": "切換列表",
       "cover": {
         "changeCover": "更換封面",
         "colors": "顏色",
         "images": "圖片",
+        "clearAll": "全部清除",
         "abstract": "摘要",
         "addCover": "新增封面",
         "addLocalImage": "新增本機圖片",
@@ -450,16 +475,9 @@
         "couldNotFetchImage": "無法抓取圖片",
         "imageSavingFailed": "圖片儲存失敗",
         "addIcon": "新增圖標",
-        "clearAll": "全部清除",
         "coverRemoveAlert": "刪除後將從封面中刪除。",
         "alertDialogConfirmation": "你確定你要繼續嗎？"
       },
-      "referencedCalendar": "參考日曆",
-      "autoGeneratorRewrite": "改寫",
-      "smartEditImproveWriting": "提高寫作水平",
-      "smartEditMakeLonger": "做得更長",
-      "createInlineMathEquation": "創建方程",
-      "toggleList": "切換列表",
       "mathEquation": {
         "addMathEquation": "添加數學方程",
         "editMathEquation": "編輯數學方程"
@@ -485,9 +503,6 @@
       "outline": {
         "addHeadingToCreateOutline": "添加標題以創建目錄。"
       }
-    },
-    "selectionMenu": {
-      "outline": "大綱"
     },
     "textBlock": {
       "placeholder": "輸入“/”作為命令"
@@ -558,21 +573,6 @@
       "name": "日曆佈局"
     },
     "referencedCalendarPrefix": "視圖"
-  },
-  "youCanAlso": "你也可以",
-  "and": "和",
-  "blockActions": {
-    "addBelowTooltip": "點擊下方添加",
-    "addAboveCmd": "Alt+單擊",
-    "addAboveMacCmd": "選項+單擊",
-    "addAboveTooltip": "添加上面"
-  },
-  "importPanel": {
-    "textAndMarkdown": "文本和降價",
-    "documentFromV010": "v0.1.0 的文檔",
-    "databaseFromV010": "v0.1.0 版本的數據庫",
-    "csv": "CSV",
-    "database": "數據庫"
   },
   "errorDialog": {
     "title": "AppFlowy錯誤",

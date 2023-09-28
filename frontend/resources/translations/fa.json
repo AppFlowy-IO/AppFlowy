@@ -32,7 +32,6 @@
   "signIn": {
     "loginTitle": "ورود به @:appName",
     "loginButtonText": "ورود",
-    "loginAsGuestButtonText": "شروع کنید",
     "continueAnonymousUser": "ادامه دادن به صورت کاربر مهمان",
     "buttonText": "ورود",
     "forgotPassword": "رمز عبور را فراموش کرده اید؟",
@@ -41,7 +40,8 @@
     "dontHaveAnAccount": "آیا حساب کاربری ندارید؟",
     "repeatPasswordEmptyError": "تکرار رمز عبور نمی‌تواند خالی باشد",
     "unmatchedPasswordError": "تکرار رمز عبور مشابه رمز عبور نیست",
-    "signInWith": "ثبت نام با:"
+    "signInWith": "ثبت نام با:",
+    "loginAsGuestButtonText": "شروع کنید"
   },
   "workspace": {
     "create": "ایجاد فضای کار",

@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Подписаться на рассылку",
   "letsGoButtonText": "Начнём",
   "title": "Заголовок",
+  "youCanAlso": "Вы также можете",
+  "and": "и",
+  "blockActions": {
+    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
+    "addAboveCmd": "Alt+щелчок",
+    "addAboveMacCmd": "Option+щелчок",
+    "addAboveTooltip": "добавить выше"
+  },
   "signUp": {
     "buttonText": "Зарегистрироваться",
     "title": "Регистрация в @:appName",
@@ -203,16 +211,15 @@
       "supabaseSetting": "Настройка надбазы"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Семейство шрифтов",
+        "search": "Поиск"
+      },
       "themeMode": {
         "label": "Тема приложения",
         "light": "Светлая",
         "dark": "Тёмная",
         "system": "Системная"
-      },
-      "theme": "Тема",
-      "fontFamily": {
-        "label": "Семейство шрифтов",
-        "search": "Поиск"
       },
       "themeUpload": {
         "button": "Загрузить",
@@ -224,6 +231,7 @@
         "filePickerDialogTitle": "Выберите файл .flowy_plugin",
         "urlUploadFailure": "Не удалось открыть URL: {}"
       },
+      "theme": "Тема",
       "builtInsLabel": "Встроенные темы",
       "pluginsLabel": "Плагины"
     },
@@ -257,11 +265,11 @@
       "changeLocationTooltips": "Сменить местоположения",
       "change": "Изменить",
       "openLocationTooltips": "Открыть другую директорию данных",
+      "openCurrentDataFolder": "Открыть текущий каталог данных",
       "recoverLocationTooltips": "Сбросить к местоположению по умолчанию",
       "exportFileSuccess": "Экспорт завершён!",
       "exportFileFail": "Не удалость экспортировать!",
-      "export": "Экспорт",
-      "openCurrentDataFolder": "Открыть текущий каталог данных"
+      "export": "Экспорт"
     },
     "user": {
       "name": "Имя",
@@ -270,11 +278,14 @@
     }
   },
   "grid": {
+    "deleteView": "Вы уверены, что хотите удалить это представление?",
+    "createView": "Новый",
     "settings": {
       "filter": "Фильтр",
       "sort": "Сортировать",
       "sortBy": "Сортировать по",
-      "Properties": "Свойства",
+      "properties": "Характеристики",
+      "reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств",
       "group": "Группировать",
       "addFilter": "Добавить фильтр",
       "deleteFilter": "Удалить фильтр",
@@ -282,8 +293,7 @@
       "typeAValue": "Введите значение...",
       "layout": "Вид",
       "databaseLayout": "Вид базы данных",
-      "properties": "Характеристики",
-      "reorderPropertiesTooltip": "Перетащите, чтобы изменить порядок свойств"
+      "Properties": "Свойства"
     },
     "textFilter": {
       "contains": "Содержит",
@@ -363,8 +373,8 @@
     "sort": {
       "ascending": "По возрастанию",
       "descending": "По убыванию",
-      "deleteSort": "Удалить сортировку",
-      "addSort": "Добавить сортировку"
+      "addSort": "Добавить сортировку",
+      "deleteSort": "Удалить сортировку"
     },
     "row": {
       "duplicate": "Дублировать",
@@ -395,9 +405,7 @@
       "addNew": "Добавить элемент"
     },
     "menuName": "Сетка",
-    "referencedGridPrefix": "Просмотр",
-    "deleteView": "Вы уверены, что хотите удалить это представление?",
-    "createView": "Новый"
+    "referencedGridPrefix": "Просмотр"
   },
   "document": {
     "menuName": "Документ",
@@ -419,15 +427,20 @@
         "createANewCalendar": "Создать календарь"
       }
     },
+    "selectionMenu": {
+      "outline": "Контур"
+    },
     "plugins": {
       "referencedBoard": "Связанные доски",
       "referencedGrid": "Связанные сетки",
+      "referencedCalendar": "Ссылочный календарь",
       "autoGeneratorMenuItemName": "Генератор OpenAI",
       "autoGeneratorTitleName": "OpenAI: попросить ИИ написать что угодно...",
       "autoGeneratorLearnMore": "Узнать больше",
       "autoGeneratorGenerate": "Генерировать",
       "autoGeneratorHintText": "Спросить OpenAI ...",
       "autoGeneratorCantGetOpenAIKey": "Не могу получить токен OpenAI",
+      "autoGeneratorRewrite": "Переписать",
       "smartEdit": "ИИ ассистенты",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Исправить правописание",
@@ -439,6 +452,8 @@
       "smartEditCouldNotFetchKey": "Не могу получить токен OpenAI",
       "smartEditDisabled": "Подключить OpenAI",
       "discardResponse": "Хотите убрать ответы ИИ?",
+      "createInlineMathEquation": "Создать уравнение",
+      "toggleList": "Переключить список",
       "cover": {
         "changeCover": "Сменить обложку",
         "colors": "Цвета",
@@ -482,19 +497,12 @@
         "right": "По правому краю",
         "defaultColor": "Цвет по умолчанию"
       },
-      "referencedCalendar": "Ссылочный календарь",
-      "autoGeneratorRewrite": "Переписать",
-      "createInlineMathEquation": "Создать уравнение",
-      "toggleList": "Переключить список",
       "image": {
         "copiedToPasteBoard": "Ссылка на изображение скопирована в буфер обмена"
       },
       "outline": {
         "addHeadingToCreateOutline": "Добавьте заголовки, чтобы создать оглавление."
       }
-    },
-    "selectionMenu": {
-      "outline": "Контур"
     },
     "textBlock": {
       "placeholder": "Введите '/' для команд"
@@ -565,14 +573,6 @@
       "name": "Calendar layout"
     },
     "referencedCalendarPrefix": "Вид"
-  },
-  "youCanAlso": "Вы также можете",
-  "and": "и",
-  "blockActions": {
-    "addBelowTooltip": "Нажмите, чтобы добавить ниже",
-    "addAboveCmd": "Alt+щелчок",
-    "addAboveMacCmd": "Option+щелчок",
-    "addAboveTooltip": "добавить выше"
   },
   "errorDialog": {
     "title": "Ошибка приложения",

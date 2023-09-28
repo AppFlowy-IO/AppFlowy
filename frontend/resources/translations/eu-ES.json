@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Harpidetu buletinera",
   "letsGoButtonText": "Hasi",
   "title": "Izenburua",
+  "youCanAlso": "Zuk ere egin dezakezu",
+  "and": "eta",
+  "blockActions": {
+    "addBelowTooltip": "Egin klik behean gehitzeko",
+    "addAboveCmd": "Alt+klik",
+    "addAboveMacCmd": "Aukera+klik",
+    "addAboveTooltip": "goian gehitzeko"
+  },
   "signUp": {
     "buttonText": "Izena eman",
     "title": "Izena eman @:appName -ra",
@@ -49,6 +57,13 @@
     "import": "Inportatu",
     "moreOptions": "Aukera gehiago"
   },
+  "importPanel": {
+    "textAndMarkdown": "Testua eta Markdown",
+    "documentFromV010": "v0.1.0 dokumentua",
+    "databaseFromV010": "0.1.0 bertsioko datu-basea",
+    "csv": "CSV",
+    "database": "Datu-basea"
+  },
   "disclosureAction": {
     "rename": "Izena aldatu",
     "delete": "Ezabatu",
@@ -82,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "Orriaren izena",
   "questionBubble": {
+    "shortcuts": "Lasterbideak",
     "whatsNew": "Ze berri?",
     "help": "Laguntza",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug informazioa",
       "success": "Debug informazioa kopiatu da!",
       "fail": "Ezin izan da debug informazioa kopiatu"
     },
-    "shortcuts": "Lasterbideak",
-    "markdown": "Markdown",
     "feedback": "Iritzia"
   },
   "menuAppHeader": {
@@ -145,12 +160,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Eginda",
     "Cancel": "Ezteztatu",
     "signIn": "Saioa hasi",
     "signOut": "Saioa itxi",
     "complete": "Burututa",
     "save": "Gorde",
-    "Done": "Eginda",
     "generate": "Sortu",
     "esc": "ESC",
     "keep": "Gorde",
@@ -196,16 +211,15 @@
       "supabaseSetting": "Supabase ezarpena"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Letra-tipoen familia",
+        "search": "Bilatu"
+      },
       "themeMode": {
         "label": "Itxura modua",
         "light": "Modu argia",
         "dark": "Modu iluna",
         "system": "Zure sistemara moldatu"
-      },
-      "theme": "Itxura",
-      "fontFamily": {
-        "label": "Letra-tipoen familia",
-        "search": "Bilatu"
       },
       "themeUpload": {
         "button": "Kargatu",
@@ -217,19 +231,25 @@
         "filePickerDialogTitle": "Aukeratu .flowy_plugin fitxategi bat",
         "urlUploadFailure": "Ezin izan da ireki URLa: {}"
       },
+      "theme": "Itxura",
       "builtInsLabel": "Eraikitako gaiak",
       "pluginsLabel": "Pluginak"
     },
     "files": {
+      "copy": "Kopiatu",
       "defaultLocation": "Non gordetzen diren zure datuak",
+      "exportData": "Esportatu zure datuak",
       "doubleTapToCopy": "Sakatu birritan bidea kopiatzeko",
       "restoreLocation": "Berrezarri AppFlowy-ren biden lehenetsira",
       "customizeLocation": "Beste karpeta bat ireki",
       "restartApp": "Mesedez, berrabiarazi aplikazioa aldaketak indarrean egon daitezen.",
       "exportDatabase": "Datubasea exportatu",
       "selectFiles": "Aukeratu exportatu nahi dituzun fitxategiak",
+      "selectAll": "Hautatu guztiak",
+      "deselectAll": "Deshautatu guztiak",
       "createNewFolder": "Karpeta berri bat sortu",
       "createNewFolderDesc": "Non nahi dituzu datuak gorde ...",
+      "defineWhereYourDataIsStored": "Zure datuak non gordetzen diren zehaztu",
       "open": "Oreki",
       "openFolder": "Ireki karpeta bat",
       "openFolderDesc": "Irakurri eta idatzi zure AppFlowy karpetan...",
@@ -238,14 +258,9 @@
       "locationDesc": "Aukeratu izen bat AppFlowy datuen karpetarako",
       "browser": "Bilatu",
       "create": "Sortu",
+      "set": "Ezarri",
       "folderPath": "Zure karpeta gordetzeko bidea",
       "locationCannotBeEmpty": "Bideak ezin du hutsa egon",
-      "copy": "Kopiatu",
-      "exportData": "Esportatu zure datuak",
-      "selectAll": "Hautatu guztiak",
-      "deselectAll": "Deshautatu guztiak",
-      "defineWhereYourDataIsStored": "Zure datuak non gordetzen diren zehaztu",
-      "set": "Ezarri",
       "pathCopiedSnackbar": "Fitxategiak biltegiratzeko bidea arbelean kopiatu da!",
       "changeLocationTooltips": "Aldatu datuen direktorioa",
       "change": "Aldatu",
@@ -263,20 +278,22 @@
     }
   },
   "grid": {
+    "deleteView": "Ziur ikuspegi hau ezabatu nahi duzula?",
+    "createView": "Berria",
     "settings": {
       "filter": "Filtroa",
       "sort": "Ordenatu",
       "sortBy": "Ordenatu honekiko",
-      "Properties": "Propietateak",
+      "properties": "Propietateak",
+      "reorderPropertiesTooltip": "Arrastatu propietateak berrantolatzeko",
       "group": "Taldea",
       "addFilter": "Gehitu iragazkia",
       "deleteFilter": "Ezabatu iragazkia",
       "filterBy": "Iragazi arabera...",
       "typeAValue": "Idatzi balio bat...",
-      "properties": "Propietateak",
-      "reorderPropertiesTooltip": "Arrastatu propietateak berrantolatzeko",
       "layout": "Diseinua",
-      "databaseLayout": "Diseinua"
+      "databaseLayout": "Diseinua",
+      "Properties": "Propietateak"
     },
     "textFilter": {
       "contains": "Dauka",
@@ -299,8 +316,8 @@
       "isChecked": "Egiaztatuta",
       "isUnchecked": "Desmarkatua",
       "choicechipPrefix": {
-        "da": "da",
-        "is": "da"
+        "is": "da",
+        "da": "da"
       }
     },
     "checklistFilter": {
@@ -328,6 +345,8 @@
       "textFieldName": "Testua",
       "checkboxFieldName": "Markatu laukia",
       "dateFieldName": "Data",
+      "updatedAtFieldName": "Azken aldaketaren ordua",
+      "createdAtFieldName": "Sortutako denbora",
       "numberFieldName": "Zenbakiak",
       "singleSelectFieldName": "Hautatu",
       "multiSelectFieldName": "Multi-hautaketa",
@@ -340,6 +359,7 @@
       "dateFormatISO": "Urtea-Hilabetea-Eguna",
       "dateFormatLocal": "Hilabetea/Eguna/Urtea",
       "dateFormatUS": "Urtea/Hilabetea/Eguna",
+      "dateFormatDayMonthYear": "Eguna/Hilabetea/Urtea",
       "timeFormat": "Denboraren formatua",
       "invalidTimeFormat": "Formatu baliogabea",
       "timeFormatTwelveHour": "12 ordu",
@@ -349,16 +369,13 @@
       "addOption": "Gehitu aukera",
       "editProperty": "Editatu propietatea",
       "newProperty": "Zutabe berria",
-      "deleteFieldPromptMessage": "Ziur al zaude? Propietate hau ezabatu egingo da",
-      "updatedAtFieldName": "Azken aldaketaren ordua",
-      "createdAtFieldName": "Sortutako denbora",
-      "dateFormatDayMonthYear": "Eguna/Hilabetea/Urtea"
+      "deleteFieldPromptMessage": "Ziur al zaude? Propietate hau ezabatu egingo da"
     },
     "sort": {
       "ascending": "Gorarantz",
       "descending": "Jaisten",
-      "deleteSort": "Ezabatu ordena",
-      "addSort": "Gehitu ordenatu"
+      "addSort": "Gehitu ordenatu",
+      "deleteSort": "Ezabatu ordena"
     },
     "row": {
       "duplicate": "Bikoiztu",
@@ -389,16 +406,10 @@
       "addNew": "Gehitu elementu bat"
     },
     "menuName": "Sareta",
-    "deleteView": "Ziur ikuspegi hau ezabatu nahi duzula?",
-    "createView": "Berria",
     "referencedGridPrefix": "-ren ikuspegia"
   },
   "document": {
     "menuName": "Dokumentua",
-    "data": {
-      "timeHintTextInTwelveHour": "01:00 PM",
-      "timeHintTextInTwentyFourHour": "13:00"
-    },
     "date": {
       "timeHintTextInTwelveHour": "01:00etan",
       "timeHintTextInTwentyFourHour": "13:00"
@@ -534,6 +545,10 @@
         "label": "Estekaren izenburua",
         "placeholder": "Sartu estekaren izenburua"
       }
+    },
+    "data": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "board": {
@@ -545,13 +560,13 @@
   },
   "calendar": {
     "menuName": "Egutegia",
+    "defaultNewCalendarTitle": "Izenbururik gabe",
     "navigation": {
       "today": "Gaur",
       "jumpToday": "Gaurko egunera salto egin",
       "previousMonth": "Aurreko hilabetea",
       "nextMonth": "Hurrengo hilabetea"
     },
-    "defaultNewCalendarTitle": "Izenbururik gabe",
     "settings": {
       "showWeekNumbers": "Erakutsi asteko zenbakiak",
       "showWeekends": "Asteburuetan erakutsi",
@@ -563,21 +578,6 @@
       "name": "Egutegiaren diseinua"
     },
     "referencedCalendarPrefix": "-ren ikuspegia"
-  },
-  "youCanAlso": "Zuk ere egin dezakezu",
-  "and": "eta",
-  "blockActions": {
-    "addBelowTooltip": "Egin klik behean gehitzeko",
-    "addAboveCmd": "Alt+klik",
-    "addAboveMacCmd": "Aukera+klik",
-    "addAboveTooltip": "goian gehitzeko"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Testua eta Markdown",
-    "documentFromV010": "v0.1.0 dokumentua",
-    "databaseFromV010": "0.1.0 bertsioko datu-basea",
-    "csv": "CSV",
-    "database": "Datu-basea"
   },
   "errorDialog": {
     "title": "AppFlowy errorea",

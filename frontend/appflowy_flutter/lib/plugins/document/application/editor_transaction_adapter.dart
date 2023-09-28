@@ -119,12 +119,15 @@ extension on InsertOperation {
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
           '';
-      var prevId = previousNode?.id ??
-          editorState.getNodeAtPath(currentPath.previous)?.id ??
-          '';
+      var prevId = previousNode?.id;
+      // if the node is the first child of the parent, then its prevId should be empty.
+      final isFirstChild = currentPath.previous.equals(currentPath);
+      if (!isFirstChild) {
+        prevId ??= editorState.getNodeAtPath(currentPath.previous)?.id ?? '';
+      }
+      prevId ??= '';
       assert(parentId.isNotEmpty);
-      if (currentPath.equals(currentPath.previous) &&
-          !currentPath.equals([0])) {
+      if (isFirstChild) {
         prevId = '';
       } else {
         assert(prevId.isNotEmpty && prevId != node.id);

@@ -109,7 +109,7 @@ export const GridSelectCell: FC<{
     <Select
       className="w-full"
       classes={{
-        select: 'flex items-center gap-2 px-4 py-2 h-6',
+        select: 'flex items-center gap-2 px-4 py-1 h-6',
       }}
       size="small"
       value={selectedIds}

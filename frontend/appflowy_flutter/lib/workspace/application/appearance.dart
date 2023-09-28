@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
-import 'package:appflowy/workspace/application/mobile_theme_data.dart';
+import 'package:appflowy/mobile/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';

@@ -279,6 +279,7 @@
       },
       "themeUpload": {
         "button": "Upload",
+        "uploadTheme": "Upload theme",
         "description": "Upload your own AppFlowy theme using the button below.",
         "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
@@ -351,6 +352,9 @@
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
     "createView": "New",
+    "title": {
+      "placeholder": "Untitled"
+    },
     "settings": {
       "filter": "Filter",
       "sort": "Sort",
@@ -457,7 +461,9 @@
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
       "newRow": "New row",
-      "action": "Action"
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Drag to move"
     },
     "selectOption": {
       "create": "Create",

@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "뉴스레터 구독",
   "letsGoButtonText": "Let's Go",
   "title": "제목",
+  "youCanAlso": "당신은 또한 수",
+  "and": "그리고",
+  "blockActions": {
+    "addBelowTooltip": "아래에 추가하려면 클릭",
+    "addAboveCmd": "Alt+클릭",
+    "addAboveMacCmd": "Option+클릭",
+    "addAboveTooltip": "위에 추가"
+  },
   "signUp": {
     "buttonText": "회원가입",
     "title": "@:appName 에 회원가입",
@@ -41,6 +49,21 @@
     "markdown": "마크다운",
     "copyLink": "링크 복사"
   },
+  "moreAction": {
+    "small": "작은",
+    "medium": "중간",
+    "large": "크기가 큰",
+    "fontSize": "글꼴 크기",
+    "import": "수입",
+    "moreOptions": "추가 옵션"
+  },
+  "importPanel": {
+    "textAndMarkdown": "텍스트 및 마크다운",
+    "documentFromV010": "v0.1.0의 문서",
+    "databaseFromV010": "v0.1.0의 데이터베이스",
+    "csv": "CSV",
+    "database": "데이터 베이스"
+  },
   "disclosureAction": {
     "rename": "이름변경",
     "delete": "삭제",
@@ -74,15 +97,15 @@
   },
   "dialogCreatePageNameHint": "페이지 이름",
   "questionBubble": {
+    "shortcuts": "바로 가기",
     "whatsNew": "새로운 소식",
     "help": "도움 및 지원",
+    "markdown": "가격 인하",
     "debug": {
       "name": "디버그 정보",
       "success": "디버그 정보를 클립보드로 복사했습니다.",
       "fail": "디버그 정보를 클립보드로 복사할 수 없습니다."
     },
-    "shortcuts": "바로 가기",
-    "markdown": "가격 인하",
     "feedback": "피드백"
   },
   "menuAppHeader": {
@@ -137,12 +160,12 @@
   },
   "button": {
     "OK": "확인",
+    "Done": "완료",
     "Cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
     "save": "저장",
-    "Done": "완료",
     "generate": "생성하다",
     "esc": "ESC",
     "keep": "유지하다",
@@ -183,13 +206,11 @@
       "appearance": "화면",
       "language": "언어",
       "user": "사용자",
-      "open": "설정 열기",
       "files": "파일",
+      "open": "설정 열기",
       "supabaseSetting": "수파베이스 설정"
     },
     "appearance": {
-      "lightLabel": "라이트 모드",
-      "darkLabel": "다크 모드",
       "fontFamily": {
         "label": "글꼴 패밀리",
         "search": "찾다"
@@ -212,7 +233,9 @@
       },
       "theme": "주제",
       "builtInsLabel": "내장 테마",
-      "pluginsLabel": "플러그인"
+      "pluginsLabel": "플러그인",
+      "lightLabel": "라이트 모드",
+      "darkLabel": "다크 모드"
     },
     "files": {
       "copy": "복사",
@@ -257,84 +280,23 @@
     }
   },
   "grid": {
+    "deleteView": "이 보기를 삭제하시겠습니까?",
+    "createView": "새로운",
     "settings": {
       "filter": "필터",
-      "sortBy": "정렬 기준",
-      "Properties": "속성",
-      "group": "그룹",
       "sort": "종류",
+      "sortBy": "정렬 기준",
       "properties": "속성",
       "reorderPropertiesTooltip": "드래그하여 속성 재정렬",
+      "group": "그룹",
       "addFilter": "필터 추가",
       "deleteFilter": "필터 삭제",
       "filterBy": "필터링 기준...",
       "typeAValue": "값을 입력하세요...",
       "layout": "공들여 나열한 것",
-      "databaseLayout": "공들여 나열한 것"
+      "databaseLayout": "공들여 나열한 것",
+      "Properties": "속성"
     },
-    "field": {
-      "hide": "숨기기",
-      "insertLeft": "왼쪽 삽입",
-      "insertRight": "오른쪽 삽입",
-      "duplicate": "복제",
-      "delete": "삭제",
-      "textFieldName": "텍스트",
-      "checkboxFieldName": "체크박스",
-      "dateFieldName": "날짜",
-      "numberFieldName": "숫자",
-      "singleSelectFieldName": "선택",
-      "multiSelectFieldName": "다중선택",
-      "urlFieldName": "링크",
-      "numberFormat": "숫자 형식",
-      "dateFormat": "날짜 형식",
-      "includeTime": "시간 표시",
-      "dateFormatFriendly": "월 일, 년",
-      "dateFormatISO": "년-월-일",
-      "dateFormatLocal": "월/일/년",
-      "dateFormatUS": "년/월/일",
-      "timeFormat": "시간 형식",
-      "invalidTimeFormat": "잘못된 형식",
-      "timeFormatTwelveHour": "12 시간",
-      "timeFormatTwentyFourHour": "24 시간",
-      "addSelectOption": "옵션 추가",
-      "optionTitle": "옵션",
-      "addOption": "옵션 추가",
-      "editProperty": "속성 편집",
-      "newProperty": "열 추가",
-      "deleteFieldPromptMessage": "해당 속성을 삭제 하시겠습니까?",
-      "updatedAtFieldName": "마지막 수정 시간",
-      "createdAtFieldName": "만든 시간",
-      "checklistFieldName": "체크리스트",
-      "dateFormatDayMonthYear": "일/월/년"
-    },
-    "row": {
-      "duplicate": "복제",
-      "delete": "삭제",
-      "textPlaceholder": "비어있음",
-      "copyProperty": "속성이 클립보드로 복사됨",
-      "count": "개수",
-      "newRow": "행 추가",
-      "action": "행동"
-    },
-    "selectOption": {
-      "create": "생성",
-      "purpleColor": "보라색",
-      "pinkColor": "핑크색",
-      "lightPinkColor": "연한 핑크색",
-      "orangeColor": "오렌지색",
-      "yellowColor": "노랑색",
-      "limeColor": "라임색",
-      "greenColor": "초록색",
-      "aquaColor": "아쿠아색",
-      "blueColor": "파랑색",
-      "deleteTag": "태그 삭제",
-      "colorPanelTitle": "색상",
-      "panelTitle": "옵션 선택 또는 생성",
-      "searchOption": "옵션 검색"
-    },
-    "menuName": "그리드",
-    "deleteView": "이 보기를 삭제하시겠습니까?",
-    "createView": "새로운",
     "textFilter": {
       "contains": "포함",
       "doesNotContain": "포함되어 있지 않다",
@@ -375,15 +337,76 @@
       "isEmpty": "비었다",
       "isNotEmpty": "비어 있지 않음"
     },
+    "field": {
+      "hide": "숨기기",
+      "insertLeft": "왼쪽 삽입",
+      "insertRight": "오른쪽 삽입",
+      "duplicate": "복제",
+      "delete": "삭제",
+      "textFieldName": "텍스트",
+      "checkboxFieldName": "체크박스",
+      "dateFieldName": "날짜",
+      "updatedAtFieldName": "마지막 수정 시간",
+      "createdAtFieldName": "만든 시간",
+      "numberFieldName": "숫자",
+      "singleSelectFieldName": "선택",
+      "multiSelectFieldName": "다중선택",
+      "urlFieldName": "링크",
+      "checklistFieldName": "체크리스트",
+      "numberFormat": "숫자 형식",
+      "dateFormat": "날짜 형식",
+      "includeTime": "시간 표시",
+      "dateFormatFriendly": "월 일, 년",
+      "dateFormatISO": "년-월-일",
+      "dateFormatLocal": "월/일/년",
+      "dateFormatUS": "년/월/일",
+      "dateFormatDayMonthYear": "일/월/년",
+      "timeFormat": "시간 형식",
+      "invalidTimeFormat": "잘못된 형식",
+      "timeFormatTwelveHour": "12 시간",
+      "timeFormatTwentyFourHour": "24 시간",
+      "addSelectOption": "옵션 추가",
+      "optionTitle": "옵션",
+      "addOption": "옵션 추가",
+      "editProperty": "속성 편집",
+      "newProperty": "열 추가",
+      "deleteFieldPromptMessage": "해당 속성을 삭제 하시겠습니까?"
+    },
     "sort": {
       "ascending": "오름차순",
       "descending": "내림차순",
-      "deleteSort": "정렬 삭제",
-      "addSort": "정렬 추가"
+      "addSort": "정렬 추가",
+      "deleteSort": "정렬 삭제"
+    },
+    "row": {
+      "duplicate": "복제",
+      "delete": "삭제",
+      "textPlaceholder": "비어있음",
+      "copyProperty": "속성이 클립보드로 복사됨",
+      "count": "개수",
+      "newRow": "행 추가",
+      "action": "행동"
+    },
+    "selectOption": {
+      "create": "생성",
+      "purpleColor": "보라색",
+      "pinkColor": "핑크색",
+      "lightPinkColor": "연한 핑크색",
+      "orangeColor": "오렌지색",
+      "yellowColor": "노랑색",
+      "limeColor": "라임색",
+      "greenColor": "초록색",
+      "aquaColor": "아쿠아색",
+      "blueColor": "파랑색",
+      "deleteTag": "태그 삭제",
+      "colorPanelTitle": "색상",
+      "panelTitle": "옵션 선택 또는 생성",
+      "searchOption": "옵션 검색"
     },
     "checklist": {
       "addNew": "항목 추가"
     },
+    "menuName": "그리드",
     "referencedGridPrefix": "관점"
   },
   "document": {
@@ -531,29 +554,6 @@
     },
     "menuName": "판자",
     "referencedBoardPrefix": "관점"
-  },
-  "moreAction": {
-    "small": "작은",
-    "medium": "중간",
-    "large": "크기가 큰",
-    "fontSize": "글꼴 크기",
-    "import": "수입",
-    "moreOptions": "추가 옵션"
-  },
-  "youCanAlso": "당신은 또한 수",
-  "and": "그리고",
-  "blockActions": {
-    "addBelowTooltip": "아래에 추가하려면 클릭",
-    "addAboveCmd": "Alt+클릭",
-    "addAboveMacCmd": "Option+클릭",
-    "addAboveTooltip": "위에 추가"
-  },
-  "importPanel": {
-    "textAndMarkdown": "텍스트 및 마크다운",
-    "documentFromV010": "v0.1.0의 문서",
-    "databaseFromV010": "v0.1.0의 데이터베이스",
-    "csv": "CSV",
-    "database": "데이터 베이스"
   },
   "calendar": {
     "menuName": "달력",
