@@ -74,9 +74,7 @@ class DatabaseCellContext with _$DatabaseCellContext {
 
   /// Only the primary field can have an emoji.
   String? get emoji => fieldInfo.field.isPrimary ? rowMeta.icon : null;
-}
 
-extension CellVisibility on DatabaseCellContext {
   /// Determines whether a database cell context should be visible.
   /// It will be visible when the field is not hidden or when hidden fields
   /// should be shown.

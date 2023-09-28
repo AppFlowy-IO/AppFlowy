@@ -114,7 +114,6 @@ class RowState with _$RowState {
       cellByFieldId: cellByFieldId,
       cells: UnmodifiableListView(
         cellByFieldId.values
-            .where((cellContext) => cellContext.isVisible())
             .map((e) => GridCellEquatable(e.fieldInfo))
             .toList(),
       ),

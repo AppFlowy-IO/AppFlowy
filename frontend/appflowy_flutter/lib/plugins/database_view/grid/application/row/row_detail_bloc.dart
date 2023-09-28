@@ -101,21 +101,21 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           return;
         }
         final allCells = cellMap.values.toList();
-        final visibleCells = allCells
-            .where(
-              (cellContext) =>
-                  cellContext.isVisible(
-                    showHiddenFields: state.showHiddenFields,
-                  ) &&
-                  !cellContext.fieldInfo.isPrimary,
-            )
-            .toList();
-        final numHiddenFields = allCells
-            .where(
-              (cellContext) =>
-                  !cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
-            )
-            .length;
+        int numHiddenFields = 0;
+        final visibleCells = <DatabaseCellContext>[];
+        for (final cell in allCells) {
+          final isPrimary = cell.fieldInfo.isPrimary;
+
+          if (cell.isVisible(showHiddenFields: state.showHiddenFields) &&
+              !isPrimary) {
+            visibleCells.add(cell);
+          }
+
+          if (!cell.isVisible() && !isPrimary) {
+            numHiddenFields++;
+          }
+        }
+
         add(
           RowDetailEvent.didReceiveCellDatas(
             visibleCells,
@@ -187,19 +187,20 @@ class RowDetailState with _$RowDetailState {
 
   factory RowDetailState.initial(CellContextByFieldId cellByFieldId) {
     final allCells = cellByFieldId.values.toList();
-    final visibleCells = allCells
-        .where(
-          (cellContext) =>
-              cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
-        )
-        .toList();
+    int numHiddenFields = 0;
+    final visibleCells = <DatabaseCellContext>[];
+    for (final cell in allCells) {
+      final isVisible = cell.isVisible();
+      final isPrimary = cell.fieldInfo.isPrimary;
 
-    final numHiddenFields = allCells
-        .where(
-          (cellContext) =>
-              !cellContext.isVisible() && !cellContext.fieldInfo.isPrimary,
-        )
-        .length;
+      if (isVisible && !isPrimary) {
+        visibleCells.add(cell);
+      }
+
+      if (!isVisible && !isPrimary) {
+        numHiddenFields++;
+      }
+    }
 
     return RowDetailState(
       visibleCells: visibleCells,
