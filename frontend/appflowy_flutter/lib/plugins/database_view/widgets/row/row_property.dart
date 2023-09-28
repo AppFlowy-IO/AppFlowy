@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
@@ -67,7 +69,16 @@ class RowPropertyList extends StatelessWidget {
             child: Stack(
               children: [
                 child,
-                const MouseRegion(cursor: SystemMouseCursors.grabbing),
+                MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grabbing,
+                  child: const SizedBox(
+                    width: 16,
+                    height: 30,
+                    child: FlowySvg(FlowySvgs.drag_element_s),
+                  ),
+                ),
               ],
             ),
           ),
@@ -135,7 +146,9 @@ class _PropertyCellState extends State<_PropertyCell> {
     final cell = widget.cellBuilder.build(widget.cellContext, style: style);
 
     final dragThumb = MouseRegion(
-      cursor: SystemMouseCursors.grab,
+      cursor: Platform.isWindows
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.grab,
       child: SizedBox(
         width: 16,
         height: 30,

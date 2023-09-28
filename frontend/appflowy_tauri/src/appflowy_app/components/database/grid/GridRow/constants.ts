@@ -4,6 +4,7 @@ export enum RenderRowType {
   Fields = 'fields',
   Row = 'row',
   NewRow = 'new-row',
+  Calculate = 'calculate',
 }
 
 export interface FieldRenderRow {
@@ -19,4 +20,8 @@ export interface NewRenderRow {
   type: RenderRowType.NewRow;
 }
 
-export type RenderRow = FieldRenderRow | CellRenderRow | NewRenderRow;
+export interface CalculateRenderRow {
+  type: RenderRowType.Calculate;
+}
+
+export type RenderRow = FieldRenderRow | CellRenderRow | NewRenderRow | CalculateRenderRow;
