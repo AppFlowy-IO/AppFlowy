@@ -1,7 +1,5 @@
 use std::ops::Deref;
 
-use collab::preclude::merge_updates_v1;
-
 use flowy_document2::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
 use flowy_document2::event_map::DocumentEvent::GetDocumentSnapshots;
 use flowy_folder2::entities::ViewPB;
@@ -43,25 +41,6 @@ impl FlowySupabaseDocumentTest {
       .async_send()
       .await
       .parse::<RepeatedDocumentSnapshotPB>()
-  }
-
-  pub async fn get_document_update(&self, document_id: &str) -> Vec<u8> {
-    let cloud_service = self.document_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service
-      .get_document_updates(document_id)
-      .await
-      .unwrap();
-
-    if remote_updates.is_empty() {
-      return vec![];
-    }
-
-    let updates = remote_updates
-      .iter()
-      .map(|update| update.as_ref())
-      .collect::<Vec<&[u8]>>();
-
-    merge_updates_v1(&updates).unwrap()
   }
 }
 

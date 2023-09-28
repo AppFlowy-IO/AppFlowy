@@ -2,11 +2,10 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use bytes::Bytes;
+use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_define::CollabType;
-use collab_plugins::sync_plugin::client::SinkConfig;
-use collab_plugins::sync_plugin::{SyncObject, SyncPlugin};
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;

@@ -52,7 +52,7 @@ impl AFCloudServer {
 
     let ws_client = WSClient::new(WSClientConfig {
       buffer_capacity: 100,
-      ping_per_secs: 2,
+      ping_per_secs: 8,
       retry_connect_per_pings: 5,
     });
     let ws_client = Arc::new(RwLock::new(ws_client));
