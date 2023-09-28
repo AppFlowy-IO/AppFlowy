@@ -23,6 +23,7 @@ class SettingsAppearanceView extends StatelessWidget {
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
                 ),
+                const Divider(),
                 BrightnessSetting(
                   currentThemeMode: state.themeMode,
                 ),
@@ -34,11 +35,13 @@ class SettingsAppearanceView extends StatelessWidget {
                 LayoutDirectionSetting(
                   currentLayoutDirection: state.layoutDirection,
                 ),
+                const Divider(),
                 TextDirectionSetting(
                   currentTextDirection: state.textDirection,
                 ),
                 const Divider(),
                 CreateFileSettings(),
+                const Divider(),
               ],
             );
           },
