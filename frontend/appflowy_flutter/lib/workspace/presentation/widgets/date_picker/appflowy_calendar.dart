@@ -5,13 +5,23 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/incl
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 final kFirstDay = DateTime.utc(1970, 1, 1);
 final kLastDay = DateTime.utc(2100, 1, 1);
+
+typedef DaySelectedCallback = void Function(
+  DateTime selectedDay,
+  DateTime focusedDay,
+  bool includeTime,
+);
+typedef IncludeTimeChangedCallback = void Function(bool includeTime);
+typedef FormatChangedCallback = void Function(CalendarFormat format);
+typedef PageChangedCallback = void Function(DateTime focusedDay);
+typedef TimeChangedCallback = void Function(String? time);
 
 class AppFlowyCalendar extends StatefulWidget {
   const AppFlowyCalendar({
@@ -21,7 +31,7 @@ class AppFlowyCalendar extends StatefulWidget {
     this.lastDay,
     this.selectedDate,
     required this.focusedDay,
-    required this.format,
+    this.format = CalendarFormat.month,
     this.onDaySelected,
     this.onFormatChanged,
     this.onPageChanged,
@@ -43,16 +53,11 @@ class AppFlowyCalendar extends StatefulWidget {
   final DateTime focusedDay;
   final CalendarFormat format;
 
-  final void Function(
-    DateTime selectedDay,
-    DateTime focusedDay,
-    bool includeTime,
-  )? onDaySelected;
-
-  final void Function(bool includeTime)? onIncludeTimeChanged;
-  final void Function(CalendarFormat format)? onFormatChanged;
-  final void Function(DateTime focusedDay)? onPageChanged;
-  final void Function(String? time)? onTimeChanged;
+  final DaySelectedCallback? onDaySelected;
+  final IncludeTimeChangedCallback? onIncludeTimeChanged;
+  final FormatChangedCallback? onFormatChanged;
+  final PageChangedCallback? onPageChanged;
+  final TimeChangedCallback? onTimeChanged;
 
   final bool includeTime;
 
@@ -63,9 +68,13 @@ class AppFlowyCalendar extends StatefulWidget {
   State<AppFlowyCalendar> createState() => _AppFlowyCalendarState();
 }
 
-class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
-  late bool _includeTime = widget.includeTime;
+class _AppFlowyCalendarState extends State<AppFlowyCalendar>
+    with AutomaticKeepAliveClientMixin {
   String? _time;
+
+  late DateTime? _selectedDay = widget.selectedDate;
+  late DateTime _focusedDay = widget.focusedDay;
+  late bool _includeTime = widget.includeTime;
 
   @override
   void initState() {
@@ -79,17 +88,25 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final textStyle = Theme.of(context).textTheme.bodyMedium!;
-    final defaultDecoration = _defaultDecoration(context);
+    final boxDecoration = BoxDecoration(
+      color: Theme.of(context).cardColor,
+      shape: BoxShape.circle,
+    );
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
+        const VSpace(18),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: TableCalendar(
+            currentDay: DateTime.now(),
             firstDay: widget.firstDay ?? kFirstDay,
             lastDay: widget.lastDay ?? kLastDay,
-            focusedDay: widget.focusedDay,
+            focusedDay: _focusedDay,
             rowHeight: GridSize.popoverItemHeight,
             calendarFormat: widget.format,
             daysOfWeekHeight: GridSize.popoverItemHeight,
@@ -109,36 +126,64 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
                 FlowySvgs.arrow_right_s,
                 color: Theme.of(context).iconTheme.color,
               ),
-              headerMargin: const EdgeInsets.only(bottom: 8.0),
-            ),
-            daysOfWeekStyle: DaysOfWeekStyle(
-              dowTextFormatter: (date, locale) =>
-                  DateFormat.E(locale).format(date).toUpperCase(),
-              weekdayStyle: AFThemeExtension.of(context).caption,
-              weekendStyle: AFThemeExtension.of(context).caption,
+              headerMargin: EdgeInsets.zero,
+              headerPadding: const EdgeInsets.only(bottom: 8.0),
             ),
             calendarStyle: CalendarStyle(
-              cellMargin: const EdgeInsets.all(3),
-              defaultDecoration: defaultDecoration,
-              selectedDecoration: defaultDecoration.copyWith(
+              cellMargin: const EdgeInsets.all(3.5),
+              defaultDecoration: boxDecoration,
+              selectedDecoration: boxDecoration.copyWith(
                 color: Theme.of(context).colorScheme.primary,
               ),
-              todayDecoration: defaultDecoration.copyWith(
-                color: AFThemeExtension.of(context).lightGreyHover,
+              todayDecoration: boxDecoration.copyWith(
+                color: Colors.transparent,
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              weekendDecoration: defaultDecoration,
-              outsideDecoration: defaultDecoration,
+              weekendDecoration: boxDecoration,
+              outsideDecoration: boxDecoration,
+              rangeStartDecoration: boxDecoration.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              rangeEndDecoration: boxDecoration.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
               defaultTextStyle: textStyle,
               weekendTextStyle: textStyle,
               selectedTextStyle: textStyle.copyWith(
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              rangeStartTextStyle: textStyle.copyWith(
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              rangeEndTextStyle: textStyle.copyWith(
                 color: Theme.of(context).colorScheme.surface,
               ),
               todayTextStyle: textStyle,
               outsideTextStyle: textStyle.copyWith(
                 color: Theme.of(context).disabledColor,
               ),
+              rangeHighlightColor:
+                  Theme.of(context).colorScheme.secondaryContainer,
             ),
-            selectedDayPredicate: (day) => isSameDay(widget.selectedDate, day),
+            calendarBuilders: CalendarBuilders(
+              dowBuilder: (context, day) {
+                final locale = context.locale.toLanguageTag();
+                final label = DateFormat.E(locale).format(day).substring(0, 2);
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Center(
+                    child: Text(
+                      label,
+                      style: AFThemeExtension.of(context).caption,
+                    ),
+                  ),
+                );
+              },
+            ),
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             onDaySelected: (selectedDay, focusedDay) {
               if (!_includeTime) {
                 widget.onDaySelected?.call(
@@ -147,6 +192,11 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
                   _includeTime,
                 );
               }
+
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
 
               _updateSelectedDay(selectedDay, focusedDay, _includeTime);
             },
@@ -163,9 +213,7 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
           timeFormat: widget.timeFormat,
           popoverMutex: widget.popoverMutex,
           onChanged: (includeTime) {
-            setState(() {
-              _includeTime = includeTime;
-            });
+            setState(() => _includeTime = includeTime);
 
             widget.onIncludeTimeChanged?.call(includeTime);
           },
@@ -183,15 +231,10 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
             widget.onTimeChanged?.call(time);
           },
         ),
+        const VSpace(6.0),
       ],
     );
   }
-
-  BoxDecoration _defaultDecoration(BuildContext context) => BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        shape: BoxShape.rectangle,
-        borderRadius: Corners.s6Border,
-      );
 
   DateTime _dateWithTime(DateTime date, DateTime time) {
     return DateTime.parse(
@@ -228,4 +271,7 @@ class _AppFlowyCalendarState extends State<AppFlowyCalendar> {
       _includeTime,
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

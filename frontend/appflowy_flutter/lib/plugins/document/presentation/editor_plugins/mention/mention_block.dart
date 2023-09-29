@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 enum MentionType {
   page,
@@ -61,8 +62,11 @@ class MentionBlock extends StatelessWidget {
       case MentionType.reminder:
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];
+        final BuildContext editorContext =
+            context.read<EditorState>().document.root.context!;
         return MentionDateBlock(
           key: ValueKey(date),
+          editorContext: editorContext,
           date: date,
           node: node,
           index: index,

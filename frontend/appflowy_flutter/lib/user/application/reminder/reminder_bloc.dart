@@ -191,18 +191,24 @@ class ReminderUpdate {
     this.scheduledAt,
   });
 
-  ReminderPB merge({required ReminderPB a}) => ReminderPB(
-        id: a.id,
-        objectId: a.objectId,
-        scheduledAt: scheduledAt != null
-            ? Int64(scheduledAt!.millisecondsSinceEpoch ~/ 1000)
-            : a.scheduledAt,
-        isAck: isAck ?? a.isAck,
-        isRead: isRead ?? a.isRead,
-        title: a.title,
-        message: a.message,
-        meta: a.meta,
-      );
+  ReminderPB merge({required ReminderPB a}) {
+    final isAcknowledged = isAck == null && scheduledAt != null
+        ? scheduledAt!.isBefore(DateTime.now())
+        : a.isAck;
+
+    return ReminderPB(
+      id: a.id,
+      objectId: a.objectId,
+      scheduledAt: scheduledAt != null
+          ? Int64(scheduledAt!.millisecondsSinceEpoch ~/ 1000)
+          : a.scheduledAt,
+      isAck: isAcknowledged,
+      isRead: isRead ?? a.isRead,
+      title: a.title,
+      message: a.message,
+      meta: a.meta,
+    );
+  }
 }
 
 class ReminderState {

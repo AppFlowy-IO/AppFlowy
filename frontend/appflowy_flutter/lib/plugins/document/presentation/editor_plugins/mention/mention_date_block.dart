@@ -1,23 +1,21 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class MentionDateBlock extends StatelessWidget {
   const MentionDateBlock({
     super.key,
+    required this.editorContext,
     required this.date,
     required this.index,
     required this.node,
@@ -26,6 +24,7 @@ class MentionDateBlock extends StatelessWidget {
     this.includeTime = false,
   });
 
+  final BuildContext editorContext;
   final String date;
   final int index;
   final Node node;
@@ -40,7 +39,7 @@ class MentionDateBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final parsedDate = DateTime.tryParse(date);
+    DateTime? parsedDate = DateTime.tryParse(date);
     if (parsedDate == null) {
       return const SizedBox.shrink();
     }
@@ -49,11 +48,9 @@ class MentionDateBlock extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ReminderBloc>.value(value: context.read<ReminderBloc>()),
         BlocProvider<AppearanceSettingsCubit>.value(
           value: context.read<AppearanceSettingsCubit>(),
-        ),
-        BlocProvider<ReminderBloc>.value(
-          value: getIt<ReminderBloc>(),
         ),
       ],
       child: BlocBuilder<ReminderBloc, ReminderState>(
@@ -67,65 +64,55 @@ class MentionDateBlock extends StatelessWidget {
                 state.reminders.firstWhereOrNull((r) => r.id == reminderId);
             final noReminder = reminder == null && isReminder;
 
-            final formattedDate = appearance.dateFormat.formatDate(
-              parsedDate,
-              includeTime,
-              appearance.timeFormat,
+            final formattedDate = appearance.dateFormat
+                .formatDate(parsedDate!, includeTime, appearance.timeFormat);
+
+            final options = DatePickerOptions(
+              selectedDay: parsedDate,
+              focusedDay: parsedDate,
+              firstDay: isReminder
+                  ? noReminder
+                      ? parsedDate
+                      : DateTime.now()
+                  : null,
+              lastDay: noReminder ? parsedDate : null,
+              includeTime: includeTime,
+              timeFormat: appearance.timeFormat,
+              onIncludeTimeChanged: (includeTime) {
+                _updateBlock(parsedDate!.withoutTime, includeTime);
+
+                // We can remove time from the date/reminder
+                //  block when toggled off.
+                if (!includeTime && isReminder) {
+                  _updateScheduledAt(
+                    reminderId: reminderId!,
+                    selectedDay: parsedDate!.withoutTime,
+                  );
+                }
+              },
+              onDaySelected: (selectedDay, focusedDay, includeTime) {
+                parsedDate = selectedDay;
+
+                _updateBlock(selectedDay, includeTime);
+
+                if (isReminder && date != selectedDay.toIso8601String()) {
+                  _updateScheduledAt(
+                    reminderId: reminderId!,
+                    selectedDay: selectedDay,
+                  );
+                }
+              },
             );
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: AppFlowyPopover(
-                  direction: PopoverDirection.bottomWithLeftAligned,
-                  constraints: BoxConstraints.loose(const Size(260, 420)),
-                  popupBuilder: (_) {
-                    return SingleChildScrollView(
-                      child: AppFlowyCalendar(
-                        format: CalendarFormat.month,
-                        firstDay: isReminder
-                            ? noReminder
-                                ? parsedDate
-                                : DateTime.now()
-                            : null,
-                        lastDay: noReminder ? parsedDate : null,
-                        selectedDate: parsedDate,
-                        focusedDay: parsedDate,
-                        includeTime: includeTime,
-                        timeFormat: appearance.timeFormat,
-                        onIncludeTimeChanged: (includeTime) {
-                          _updateBlock(
-                            context,
-                            parsedDate.withoutTime,
-                            includeTime,
-                          );
-
-                          // We can remove time from the date/reminder
-                          //  block when toggled off.
-                          if (!includeTime) {
-                            _updateScheduledAt(
-                              context,
-                              reminderId: reminderId!,
-                              selectedDay: parsedDate.withoutTime,
-                            );
-                          }
-                        },
-                        onDaySelected: (selectedDay, focusedDay, includeTime) {
-                          _updateBlock(context, selectedDay, includeTime);
-
-                          if (isReminder &&
-                              date != selectedDay.toIso8601String()) {
-                            _updateScheduledAt(
-                              context,
-                              reminderId: reminderId!,
-                              selectedDay: selectedDay,
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  },
+            return GestureDetector(
+              onTapDown: (details) => DatePickerMenu(
+                context: context,
+                editorState: context.read<EditorState>(),
+              ).show(details.globalPosition, options: options),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -159,11 +146,10 @@ class MentionDateBlock extends StatelessWidget {
   }
 
   void _updateBlock(
-    BuildContext context,
     DateTime date, [
     bool includeTime = false,
   ]) {
-    final editorState = context.read<EditorState>();
+    final editorState = editorContext.read<EditorState>();
     final transaction = editorState.transaction
       ..formatText(node, index, 1, {
         MentionBlockKeys.mention: {
@@ -175,10 +161,7 @@ class MentionDateBlock extends StatelessWidget {
         },
       });
 
-    editorState.apply(
-      transaction,
-      withUpdateSelection: false,
-    );
+    editorState.apply(transaction, withUpdateSelection: false);
 
     // Length of rendered block changes, this synchronizes
     //  the cursor with the new block render
@@ -188,17 +171,13 @@ class MentionDateBlock extends StatelessWidget {
     );
   }
 
-  void _updateScheduledAt(
-    BuildContext context, {
+  void _updateScheduledAt({
     required String reminderId,
     required DateTime selectedDay,
   }) {
-    context.read<ReminderBloc>().add(
+    editorContext.read<ReminderBloc>().add(
           ReminderEvent.update(
-            ReminderUpdate(
-              id: reminderId,
-              scheduledAt: selectedDay,
-            ),
+            ReminderUpdate(id: reminderId, scheduledAt: selectedDay),
           ),
         );
   }
