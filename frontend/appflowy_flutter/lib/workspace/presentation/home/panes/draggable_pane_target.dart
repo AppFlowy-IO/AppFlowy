@@ -22,7 +22,7 @@ class DraggablePaneTarget extends StatefulWidget {
     this.allowDrag = true,
   });
 
-  final CrossDraggablesEntity pane; //pass target pane
+  final CrossDraggablesEntity pane;
   final Widget child;
   final BuildContext paneContext;
   final bool allowDrag;
@@ -76,54 +76,67 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     BuildContext context,
     FlowyDraggableHoverPosition position,
   ) {
-    final top = (widget.pane.draggable as PaneNode).tabs.pages > 1
+    final (left, top, height, width) = _getHoverWidgetPosition(position);
+
+    if (position == FlowyDraggableHoverPosition.none) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      top: top,
+      left: left,
+      child: Container(
+        height: height,
+        width: width,
+        color: Theme.of(context).hoverColor.withOpacity(0.5),
+      ),
+    );
+  }
+
+  (double? left, double? top, double? height, double? width)
+      _getHoverWidgetPosition(FlowyDraggableHoverPosition position) {
+    double? left, top, height, width;
+
+    final topOffset = (widget.pane.draggable as PaneNode).tabs.pages > 1
         ? HomeSizes.tabBarHeigth + HomeSizes.topBarHeight
         : HomeSizes.topBarHeight;
-    return switch (position) {
-      FlowyDraggableHoverPosition.top => Positioned(
-          top: top,
-          child: Container(
-            height: (widget.size.height) / 2,
-            width: widget.size.width,
-            color: Theme.of(context).hoverColor.withOpacity(0.5),
-          ),
-        ),
-      FlowyDraggableHoverPosition.left => Positioned(
-          left: 0,
-          top: top,
-          child: Container(
-            width: widget.size.width / 2,
-            height: widget.size.height,
-            color: Theme.of(context).hoverColor.withOpacity(0.5),
-          ),
-        ),
-      FlowyDraggableHoverPosition.right => Positioned(
-          top: top,
-          left: widget.size.width / 2,
-          child: Container(
-            width: widget.size.width / 2,
-            height: widget.size.height,
-            color: Theme.of(context).hoverColor.withOpacity(0.5),
-          ),
-        ),
-      FlowyDraggableHoverPosition.bottom => Positioned(
-          top: widget.size.height / 2,
-          child: Container(
-            height: widget.size.height / 2,
-            width: widget.size.width,
-            color: Theme.of(context).hoverColor.withOpacity(0.5),
-          ),
-        ),
-      FlowyDraggableHoverPosition.tab => Positioned(
-          top: 0,
-          child: Container(
-            height: top,
-            width: widget.size.width,
-            color: Theme.of(context).hoverColor.withOpacity(0.5),
-          ),
-        ),
-      FlowyDraggableHoverPosition.none => const SizedBox.shrink(),
-    };
+
+    switch (position) {
+      case FlowyDraggableHoverPosition.top:
+        top = topOffset;
+        left = null;
+        height = widget.size.height / 2;
+        width = widget.size.width;
+        break;
+      case FlowyDraggableHoverPosition.left:
+        top = topOffset;
+        left = 0;
+        height = widget.size.height;
+        width = widget.size.width / 2;
+        break;
+      case FlowyDraggableHoverPosition.right:
+        top = topOffset;
+        left = widget.size.width / 2;
+        height = widget.size.height;
+        width = widget.size.width / 2;
+        break;
+      case FlowyDraggableHoverPosition.bottom:
+        top = widget.size.height / 2;
+        height = widget.size.height / 2;
+        width = widget.size.width;
+        left = null;
+        break;
+      case FlowyDraggableHoverPosition.tab:
+        top = 0;
+        left = null;
+        height = top;
+        width = widget.size.width;
+        break;
+      default:
+        break;
+    }
+
+    return (left, top, height, width);
   }
 
   FlowyDraggableHoverPosition _computeHoverPosition(

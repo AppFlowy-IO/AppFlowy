@@ -138,9 +138,8 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       final threshold = size.width / 2;
       if (offset.dx < threshold) {
         return TabDraggableHoverPosition.left;
-      } else {
-        return TabDraggableHoverPosition.right;
       }
+      return TabDraggableHoverPosition.right;
     }
     return TabDraggableHoverPosition.none;
   }

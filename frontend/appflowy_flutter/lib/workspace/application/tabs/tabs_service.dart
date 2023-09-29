@@ -4,7 +4,6 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy_backend/log.dart';
 
 class TabsService {
   const TabsService();
@@ -31,14 +30,12 @@ class TabsService {
       (l) => {},
       (r) => jsonDecode(r),
     );
-    // Log.warn("Result Map $map ${map[plugin.id]} ${plugin.id}");
     if (map[plugin.id] != null) {
       map[plugin.id] += 1;
       return true;
     }
 
     map[plugin.id] = 1;
-    Log.warn(map);
     await getIt<KeyValueStorage>().set(KVKeys.openedPlugins, jsonEncode(map));
     return false;
   }

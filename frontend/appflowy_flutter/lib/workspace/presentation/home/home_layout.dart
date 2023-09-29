@@ -38,7 +38,7 @@ class HomeLayout {
       menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
     }
 
-    homePageLOffset = (showMenu) ? menuWidth : 0.0;
+    homePageLOffset = showMenu ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = homeSetting.resizeType.duration();

@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dar
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
+import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +17,7 @@ class FlowyPaneGroup extends StatelessWidget {
   final double groupHeight;
   final HomeLayout layout;
   final HomeStackDelegate delegate;
+
   const FlowyPaneGroup({
     super.key,
     required this.node,
@@ -43,7 +45,10 @@ class FlowyPaneGroup extends StatelessWidget {
 
     return BlocProvider(
       key: ValueKey(node.paneId),
-      create: (context) => PaneNodeCubit(node.children.length),
+      create: (context) => PaneNodeCubit(
+        node.children.length,
+        node.axis == Axis.horizontal ? groupHeight : groupWidth,
+      ),
       child: BlocBuilder<PaneNodeCubit, PaneNodeState>(
         builder: (context, state) {
           return SizedBox(
@@ -60,12 +65,12 @@ class FlowyPaneGroup extends StatelessWidget {
                       );
                       return Stack(
                         children: [
-                          _resolveFlowyPanes(paneLayout, indexNode),
-                          _resizeBar(
-                            indexNode,
-                            context,
+                          _resolveFlowyPanes(
                             paneLayout,
-                          )
+                            indexNode,
+                            state.resizeOffset[indexNode.$1],
+                          ),
+                          _resizeBar(indexNode, context, paneLayout),
                         ],
                       );
                     }).toList(),
@@ -91,19 +96,21 @@ class FlowyPaneGroup extends StatelessWidget {
         cursor: paneLayout.resizeCursorType,
         child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragUpdate: (details) =>
-              context.read<PaneNodeCubit>().resize(
-                    paneLayout.childPaneWidth,
-                    indexNode.$1,
-                    details.delta.dx,
-                  ),
-          onVerticalDragUpdate: (details) =>
-              context.read<PaneNodeCubit>().resize(
-                    paneLayout.childPaneHeight,
-                    indexNode.$1,
-                    details.delta.dy,
-                  ),
-          behavior: HitTestBehavior.opaque,
+          onHorizontalDragUpdate: (details) {
+            context
+                .read<PaneNodeCubit>()
+                .paneResized(indexNode.$1, details.delta.dx, groupWidth);
+          },
+          onVerticalDragUpdate: (details) {
+            context
+                .read<PaneNodeCubit>()
+                .paneResized(indexNode.$1, details.delta.dy, groupHeight);
+          },
+          onHorizontalDragStart: (_) =>
+              context.read<PaneNodeCubit>().resizeStart(),
+          onVerticalDragStart: (_) =>
+              context.read<PaneNodeCubit>().resizeStart(),
+          behavior: HitTestBehavior.translucent,
           child: Container(
             width: paneLayout.resizerWidth,
             height: paneLayout.resizerHeight,
@@ -123,20 +130,20 @@ class FlowyPaneGroup extends StatelessWidget {
   Widget _resolveFlowyPanes(
     PaneLayout paneLayout,
     (int, PaneNode) indexNode,
+    double position,
   ) {
     return Positioned(
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,
-      child: SizedBox(
+      child: FlowyPaneGroup(
+        node: indexNode.$2,
+        groupWidth: paneLayout.childPaneWidth,
+        groupHeight: paneLayout.childPaneHeight,
+        delegate: delegate,
+        layout: layout,
+      ).constrained(
         width: paneLayout.childPaneWidth,
         height: paneLayout.childPaneHeight,
-        child: FlowyPaneGroup(
-          node: indexNode.$2,
-          groupWidth: paneLayout.childPaneWidth,
-          groupHeight: paneLayout.childPaneHeight,
-          delegate: delegate,
-          layout: layout,
-        ),
       ),
     );
   }

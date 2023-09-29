@@ -1,4 +1,5 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -44,11 +45,12 @@ class PaneLayout {
     childPaneTPosition =
         parentPane.axis == Axis.horizontal ? accumulatedHeight : null;
 
-    resizerWidth =
-        parentPane.axis == Axis.vertical ? 3 : parentPaneConstraints.maxWidth;
+    resizerWidth = parentPane.axis == Axis.vertical
+        ? HomeSizes.resizeBarThickness
+        : parentPaneConstraints.maxWidth;
 
     resizerHeight = parentPane.axis == Axis.horizontal
-        ? 3
+        ? HomeSizes.resizeBarThickness
         : parentPaneConstraints.maxHeight;
 
     resizeCursorType = parentPane.axis == Axis.vertical

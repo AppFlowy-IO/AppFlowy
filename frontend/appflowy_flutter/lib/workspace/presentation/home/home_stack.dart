@@ -59,6 +59,7 @@ class HomeStack extends StatelessWidget {
     );
   }
 
+  //TODO(squidrye): Remove before merge
   void _printTree(PaneNode node, [String prefix = '']) {
     print('$prefix${node.tabs.hashCode}');
     for (var child in node.children) {

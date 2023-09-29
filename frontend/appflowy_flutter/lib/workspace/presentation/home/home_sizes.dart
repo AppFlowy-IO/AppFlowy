@@ -5,6 +5,7 @@ class HomeSizes {
   static const double editPanelWidth = 400;
   static const double tabBarHeigth = 40;
   static const double tabBarWidth = 200;
+  static const double resizeBarThickness = 4;
 }
 
 class HomeInsets {
