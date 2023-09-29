@@ -25,12 +25,16 @@ class NotificationButton extends StatelessWidget {
       child: BlocBuilder<ReminderBloc, ReminderState>(
         builder: (context, state) => Tooltip(
           message: LocaleKeys.notificationHub_title.tr(),
-          child: AppFlowyPopover(
-            mutex: mutex,
-            direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: const BoxConstraints(maxHeight: 250, maxWidth: 300),
-            popupBuilder: (_) => NotificationDialog(views: views, mutex: mutex),
-            child: _buildNotificationIcon(context, state.hasUnreads),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: AppFlowyPopover(
+              mutex: mutex,
+              direction: PopoverDirection.bottomWithLeftAligned,
+              constraints: const BoxConstraints(maxHeight: 250, maxWidth: 300),
+              popupBuilder: (_) =>
+                  NotificationDialog(views: views, mutex: mutex),
+              child: _buildNotificationIcon(context, state.hasUnreads),
+            ),
           ),
         ),
       ),

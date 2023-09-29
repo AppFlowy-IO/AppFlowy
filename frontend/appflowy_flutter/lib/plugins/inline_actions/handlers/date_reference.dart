@@ -7,6 +7,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+final _keywords = [
+  LocaleKeys.inlineActions_date.tr().toLowerCase(),
+];
+
 class DateReferenceService {
   DateReferenceService(this.context) {
     // Initialize locale
@@ -23,19 +27,9 @@ class DateReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
-  static const maxSearchLength = 20;
   Future<InlineActionsResult> dateReferenceDelegate([
     String? search,
   ]) async {
-    if (search != null &&
-        search.isNotEmpty &&
-        search.length > maxSearchLength) {
-      return InlineActionsResult(
-        title: LocaleKeys.inlineActions_date.tr(),
-        results: [],
-      );
-    }
-
     // Checks if Locale has changed since last
     _setLocale();
 
@@ -56,7 +50,7 @@ class DateReferenceService {
 
   void _filterOptions(String? search) {
     if (search == null || search.isEmpty) {
-      options = [];
+      options = _allOptions;
       return;
     }
 
@@ -70,6 +64,10 @@ class DateReferenceService {
               ),
         )
         .toList();
+
+    if (options.isEmpty && _keywords.any((k) => search.startsWith(k))) {
+      options = _allOptions;
+    }
   }
 
   void _searchDate(String? search) {

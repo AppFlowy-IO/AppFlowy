@@ -147,7 +147,8 @@ class NotificationItemActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    return Container(
+      height: 30,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         border: Border.all(color: Theme.of(context).dividerColor),
@@ -158,6 +159,7 @@ class NotificationItemActions extends StatelessWidget {
           children: [
             if (isRead) ...[
               FlowyIconButton(
+                height: 28,
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkUnread.tr(),
                 icon: const FlowySvg(FlowySvgs.restore_s),
@@ -165,6 +167,7 @@ class NotificationItemActions extends StatelessWidget {
               ),
             ] else ...[
               FlowyIconButton(
+                height: 28,
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkRead.tr(),
                 icon: const FlowySvg(FlowySvgs.messages_s),
@@ -179,6 +182,7 @@ class NotificationItemActions extends StatelessWidget {
               color: Theme.of(context).dividerColor,
             ),
             FlowyIconButton(
+              height: 28,
               tooltipText: LocaleKeys.reminderNotification_tooltipDelete.tr(),
               icon: const FlowySvg(FlowySvgs.delete_s),
               onPressed: onDelete,

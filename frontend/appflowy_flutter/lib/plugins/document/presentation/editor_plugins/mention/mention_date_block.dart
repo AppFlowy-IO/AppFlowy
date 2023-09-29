@@ -53,13 +53,13 @@ class MentionDateBlock extends StatelessWidget {
           value: context.read<AppearanceSettingsCubit>(),
         ),
       ],
-      child: BlocBuilder<ReminderBloc, ReminderState>(
-        builder: (context, state) =>
-            BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-          buildWhen: (previous, current) =>
-              previous.dateFormat != current.dateFormat ||
-              previous.timeFormat != current.timeFormat,
-          builder: (context, appearance) {
+      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+        buildWhen: (previous, current) =>
+            previous.dateFormat != current.dateFormat ||
+            previous.timeFormat != current.timeFormat,
+        builder: (context, appearance) =>
+            BlocBuilder<ReminderBloc, ReminderState>(
+          builder: (context, state) {
             final reminder =
                 state.reminders.firstWhereOrNull((r) => r.id == reminderId);
             final noReminder = reminder == null && isReminder;
@@ -119,7 +119,7 @@ class MentionDateBlock extends StatelessWidget {
                       FlowySvg(
                         isReminder ? FlowySvgs.clock_alarm_s : FlowySvgs.date_s,
                         size: const Size.square(18.0),
-                        color: noReminder
+                        color: isReminder && reminder?.isAck == true
                             ? Theme.of(context).colorScheme.error
                             : null,
                       ),
@@ -127,11 +127,8 @@ class MentionDateBlock extends StatelessWidget {
                       FlowyText(
                         formattedDate,
                         fontSize: fontSize,
-                        color: noReminder
+                        color: isReminder && reminder?.isAck == true
                             ? Theme.of(context).colorScheme.error
-                            : null,
-                        decoration: reminder?.isAck ?? false
-                            ? TextDecoration.lineThrough
                             : null,
                       ),
                     ],

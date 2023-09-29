@@ -13,6 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
+final _keywords = [
+  LocaleKeys.inlineActions_reminder_groupTitle.tr().toLowerCase(),
+  LocaleKeys.inlineActions_reminder_shortKeyword.tr().toLowerCase(),
+];
+
 class ReminderReferenceService {
   ReminderReferenceService(this.context) {
     // Initialize locale
@@ -32,10 +37,6 @@ class ReminderReferenceService {
   Future<InlineActionsResult> reminderReferenceDelegate([
     String? search,
   ]) async {
-    if (search == null || search.isEmpty) {
-      return _groupFromResults();
-    }
-
     // Checks if Locale has changed since last
     _setLocale();
 
@@ -65,7 +66,7 @@ class ReminderReferenceService {
 
   void _filterOptions(String? search) {
     if (search == null || search.isEmpty) {
-      options = [];
+      options = _allOptions;
       return;
     }
 
@@ -79,6 +80,10 @@ class ReminderReferenceService {
               ),
         )
         .toList();
+
+    if (options.isEmpty && _keywords.any((k) => search.startsWith(k))) {
+      options = _allOptions;
+    }
   }
 
   void _searchDate(String? search) {
