@@ -46,63 +46,59 @@ class _FlowyPaneState extends State<FlowyPane> {
             size: widget.size,
             paneContext: widget.paneContext,
             pane: CrossDraggablesEntity(draggable: widget.node),
-            child: Scrollbar(
-              controller: verticalController,
+            child: ScrollConfiguration(
+              behavior: const ScrollBehavior().copyWith(scrollbars: true),
               child: SingleChildScrollView(
                 controller: verticalController,
-                child: Scrollbar(
+                child: SingleChildScrollView(
                   controller: horizontalController,
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: horizontalController,
-                    scrollDirection: Axis.horizontal,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        DraggablePaneItem(
-                          size: widget.size,
-                          paneContext: widget.paneContext,
-                          pane: CrossDraggablesEntity(draggable: widget.node),
-                          feedback: (context) =>
-                              widget.node.tabs.currentPageManager.title(),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  left: widget.layout.menuSpacing,
-                                ),
-                                child: TabsManager(
-                                  pane: widget.node,
-                                  pageController: pageController,
-                                  tabs: value,
-                                ),
+                  scrollDirection: Axis.horizontal,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      DraggablePaneItem(
+                        size: widget.size,
+                        paneContext: widget.paneContext,
+                        pane: CrossDraggablesEntity(draggable: widget.node),
+                        feedback: (context) =>
+                            widget.node.tabs.currentPageManager.title(),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: widget.layout.menuSpacing,
                               ),
-                              value.currentPageManager.stackTopBar(
-                                layout: widget.layout,
-                                paneId: widget.node.paneId,
+                              child: TabsManager(
+                                pane: widget.node,
+                                pageController: pageController,
+                                tabs: value,
                               ),
-                            ],
-                          ),
+                            ),
+                            value.currentPageManager.stackTopBar(
+                              layout: widget.layout,
+                              paneId: widget.node.paneId,
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: PageView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: pageController,
-                            children: value.pageManagers
-                                .map(
-                                  (pm) => PageStack(
-                                    pageManager: pm,
-                                    delegate: widget.delegate,
-                                  ),
-                                )
-                                .toList(),
-                          ),
+                      ),
+                      Expanded(
+                        child: PageView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: pageController,
+                          children: value.pageManagers
+                              .map(
+                                (pm) => PageStack(
+                                  pageManager: pm,
+                                  delegate: widget.delegate,
+                                ),
+                              )
+                              .toList(),
                         ),
-                      ],
-                    ).constrained(
-                      width: widget.layout.homePageWidth,
-                      height: widget.layout.homePageHeight,
-                    ),
+                      ),
+                    ],
+                  ).constrained(
+                    width: widget.layout.homePageWidth,
+                    height: widget.layout.homePageHeight,
                   ),
                 ),
               ),
