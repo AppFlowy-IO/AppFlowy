@@ -2,21 +2,43 @@ part of 'pane_node_cubit.dart';
 
 class PaneNodeState extends Equatable {
   final List<double> flex;
-  const PaneNodeState({required this.flex});
+  final List<double> resizeOffset;
+  final List<double> resizeStart;
+  const PaneNodeState({
+    required this.flex,
+    required this.resizeStart,
+    required this.resizeOffset,
+  });
 
-  factory PaneNodeState.initial({required int length}) => PaneNodeState(
-        flex: List.generate(
-          length,
-          (_) => 1 / length,
-        ),
-      );
+  factory PaneNodeState.initial({
+    required int length,
+    required double size,
+  }) {
+    final flex = List.generate(
+      length,
+      (_) => 1 / length,
+    );
+    List<double> initialOffset = [flex[0]];
+
+    for (int i = 1; i < length; i++) {
+      initialOffset.add((size * flex[i]) + initialOffset[i - 1]);
+    }
+    return PaneNodeState(
+      flex: flex,
+      resizeStart: List.generate(length, (_) => 0),
+      resizeOffset: initialOffset,
+    );
+  }
 
   PaneNodeState copyWith({
     List<double>? flex,
-    double? totalOffset,
+    List<double>? resizeOffset,
+    List<double>? resizeStart,
   }) {
     return PaneNodeState(
       flex: flex ?? this.flex,
+      resizeOffset: resizeOffset ?? this.resizeOffset,
+      resizeStart: resizeStart ?? this.resizeStart,
     );
   }
 
