@@ -41,9 +41,9 @@ printMessage "Setting up Flutter"
 
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oE 'Flutter [^ ]+' | grep -oE '[^ ]+$')
-# Check if the current version is 3.10.1
-if [ "$FLUTTER_VERSION" = "3.10.1" ]; then
-   echo "Flutter version is already 3.10.1"
+# Check if the current version is 3.10.6
+if [ "$FLUTTER_VERSION" = "3.10.6" ]; then
+   echo "Flutter version is already 3.10.6"
 else
    # Get the path to the Flutter SDK
    FLUTTER_PATH=$(which flutter)

@@ -98,6 +98,7 @@ class MenuUser extends StatelessWidget {
   Widget _renderSettingsButton(BuildContext context) {
     final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
+      waitDuration: const Duration(milliseconds: 300),
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
         onPressed: () {

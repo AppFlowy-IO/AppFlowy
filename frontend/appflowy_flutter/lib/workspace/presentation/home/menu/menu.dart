@@ -223,6 +223,7 @@ class MenuTopBar extends StatelessWidget {
                 renderIcon(context),
                 const Spacer(),
                 Tooltip(
+                  waitDuration: const Duration(milliseconds: 300),
                   richMessage: sidebarTooltipTextSpan(
                     context,
                     LocaleKeys.sideBar_closeSidebar.tr(),

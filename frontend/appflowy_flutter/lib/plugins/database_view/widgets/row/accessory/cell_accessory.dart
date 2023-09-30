@@ -66,6 +66,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   @override
   Widget build(BuildContext context) {
     return Tooltip(
+      waitDuration: const Duration(milliseconds: 300),
       message: LocaleKeys.tooltip_openAsPage.tr(),
       child: SizedBox(
         width: 26,

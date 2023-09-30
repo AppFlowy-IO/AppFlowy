@@ -20,6 +20,7 @@ class BlockActionButton extends StatelessWidget {
       alignment: Alignment.center,
       child: Tooltip(
         preferBelow: false,
+        waitDuration: const Duration(milliseconds: 300),
         richMessage: richMessage,
         child: MouseRegion(
           cursor: SystemMouseCursors.grab,

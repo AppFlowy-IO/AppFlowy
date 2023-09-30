@@ -66,6 +66,7 @@ class FlowyNavigation extends StatelessWidget {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: Tooltip(
+              waitDuration: const Duration(milliseconds: 300),
               richMessage: sidebarTooltipTextSpan(
                 context,
                 LocaleKeys.sideBar_openSidebar.tr(),

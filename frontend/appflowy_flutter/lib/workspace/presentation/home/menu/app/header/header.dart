@@ -108,6 +108,7 @@ class MenuAppHeader extends StatelessWidget {
   Widget _renderCreateViewButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
+      waitDuration: const Duration(milliseconds: 300),
       child: AddButton(
         parentViewId: parentView.id,
         onSelected: (pluginBuilder, name, initialDataBytes, openAfterCreated) {

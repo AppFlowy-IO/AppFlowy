@@ -164,6 +164,7 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
+      waitDuration: const Duration(milliseconds: 300),
       message: LocaleKeys.settings_files_changeLocationTooltips.tr(),
       child: SecondaryTextButton(
         LocaleKeys.settings_files_change.tr(),
