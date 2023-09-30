@@ -29,7 +29,7 @@ export const GridDate = ({
   };
 
   return (
-    <div className='flex w-full cursor-pointer justify-start'>
+    <>
       {cellController && <EditCellDate data={data as DateCellDataPB} onEditClick={onEditDateClick}></EditCellDate>}
 
       {showDatePopup && (
@@ -42,6 +42,6 @@ export const GridDate = ({
           onOutsideClick={() => setShowDatePopup(false)}
         ></DatePickerPopup>
       )}
-    </div>
+    </>
   );
 };

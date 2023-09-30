@@ -15,21 +15,12 @@ mac_alias = "appflowy-core-dev-macos"
 windows_alias = "appflowy-core-dev-windows"
 linux_alias = "appflowy-core-dev-linux"
 
-[tasks.appflowy-core-dev-android]
-category = "Build"
-dependencies = ["env_check"]
-run_task = { name = [
-  "setup-crate-type",
-  "sdk-build-android",
-  "restore-crate-type",
-] }
-
 [tasks.appflowy-core-dev-macos]
 category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
@@ -39,7 +30,7 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
@@ -49,13 +40,13 @@ category = "Build"
 dependencies = ["env_check"]
 run_task = { name = [
   "setup-crate-type",
-  "sdk-build",
+  "sdk-dev-build",
   "post-desktop",
   "restore-crate-type",
 ] }
 
 #
-[tasks.sdk-build]
+[tasks.sdk-dev-build]
 private = true
 script = [
   """
@@ -68,7 +59,20 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-build-android]
+[tasks.sdk-dev-build.mac]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo  RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-dev-build-android]
 private = true
 script = [
   """
@@ -94,7 +98,7 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-build.windows]
+[tasks.sdk-dev-build.windows]
 private = true
 script = [
   """
@@ -122,7 +126,7 @@ run_task = { name = [
 script = [
   """
     cd rust-lib/
-    cargo build --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

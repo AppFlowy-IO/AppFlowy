@@ -4,10 +4,11 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 pub use collab_folder::core::View;
-use collab_folder::core::{RepeatedViewIdentifier, ViewIdentifier, ViewLayout};
+use collab_folder::core::{RepeatedViewIdentifier, ViewIcon, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
+use flowy_folder_deps::cloud::gen_view_id;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
@@ -54,21 +55,21 @@ pub struct ViewBuilder {
   desc: String,
   layout: ViewLayout,
   child_views: Vec<ParentChildViews>,
-  icon_url: Option<String>,
-  cover_url: Option<String>,
+  is_favorite: bool,
+  icon: Option<ViewIcon>,
 }
 
 impl ViewBuilder {
   pub fn new(parent_view_id: String) -> Self {
     Self {
       parent_view_id,
-      view_id: gen_view_id(),
+      view_id: gen_view_id().to_string(),
       name: Default::default(),
       desc: Default::default(),
       layout: ViewLayout::Document,
       child_views: vec![],
-      icon_url: None,
-      cover_url: None,
+      is_favorite: false,
+      icon: None,
     }
   }
 
@@ -110,9 +111,9 @@ impl ViewBuilder {
       name: self.name,
       desc: self.desc,
       created_at: timestamp(),
+      is_favorite: self.is_favorite,
       layout: self.layout,
-      icon_url: self.icon_url,
-      cover_url: self.cover_url,
+      icon: self.icon,
       children: RepeatedViewIdentifier::new(
         self
           .child_views
@@ -157,6 +158,7 @@ pub trait FolderOperationHandler {
   /// Only called once when the user is created.
   fn create_workspace_view(
     &self,
+    _uid: i64,
     _workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
@@ -209,6 +211,7 @@ pub trait FolderOperationHandler {
   /// Create a view by importing data
   fn import_from_bytes(
     &self,
+    uid: i64,
     view_id: &str,
     name: &str,
     import_type: ImportType,
@@ -252,14 +255,10 @@ pub(crate) fn create_view(params: CreateViewParams, layout: ViewLayout) -> View 
     desc: params.desc,
     children: Default::default(),
     created_at: time,
+    is_favorite: false,
     layout,
-    icon_url: None,
-    cover_url: None,
+    icon: None,
   }
-}
-
-pub fn gen_view_id() -> String {
-  uuid::Uuid::new_v4().to_string()
 }
 
 #[cfg(test)]

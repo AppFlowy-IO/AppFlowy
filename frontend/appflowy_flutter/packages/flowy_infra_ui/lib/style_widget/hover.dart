@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:flowy_infra/time/duration.dart';
 
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
@@ -12,6 +10,10 @@ class FlowyHover extends StatefulWidget {
   final bool Function()? isSelected;
   final void Function(bool)? onHover;
   final MouseCursor? cursor;
+
+  /// Reset the hover state when the parent widget get rebuild.
+  /// Default to true.
+  final bool resetHoverOnRebuild;
 
   /// Determined whether the [builder] should get called when onEnter/onExit
   /// happened
@@ -29,6 +31,7 @@ class FlowyHover extends StatefulWidget {
     this.isSelected,
     this.onHover,
     this.cursor,
+    this.resetHoverOnRebuild = true,
     this.buildWhenOnHover,
   }) : super(key: key);
 
@@ -41,8 +44,11 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   @override
   void didUpdateWidget(covariant FlowyHover oldWidget) {
-    // Reset the _onHover to false when the parent widget get rebuild.
-    _onHover = false;
+    if (widget.resetHoverOnRebuild) {
+      // Reset the _onHover to false when the parent widget get rebuild.
+      _onHover = false;
+    }
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -53,26 +59,27 @@ class _FlowyHoverState extends State<FlowyHover> {
       opaque: false,
       onHover: (p) {
         if (_onHover) return;
-
-        if (widget.buildWhenOnHover?.call() ?? true) {
-          setState(() => _onHover = true);
-          if (widget.onHover != null) {
-            widget.onHover!(true);
-          }
-        }
+        _setOnHover(true);
+      },
+      onEnter: (p) {
+        if (_onHover) return;
+        _setOnHover(true);
       },
       onExit: (p) {
-        if (_onHover == false) return;
-
-        if (widget.buildWhenOnHover?.call() ?? true) {
-          setState(() => _onHover = false);
-          if (widget.onHover != null) {
-            widget.onHover!(false);
-          }
-        }
+        if (!_onHover) return;
+        _setOnHover(false);
       },
       child: renderWidget(),
     );
+  }
+
+  void _setOnHover(bool isHovering) {
+    if (widget.buildWhenOnHover?.call() ?? true) {
+      setState(() => _onHover = isHovering);
+      if (widget.onHover != null) {
+        widget.onHover!(isHovering);
+      }
+    }
   }
 
   Widget renderWidget() {
@@ -113,6 +120,15 @@ class HoverStyle {
     this.hoverColor,
     this.foregroundColorOnHover,
   });
+
+  const HoverStyle.transparent({
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
+    this.borderRadius = const BorderRadius.all(Radius.circular(6)),
+    this.contentMargin = EdgeInsets.zero,
+    this.backgroundColor = Colors.transparent,
+    this.foregroundColorOnHover,
+  }) : hoverColor = Colors.transparent;
 }
 
 class FlowyHoverContainer extends StatelessWidget {

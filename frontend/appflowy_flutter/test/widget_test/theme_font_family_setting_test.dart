@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/font_family_setting.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

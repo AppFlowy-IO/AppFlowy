@@ -1,8 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class ConditionWrapper extends ActionCell {
   @override
   Widget? rightIcon(Color iconColor) {
     if (isSelected) {
-      return svgWidget("grid/checkmark");
+      return const FlowySvg(FlowySvgs.check_s);
     } else {
       return null;
     }

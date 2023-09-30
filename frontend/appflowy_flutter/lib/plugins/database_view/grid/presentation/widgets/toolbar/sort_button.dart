@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -30,23 +31,23 @@ class _SortButtonState extends State<SortButton> {
 
         return wrapPopover(
           context,
-          SizedBox(
-            height: 26,
-            child: FlowyTextButton(
-              LocaleKeys.grid_settings_sort.tr(),
-              fontColor: textColor,
-              fillColor: Colors.transparent,
-              hoverColor: AFThemeExtension.of(context).lightGreyHover,
-              padding: GridSize.typeOptionContentInsets,
-              onPressed: () {
-                final bloc = context.read<SortMenuBloc>();
-                if (bloc.state.sortInfos.isEmpty) {
-                  _popoverController.show();
-                } else {
-                  bloc.add(const SortMenuEvent.toggleMenu());
-                }
-              },
-            ),
+          FlowyTextButton(
+            LocaleKeys.grid_settings_sort.tr(),
+            fontColor: textColor,
+            fontSize: FontSizes.s11,
+            fontWeight: FontWeight.w400,
+            fillColor: Colors.transparent,
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            padding: GridSize.toolbarSettingButtonInsets,
+            radius: Corners.s4Border,
+            onPressed: () {
+              final bloc = context.read<SortMenuBloc>();
+              if (bloc.state.sortInfos.isEmpty) {
+                _popoverController.show();
+              } else {
+                bloc.add(const SortMenuEvent.toggleMenu());
+              }
+            },
           ),
         );
       },

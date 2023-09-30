@@ -7,7 +7,7 @@ use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{FieldType, URLCellDataPB};
 use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
@@ -25,6 +25,12 @@ impl URLCellData {
 
   pub fn to_json(&self) -> FlowyResult<String> {
     serde_json::to_string(self).map_err(internal_error)
+  }
+}
+
+impl TypeOptionCellData for URLCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.data.is_empty()
   }
 }
 

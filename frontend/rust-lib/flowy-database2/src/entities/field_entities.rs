@@ -311,6 +311,13 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
   }
 }
 
+impl From<Vec<String>> for RepeatedFieldIdPB {
+  fn from(value: Vec<String>) -> Self {
+    let field_ids = value.into_iter().map(FieldIdPB::from).collect();
+    RepeatedFieldIdPB { items: field_ids }
+  }
+}
+
 /// [TypeOptionChangesetPB] is used to update the type-option data.
 #[derive(ProtoBuf, Default)]
 pub struct TypeOptionChangesetPB {
@@ -551,8 +558,6 @@ impl FieldType {
 
   pub fn is_date(&self) -> bool {
     matches!(self, FieldType::DateTime)
-      || matches!(self, FieldType::LastEditedTime)
-      || matches!(self, FieldType::CreatedTime)
   }
 
   pub fn is_single_select(&self) -> bool {

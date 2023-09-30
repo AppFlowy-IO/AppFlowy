@@ -29,6 +29,9 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           didUpdateEmoji: (String emoji) {
             emit(state.copyWith(emoji: emoji));
           },
+          enableEdit: (bool enabled) {
+            emit(state.copyWith(enableEdit: enabled));
+          },
         );
       },
     );
@@ -66,6 +69,7 @@ class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
+  const factory TextCellEvent.enableEdit(bool enabled) = _EnableEdit;
   const factory TextCellEvent.didUpdateEmoji(String emoji) = _UpdateEmoji;
 }
 
@@ -74,10 +78,12 @@ class TextCellState with _$TextCellState {
   const factory TextCellState({
     required String content,
     required String emoji,
+    required bool enableEdit,
   }) = _TextCellState;
 
   factory TextCellState.initial(TextCellController context) => TextCellState(
         content: context.getCellData() ?? "",
         emoji: context.emoji ?? "",
+        enableEdit: false,
       );
 }

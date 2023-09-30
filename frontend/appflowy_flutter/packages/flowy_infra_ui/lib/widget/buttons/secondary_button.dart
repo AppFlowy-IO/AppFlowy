@@ -4,29 +4,29 @@ import 'package:flowy_infra/size.dart';
 
 import 'base_styled_button.dart';
 
-enum SecondaryTextButtonMode {
+enum TextButtonMode {
   normal,
   big,
   small;
 
   Size get size {
     switch (this) {
-      case SecondaryTextButtonMode.normal:
-        return const Size(80, 38);
-      case SecondaryTextButtonMode.big:
+      case TextButtonMode.normal:
+        return const Size(80, 32);
+      case TextButtonMode.big:
         return const Size(100, 40);
-      case SecondaryTextButtonMode.small:
+      case TextButtonMode.small:
         return const Size(100, 30);
     }
   }
 
   BorderRadius get borderRadius {
     switch (this) {
-      case SecondaryTextButtonMode.normal:
+      case TextButtonMode.normal:
         return Corners.s8Border;
-      case SecondaryTextButtonMode.big:
+      case TextButtonMode.big:
         return Corners.s12Border;
-      case SecondaryTextButtonMode.small:
+      case TextButtonMode.small:
         return Corners.s6Border;
     }
   }
@@ -37,12 +37,12 @@ class SecondaryTextButton extends StatelessWidget {
     this.label, {
     super.key,
     this.onPressed,
-    this.mode = SecondaryTextButtonMode.normal,
+    this.mode = TextButtonMode.normal,
   });
 
   final String label;
   final VoidCallback? onPressed;
-  final SecondaryTextButtonMode mode;
+  final TextButtonMode mode;
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +62,12 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     required this.child,
     this.onPressed,
-    this.mode = SecondaryTextButtonMode.normal,
+    this.mode = TextButtonMode.normal,
   });
 
   final Widget child;
   final VoidCallback? onPressed;
-  final SecondaryTextButtonMode mode;
+  final TextButtonMode mode;
 
   @override
   Widget build(BuildContext context) {

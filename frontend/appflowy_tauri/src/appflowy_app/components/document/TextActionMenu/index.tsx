@@ -18,7 +18,7 @@ const TextActionComponent = ({ container }: { container: HTMLDivElement }) => {
         style={{
           opacity: 0,
         }}
-        className='absolute mt-[-6px] inline-flex h-[32px] min-w-[100px] items-stretch overflow-hidden rounded-[8px] bg-fill-toolbar leading-tight text-content-on-fill shadow-md transition-opacity duration-100'
+        className='absolute mt-[-6px] inline-flex h-[32px] min-w-[100px] items-stretch overflow-hidden rounded-[8px] bg-fill-toolbar leading-tight text-content-on-fill shadow-md'
         onMouseDown={(e) => {
           // prevent toolbar from taking focus away from editor
           e.preventDefault();

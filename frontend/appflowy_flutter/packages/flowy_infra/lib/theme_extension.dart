@@ -22,6 +22,10 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color toggleOffFill;
   final Color progressBarBGColor;
   final Color toggleButtonBGColor;
+  final Color calloutBGColor;
+  final Color tableCellBGColor;
+  final Color calendarWeekendBGColor;
+  final Color gridRowCountColor;
 
   final TextStyle code;
   final TextStyle callout;
@@ -44,11 +48,15 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.lightGreyHover,
     required this.toggleOffFill,
     required this.textColor,
+    required this.calloutBGColor,
+    required this.tableCellBGColor,
+    required this.calendarWeekendBGColor,
     required this.code,
     required this.callout,
     required this.caption,
     required this.progressBarBGColor,
     required this.toggleButtonBGColor,
+    required this.gridRowCountColor,
   });
 
   static AFThemeExtension of(BuildContext context) {
@@ -69,12 +77,16 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? tint8,
     Color? tint9,
     Color? textColor,
+    Color? calloutBGColor,
+    Color? tableCellBGColor,
     Color? greyHover,
     Color? greySelect,
     Color? lightGreyHover,
     Color? toggleOffFill,
     Color? progressBarBGColor,
     Color? toggleButtonBGColor,
+    Color? calendarWeekendBGColor,
+    Color? gridRowCountColor,
     TextStyle? code,
     TextStyle? callout,
     TextStyle? caption,
@@ -92,12 +104,17 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint8: tint8 ?? this.tint8,
       tint9: tint9 ?? this.tint9,
       textColor: textColor ?? this.textColor,
+      calloutBGColor: calloutBGColor ?? this.calloutBGColor,
+      tableCellBGColor: tableCellBGColor ?? this.tableCellBGColor,
       greyHover: greyHover ?? this.greyHover,
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
       toggleOffFill: toggleOffFill ?? this.toggleOffFill,
       progressBarBGColor: progressBarBGColor ?? this.progressBarBGColor,
       toggleButtonBGColor: toggleButtonBGColor ?? this.toggleButtonBGColor,
+      calendarWeekendBGColor:
+          calendarWeekendBGColor ?? this.calendarWeekendBGColor,
+      gridRowCountColor: gridRowCountColor ?? this.gridRowCountColor,
       code: code ?? this.code,
       callout: callout ?? this.callout,
       caption: caption ?? this.caption,
@@ -123,6 +140,9 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       tint8: Color.lerp(tint8, other.tint8, t)!,
       tint9: Color.lerp(tint9, other.tint9, t)!,
       textColor: Color.lerp(textColor, other.textColor, t)!,
+      calloutBGColor: Color.lerp(calloutBGColor, other.calloutBGColor, t)!,
+      tableCellBGColor:
+          Color.lerp(tableCellBGColor, other.tableCellBGColor, t)!,
       greyHover: Color.lerp(greyHover, other.greyHover, t)!,
       greySelect: Color.lerp(greySelect, other.greySelect, t)!,
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,
@@ -131,6 +151,10 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
           Color.lerp(progressBarBGColor, other.progressBarBGColor, t)!,
       toggleButtonBGColor:
           Color.lerp(toggleButtonBGColor, other.toggleButtonBGColor, t)!,
+      calendarWeekendBGColor:
+          Color.lerp(calendarWeekendBGColor, other.calendarWeekendBGColor, t)!,
+      gridRowCountColor: Color.lerp(
+          gridRowCountColor, other.gridRowCountColor, t)!,
       code: other.code,
       callout: other.callout,
       caption: other.caption,

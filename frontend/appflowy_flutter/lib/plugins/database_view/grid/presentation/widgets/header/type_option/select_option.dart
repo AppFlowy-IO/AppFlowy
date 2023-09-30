@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -195,8 +196,8 @@ class _OptionCellState extends State<_OptionCell> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
-            child: svgWidget(
-              "grid/details",
+            child: FlowySvg(
+              FlowySvgs.details_s,
               color: Theme.of(context).iconTheme.color,
             ),
           ),
@@ -256,8 +257,8 @@ class _AddOptionButton extends StatelessWidget {
                 .read<SelectOptionTypeOptionBloc>()
                 .add(const SelectOptionTypeOptionEvent.addingOption());
           },
-          leftIcon: svgWidget(
-            "home/add",
+          leftIcon: FlowySvg(
+            FlowySvgs.add_s,
             color: Theme.of(context).iconTheme.color,
           ),
         ),
@@ -305,7 +306,6 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: FlowyTextField(
             autoClearWhenDone: true,
-            maxLength: 30,
             text: text,
             focusNode: _focusNode,
             onCanceled: () {
@@ -323,5 +323,16 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
   }
 }

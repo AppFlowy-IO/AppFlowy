@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use std::sync::Weak;
+
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
@@ -7,7 +8,7 @@ use lib_dispatch::prelude::AFPlugin;
 use crate::event_handler::get_snapshot_handler;
 use crate::{event_handler::*, manager::DocumentManager};
 
-pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
+pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
   AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(document_manager)
@@ -24,6 +25,8 @@ pub fn init(document_manager: Arc<DocumentManager>) -> AFPlugin {
     .event(DocumentEvent::Undo, undo_handler)
     .event(DocumentEvent::CanUndoRedo, can_undo_redo_handler)
     .event(DocumentEvent::GetDocumentSnapshots, get_snapshot_handler)
+    .event(DocumentEvent::CreateText, create_text_handler)
+    .event(DocumentEvent::ApplyTextDeltaEvent, apply_text_delta_handler)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -67,4 +70,10 @@ pub enum DocumentEvent {
 
   #[event(input = "OpenDocumentPayloadPB", output = "RepeatedDocumentSnapshotPB")]
   GetDocumentSnapshots = 9,
+
+  #[event(input = "TextDeltaPayloadPB")]
+  CreateText = 10,
+
+  #[event(input = "TextDeltaPayloadPB")]
+  ApplyTextDeltaEvent = 11,
 }

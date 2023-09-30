@@ -17,8 +17,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Name');
@@ -35,8 +34,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');
@@ -58,8 +56,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new grid
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.createField(FieldType.Checklist, 'checklist');
@@ -73,8 +70,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.createField(FieldType.Checkbox, 'New field 1');
@@ -94,8 +90,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // create a field
       await tester.scrollToRight(find.byType(GridPage));
@@ -111,33 +106,11 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('hide field', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
-
-      // create a field
-      await tester.scrollToRight(find.byType(GridPage));
-      await tester.tapNewPropertyButton();
-      await tester.renameField('New field 1');
-      await tester.dismissFieldEditor();
-
-      // Delete the field
-      await tester.tapGridFieldWithName('New field 1');
-      await tester.tapHidePropertyButton();
-
-      await tester.noFieldWithName('New field 1');
-      await tester.pumpAndSettle();
-    });
-
     testWidgets('create checklist field ', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       await tester.scrollToRight(find.byType(GridPage));
       await tester.tapNewPropertyButton();
@@ -157,8 +130,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       for (final fieldType in [
         FieldType.Checklist,
@@ -190,7 +162,9 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(ViewLayoutPB.Grid);
+      await tester.createNewPageWithName(
+        layout: ViewLayoutPB.Grid,
+      );
 
       // Invoke the field editor
       await tester.tapGridFieldWithName('Type');

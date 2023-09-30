@@ -30,7 +30,7 @@ export const EditCellWrapper = ({
   cellIdentifier: CellIdentifier;
   cellCache: CellCache;
   fieldController: FieldController;
-  onEditFieldClick: (cell: CellIdentifier, left: number, top: number) => void;
+  onEditFieldClick: (cell: CellIdentifier, anchorEl: HTMLDivElement) => void;
   onEditOptionsClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditDateClick: (cell: CellIdentifier, left: number, top: number) => void;
   onEditCheckListClick: (cell: CellIdentifier, left: number, top: number) => void;
@@ -41,9 +41,8 @@ export const EditCellWrapper = ({
 
   const onClick = () => {
     if (!el.current) return;
-    const { top, right } = el.current.getBoundingClientRect();
 
-    onEditFieldClick(cellIdentifier, right, top);
+    onEditFieldClick(cellIdentifier, el.current);
   };
 
   return (
@@ -93,7 +92,13 @@ export const EditCellWrapper = ({
             {cellIdentifier.fieldType === FieldType.Checkbox && cellController && (
               <EditCheckboxCell
                 data={data as 'Yes' | 'No' | undefined}
-                cellController={cellController}
+                onToggle={async () => {
+                  if (data === 'Yes') {
+                    await cellController?.saveCellData('No');
+                  } else {
+                    await cellController?.saveCellData('Yes');
+                  }
+                }}
               ></EditCheckboxCell>
             )}
 
@@ -105,15 +110,30 @@ export const EditCellWrapper = ({
             )}
 
             {cellIdentifier.fieldType === FieldType.Number && cellController && (
-              <EditCellNumber data={data as string | undefined} cellController={cellController}></EditCellNumber>
+              <EditCellNumber
+                data={data as string | undefined}
+                onSave={async (value) => {
+                  await cellController?.saveCellData(value);
+                }}
+              ></EditCellNumber>
             )}
 
             {cellIdentifier.fieldType === FieldType.URL && cellController && (
-              <EditCellUrl data={data as URLCellDataPB} cellController={cellController}></EditCellUrl>
+              <EditCellUrl
+                data={data as URLCellDataPB}
+                onSave={async (value) => {
+                  await cellController?.saveCellData(value);
+                }}
+              ></EditCellUrl>
             )}
 
             {cellIdentifier.fieldType === FieldType.RichText && cellController && (
-              <EditCellText data={data as string | undefined} cellController={cellController}></EditCellText>
+              <EditCellText
+                data={data as string | undefined}
+                onSave={async (value) => {
+                  await cellController?.saveCellData(value);
+                }}
+              ></EditCellText>
             )}
           </div>
         </div>

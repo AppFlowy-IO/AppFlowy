@@ -2,8 +2,8 @@ import 'package:appflowy/plugins/database_view/application/database_controller.d
 import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,20 +47,28 @@ class GridSettingBar extends StatelessWidget {
             listener: (context, state) => toggleExtension.toggle(),
           ),
         ],
-        child: SizedBox(
-          height: 40,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(width: GridSize.leadingHeaderPadding),
-              const Spacer(),
-              const FilterButton(),
-              const SortButton(),
-              SettingButton(
-                databaseController: controller,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: controller.isLoading,
+          builder: (context, value, child) {
+            if (value) {
+              return const SizedBox.shrink();
+            }
+            return SizedBox(
+              height: 20,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const FilterButton(),
+                  const HSpace(2),
+                  const SortButton(),
+                  const HSpace(2),
+                  SettingButton(
+                    databaseController: controller,
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

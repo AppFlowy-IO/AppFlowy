@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
@@ -11,17 +12,14 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        name: 'editor/grid',
+        data: FlowySvgs.grid_s,
         isSelected: onSelected,
         style: style,
       ),
       keywords: ['grid', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           openAfterCreate: false,
@@ -39,17 +37,14 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        name: 'editor/board',
+        data: FlowySvgs.board_s,
         isSelected: onSelected,
         style: style,
       ),
       keywords: ['board', 'kanban', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -66,17 +61,14 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
       name: LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
-        name: 'editor/calendar',
+        data: FlowySvgs.date_s,
         isSelected: onSelected,
         style: style,
       ),
       keywords: ['calendar', 'database'],
       handler: (editorState, menuService, context) async {
-        if (!documentBloc.view.hasParentViewId()) {
-          return;
-        }
-
-        final parentViewId = documentBloc.view.parentViewId;
+        // create the view inside current page
+        final parentViewId = documentBloc.view.id;
         ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

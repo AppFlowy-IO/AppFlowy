@@ -15,6 +15,10 @@
     background-color: var(--fill-list-active);
 }
 
+.MuiList-root .Mui-focusVisible.MuiMenuItem-root:not(:hover, .Mui-selected) {
+    background-color: unset;
+}
+
 .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
     background-image: none;
 }
@@ -34,6 +38,7 @@
 .MuiButtonBase-root.MuiIconButton-root {
     border-radius: 4px;
     padding: 2px;
+    box-shadow: none;
 }
 
 .MuiButtonBase-root.MuiButton-containedPrimary.MuiButton-contained:hover {
@@ -46,6 +51,10 @@
     font-size: 0.85rem !important;
     border-radius: 8px !important;
     font-weight: 400 !important;
+}
+
+.MuiTooltip-arrow {
+    color: var(--bg-tips) !important;
 }
 
 .MuiInput-input[class$='-MuiSelect-select-MuiInputBase-input-MuiInput-input']:focus {

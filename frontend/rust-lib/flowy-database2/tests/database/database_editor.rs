@@ -322,15 +322,16 @@ impl<'a> TestRowBuilder<'a> {
 
   pub fn insert_date_cell(
     &mut self,
-    data: &str,
+    data: i64,
     time: Option<String>,
     include_time: Option<bool>,
     field_type: &FieldType,
   ) -> String {
     let value = serde_json::to_string(&DateCellChangeset {
-      date: Some(data.to_string()),
+      date: Some(data),
       time,
       include_time,
+      ..Default::default()
     })
     .unwrap();
     let date_field = self.field_with_type(field_type);

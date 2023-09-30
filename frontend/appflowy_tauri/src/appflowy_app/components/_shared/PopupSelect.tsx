@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode, useRef } from 'react';
+import { CSSProperties, MouseEvent, ReactNode, useRef } from 'react';
 import useOutsideClick from './useOutsideClick';
 
 export interface IPopupItem {
@@ -18,7 +18,7 @@ export const PopupSelect = ({
   className: string;
   onOutsideClick?: () => void;
   columns?: 1 | 2 | 3;
-  style?: any;
+  style?: CSSProperties;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 

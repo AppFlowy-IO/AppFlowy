@@ -6,7 +6,6 @@ import { useAppDispatch } from '../stores/store';
 import { Log } from '../utils/log';
 import {
   documentActions,
-  linkPopoverActions,
   rangeActions,
   rectSelectionActions,
   slashCommandActions,
@@ -34,7 +33,6 @@ export const useDocument = () => {
       dispatch(rangeActions.initialState(docId));
       dispatch(rectSelectionActions.initialState(docId));
       dispatch(slashCommandActions.initialState(docId));
-      dispatch(linkPopoverActions.initialState(docId));
     },
     [dispatch]
   );
@@ -46,7 +44,6 @@ export const useDocument = () => {
       dispatch(rangeActions.clear(docId));
       dispatch(rectSelectionActions.clear(docId));
       dispatch(slashCommandActions.clear(docId));
-      dispatch(linkPopoverActions.clear(docId));
     },
     [dispatch]
   );

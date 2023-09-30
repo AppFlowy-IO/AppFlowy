@@ -1,12 +1,15 @@
+use std::convert::TryInto;
+
+use collab::core::collab_state::SyncState;
+use collab_folder::core::Workspace;
+
+use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
+
 use crate::{
   entities::parser::workspace::{WorkspaceDesc, WorkspaceIdentify, WorkspaceName},
   entities::view::ViewPB,
 };
-use collab::core::collab_state::SyncState;
-use collab_folder::core::Workspace;
-use flowy_derive::ProtoBuf;
-use flowy_error::ErrorCode;
-use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct WorkspacePB {
@@ -196,4 +199,13 @@ impl From<SyncState> for FolderSyncStatePB {
       is_finish: value.is_sync_finished(),
     }
   }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct UserFolderPB {
+  #[pb(index = 1)]
+  pub uid: i64,
+
+  #[pb(index = 2)]
+  pub workspace_id: String,
 }

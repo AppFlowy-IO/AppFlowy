@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,23 +24,35 @@ class GridCellShortcuts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.enter): const GridCellEnterIdent(),
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyC):
-            const GridCellCopyIntent(),
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyV):
-            const GridCellPasteIntent(),
-      },
+      shortcuts: shortcuts,
       child: Actions(
-        actions: {
-          GridCellEnterIdent: GridCellEnterAction(child: child),
-          GridCellCopyIntent: GridCellCopyAction(child: child),
-          GridCellPasteIntent: GridCellPasteAction(child: child),
-        },
+        actions: actions,
         child: child,
       ),
     );
   }
+
+  Map<ShortcutActivator, Intent> get shortcuts => {
+        if (shouldAddKeyboardKey(CellKeyboardKey.onEnter))
+          LogicalKeySet(LogicalKeyboardKey.enter): const GridCellEnterIdent(),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onCopy))
+          LogicalKeySet(
+            Platform.isMacOS
+                ? LogicalKeyboardKey.meta
+                : LogicalKeyboardKey.control,
+            LogicalKeyboardKey.keyC,
+          ): const GridCellCopyIntent(),
+      };
+
+  Map<Type, Action<Intent>> get actions => {
+        if (shouldAddKeyboardKey(CellKeyboardKey.onEnter))
+          GridCellEnterIdent: GridCellEnterAction(child: child),
+        if (shouldAddKeyboardKey(CellKeyboardKey.onCopy))
+          GridCellCopyIntent: GridCellCopyAction(child: child),
+      };
+
+  bool shouldAddKeyboardKey(CellKeyboardKey key) =>
+      child.shortcutHandlers.containsKey(key);
 }
 
 class GridCellEnterIdent extends Intent {

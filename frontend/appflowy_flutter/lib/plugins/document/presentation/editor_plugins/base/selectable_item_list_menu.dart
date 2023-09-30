@@ -1,4 +1,4 @@
-import 'package:flowy_infra/image.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +48,7 @@ class SelectableItem extends StatelessWidget {
       height: 32,
       child: FlowyButton(
         text: FlowyText.medium(item),
-        rightIcon: isSelected ? const FlowySvg(name: 'grid/checkmark') : null,
+        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
         onTap: onTap,
       ),
     );

@@ -104,7 +104,7 @@ export const SignUp = () => {
             <span className='text-xs text-gray-500'>
               {t('signUp.alreadyHaveAnAccount')}
               <Link to={'/auth/login'}>
-                <span className='ml-2 text-main-accent hover:text-main-hovered'>{t('signIn.buttonText')}</span>
+                <span className='hover:text-content-hover ml-2 text-fill-hover'>{t('signIn.buttonText')}</span>
               </Link>
             </span>
           </div>

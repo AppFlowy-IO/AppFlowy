@@ -1,32 +1,35 @@
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
+import 'package:appflowy/env/env.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
+import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:flowy_infra/file_picker/file_picker_impl.dart';
-import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/workspace/application/user/prelude.dart';
-import 'package:appflowy/workspace/application/workspace/prelude.dart';
-import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/menu/prelude.dart';
-import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/plugins/trash/application/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/prelude.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/workspace/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_infra/file_picker/file_picker_impl.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -36,7 +39,7 @@ class DependencyResolver {
     GetIt getIt,
     IntegrationMode mode,
   ) async {
-    _resolveUserDeps(getIt);
+    _resolveUserDeps(getIt, mode);
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
@@ -78,11 +81,22 @@ void _resolveCommonService(
       );
     },
   );
+
+  getIt.registerFactory<ClipboardService>(
+    () => ClipboardService(),
+  );
 }
 
-void _resolveUserDeps(GetIt getIt) {
-  // getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
-  getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
+  if (isSupabaseEnabled) {
+    if (mode.isIntegrationTest) {
+      getIt.registerFactory<AuthService>(() => MockAuthService());
+    } else {
+      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+    }
+  } else {
+    getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  }
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
 
@@ -93,7 +107,7 @@ void _resolveUserDeps(GetIt getIt) {
     () => SignUpBloc(getIt<AuthService>()),
   );
 
-  getIt.registerFactory<SplashRoute>(() => SplashRoute());
+  getIt.registerFactory<SplashRouter>(() => SplashRouter());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
@@ -108,10 +122,9 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
-    (user, _) => WelcomeBloc(
+  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
+    (user, _) => WorkspaceBloc(
       userService: UserBackendService(userId: user.id),
-      userWorkspaceListener: UserWorkspaceListener(userProfile: user),
     ),
   );
 
@@ -136,10 +149,6 @@ void _resolveFolderDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
-    (user, _) => MenuUserBloc(user),
-  );
-
   //Settings
   getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
@@ -156,6 +165,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactory<TrashBloc>(
     () => TrashBloc(),
   );
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
 }
 
 void _resolveDocDeps(GetIt getIt) {

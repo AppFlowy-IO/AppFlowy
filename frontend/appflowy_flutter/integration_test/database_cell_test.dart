@@ -15,8 +15,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       await tester.editCell(
         rowIndex: 0,
@@ -38,7 +37,10 @@ void main() {
     testWidgets('edit multiple text cells', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(ViewLayoutPB.Grid, 'my grid');
+      await tester.createNewPageWithName(
+        name: 'my grid',
+        layout: ViewLayoutPB.Grid,
+      );
       await tester.createField(FieldType.RichText, 'description');
 
       await tester.editCell(
@@ -75,8 +77,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.Number;
 
@@ -134,8 +135,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       await tester.assertCheckboxCell(rowIndex: 0, isSelected: false);
       await tester.tapCheckboxCellInGrid(rowIndex: 0);
@@ -153,8 +153,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.CreatedTime;
       // Create a create time field
@@ -172,8 +171,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.LastEditedTime;
       // Create a last time field
@@ -187,12 +185,11 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('edit time cell', (tester) async {
+    testWidgets('edit date time cell', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.DateTime;
       await tester.createField(fieldType, fieldType.name);
@@ -221,7 +218,6 @@ void main() {
 
       await tester.assertDateCellInGrid(
         rowIndex: 0,
-        fieldType: fieldType,
         content: DateFormat('MMM dd, y').format(today),
       );
 
@@ -236,7 +232,6 @@ void main() {
 
       await tester.assertDateCellInGrid(
         rowIndex: 0,
-        fieldType: fieldType,
         content: DateFormat('MMM dd, y HH:mm').format(now),
       );
 
@@ -250,7 +245,6 @@ void main() {
 
       await tester.assertDateCellInGrid(
         rowIndex: 0,
-        fieldType: fieldType,
         content: DateFormat('dd/MM/y HH:mm').format(now),
       );
 
@@ -264,8 +258,18 @@ void main() {
 
       await tester.assertDateCellInGrid(
         rowIndex: 0,
-        fieldType: fieldType,
         content: DateFormat('dd/MM/y hh:mm a').format(now),
+      );
+
+      await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
+      await tester.findDateEditor(findsOneWidget);
+
+      // Clear the date and time
+      await tester.clearDate();
+
+      await tester.assertDateCellInGrid(
+        rowIndex: 0,
+        content: '',
       );
 
       await tester.pumpAndSettle();
@@ -276,9 +280,9 @@ void main() {
       await tester.tapGoButton();
 
       const fieldType = FieldType.SingleSelect;
-      await tester.tapAddButton();
+
       // When create a grid, it will create a single select field by default
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       // Tap the cell to invoke the selection option editor
       await tester.tapSelectOptionCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -354,8 +358,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.tapAddButton();
-      await tester.tapCreateGridButton();
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
 
       const fieldType = FieldType.MultiSelect;
       await tester.createField(fieldType, fieldType.name);
@@ -433,5 +436,107 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+  });
+
+  testWidgets('edit checklist cell', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapGoButton();
+
+    await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+    const fieldType = FieldType.Checklist;
+    await tester.createField(fieldType, fieldType.name);
+
+    // assert that there is no progress bar in the grid
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: null);
+
+    // tap on the first checklist cell
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // assert that the checklist editor is shown
+    tester.assertChecklistEditorVisible(visible: true);
+
+    // create a new task with enter
+    await tester.createNewChecklistTask(name: "task 0", enter: true);
+
+    // assert that the task is displayed
+    tester.assertChecklistTaskInEditor(
+      index: 0,
+      name: "task 0",
+      isChecked: false,
+    );
+
+    // update the task's name
+    await tester.renameChecklistTask(index: 0, name: "task 1");
+
+    // assert that the task's name is updated
+    tester.assertChecklistTaskInEditor(
+      index: 0,
+      name: "task 1",
+      isChecked: false,
+    );
+
+    // dismiss new task editor
+    await tester.dismissCellEditor();
+
+    // dismiss checklist cell editor
+    await tester.dismissCellEditor();
+
+    // assert that progress bar is shown in grid at 0%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 0);
+
+    // start editing the first checklist cell again
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // create another task with the create button
+    await tester.createNewChecklistTask(name: "task 2", button: true);
+
+    // assert that the task was inserted
+    tester.assertChecklistTaskInEditor(
+      index: 1,
+      name: "task 2",
+      isChecked: false,
+    );
+
+    // mark it as complete
+    await tester.checkChecklistTask(index: 1);
+
+    // assert that the task was checked in the editor
+    tester.assertChecklistTaskInEditor(
+      index: 1,
+      name: "task 2",
+      isChecked: true,
+    );
+
+    // dismiss checklist editor
+    await tester.dismissCellEditor();
+    await tester.dismissCellEditor();
+
+    // assert that progressbar is shown in grid at 50%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 0.5);
+
+    // re-open the cell editor
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // hover over first task and delete it
+    await tester.deleteChecklistTask(index: 0);
+
+    // dismiss cell editor
+    await tester.dismissCellEditor();
+
+    // assert that progressbar is shown in grid at 100%
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: 1);
+
+    // re-open the cell edior
+    await tester.tapChecklistCellInGrid(rowIndex: 0);
+
+    // delete the remaining task
+    await tester.deleteChecklistTask(index: 0);
+
+    // dismiss the cell editor
+    await tester.dismissCellEditor();
+
+    // check that the progress bar is not viisble
+    tester.assertChecklistCellInGrid(rowIndex: 0, percent: null);
   });
 }

@@ -1,4 +1,3 @@
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';

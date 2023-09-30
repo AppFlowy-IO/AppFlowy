@@ -9,6 +9,7 @@ export const useGridTableHeaderHooks = function (controller: DatabaseController)
   const onAddField = async () => {
     // TODO: move this to database controller hook
     const fieldController = new TypeOptionController(controller.viewId, None);
+
     await fieldController.initialize();
   };
 

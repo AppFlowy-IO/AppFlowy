@@ -88,7 +88,7 @@ impl From<RowDetail> for DidFetchRowPB {
       visibility: value.row.visibility,
       created_at: value.row.created_at,
       modified_at: value.row.modified_at,
-      meta: RowMetaPB::from(value.meta),
+      meta: RowMetaPB::from(value),
     }
   }
 }

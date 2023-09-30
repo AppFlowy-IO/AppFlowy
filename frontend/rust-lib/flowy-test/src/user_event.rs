@@ -31,6 +31,7 @@ pub fn sign_up(dispatch: Arc<AFPluginDispatcher>) -> SignUpContext {
     name: "app flowy".to_string(),
     password: password.clone(),
     auth_type: AuthTypePB::Local,
+    device_id: uuid::Uuid::new_v4().to_string(),
   }
   .into_bytes()
   .unwrap();
@@ -55,9 +56,10 @@ pub async fn async_sign_up(
   let email = random_email();
   let payload = SignUpPayloadPB {
     email,
-    name: "app flowy".to_string(),
+    name: "appflowy".to_string(),
     password: password.clone(),
     auth_type,
+    device_id: uuid::Uuid::new_v4().to_string(),
   }
   .into_bytes()
   .unwrap();

@@ -45,7 +45,7 @@ SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
   name: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
-  nodeBuilder: (editorState) {
+  nodeBuilder: (editorState, _) {
     final node = autoCompletionNode(start: editorState.selection!);
     return node;
   },
@@ -127,6 +127,7 @@ class _AutoCompletionBlockComponentState
     _onExit();
     _unsubscribeSelectionGesture();
     controller.dispose();
+    textFieldFocusNode.dispose();
 
     super.dispose();
   }

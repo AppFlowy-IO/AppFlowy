@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'dart:math' as math;
 
 import 'sort_choice_button.dart';
@@ -15,10 +16,11 @@ import 'sort_info.dart';
 
 class SortMenu extends StatelessWidget {
   final FieldController fieldController;
+
   const SortMenu({
+    super.key,
     required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +34,24 @@ class SortMenu extends StatelessWidget {
           if (state.sortInfos.isNotEmpty) {
             return AppFlowyPopover(
               controller: PopoverController(),
-              constraints: BoxConstraints.loose(const Size(340, 200)),
+              constraints: BoxConstraints.loose(const Size(320, 200)),
               direction: PopoverDirection.bottomWithLeftAligned,
+              offset: const Offset(0, 5),
               popupBuilder: (BuildContext popoverContext) {
-                return SortEditor(
-                  viewId: state.viewId,
-                  fieldController: context.read<SortMenuBloc>().fieldController,
-                  sortInfos: state.sortInfos,
+                return SingleChildScrollView(
+                  child: SortEditor(
+                    viewId: state.viewId,
+                    fieldController:
+                        context.read<SortMenuBloc>().fieldController,
+                    sortInfos: state.sortInfos,
+                  ),
                 );
               },
               child: SortChoiceChip(sortInfos: state.sortInfos),
             );
-          } else {
-            return const SizedBox();
           }
+
+          return const SizedBox.shrink();
         },
       ),
     );
@@ -57,24 +63,24 @@ class SortChoiceChip extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SortChoiceChip({
-    Key? key,
+    super.key,
     required this.sortInfos,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final arrow = Transform.rotate(
       angle: -math.pi / 2,
-      child: svgWidget(
-        "home/arrow_left",
+      child: FlowySvg(
+        FlowySvgs.arrow_left_s,
         color: Theme.of(context).iconTheme.color,
       ),
     );
 
     final text = LocaleKeys.grid_settings_sort.tr();
-    final leftIcon = svgWidget(
-      "grid/setting/sort",
+    final leftIcon = FlowySvg(
+      FlowySvgs.sort_ascending_s,
       color: Theme.of(context).iconTheme.color,
     );
 

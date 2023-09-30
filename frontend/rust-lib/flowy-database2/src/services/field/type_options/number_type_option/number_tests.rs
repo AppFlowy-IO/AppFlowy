@@ -80,6 +80,18 @@ mod tests {
     assert_number(&type_option, "0.2", "$0.2", &field_type, &field);
   }
 
+  #[test]
+  fn euro_type_option_test() {
+    let field_type = FieldType::Number;
+    let mut type_option = NumberTypeOption::new();
+    type_option.format = NumberFormat::EUR;
+    let field = FieldBuilder::new(field_type.clone(), type_option.clone()).build();
+
+    assert_number(&type_option, "0.2", "€0,2", &field_type, &field);
+    assert_number(&type_option, "1000", "€1.000", &field_type, &field);
+    assert_number(&type_option, "1234.56", "€1.234,56", &field_type, &field);
+  }
+
   fn assert_number(
     type_option: &NumberTypeOption,
     input_str: &str,

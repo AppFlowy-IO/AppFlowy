@@ -10,8 +10,8 @@ export default function QuoteBlock({
   childIds?: string[];
 }) {
   return (
-    <div className={'py-[2px]'}>
-      <div className={'border-l-4 border-solid border-fill-default px-3 '}>
+    <div className={'py-[2px] pl-0.5'}>
+      <div className={'border-l-4 border-solid border-fill-default pl-3'}>
         <TextBlock node={node} />
         <NodeChildren childIds={childIds} />
       </div>

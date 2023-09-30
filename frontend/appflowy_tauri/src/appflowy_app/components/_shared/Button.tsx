@@ -14,19 +14,19 @@ export const Button = ({
   useEffect(() => {
     switch (size) {
       case 'primary':
-        setCls('w-[340px] h-[48px] flex items-center justify-center rounded-lg bg-content-default text-content-on-fill');
+        setCls('w-[340px] h-[48px] flex items-center justify-center rounded-lg bg-fill-default text-content-on-fill');
         break;
       case 'medium':
-        setCls('w-[170px] h-[48px] flex items-center justify-center rounded-lg bg-content-default text-content-on-fill');
+        setCls('w-[170px] h-[48px] flex items-center justify-center rounded-lg bg-fill-default text-content-on-fill');
         break;
       case 'small':
         setCls(
-          'w-[68px] h-[32px] flex items-center justify-center rounded-lg bg-content-default text-content-on-fill text-xs hover:bg-content-hover'
+          'w-[68px] h-[32px] flex items-center justify-center rounded-lg bg-fill-default text-content-on-fill text-xs hover:bg-fill-list-hover'
         );
         break;
       case 'medium-transparent':
         setCls(
-          'w-[170px] h-[48px] flex items-center justify-center rounded-lg border border-content-default text-content-default transition-colors duration-300 hover:bg-content-blue-50 hover:text-content-on-fill'
+          'w-[170px] h-[48px] flex items-center justify-center rounded-lg border border-fill-default text-fill-default transition-colors duration-300 hover:bg-content-blue-50 '
         );
         break;
       case 'box-small-transparent':

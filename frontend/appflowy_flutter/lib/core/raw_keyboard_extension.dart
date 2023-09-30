@@ -8,4 +8,12 @@ extension RawKeyboardExtension on RawKeyboard {
           LogicalKeyboardKey.altRight,
         ].contains(key),
       );
+
+  bool get isControlPressed => keysPressed.any(
+        (key) => [
+          LogicalKeyboardKey.control,
+          LogicalKeyboardKey.controlLeft,
+          LogicalKeyboardKey.controlRight,
+        ].contains(key),
+      );
 }

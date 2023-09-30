@@ -22,11 +22,11 @@ import {
   SlashCommandOptionKey,
 } from '$app/interfaces/document';
 import { useAppDispatch } from '$app/stores/store';
-import { triggerSlashCommandActionThunk } from '$app_reducers/document/async-actions/menu';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { selectOptionByUpDown } from '$app/utils/document/menu';
+import { turnToBlockThunk } from '$app_reducers/document/async-actions';
 
 function BlockSlashMenu({
   id,
@@ -48,13 +48,11 @@ function BlockSlashMenu({
     async (type: BlockType, data?: BlockData<any>) => {
       if (!controller) return;
       await dispatch(
-        triggerSlashCommandActionThunk({
+        turnToBlockThunk({
           controller,
           id,
-          props: {
-            type,
-            data,
-          },
+          type,
+          data,
         })
       );
       onClose?.();
@@ -292,7 +290,7 @@ function BlockSlashMenu({
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
         {Object.entries(optionsByGroup).map(([group, options]) => (
           <div key={group}>
-            <div className={'text-shade-3 px-2 py-2 text-sm'}>{group}</div>
+            <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
             <div>
               {options.map((option) => {
                 return (

@@ -143,7 +143,7 @@ function BlockMenu({ id, onClose }: { id: string; onClose: () => void }) {
           return (
             <BlockMenuTurnInto
               key={option.key}
-              lable={option.title}
+              label={option.title}
               onHovered={() => {
                 setHovered(BlockMenuOption.TurnInto);
                 setSubMenuOpened(true);

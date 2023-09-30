@@ -1,7 +1,10 @@
+use std::fmt;
+use std::fmt::Display;
+
 use serde::Deserialize;
+use serde_json::Value;
 use uuid::Uuid;
 
-use crate::supabase::impls::WORKSPACE_ID;
 use crate::util::deserialize_null_or_default;
 
 pub enum GetUserProfileParams {
@@ -20,20 +23,57 @@ pub(crate) struct UserProfileResponse {
   pub email: String,
 
   #[serde(deserialize_with = "deserialize_null_or_default")]
-  pub workspace_id: String,
-}
+  pub latest_workspace_id: String,
 
-impl From<tokio_postgres::Row> for UserProfileResponse {
-  fn from(row: tokio_postgres::Row) -> Self {
-    let workspace_id: Uuid = row.get(WORKSPACE_ID);
-    Self {
-      uid: row.get("uid"),
-      name: row.try_get("name").unwrap_or_default(),
-      email: row.try_get("email").unwrap_or_default(),
-      workspace_id: workspace_id.to_string(),
-    }
-  }
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub encryption_sign: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
+
+#[derive(Deserialize, Clone)]
+pub(crate) struct UidResponse {
+  #[allow(dead_code)]
+  pub uid: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RealtimeEvent {
+  pub schema: String,
+  pub table: String,
+  #[serde(rename = "eventType")]
+  pub event_type: String,
+  pub new: Value,
+}
+impl Display for RealtimeEvent {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(
+      f,
+      "schema: {}, table: {}, event_type: {}",
+      self.schema, self.table, self.event_type
+    )
+  }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RealtimeCollabUpdateEvent {
+  pub oid: String,
+  pub uid: i64,
+  pub key: i64,
+  pub did: String,
+  pub value: String,
+  #[serde(default)]
+  pub encrypt: i32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RealtimeUserEvent {
+  pub uid: i64,
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub name: String,
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub email: String,
+  #[serde(deserialize_with = "deserialize_null_or_default")]
+  pub encryption_sign: String,
+}

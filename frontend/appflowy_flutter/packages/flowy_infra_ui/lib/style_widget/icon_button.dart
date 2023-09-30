@@ -1,8 +1,6 @@
-import 'dart:math';
-
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
@@ -18,6 +16,7 @@ class FlowyIconButton extends StatelessWidget {
   final String? tooltipText;
   final InlineSpan? richTooltipText;
   final bool preferBelow;
+  final BoxDecoration? decoration;
 
   const FlowyIconButton({
     Key? key,
@@ -29,6 +28,7 @@ class FlowyIconButton extends StatelessWidget {
     this.iconColorOnHover,
     this.iconPadding = EdgeInsets.zero,
     this.radius,
+    this.decoration,
     this.tooltipText,
     this.richTooltipText,
     this.preferBelow = true,
@@ -49,15 +49,12 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
-    final childWidth = min(size.width - iconPadding.horizontal,
-        size.height - iconPadding.vertical);
-    final childSize = Size(childWidth, childWidth);
-
-    return ConstrainedBox(
+    return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
         height: size.height,
       ),
+      decoration: decoration,
       child: Tooltip(
         preferBelow: preferBelow,
         message: tooltipMessage,
@@ -70,7 +67,7 @@ class FlowyIconButton extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
-          hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
+          hoverColor: hoverColor,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -78,14 +75,17 @@ class FlowyIconButton extends StatelessWidget {
           onPressed: onPressed,
           child: FlowyHover(
             style: HoverStyle(
-              hoverColor: Colors.transparent,
+              // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
+              hoverColor: hoverColor,
               foregroundColorOnHover:
                   iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              backgroundColor: Colors.transparent,
+              //Do not set background here. Use [fillColor] instead.
             ),
             child: Padding(
               padding: iconPadding,
-              child: SizedBox.fromSize(size: childSize, child: child),
+              child: Center(
+                child: child,
+              ),
             ),
           ),
         ),
@@ -106,7 +106,7 @@ class FlowyDropdownButton extends StatelessWidget {
     return FlowyIconButton(
       width: 16,
       onPressed: onPressed,
-      icon: svgWidget("home/drop_down_show"),
+      icon: const FlowySvg(FlowySvgData("home/drop_down_show")),
     );
   }
 }

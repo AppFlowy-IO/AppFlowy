@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,8 +27,8 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
           initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (fieldContexts) {
-            emit(state.copyWith(fieldContexts: fieldContexts));
+          didReceiveFieldUpdate: (fieldInfos) {
+            emit(state.copyWith(fieldInfos: fieldInfos));
           },
           setGroupByField: (String fieldId, FieldType fieldType) async {
             final result = await _groupBackendSvc.groupByField(
@@ -50,8 +51,8 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   }
 
   void _startListening() {
-    _onFieldsFn = (fieldContexts) =>
-        add(DatabaseGroupEvent.didReceiveFieldUpdate(fieldContexts));
+    _onFieldsFn = (fieldInfos) =>
+        add(DatabaseGroupEvent.didReceiveFieldUpdate(fieldInfos));
     _fieldController.addListener(
       onReceiveFields: _onFieldsFn,
       listenWhen: () => !isClosed,
@@ -75,15 +76,15 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
 class DatabaseGroupState with _$DatabaseGroupState {
   const factory DatabaseGroupState({
     required String viewId,
-    required List<FieldInfo> fieldContexts,
+    required List<FieldInfo> fieldInfos,
   }) = _DatabaseGroupState;
 
   factory DatabaseGroupState.initial(
     String viewId,
-    List<FieldInfo> fieldContexts,
+    List<FieldInfo> fieldInfos,
   ) =>
       DatabaseGroupState(
         viewId: viewId,
-        fieldContexts: fieldContexts,
+        fieldInfos: fieldInfos,
       );
 }

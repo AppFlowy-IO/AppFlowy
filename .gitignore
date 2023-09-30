@@ -37,3 +37,9 @@ pubspec.lock
 .fvm/
 
 **/AppFlowy-Collab/
+
+# ignore the deb filegit
+frontend/package
+frontend/*.deb
+
+**/Cargo.toml.bak

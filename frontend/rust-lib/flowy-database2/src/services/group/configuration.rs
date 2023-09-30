@@ -223,7 +223,9 @@ where
         })?;
         Ok(())
       },
-      _ => Err(FlowyError::record_not_found().context("Moving group failed. Groups are not exist")),
+      _ => Err(
+        FlowyError::record_not_found().with_context("Moving group failed. Groups are not exist"),
+      ),
     }
   }
 
@@ -377,6 +379,10 @@ where
       .reader
       .get_configuration_cells(&self.view_id, &self.field.id)
       .await
+  }
+
+  pub fn get_setting_content(&self) -> String {
+    self.setting.content.clone()
   }
 
   /// # Arguments

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
 
 class SortInfo {
@@ -8,4 +8,6 @@ class SortInfo {
   SortInfo({required this.sortPB, required this.fieldInfo});
 
   String get sortId => sortPB.id;
+
+  String get fieldId => sortPB.fieldId;
 }

@@ -70,6 +70,8 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightShader5,
+          calendarWeekendBGColor: const Color(0xFFFBFBFC),
+          gridRowCountColor: const Color(0xff000000),
         );
 
   const DefaultColorScheme.dark()
@@ -91,15 +93,15 @@ class DefaultColorScheme extends FlowyColorScheme {
           bg2: const Color(0xffEDEEF2),
           bg3: _darkMain1,
           bg4: const Color(0xff2C144B),
-          tint1: const Color(0xff8738F5),
-          tint2: const Color(0xffE6336E),
-          tint3: const Color(0xffFF2D9E),
-          tint4: const Color(0xffE9973E),
-          tint5: const Color(0xffFBF000),
-          tint6: const Color(0xffC0F000),
-          tint7: const Color(0xff15F74E),
-          tint8: const Color(0xff00F0E2),
-          tint9: const Color(0xff00BCF0),
+          tint1: const Color(0x4d9327FF),
+          tint2: const Color(0x66FC0088),
+          tint3: const Color(0x4dFC00E2),
+          tint4: const Color(0x80BE5B00),
+          tint5: const Color(0x33F8EE00),
+          tint6: const Color(0x4d6DC300),
+          tint7: const Color(0x5900BD2A),
+          tint8: const Color(0x80008890),
+          tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: const Color(0xff00B7EA),
           shadow: const Color(0xff0F131C),
@@ -120,5 +122,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
+          calendarWeekendBGColor: const Color(0xff121212),
+          gridRowCountColor: _darkMain1,
         );
 }

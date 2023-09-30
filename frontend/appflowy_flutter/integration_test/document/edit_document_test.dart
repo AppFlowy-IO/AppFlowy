@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '../util/ime.dart';
 import '../util/util.dart';
 
 void main() {
@@ -19,7 +18,10 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(ViewLayoutPB.Document, pageName);
+      await tester.createNewPageWithName(
+        name: pageName,
+        layout: ViewLayoutPB.Document,
+      );
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -57,7 +59,7 @@ void main() {
       );
 
       // switch to other page and switch back
-      await tester.openPage(readme);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // the numbered list should be kept
@@ -73,7 +75,10 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(ViewLayoutPB.Document, pageName);
+      await tester.createNewPageWithName(
+        name: pageName,
+        layout: ViewLayoutPB.Document,
+      );
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -86,7 +91,7 @@ void main() {
       }
 
       // switch to other page and switch back
-      await tester.openPage(readme);
+      await tester.openPage(gettingStarted);
       await tester.openPage(pageName);
 
       // this screenshots are different on different platform, so comment it out temporarily.
@@ -99,7 +104,6 @@ void main() {
   });
 }
 
-// TODO(Lucas.Xu): there're no shorctcuts for underline, format code yet.
 const _sample = r'''
 # Heading 1
 ## Heading 2

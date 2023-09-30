@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
-use flowy_server_config::supabase_config::{PostgresConfiguration, SupabaseConfiguration};
+use flowy_user_deps::cloud::UserCloudConfig;
+
+use crate::entities::EncryptionTypePB;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -50,6 +50,16 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 9)]
   #[serde(default)]
   pub menu_offset: f64,
+
+  #[pb(index = 10)]
+  #[serde(default)]
+  pub layout_direction: LayoutDirectionPB,
+
+  // If the value is FALLBACK which is the default value then it will fall back
+  // to layout direction and it will use that as default text direction.
+  #[pb(index = 11)]
+  #[serde(default)]
+  pub text_direction: TextDirectionPB,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -60,6 +70,22 @@ pub enum ThemeModePB {
   Dark = 1,
   #[default]
   System = 2,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum LayoutDirectionPB {
+  #[default]
+  LTRLayout = 0,
+  RTLLayout = 1,
+}
+
+#[derive(ProtoBuf_Enum, Serialize, Deserialize, Clone, Debug, Default)]
+pub enum TextDirectionPB {
+  LTR = 0,
+  RTL = 1,
+  AUTO = 2,
+  #[default]
+  FALLBACK = 3,
 }
 
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
@@ -99,85 +125,88 @@ impl std::default::Default for AppearanceSettingsPB {
       setting_key_value: HashMap::default(),
       is_menu_collapsed: APPEARANCE_DEFAULT_IS_MENU_COLLAPSED,
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
+      layout_direction: LayoutDirectionPB::default(),
+      text_direction: TextDirectionPB::default(),
     }
   }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct SupabaseConfigPB {
+pub struct UserCloudConfigPB {
   #[pb(index = 1)]
-  supabase_url: String,
-
-  #[pb(index = 2)]
-  key: String,
-
-  #[pb(index = 3)]
-  jwt_secret: String,
-
-  #[pb(index = 4)]
-  pub postgres_config: PostgresConfigurationPB,
-
-  #[pb(index = 5)]
   enable_sync: bool,
+
+  #[pb(index = 2)]
+  enable_encrypt: bool,
+
+  #[pb(index = 3)]
+  pub encrypt_secret: String,
 }
 
-impl TryFrom<SupabaseConfigPB> for SupabaseConfiguration {
-  type Error = FlowyError;
+#[derive(Default, ProtoBuf)]
+pub struct UpdateCloudConfigPB {
+  #[pb(index = 1, one_of)]
+  pub enable_sync: Option<bool>,
 
-  fn try_from(config: SupabaseConfigPB) -> Result<Self, Self::Error> {
-    let postgres_config = PostgresConfiguration::try_from(config.postgres_config)?;
-    Ok(SupabaseConfiguration {
-      url: config.supabase_url,
-      key: config.key,
-      jwt_secret: config.jwt_secret,
-      enable_sync: config.enable_sync,
-      postgres_config,
-    })
-  }
+  #[pb(index = 2, one_of)]
+  pub enable_encrypt: Option<bool>,
 }
 
-impl From<SupabaseConfiguration> for SupabaseConfigPB {
-  fn from(value: SupabaseConfiguration) -> Self {
-    let postgres_config = PostgresConfigurationPB {
-      url: value.postgres_config.url,
-      user_name: value.postgres_config.user_name,
-      password: value.postgres_config.password,
-      port: value.postgres_config.port as u32,
-    };
+#[derive(Default, ProtoBuf)]
+pub struct UserSecretPB {
+  #[pb(index = 1)]
+  pub user_id: i64,
+
+  #[pb(index = 2)]
+  pub encryption_secret: String,
+
+  #[pb(index = 3)]
+  pub encryption_type: EncryptionTypePB,
+
+  #[pb(index = 4)]
+  pub encryption_sign: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UserEncryptionSecretCheckPB {
+  #[pb(index = 1)]
+  pub is_need_secret: bool,
+}
+
+impl From<UserCloudConfig> for UserCloudConfigPB {
+  fn from(value: UserCloudConfig) -> Self {
     Self {
-      supabase_url: value.url,
-      key: value.key,
-      jwt_secret: value.jwt_secret,
-      postgres_config,
       enable_sync: value.enable_sync,
+      enable_encrypt: value.enable_encrypt(),
+      encrypt_secret: value.encrypt_secret,
     }
   }
 }
 
-#[derive(Default, ProtoBuf)]
-pub struct PostgresConfigurationPB {
-  #[pb(index = 1)]
-  pub url: String,
-
-  #[pb(index = 2)]
-  pub user_name: String,
-
-  #[pb(index = 3)]
-  pub password: String,
-
-  #[pb(index = 4)]
-  pub port: u32,
+#[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
+pub enum NetworkTypePB {
+  #[default]
+  NetworkUnknown = 0,
+  Wifi = 1,
+  Cell = 2,
+  Ethernet = 3,
+  Bluetooth = 4,
+  VPN = 5,
 }
 
-impl TryFrom<PostgresConfigurationPB> for PostgresConfiguration {
-  type Error = FlowyError;
-
-  fn try_from(config: PostgresConfigurationPB) -> Result<Self, Self::Error> {
-    Ok(Self {
-      url: config.url,
-      user_name: config.user_name,
-      password: config.password,
-      port: config.port as u16,
-    })
+impl NetworkTypePB {
+  pub fn is_reachable(&self) -> bool {
+    match self {
+      NetworkTypePB::NetworkUnknown | NetworkTypePB::Bluetooth => false,
+      NetworkTypePB::Wifi | NetworkTypePB::Cell | NetworkTypePB::Ethernet | NetworkTypePB::VPN => {
+        true
+      },
+    }
   }
+}
+
+#[derive(ProtoBuf, Debug, Default, Clone)]
+pub struct NetworkStatePB {
+  #[pb(index = 1)]
+  pub ty: NetworkTypePB,
 }

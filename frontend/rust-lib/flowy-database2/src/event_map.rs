@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::Weak;
 
 use strum_macros::Display;
 
@@ -6,9 +6,9 @@ use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::*;
 
 use crate::event_handler::*;
-use crate::manager::DatabaseManager2;
+use crate::manager::DatabaseManager;
 
-pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
+pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
   let plugin = AFPlugin::new()
     .name(env!("CARGO_PKG_NAME"))
     .state(database_manager);
@@ -72,8 +72,13 @@ pub fn init(database_manager: Arc<DatabaseManager2>) -> AFPlugin {
         .event(DatabaseEvent::SetLayoutSetting, set_layout_setting_handler)
         .event(DatabaseEvent::GetLayoutSetting, get_layout_setting_handler)
         .event(DatabaseEvent::CreateDatabaseView, create_database_view)
+        // Export
         .event(DatabaseEvent::ExportCSV, export_csv_handler)
         .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
+        // Field settings
+        .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
+        .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
+        .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -315,4 +320,15 @@ pub enum DatabaseEvent {
   /// Returns all the snapshots of the database view.
   #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseSnapshotPB")]
   GetDatabaseSnapshots = 150,
+
+  /// Returns the field settings for the provided fields in the given view
+  #[event(input = "FieldIdsPB", output = "RepeatedFieldSettingsPB")]
+  GetFieldSettings = 160,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedFieldSettingsPB")]
+  GetAllFieldSettings = 161,
+
+  /// Updates the field settings for a field in the given view
+  #[event(input = "FieldSettingsChangesetPB")]
+  UpdateFieldSettings = 162,
 }

@@ -17,11 +17,8 @@ class DatabaseBlockKeys {
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   DatabaseViewBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -78,11 +75,25 @@ class _DatabaseBlockComponentWidgetState
         return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
+          shrinkWrap: true,
         );
       },
     );
 
-    if (widget.actionBuilder != null) {
+    child = Padding(
+      padding: padding,
+      child: FocusScope(
+        skipTraversal: true,
+        onFocusChange: (value) {
+          if (value) {
+            context.read<EditorState>().selection = null;
+          }
+        },
+        child: child,
+      ),
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,

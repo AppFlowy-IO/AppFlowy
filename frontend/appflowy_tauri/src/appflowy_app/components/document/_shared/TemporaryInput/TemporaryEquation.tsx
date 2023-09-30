@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import { Functions } from '@mui/icons-material';
 import KatexMath from '$app/components/document/_shared/KatexMath';
 

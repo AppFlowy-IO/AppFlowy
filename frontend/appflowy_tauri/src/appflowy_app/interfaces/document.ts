@@ -62,9 +62,7 @@ export interface CalloutBlockData extends TextBlockData {
   icon: string;
 }
 
-export interface TextBlockData {
-  delta: Op[];
-}
+export type TextBlockData = Record<string, any>;
 
 export interface DividerBlockData {}
 
@@ -82,7 +80,14 @@ export interface ImageBlockData {
   align: Align;
 }
 
-export type PageBlockData = TextBlockData;
+export enum CoverType {
+  Image = 'image',
+  Color = 'color',
+}
+export interface PageBlockData extends TextBlockData {
+  cover?: string;
+  coverType?: CoverType;
+}
 
 export type BlockData<Type> = Type extends BlockType.HeadingBlock
   ? HeadingBlockData
@@ -113,9 +118,11 @@ export type BlockData<Type> = Type extends BlockType.HeadingBlock
 export interface NestedBlock<Type = any> {
   id: string;
   type: BlockType;
-  data: BlockData<Type>;
+  data: BlockData<Type> | any;
   parent: string | null;
   children: string;
+  externalId?: string;
+  externalType?: string;
 }
 
 export type Node = NestedBlock;
@@ -126,12 +133,15 @@ export interface DocumentData {
   nodes: Record<string, Node>;
   // map of block id to children block ids
   children: Record<string, string[]>;
+
+  deltaMap: Record<string, string>;
 }
 export interface DocumentState {
   // map of block id to block
   nodes: Record<string, Node>;
   // map of block id to children block ids
   children: Record<string, string[]>;
+  deltaMap: Record<string, string>;
 }
 
 export interface SlashCommandState {
@@ -212,6 +222,9 @@ export enum ChangeType {
   ChildrenMapInsert,
   ChildrenMapUpdate,
   ChildrenMapDelete,
+  DeltaMapInsert,
+  DeltaMapUpdate,
+  DeltaMapDelete,
 }
 
 export interface BlockPBValue {
@@ -220,6 +233,8 @@ export interface BlockPBValue {
   parent: string;
   children: string;
   data: string;
+  external_id?: string;
+  external_type?: string;
 }
 
 export enum SplitRelationship {
@@ -235,6 +250,8 @@ export enum TextAction {
   Code = 'code',
   Equation = 'formula',
   Link = 'href',
+  TextColor = 'font_color',
+  Highlight = 'bg_color',
 }
 export interface TextActionMenuProps {
   /**
@@ -297,13 +314,9 @@ export interface EditorProps {
   value?: Delta;
   selection?: RangeStaticNoId;
   decorateSelection?: RangeStaticNoId;
-  linkDecorateSelection?: {
-    selection?: RangeStaticNoId;
-    placeholder?: string;
-  };
   temporarySelection?: RangeStaticNoId;
   onSelectionChange?: (range: RangeStaticNoId | null, oldRange: RangeStaticNoId | null, source?: Sources) => void;
-  onChange?: (delta: Delta, oldDelta: Delta, source?: Sources) => void;
+  onChange: (ops: Op[], newDelta: Delta) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
@@ -311,15 +324,6 @@ export interface BlockCopyData {
   json: string;
   text: string;
   html: string;
-}
-
-export interface LinkPopoverState {
-  anchorPosition?: { top: number; left: number };
-  id?: string;
-  selection?: RangeStaticNoId;
-  open?: boolean;
-  href?: string;
-  title?: string;
 }
 
 export interface TemporaryState {
@@ -333,10 +337,11 @@ export interface TemporaryState {
 
 export enum TemporaryType {
   Equation = 'equation',
+  Link = 'link',
 }
 
-export type TemporaryData = InlineEquationData;
-
-export interface InlineEquationData {
-  latex: string;
+export interface TemporaryData {
+  latex?: string;
+  href?: string;
+  text?: string;
 }

@@ -1,4 +1,4 @@
-import { SelectOptionColorPB } from '../../../services/backend';
+import { SelectOptionColorPB } from '@/services/backend';
 
 export const getBgColor = (color: SelectOptionColorPB | undefined): string => {
   switch (color) {

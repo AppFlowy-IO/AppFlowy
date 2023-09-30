@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Harpidetu buletinera",
   "letsGoButtonText": "Hasi",
   "title": "Izenburua",
+  "youCanAlso": "Zuk ere egin dezakezu",
+  "and": "eta",
+  "blockActions": {
+    "addBelowTooltip": "Egin klik behean gehitzeko",
+    "addAboveCmd": "Alt+klik",
+    "addAboveMacCmd": "Aukera+klik",
+    "addAboveTooltip": "goian gehitzeko"
+  },
   "signUp": {
     "buttonText": "Izena eman",
     "title": "Izena eman @:appName -ra",
@@ -27,7 +35,8 @@
     "passwordHint": "Pasahitza",
     "dontHaveAnAccount": "Ez daukazu konturik?",
     "repeatPasswordEmptyError": "Pasahitz errepikapenak ezin du hutsik egon",
-    "unmatchedPasswordError": "Pasahitz errepikapena ez da berdina"
+    "unmatchedPasswordError": "Pasahitz errepikapena ez da berdina",
+    "loginAsGuestButtonText": "Hasi"
   },
   "workspace": {
     "create": "Lan-eremua",
@@ -44,12 +53,22 @@
     "small": "txikia",
     "medium": "ertaina",
     "large": "handia",
-    "fontSize": "Letra tamaina"
+    "fontSize": "Letra tamaina",
+    "import": "Inportatu",
+    "moreOptions": "Aukera gehiago"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Testua eta Markdown",
+    "documentFromV010": "v0.1.0 dokumentua",
+    "databaseFromV010": "0.1.0 bertsioko datu-basea",
+    "csv": "CSV",
+    "database": "Datu-basea"
   },
   "disclosureAction": {
     "rename": "Izena aldatu",
     "delete": "Ezabatu",
-    "duplicate": "Duplikatu"
+    "duplicate": "Duplikatu",
+    "openNewTab": "Ireki fitxa berri batean"
   },
   "blankPageTitle": "Orri zuria",
   "newPageText": "Orri berria",
@@ -61,6 +80,14 @@
       "fileName": "Fitxategi izena",
       "lastModified": "Azken aldaketa",
       "created": "Sortua"
+    },
+    "confirmDeleteAll": {
+      "title": "Ziur zaborrontziko orrialde guztiak ezabatuko dituzula?",
+      "caption": "Ekintza hau ezin da desegin."
+    },
+    "confirmRestoreAll": {
+      "title": "Ziur zaborrontziko orrialde guztiak leheneratuko dituzula?",
+      "caption": "Ekintza hau ezin da desegin."
     }
   },
   "deletePagePrompt": {
@@ -70,13 +97,16 @@
   },
   "dialogCreatePageNameHint": "Orriaren izena",
   "questionBubble": {
+    "shortcuts": "Lasterbideak",
     "whatsNew": "Ze berri?",
     "help": "Laguntza",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug informazioa",
       "success": "Debug informazioa kopiatu da!",
       "fail": "Ezin izan da debug informazioa kopiatu"
-    }
+    },
+    "feedback": "Iritzia"
   },
   "menuAppHeader": {
     "addPageTooltip": "Gehitu orri bat",
@@ -97,14 +127,20 @@
     "quote": "Aipamena",
     "header": "Goiburua",
     "highlight": "Nabarmendu",
-    "color": "Kolorea"
+    "color": "Kolorea",
+    "addLink": "Gehitu esteka",
+    "link": "Esteka"
   },
   "tooltip": {
     "lightMode": "Modu argira aldatu",
     "darkMode": "Modu ilunera aldatu",
     "openAsPage": "Orri gisa ireki",
     "addNewRow": "Ilara berri bat gehitu",
-    "openMenu": "Egin klik menua irekitzeko"
+    "openMenu": "Egin klik menua irekitzeko",
+    "dragRow": "Luze sakatu errenkada berrantolatzeko",
+    "viewDataBase": "Ikusi datu-basea",
+    "referencePage": "{izena} honi erreferentzia egiten zaio",
+    "addBlockBelow": "Gehitu bloke bat behean"
   },
   "sideBar": {
     "closeSidebar": "Alboko barra itxi",
@@ -124,11 +160,25 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Eginda",
     "Cancel": "Ezteztatu",
     "signIn": "Saioa hasi",
     "signOut": "Saioa itxi",
     "complete": "Burututa",
-    "save": "Gorde"
+    "save": "Gorde",
+    "generate": "Sortu",
+    "esc": "ESC",
+    "keep": "Gorde",
+    "tryAgain": "Saiatu berriro",
+    "discard": "Baztertu",
+    "replace": "Ordezkatu",
+    "insertBelow": "Txertatu behean",
+    "upload": "Kargatu",
+    "edit": "Editatu",
+    "delete": "Ezabatu",
+    "duplicate": "Bikoiztu",
+    "done": "Eginda",
+    "putback": "Jarri Atzera"
   },
   "label": {
     "welcome": "Ongi etorri!",
@@ -157,27 +207,49 @@
       "language": "Hizkuntza",
       "user": "Erabiltzailea",
       "files": "Fitxategiak",
-      "open": "Ezarpenak ireki"
+      "open": "Ezarpenak ireki",
+      "supabaseSetting": "Supabase ezarpena"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Letra-tipoen familia",
+        "search": "Bilatu"
+      },
       "themeMode": {
         "label": "Itxura modua",
         "light": "Modu argia",
         "dark": "Modu iluna",
         "system": "Zure sistemara moldatu"
       },
-      "theme": "Itxura"
+      "themeUpload": {
+        "button": "Kargatu",
+        "description": "Kargatu zure AppFlowy gaia beheko botoia erabiliz.",
+        "failure": "Kargatu zen gaiak formatu baliogabea zuen.",
+        "loading": "Mesedez, itxaron zure gaia balioztatzen eta kargatzen dugun bitartean...",
+        "uploadSuccess": "Zure gaia behar bezala kargatu da",
+        "deletionFailure": "Ezin izan da gaia ezabatu. Saiatu eskuz ezabatzen.",
+        "filePickerDialogTitle": "Aukeratu .flowy_plugin fitxategi bat",
+        "urlUploadFailure": "Ezin izan da ireki URLa: {}"
+      },
+      "theme": "Itxura",
+      "builtInsLabel": "Eraikitako gaiak",
+      "pluginsLabel": "Pluginak"
     },
     "files": {
+      "copy": "Kopiatu",
       "defaultLocation": "Non gordetzen diren zure datuak",
+      "exportData": "Esportatu zure datuak",
       "doubleTapToCopy": "Sakatu birritan bidea kopiatzeko",
       "restoreLocation": "Berrezarri AppFlowy-ren biden lehenetsira",
       "customizeLocation": "Beste karpeta bat ireki",
       "restartApp": "Mesedez, berrabiarazi aplikazioa aldaketak indarrean egon daitezen.",
       "exportDatabase": "Datubasea exportatu",
       "selectFiles": "Aukeratu exportatu nahi dituzun fitxategiak",
+      "selectAll": "Hautatu guztiak",
+      "deselectAll": "Deshautatu guztiak",
       "createNewFolder": "Karpeta berri bat sortu",
       "createNewFolderDesc": "Non nahi dituzu datuak gorde ...",
+      "defineWhereYourDataIsStored": "Zure datuak non gordetzen diren zehaztu",
       "open": "Oreki",
       "openFolder": "Ireki karpeta bat",
       "openFolderDesc": "Irakurri eta idatzi zure AppFlowy karpetan...",
@@ -186,21 +258,42 @@
       "locationDesc": "Aukeratu izen bat AppFlowy datuen karpetarako",
       "browser": "Bilatu",
       "create": "Sortu",
+      "set": "Ezarri",
       "folderPath": "Zure karpeta gordetzeko bidea",
-      "locationCannotBeEmpty": "Bideak ezin du hutsa egon"
+      "locationCannotBeEmpty": "Bideak ezin du hutsa egon",
+      "pathCopiedSnackbar": "Fitxategiak biltegiratzeko bidea arbelean kopiatu da!",
+      "changeLocationTooltips": "Aldatu datuen direktorioa",
+      "change": "Aldatu",
+      "openLocationTooltips": "Ireki beste datu-direktorio bat",
+      "openCurrentDataFolder": "Ireki uneko datuen direktorioa",
+      "recoverLocationTooltips": "Berrezarri AppFlowyren datu-direktorio lehenetsira",
+      "exportFileSuccess": "Esportatu fitxategia behar bezala!",
+      "exportFileFail": "Ezin izan da esportatu fitxategia!",
+      "export": "Esportatu"
+    },
+    "user": {
+      "name": "Izena",
+      "selectAnIcon": "Hautatu ikono bat",
+      "pleaseInputYourOpenAIKey": "mesedez sartu zure OpenAI gakoa"
     }
   },
   "grid": {
+    "deleteView": "Ziur ikuspegi hau ezabatu nahi duzula?",
+    "createView": "Berria",
     "settings": {
       "filter": "Filtroa",
       "sort": "Ordenatu",
       "sortBy": "Ordenatu honekiko",
-      "Properties": "Propietateak",
+      "properties": "Propietateak",
+      "reorderPropertiesTooltip": "Arrastatu propietateak berrantolatzeko",
       "group": "Taldea",
       "addFilter": "Gehitu iragazkia",
       "deleteFilter": "Ezabatu iragazkia",
       "filterBy": "Iragazi arabera...",
-      "typeAValue": "Idatzi balio bat..."
+      "typeAValue": "Idatzi balio bat...",
+      "layout": "Diseinua",
+      "databaseLayout": "Diseinua",
+      "Properties": "Propietateak"
     },
     "textFilter": {
       "contains": "Dauka",
@@ -223,6 +316,7 @@
       "isChecked": "Egiaztatuta",
       "isUnchecked": "Desmarkatua",
       "choicechipPrefix": {
+        "is": "da",
         "da": "da"
       }
     },
@@ -251,6 +345,8 @@
       "textFieldName": "Testua",
       "checkboxFieldName": "Markatu laukia",
       "dateFieldName": "Data",
+      "updatedAtFieldName": "Azken aldaketaren ordua",
+      "createdAtFieldName": "Sortutako denbora",
       "numberFieldName": "Zenbakiak",
       "singleSelectFieldName": "Hautatu",
       "multiSelectFieldName": "Multi-hautaketa",
@@ -263,6 +359,7 @@
       "dateFormatISO": "Urtea-Hilabetea-Eguna",
       "dateFormatLocal": "Hilabetea/Eguna/Urtea",
       "dateFormatUS": "Urtea/Hilabetea/Eguna",
+      "dateFormatDayMonthYear": "Eguna/Hilabetea/Urtea",
       "timeFormat": "Denboraren formatua",
       "invalidTimeFormat": "Formatu baliogabea",
       "timeFormatTwelveHour": "12 ordu",
@@ -277,8 +374,8 @@
     "sort": {
       "ascending": "Gorarantz",
       "descending": "Jaisten",
-      "deleteSort": "Ezabatu ordena",
-      "addSort": "Gehitu ordenatu"
+      "addSort": "Gehitu ordenatu",
+      "deleteSort": "Ezabatu ordena"
     },
     "row": {
       "duplicate": "Bikoiztu",
@@ -286,7 +383,8 @@
       "textPlaceholder": "Hutsik",
       "copyProperty": "Propietatea arbelean kopiatu da",
       "count": "Kontatu",
-      "newRow": "Errenkada berria"
+      "newRow": "Errenkada berria",
+      "action": "Ekintza"
     },
     "selectOption": {
       "create": "Sortu",
@@ -305,12 +403,149 @@
       "searchOption": "Aukera bat bilatu"
     },
     "checklist": {
-      "panelTitle": "Gehitu elementu bat"
+      "addNew": "Gehitu elementu bat"
     },
-    "menuName": "Sareta"
+    "menuName": "Sareta",
+    "referencedGridPrefix": "-ren ikuspegia"
   },
   "document": {
     "menuName": "Dokumentua",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00etan",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Hautatu estekatzeko taula bat",
+        "createANewBoard": "Sortu taula berri bat"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Hautatu estekatzeko sare bat",
+        "createANewGrid": "Sortu sare berri bat"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Hautatu estekatzeko egutegia",
+        "createANewCalendar": "Sortu egutegi berri bat"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Eskema"
+    },
+    "plugins": {
+      "referencedBoard": "Erreferentziazko Batzordea",
+      "referencedGrid": "Erreferentziazko Sarea",
+      "referencedCalendar": "Erreferentziazko Egutegia",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
+      "autoGeneratorTitleName": "OpenAI: Eskatu AIri edozer idazteko...",
+      "autoGeneratorLearnMore": "Gehiago ikasi",
+      "autoGeneratorGenerate": "Sortu",
+      "autoGeneratorHintText": "Galdetu OpenAI...",
+      "autoGeneratorCantGetOpenAIKey": "Ezin da lortu OpenAI gakoa",
+      "autoGeneratorRewrite": "Berridatzi",
+      "smartEdit": "AI Laguntzaileak",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Ortografia konpondu",
+      "warning": "⚠️ AI erantzunak okerrak edo engainagarriak izan daitezke.",
+      "smartEditSummarize": "Laburtu",
+      "smartEditImproveWriting": "Hobetu idazkera",
+      "smartEditMakeLonger": "Luzatu",
+      "smartEditCouldNotFetchResult": "Ezin izan da emaitzarik eskuratu OpenAI-tik",
+      "smartEditCouldNotFetchKey": "Ezin izan da OpenAI gakoa eskuratu",
+      "smartEditDisabled": "Konektatu OpenAI Ezarpenetan",
+      "discardResponse": "AI erantzunak baztertu nahi dituzu?",
+      "createInlineMathEquation": "Sortu ekuazioa",
+      "toggleList": "Aldatu zerrenda",
+      "cover": {
+        "changeCover": "Aldatu Azala",
+        "colors": "Koloreak",
+        "images": "Irudiak",
+        "clearAll": "Garbitu guztiak",
+        "abstract": "Abstraktua",
+        "addCover": "Gehitu estalkia",
+        "addLocalImage": "Gehitu tokiko irudia",
+        "invalidImageUrl": "Irudiaren URL baliogabea",
+        "failedToAddImageToGallery": "Ezin izan da irudia galerian gehitu",
+        "enterImageUrl": "Sartu irudiaren URLa",
+        "add": "Gehitu",
+        "back": "Itzuli",
+        "saveToGallery": "Gorde galerian",
+        "removeIcon": "Kendu ikonoa",
+        "pasteImageUrl": "Itsatsi irudiaren URLa",
+        "or": "EDO",
+        "pickFromFiles": "Aukeratu fitxategietatik",
+        "couldNotFetchImage": "Ezin izan da irudia eskuratu",
+        "imageSavingFailed": "Irudiak gordetzean huts egin du",
+        "addIcon": "Gehitu ikonoa",
+        "coverRemoveAlert": "Ezabatu ondoren estalkitik kenduko da.",
+        "alertDialogConfirmation": "Ziur al zaude, jarraitu nahi duzula?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Gehitu Matematika Ekuazioa",
+        "editMathEquation": "Editatu Matematika Ekuazioa"
+      },
+      "optionAction": {
+        "click": "Egin klik",
+        "toOpenMenu": " menua irekitzeko",
+        "delete": "Ezabatu",
+        "duplicate": "Bikoiztu",
+        "turnInto": "Bihurtu",
+        "moveUp": "Gora",
+        "moveDown": "Mugitu behera",
+        "color": "Kolore",
+        "align": "Lerrokatu",
+        "left": "Ezkerra",
+        "center": "Zentroa",
+        "right": "Eskuin",
+        "defaultColor": "Lehenetsia"
+      },
+      "image": {
+        "copiedToPasteBoard": "Irudiaren esteka arbelean kopiatu da"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Gehitu goiburuak aurkibidea sortzeko."
+      }
+    },
+    "textBlock": {
+      "placeholder": "Idatzi '/' komandoetarako"
+    },
+    "title": {
+      "placeholder": "Izenbururik gabe"
+    },
+    "imageBlock": {
+      "placeholder": "Egin klik irudia gehitzeko",
+      "upload": {
+        "label": "Kargatu",
+        "placeholder": "Egin klik irudia igotzeko"
+      },
+      "url": {
+        "label": "Irudiaren URLa",
+        "placeholder": "Sartu irudiaren URLa"
+      },
+      "support": "Irudiaren tamainaren muga 5 MB da. Onartutako formatuak: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Irudi baliogabea",
+        "invalidImageSize": "Irudiaren tamaina 5 MB baino txikiagoa izan behar da",
+        "invalidImageFormat": "Irudi formatua ez da onartzen. Onartutako formatuak: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Irudiaren URL baliogabea"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Hizkuntza",
+        "placeholder": "Hautatu hizkuntza"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Itsatsi edo idatzi esteka bat",
+      "url": {
+        "label": "Estekaren URLa",
+        "placeholder": "Sartu estekaren URLa"
+      },
+      "title": {
+        "label": "Estekaren izenburua",
+        "placeholder": "Sartu estekaren izenburua"
+      }
+    },
     "data": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
@@ -319,15 +554,51 @@
   "board": {
     "column": {
       "create_new_card": "Berria"
-    }
+    },
+    "menuName": "Kontseilua",
+    "referencedBoardPrefix": "-ren ikuspegia"
   },
   "calendar": {
     "menuName": "Egutegia",
+    "defaultNewCalendarTitle": "Izenbururik gabe",
     "navigation": {
       "today": "Gaur",
       "jumpToday": "Gaurko egunera salto egin",
       "previousMonth": "Aurreko hilabetea",
       "nextMonth": "Hurrengo hilabetea"
+    },
+    "settings": {
+      "showWeekNumbers": "Erakutsi asteko zenbakiak",
+      "showWeekends": "Asteburuetan erakutsi",
+      "firstDayOfWeek": "Hasi astea",
+      "layoutDateField": "Egutegiaren diseinua arabera",
+      "noDateTitle": "Datarik ez",
+      "noDateHint": "Programatu gabeko gertaerak hemen agertuko dira",
+      "clickToAdd": "Egin klik egutegian gehitzeko",
+      "name": "Egutegiaren diseinua"
+    },
+    "referencedCalendarPrefix": "-ren ikuspegia"
+  },
+  "errorDialog": {
+    "title": "AppFlowy errorea",
+    "howToFixFallback": "Sentitzen dugu eragozpenak! Bidali zure errorea deskribatzen duen arazo bat gure GitHub orrian.",
+    "github": "Ikusi GitHub-en"
+  },
+  "search": {
+    "label": "Bilatu",
+    "placeholder": {
+      "actions": "Bilatu ekintzak..."
     }
+  },
+  "message": {
+    "copy": {
+      "success": "Kopiatu!",
+      "fail": "Ezin da kopiatu"
+    }
+  },
+  "unSupportBlock": "Uneko bertsioak ez du bloke hau onartzen.",
+  "views": {
+    "deleteContentTitle": "Ziur {pageType} ezabatu nahi duzula?",
+    "deleteContentCaption": "{pageType} hau ezabatzen baduzu, zaborrontzitik leheneratu dezakezu."
   }
 }

@@ -117,8 +117,12 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
 
   const handleMouseDown = useCallback(
     (e: MouseEvent) => {
+      if (e.button !== 0) return;
       const isTapToClick = isApple() && timeStampRef.current > 0 && Date.now() - timeStampRef.current < onFrameTime;
 
+      const isTextBox = (e.target as HTMLElement).closest(`[role="textbox"]`);
+
+      if (!isTextBox) return;
       // skip if the target is not a block
       const blockId = getBlockIdByPoint(e.target as HTMLElement);
 
@@ -144,7 +148,6 @@ export function useBlockRangeSelection(container: HTMLDivElement) {
       anchorRef.current = {
         ...anchor,
       };
-
       // set the anchor point and focus point
       dispatch(rangeActions.setAnchorPoint({ docId, anchorPoint: anchor }));
       dispatch(rangeActions.setFocusPoint({ docId, focusPoint: anchor }));

@@ -8,10 +8,10 @@ function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: bo
   const { openWorkspace, deleteWorkspace } = useLoadWorkspace(workspace);
 
   return (
-    <div className={'flex flex-col'}>
+    <div className={'flex h-[100%] flex-col'}>
       <div
         style={{
-          height: opened ? 'auto' : 0,
+          height: opened ? '100%' : 0,
           overflow: 'hidden',
           transition: 'height 0.2s ease-in-out',
         }}

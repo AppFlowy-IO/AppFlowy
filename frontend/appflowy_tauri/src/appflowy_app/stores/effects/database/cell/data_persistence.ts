@@ -25,7 +25,7 @@ export class DateCellDataPersistence extends CellDataPersistence<CalendarData> {
 
   save(data: CalendarData): Promise<Result<void, FlowyError>> {
     const payload = DateChangesetPB.fromObject({ cell_id: _makeCellId(this.cellIdentifier) });
-    payload.date = ((data.date.getTime() / 1000) | 0).toString();
+    payload.date = (data.date.getTime() / 1000) | 0;
     if (data.time !== undefined) {
       payload.time = data.time;
     }

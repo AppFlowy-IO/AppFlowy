@@ -3,9 +3,12 @@ use thiserror::Error;
 
 use flowy_derive::ProtoBuf_Enum;
 
-#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum)]
+#[derive(
+  Debug, Default, Clone, PartialEq, Eq, Error, Serialize_repr, Deserialize_repr, ProtoBuf_Enum,
+)]
 #[repr(u8)]
 pub enum ErrorCode {
+  #[default]
   #[error("Internal error")]
   Internal = 0,
 
@@ -56,9 +59,6 @@ pub enum ErrorCode {
 
   #[error("View name too long")]
   ViewNameTooLong = 17,
-
-  #[error("Http server connection error")]
-  HttpServerConnectError = 18,
 
   #[error("Email can not be empty or whitespace")]
   EmailIsEmpty = 19,
@@ -179,7 +179,7 @@ pub enum ErrorCode {
   #[error("Sql error")]
   SqlError = 58,
 
-  #[error("Http request error")]
+  #[error("Http error")]
   HttpError = 59,
 
   #[error("The content should not be empty")]
@@ -215,8 +215,41 @@ pub enum ErrorCode {
   #[error("Postgres database error")]
   PgDatabaseError = 70,
 
-  #[error("Enable supabase sync")]
-  SupabaseSyncRequired = 71,
+  #[error("Postgres transaction error")]
+  PgTransactionError = 71,
+
+  #[error("Enable data sync")]
+  DataSyncRequired = 72,
+
+  #[error("Conflict")]
+  Conflict = 73,
+
+  #[error("Invalid decryption secret")]
+  InvalidEncryptSecret = 74,
+
+  #[error("It appears that the collaboration object's data has not been fully synchronized")]
+  CollabDataNotSync = 75,
+
+  #[error("It appears that the workspace data has not been fully synchronized")]
+  WorkspaceDataNotSync = 76,
+
+  #[error("Excess storage limited")]
+  ExcessStorageLimited = 77,
+
+  #[error("Parse url failed")]
+  InvalidURL = 78,
+
+  #[error("Require Email Confirmation, Sign in after email confirmation")]
+  AwaitingEmailConfirmation = 79,
+
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 80,
+
+  #[error("Record already exists")]
+  RecordAlreadyExists = 81,
+
+  #[error("Missing payload")]
+  MissingPayload = 82,
 }
 
 impl ErrorCode {

@@ -1,73 +1,87 @@
+import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:dartz/dartz.dart';
-import 'package:protobuf/protobuf.dart';
+
+import 'cloud_setting_listener.dart';
 
 part 'setting_supabase_bloc.freezed.dart';
 
-class SettingSupabaseBloc
-    extends Bloc<SettingSupabaseEvent, SettingSupabaseState> {
-  SettingSupabaseBloc() : super(SettingSupabaseState.initial()) {
-    on<SettingSupabaseEvent>((event, emit) async {
+class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
+  final UserCloudConfigListener _listener;
+
+  CloudSettingBloc({
+    required String userId,
+    required UserCloudConfigPB config,
+  })  : _listener = UserCloudConfigListener(userId: userId),
+        super(CloudSettingState.initial(config)) {
+    on<CloudSettingEvent>((event, emit) async {
       await event.when(
         initial: () async {
-          await getSupabaseConfig();
+          _listener.start(
+            onSettingChanged: (result) {
+              if (isClosed) {
+                return;
+              }
+
+              result.fold(
+                (config) => add(CloudSettingEvent.didReceiveConfig(config)),
+                (error) => Log.error(error),
+              );
+            },
+          );
         },
         enableSync: (bool enable) async {
-          final oldConfig = state.config;
-          if (oldConfig != null) {
-            oldConfig.freeze();
-            final newConfig = oldConfig.rebuild((config) {
-              config.enableSync = enable;
-            });
-            updateSupabaseConfig(newConfig);
-            emit(state.copyWith(config: newConfig));
-          }
+          final update = UpdateCloudConfigPB.create()..enableSync = enable;
+          updateCloudConfig(update);
         },
-        didReceiveSupabseConfig: (SupabaseConfigPB config) {
-          emit(state.copyWith(config: config));
+        didReceiveConfig: (UserCloudConfigPB config) {
+          emit(
+            state.copyWith(
+              config: config,
+              loadingState: LoadingState.finish(left(unit)),
+            ),
+          );
+        },
+        enableEncrypt: (bool enable) {
+          final update = UpdateCloudConfigPB.create()..enableEncrypt = enable;
+          updateCloudConfig(update);
+          emit(state.copyWith(loadingState: const LoadingState.loading()));
         },
       );
     });
   }
 
-  Future<void> updateSupabaseConfig(SupabaseConfigPB config) async {
-    await UserEventSetSupabaseConfig(config).send();
-  }
-
-  Future<void> getSupabaseConfig() async {
-    final result = await UserEventGetSupabaseConfig().send();
-    result.fold(
-      (config) {
-        if (!isClosed) {
-          add(SettingSupabaseEvent.didReceiveSupabseConfig(config));
-        }
-      },
-      (r) => Log.error(r),
-    );
+  Future<void> updateCloudConfig(UpdateCloudConfigPB config) async {
+    await UserEventSetCloudConfig(config).send();
   }
 }
 
 @freezed
-class SettingSupabaseEvent with _$SettingSupabaseEvent {
-  const factory SettingSupabaseEvent.initial() = _Initial;
-  const factory SettingSupabaseEvent.didReceiveSupabseConfig(
-    SupabaseConfigPB config,
-  ) = _DidReceiveSupabaseConfig;
-  const factory SettingSupabaseEvent.enableSync(bool enable) = _EnableSync;
+class CloudSettingEvent with _$CloudSettingEvent {
+  const factory CloudSettingEvent.initial() = _Initial;
+  const factory CloudSettingEvent.didReceiveConfig(
+    UserCloudConfigPB config,
+  ) = _DidSyncSupabaseConfig;
+  const factory CloudSettingEvent.enableSync(bool enable) = _EnableSync;
+  const factory CloudSettingEvent.enableEncrypt(bool enable) = _EnableEncrypt;
 }
 
 @freezed
-class SettingSupabaseState with _$SettingSupabaseState {
-  const factory SettingSupabaseState({
-    SupabaseConfigPB? config,
+class CloudSettingState with _$CloudSettingState {
+  const factory CloudSettingState({
+    required UserCloudConfigPB config,
     required Either<Unit, String> successOrFailure,
-  }) = _SettingSupabaseState;
+    required LoadingState loadingState,
+  }) = _CloudSettingState;
 
-  factory SettingSupabaseState.initial() => SettingSupabaseState(
+  factory CloudSettingState.initial(UserCloudConfigPB config) =>
+      CloudSettingState(
+        config: config,
         successOrFailure: left(unit),
+        loadingState: LoadingState.finish(left(unit)),
       );
 }

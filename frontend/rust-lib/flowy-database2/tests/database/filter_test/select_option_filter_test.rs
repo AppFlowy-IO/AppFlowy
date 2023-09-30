@@ -11,7 +11,7 @@ async fn grid_filter_multi_select_is_empty_test() {
       condition: SelectOptionConditionPB::OptionIsEmpty,
       option_ids: vec![],
     },
-    AssertNumberOfVisibleRows { expected: 3 },
+    AssertNumberOfVisibleRows { expected: 2 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -24,7 +24,7 @@ async fn grid_filter_multi_select_is_not_empty_test() {
       condition: SelectOptionConditionPB::OptionIsNotEmpty,
       option_ids: vec![],
     },
-    AssertNumberOfVisibleRows { expected: 3 },
+    AssertNumberOfVisibleRows { expected: 5 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -39,7 +39,7 @@ async fn grid_filter_multi_select_is_test() {
       condition: SelectOptionConditionPB::OptionIs,
       option_ids: vec![options.remove(0).id, options.remove(0).id],
     },
-    AssertNumberOfVisibleRows { expected: 3 },
+    AssertNumberOfVisibleRows { expected: 5 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -54,7 +54,7 @@ async fn grid_filter_multi_select_is_test2() {
       condition: SelectOptionConditionPB::OptionIs,
       option_ids: vec![options.remove(1).id],
     },
-    AssertNumberOfVisibleRows { expected: 2 },
+    AssertNumberOfVisibleRows { expected: 4 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -62,7 +62,7 @@ async fn grid_filter_multi_select_is_test2() {
 #[tokio::test]
 async fn grid_filter_single_select_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 2;
+  let expected = 3;
   let row_count = test.row_details.len();
   let scripts = vec![
     CreateSingleSelectFilter {

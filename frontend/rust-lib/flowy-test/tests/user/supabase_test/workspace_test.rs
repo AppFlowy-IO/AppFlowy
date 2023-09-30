@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use flowy_folder2::entities::WorkspaceSettingPB;
 use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
+use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
 use flowy_user::entities::{AuthTypePB, ThirdPartyAuthPB, UserProfilePB};
 use flowy_user::event_map::UserEvent::*;
@@ -13,7 +14,11 @@ async fn initial_workspace_test() {
   if get_supabase_config().is_some() {
     let test = FlowyCoreTest::new();
     let mut map = HashMap::new();
-    map.insert("uuid".to_string(), uuid::Uuid::new_v4().to_string());
+    map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
+    map.insert(
+      USER_EMAIL.to_string(),
+      format!("{}@gmail.com", uuid::Uuid::new_v4()),
+    );
     let payload = ThirdPartyAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,

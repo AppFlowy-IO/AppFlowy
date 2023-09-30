@@ -1,4 +1,4 @@
-use collab_database::rows::{RowId, RowMeta};
+use collab_database::rows::{RowDetail, RowId};
 use collab_database::views::DatabaseLayout;
 
 #[derive(Debug, Clone)]
@@ -14,7 +14,7 @@ pub enum DatabaseRowEvent {
 
 #[derive(Debug, Clone)]
 pub struct InsertedRow {
-  pub row_meta: RowMeta,
+  pub row_detail: RowDetail,
   pub index: Option<i32>,
   pub is_new: bool,
 }
@@ -29,7 +29,7 @@ pub struct UpdatedRow {
   pub field_ids: Vec<String>,
 
   /// The meta of row was updated if this is Some.
-  pub row_meta: Option<RowMeta>,
+  pub row_detail: Option<RowDetail>,
 }
 
 impl UpdatedRow {
@@ -38,7 +38,7 @@ impl UpdatedRow {
       row_id: row_id.to_string(),
       height: None,
       field_ids: vec![],
-      row_meta: None,
+      row_detail: None,
     }
   }
 
@@ -52,8 +52,8 @@ impl UpdatedRow {
     self
   }
 
-  pub fn with_row_meta(mut self, row_meta: RowMeta) -> Self {
-    self.row_meta = Some(row_meta);
+  pub fn with_row_meta(mut self, row_detail: RowDetail) -> Self {
+    self.row_detail = Some(row_detail);
     self
   }
 }

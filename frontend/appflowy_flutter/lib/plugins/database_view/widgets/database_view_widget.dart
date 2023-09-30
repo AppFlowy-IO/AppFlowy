@@ -4,12 +4,14 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseViewWidget extends StatefulWidget {
+  final ViewPB view;
+  final bool shrinkWrap;
+
   const DatabaseViewWidget({
     super.key,
     required this.view,
+    this.shrinkWrap = true,
   });
-
-  final ViewPB view;
 
   @override
   State<DatabaseViewWidget> createState() => _DatabaseViewWidgetState();
@@ -46,7 +48,10 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
     return ValueListenableBuilder<ViewLayoutPB>(
       valueListenable: _layoutTypeChangeNotifier,
       builder: (_, __, ___) {
-        return view.plugin().widgetBuilder.buildWidget();
+        return view
+            .plugin()
+            .widgetBuilder
+            .buildWidget(shrinkWrap: widget.shrinkWrap);
       },
     );
   }

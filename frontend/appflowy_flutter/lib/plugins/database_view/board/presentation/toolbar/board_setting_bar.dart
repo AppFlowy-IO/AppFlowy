@@ -12,10 +12,10 @@ class BoardSettingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 20,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Spacer(),
           SettingButton(databaseController: databaseController),
         ],
       ),

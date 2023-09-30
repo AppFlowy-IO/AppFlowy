@@ -23,19 +23,17 @@ class SortChoiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = BorderSide(
-      color: AFThemeExtension.of(context).toggleOffFill,
-      width: 1.0,
-    );
-
-    final decoration = BoxDecoration(
-      color: Colors.transparent,
-      border: Border.fromBorderSide(borderSide),
-      borderRadius: const BorderRadius.all(Radius.circular(14)),
-    );
-
     return FlowyButton(
-      decoration: decoration,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border.fromBorderSide(
+          BorderSide(
+            color: AFThemeExtension.of(context).toggleOffFill,
+            width: 1.0,
+          ),
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(14)),
+      ),
       useIntrinsicWidth: true,
       text: FlowyText(
         text,

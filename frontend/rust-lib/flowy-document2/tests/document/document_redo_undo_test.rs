@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-
-use flowy_document2::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
+use collab_document::document_data::{default_document_data, PARAGRAPH_BLOCK_TYPE};
 
 use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 
@@ -14,7 +13,9 @@ async fn undo_redo_test() {
   let data = default_document_data();
 
   // create a document
-  _ = test.create_document(&doc_id, Some(data.clone()));
+  _ = test
+    .create_document(test.user.user_id().unwrap(), &doc_id, Some(data.clone()))
+    .await;
 
   // open a document
   let document = test.get_document(&doc_id).await.unwrap();
@@ -36,9 +37,11 @@ async fn undo_redo_test() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
+      block: Some(text_block),
       parent_id: Some(page_id),
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.apply_action(vec![insert_text_action]);

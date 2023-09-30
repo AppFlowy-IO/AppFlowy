@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import '../../application/cell/cell_service.dart';
@@ -12,6 +11,7 @@ import 'cells/date_cell/date_cell.dart';
 import 'cells/number_cell/number_cell.dart';
 import 'cells/select_option_cell/select_option_cell.dart';
 import 'cells/text_cell/text_cell.dart';
+import 'cells/timestamp_cell/timestamp_cell.dart';
 import 'cells/url_cell/url_cell.dart';
 
 /// Build the cell widget in Grid style.
@@ -35,6 +35,7 @@ class GridCellBuilder {
       case FieldType.Checkbox:
         return GridCheckboxCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.DateTime:
@@ -42,14 +43,12 @@ class GridCellBuilder {
           cellControllerBuilder: cellControllerBuilder,
           key: key,
           style: style,
-          fieldType: cellContext.fieldType,
         );
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
-        return GridDateCell(
+        return GridTimestampCell(
           cellControllerBuilder: cellControllerBuilder,
           key: key,
-          editable: false,
           style: style,
           fieldType: cellContext.fieldType,
         );
@@ -68,11 +67,13 @@ class GridCellBuilder {
       case FieldType.Checklist:
         return GridChecklistCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.Number:
         return GridNumberCell(
           cellControllerBuilder: cellControllerBuilder,
+          style: style,
           key: key,
         );
       case FieldType.RichText:
@@ -152,17 +153,9 @@ abstract class GridCellWidget extends StatefulWidget
 abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   @override
   void initState() {
-    widget.requestFocus.setListener(requestBeginFocus);
-    widget.shortcutHandlers[CellKeyboardKey.onCopy] = () => onCopy();
-    widget.shortcutHandlers[CellKeyboardKey.onInsert] = () {
-      Clipboard.getData("text/plain").then((data) {
-        final s = data?.text;
-        if (s is String) {
-          onInsert(s);
-        }
-      });
-    };
     super.initState();
+
+    widget.requestFocus.setListener(requestBeginFocus);
   }
 
   @override
@@ -183,8 +176,6 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
   void requestBeginFocus();
 
   String? onCopy() => null;
-
-  void onInsert(String value) {}
 }
 
 abstract class GridEditableTextCell<T extends GridCellWidget>
@@ -256,7 +247,9 @@ class RequestFocusListener extends ChangeNotifier {
   }
 }
 
-abstract class GridCellStyle {}
+abstract class GridCellStyle {
+  const GridCellStyle();
+}
 
 class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;

@@ -119,7 +119,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   }
 
   SignUpState stateFromCode(FlowyError error) {
-    switch (ErrorCode.valueOf(error.code)!) {
+    switch (error.code) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,

@@ -11,15 +11,16 @@ use flowy_error::FlowyResult;
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
   MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
-  URLTypeOptionPB,
+  TimestampTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::cell::{CellDataDecoder, FromCellChangeset, ToCellChangeset};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
   CheckboxTypeOption, DateFormat, DateTypeOption, MultiSelectTypeOption, NumberTypeOption,
-  RichTextTypeOption, SingleSelectTypeOption, TimeFormat, URLTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimeFormat, TimestampTypeOption, URLTypeOption,
 };
 use crate::services::filter::FromFilterString;
+use crate::services::sort::SortCondition;
 
 pub trait TypeOption {
   /// `CellData` represents as the decoded model for current type option. Each of them impl the
@@ -32,7 +33,7 @@ pub trait TypeOption {
   ///
   /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
-  type CellData: ToString + Default + Send + Sync + Clone + Debug + 'static;
+  type CellData: TypeOptionCellData + ToString + Default + Send + Sync + Clone + Debug + 'static;
 
   /// Represents as the corresponding field type cell changeset.
   /// The changeset must implements the `FromCellChangesetString` and the `ToCellChangesetString` trait.
@@ -52,8 +53,11 @@ pub trait TypeOption {
   /// Represents as the filter configuration for this type option.
   type CellFilter: FromFilterString + Send + Sync + 'static;
 }
-
-pub trait TypeOptionCellData: TypeOption {
+/// This trait providing serialization and deserialization methods for cell data.
+///
+/// This trait ensures that a type which implements both `TypeOption` and `TypeOptionCellDataSerde` can
+/// be converted to and from a corresponding `Protobuf struct`, and can be parsed from an opaque [Cell] structure.
+pub trait TypeOptionCellDataSerde: TypeOption {
   /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
@@ -67,6 +71,18 @@ pub trait TypeOptionCellData: TypeOption {
   /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
   /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+}
+
+/// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
+///
+pub trait TypeOptionCellData {
+  /// Checks if the cell content is considered empty.
+  ///
+  /// Even if a cell is initialized, its content might still be considered empty
+  /// based on certain criteria. e.g. empty text, date, select option, etc.
+  fn is_cell_empty(&self) -> bool {
+    false
+  }
 }
 
 pub trait TypeOptionTransform: TypeOption {
@@ -127,11 +143,28 @@ pub fn default_order() -> Ordering {
 }
 
 pub trait TypeOptionCellDataCompare: TypeOption {
+  /// Compares the cell contents of two cells that are both not
+  /// None. However, the cell contents might still be empty
   fn apply_cmp(
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering;
+
+  /// Compares the two cells where one of the cells is None
+  fn apply_cmp_with_uninitialized(
+    &self,
+    cell_data: Option<&<Self as TypeOption>::CellData>,
+    other_cell_data: Option<&<Self as TypeOption>::CellData>,
+    _sort_condition: SortCondition,
+  ) -> Ordering {
+    match (cell_data, other_cell_data) {
+      (None, Some(cell_data)) if !cell_data.is_cell_empty() => Ordering::Greater,
+      (Some(cell_data), None) if !cell_data.is_cell_empty() => Ordering::Less,
+      _ => Ordering::Equal,
+    }
+  }
 }
 
 pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
@@ -146,8 +179,11 @@ pub fn type_option_data_from_pb_or_default<T: Into<Bytes>>(
     FieldType::Number => {
       NumberTypeOptionPB::try_from(bytes).map(|pb| NumberTypeOption::from(pb).into())
     },
-    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+    FieldType::DateTime => {
       DateTypeOptionPB::try_from(bytes).map(|pb| DateTypeOption::from(pb).into())
+    },
+    FieldType::LastEditedTime | FieldType::CreatedTime => {
+      TimestampTypeOptionPB::try_from(bytes).map(|pb| TimestampTypeOption::from(pb).into())
     },
     FieldType::SingleSelect => {
       SingleSelectTypeOptionPB::try_from(bytes).map(|pb| SingleSelectTypeOption::from(pb).into())
@@ -181,9 +217,15 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
-    FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
+    FieldType::DateTime => {
       let date_type_option: DateTypeOption = type_option.into();
       DateTypeOptionPB::from(date_type_option).try_into().unwrap()
+    },
+    FieldType::LastEditedTime | FieldType::CreatedTime => {
+      let timestamp_type_option: TimestampTypeOption = type_option.into();
+      TimestampTypeOptionPB::from(timestamp_type_option)
+        .try_into()
+        .unwrap()
     },
     FieldType::SingleSelect => {
       let single_select_type_option: SingleSelectTypeOption = type_option.into();
@@ -220,16 +262,12 @@ pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionD
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
-    FieldType::DateTime => DateTypeOption {
-      field_type: field_type.clone(),
-      ..Default::default()
-    }
-    .into(),
-    FieldType::LastEditedTime | FieldType::CreatedTime => DateTypeOption {
+    FieldType::DateTime => DateTypeOption::default().into(),
+    FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
       field_type: field_type.clone(),
       date_format: DateFormat::Friendly,
       time_format: TimeFormat::TwelveHour,
-      ..Default::default()
+      include_time: true,
     }
     .into(),
     FieldType::SingleSelect => SingleSelectTypeOption::default().into(),

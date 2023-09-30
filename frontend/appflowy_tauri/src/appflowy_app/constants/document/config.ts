@@ -1,4 +1,5 @@
 import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interfaces/document';
+import { randomEmoji } from '$app/utils/document/emoji';
 
 /**
  * If the block type is not in the config, it will be thrown an error in development env
@@ -6,9 +7,7 @@ import { Align, BlockConfig, BlockType, SplitRelationship } from '$app/interface
 export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.TextBlock]: {
     canAddChild: true,
-    defaultData: {
-      delta: [],
-    },
+    defaultData: {},
     splitProps: {
       nextLineRelationShip: SplitRelationship.NextSibling,
       nextLineBlockType: BlockType.TextBlock,
@@ -24,7 +23,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.TodoListBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
       checked: false,
     },
     splitProps: {
@@ -35,7 +33,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.BulletedListBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
       format: 'default',
     },
     splitProps: {
@@ -46,7 +43,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.NumberedListBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
       format: 'default',
     },
     splitProps: {
@@ -57,7 +53,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.QuoteBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
       size: 'default',
     },
     splitProps: {
@@ -68,8 +63,7 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.CalloutBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
-      icon: 'bulb',
+      icon: randomEmoji(),
     },
     splitProps: {
       nextLineRelationShip: SplitRelationship.NextSibling,
@@ -79,7 +73,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.ToggleListBlock]: {
     canAddChild: true,
     defaultData: {
-      delta: [],
       collapsed: false,
     },
     splitProps: {
@@ -91,7 +84,6 @@ export const blockConfig: Record<string, BlockConfig> = {
   [BlockType.CodeBlock]: {
     canAddChild: false,
     defaultData: {
-      delta: [],
       language: 'javascript',
     },
   },

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/core/raw_keyboard_extension.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -26,7 +27,7 @@ class BlockAddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlockActionButton(
-      svgName: 'editor/add',
+      svg: FlowySvgs.add_s,
       richMessage: TextSpan(
         children: [
           TextSpan(
@@ -57,9 +58,13 @@ class BlockAddButton extends StatelessWidget {
           final path = isAltPressed ? node.path : node.path.next;
 
           transaction.insertNode(path, paragraphNode());
-          transaction.afterSelection = Selection.collapse(path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: path, offset: 0),
+          );
         } else {
-          transaction.afterSelection = Selection.collapse(node.path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: node.path, offset: 0),
+          );
         }
 
         // show the slash menu.

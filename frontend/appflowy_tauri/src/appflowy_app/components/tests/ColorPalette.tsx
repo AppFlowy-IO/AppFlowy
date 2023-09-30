@@ -4,9 +4,9 @@ export const ColorPalette = () => {
       <h1 className={'mb-4 text-2xl'}>Colors</h1>
       <h2 className={'mb-4'}>Main</h2>
       <div className={'mb-8 flex flex-wrap items-center'}>
-        <div title={'main-accent'} className={'m-2 h-[100px] w-[100px] bg-fill-default'}></div>
+        <div title={'fill-hover'} className={'m-2 h-[100px] w-[100px] bg-fill-default'}></div>
         <div title={'main-hovered'} className={'m-2 h-[100px] w-[100px] bg-fill-list-hover'}></div>
-        <div title={'main-secondary'} className={'m-2 h-[100px] w-[100px] bg-fill-list-hover'}></div>
+        <div title={'fill-list-hover'} className={'m-2 h-[100px] w-[100px] bg-fill-list-hover'}></div>
         <div title={'main-selector'} className={'m-2 h-[100px] w-[100px] bg-fill-selector'}></div>
         <div title={'main-alert'} className={'m-2 h-[100px] w-[100px] bg-function-info'}></div>
         <div title={'main-warning'} className={'m-2 h-[100px] w-[100px] bg-function-warning'}></div>
@@ -31,7 +31,7 @@ export const ColorPalette = () => {
         <div title={'shade-3'} className={'bg-shade-3 m-2 h-[100px] w-[100px]'}></div>
         <div title={'shade-4'} className={'bg-shade-4 m-2 h-[100px] w-[100px]'}></div>
         <div title={'shade-5'} className={'bg-shade-5 m-2 h-[100px] w-[100px]'}></div>
-        <div title={'shade-6'} className={'bg-shade-6 m-2 h-[100px] w-[100px]'}></div>
+        <div title={'line-divider'} className={'m-2 h-[100px] w-[100px] bg-line-divider'}></div>
       </div>
       <h2 className={'mb-4'}>Surface</h2>
       <div className={'mb-8 flex flex-wrap items-center'}>

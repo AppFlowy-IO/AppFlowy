@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
+
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
@@ -77,13 +79,24 @@ class DateCellState with _$DateCellState {
 }
 
 String _dateStrFromCellData(DateCellDataPB? cellData) {
+  if (cellData == null || !cellData.hasTimestamp()) {
+    return "";
+  }
+
   String dateStr = "";
-  if (cellData != null) {
+  if (cellData.isRange) {
+    if (cellData.includeTime) {
+      dateStr =
+          "${cellData.date} ${cellData.time} → ${cellData.endDate} ${cellData.endTime}";
+    } else {
+      dateStr = "${cellData.date} → ${cellData.endDate}";
+    }
+  } else {
     if (cellData.includeTime) {
       dateStr = "${cellData.date} ${cellData.time}";
     } else {
       dateStr = cellData.date;
     }
   }
-  return dateStr;
+  return dateStr.trim();
 }

@@ -2,30 +2,53 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy/workspace/presentation/home/menu/app/section/item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const String readme = 'Read me';
+// const String readme = 'Read me';
+const String gettingStarted = '⭐️ Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
   void expectToSeeHomePage() {
     expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(readme), findsWidgets);
+    expect(find.textContaining(gettingStarted), findsWidgets);
   }
 
   /// Expect to see the page name on the home page.
-  void expectToSeePageName(String name) {
-    final pageName = findPageName(name);
+  void expectToSeePageName(
+    String name, {
+    String? parentName,
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    ViewLayoutPB parentLayout = ViewLayoutPB.Document,
+  }) {
+    final pageName = findPageName(
+      name,
+      layout: layout,
+      parentName: parentName,
+      parentLayout: parentLayout,
+    );
     expect(pageName, findsOneWidget);
   }
 
   /// Expect not to see the page name on the home page.
-  void expectNotToSeePageName(String name) {
-    final pageName = findPageName(name);
+  void expectNotToSeePageName(
+    String name, {
+    String? parentName,
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    ViewLayoutPB parentLayout = ViewLayoutPB.Document,
+  }) {
+    final pageName = findPageName(
+      name,
+      layout: layout,
+      parentName: parentName,
+      parentLayout: parentLayout,
+    );
     expect(pageName, findsNothing);
   }
 
@@ -125,11 +148,49 @@ extension Expectation on WidgetTester {
     expect(textWidget, findsOneWidget);
   }
 
-  /// Find the page name on the home page.
-  Finder findPageName(String name) {
+  /// Find if the page is favorite
+  Finder findFavoritePageName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    String? parentName,
+    ViewLayoutPB parentLayout = ViewLayoutPB.Document,
+  }) {
     return find.byWidgetPredicate(
-      (widget) => widget is ViewSectionItem && widget.view.name == name,
+      (widget) =>
+          widget is ViewItem &&
+          widget.view.isFavorite &&
+          widget.categoryType == FolderCategoryType.favorite &&
+          widget.view.name == name &&
+          widget.view.layout == layout,
       skipOffstage: false,
+    );
+  }
+
+  Finder findPageName(
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Document,
+    String? parentName,
+    ViewLayoutPB parentLayout = ViewLayoutPB.Document,
+  }) {
+    if (parentName == null) {
+      return find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleInnerViewItem &&
+            widget.view.name == name &&
+            widget.view.layout == layout,
+        skipOffstage: false,
+      );
+    }
+
+    return find.descendant(
+      of: find.byWidgetPredicate(
+        (widget) =>
+            widget is ViewItem &&
+            widget.view.name == parentName &&
+            widget.view.layout == parentLayout,
+        skipOffstage: false,
+      ),
+      matching: findPageName(name, layout: layout),
     );
   }
 }

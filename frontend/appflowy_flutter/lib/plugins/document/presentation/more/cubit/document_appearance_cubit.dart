@@ -6,18 +6,22 @@ class DocumentAppearance {
   const DocumentAppearance({
     required this.fontSize,
     required this.fontFamily,
+    this.defaultTextDirection,
   });
 
   final double fontSize;
   final String fontFamily;
+  final String? defaultTextDirection;
 
   DocumentAppearance copyWith({
     double? fontSize,
     String? fontFamily,
+    String? defaultTextDirection,
   }) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
       fontFamily: fontFamily ?? this.fontFamily,
+      defaultTextDirection: defaultTextDirection,
     );
   }
 }
@@ -32,6 +36,8 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         prefs.getDouble(KVKeys.kDocumentAppearanceFontSize) ?? 16.0;
     final fontFamily =
         prefs.getString(KVKeys.kDocumentAppearanceFontFamily) ?? 'Poppins';
+    final defaultTextDirection =
+        prefs.getString(KVKeys.kDocumentAppearanceDefaultTextDirection);
 
     if (isClosed) {
       return;
@@ -41,6 +47,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
       state.copyWith(
         fontSize: fontSize,
         fontFamily: fontFamily,
+        defaultTextDirection: defaultTextDirection,
       ),
     );
   }
@@ -71,6 +78,28 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     emit(
       state.copyWith(
         fontFamily: fontFamily,
+      ),
+    );
+  }
+
+  Future<void> syncDefaultTextDirection(String? direction) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (direction == null) {
+      prefs.remove(KVKeys.kDocumentAppearanceDefaultTextDirection);
+    } else {
+      prefs.setString(
+        KVKeys.kDocumentAppearanceDefaultTextDirection,
+        direction,
+      );
+    }
+
+    if (isClosed) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        defaultTextDirection: direction,
       ),
     );
   }

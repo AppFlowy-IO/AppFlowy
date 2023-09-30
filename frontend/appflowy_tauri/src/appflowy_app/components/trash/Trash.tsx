@@ -5,7 +5,7 @@ import { DeleteOutline, RestoreOutlined } from '@mui/icons-material';
 import { useLoadTrash, useTrashActions } from '$app/components/trash/Trash.hooks';
 import { Divider, List } from '@mui/material';
 import TrashItem from '$app/components/trash/TrashItem';
-import ConfirmDialog from '$app/components/trash/ConfirmDialog';
+import ConfirmDialog from '$app/components/_shared/app-dialog/ConfirmDialog';
 
 function Trash() {
   const { t } = useTranslation();
@@ -19,7 +19,7 @@ function Trash() {
     deleteAllDialogOpen,
     onRestoreAll,
     onDeleteAll,
-    closeDislog,
+    closeDialog,
   } = useTrashActions();
   const [hoverId, setHoverId] = useState('');
 
@@ -60,16 +60,16 @@ function Trash() {
       <ConfirmDialog
         open={restoreAllDialogOpen}
         title={t('trash.confirmRestoreAll.title')}
-        caption={t('trash.confirmRestoreAll.caption')}
+        subtitle={t('trash.confirmRestoreAll.caption')}
         onOk={onRestoreAll}
-        onClose={closeDislog}
+        onClose={closeDialog}
       />
       <ConfirmDialog
         open={deleteAllDialogOpen}
         title={t('trash.confirmDeleteAll.title')}
-        caption={t('trash.confirmDeleteAll.caption')}
+        subtitle={t('trash.confirmDeleteAll.caption')}
         onOk={onDeleteAll}
-        onClose={closeDislog}
+        onClose={closeDialog}
       />
     </div>
   );

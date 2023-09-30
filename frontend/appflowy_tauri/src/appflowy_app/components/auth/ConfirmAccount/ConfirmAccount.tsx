@@ -30,12 +30,12 @@ export const ConfirmAccount = () => {
             numInputs={5}
             isInputNum={true}
             separator={<span> </span>}
-            inputStyle='border border-gray-300 rounded-lg h-full !w-14 font-semibold   focus:ring-2 focus:ring-main-accent focus:ring-opacity-50'
+            inputStyle='border border-gray-300 rounded-lg h-full !w-14 font-semibold   focus:ring-2 focus:ring-fill-hover focus:ring-opacity-50'
             containerStyle='h-full w-full flex justify-around gap-2 '
           />
         </div>
 
-        <a href='#' className='text-xs text-main-accent hover:text-main-hovered'>
+        <a href='#' className='hover:text-content-hover text-xs text-fill-hover'>
           <span>Send code again</span>
         </a>
       </div>

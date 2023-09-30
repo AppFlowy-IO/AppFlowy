@@ -2,10 +2,9 @@ import { BlockType, NestedBlock } from '$app/interfaces/document';
 import TextBlock from '$app/components/document/TextBlock';
 import NodeChildren from '$app/components/document/Node/NodeChildren';
 import { IconButton } from '@mui/material';
-import emojiData from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 import { useCalloutBlock } from '$app/components/document/CalloutBlock/CalloutBlock.hooks';
 import Popover from '@mui/material/Popover';
+import EmojiPicker from '$app/components/_shared/EmojiPicker';
 
 export default function CalloutBlock({
   node,
@@ -38,7 +37,7 @@ export default function CalloutBlock({
               horizontal: 'left',
             }}
           >
-            <Picker searchPosition={'static'} locale={'en'} autoFocus data={emojiData} onEmojiSelect={onEmojiSelect} />
+            <EmojiPicker onEmojiSelect={onEmojiSelect} />
           </Popover>
         </div>
       </div>

@@ -2,7 +2,7 @@ use crate::services::group::Group;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct UrlGroupConfigurationPB {
+pub struct URLGroupConfigurationPB {
   #[pb(index = 1)]
   hide_empty: bool,
 }

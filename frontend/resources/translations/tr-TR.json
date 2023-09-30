@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Bültene Abone Ol",
   "letsGoButtonText": "Hadi başlayalım.",
   "title": "Başlık",
+  "youCanAlso": "ayrıca yapabilirsin",
+  "and": "Ve",
+  "blockActions": {
+    "addBelowTooltip": "Aşağıya eklemek için tıklayın",
+    "addAboveCmd": "Alt+tıklama",
+    "addAboveMacCmd": "Seçenek+tıklama",
+    "addAboveTooltip": "yukarıya eklemek için"
+  },
   "signUp": {
     "buttonText": "Kayıt Ol",
     "title": "@:appName'e kaydolun.",
@@ -27,7 +35,8 @@
     "passwordHint": "Parola",
     "dontHaveAnAccount": "Hesabınız yok mu?",
     "repeatPasswordEmptyError": "Parola (tekrar) boş olamaz",
-    "unmatchedPasswordError": "Parolalar eşleşmiyor"
+    "unmatchedPasswordError": "Parolalar eşleşmiyor",
+    "loginAsGuestButtonText": "Başlamak"
   },
   "workspace": {
     "create": "Çalışma alanı oluştur",
@@ -40,10 +49,26 @@
     "markdown": "Markdown",
     "copyLink": "Link'i Kopyala"
   },
+  "moreAction": {
+    "small": "küçük",
+    "medium": "orta",
+    "large": "büyük",
+    "fontSize": "Yazı Boyutu",
+    "import": "İçe aktarmak",
+    "moreOptions": "Daha fazla seçenek"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Metin ve İşaretleme",
+    "documentFromV010": "v0.1.0'dan belge",
+    "databaseFromV010": "v0.1.0 veritabanı",
+    "csv": "CSV'ler",
+    "database": "Veri tabanı"
+  },
   "disclosureAction": {
     "rename": "Yeniden adlandır",
     "delete": "Sil",
-    "duplicate": "Çoğalt"
+    "duplicate": "Çoğalt",
+    "openNewTab": "Yeni bir sekmede aç"
   },
   "blankPageTitle": "Boş sayfa",
   "newPageText": "Yeni sayfa",
@@ -55,6 +80,14 @@
       "fileName": "Dosya adı",
       "lastModified": "Son Değiştirme",
       "created": "Oluşturuldu"
+    },
+    "confirmDeleteAll": {
+      "title": "Çöp Kutusu'ndaki tüm sayfaları silmek istediğinizden emin misiniz?",
+      "caption": "Bu işlem geri alınamaz."
+    },
+    "confirmRestoreAll": {
+      "title": "Çöp Kutusu'ndaki tüm sayfaları geri yükleyeceğinizden emin misiniz?",
+      "caption": "Bu işlem geri alınamaz."
     }
   },
   "deletePagePrompt": {
@@ -64,13 +97,16 @@
   },
   "dialogCreatePageNameHint": "Sayfa adı",
   "questionBubble": {
+    "shortcuts": "kısayollar",
     "whatsNew": "Yeni ne var?",
     "help": "Yardım & Destek",
+    "markdown": "İşaretleme",
     "debug": {
       "name": "Hata Ayıklama",
       "success": "Hata ayıklama bilgileri panoya kopyalandı!",
       "fail": "Hata ayıklama bilgileri panoya kopyalanamıyor"
-    }
+    },
+    "feedback": "Geri bildirim"
   },
   "menuAppHeader": {
     "addPageTooltip": "Yeni bir sayfa ekleyin",
@@ -90,11 +126,31 @@
     "inlineCode": "Kod",
     "quote": "Alıntı",
     "header": "Başlık",
-    "highlight": "Vurgu"
+    "highlight": "Vurgu",
+    "color": "Renk",
+    "addLink": "Link ekle",
+    "link": "Bağlantı"
   },
   "tooltip": {
     "lightMode": "Aydınlık Mod'a Geç",
-    "darkMode": "Karanlık Mod'a Geç"
+    "darkMode": "Karanlık Mod'a Geç",
+    "openAsPage": "Sayfa olarak aç",
+    "addNewRow": "yeni bir satır ekle",
+    "openMenu": "Menüyü açmak için tıklayın",
+    "dragRow": "Satırı yeniden sıralamak için uzun basın",
+    "viewDataBase": "Veritabanını görüntüle",
+    "referencePage": "Bu {name} başvurulmuştur",
+    "addBlockBelow": "Aşağıya bir blok ekle"
+  },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Notu Markdown'a Aktardı",
+      "path": "Belgeler/akıcı"
+    }
   },
   "contactsPage": {
     "title": "İletişim",
@@ -104,11 +160,25 @@
   },
   "button": {
     "OK": "TAMAM",
+    "Done": "Tamamlamak",
     "Cancel": "İptal",
     "signIn": "Oturum Aç",
     "signOut": "Oturum Kapat",
     "complete": "Tamamlandı",
-    "save": "Kaydet"
+    "save": "Kaydet",
+    "generate": "oluştur",
+    "esc": "ESC",
+    "keep": "Kale",
+    "tryAgain": "Tekrar deneyin",
+    "discard": "At",
+    "replace": "Yer değiştirmek",
+    "insertBelow": "Aşağı Ekle",
+    "upload": "Yüklemek",
+    "edit": "Düzenlemek",
+    "delete": "Silmek",
+    "duplicate": "Kopyalamak",
+    "done": "Tamamlamak",
+    "putback": "Geri koy"
   },
   "label": {
     "welcome": "Merhaba!",
@@ -135,20 +205,394 @@
     "menu": {
       "appearance": "Görünüm",
       "language": "Dil",
-      "open": "Ayarları Aç"
+      "user": "kullanıcı",
+      "files": "Dosyalar",
+      "open": "Ayarları Aç",
+      "supabaseSetting": "Supabase Ayarı"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Font ailesi",
+        "search": "Aramak"
+      },
       "themeMode": {
         "label": "Theme Mode",
         "light": "Aydınlık Mod",
         "dark": "Karanlık Mod",
         "system": "Adapt to System"
+      },
+      "themeUpload": {
+        "button": "Yüklemek",
+        "description": "Aşağıdaki düğmeyi kullanarak kendi AppFlowy temanızı yükleyin.",
+        "failure": "Yüklenen temanın biçimi geçersiz.",
+        "loading": "Biz doğrulayıp temanızı yüklerken lütfen bekleyin...",
+        "uploadSuccess": "Temanız başarıyla yüklendi",
+        "deletionFailure": "Tema silinemedi. Manuel olarak silmeyi deneyin.",
+        "filePickerDialogTitle": "Bir .flowy_plugin dosyası seçin",
+        "urlUploadFailure": "URL açılamadı: {}"
+      },
+      "theme": "Tema",
+      "builtInsLabel": "Yerleşik Temalar",
+      "pluginsLabel": "Eklentiler"
+    },
+    "files": {
+      "copy": "kopyala",
+      "defaultLocation": "Dosyaları ve veri depolama konumunu okuyun",
+      "exportData": "Verilerinizi dışa aktarın",
+      "doubleTapToCopy": "Yolu kopyalamak için iki kez dokunun",
+      "restoreLocation": "AppFlowy varsayılan yoluna geri yükleme",
+      "customizeLocation": "Başka bir klasör aç",
+      "restartApp": "Değişikliklerin geçerli olması için lütfen uygulamayı yeniden başlatın.",
+      "exportDatabase": "Veritabanını dışa aktar",
+      "selectFiles": "Dışa aktarılması gereken dosyaları seçin",
+      "selectAll": "Hepsini seç",
+      "deselectAll": "Hiçbirini seçme",
+      "createNewFolder": "Yeni bir klasör oluştur",
+      "createNewFolderDesc": "Bize verilerinizi nerede depolamak istediğinizi söyleyin",
+      "defineWhereYourDataIsStored": "Verilerinizin nerede saklandığını tanımlayın",
+      "open": "Açık",
+      "openFolder": "Mevcut bir klasörü aç",
+      "openFolderDesc": "Okuyun ve mevcut AppFlowy klasörünüze yazın",
+      "folderHintText": "Klasör adı",
+      "location": "Yeni bir klasör oluşturma",
+      "locationDesc": "AppFlowy veri klasörünüz için bir ad seçin",
+      "browser": "Araştır",
+      "create": "Yaratmak",
+      "set": "Ayarlamak",
+      "folderPath": "Klasörünüzü saklama yolu",
+      "locationCannotBeEmpty": "Yol boş olamaz",
+      "pathCopiedSnackbar": "Dosya depolama yolu panoya kopyalandı!",
+      "changeLocationTooltips": "Veri dizinini değiştir",
+      "change": "Değiştirmek",
+      "openLocationTooltips": "Başka bir veri dizini aç",
+      "openCurrentDataFolder": "Geçerli veri dizinini aç",
+      "recoverLocationTooltips": "AppFlowy'nin varsayılan veri dizinine sıfırlayın",
+      "exportFileSuccess": "Dosyayı başarıyla dışa aktarın!",
+      "exportFileFail": "Dosya dışa aktarılamadı!",
+      "export": "İhracat"
+    },
+    "user": {
+      "name": "İsim",
+      "selectAnIcon": "Bir simge seçin",
+      "pleaseInputYourOpenAIKey": "lütfen OpenAI anahtarınızı girin"
+    }
+  },
+  "grid": {
+    "deleteView": "Bu görünümü silmek istediğinizden emin misiniz?",
+    "createView": "Yeni",
+    "settings": {
+      "filter": "filtre",
+      "sort": "Düzenlemek",
+      "sortBy": "Göre sırala",
+      "properties": "Özellikler",
+      "reorderPropertiesTooltip": "Özellikleri yeniden sıralamak için sürükleyin",
+      "group": "Grup",
+      "addFilter": "Filtre Ekle",
+      "deleteFilter": "Filtreyi sil",
+      "filterBy": "Tarafından filtre...",
+      "typeAValue": "Bir değer yazın...",
+      "layout": "Düzen",
+      "databaseLayout": "Düzen"
+    },
+    "textFilter": {
+      "contains": "içerir",
+      "doesNotContain": "İçermiyor",
+      "endsWith": "ile biter",
+      "startWith": "İle başlar",
+      "is": "Dır-dir",
+      "isNot": "Değil",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil",
+      "choicechipPrefix": {
+        "isNot": "Olumsuz",
+        "startWith": "İle başlar",
+        "endWith": "ile biter",
+        "isEmpty": "boş",
+        "isNotEmpty": "boş değil"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Kontrol",
+      "isUnchecked": "İşaretlenmemiş",
+      "choicechipPrefix": {
+        "is": "dır-dir"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "tamamlandı",
+      "isIncomplted": "eksik"
+    },
+    "singleSelectOptionFilter": {
+      "is": "Dır-dir",
+      "isNot": "Değil",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "içerir",
+      "doesNotContain": "İçermiyor",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil"
+    },
+    "field": {
+      "hide": "Saklamak",
+      "insertLeft": "Sola Ekle",
+      "insertRight": "Sağa Ekle",
+      "duplicate": "Kopyalamak",
+      "delete": "Silmek",
+      "textFieldName": "Metin",
+      "checkboxFieldName": "onay kutusu",
+      "dateFieldName": "Tarih",
+      "updatedAtFieldName": "Son değiştirilme zamanı",
+      "createdAtFieldName": "Oluşturma zamanı",
+      "numberFieldName": "Sayılar",
+      "singleSelectFieldName": "Seçme",
+      "multiSelectFieldName": "Çoklu seçim",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Kontrol listesi",
+      "numberFormat": "Sayı biçimi",
+      "dateFormat": "Tarih formatı",
+      "includeTime": "Zamanı dahil et",
+      "dateFormatFriendly": "Ay gün yıl",
+      "dateFormatISO": "Yıl ay gün",
+      "dateFormatLocal": "Ay gün yıl",
+      "dateFormatUS": "Yıl ay gün",
+      "dateFormatDayMonthYear": "Gün ay yıl",
+      "timeFormat": "Zaman formatı",
+      "invalidTimeFormat": "Geçersiz format",
+      "timeFormatTwelveHour": "12 saat",
+      "timeFormatTwentyFourHour": "24 saat",
+      "addSelectOption": "bir seçenek ekle",
+      "optionTitle": "Seçenekler",
+      "addOption": "Seçenek ekle",
+      "editProperty": "Özelliği düzenle",
+      "newProperty": "yeni mülk",
+      "deleteFieldPromptMessage": "Emin misin? Bu özellik silinecek"
+    },
+    "sort": {
+      "ascending": "artan",
+      "descending": "Azalan",
+      "addSort": "Sıralama ekle",
+      "deleteSort": "Sıralamayı sil"
+    },
+    "row": {
+      "duplicate": "Kopyalamak",
+      "delete": "Silmek",
+      "textPlaceholder": "Boş",
+      "copyProperty": "Özellik panoya kopyalandı",
+      "count": "Saymak",
+      "newRow": "yeni satır",
+      "action": "Aksiyon"
+    },
+    "selectOption": {
+      "create": "Yaratmak",
+      "purpleColor": "Mor",
+      "pinkColor": "Pembe",
+      "lightPinkColor": "Açık pembe",
+      "orangeColor": "Turuncu",
+      "yellowColor": "Sarı",
+      "limeColor": "Kireç",
+      "greenColor": "Yeşil",
+      "aquaColor": "su",
+      "blueColor": "Mavi",
+      "deleteTag": "Etiketi sil",
+      "colorPanelTitle": "Renkler",
+      "panelTitle": "Bir seçenek belirleyin veya bir tane oluşturun",
+      "searchOption": "Bir seçenek arayın"
+    },
+    "checklist": {
+      "addNew": "öğe ekle"
+    },
+    "menuName": "Kafes",
+    "referencedGridPrefix": "görünümü"
+  },
+  "document": {
+    "menuName": "belge",
+    "date": {
+      "timeHintTextInTwelveHour": "13:00",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Bağlantı kurulacak bir Pano seçin",
+        "createANewBoard": "Yeni bir Pano oluştur"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Bağlanmak için bir Izgara seçin",
+        "createANewGrid": "Yeni bir Izgara oluştur"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Bağlanmak için bir Takvim seçin",
+        "createANewCalendar": "Yeni bir Takvim oluştur"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Anahat"
+    },
+    "plugins": {
+      "referencedBoard": "Başvurulan Pano",
+      "referencedGrid": "Başvurulan Izgara",
+      "referencedCalendar": "Başvurulan Takvim",
+      "autoGeneratorMenuItemName": "OpenAI Yazarı",
+      "autoGeneratorTitleName": "OpenAI: AI'dan herhangi bir şey yazmasını isteyin...",
+      "autoGeneratorLearnMore": "Daha fazla bilgi edin",
+      "autoGeneratorGenerate": "oluştur",
+      "autoGeneratorHintText": "OpenAI'ye sorun...",
+      "autoGeneratorCantGetOpenAIKey": "OpenAI anahtarı alınamıyor",
+      "autoGeneratorRewrite": "Yeniden yazmak",
+      "smartEdit": "AI Asistanları",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Yazımı düzelt",
+      "warning": "⚠️ AI yanıtları yanlış veya yanıltıcı olabilir.",
+      "smartEditSummarize": "özetle",
+      "smartEditImproveWriting": "Yazmayı geliştirin",
+      "smartEditMakeLonger": "Daha uzun yap",
+      "smartEditCouldNotFetchResult": "OpenAI'den sonuç alınamadı",
+      "smartEditCouldNotFetchKey": "OpenAI anahtarı getirilemedi",
+      "smartEditDisabled": "OpenAI'yi Ayarlar'dan Bağlayın",
+      "discardResponse": "AI yanıtlarını silmek istiyor musunuz?",
+      "createInlineMathEquation": "Denklem oluştur",
+      "toggleList": "Listeyi Değiştir",
+      "cover": {
+        "changeCover": "Kapağı Değiştir",
+        "colors": "Renkler",
+        "images": "Görüntüler",
+        "clearAll": "Hepsini temizle",
+        "abstract": "Soyut",
+        "addCover": "Kapak Ekle",
+        "addLocalImage": "Yerel resim ekle",
+        "invalidImageUrl": "Geçersiz resim URL'si",
+        "failedToAddImageToGallery": "Resim galeriye eklenemedi",
+        "enterImageUrl": "Resim URL'sini girin",
+        "add": "Eklemek",
+        "back": "Geri",
+        "saveToGallery": "Galeriye kaydet",
+        "removeIcon": "Simgeyi Kaldır",
+        "pasteImageUrl": "Resim URL'sini yapıştır",
+        "or": "VEYA",
+        "pickFromFiles": "Dosyalardan seç",
+        "couldNotFetchImage": "Resim getirilemedi",
+        "imageSavingFailed": "Resim Kaydedilemedi",
+        "addIcon": "Simge Ekle",
+        "coverRemoveAlert": "Silindikten sonra kapaktan kaldırılacaktır.",
+        "alertDialogConfirmation": "Devam etmek istediğine emin misin?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Matematik Denklemi Ekle",
+        "editMathEquation": "Matematik Denklemini Düzenle"
+      },
+      "optionAction": {
+        "click": "Tıklamak",
+        "toOpenMenu": " menüyü açmak için",
+        "delete": "Silmek",
+        "duplicate": "Kopyalamak",
+        "turnInto": "Dönüşmek",
+        "moveUp": "yukarı git",
+        "moveDown": "Aşağı inmek",
+        "color": "Renk",
+        "align": "Hizala",
+        "left": "Sol",
+        "center": "merkez",
+        "right": "Sağ",
+        "defaultColor": "Varsayılan"
+      },
+      "image": {
+        "copiedToPasteBoard": "Resim bağlantısı panoya kopyalandı"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "İçindekiler tablosu oluşturmak için başlıklar ekleyin."
+      }
+    },
+    "textBlock": {
+      "placeholder": "Komutlar için '/' yazın"
+    },
+    "title": {
+      "placeholder": "İsimsiz"
+    },
+    "imageBlock": {
+      "placeholder": "resim eklemek için tıklayın",
+      "upload": {
+        "label": "Yüklemek",
+        "placeholder": "Resim yüklemek için tıklayın"
+      },
+      "url": {
+        "label": "Resim URL'si",
+        "placeholder": "Resim URL'sini girin"
+      },
+      "support": "Resim boyutu sınırı 5 MB'dir. Desteklenen formatlar: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "geçersiz resim",
+        "invalidImageSize": "Resim boyutu 5 MB'tan küçük olmalıdır",
+        "invalidImageFormat": "Resim formatı desteklenmiyor. Desteklenen formatlar: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Geçersiz resim URL'si"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Dil",
+        "placeholder": "Dil Seçin"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Bir bağlantı yapıştırın veya yazın",
+      "url": {
+        "label": "bağlantı adresi",
+        "placeholder": "Bağlantı URL'sini girin"
+      },
+      "title": {
+        "label": "Bağlantı Başlığı",
+        "placeholder": "Bağlantı başlığını girin"
       }
     }
   },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+  "board": {
+    "column": {
+      "create_new_card": "Yeni"
+    },
+    "menuName": "Pano",
+    "referencedBoardPrefix": "görünümü"
   },
-  "moreAction.small": "küçük"
+  "calendar": {
+    "menuName": "Takvim",
+    "defaultNewCalendarTitle": "İsimsiz",
+    "navigation": {
+      "today": "Bugün",
+      "jumpToday": "Bugüne Atla",
+      "previousMonth": "Geçtiğimiz ay",
+      "nextMonth": "Gelecek ay"
+    },
+    "settings": {
+      "showWeekNumbers": "Hafta numaralarını göster",
+      "showWeekends": "hafta sonlarını göster",
+      "firstDayOfWeek": "hafta başla",
+      "layoutDateField": "Yerleşim takvimi",
+      "noDateTitle": "Tarih yok",
+      "noDateHint": "Planlanmamış etkinlikler burada gösterilir",
+      "clickToAdd": "Takvime eklemek için tıklayın",
+      "name": "Takvim düzeni"
+    },
+    "referencedCalendarPrefix": "görünümü"
+  },
+  "errorDialog": {
+    "title": "AppFlowy Hatası",
+    "howToFixFallback": "Rahatsızlıktan dolayı özür dileriz! GitHub sayfamızda hatanızı açıklayan bir sorun gönderin.",
+    "github": "GitHub'da görüntüle"
+  },
+  "search": {
+    "label": "Aramak",
+    "placeholder": {
+      "actions": "Arama işlemleri..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "kopyalandı!",
+      "fail": "kopyalanamıyor"
+    }
+  },
+  "unSupportBlock": "Geçerli sürüm bu Bloğu desteklemiyor.",
+  "views": {
+    "deleteContentTitle": "{pageType}'ı silmek istediğinizden emin misiniz?",
+    "deleteContentCaption": "bu {pageType}'ı silerseniz çöp kutusundan geri yükleyebilirsiniz."
+  }
 }

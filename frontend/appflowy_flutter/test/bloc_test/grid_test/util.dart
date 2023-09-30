@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller.
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
@@ -149,7 +150,7 @@ Future<FieldEditorBloc> createFieldEditor({
         field: data.field_2,
       );
       return FieldEditorBloc(
-        isGroupField: FieldInfo(field: data.field_2).isGroupField,
+        isGroupField: FieldInfo.initial(data.field_2).isGroupField,
         loader: loader,
         field: data.field_2,
       );

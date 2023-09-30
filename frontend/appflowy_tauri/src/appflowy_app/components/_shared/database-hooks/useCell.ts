@@ -29,6 +29,7 @@ export const useCell = (cellIdentifier: CellIdentifier, cellCache: CellCache, fi
           // update redux store for database field if there are new select options
           if (
             value instanceof SelectOptionCellDataPB &&
+            databaseStore.fields[cellIdentifier.fieldId] &&
             (databaseStore.fields[cellIdentifier.fieldId].fieldOptions as ISelectOptionType).selectOptions.length !==
               value.options.length
           ) {

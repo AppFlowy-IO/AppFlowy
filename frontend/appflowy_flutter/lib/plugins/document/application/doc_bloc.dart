@@ -1,22 +1,29 @@
+import 'dart:async';
+
+import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/json_print.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
-import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, LogLevel, TransactionTime, Selection, paragraphNode;
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show
+        EditorState,
+        LogLevel,
+        TransactionTime,
+        Selection,
+        Position,
+        paragraphNode;
+import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
-import 'dart:async';
+
 part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
@@ -114,10 +121,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      didReceiveUpdate: (docEvent) {
-        // todo: integrate the document change to the editor
-        // prettyPrintJson(docEvent.toProto3Json());
-      },
+      didReceiveUpdate: syncDocumentDataPB,
     );
   }
 
@@ -135,10 +139,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initAppFlowyEditorState(DocumentDataPB data) async {
-    if (kDebugMode) {
-      prettyPrintJson(data.toProto3Json());
-    }
-
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
@@ -185,6 +185,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (lastNode == null || lastNode.delta == null) {
       final transaction = editorState.transaction;
       transaction.insertNode([document.root.children.length], paragraphNode());
+      transaction.afterSelection = transaction.beforeSelection;
       await editorState.apply(transaction);
     }
   }
@@ -198,9 +199,29 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (document.root.children.isEmpty) {
       final transaction = editorState.transaction;
       transaction.insertNode([0], paragraphNode());
-      transaction.afterSelection = Selection.collapse([0], 0);
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: [0], offset: 0),
+      );
       await editorState.apply(transaction);
     }
+  }
+
+  void syncDocumentDataPB(DocEventPB docEvent) {
+    // prettyPrintJson(docEvent.toProto3Json());
+    // todo: integrate the document change to the editor
+    // for (final event in docEvent.events) {
+    //   for (final blockEvent in event.event) {
+    //     switch (blockEvent.command) {
+    //       case DeltaTypePB.Inserted:
+    //         break;
+    //       case DeltaTypePB.Updated:
+    //         break;
+    //       case DeltaTypePB.Removed:
+    //         break;
+    //       default:
+    //     }
+    //   }
+    // }
   }
 }
 

@@ -1,18 +1,17 @@
-import { useAppDispatch } from '$app/stores/store';
+import { useAppSelector } from "$app/stores/store";
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import { useParams, useLocation } from 'react-router-dom';
-import { Page, pagesActions } from '$app_reducers/pages/slice';
-import { Log } from '$app/utils/log';
+import { Page } from '$app_reducers/pages/slice';
 import { useTranslation } from 'react-i18next';
+import { PageController } from "$app/stores/effects/workspace/page/page_controller";
 
 export function useLoadExpandedPages() {
-  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const params = useParams();
   const location = useLocation();
   const isTrash = useMemo(() => location.pathname.includes('trash'), [location.pathname]);
   const currentPageId = params.id;
+  const pageMap = useAppSelector((state) => state.pages.pageMap);
   const [pagePath, setPagePath] = useState<
     (
       | Page
@@ -22,37 +21,39 @@ export function useLoadExpandedPages() {
     )[]
   >([]);
 
-  const loadPage = useCallback(
-    async (id: string) => {
-      if (!id) return;
-      const controller = new PageController(id);
+  const loadPagePath = useCallback(
+    async (pageId: string) => {
+      let page = pageMap[pageId];
+      const controller = new PageController(pageId);
+      if (!page) {
+        try {
+          page = await controller.getPage();
+        } catch (e) {
+          // do nothing
+        }
 
-      try {
-        const page = await controller.getPage();
-        const childPages = await controller.getChildPages();
-
-        dispatch(pagesActions.addChildPages({ id, childPages }));
-        dispatch(pagesActions.expandPage(id));
-
-        setPagePath((prev) => [page, ...prev]);
-        await loadPage(page.parentId);
-      } catch (e) {
-        Log.info(`${id} is workspace`);
+        if (!page) {
+          return;
+        }
       }
-    },
-    [dispatch]
-  );
+      setPagePath(prev => {
+        return [
+          page,
+          ...prev
+        ]
+      });
+      await loadPagePath(page.parentId);
+
+    }, [pageMap]);
 
   useEffect(() => {
     setPagePath([]);
     if (!currentPageId) {
       return;
     }
-
-    void (async () => {
-      await loadPage(currentPageId);
-    })();
-  }, [currentPageId, dispatch, loadPage]);
+    loadPagePath(currentPageId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPageId]);
 
   useEffect(() => {
     if (isTrash) {

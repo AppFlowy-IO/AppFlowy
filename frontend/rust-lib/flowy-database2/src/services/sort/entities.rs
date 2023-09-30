@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::RowId;
@@ -66,6 +68,16 @@ pub enum SortCondition {
 impl SortCondition {
   pub fn value(&self) -> i64 {
     *self as i64
+  }
+
+  /// Given an [Ordering] resulting from a comparison,
+  /// reverse it if the sort condition is descending rather than
+  /// the default ascending
+  pub fn evaluate_order(&self, order: Ordering) -> Ordering {
+    match self {
+      SortCondition::Ascending => order,
+      SortCondition::Descending => order.reverse(),
+    }
   }
 }
 

@@ -2,6 +2,7 @@ export "./src/sizes.dart";
 export "./src/trash_cell.dart";
 export "./src/trash_header.dart";
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,7 +22,7 @@ class TrashPluginBuilder extends PluginBuilder {
   String get menuName => "TrashPB";
 
   @override
-  String get menuIcon => "editor/delete";
+  FlowySvgData get icon => FlowySvgs.trash_m;
 
   @override
   PluginType get pluginType => PluginType.trash;
@@ -58,7 +59,8 @@ class TrashPluginDisplay extends PluginWidgetBuilder {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget({PluginContext? context}) => const TrashPage(
+  Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
+      const TrashPage(
         key: ValueKey('TrashPage'),
       );
 

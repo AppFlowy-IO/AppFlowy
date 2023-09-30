@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
@@ -21,6 +21,10 @@ function RenameDialog({
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState(false);
 
+  useEffect(() => {
+    setValue(defaultValue);
+    setError(false);
+  }, [defaultValue]);
   return (
     <Dialog keepMounted={false} onMouseDown={(e) => e.stopPropagation()} open={open} onClose={onClose}>
       <DialogTitle>{t('menuAppHeader.renameDialog')}</DialogTitle>
@@ -37,6 +41,7 @@ function RenameDialog({
           variant='standard'
         />
       </DialogContent>
+
       <DialogActions>
         <Button onClick={onClose}>{t('button.Cancel')}</Button>
         <Button

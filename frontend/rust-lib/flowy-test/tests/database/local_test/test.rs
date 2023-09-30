@@ -524,13 +524,11 @@ async fn update_date_cell_event_test() {
 
   // Insert data into the date cell of the first row.
   let timestamp = 1686300557;
-  let timestamp_str = 1686300557.to_string();
   let error = test
     .update_date_cell(DateChangesetPB {
       cell_id: cell_path,
-      date: Some(timestamp_str.clone()),
-      time: None,
-      include_time: None,
+      date: Some(timestamp),
+      ..Default::default()
     })
     .await;
   assert!(error.is_none());
@@ -565,7 +563,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
   let error = test
     .update_date_cell(DateChangesetPB {
       cell_id: cell_path,
-      date: Some("".to_string()),
+      date: None,
       ..Default::default()
     })
     .await;
@@ -653,7 +651,7 @@ async fn update_checklist_cell_test() {
 
   assert_eq!(cell.options.len(), 3);
   assert_eq!(cell.selected_options.len(), 2);
-  assert_eq!(cell.percentage, 0.6);
+  assert_eq!(cell.percentage, 0.67);
 }
 
 // The number of groups should be 0 if there is no group by field in grid
@@ -884,7 +882,6 @@ async fn create_calendar_event_test() {
   let row = test.create_row(&calendar_view.id, None, None).await;
 
   // Insert data into the date cell of the first row.
-  let timestamp_str = timestamp().to_string();
   let error = test
     .update_date_cell(DateChangesetPB {
       cell_id: CellIdPB {
@@ -892,9 +889,8 @@ async fn create_calendar_event_test() {
         field_id: date_field.id.clone(),
         row_id: row.id,
       },
-      date: Some(timestamp_str.clone()),
-      time: None,
-      include_time: None,
+      date: Some(timestamp()),
+      ..Default::default()
     })
     .await;
   assert!(error.is_none());

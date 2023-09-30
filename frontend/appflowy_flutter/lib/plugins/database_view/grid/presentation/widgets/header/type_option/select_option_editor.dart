@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/edit_select_option_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -113,7 +114,7 @@ class _DeleteTag extends StatelessWidget {
         text: FlowyText.medium(
           LocaleKeys.grid_selectOption_deleteTag.tr(),
         ),
-        leftIcon: const FlowySvg(name: 'grid/delete'),
+        leftIcon: const FlowySvg(FlowySvgs.delete_s),
         onTap: () {
           context
               .read<EditSelectOptionBloc>()
@@ -218,7 +219,7 @@ class _SelectOptionColorCell extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? checkmark;
     if (isSelected) {
-      checkmark = svgWidget("grid/checkmark");
+      checkmark = const FlowySvg(FlowySvgs.check_s);
     }
 
     final colorIcon = SizedBox.square(

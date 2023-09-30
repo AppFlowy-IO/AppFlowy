@@ -1,12 +1,11 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use std::fmt;
-
 use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 use serde::de::Visitor;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use strum_macros::EnumIter;
 
 use flowy_error::{internal_error, FlowyResult};
@@ -15,19 +14,17 @@ use crate::entities::{DateCellDataPB, FieldType};
 use crate::services::cell::{
   CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
 };
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DateCellChangeset {
-  pub date: Option<String>,
+  pub date: Option<i64>,
   pub time: Option<String>,
+  pub end_date: Option<i64>,
+  pub end_time: Option<String>,
   pub include_time: Option<bool>,
-}
-
-impl DateCellChangeset {
-  pub fn date_timestamp(&self) -> Option<i64> {
-    self.date.as_ref().and_then(|date| date.parse::<i64>().ok())
-  }
+  pub is_range: Option<bool>,
+  pub clear_flag: Option<bool>,
 }
 
 impl FromCellChangeset for DateCellChangeset {
@@ -48,16 +45,27 @@ impl ToCellChangeset for DateCellChangeset {
 #[derive(Default, Clone, Debug, Serialize)]
 pub struct DateCellData {
   pub timestamp: Option<i64>,
+  pub end_timestamp: Option<i64>,
   #[serde(default)]
   pub include_time: bool,
+  #[serde(default)]
+  pub is_range: bool,
 }
 
 impl DateCellData {
-  pub fn new(timestamp: i64, include_time: bool) -> Self {
+  pub fn new(timestamp: i64, include_time: bool, is_range: bool) -> Self {
     Self {
       timestamp: Some(timestamp),
+      end_timestamp: None,
       include_time,
+      is_range,
     }
+  }
+}
+
+impl TypeOptionCellData for DateCellData {
+  fn is_cell_empty(&self) -> bool {
+    self.timestamp.is_none()
   }
 }
 
@@ -66,47 +74,49 @@ impl From<&Cell> for DateCellData {
     let timestamp = cell
       .get_str_value(CELL_DATA)
       .and_then(|data| data.parse::<i64>().ok());
+    let end_timestamp = cell
+      .get_str_value("end_timestamp")
+      .and_then(|data| data.parse::<i64>().ok());
     let include_time = cell.get_bool_value("include_time").unwrap_or_default();
+    let is_range = cell.get_bool_value("is_range").unwrap_or_default();
     Self {
       timestamp,
+      end_timestamp,
       include_time,
+      is_range,
     }
   }
 }
 
-/// Wrapper for DateCellData that also contains the field type.
-/// Handy struct to use when you need to convert a DateCellData to a Cell.
-pub struct DateCellDataWrapper {
-  data: DateCellData,
-  field_type: FieldType,
-}
-
-impl From<(FieldType, DateCellData)> for DateCellDataWrapper {
-  fn from((field_type, data): (FieldType, DateCellData)) -> Self {
-    Self { data, field_type }
+impl From<&DateCellDataPB> for DateCellData {
+  fn from(data: &DateCellDataPB) -> Self {
+    Self {
+      timestamp: Some(data.timestamp),
+      end_timestamp: Some(data.end_timestamp),
+      include_time: data.include_time,
+      is_range: data.is_range,
+    }
   }
 }
 
-impl From<DateCellDataWrapper> for Cell {
-  fn from(wrapper: DateCellDataWrapper) -> Self {
-    let (field_type, data) = (wrapper.field_type, wrapper.data);
-    let timestamp_string = match data.timestamp {
+impl From<&DateCellData> for Cell {
+  fn from(cell_data: &DateCellData) -> Self {
+    let timestamp_string = match cell_data.timestamp {
+      Some(timestamp) => timestamp.to_string(),
+      None => "".to_owned(),
+    };
+    let end_timestamp_string = match cell_data.end_timestamp {
       Some(timestamp) => timestamp.to_string(),
       None => "".to_owned(),
     };
     // Most of the case, don't use these keys in other places. Otherwise, we should define
     // constants for them.
-    new_cell_builder(field_type)
+    new_cell_builder(FieldType::DateTime)
       .insert_str_value(CELL_DATA, timestamp_string)
-      .insert_bool_value("include_time", data.include_time)
+      .insert_str_value("end_timestamp", end_timestamp_string)
+      .insert_bool_value("include_time", cell_data.include_time)
+      .insert_bool_value("is_range", cell_data.is_range)
       .build()
-  }
-}
-
-impl From<DateCellData> for Cell {
-  fn from(data: DateCellData) -> Self {
-    let data: DateCellDataWrapper = (FieldType::DateTime, data).into();
-    Cell::from(data)
   }
 }
 
@@ -132,7 +142,9 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
       {
         Ok(DateCellData {
           timestamp: Some(value),
+          end_timestamp: None,
           include_time: false,
+          is_range: false,
         })
       }
 
@@ -148,25 +160,36 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
         M: serde::de::MapAccess<'de>,
       {
         let mut timestamp: Option<i64> = None;
+        let mut end_timestamp: Option<i64> = None;
         let mut include_time: Option<bool> = None;
+        let mut is_range: Option<bool> = None;
 
         while let Some(key) = map.next_key()? {
           match key {
             "timestamp" => {
               timestamp = map.next_value()?;
             },
+            "end_timestamp" => {
+              end_timestamp = map.next_value()?;
+            },
             "include_time" => {
               include_time = map.next_value()?;
+            },
+            "is_range" => {
+              is_range = map.next_value()?;
             },
             _ => {},
           }
         }
 
         let include_time = include_time.unwrap_or_default();
+        let is_range = is_range.unwrap_or_default();
 
         Ok(DateCellData {
           timestamp,
+          end_timestamp,
           include_time,
+          is_range,
         })
       }
     }

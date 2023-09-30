@@ -1,4 +1,4 @@
-import { ViewLayoutPB, ViewPB } from '@/services/backend';
+import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Page {
@@ -6,31 +6,44 @@ export interface Page {
   parentId: string;
   name: string;
   layout: ViewLayoutPB;
-  icon?: string;
-  cover?: string;
+  icon?: PageIcon;
 }
 
-export function parserViewPBToPage(view: ViewPB) {
+export interface PageIcon {
+  ty: ViewIconTypePB;
+  value: string;
+}
+
+export function parserViewPBToPage(view: ViewPB): Page {
+  const icon = view.icon;
+
   return {
     id: view.id,
     name: view.name,
     parentId: view.parent_view_id,
     layout: view.layout,
-    cover: view.cover_url,
-    icon: view.icon_url,
+    icon: icon
+      ? {
+          ty: icon.ty,
+          value: icon.value,
+        }
+      : undefined,
   };
 }
 
 export interface PageState {
-  map: Record<string, Page>;
-  childPages: Record<string, string[]>;
-  expandedPages: Record<string, boolean>;
+  pageMap: Record<string, Page>;
+  relationMap: Record<string, string[] | undefined>;
+  expandedIdMap: Record<string, boolean>;
 }
 
 export const initialState: PageState = {
-  map: {},
-  childPages: {},
-  expandedPages: {},
+  pageMap: {},
+  relationMap: {},
+  expandedIdMap: getExpandedPageIds().reduce((acc, id) => {
+    acc[id] = true;
+    return acc;
+  }, {} as Record<string, boolean>),
 };
 
 export const pagesSlice = createSlice({
@@ -54,31 +67,50 @@ export const pagesSlice = createSlice({
         children.push(page.id);
       });
 
-      state.map = {
-        ...state.map,
+      state.pageMap = {
+        ...state.pageMap,
         ...pageMap,
       };
-      state.childPages[id] = children;
+      state.relationMap[id] = children;
+    },
+
+    onPageChanged(state, action: PayloadAction<Page>) {
+      const page = action.payload;
+
+      state.pageMap[page.id] = page;
     },
 
     removeChildPages(state, action: PayloadAction<string>) {
       const parentId = action.payload;
 
-      delete state.childPages[parentId];
+      delete state.relationMap[parentId];
     },
 
     expandPage(state, action: PayloadAction<string>) {
       const id = action.payload;
-
-      state.expandedPages[id] = true;
+      state.expandedIdMap[id] = true;
+      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      storeExpandedPageIds(ids);
     },
 
     collapsePage(state, action: PayloadAction<string>) {
       const id = action.payload;
 
-      state.expandedPages[id] = false;
+      state.expandedIdMap[id] = false;
+      const ids = Object.keys(state.expandedIdMap).filter(id => state.expandedIdMap[id]);
+      storeExpandedPageIds(ids);
     },
   },
 });
 
 export const pagesActions = pagesSlice.actions;
+
+function storeExpandedPageIds(expandedPageIds: string[]) {
+  localStorage.setItem('expandedPageIds', JSON.stringify(expandedPageIds));
+}
+
+function getExpandedPageIds(): string[] {
+  const expandedPageIds = localStorage.getItem('expandedPageIds');
+
+  return expandedPageIds ? JSON.parse(expandedPageIds) : [];
+}

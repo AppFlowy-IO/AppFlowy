@@ -8,9 +8,10 @@ class PageRoutes {
   static const Curve kDefaultEaseFwd = Curves.easeOut;
   static const Curve kDefaultEaseReverse = Curves.easeOut;
 
-  static Route<T> fade<T>(PageBuilder pageBuilder,
+  static Route<T> fade<T>(PageBuilder pageBuilder, RouteSettings? settings,
       [double duration = kDefaultDuration]) {
     return PageRouteBuilder<T>(
+      settings: settings,
       transitionDuration: Duration(milliseconds: (duration * 1000).round()),
       pageBuilder: (context, animation, secondaryAnimation) => pageBuilder(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {

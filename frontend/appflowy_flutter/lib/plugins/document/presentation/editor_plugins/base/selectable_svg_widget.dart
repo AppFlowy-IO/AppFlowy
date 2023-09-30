@@ -1,23 +1,24 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flutter/material.dart';
 
 class SelectableSvgWidget extends StatelessWidget {
   const SelectableSvgWidget({
     super.key,
-    required this.name,
+    required this.data,
     required this.isSelected,
     required this.style,
   });
 
-  final String name;
+  final FlowySvgData data;
   final bool isSelected;
   final SelectionMenuStyle style;
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget(
-      name,
+    return FlowySvg(
+      data,
       size: const Size.square(18.0),
       color: isSelected
           ? style.selectionMenuItemSelectedIconColor

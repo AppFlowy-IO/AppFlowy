@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { FieldType } from '@/services/backend/models/flowy-database2/field_entities';
-import { DateFormatPB, NumberFormatPB, SelectOptionColorPB, TimeFormatPB } from '@/services/backend';
+import { DateFormatPB, NumberFormatPB, SelectOptionColorPB, SortConditionPB, TimeFormatPB } from '@/services/backend';
 
 export interface ISelectOption {
   selectOptionId: string;
   title: string;
-  color?: SelectOptionColorPB;
+  color: SelectOptionColorPB;
 }
 
 export interface ISelectOptionType {
@@ -26,6 +26,7 @@ export interface IDatabaseField {
   fieldId: string;
   title: string;
   visible: boolean;
+  width: number;
   fieldType: FieldType;
   fieldOptions?: ISelectOptionType | IDateType | INumberType;
 }
@@ -42,11 +43,51 @@ export interface IDatabaseRow {
 
 export type DatabaseFieldMap = { [keys: string]: IDatabaseField };
 
+export type TDatabaseOperators =
+  | 'contains'
+  | 'doesNotContain'
+  | 'endsWith'
+  | 'startWith'
+  | 'is'
+  | 'isNot'
+  | 'isEmpty'
+  | 'isNotEmpty'
+  | 'isComplete'
+  | 'isIncomplted';
+
+export type TSupportedOperatorsByType = { [keys: number]: TDatabaseOperators[] };
+
+export const SupportedOperatorsByType: TSupportedOperatorsByType = {
+  [FieldType.RichText]: ['contains', 'doesNotContain', 'endsWith', 'startWith', 'is', 'isNot', 'isEmpty', 'isNotEmpty'],
+  [FieldType.SingleSelect]: ['is', 'isNot', 'isEmpty', 'isNotEmpty'],
+  [FieldType.MultiSelect]: ['contains', 'doesNotContain', 'isEmpty', 'isNotEmpty'],
+  [FieldType.Checkbox]: ['is'],
+  [FieldType.Checklist]: ['isComplete', 'isIncomplted'],
+};
+
+export interface IDatabaseFilter {
+  id?: string;
+  fieldId: string;
+  fieldType: FieldType;
+  logicalOperator: 'and' | 'or';
+  operator: TDatabaseOperators;
+  value: string[] | string | boolean;
+}
+
+export interface IDatabaseSort {
+  id?: string;
+  fieldId: string;
+  fieldType: FieldType;
+  order: SortConditionPB;
+}
+
 export interface IDatabase {
   title: string;
   fields: DatabaseFieldMap;
   rows: IDatabaseRow[];
   columns: IDatabaseColumn[];
+  filters: IDatabaseFilter[];
+  sort: IDatabaseSort[];
 }
 
 const initialState: IDatabase = {
@@ -54,6 +95,8 @@ const initialState: IDatabase = {
   columns: [],
   fields: {},
   rows: [],
+  filters: [],
+  sort: [],
 };
 
 export const databaseSlice = createSlice({
@@ -89,87 +132,25 @@ export const databaseSlice = createSlice({
       state.title = action.payload.title;
     },
 
-    /*addField: (state, action: PayloadAction<{ field: IDatabaseField }>) => {
-      const { field } = action.payload;
-
-      state.fields[field.fieldId] = field;
-      state.columns.push({
-        fieldId: field.fieldId,
-        sort: 'none',
-        visible: true,
-      });
-      state.rows = state.rows.map<IDatabaseRow>((r: IDatabaseRow) => {
-        const cells = r.cells;
-        cells[field.fieldId] = {
-          rowId: r.rowId,
-          fieldId: field.fieldId,
-          data: [''],
-          cellId: nanoid(6),
-        };
-        return {
-          rowId: r.rowId,
-          cells: cells,
-        };
-      });
-    },*/
-
     updateField: (state, action: PayloadAction<{ field: IDatabaseField }>) => {
       const { field } = action.payload;
+
       state.fields[field.fieldId] = field;
     },
 
-    /*addFieldSelectOption: (state, action: PayloadAction<{ fieldId: string; option: ISelectOption }>) => {
-      const { fieldId, option } = action.payload;
+    changeWidth: (state, action: PayloadAction<{ fieldId: string; width: number }>) => {
+      const { fieldId, width } = action.payload;
 
-      const field = state.fields[fieldId];
-      const selectOptions = field.fieldOptions?.selectOptions;
+      state.fields[fieldId].width = width;
+    },
 
-      if (selectOptions) {
-        selectOptions.push(option);
-      } else {
-        state.fields[field.fieldId].fieldOptions = {
-          ...state.fields[field.fieldId].fieldOptions,
-          selectOptions: [option],
-        };
-      }
-    },*/
+    updateFilters: (state, action: PayloadAction<{ filters: IDatabaseFilter[] }>) => {
+      state.filters = action.payload.filters;
+    },
 
-    /*updateFieldSelectOption: (state, action: PayloadAction<{ fieldId: string; option: ISelectOption }>) => {
-      const { fieldId, option } = action.payload;
-
-      const field = state.fields[fieldId];
-      const selectOptions = field.fieldOptions?.selectOptions;
-      if (selectOptions) {
-        selectOptions[selectOptions.findIndex((o) => o.selectOptionId === option.selectOptionId)] = option;
-      }
-    },*/
-
-    /*addRow: (state) => {
-      const rowId = nanoid(6);
-      const cells: { [keys: string]: ICellData } = {};
-      Object.keys(state.fields).forEach((id) => {
-        cells[id] = {
-          rowId: rowId,
-          fieldId: id,
-          data: [''],
-          cellId: nanoid(6),
-        };
-      });
-      const newRow: IDatabaseRow = {
-        rowId: rowId,
-        cells: cells,
-      };
-
-      state.rows.push(newRow);
-    },*/
-
-    /*updateCellValue: (source, action: PayloadAction<{ cell: ICellData }>) => {
-      const { cell } = action.payload;
-      const row = source.rows.find((r) => r.rowId === cell.rowId);
-      if (row) {
-        row.cells[cell.fieldId] = cell;
-      }
-    },*/
+    updateSorts: (state, action: PayloadAction<{ sorts: IDatabaseSort[] }>) => {
+      state.sort = action.payload.sorts;
+    },
   },
 });
 

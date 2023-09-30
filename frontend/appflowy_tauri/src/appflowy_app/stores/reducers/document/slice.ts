@@ -5,21 +5,17 @@ import {
   SlashCommandState,
   RangeState,
   RangeStatic,
-  LinkPopoverState,
   SlashCommandOption,
 } from '@/appflowy_app/interfaces/document';
 import { BlockEventPayloadPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { parseValue, matchChange } from '$app/utils/document/subscribe';
 import { temporarySlice } from '$app_reducers/document/temporary_slice';
-import {
-  DOCUMENT_NAME,
-  RANGE_NAME,
-  RECT_RANGE_NAME,
-  SLASH_COMMAND_NAME,
-  TEXT_LINK_NAME,
-} from '$app/constants/document/name';
+import { DOCUMENT_NAME, RANGE_NAME, RECT_RANGE_NAME, SLASH_COMMAND_NAME } from '$app/constants/document/name';
 import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
+import { Op } from 'quill-delta';
+import { mentionSlice } from '$app_reducers/document/mention_slice';
+import { generateId } from '$app/utils/document/block';
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -28,8 +24,6 @@ const rectSelectionInitialState: Record<string, RectSelectionState> = {};
 const rangeInitialState: Record<string, RangeState> = {};
 
 const slashCommandInitialState: Record<string, SlashCommandState> = {};
-
-const linkPopoverState: Record<string, LinkPopoverState> = {};
 
 export const documentSlice = createSlice({
   name: DOCUMENT_NAME,
@@ -44,6 +38,7 @@ export const documentSlice = createSlice({
       state[docId] = {
         nodes: {},
         children: {},
+        deltaMap: {},
       };
     },
     clear: (state, action: PayloadAction<string>) => {
@@ -59,14 +54,38 @@ export const documentSlice = createSlice({
         docId: string;
         nodes: Record<string, Node>;
         children: Record<string, string[]>;
+        deltaMap: Record<string, string>;
       }>
     ) => {
-      const { docId, nodes, children } = action.payload;
+      const { docId, nodes, children, deltaMap } = action.payload;
 
       state[docId] = {
         nodes,
         children,
+        deltaMap,
       };
+    },
+
+    updateRootNodeDelta: (
+      state,
+      action: PayloadAction<{
+        docId: string;
+        rootId: string;
+        delta: Op[];
+      }>
+    ) => {
+      const { docId, delta, rootId } = action.payload;
+      const documentState = state[docId];
+
+      if (!documentState) return;
+      const rootNode = documentState.nodes[rootId];
+
+      if (!rootNode) return;
+      let externalId = rootNode.externalId;
+
+      if (!externalId) externalId = generateId();
+      rootNode.externalId = externalId;
+      documentState.deltaMap[externalId] = JSON.stringify(delta);
     },
     /**
      This function listens for changes in the data layer triggered by the data API,
@@ -371,69 +390,17 @@ export const slashCommandSlice = createSlice({
   },
 });
 
-export const linkPopoverSlice = createSlice({
-  name: TEXT_LINK_NAME,
-  initialState: linkPopoverState,
-  reducers: {
-    initialState: (state, action: PayloadAction<string>) => {
-      const docId = action.payload;
-
-      state[docId] = {
-        open: false,
-      };
-    },
-    clear: (state, action: PayloadAction<string>) => {
-      const docId = action.payload;
-
-      delete state[docId];
-    },
-    setLinkPopover: (
-      state,
-      action: PayloadAction<{
-        docId: string;
-        linkState: LinkPopoverState;
-      }>
-    ) => {
-      const { docId, linkState } = action.payload;
-
-      state[docId] = linkState;
-    },
-    updateLinkPopover: (
-      state,
-      action: PayloadAction<{
-        docId: string;
-        linkState: LinkPopoverState;
-      }>
-    ) => {
-      const { docId, linkState } = action.payload;
-      const { id } = linkState;
-
-      if (!state[docId].open || state[docId].id !== id) return;
-      state[docId] = {
-        ...state[docId],
-        ...linkState,
-      };
-    },
-    closeLinkPopover: (state, action: PayloadAction<string>) => {
-      const docId = action.payload;
-
-      state[docId].open = false;
-    },
-  },
-});
-
 export const documentReducers = {
   [documentSlice.name]: documentSlice.reducer,
   [rectSelectionSlice.name]: rectSelectionSlice.reducer,
   [rangeSlice.name]: rangeSlice.reducer,
   [slashCommandSlice.name]: slashCommandSlice.reducer,
-  [linkPopoverSlice.name]: linkPopoverSlice.reducer,
   [temporarySlice.name]: temporarySlice.reducer,
   [blockEditSlice.name]: blockEditSlice.reducer,
+  [mentionSlice.name]: mentionSlice.reducer,
 };
 
 export const documentActions = documentSlice.actions;
 export const rectSelectionActions = rectSelectionSlice.actions;
 export const rangeActions = rangeSlice.actions;
 export const slashCommandActions = slashCommandSlice.actions;
-export const linkPopoverActions = linkPopoverSlice.actions;

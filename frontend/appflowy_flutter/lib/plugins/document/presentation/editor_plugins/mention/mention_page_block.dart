@@ -1,15 +1,15 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show EditorState, SelectionUpdateReason;
 import 'package:collection/collection.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +83,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
                 children: [
                   const HSpace(4),
                   FlowySvg(
-                    name: view.layout.iconName,
+                    view.layout.icon,
                     size: const Size.square(18.0),
                   ),
                   const HSpace(2),
@@ -108,7 +108,12 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       Log.error('Page($pageId) not found');
       return;
     }
-    getIt<MenuSharedState>().latestOpenView = view;
+    getIt<TabsBloc>().add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(),
+        view: view,
+      ),
+    );
   }
 
   Future<ViewPB?> fetchView(String pageId) async {

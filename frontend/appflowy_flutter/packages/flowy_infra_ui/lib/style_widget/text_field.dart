@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FlowyTextField extends StatefulWidget {
-  final String hintText;
-  final String text;
+  final String? hintText;
+  final String? text;
+  final TextStyle? textStyle;
   final void Function(String)? onChanged;
   final void Function()? onEditingComplete;
   final void Function(String)? onSubmitted;
@@ -23,7 +24,8 @@ class FlowyTextField extends StatefulWidget {
 
   const FlowyTextField({
     this.hintText = "",
-    this.text = "",
+    this.text,
+    this.textStyle,
     this.onChanged,
     this.onEditingComplete,
     this.onSubmitted,
@@ -54,15 +56,16 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
-    if (widget.controller != null) {
-      controller = widget.controller!;
-    } else {
-      controller = TextEditingController();
-      controller.text = widget.text;
+    controller = widget.controller ?? TextEditingController();
+    if (widget.text != null) {
+      controller.text = widget.text!;
     }
+
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
+        controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length));
       });
     }
     super.initState();
@@ -107,20 +110,25 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+        constraints: BoxConstraints(
+            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
-        isDense: true,
+        isDense: false,
         hintText: widget.hintText,
         errorText: widget.errorText,
+        errorStyle: Theme.of(context)
+            .textTheme
+            .bodySmall!
+            .copyWith(color: Theme.of(context).colorScheme.error),
         hintStyle: Theme.of(context)
             .textTheme
             .bodySmall!
@@ -132,21 +140,21 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             color: Theme.of(context).colorScheme.primary,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.error,
             width: 1.0,
           ),
-          borderRadius: Corners.s10Border,
+          borderRadius: Corners.s8Border,
         ),
       ),
     );
@@ -155,7 +163,9 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   void dispose() {
     focusNode.removeListener(notifyDidEndEditing);
-    focusNode.dispose();
+    if (widget.focusNode == null) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 

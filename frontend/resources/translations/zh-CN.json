@@ -8,6 +8,12 @@
   "title": "标题",
   "youCanAlso": "您还可以",
   "and": "以及",
+  "blockActions": {
+    "addBelowTooltip": "点击下方添加",
+    "addAboveCmd": "Alt+单击",
+    "addAboveMacCmd": "选项+单击",
+    "addAboveTooltip": "添加上面"
+  },
   "signUp": {
     "buttonText": "注册",
     "title": "注册 @:appName 账户",
@@ -23,14 +29,14 @@
   "signIn": {
     "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
-    "loginAsGuestButtonText": "开始使用",
     "buttonText": "登录",
     "forgotPassword": "忘记密码?",
     "emailHint": "邮箱",
     "passwordHint": "密码",
     "dontHaveAnAccount": "没有已注册的账户?",
     "repeatPasswordEmptyError": "确认密码不能为空",
-    "unmatchedPasswordError": "两次密码输入不一致"
+    "unmatchedPasswordError": "两次密码输入不一致",
+    "loginAsGuestButtonText": "开始使用"
   },
   "workspace": {
     "create": "新建空间",
@@ -44,7 +50,7 @@
     "copyLink": "复制链接"
   },
   "moreAction": {
-    "small": "小",
+    "small": "小的",
     "medium": "中",
     "large": "大",
     "fontSize": "字号",
@@ -61,7 +67,8 @@
   "disclosureAction": {
     "rename": "重命名",
     "delete": "删除",
-    "duplicate": "复制"
+    "duplicate": "复制",
+    "openNewTab": "在新选项卡中打开"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -73,6 +80,14 @@
       "fileName": "文件名",
       "lastModified": "最近修改",
       "created": "创建时间"
+    },
+    "confirmDeleteAll": {
+      "title": "您确定要删除回收站中的所有页面吗？",
+      "caption": "此操作无法撤消。"
+    },
+    "confirmRestoreAll": {
+      "title": "您确定要恢复回收站中的所有页面吗？",
+      "caption": "此操作无法撤消。"
     }
   },
   "deletePagePrompt": {
@@ -90,7 +105,8 @@
       "name": "调试信息",
       "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
-    }
+    },
+    "feedback": "反馈"
   },
   "menuAppHeader": {
     "addPageTooltip": "在其中快速添加页面",
@@ -111,7 +127,9 @@
     "quote": "块引用",
     "header": "标题",
     "highlight": "高亮",
-    "color": "颜色"
+    "color": "颜色",
+    "addLink": "添加链接",
+    "link": "关联"
   },
   "tooltip": {
     "lightMode": "切换到亮色模式",
@@ -121,11 +139,12 @@
     "openMenu": "点击打开菜单",
     "dragRow": "拖动来调整行",
     "viewDataBase": "查看数据库",
-    "referencePage": "这个 {name} 正在被引用"
+    "referencePage": "这个 {name} 正在被引用",
+    "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
-    "openSidebar": "打开侧边栏",
-    "closeSidebar": "关闭侧边栏"
+    "closeSidebar": "关闭侧边栏",
+    "openSidebar": "打开侧边栏"
   },
   "notifications": {
     "export": {
@@ -153,7 +172,13 @@
     "tryAgain": "重试",
     "discard": "放弃",
     "replace": "替换",
-    "insertBelow": "下方插入"
+    "insertBelow": "下方插入",
+    "upload": "上传",
+    "edit": "编辑",
+    "delete": "删除",
+    "duplicate": "复制",
+    "done": "完毕",
+    "putback": "放回去"
   },
   "label": {
     "welcome": "欢迎!",
@@ -182,16 +207,33 @@
       "language": "语言",
       "user": "用户",
       "files": "文件",
-      "open": "打开设置"
+      "open": "打开设置",
+      "supabaseSetting": "超基设置"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "字体系列",
+        "search": "搜索"
+      },
       "themeMode": {
         "label": "主题模式",
         "light": "日间模式",
         "dark": "夜间模式",
         "system": "系统自适应"
       },
-      "theme": "主题"
+      "themeUpload": {
+        "button": "上传",
+        "description": "使用下面的按钮上传您自己的 AppFlowy 主题。",
+        "failure": "上传的主题格式无效。",
+        "loading": "我们正在验证并上传您的主题，请稍候...",
+        "uploadSuccess": "您的主题已成功上传",
+        "deletionFailure": "删除主题失败。尝试手动删除它。",
+        "filePickerDialogTitle": "选择 .flowy_plugin 文件",
+        "urlUploadFailure": "无法打开网址：{}"
+      },
+      "theme": "主题",
+      "builtInsLabel": "内置主题",
+      "pluginsLabel": "插件"
     },
     "files": {
       "copy": "复制",
@@ -231,7 +273,6 @@
     },
     "user": {
       "name": "名字",
-      "icon": "图标",
       "selectAnIcon": "选择一个图标",
       "pleaseInputYourOpenAIKey": "请输入您的 OpenAI 密钥"
     }
@@ -243,15 +284,17 @@
       "filter": "筛选",
       "sort": "以……排序",
       "sortBy": "排序",
-      "Properties": "属性",
+      "properties": "特性",
+      "reorderPropertiesTooltip": "拖动以重新排序属性",
       "group": "组",
-	"addFilter": "添加筛选",
+      "addFilter": "添加筛选",
       "deleteFilter": "删除筛选",
       "filterBy": "以……筛选",
       "typeAValue": "请输入一个值",
       "layout": "布局",
-      "databaseLayout": "布局"
-},
+      "databaseLayout": "布局",
+      "Properties": "属性"
+    },
     "textFilter": {
       "contains": "包含",
       "doesNotContain": "不包含",
@@ -330,8 +373,8 @@
     "sort": {
       "ascending": "升序",
       "descending": "降序",
-      "deleteSort": "删除排序",
-      "addSort": "添加排序"
+      "addSort": "添加排序",
+      "deleteSort": "删除排序"
     },
     "row": {
       "duplicate": "复制",
@@ -359,7 +402,7 @@
       "searchOption": "搜索标签"
     },
     "checklist": {
-      "panelTitle": "添加项"
+      "addNew": "添加项"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图"
@@ -384,6 +427,9 @@
         "createANewCalendar": "新建日历"
       }
     },
+    "selectionMenu": {
+      "outline": "大纲"
+    },
     "plugins": {
       "referencedBoard": "引用的看板",
       "referencedGrid": "引用的网格",
@@ -406,6 +452,8 @@
       "smartEditCouldNotFetchKey": "无法获取到 OpenAI 密钥",
       "smartEditDisabled": "在设置中连接 OpenAI",
       "discardResponse": "您是否要放弃 AI 继续写作?",
+      "createInlineMathEquation": "创建方程",
+      "toggleList": "切换列表",
       "cover": {
         "changeCover": "修改封面",
         "colors": "颜色",
@@ -448,6 +496,53 @@
         "center": "中心",
         "right": "又",
         "defaultColor": "默认"
+      },
+      "image": {
+        "copiedToPasteBoard": "图片链接已复制到剪贴板"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "添加标题以创建目录。"
+      }
+    },
+    "textBlock": {
+      "placeholder": "输入“/”作为命令"
+    },
+    "title": {
+      "placeholder": "无标题"
+    },
+    "imageBlock": {
+      "placeholder": "点击添加图片",
+      "upload": {
+        "label": "上传",
+        "placeholder": "点击上传图片"
+      },
+      "url": {
+        "label": "图片网址",
+        "placeholder": "输入图片网址"
+      },
+      "support": "图片大小限制为 5MB。支持的格式：JPEG、PNG、GIF、SVG",
+      "error": {
+        "invalidImage": "图片无效",
+        "invalidImageSize": "图片大小必须小于 5MB",
+        "invalidImageFormat": "不支持图像格式。支持的格式：JPEG、PNG、GIF、SVG",
+        "invalidImageUrl": "图片网址无效"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "语言",
+        "placeholder": "选择语言"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "粘贴或输入链接",
+      "url": {
+        "label": "链接网址",
+        "placeholder": "输入链接网址"
+      },
+      "title": {
+        "label": "链接标题",
+        "placeholder": "输入链接标题"
       }
     }
   },
@@ -458,7 +553,6 @@
     "menuName": "看板",
     "referencedBoardPrefix": "视图"
   },
-  "moreAction.small": "小的",
   "calendar": {
     "menuName": "日历",
     "defaultNewCalendarTitle": "未命名",
@@ -484,6 +578,22 @@
     "title": "AppFlowy 错误",
     "howToFixFallback": "对于给您带来的不便, 我们深表歉意! 请在我们的 GitHub 页面上提交 issue 并描述您遇到的错误。",
     "github": "在 GitHub 查看"
+  },
+  "search": {
+    "label": "搜索",
+    "placeholder": {
+      "actions": "搜索操作..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "复制了！",
+      "fail": "无法复制"
+    }
+  },
+  "unSupportBlock": "当前版本不支持该块。",
+  "views": {
+    "deleteContentTitle": "您确定要删除 {pageType} 吗？",
+    "deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
   }
 }
-

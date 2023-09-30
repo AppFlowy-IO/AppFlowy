@@ -66,7 +66,7 @@ class StyledListViewState extends State<StyledListView> {
       contentSize: contentSize,
       axis: widget.axis,
       controller: scrollController,
-      barSize: widget.barSize ?? 12,
+      barSize: widget.barSize ?? 8,
       scrollbarPadding: widget.scrollbarPadding,
       child: ListView.builder(
         padding: widget.padding,

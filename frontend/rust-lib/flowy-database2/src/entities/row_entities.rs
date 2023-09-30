@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowId, RowMeta};
+use collab_database::rows::{Row, RowDetail, RowId};
 use collab_database::views::RowOrder;
 
 use flowy_derive::ProtoBuf;
@@ -61,27 +61,27 @@ pub struct RowMetaPB {
   pub cover: Option<String>,
 }
 
-impl std::convert::From<&RowMeta> for RowMetaPB {
-  fn from(row_meta: &RowMeta) -> Self {
+impl std::convert::From<&RowDetail> for RowMetaPB {
+  fn from(row_detail: &RowDetail) -> Self {
     Self {
-      id: row_meta.row_id.clone(),
-      document_id: row_meta.document_id.clone(),
-      icon: row_meta.icon_url.clone(),
-      cover: row_meta.cover_url.clone(),
+      id: row_detail.row.id.to_string(),
+      document_id: row_detail.document_id.clone(),
+      icon: row_detail.meta.icon_url.clone(),
+      cover: row_detail.meta.cover_url.clone(),
     }
   }
 }
-
-impl std::convert::From<RowMeta> for RowMetaPB {
-  fn from(row_meta: RowMeta) -> Self {
+impl std::convert::From<RowDetail> for RowMetaPB {
+  fn from(row_detail: RowDetail) -> Self {
     Self {
-      id: row_meta.row_id,
-      document_id: row_meta.document_id,
-      icon: row_meta.icon_url,
-      cover: row_meta.cover_url,
+      id: row_detail.row.id.to_string(),
+      document_id: row_detail.document_id,
+      icon: row_detail.meta.icon_url,
+      cover: row_detail.meta.cover_url,
     }
   }
 }
+//
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UpdateRowMetaChangesetPB {
@@ -251,7 +251,7 @@ impl std::convert::From<RowMetaPB> for InsertedRowPB {
 impl From<InsertedRow> for InsertedRowPB {
   fn from(data: InsertedRow) -> Self {
     Self {
-      row_meta: data.row_meta.into(),
+      row_meta: data.row_detail.into(),
       index: data.index,
       is_new: data.is_new,
     }
@@ -274,7 +274,7 @@ pub struct UpdatedRowPB {
 
 impl From<UpdatedRow> for UpdatedRowPB {
   fn from(data: UpdatedRow) -> Self {
-    let row_meta = data.row_meta.map(RowMetaPB::from);
+    let row_meta = data.row_detail.map(RowMetaPB::from);
     Self {
       row_id: data.row_id,
       field_ids: data.field_ids,

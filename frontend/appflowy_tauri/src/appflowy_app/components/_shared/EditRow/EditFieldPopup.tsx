@@ -1,47 +1,49 @@
-import { FocusEventHandler, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import React, { FocusEventHandler, useEffect, useRef, useState } from 'react';
 import { FieldTypeIcon } from '$app/components/_shared/EditRow/FieldTypeIcon';
 import { FieldTypeName } from '$app/components/_shared/EditRow/FieldTypeName';
 import { useTranslation } from 'react-i18next';
 import { TypeOptionController } from '$app/stores/effects/database/field/type_option/type_option_controller';
 import { Some } from 'ts-results';
-import { FieldController, FieldInfo } from '$app/stores/effects/database/field/field_controller';
 import { MoreSvg } from '$app/components/_shared/svg/MoreSvg';
 import { useAppSelector } from '$app/stores/store';
 import { CellIdentifier } from '$app/stores/effects/database/cell/cell_bd_svc';
-import { PopupWindow } from '$app/components/_shared/PopupWindow';
-import { FieldType } from '@/services/backend';
-import { DateTypeOptions } from '$app/components/_shared/EditRow/Date/DateTypeOptions';
+import { DatabaseController } from '$app/stores/effects/database/database_controller';
+import { EyeClosedSvg } from '$app/components/_shared/svg/EyeClosedSvg';
+import { Popover } from '@mui/material';
+import { CopySvg } from '$app/components/_shared/svg/CopySvg';
+import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
+import { SkipLeftSvg } from '$app/components/_shared/svg/SkipLeftSvg';
+import { SkipRightSvg } from '$app/components/_shared/svg/SkipRightSvg';
+import { EyeOpenSvg } from '$app/components/_shared/svg/EyeOpenSvg';
 
 export const EditFieldPopup = ({
-  top,
-  left,
+  open,
+  anchorEl,
   cellIdentifier,
   viewId,
   onOutsideClick,
-  fieldInfo,
-  fieldController,
+  controller,
   changeFieldTypeClick,
-  onNumberFormat,
+  onDeletePropertyClick,
 }: {
-  top: number;
-  left: number;
+  open: boolean;
+  anchorEl: HTMLDivElement | null;
   cellIdentifier: CellIdentifier;
   viewId: string;
   onOutsideClick: () => void;
-  fieldInfo: FieldInfo | undefined;
-  fieldController?: FieldController;
-  changeFieldTypeClick: (buttonTop: number, buttonRight: number) => void;
-  onNumberFormat?: (buttonLeft: number, buttonTop: number) => void;
+  controller: DatabaseController;
+  changeFieldTypeClick: (el: HTMLDivElement) => void;
+  onDeletePropertyClick: (fieldId: string) => void;
 }) => {
-  const databaseStore = useAppSelector((state) => state.database);
+  const fieldsStore = useAppSelector((state) => state.database.fields);
   const { t } = useTranslation();
   const changeTypeButtonRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
 
   useEffect(() => {
-    setName(databaseStore.fields[cellIdentifier.fieldId].title);
-  }, [databaseStore, cellIdentifier]);
+    setName(fieldsStore[cellIdentifier.fieldId].title);
+  }, [fieldsStore, cellIdentifier]);
 
   // focus input on mount
   useEffect(() => {
@@ -55,45 +57,71 @@ export const EditFieldPopup = ({
   };
 
   const save = async () => {
+    if (!controller) return;
+    const fieldInfo = controller.fieldController.getField(cellIdentifier.fieldId);
     if (!fieldInfo) return;
-    const controller = new TypeOptionController(viewId, Some(fieldInfo));
+    const typeOptionController = new TypeOptionController(viewId, Some(fieldInfo));
 
-    await controller.initialize();
-    await controller.setFieldName(name);
+    await typeOptionController.initialize();
+    await typeOptionController.setFieldName(name);
   };
 
   const onChangeFieldTypeClick = () => {
     if (!changeTypeButtonRef.current) return;
-    const { top: buttonTop, right: buttonRight } = changeTypeButtonRef.current.getBoundingClientRect();
 
-    changeFieldTypeClick(buttonTop, buttonRight);
+    changeFieldTypeClick(changeTypeButtonRef.current);
   };
 
-  const onNumberFormatClick: MouseEventHandler = (e) => {
-    e.stopPropagation();
-    let target = e.target as HTMLElement;
+  const toggleHideProperty = async () => {
+    // we need to close the popup because after hiding the field, parent element will be removed
+    onOutsideClick();
+    const fieldInfo = controller.fieldController.getField(cellIdentifier.fieldId);
 
-    while (!(target instanceof HTMLButtonElement)) {
-      if (target.parentElement === null) return;
-      target = target.parentElement;
+    if (fieldInfo) {
+      const typeController = new TypeOptionController(viewId, Some(fieldInfo));
+
+      await typeController.initialize();
+      if (fieldInfo.field.visibility) {
+        await typeController.hideField();
+      } else {
+        await typeController.showField();
+      }
     }
+  };
 
-    const { right: _left, top: _top } = target.getBoundingClientRect();
+  const onDuplicatePropertyClick = async () => {
+    onOutsideClick();
+    await controller.duplicateField(cellIdentifier.fieldId);
+  };
 
-    onNumberFormat?.(_left, _top);
+  const onAddToLeftClick = async () => {
+    onOutsideClick();
+    await controller.addFieldToLeft(cellIdentifier.fieldId);
+  };
+
+  const onAddToRightClick = async () => {
+    onOutsideClick();
+    await controller.addFieldToRight(cellIdentifier.fieldId);
   };
 
   return (
-    <PopupWindow
-      className={'px-2 py-2 text-xs'}
-      onOutsideClick={async () => {
+    <Popover
+      anchorEl={anchorEl}
+      open={open}
+      onClose={async () => {
         await save();
         onOutsideClick();
       }}
-      left={left}
-      top={top}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
     >
-      <div className={'flex flex-col gap-2'}>
+      <div className={'flex flex-col gap-2 p-2 text-xs'}>
         <input
           ref={inputRef}
           onFocus={selectAll}
@@ -127,29 +155,75 @@ export const EditFieldPopup = ({
           </span>
         </div>
 
-        {cellIdentifier.fieldType === FieldType.Number && (
-          <>
-            <hr className={'-mx-2 border-line-divider'} />
-            <button
-              onClick={onNumberFormatClick}
-              className={
-                'flex w-full cursor-pointer items-center justify-between rounded-lg py-2 hover:bg-fill-list-hover'
-              }
-            >
-              <span className={'pl-2'}>{t('grid.field.numberFormat')}</span>
-              <span className={'pr-2'}>
-                <i className={'block h-5 w-5'}>
-                  <MoreSvg></MoreSvg>
-                </i>
-              </span>
-            </button>
-          </>
-        )}
+        <div className={'-mx-2 h-[1px] bg-line-divider'}></div>
 
-        {cellIdentifier.fieldType === FieldType.DateTime && fieldController && (
-          <DateTypeOptions cellIdentifier={cellIdentifier} fieldController={fieldController}></DateTypeOptions>
-        )}
+        <div className={'grid grid-cols-2'}>
+          <div className={'flex flex-col gap-2'}>
+            <div
+              onClick={toggleHideProperty}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              {fieldsStore[cellIdentifier.fieldId]?.visible ? (
+                <>
+                  <i className={'block h-5 w-5'}>
+                    <EyeClosedSvg />
+                  </i>
+                  <span>{t('grid.field.hide')}</span>
+                </>
+              ) : (
+                <>
+                  <i className={'block h-5 w-5'}>
+                    <EyeOpenSvg />
+                  </i>
+                  <span>Show</span>
+                </>
+              )}
+            </div>
+            <div
+              onClick={() => onDuplicatePropertyClick()}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              <i className={'block h-5 w-5'}>
+                <CopySvg />
+              </i>
+              <span>{t('grid.field.duplicate')}</span>
+            </div>
+            <div
+              onClick={() => {
+                onOutsideClick();
+                onDeletePropertyClick(cellIdentifier.fieldId);
+              }}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              <i className={'block h-5 w-5'}>
+                <TrashSvg />
+              </i>
+              <span>{t('grid.field.delete')}</span>
+            </div>
+          </div>
+
+          <div className={'flex flex-col gap-2'}>
+            <div
+              onClick={onAddToLeftClick}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              <i className={'block h-5 w-5'}>
+                <SkipLeftSvg />
+              </i>
+              <span>{t('grid.field.insertLeft')}</span>
+            </div>
+            <div
+              onClick={onAddToRightClick}
+              className={'flex cursor-pointer items-center gap-2 rounded-lg p-2 pr-8 hover:bg-fill-list-hover'}
+            >
+              <i className={'block h-5 w-5'}>
+                <SkipRightSvg />
+              </i>
+              <span>{t('grid.field.insertRight')}</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </PopupWindow>
+    </Popover>
   );
 };

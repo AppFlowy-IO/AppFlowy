@@ -16,8 +16,15 @@ export const GridCheckBox = ({
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
-    <div className='flex w-full justify-start'>
-      {cellController && <EditCheckboxCell cellController={cellController} data={data as 'Yes' | 'No' | undefined} />}
-    </div>
+    <EditCheckboxCell
+      onToggle={async () => {
+        if (data === 'Yes') {
+          await cellController?.saveCellData('No');
+        } else {
+          await cellController?.saveCellData('Yes');
+        }
+      }}
+      data={data as 'Yes' | 'No' | undefined}
+    />
   );
 };

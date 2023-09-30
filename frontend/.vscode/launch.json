@@ -44,45 +44,32 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
+            "name": "AF-iOS: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (iOS)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-iOS-Simulator: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             "name": "AF-desktop: Debug Rust",
             "request": "attach",
             "type": "lldb",
             "pid": "${command:pickMyProcess}"
-        },
-        // {
-        //     "name": "AF-desktop: profile mode",
-        //     "request": "launch",
-        //     "program": "./lib/main.dart",
-        //     "type": "dart",
-        //     "flutterMode": "profile",
-        //     "cwd": "${workspaceRoot}/appflowy_flutter"
-        // },
-        {
-            // This task builds the Rust and Dart code of AppFlowy for android.
-            "name": "AF-android: Build All",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "AF: build_mobile_sdk",
-            "env": {
-                "RUST_LOG": "info"
-            },
-            "cwd": "${workspaceRoot}/appflowy_flutter"
-        },
-        {
-            // This task builds will:
-            // - call the clean task,
-            // - rebuild all the generated Files (including freeze and language files)
-            // - rebuild the the Rust and Dart code of AppFlowy.
-            "name": "AF-android: Clean + Rebuild All",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "preLaunchTask": "AF: Clean + Rebuild All (Android)",
-            "env": {
-                "RUST_LOG": "info"
-            },
-            "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
             // https://tauri.app/v1/guides/debugging/vs-code
@@ -99,15 +86,5 @@
             "preLaunchTask": "AF: Tauri UI Dev",
             "cwd": "${workspaceRoot}/appflowy_tauri/"
         },
-        // {
-        //     "type": "lldb",
-        //     "request": "launch",
-        //     "name": "AF-tauri: Production Debug",
-        //     "cargo": {
-        //         "args": ["build", "--release", "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml"]
-        //     },
-        //     "preLaunchTask": "AF: Tauri UI Build",
-        //     "cwd": "${workspaceRoot}/appflowy_tauri/"
-        // },
     ]
 }

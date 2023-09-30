@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -18,7 +19,7 @@ class GridPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
-  String get menuIcon => "editor/grid";
+  FlowySvgData get icon => FlowySvgs.grid_s;
 
   @override
   PluginType get pluginType => PluginType.grid;

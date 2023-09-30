@@ -5,7 +5,7 @@ use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
 use crate::services::cell::{DecodedCellData, FromCellString};
-use crate::services::field::CELL_DATA;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
@@ -29,6 +29,12 @@ impl SelectOptionIds {
     new_cell_builder(field_type)
       .insert_str_value(CELL_DATA, self.to_string())
       .build()
+  }
+}
+
+impl TypeOptionCellData for SelectOptionIds {
+  fn is_cell_empty(&self) -> bool {
+    self.is_empty()
   }
 }
 

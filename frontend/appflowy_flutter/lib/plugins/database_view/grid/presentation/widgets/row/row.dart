@@ -1,10 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
@@ -160,16 +161,12 @@ class _RowLeadingState extends State<_RowLeading> {
             index: widget.index!,
             child: RowMenuButton(
               isDragEnabled: isDraggable,
-              openMenu: () {
-                popoverController.show();
-              },
+              openMenu: popoverController.show,
             ),
           ),
         ] else ...[
           RowMenuButton(
-            openMenu: () {
-              popoverController.show();
-            },
+            openMenu: popoverController.show,
           ),
         ],
       ],
@@ -191,8 +188,8 @@ class InsertRowButton extends StatelessWidget {
       height: 30,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget(
-        'home/add',
+      icon: FlowySvg(
+        FlowySvgs.add_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );
@@ -232,8 +229,8 @@ class _RowMenuButtonState extends State<RowMenuButton> {
       height: 30,
       onPressed: () => widget.openMenu(),
       iconPadding: const EdgeInsets.all(3),
-      icon: svgWidget(
-        'editor/details',
+      icon: FlowySvg(
+        FlowySvgs.details_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );
@@ -260,7 +257,10 @@ class RowContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _makeCells(context, state.cellByFieldId),
+            children: [
+              ..._makeCells(context, state.cellByFieldId),
+              _finalCellDecoration(context),
+            ],
           ),
         );
       },
@@ -276,13 +276,13 @@ class RowContent extends StatelessWidget {
         final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
-          width: cellId.fieldInfo.width.toDouble(),
-          isPrimary: cellId.fieldInfo.isPrimary,
+          width: cellId.fieldInfo.field.width.toDouble(),
+          isPrimary: cellId.fieldInfo.field.isPrimary,
           cellContainerNotifier: CellContainerNotifier(child),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             final List<GridCellAccessoryBuilder> accessories = [];
-            if (cellId.fieldInfo.isPrimary) {
+            if (cellId.fieldInfo.field.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
                   builder: (key) => PrimaryCellAccessory(
@@ -304,6 +304,23 @@ class RowContent extends StatelessWidget {
         );
       },
     ).toList();
+  }
+
+  Widget _finalCellDecoration(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: Container(
+        width: GridSize.trailHeaderPadding,
+        padding: GridSize.headerContentInsets,
+        constraints: const BoxConstraints(minHeight: 46),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+        ),
+        child: const SizedBox.shrink(),
+      ),
+    );
   }
 }
 

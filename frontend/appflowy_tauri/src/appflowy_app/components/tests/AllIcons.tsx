@@ -39,6 +39,13 @@ import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
 import { UrlTypeSvg } from '$app/components/_shared/svg/UrlTypeSvg';
 import { DragElementSvg } from '$app/components/_shared/svg/DragElementSvg';
 import { ImageSvg } from '$app/components/_shared/svg/ImageSvg';
+import { DragSvg } from '$app/components/_shared/svg/DragSvg';
+import { FullView } from '$app/components/_shared/svg/FullView';
+import { GroupBySvg } from '$app/components/_shared/svg/GroupBySvg';
+import { SettingsSvg } from '$app/components/_shared/svg/SettingsSvg';
+import { ShareSvg } from '$app/components/_shared/svg/ShareSvg';
+import { SortAscSvg } from '$app/components/_shared/svg/SortAscSvg';
+import { SortDescSvg } from '$app/components/_shared/svg/SortDescSvg';
 
 export const AllIcons = () => {
   return (
@@ -88,6 +95,9 @@ export const AllIcons = () => {
           <i className={'h-5 w-5'} title={'DragElementSvg'}>
             <DragElementSvg></DragElementSvg>
           </i>
+          <i className={'h-5 w-5'} title={'DragSvg'}>
+            <DragSvg></DragSvg>
+          </i>
           <i className={'h-5 w-5'} title={'DropDownShowSvg'}>
             <DropDownShowSvg></DropDownShowSvg>
           </i>
@@ -112,11 +122,17 @@ export const AllIcons = () => {
           <i className={'h-5 w-5'} title={'FilterSvg'}>
             <FilterSvg></FilterSvg>
           </i>
+          <i className={'h-5 w-5'} title={'FullView'}>
+            <FullView></FullView>
+          </i>
           <i className={'h-5 w-5'} title={'GridSvg'}>
             <GridSvg></GridSvg>
           </i>
           <i className={'h-5 w-5'} title={'GroupByFieldSvg'}>
             <GroupByFieldSvg></GroupByFieldSvg>
+          </i>
+          <i className={'h-5 w-5'} title={'GroupBySvg'}>
+            <GroupBySvg></GroupBySvg>
           </i>
           <i className={'h-5 w-5'} title={'HideMenuSvg'}>
             <HideMenuSvg></HideMenuSvg>
@@ -145,6 +161,12 @@ export const AllIcons = () => {
           <i className={'h-5 w-5'} title={'SearchSvg'}>
             <SearchSvg></SearchSvg>
           </i>
+          <i className={'h-5 w-5'} title={'SettingsSvg'}>
+            <SettingsSvg></SettingsSvg>
+          </i>
+          <i className={'h-5 w-5'} title={'ShareSvg'}>
+            <ShareSvg></ShareSvg>
+          </i>
           <i className={'h-5 w-5'} title={'ShowMenuSvg'}>
             <ShowMenuSvg></ShowMenuSvg>
           </i>
@@ -156,6 +178,12 @@ export const AllIcons = () => {
           </i>
           <i className={'h-5 w-5'} title={'SkipRightSvg'}>
             <SkipRightSvg></SkipRightSvg>
+          </i>
+          <i className={'h-5 w-5'} title={'SortAscSvg'}>
+            <SortAscSvg></SortAscSvg>
+          </i>
+          <i className={'h-5 w-5'} title={'SortDescSvg'}>
+            <SortDescSvg></SortDescSvg>
           </i>
           <i className={'h-5 w-5'} title={'SortSvg'}>
             <SortSvg></SortSvg>

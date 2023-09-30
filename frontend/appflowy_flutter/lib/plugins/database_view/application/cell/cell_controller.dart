@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_listener.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_meta_listener.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
@@ -8,7 +9,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import '../field/field_controller.dart';
 import '../field/field_service.dart';
 import '../field/type_option/type_option_context.dart';
 import 'cell_listener.dart';
@@ -104,7 +104,7 @@ class CellController<T, D> extends Equatable {
     );
 
     // Only the primary can listen on the row meta changes.
-    if (_cellContext.fieldInfo.isPrimary) {
+    if (_cellContext.fieldInfo.field.isPrimary) {
       _rowMetaListener?.start(
         callback: (newRowMeta) {
           _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);

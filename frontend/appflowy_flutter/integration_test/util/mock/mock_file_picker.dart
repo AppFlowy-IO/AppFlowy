@@ -77,13 +77,6 @@ Future<String> mockSaveFilePath(
 Future<List<String>> mockPickFilePaths({
   required List<String> paths,
 }) async {
-  // late final Directory dir;
-  // if (customPath != null) {
-  //   dir = Directory(customPath);
-  // } else {
-  //   dir = await TestFolder.testLocation(applicationDataPath, name);
-  // }
-  // final paths = fileNames.map((e) => p.join(dir.path, e)).toList();
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(

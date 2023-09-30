@@ -16,10 +16,11 @@ export const GridNumberCell = ({
   const { data, cellController } = useCell(cellIdentifier, cellCache, fieldController);
 
   return (
-    <div className='w-full'>
-      {cellController && (
-        <EditCellNumber data={data as string | undefined} cellController={cellController}></EditCellNumber>
-      )}
-    </div>
+    <EditCellNumber
+      data={data as string | undefined}
+      onSave={async (value) => {
+        await cellController?.saveCellData(value);
+      }}
+    ></EditCellNumber>
   );
 };

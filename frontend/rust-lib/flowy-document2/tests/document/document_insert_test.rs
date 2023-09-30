@@ -1,8 +1,7 @@
 use std::{collections::HashMap, vec};
 
 use collab_document::blocks::{Block, BlockAction, BlockActionPayload, BlockActionType};
-
-use flowy_document2::document_data::PARAGRAPH_BLOCK_TYPE;
+use collab_document::document_data::PARAGRAPH_BLOCK_TYPE;
 
 use crate::document::util;
 use crate::document::util::gen_id;
@@ -25,9 +24,11 @@ async fn document_apply_insert_block_with_empty_parent_id() {
   let insert_text_action = BlockAction {
     action: BlockActionType::Insert,
     payload: BlockActionPayload {
-      block: text_block,
+      block: Some(text_block),
       parent_id: Some(page_id.clone()),
       prev_id: None,
+      delta: None,
+      text_id: None,
     },
   };
   document.lock().apply_action(vec![insert_text_action]);

@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ToggleListBlockKeys {
   const ToggleListBlockKeys._();
@@ -11,35 +12,52 @@ class ToggleListBlockKeys {
   /// The content of a code block.
   ///
   /// The value is a String.
-  static const String delta = 'delta';
+  static const String delta = blockComponentDelta;
+
+  static const String backgroundColor = blockComponentBackgroundColor;
+
+  static const String textDirection = blockComponentTextDirection;
 
   /// The value is a bool.
   static const String collapsed = 'collapsed';
 }
 
 Node toggleListBlockNode({
+  String? text,
   Delta? delta,
   bool collapsed = false,
+  String? textDirection,
+  Attributes? attributes,
+  Iterable<Node>? children,
 }) {
-  final attributes = {
-    ToggleListBlockKeys.delta: (delta ?? Delta()).toJson(),
-    ToggleListBlockKeys.collapsed: collapsed,
-  };
   return Node(
     type: ToggleListBlockKeys.type,
-    attributes: attributes,
-    children: [paragraphNode()],
+    attributes: {
+      ToggleListBlockKeys.collapsed: collapsed,
+      ToggleListBlockKeys.delta:
+          (delta ?? (Delta()..insert(text ?? ''))).toJson(),
+      if (attributes != null) ...attributes,
+      if (textDirection != null)
+        ToggleListBlockKeys.textDirection: textDirection,
+    },
+    children: children ?? [],
   );
 }
 
+// defining the toggle list block menu item
+SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
+  name: LocaleKeys.document_plugins_toggleList.tr(),
+  iconData: Icons.arrow_right,
+  keywords: ['collapsed list', 'toggle list', 'list'],
+  nodeBuilder: (editorState, _) => toggleListBlockNode(),
+  replace: (_, node) => node.delta?.isEmpty ?? false,
+);
+
 class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
     this.padding = const EdgeInsets.all(0),
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   final EdgeInsets padding;
 
@@ -86,7 +104,10 @@ class _ToggleListBlockComponentWidgetState
         SelectableMixin,
         DefaultSelectableMixin,
         BlockComponentConfigurable,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        NestedBlockComponentStatefulWidgetMixin,
+        BlockComponentTextDirectionMixin,
+        BlockComponentAlignMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -105,63 +126,76 @@ class _ToggleListBlockComponentWidgetState
   @override
   Node get node => widget.node;
 
-  bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
+  @override
+  EdgeInsets get indentPadding => configuration.indentPadding(
+        node,
+        calculateTextDirection(
+          layoutDirection: Directionality.maybeOf(context),
+        ),
+      );
 
-  late final editorState = context.read<EditorState>();
+  bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
 
   @override
   Widget build(BuildContext context) {
     return collapsed
-        ? buildToggleListBlockComponent(context)
-        : buildToggleListBlockComponentWithChildren(context);
+        ? buildComponent(context)
+        : buildComponentWithChildren(context);
   }
 
-  Widget buildToggleListBlockComponentWithChildren(BuildContext context) {
-    return Container(
-      color: backgroundColor,
-      child: NestedListWidget(
-        children: editorState.renderer.buildList(
-          context,
-          widget.node.children,
-        ),
-        child: buildToggleListBlockComponent(context),
-      ),
+  @override
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = false,
+  }) {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
     );
-  }
 
-  // build the richtext child
-  Widget buildToggleListBlockComponent(BuildContext context) {
-    Widget child = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // the emoji picker button for the note
-        FlowyIconButton(
-          width: 24.0,
-          icon: Icon(
-            collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
-          ),
-          onPressed: onCollapsed,
-        ),
-        const SizedBox(
-          width: 4.0,
-        ),
-        Expanded(
-          child: AppFlowyRichText(
-            key: forwardKey,
-            node: widget.node,
-            editorState: editorState,
-            placeholderText: placeholderText,
-            lineHeight: 1.5,
-            textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-              textStyle,
+    Widget child = Container(
+      color: backgroundColor,
+      width: double.infinity,
+      alignment: alignment,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        textDirection: textDirection,
+        children: [
+          // the emoji picker button for the note
+          FlowyIconButton(
+            width: 24.0,
+            icon: Icon(
+              collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
             ),
-            placeholderTextSpanDecorator: (textSpan) =>
-                textSpan.updateTextStyle(
-              placeholderTextStyle,
+            onPressed: onCollapsed,
+          ),
+          const SizedBox(
+            width: 4.0,
+          ),
+          Flexible(
+            child: AppFlowyRichText(
+              key: forwardKey,
+              delegate: this,
+              node: widget.node,
+              editorState: editorState,
+              placeholderText: placeholderText,
+              lineHeight: 1.5,
+              textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+                textStyle,
+              ),
+              placeholderTextSpanDecorator: (textSpan) =>
+                  textSpan.updateTextStyle(
+                placeholderTextStyle,
+              ),
+              textDirection: textDirection,
+              textAlign: alignment?.toTextAlign,
+              cursorColor: editorState.editorStyle.cursorColor,
+              selectionColor: editorState.editorStyle.selectionColor,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     child = Padding(
@@ -170,7 +204,18 @@ class _ToggleListBlockComponentWidgetState
       child: child,
     );
 
-    if (widget.actionBuilder != null) {
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,

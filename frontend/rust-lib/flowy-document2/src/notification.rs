@@ -4,7 +4,7 @@ use flowy_notification::NotificationBuilder;
 const DOCUMENT_OBSERVABLE_SOURCE: &str = "Document";
 
 #[derive(ProtoBuf_Enum, Debug, Default)]
-pub(crate) enum DocumentNotification {
+pub enum DocumentNotification {
   #[default]
   Unknown = 0,
 

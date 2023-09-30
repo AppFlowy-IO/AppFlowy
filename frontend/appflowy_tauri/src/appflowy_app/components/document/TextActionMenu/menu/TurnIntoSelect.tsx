@@ -3,7 +3,7 @@ import TurnIntoPopover from '$app/components/document/_shared/TurnInto';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode.hooks';
 import { useTranslation } from 'react-i18next';
-import ToolbarTooltip from '../../_shared/ToolbarTooltip';
+import Tooltip from '@mui/material/Tooltip';
 
 function TurnIntoSelect({ id }: { id: string }) {
   const [anchorPosition, setAnchorPosition] = React.useState<{
@@ -30,12 +30,12 @@ function TurnIntoSelect({ id }: { id: string }) {
 
   return (
     <>
-      <ToolbarTooltip title={t('document.plugins.optionAction.turnInto')}>
+      <Tooltip disableInteractive placement={'top'} title={t('document.plugins.optionAction.turnInto')}>
         <div onClick={handleClick} className='flex cursor-pointer items-center px-2 text-sm text-fill-default'>
           <span>{node.type}</span>
           <ArrowDropDown />
         </div>
-      </ToolbarTooltip>
+      </Tooltip>
       <TurnIntoPopover
         id={id}
         open={open}

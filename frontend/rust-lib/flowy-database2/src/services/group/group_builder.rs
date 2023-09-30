@@ -7,10 +7,9 @@ use collab_database::views::DatabaseLayout;
 use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
-use crate::services::group::configuration::GroupSettingReader;
-use crate::services::group::controller::GroupController;
 use crate::services::group::{
-  CheckboxGroupContext, CheckboxGroupController, DefaultGroupController, Group, GroupSetting,
+  CheckboxGroupContext, CheckboxGroupController, DateGroupContext, DateGroupController,
+  DefaultGroupController, Group, GroupController, GroupSetting, GroupSettingReader,
   GroupSettingWriter, MultiSelectGroupController, MultiSelectOptionGroupContext,
   SingleSelectGroupController, SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
 };
@@ -93,6 +92,17 @@ where
       )
       .await?;
       let controller = URLGroupController::new(&grouping_field, configuration).await?;
+      group_controller = Box::new(controller);
+    },
+    FieldType::DateTime => {
+      let configuration = DateGroupContext::new(
+        view_id,
+        grouping_field.clone(),
+        configuration_reader,
+        configuration_writer,
+      )
+      .await?;
+      let controller = DateGroupController::new(&grouping_field, configuration).await?;
       group_controller = Box::new(controller);
     },
     _ => {

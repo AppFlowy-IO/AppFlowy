@@ -1,41 +1,32 @@
-use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
-use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::{
-  default_order, DateCellChangeset, DateCellData, DateCellDataWrapper, DateFormat, TimeFormat,
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionTransform,
-};
-use chrono::format::strftime::StrftimeItems;
+use std::cmp::Ordering;
+use std::str::FromStr;
+
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::str::FromStr;
+
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+
+use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
+use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+use crate::services::field::{
+  default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
+};
+use crate::services::sort::SortCondition;
 
 /// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
 /// So, storing the field type is necessary to distinguish the field type.
 /// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
   pub time_format: TimeFormat,
   pub timezone_id: String,
-  pub field_type: FieldType,
-}
-
-impl Default for DateTypeOption {
-  fn default() -> Self {
-    Self {
-      date_format: Default::default(),
-      time_format: Default::default(),
-      timezone_id: Default::default(),
-      field_type: FieldType::DateTime,
-    }
-  }
 }
 
 impl TypeOption for DateTypeOption {
@@ -56,15 +47,10 @@ impl From<TypeOptionData> for DateTypeOption {
       .map(TimeFormat::from)
       .unwrap_or_default();
     let timezone_id = data.get_str_value("timezone_id").unwrap_or_default();
-    let field_type = data
-      .get_i64_value("field_type")
-      .map(FieldType::from)
-      .unwrap_or(FieldType::DateTime);
     Self {
       date_format,
       time_format,
       timezone_id,
-      field_type,
     }
   }
 }
@@ -75,17 +61,34 @@ impl From<DateTypeOption> for TypeOptionData {
       .insert_i64_value("date_format", data.date_format.value())
       .insert_i64_value("time_format", data.time_format.value())
       .insert_str_value("timezone_id", data.timezone_id)
-      .insert_i64_value("field_type", data.field_type.value())
       .build()
   }
 }
 
-impl TypeOptionCellData for DateTypeOption {
+impl TypeOptionCellDataSerde for DateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
-    self.today_desc_from_timestamp(cell_data)
+    let include_time = cell_data.include_time;
+    let is_range = cell_data.is_range;
+
+    let timestamp = cell_data.timestamp;
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    let end_timestamp = cell_data.end_timestamp;
+    let (end_date, end_time) = self.formatted_date_time_from_timestamp(&end_timestamp);
+
+    DateCellDataPB {
+      date,
+      time,
+      timestamp: timestamp.unwrap_or_default(),
+      end_date,
+      end_time,
+      end_timestamp: end_timestamp.unwrap_or_default(),
+      include_time,
+      is_range,
+    }
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
@@ -94,49 +97,55 @@ impl TypeOptionCellData for DateTypeOption {
 }
 
 impl DateTypeOption {
-  pub fn new(field_type: FieldType) -> Self {
-    Self {
-      field_type,
-      ..Default::default()
-    }
+  pub fn new() -> Self {
+    Self::default()
   }
 
   pub fn test() -> Self {
     Self {
       timezone_id: "Etc/UTC".to_owned(),
-      field_type: FieldType::DateTime,
       ..Self::default()
     }
   }
 
-  fn today_desc_from_timestamp(&self, cell_data: DateCellData) -> DateCellDataPB {
-    let timestamp = cell_data.timestamp.unwrap_or_default();
-    let include_time = cell_data.include_time;
+  fn formatted_date_time_from_timestamp(&self, timestamp: &Option<i64>) -> (String, String) {
+    if let Some(timestamp) = timestamp {
+      let naive = chrono::NaiveDateTime::from_timestamp_opt(*timestamp, 0).unwrap();
+      let offset = self.get_timezone_offset(naive);
+      let date_time = DateTime::<Local>::from_naive_utc_and_offset(naive, offset);
 
-    let (date, time) = match cell_data.timestamp {
-      Some(timestamp) => {
-        let naive = chrono::NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-        let offset = self.get_timezone_offset(naive);
-        let date_time = DateTime::<Local>::from_utc(naive, offset);
-
-        let fmt = self.date_format.format_str();
-        let date = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
-        let fmt = self.time_format.format_str();
-        let time = format!("{}", date_time.format_with_items(StrftimeItems::new(fmt)));
-
-        (date, time)
-      },
-      None => ("".to_owned(), "".to_owned()),
-    };
-
-    DateCellDataPB {
-      date,
-      time,
-      include_time,
-      timestamp,
+      let fmt = self.date_format.format_str();
+      let date = format!("{}", date_time.format(fmt));
+      let fmt = self.time_format.format_str();
+      let time = format!("{}", date_time.format(fmt));
+      (date, time)
+    } else {
+      ("".to_owned(), "".to_owned())
     }
   }
 
+  fn naive_time_from_time_string(
+    &self,
+    include_time: bool,
+    time_str: Option<String>,
+  ) -> FlowyResult<Option<NaiveTime>> {
+    match (include_time, time_str) {
+      (true, Some(time_str)) => {
+        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
+        match result {
+          Ok(time) => Ok(Some(time)),
+          Err(_e) => {
+            let msg = format!("Parse {} failed", time_str);
+            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
+          },
+        }
+      },
+      _ => Ok(None),
+    }
+  }
+
+  /// combine the changeset_timestamp and parsed_time if provided. if
+  /// changeset_timestamp is None, fallback to previous_timestamp
   fn timestamp_from_parsed_time_previous_and_new_timestamp(
     &self,
     parsed_time: Option<NaiveTime>,
@@ -144,7 +153,7 @@ impl DateTypeOption {
     changeset_timestamp: Option<i64>,
   ) -> Option<i64> {
     if let Some(time) = parsed_time {
-      // a valid time is provided, so we replace the time component of old
+      // a valid time is provided, so we replace the time component of old timestamp
       // (or new timestamp if provided) with it.
       let utc_date = changeset_timestamp
         .or(previous_timestamp)
@@ -208,7 +217,31 @@ impl CellDataDecoder for DateTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    self.today_desc_from_timestamp(cell_data).date
+    let include_time = cell_data.include_time;
+    let timestamp = cell_data.timestamp;
+    let is_range = cell_data.is_range;
+
+    let (date, time) = self.formatted_date_time_from_timestamp(&timestamp);
+
+    if is_range {
+      let (end_date, end_time) = match cell_data.end_timestamp {
+        Some(timestamp) => self.formatted_date_time_from_timestamp(&Some(timestamp)),
+        None => (date.clone(), time.clone()),
+      };
+      if include_time && timestamp.is_some() {
+        format!("{} {} → {} {}", date, time, end_date, end_time)
+          .trim()
+          .to_string()
+      } else if timestamp.is_some() {
+        format!("{} → {}", date, end_date).trim().to_string()
+      } else {
+        "".to_string()
+      }
+    } else if include_time {
+      format!("{} {}", date, time).trim().to_string()
+    } else {
+      date
+    }
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
@@ -224,16 +257,33 @@ impl CellDataChangeset for DateTypeOption {
     cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     // old date cell data
-    let (previous_timestamp, include_time) = match cell {
+    let (previous_timestamp, previous_end_timestamp, include_time, is_range) = match cell {
       Some(cell) => {
         let cell_data = DateCellData::from(&cell);
-        (cell_data.timestamp, cell_data.include_time)
+        (
+          cell_data.timestamp,
+          cell_data.end_timestamp,
+          cell_data.include_time,
+          cell_data.is_range,
+        )
       },
-      None => (None, false),
+      None => (None, None, false, false),
     };
 
-    // update include_time if necessary
+    if changeset.clear_flag == Some(true) {
+      let cell_data = DateCellData {
+        timestamp: None,
+        end_timestamp: None,
+        include_time,
+        is_range,
+      };
+
+      return Ok((Cell::from(&cell_data), cell_data));
+    }
+
+    // update include_time and is_range if necessary
     let include_time = changeset.include_time.unwrap_or(include_time);
+    let is_range = changeset.is_range.unwrap_or(is_range);
 
     // Calculate the timestamp in the time zone specified in type option. If
     // a new timestamp is included in the changeset without an accompanying
@@ -241,36 +291,41 @@ impl CellDataChangeset for DateTypeOption {
     // order to change the day without changing the time, the old time string
     // should be passed in as well.
 
-    let changeset_timestamp = changeset.date_timestamp();
-
     // parse the time string, which is in the local timezone
-    let parsed_time = match (include_time, changeset.time) {
-      (true, Some(time_str)) => {
-        let result = NaiveTime::parse_from_str(&time_str, self.time_format.format_str());
-        match result {
-          Ok(time) => Ok(Some(time)),
-          Err(_e) => {
-            let msg = format!("Parse {} failed", time_str);
-            Err(FlowyError::new(ErrorCode::InvalidDateTimeFormat, msg))
-          },
-        }
-      },
-      _ => Ok(None),
-    }?;
+    let parsed_start_time = self.naive_time_from_time_string(include_time, changeset.time)?;
 
     let timestamp = self.timestamp_from_parsed_time_previous_and_new_timestamp(
-      parsed_time,
+      parsed_start_time,
       previous_timestamp,
-      changeset_timestamp,
+      changeset.date,
     );
+
+    let end_timestamp =
+      if is_range && changeset.end_date.is_none() && previous_end_timestamp.is_none() {
+        // just toggled is_range so no passed in or existing end time data
+        timestamp
+      } else if is_range {
+        // parse the changeset's end time data or fallback to previous version
+        let parsed_end_time = self.naive_time_from_time_string(include_time, changeset.end_time)?;
+
+        self.timestamp_from_parsed_time_previous_and_new_timestamp(
+          parsed_end_time,
+          previous_end_timestamp,
+          changeset.end_date,
+        )
+      } else {
+        // clear the end time data
+        None
+      };
 
     let cell_data = DateCellData {
       timestamp,
+      end_timestamp,
       include_time,
+      is_range,
     };
 
-    let cell_wrapper: DateCellDataWrapper = (self.field_type.clone(), cell_data.clone()).into();
-    Ok((Cell::from(cell_wrapper), cell_data))
+    Ok((Cell::from(&cell_data), cell_data))
   }
 }
 
@@ -294,11 +349,15 @@ impl TypeOptionCellDataCompare for DateTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data.timestamp, other_cell_data.timestamp) {
-      (Some(left), Some(right)) => left.cmp(&right),
-      (Some(_), None) => Ordering::Greater,
-      (None, Some(_)) => Ordering::Less,
+      (Some(left), Some(right)) => {
+        let order = left.cmp(&right);
+        sort_condition.evaluate_order(order)
+      },
+      (Some(_), None) => Ordering::Less,
+      (None, Some(_)) => Ordering::Greater,
       (None, None) => default_order(),
     }
   }

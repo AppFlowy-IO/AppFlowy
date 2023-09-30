@@ -79,7 +79,7 @@ async fn user_update_with_invalid_email() {
         .error()
         .unwrap()
         .code,
-      ErrorCode::EmailFormatInvalid.value()
+      ErrorCode::EmailFormatInvalid
     );
   }
 }

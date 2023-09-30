@@ -23,6 +23,7 @@ class SettingsMenuElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
+      resetHoverOnRebuild: false,
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.primary,
       ),

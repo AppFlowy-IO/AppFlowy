@@ -1,5 +1,110 @@
 # Release Notes
 
+## Version 0.3.3 - 09/24/2023
+
+### New Features
+- Added an end date field to the time cell in the database.
+- Added Support for customizing the font family from GoogleFonts in the editor.
+- Set the uploaded image to cover by default.
+- Added Support for resetting the user icon on settings page
+- Add Urdu language translations.
+
+### Bug fixes
+- Default colors for the blocks except for the callout were not transparent.
+- Option/Alt + click to add a block above didn't work on the first line.
+- Unable to paste HTML content containing `<mark>` tag.
+- Unable to select the text from anywhere in the line.
+- The selection in the editor didn't clear when editing the inline database.
+- Added a bottom border to new property column in the database.
+- Set minimum width of 50px for grid fields.
+
+## Version 0.3.2 - 09/18/2023
+
+### New Features
+
+- Improve the performance of the editor, now it is much faster when editing a large document.
+- Support for reordering the rows of the database on Windows.
+- Revamp the row detail page of the database.
+- Revamp the checklist cell editor of the database.
+
+### Bug fixes
+
+- Some UI issues
+
+## Version 0.3.1 - 09/04/2023
+
+### New Features
+
+- Improve CJK (Chinese, Japanese, Korean) input method support.
+- Share a database in CSV format.
+- Support for aligning the block component with the toolbar.
+- Support for editing name when creating a new page.
+- Support for inserting a table in the document page.
+- Database views allow for independent field visibility toggling.
+
+### Bug fixes
+
+- Paste multiple lines in code block.
+- Some UI issues
+
+## Version 0.3.0 - 08/22/2023
+
+### New Features
+
+- Improve paste features:
+  - Paste HTML content from website.
+  - Paste image from clipboard.
+
+- Support Group by Date in Kanban Board.
+- Notarize the macOS package, which is now verified by Apple.
+- Add Persian language translations.
+
+### Bug fixes
+
+- Some UI issues
+
+## Version 0.2.9 - 08/08/2023
+
+### New Features
+
+- Improve tab and shortcut, click with alt/option to open a page in new tab.
+- Improve database tab bar UI.
+
+### Bug fixes
+
+- Add button and more action button of the favorite section doesn't work.
+- Fix euro currency number format.
+- Some UI issues
+
+## Version 0.2.8 - 08/03/2023
+
+### New Features
+
+- Nestable personal folder that supports drag and drop
+- Support for favorite folders.
+- Support for sorting by date in Grid view.
+- Add a duplicate button in the Board context menu.
+
+### Bug fixes
+
+- Improve readability in Callout
+- Some UI issues
+
+## Version 0.2.7 - 07/18/2023
+
+### New Features
+
+<img width="1147" src="https://github.com/AppFlowy-IO/AppFlowy/assets/11863087/ac464740-c685-4a85-ae99-1074c1c607e5">
+
+- Open page in new tab
+- Create toggle lists to keep things tidy in your pages
+- Alt/Option + click to add a text block above
+
+### Bug fixes
+
+- Pasting into a Grid property crashed on Windows
+- Double-click a link to open
+
 ## Version 0.2.6 - 07/11/2023
 
 ### New Features

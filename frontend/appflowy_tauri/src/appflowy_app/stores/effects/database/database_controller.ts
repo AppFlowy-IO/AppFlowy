@@ -8,11 +8,17 @@ import { DatabaseGroupController } from './group/group_controller';
 import { BehaviorSubject } from 'rxjs';
 import { DatabaseGroupObserver } from './group/group_observer';
 import { Log } from '$app/utils/log';
+import { FilterController } from '$app/stores/effects/database/filter/filter_controller';
+import { FilterParsed } from '$app/stores/effects/database/filter/filter_bd_svc';
+import { SortController } from '$app/stores/effects/database/sort/sort_controller';
+import { IDatabaseSort } from '$app_reducers/database/slice';
 
 export type DatabaseSubscriberCallbacks = {
   onViewChanged?: (data: DatabasePB) => void;
   onRowsChanged?: (rowInfos: readonly RowInfo[], reason: RowChangedReason) => void;
   onFieldsChanged?: (fieldInfos: readonly FieldInfo[]) => void;
+  onFiltersChanged?: (filters: readonly FilterParsed[]) => void;
+  onSortChanged?: (sorts: readonly IDatabaseSort[]) => void;
   onGroupByField?: (groups: GroupPB[]) => void;
 
   onNumOfGroupChanged?: {
@@ -25,6 +31,8 @@ export type DatabaseSubscriberCallbacks = {
 export class DatabaseController {
   private readonly backendService: DatabaseBackendService;
   fieldController: FieldController;
+  sortController: SortController;
+  filterController: FilterController;
   databaseViewCache: DatabaseViewCache;
   private _callback?: DatabaseSubscriberCallbacks;
   public groups: BehaviorSubject<DatabaseGroupController[]>;
@@ -33,6 +41,8 @@ export class DatabaseController {
   constructor(public readonly viewId: string) {
     this.backendService = new DatabaseBackendService(viewId);
     this.fieldController = new FieldController(viewId);
+    this.filterController = new FilterController(viewId);
+    this.sortController = new SortController(viewId);
     this.databaseViewCache = new DatabaseViewCache(viewId, this.fieldController);
     this.groups = new BehaviorSubject<DatabaseGroupController[]>([]);
     this.groupsObserver = new DatabaseGroupObserver(viewId);
@@ -41,6 +51,8 @@ export class DatabaseController {
   subscribe = (callbacks: DatabaseSubscriberCallbacks) => {
     this._callback = callbacks;
     this.fieldController.subscribe({ onNumOfFieldsChanged: callbacks.onFieldsChanged });
+    this.filterController.subscribe({ onFiltersChanged: callbacks.onFiltersChanged });
+    this.sortController.subscribe({ onSortChanged: callbacks.onSortChanged });
     this.databaseViewCache.getRowCache().subscribe({
       onRowsChanged: (reason) => {
         this._callback?.onRowsChanged?.(this.databaseViewCache.rowInfos, reason);
@@ -50,10 +62,14 @@ export class DatabaseController {
 
   open = async () => {
     const openDatabaseResult = await this.backendService.openDatabase();
+
     if (openDatabaseResult.ok) {
       const database: DatabasePB = openDatabaseResult.val;
+
       await this.databaseViewCache.initialize();
       await this.fieldController.initialize();
+      await this.filterController.initialize();
+      await this.sortController.initialize();
 
       // subscriptions
       await this.subscribeOnGroupsChanged();
@@ -73,12 +89,15 @@ export class DatabaseController {
 
   getGroupByFieldId = async () => {
     const settingsResult = await this.backendService.getSettings();
+
     if (settingsResult.ok) {
       const settings = settingsResult.val;
       const groupConfig = settings.group_settings.items;
+
       if (groupConfig.length === 0) {
         return Err(new FlowyError({ msg: 'this database has no groups' }));
       }
+
       return Ok(settings.group_settings.items[0].field_id);
     } else {
       return Err(settingsResult.val);
@@ -89,12 +108,20 @@ export class DatabaseController {
     return this.backendService.createRow();
   };
 
+  createRowAfter = (rowId: string) => {
+    return this.backendService.createRow({ rowId });
+  };
+
   duplicateRow = async (rowId: string) => {
     return this.backendService.duplicateRow(rowId);
   };
 
   deleteRow = async (rowId: string) => {
     return this.backendService.deleteRow(rowId);
+  };
+
+  moveRow = (fromRowId: string, toRowId: string) => {
+    return this.backendService.moveRow(fromRowId, toRowId);
   };
 
   moveGroupRow = (rowId: string, groupId: string) => {
@@ -114,12 +141,51 @@ export class DatabaseController {
     return this.backendService.moveField(params);
   };
 
+  changeWidth = (params: { fieldId: string; width: number }) => {
+    return this.backendService.changeWidth(params);
+  };
+
+  duplicateField = (fieldId: string) => {
+    return this.backendService.duplicateField(fieldId);
+  };
+
+  addFieldToLeft = async (fieldId: string) => {
+    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
+
+    await this.backendService.createField();
+
+    const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
+
+    await this.moveField({
+      fieldId: newFieldId,
+      fromIndex: this.fieldController.fieldInfos.length - 1,
+      toIndex: index,
+    });
+  };
+
+  addFieldToRight = async (fieldId: string) => {
+    const index = this.fieldController.fieldInfos.findIndex((fieldInfo) => fieldInfo.field.id === fieldId);
+
+    await this.backendService.createField();
+
+    const newFieldId = this.fieldController.fieldInfos[this.fieldController.fieldInfos.length - 1].field.id;
+
+    await this.moveField({
+      fieldId: newFieldId,
+      fromIndex: this.fieldController.fieldInfos.length - 1,
+      toIndex: index + 1,
+    });
+  };
+
   private loadGroup = async () => {
     const result = await this.backendService.loadGroups();
+
     if (result.ok) {
       const groups = result.val.items;
+
       await this.initialGroups(groups);
     }
+
     return result;
   };
 
@@ -129,11 +195,14 @@ export class DatabaseController {
     });
 
     const controllers: DatabaseGroupController[] = [];
+
     for (const groupPB of groups) {
       const controller = new DatabaseGroupController(groupPB, this.backendService);
+
       await controller.initialize();
       controllers.push(controller);
     }
+
     this.groups.next(controllers);
     this.groups.value;
   };
@@ -150,14 +219,17 @@ export class DatabaseController {
           Log.error(result.val);
           return;
         }
+
         const changeset = result.val;
         let existControllers = [...this.groups.getValue()];
+
         for (const deleteId of changeset.deleted_groups) {
           existControllers = existControllers.filter((c) => c.groupId !== deleteId);
         }
 
         for (const update of changeset.update_groups) {
           const index = existControllers.findIndex((c) => c.groupId === update.group_id);
+
           if (index !== -1) {
             existControllers[index].updateGroup(update);
           }
@@ -165,12 +237,14 @@ export class DatabaseController {
 
         for (const insert of changeset.inserted_groups) {
           const controller = new DatabaseGroupController(insert.group, this.backendService);
+
           if (insert.index > existControllers.length) {
             existControllers.push(controller);
           } else {
             existControllers.splice(insert.index, 0, controller);
           }
         }
+
         this.groups.next(existControllers);
       },
     });
@@ -183,6 +257,7 @@ export class DatabaseController {
     await this.groupsObserver.unsubscribe();
     await this.backendService.closeDatabase();
     await this.fieldController.dispose();
+    this.filterController.dispose();
     await this.databaseViewCache.dispose();
   };
 }

@@ -31,6 +31,8 @@ dependencies:
     path: ../appflowy_popover
   flowy_infra:
     path: ../flowy_infra
+  flowy_svg:
+    path: ../flowy_svg
 
 dev_dependencies:
   flutter_test:

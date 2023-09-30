@@ -1,10 +1,12 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -91,7 +93,7 @@ class SelectOptionTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EdgeInsets padding =
-        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0);
+        const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8.0);
     if (onRemove != null) {
       padding = padding.copyWith(right: 2.0);
     }
@@ -108,21 +110,22 @@ class SelectOptionTag extends StatelessWidget {
           Flexible(
             child: FlowyText.medium(
               name,
+              fontSize: FontSizes.s11,
               overflow: TextOverflow.ellipsis,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: AFThemeExtension.of(context).textColor,
             ),
           ),
-          if (onRemove != null)
+          if (onRemove != null) ...[
+            const HSpace(2),
             FlowyIconButton(
               width: 18.0,
               onPressed: () => onRemove?.call(name),
-              fillColor: Colors.transparent,
               hoverColor: Colors.transparent,
-              icon: svgWidget(
-                'home/close',
-                color: Theme.of(context).colorScheme.onSurface,
+              icon: const FlowySvg(
+                FlowySvgs.close_s,
               ),
             ),
+          ]
         ],
       ),
     );
@@ -166,7 +169,8 @@ class SelectOptionTagCell extends StatelessWidget {
             ...children,
           ],
         ),
-        onTap: () => onSelected(option),
+        // TODO(richard): find alternative solution to onTapDown
+        onTapDown: (_) => onSelected(option),
       ),
     );
   }

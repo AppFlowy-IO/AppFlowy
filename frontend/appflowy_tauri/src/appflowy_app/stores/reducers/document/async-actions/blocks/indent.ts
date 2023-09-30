@@ -1,4 +1,3 @@
-import { DocumentState } from '$app/interfaces/document';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { blockConfig } from '$app/constants/document/config';

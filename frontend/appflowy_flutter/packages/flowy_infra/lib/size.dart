@@ -65,6 +65,9 @@ class Corners {
   static const BorderRadius s3Border = BorderRadius.all(s3Radius);
   static const Radius s3Radius = Radius.circular(3);
 
+  static const BorderRadius s4Border = BorderRadius.all(s4Radius);
+  static const Radius s4Radius = Radius.circular(4);
+
   static const BorderRadius s5Border = BorderRadius.all(s5Radius);
   static const Radius s5Radius = Radius.circular(5);
 

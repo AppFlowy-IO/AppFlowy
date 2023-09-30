@@ -1,31 +1,29 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DocumentController } from '$app/stores/effects/document/document_controller';
-import { BlockType, RangeStatic, SplitRelationship } from '$app/interfaces/document';
+import { BlockType, RangeStatic } from '$app/interfaces/document';
 import { turnToTextBlockThunk } from '$app_reducers/document/async-actions/turn_to';
 import {
-  findNextHasDeltaNode,
-  findPrevHasDeltaNode,
-  getInsertEnterNodeAction,
   getLeftCaretByRange,
   getRightCaretByRange,
   transformToNextLineCaret,
   transformToPrevLineCaret,
 } from '$app/utils/document/action';
-import Delta from 'quill-delta';
-import { indentNodeThunk, mergeDeltaThunk, outdentNodeThunk } from '$app_reducers/document/async-actions/blocks';
+import { indentNodeThunk, outdentNodeThunk } from '$app_reducers/document/async-actions/blocks';
 import { rangeActions } from '$app_reducers/document/slice';
 import { RootState } from '$app/stores/store';
-import { blockConfig } from '$app/constants/document/config';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { DOCUMENT_NAME, RANGE_NAME } from '$app/constants/document/name';
 import { getPreviousWordIndex } from '$app/utils/document/delta';
+import { updatePageName } from '$app_reducers/pages/async_actions';
+import { BlockDeltaOperator } from '$app/utils/document/block_delta';
+import { setCursorRangeThunk } from '$app_reducers/document/async-actions/cursor';
 
 /**
- * Delete a block by backspace or delete key
- * 1. If the block is not a text block, turn it to a text block
- * 2. If the block is a text block
- *   2.1 If the block has next node or is top level, merge it to the previous line
- *   2.2 If the block has no next node and is not top level, outdent it
+ - Deletes a block using the backspace or delete key.
+ - If the block is not a text block, it is converted into a text block.
+ - If the block is a text block:
+ - - If the block has a next sibling, it is merged into the prev line (including its children).
+ - - If the block has no next sibling, it is outdented (moved to a higher level in the hierarchy).
  */
 export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
   'document/backspaceDeleteActionForBlock',
@@ -37,6 +35,14 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
     const node = state.nodes[id];
 
     if (!node.parent) return;
+    const deltaOperator = new BlockDeltaOperator(state, controller, async (name: string) => {
+      await dispatch(
+        updatePageName({
+          id: docId,
+          name,
+        })
+      );
+    });
     const parent = state.nodes[node.parent];
     const children = state.children[parent.children];
     const index = children.indexOf(id);
@@ -52,30 +58,28 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
 
     if (isTopLevel || nextNodeId) {
       // merge to previous line
-      const prevLine = findPrevHasDeltaNode(state, id);
+      const prevLineId = deltaOperator.findPrevTextLine(id);
 
-      if (!prevLine) return;
-      const caretIndex = new Delta(prevLine.data.delta).length();
+      if (!prevLineId) return;
+
+      const res = await deltaOperator.mergeText(prevLineId, id);
+
+      if (!res) return;
       const caret = {
-        id: prevLine.id,
-        index: caretIndex,
+        id: res.id,
+        index: res.index,
         length: 0,
       };
 
-      await dispatch(
-        mergeDeltaThunk({
-          sourceId: id,
-          targetId: prevLine.id,
-          controller,
-        })
-      );
-      dispatch(rangeActions.initialState(docId));
       dispatch(
-        rangeActions.setCaret({
+        setCursorRangeThunk({
           docId,
-          caret,
+          blockId: caret.id,
+          index: caret.index,
+          length: caret.length,
         })
       );
+
       return;
     }
 
@@ -85,10 +89,9 @@ export const backspaceDeleteActionForBlockThunk = createAsyncThunk(
 );
 
 /**
- * Insert a new node after the current node by pressing enter.
- * 1. Split the current node into two nodes.
- * 2. Insert a new node after the current node.
- * 3. Move the children of the current node to the new node if needed.
+ * enter key handler
+ * 1. If node is empty, and it is not a text block, turn it into a text block.
+ * 2. Otherwise, split the node into two nodes.
  */
 export const enterActionForBlockThunk = createAsyncThunk(
   'document/insertNodeByEnter',
@@ -102,51 +105,45 @@ export const enterActionForBlockThunk = createAsyncThunk(
     const caret = state[RANGE_NAME][docId]?.caret;
 
     if (!node || !caret || caret.id !== id) return;
-    const delta = new Delta(node.data.delta);
 
-    if (delta.length() === 0 && node.type !== BlockType.TextBlock) {
+    const deltaOperator = new BlockDeltaOperator(documentState, controller, async (name: string) => {
+      await dispatch(
+        updatePageName({
+          id: docId,
+          name,
+        })
+      );
+    });
+    const isDocumentTitle = !node.parent;
+    let newLineId;
+
+    const delta = deltaOperator.getDeltaWithBlockId(node.id);
+
+    if (!delta) return;
+    if (!isDocumentTitle && delta.length() === 0 && node.type !== BlockType.TextBlock) {
       // If the node is not a text block, turn it to a text block
       await dispatch(turnToTextBlockThunk({ id, controller }));
       return;
     }
 
-    const nodeDelta = delta.slice(0, caret.index);
-
-    const insertNodeDelta = new Delta(node.data.delta).slice(caret.index + caret.length);
-
-    const insertNodeAction = getInsertEnterNodeAction(node, insertNodeDelta, controller);
-
-    if (!insertNodeAction) return;
-    const updateNode = {
-      ...node,
-      data: {
-        ...node.data,
-        delta: nodeDelta.ops,
+    newLineId = await deltaOperator.splitText(
+      {
+        id: node.id,
+        index: caret.index,
       },
-    };
+      {
+        id: node.id,
+        index: caret.index + caret.length,
+      }
+    );
 
-    const children = documentState.children[node.children];
-    const needMoveChildren = blockConfig[node.type].splitProps?.nextLineRelationShip === SplitRelationship.NextSibling;
-    const moveChildrenAction = needMoveChildren
-      ? controller.getMoveChildrenAction(
-          children.map((id) => documentState.nodes[id]),
-          insertNodeAction.id,
-          ''
-        )
-      : [];
-    const actions = [insertNodeAction.action, controller.getUpdateAction(updateNode), ...moveChildrenAction];
-
-    await controller.applyActions(actions);
-
-    dispatch(rangeActions.initialState(docId));
+    if (!newLineId) return;
     dispatch(
-      rangeActions.setCaret({
+      setCursorRangeThunk({
         docId,
-        caret: {
-          id: insertNodeAction.id,
-          index: 0,
-          length: 0,
-        },
+        blockId: newLineId,
+        index: 0,
+        length: 0,
       })
     );
   }
@@ -209,7 +206,10 @@ export const leftActionForBlockThunk = createAsyncThunk(
 
     if (!node || !caret || id !== caret.id) return;
     let newCaret: RangeStatic;
+    const deltaOperator = new BlockDeltaOperator(documentState);
+    const delta = deltaOperator.getDeltaWithBlockId(node.id);
 
+    if (!delta) return;
     if (caret.length > 0) {
       newCaret = {
         id,
@@ -218,7 +218,6 @@ export const leftActionForBlockThunk = createAsyncThunk(
       };
     } else {
       if (caret.index > 0) {
-        const delta = new Delta(node.data.delta);
         const newIndex = getPreviousWordIndex(delta, caret.index);
 
         newCaret = {
@@ -227,13 +226,14 @@ export const leftActionForBlockThunk = createAsyncThunk(
           length: 0,
         };
       } else {
-        const prevNode = findPrevHasDeltaNode(documentState, id);
+        const prevNodeId = deltaOperator.findPrevTextLine(id);
 
-        if (!prevNode) return;
-        const prevDelta = new Delta(prevNode.data.delta);
+        if (!prevNodeId) return;
+        const prevDelta = deltaOperator.getDeltaWithBlockId(prevNodeId);
 
+        if (!prevDelta) return;
         newCaret = {
-          id: prevNode.id,
+          id: prevNodeId,
           index: prevDelta.length(),
           length: 0,
         };
@@ -267,7 +267,10 @@ export const rightActionForBlockThunk = createAsyncThunk(
 
     if (!node || !caret || id !== caret.id) return;
     let newCaret: RangeStatic;
-    const delta = new Delta(node.data.delta);
+    const deltaOperator = new BlockDeltaOperator(documentState);
+    const delta = deltaOperator.getDeltaWithBlockId(node.id);
+
+    if (!delta) return;
     const deltaLength = delta.length();
 
     if (caret.length > 0) {
@@ -286,11 +289,11 @@ export const rightActionForBlockThunk = createAsyncThunk(
           length: 0,
         };
       } else {
-        const nextNode = findNextHasDeltaNode(documentState, id);
+        const nextNodeId = deltaOperator.findNextTextLine(id);
 
-        if (!nextNode) return;
+        if (!nextNodeId) return;
         newCaret = {
-          id: nextNode.id,
+          id: nextNodeId,
           index: 0,
           length: 0,
         };

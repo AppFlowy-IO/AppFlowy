@@ -65,7 +65,8 @@ class _DocumentPageState extends State<DocumentPage> {
       child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
           return state.loadingState.when(
-            loading: () => const SizedBox.shrink(),
+            loading: () =>
+                const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.fold(
               (error) {
                 Log.error(error);
@@ -101,7 +102,8 @@ class _DocumentPageState extends State<DocumentPage> {
       editorState: editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,
-        padding: const EdgeInsets.symmetric(horizontal: 50),
+        // the 44 is the width of the left action list
+        padding: const EdgeInsets.only(left: 40, right: 40 + 44),
       ),
       header: _buildCoverAndIcon(context),
     );

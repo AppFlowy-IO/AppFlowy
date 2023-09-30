@@ -17,9 +17,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.tapAddButton();
-      await tester.tapCreateDocumentButton();
-      await tester.pumpAndSettle();
+      await tester.createNewPageWithName();
 
       // expect to see a new document
       tester.expectToSeePageName(
@@ -35,19 +33,21 @@ void main() {
       await tester.tapGoButton();
 
       // delete the readme page
-      await tester.hoverOnPageName(readme);
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        gettingStarted,
+        onHover: () async => await tester.tapDeletePageButton(),
+      );
 
       // the banner should show up and the readme page should be gone
       tester.expectToSeeDocumentBanner();
-      tester.expectNotToSeePageName(readme);
+      tester.expectNotToSeePageName(gettingStarted);
 
       // restore the readme page
       await tester.tapRestoreButton();
 
       // the banner should be gone and the readme page should be back
       tester.expectNotToSeeDocumentBanner();
-      tester.expectToSeePageName(readme);
+      tester.expectToSeePageName(gettingStarted);
     });
 
     testWidgets('delete the readme page and delete it permanently',
@@ -57,19 +57,21 @@ void main() {
       await tester.tapGoButton();
 
       // delete the readme page
-      await tester.hoverOnPageName(readme);
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        gettingStarted,
+        onHover: () async => await tester.tapDeletePageButton(),
+      );
 
       // the banner should show up and the readme page should be gone
       tester.expectToSeeDocumentBanner();
-      tester.expectNotToSeePageName(readme);
+      tester.expectNotToSeePageName(gettingStarted);
 
       // delete the page permanently
       await tester.tapDeletePermanentlyButton();
 
       // the banner should be gone and the readme page should be gone
       tester.expectNotToSeeDocumentBanner();
-      tester.expectNotToSeePageName(readme);
+      tester.expectNotToSeePageName(gettingStarted);
     });
   });
 }

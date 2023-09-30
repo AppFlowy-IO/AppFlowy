@@ -30,19 +30,10 @@ class InitRustSDKTask extends LaunchTask {
 }
 
 AppFlowyEnv getAppFlowyEnv() {
-  final postgresConfig = PostgresConfiguration(
-    url: Env.supabaseDb,
-    password: Env.supabaseDbPassword,
-    port: int.parse(Env.supabaseDbPort),
-    user_name: Env.supabaseDbUser,
-  );
-
   final supabaseConfig = SupabaseConfiguration(
-    enable_sync: Env.enableSupabaseSync,
+    enable_sync: true,
     url: Env.supabaseUrl,
-    key: Env.supabaseKey,
-    jwt_secret: Env.supabaseJwtSecret,
-    postgres_config: postgresConfig,
+    anon_key: Env.supabaseAnonKey,
   );
 
   return AppFlowyEnv(
@@ -53,7 +44,7 @@ AppFlowyEnv getAppFlowyEnv() {
 /// The default directory to store the user data. The directory can be
 /// customized by the user via the [ApplicationDataStorage]
 Future<Directory> appFlowyApplicationDataDirectory() async {
-  switch (integrationEnv()) {
+  switch (integrationMode()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
         ..create();

@@ -17,7 +17,7 @@ export const NewCheckListButton = ({
   return (
     <button
       onClick={() => newOptionClick()}
-      className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-shade-6'}
+      className={'flex w-full items-center gap-2 rounded-lg px-2 py-2 hover:bg-line-divider'}
     >
       <i className={'h-5 w-5'}>
         <AddSvg></AddSvg>

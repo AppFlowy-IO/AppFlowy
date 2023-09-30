@@ -6,8 +6,10 @@ import Typography from '@mui/material/Typography';
 import { Page } from '$app_reducers/pages/slice';
 import { useNavigate } from 'react-router-dom';
 import { pageTypeMap } from '$app/constants';
+import { useTranslation } from 'react-i18next';
 
 function Breadcrumb() {
+  const { t } = useTranslation();
   const { pagePath } = useLoadExpandedPages();
   const navigate = useNavigate();
   const activePage = useMemo(() => pagePath[pagePath.length - 1], [pagePath]);
@@ -35,7 +37,7 @@ function Breadcrumb() {
           {page.name}
         </Link>
       ))}
-      <Typography color='text.primary'>{activePage?.name}</Typography>
+      <Typography color='text.primary'>{activePage?.name || t('menuAppHeader.defaultNewPageName')}</Typography>
     </Breadcrumbs>
   );
 }

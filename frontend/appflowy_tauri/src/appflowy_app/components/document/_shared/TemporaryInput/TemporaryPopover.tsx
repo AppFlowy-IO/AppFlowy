@@ -8,6 +8,7 @@ import { formatTemporary } from '$app_reducers/document/async-actions/temporary'
 import { useAppDispatch } from '$app/stores/store';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 import { useSubscribeTemporary } from '$app/components/document/_shared/SubscribeTemporary.hooks';
+import LinkEditContent from '$app/components/document/_shared/TemporaryInput/LinkEditContent';
 
 const AFTER_RENDER_DELAY = 100;
 
@@ -16,6 +17,7 @@ function TemporaryPopover() {
   const anchorPosition = useMemo(() => temporaryState?.popoverPosition, [temporaryState]);
   const open = Boolean(anchorPosition);
   const id = temporaryState?.id;
+  const type = temporaryState?.type;
   const dispatch = useAppDispatch();
   const { docId, controller } = useSubscribeDocument();
 
@@ -97,12 +99,23 @@ function TemporaryPopover() {
       case TemporaryType.Equation:
         return (
           <EquationEditContent
-            value={data.latex}
+            value={data.latex || ''}
             onChange={(latex: string) =>
               onChangeData({
                 latex,
               })
             }
+            onConfirm={onConfirm}
+          />
+        );
+      case TemporaryType.Link:
+        return (
+          <LinkEditContent
+            value={{
+              href: data.href || '',
+              text: data.text || '',
+            }}
+            onChange={(val: { href: string; text: string }) => onChangeData(val)}
             onConfirm={onConfirm}
           />
         );

@@ -22,7 +22,7 @@ async fn grid_filter_checkbox_is_check_test() {
 #[tokio::test]
 async fn grid_filter_checkbox_is_uncheck_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 3;
+  let expected = 4;
   let row_count = test.row_details.len();
   let scripts = vec![
     CreateCheckboxFilter {

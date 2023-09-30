@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { List, MenuItem, Popover, Portal } from '@mui/material';
+import { List, MenuItem, Popover, Portal, Theme } from '@mui/material';
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
+import { SxProps } from '@mui/system';
 
 interface ButtonPopoverListProps {
   isVisible: boolean;
   children: React.ReactNode;
   popoverOptions: {
-    key: string;
+    key: React.Key;
     icon: React.ReactNode;
     label: React.ReactNode | string;
     onClick: () => void;
@@ -15,8 +16,11 @@ interface ButtonPopoverListProps {
     anchorOrigin: PopoverOrigin;
     transformOrigin: PopoverOrigin;
   };
+  onClose?: () => void;
+  sx?: SxProps<Theme>;
 }
-function ButtonPopoverList({ popoverOrigin, isVisible, children, popoverOptions }: ButtonPopoverListProps) {
+
+function ButtonPopoverList({ popoverOrigin, isVisible, children, popoverOptions, onClose, sx }: ButtonPopoverListProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement>();
   const open = Boolean(anchorEl);
   const visible = isVisible || open;
@@ -32,8 +36,16 @@ function ButtonPopoverList({ popoverOrigin, isVisible, children, popoverOptions 
     <>
       {visible && <div onClick={handleClick}>{children}</div>}
       <Portal>
-        <Popover open={open} {...popoverOrigin} anchorEl={anchorEl} onClose={handleClose}>
-          <List>
+        <Popover
+          open={open}
+          {...popoverOrigin}
+          anchorEl={anchorEl}
+          onClose={() => {
+            handleClose();
+            onClose?.();
+          }}
+        >
+          <List sx={{ ...sx }}>
             {popoverOptions.map((option) => (
               <MenuItem
                 key={option.key}

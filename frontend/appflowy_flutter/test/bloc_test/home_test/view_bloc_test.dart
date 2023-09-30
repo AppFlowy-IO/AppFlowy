@@ -69,4 +69,32 @@ void main() {
 
     assert(appBloc.state.views.isEmpty);
   });
+
+  test('create nested view test', () async {
+    final app = await testContext.createTestApp();
+
+    final appBloc = AppBloc(view: app);
+    appBloc
+      ..add(
+        const AppEvent.initial(),
+      )
+      ..add(
+        const AppEvent.createView('Document 1', ViewLayoutPB.Document),
+      );
+    await blocResponseFuture();
+
+    // create a nested view
+    const name = 'Document 1 - 1';
+    final viewBloc = ViewBloc(view: appBloc.state.views.first);
+    viewBloc
+      ..add(
+        const ViewEvent.initial(),
+      )
+      ..add(
+        const ViewEvent.createView(name, ViewLayoutPB.Document),
+      );
+    await blocResponseFuture();
+
+    assert(viewBloc.state.childViews.first.name == name);
+  });
 }

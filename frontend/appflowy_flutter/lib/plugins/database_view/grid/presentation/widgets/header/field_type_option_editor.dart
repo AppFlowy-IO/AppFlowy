@@ -1,9 +1,10 @@
 import 'dart:typed_data';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_type_option_edit_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_controller.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -115,8 +116,8 @@ class SwitchFieldButton extends StatelessWidget {
       text: FlowyText.medium(
         bloc.state.field.fieldType.title(),
       ),
-      leftIcon: FlowySvg(name: bloc.state.field.fieldType.iconName()),
-      rightIcon: const FlowySvg(name: 'grid/more'),
+      leftIcon: FlowySvg(bloc.state.field.fieldType.icon()),
+      rightIcon: const FlowySvg(FlowySvgs.more_s),
     );
   }
 }

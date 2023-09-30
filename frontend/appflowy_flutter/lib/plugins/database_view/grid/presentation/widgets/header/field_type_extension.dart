@@ -1,28 +1,29 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
 extension FieldTypeListExtension on FieldType {
-  String iconName() {
+  FlowySvgData icon() {
     switch (this) {
       case FieldType.Checkbox:
-        return "grid/field/checkbox";
+        return FlowySvgs.checkbox_s;
       case FieldType.DateTime:
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
-        return "grid/field/date";
+        return FlowySvgs.date_s;
       case FieldType.MultiSelect:
-        return "grid/field/multi_select";
+        return FlowySvgs.multiselect_s;
       case FieldType.Number:
-        return "grid/field/number";
+        return FlowySvgs.numbers_s;
       case FieldType.RichText:
-        return "grid/field/text";
+        return FlowySvgs.text_s;
       case FieldType.SingleSelect:
-        return "grid/field/single_select";
+        return FlowySvgs.status_s;
       case FieldType.URL:
-        return "grid/field/url";
+        return FlowySvgs.attach_s;
       case FieldType.Checklist:
-        return "grid/field/checklist";
+        return FlowySvgs.checklist_s;
     }
     throw UnimplementedError;
   }

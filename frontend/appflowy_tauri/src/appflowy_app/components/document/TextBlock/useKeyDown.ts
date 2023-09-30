@@ -10,9 +10,10 @@ import {
 import { useTurnIntoBlockEvents } from './useTurnIntoBlockEvents';
 import { useCommonKeyEvents } from '../_shared/EditorHooks/useCommonKeyEvents';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
+import { openMention } from '$app_reducers/document/async-actions/mention';
 
 export function useKeyDown(id: string) {
-  const { controller } = useSubscribeDocument();
+  const { controller, docId } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const turnIntoEvents = useTurnIntoBlockEvents(id);
   const commonKeyEvents = useCommonKeyEvents(id);

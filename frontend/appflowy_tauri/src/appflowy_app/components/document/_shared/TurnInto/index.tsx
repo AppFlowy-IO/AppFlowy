@@ -31,10 +31,12 @@ interface Option {
 const TurnIntoPopover = ({
   id,
   onClose,
+  onOk,
   ...props
 }: {
   id: string;
   onClose?: () => void;
+  onOk?: () => void;
 } & PopoverProps) => {
   const { node } = useSubscribeNode(id);
   const { turnIntoHeading, turnIntoBlock } = useTurnInto({ node, onClose });
@@ -142,8 +144,9 @@ const TurnIntoPopover = ({
       const isSelected = getSelected(option);
 
       option.onClick ? option.onClick(option.type, isSelected) : turnIntoBlock(option.type, isSelected);
+      onOk?.();
     },
-    [getSelected, turnIntoBlock]
+    [onOk, getSelected, turnIntoBlock]
   );
 
   const onKeyDown = useCallback(

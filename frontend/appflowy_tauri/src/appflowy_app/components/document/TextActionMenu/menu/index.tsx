@@ -3,6 +3,8 @@ import React, { useCallback } from 'react';
 import TurnIntoSelect from '$app/components/document/TextActionMenu/menu/TurnIntoSelect';
 import FormatButton from '$app/components/document/TextActionMenu/menu/FormatButton';
 import { useTextActionMenu } from '$app/components/document/TextActionMenu/menu/index.hooks';
+import TextColorPicker from '$app/components/document/TextActionMenu/menu/TextColorPicker';
+import BgColorPicker from '$app/components/document/TextActionMenu/menu/BgColorPicker';
 
 function TextActionMenuList() {
   const { groupItems, isSingleLine, focusId } = useTextActionMenu();
@@ -19,6 +21,10 @@ function TextActionMenuList() {
         case TextAction.Code:
         case TextAction.Equation:
           return <FormatButton format={action} icon={action} />;
+        case TextAction.TextColor:
+          return <TextColorPicker />;
+        case TextAction.Highlight:
+          return <BgColorPicker />;
         default:
           return null;
       }

@@ -1,9 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/checkbox_filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +108,12 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
       height: 20,
       child: Row(
         children: [
-          FlowyText(state.filterInfo.fieldInfo.name),
+          Expanded(
+            child: FlowyText(
+              state.filterInfo.fieldInfo.field.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const HSpace(4),
           CheckboxFilterConditionList(
             filterInfo: state.filterInfo,
@@ -118,7 +124,6 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
                   .add(CheckboxFilterEditorEvent.updateCondition(condition));
             },
           ),
-          const Spacer(),
           DisclosureButton(
             popoverMutex: popoverMutex,
             onAction: (action) {
@@ -186,7 +191,7 @@ class ConditionWrapper extends ActionCell {
   @override
   Widget? rightIcon(Color iconColor) {
     if (isSelected) {
-      return svgWidget("grid/checkmark");
+      return const FlowySvg(FlowySvgs.check_s);
     } else {
       return null;
     }

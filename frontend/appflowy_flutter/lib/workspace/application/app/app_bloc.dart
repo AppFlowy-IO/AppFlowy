@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:expandable/expandable.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';

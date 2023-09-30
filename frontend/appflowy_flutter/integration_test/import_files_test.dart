@@ -16,10 +16,10 @@ void main() {
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      // expect to see a readme page
-      tester.expectToSeePageName(readme);
+      // expect to see a getting started page
+      tester.expectToSeePageName(gettingStarted);
 
-      await tester.tapAddButton();
+      await tester.tapAddViewButton();
       await tester.tapImportButton();
 
       final testFileNames = ['test1.md', 'test2.md'];

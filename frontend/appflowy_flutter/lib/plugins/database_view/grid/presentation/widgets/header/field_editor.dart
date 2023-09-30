@@ -1,9 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -52,8 +52,13 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final bool requireSpace = widget.onDeleted != null ||
+        widget.onHidden != null ||
+        !widget.typeOptionLoader.field.isPrimary;
+
     final List<Widget> children = [
       FieldNameTextField(popoverMutex: popoverMutex),
+      if (requireSpace) const VSpace(4),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
       if (widget.onHidden != null) _addHideFieldButton(),
       if (!widget.typeOptionLoader.field.isPrimary)
@@ -102,7 +107,7 @@ class _FieldEditorState extends State<FieldEditor> {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: _HideFieldButton(
+          child: HideFieldButton(
             popoverMutex: popoverMutex,
             onHidden: () {
               state.field.fold(
@@ -163,6 +168,8 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
 
   @override
   void initState() {
+    super.initState();
+
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         widget.popoverMutex.close();
@@ -174,40 +181,40 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
         focusNode.unfocus();
       }
     });
-
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FieldEditorBloc, FieldEditorState>(
-      listenWhen: (p, c) => p.field == none(),
-      listener: (context, state) {
-        textController.text = state.name;
-        focusNode.requestFocus();
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: FlowyTextField(
+            focusNode: focusNode,
+            controller: textController,
+            onSubmitted: (String _) => PopoverContainer.of(context).close(),
+            text: state.name,
+            errorText: state.errorText.isEmpty ? null : state.errorText,
+            onChanged: (newName) {
+              context
+                  .read<FieldEditorBloc>()
+                  .add(FieldEditorEvent.updateName(newName));
+            },
+          ),
+        );
       },
-      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        buildWhen: (previous, current) =>
-            previous.errorText != current.errorText,
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: FlowyTextField(
-              focusNode: focusNode,
-              controller: textController,
-              onSubmitted: (String _) => PopoverContainer.of(context).close(),
-              text: state.name,
-              errorText: state.errorText.isEmpty ? null : state.errorText,
-              onChanged: (newName) {
-                context
-                    .read<FieldEditorBloc>()
-                    .add(FieldEditorEvent.updateName(newName));
-              },
-            ),
-          );
-        },
-      ),
     );
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(() {
+      if (focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    focusNode.dispose();
+    super.dispose();
   }
 }
 
@@ -233,7 +240,7 @@ class _DeleteFieldButton extends StatelessWidget {
             LocaleKeys.grid_field_delete.tr(),
             color: enable ? null : Theme.of(context).disabledColor,
           ),
-          leftIcon: const FlowySvg(name: 'grid/delete'),
+          leftIcon: const FlowySvg(FlowySvgs.delete_s),
           onTap: () {
             if (enable) onDeleted?.call();
           },
@@ -245,11 +252,12 @@ class _DeleteFieldButton extends StatelessWidget {
   }
 }
 
-class _HideFieldButton extends StatelessWidget {
+@visibleForTesting
+class HideFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   final VoidCallback? onHidden;
 
-  const _HideFieldButton({
+  const HideFieldButton({
     required this.popoverMutex,
     required this.onHidden,
     Key? key,
@@ -264,7 +272,7 @@ class _HideFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_hide.tr(),
           ),
-          leftIcon: const FlowySvg(name: 'grid/hide'),
+          leftIcon: const FlowySvg(FlowySvgs.hide_s),
           onTap: () => onHidden?.call(),
           onHover: (_) => popoverMutex.close(),
         );

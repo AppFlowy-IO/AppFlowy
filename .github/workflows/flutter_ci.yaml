@@ -134,6 +134,7 @@ jobs:
             fail_ci_if_error: true
             verbose: true
             os: ${{ matrix.os }}
+            token: ${{ secrets.CODECOV_TOKEN }}
           attempt_limit: 20
           attempt_delay: 10000
 

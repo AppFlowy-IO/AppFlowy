@@ -68,6 +68,14 @@ Contributions make the open-source community a fantastic place to learn, inspire
 If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, **Congratulations!** If your administrative and managerial work behind the scenes sustains the community, **Congratulations!** You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
 Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
 
+
+## Translations 🌎🗺
+
+[![translation badge](https://inlang.com/badge?url=github.com/AppFlowy-IO/AppFlowy)](https://inlang.com/editor/github.com/AppFlowy-IO/AppFlowy?ref=badge)
+
+To add translations, you can manually edit the JSON translation files in `/frontend/appflowy_flutter/assets/translations`, use the [inlang online editor](https://inlang.com/editor/github.com/AppFlowy-IO/AppFlowy), or run `npx inlang machine translate` to add missing translations.
+
+
 ## Join the community to build AppFlowy together
 
 <a href="https://github.com/AppFlowy-IO/AppFlowy/graphs/contributors">

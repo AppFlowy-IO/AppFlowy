@@ -1,9 +1,9 @@
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_error::FlowyError;
+
 use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::entities::ViewLayoutPB;
 use crate::share::{ImportParams, ImportType};
-
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::FlowyError;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
 pub enum ImportTypePB {
@@ -69,7 +69,7 @@ impl TryInto<ImportParams> for ImportPB {
       None => None,
       Some(file_path) => Some(
         NotEmptyStr::parse(file_path)
-          .map_err(|_| FlowyError::invalid_data().context("The import file path is empty"))?
+          .map_err(|_| FlowyError::invalid_data().with_context("The import file path is empty"))?
           .0,
       ),
     };

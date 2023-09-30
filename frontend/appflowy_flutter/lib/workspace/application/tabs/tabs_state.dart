@@ -31,6 +31,11 @@ class TabsState {
   }
 
   TabsState closeView(String pluginId) {
+    // Avoid closing the only open tab
+    if (_pageManagers.length == 1) {
+      return this;
+    }
+
     _pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
 
     /// If currentIndex is greater than the amount of allowed indices
@@ -77,6 +82,10 @@ class TabsState {
 
     if (index == -1) {
       return null;
+    }
+
+    if (index == currentIndex) {
+      return this;
     }
 
     return copyWith(newIndex: index);

@@ -10,7 +10,7 @@ function WorkspaceManager() {
 
   return (
     <div className={'flex h-[100%] flex-col justify-between'}>
-      <List className={'flex-1 overflow-y-auto overflow-x-hidden'}>
+      <List className={'flex-1 overflow-hidden'}>
         {workspaces.map((workspace) => (
           <Workspace opened={currentWorkspace?.id === workspace.id} key={workspace.id} workspace={workspace} />
         ))}

@@ -28,6 +28,16 @@ pub fn make_se_token_stream(ast_result: &ASTResult, ast: &ASTContainer) -> Optio
           }
       }
 
+      impl std::convert::TryInto<Vec<u8>> for #struct_ident {
+          type Error = ::protobuf::ProtobufError;
+          fn try_into(self) -> Result<Vec<u8>, Self::Error> {
+              use protobuf::Message;
+              let pb: crate::protobuf::#pb_ty = self.into();
+              let bytes = pb.write_to_bytes()?;
+              Ok(bytes)
+          }
+      }
+
       impl std::convert::From<#struct_ident> for crate::protobuf::#pb_ty {
           fn from(mut o: #struct_ident) -> crate::protobuf::#pb_ty {
               let mut pb = crate::protobuf::#pb_ty::new();

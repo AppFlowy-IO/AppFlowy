@@ -2,9 +2,10 @@ use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectO
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
+use crate::services::sort::SortCondition;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
@@ -32,7 +33,7 @@ impl From<ChecklistTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionCellData for ChecklistTypeOption {
+impl TypeOptionCellDataSerde for ChecklistTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -86,7 +87,7 @@ impl CellDataChangeset for ChecklistTypeOption {
 #[inline]
 fn update_cell_data_with_changeset(
   cell_data: &mut ChecklistCellData,
-  mut changeset: ChecklistCellChangeset,
+  changeset: ChecklistCellChangeset,
 ) {
   // Delete the options
   cell_data
@@ -97,12 +98,6 @@ fn update_cell_data_with_changeset(
     .retain(|option_id| !changeset.delete_option_ids.contains(option_id));
 
   // Insert new options
-  changeset.insert_options.retain(|option_name| {
-    !cell_data
-      .options
-      .iter()
-      .any(|option| option.name == *option_name)
-  });
   changeset
     .insert_options
     .into_iter()
@@ -191,6 +186,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
+    _sort_condition: SortCondition,
   ) -> Ordering {
     let left = cell_data.percentage_complete();
     let right = other_cell_data.percentage_complete();

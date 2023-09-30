@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Iratkozz fel a hírlevelünkre",
   "letsGoButtonText": "Vágjunk bele",
   "title": "Cím",
+  "youCanAlso": "Te is",
+  "and": "és",
+  "blockActions": {
+    "addBelowTooltip": "Kattintson a hozzáadáshoz lent",
+    "addAboveCmd": "Alt+kattintás",
+    "addAboveMacCmd": "Option+kattintás",
+    "addAboveTooltip": "a fentiek hozzáadásához"
+  },
   "signUp": {
     "buttonText": "Regisztráció",
     "title": "Regisztrálj az @:appName -ra",
@@ -27,7 +35,8 @@
     "passwordHint": "Jelszó",
     "dontHaveAnAccount": "Még nincs fiókod?",
     "repeatPasswordEmptyError": "A jelszó megerősítése nem lehet üres",
-    "unmatchedPasswordError": "A jelszavak nem egyeznek"
+    "unmatchedPasswordError": "A jelszavak nem egyeznek",
+    "loginAsGuestButtonText": "Fogj neki"
   },
   "workspace": {
     "create": "Új munkaterület létrehozása",
@@ -40,10 +49,26 @@
     "markdown": "Markdown",
     "copyLink": "Link másolása"
   },
+  "moreAction": {
+    "small": "kicsi",
+    "medium": "közepes",
+    "large": "nagy",
+    "fontSize": "Betűméret",
+    "import": "Importálás",
+    "moreOptions": "Több lehetőség"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Szöveg & Markdown",
+    "documentFromV010": "Dokumentum a 0.1.0 verzióból",
+    "databaseFromV010": "Adatbázis a 0.1.0 verziótól",
+    "csv": "CSV",
+    "database": "Adatbázis"
+  },
   "disclosureAction": {
     "rename": "Átnevezés",
     "delete": "Törlés",
-    "duplicate": "Duplikálás"
+    "duplicate": "Duplikálás",
+    "openNewTab": "Nyissa meg egy új lapon"
   },
   "blankPageTitle": "Üres oldal",
   "newPageText": "Új oldal",
@@ -55,6 +80,14 @@
       "fileName": "Fájlnév",
       "lastModified": "Utoljára módosítva",
       "created": "Létrehozva"
+    },
+    "confirmDeleteAll": {
+      "title": "Biztosan törli a kukában lévő összes oldalt?",
+      "caption": "Ez a művelet nem visszavonható."
+    },
+    "confirmRestoreAll": {
+      "title": "Biztosan visszaállítja a kukában lévő összes oldalt?",
+      "caption": "Ez a művelet nem visszavonható."
     }
   },
   "deletePagePrompt": {
@@ -64,13 +97,16 @@
   },
   "dialogCreatePageNameHint": "Oldalnév",
   "questionBubble": {
+    "shortcuts": "Parancsikonok",
     "whatsNew": "Újdonságok",
     "help": "Segítség & Támogatás",
+    "markdown": "Árleszállítás",
     "debug": {
       "name": "Debug Információ",
       "success": "Debug információ a vágólapra másolva",
       "fail": "A Debug információ nem másolható a vágólapra"
-    }
+    },
+    "feedback": "Visszacsatolás"
   },
   "menuAppHeader": {
     "addPageTooltip": "Belső oldal hozzáadása",
@@ -90,11 +126,31 @@
     "inlineCode": "Inline kód",
     "quote": "Idézet",
     "header": "Címsor",
-    "highlight": "Kiemelés"
+    "highlight": "Kiemelés",
+    "color": "Szín",
+    "addLink": "Link hozzáadása",
+    "link": "Link"
   },
   "tooltip": {
     "lightMode": "Világos mód",
-    "darkMode": "Éjjeli mód"
+    "darkMode": "Éjjeli mód",
+    "openAsPage": "Megnyitás oldalként",
+    "addNewRow": "Új sor hozzáadása",
+    "openMenu": "Kattintson a menü megnyitásához",
+    "dragRow": "Nyomja meg hosszan a sor átrendezéséhez",
+    "viewDataBase": "Adatbázis megtekintése",
+    "referencePage": "Erre a(z) {name} címre hivatkoznak",
+    "addBlockBelow": "Adjon hozzá egy blokkot alább"
+  },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Megjegyzés exportálva a Markdownba",
+      "path": "Dokumentumok/flowy"
+    }
   },
   "contactsPage": {
     "title": "Kontaktok",
@@ -104,11 +160,25 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Kész",
     "Cancel": "Mégse",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
-    "save": "Mentés"
+    "save": "Mentés",
+    "generate": "generál",
+    "esc": "KILÉPÉS",
+    "keep": "Tart",
+    "tryAgain": "Próbáld újra",
+    "discard": "Eldobni",
+    "replace": "Cserélje ki",
+    "insertBelow": "Beszúrás alább",
+    "upload": "Feltöltés",
+    "edit": "Szerkesztés",
+    "delete": "Töröl",
+    "duplicate": "Másolat",
+    "done": "Kész",
+    "putback": "Visszatesz"
   },
   "label": {
     "welcome": "Üdvözlünk!",
@@ -135,21 +205,394 @@
     "menu": {
       "appearance": "Megjelenés",
       "language": "Nyelv",
-      "open": "Beállítások megnyitása"
+      "user": "Felhasználó",
+      "files": "Fájlok",
+      "open": "Beállítások megnyitása",
+      "supabaseSetting": "Supabase beállítás"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Betűtípus család",
+        "search": "Keresés"
+      },
       "themeMode": {
         "label": "Téma",
         "light": "Világos mód",
         "dark": "Éjjeli mód",
         "system": "Rendszerbeállítás követése"
+      },
+      "themeUpload": {
+        "button": "Feltöltés",
+        "description": "Töltse fel saját AppFlowy témáját az alábbi gomb segítségével.",
+        "failure": "A feltöltött téma formátuma érvénytelen.",
+        "loading": "Kérjük, várjon, amíg ellenőrizzük és feltöltjük a témát...",
+        "uploadSuccess": "A témát sikeresen feltöltötte",
+        "deletionFailure": "Nem sikerült törölni a témát. Próbálja meg manuálisan törölni.",
+        "filePickerDialogTitle": "Válasszon egy .flowy_plugin fájlt",
+        "urlUploadFailure": "Nem sikerült megnyitni az URL-t: {}"
+      },
+      "theme": "Téma",
+      "builtInsLabel": "Beépített témák",
+      "pluginsLabel": "Beépülő modulok"
+    },
+    "files": {
+      "copy": "Másolat",
+      "defaultLocation": "Fájlok és adattárolási hely olvasása",
+      "exportData": "Exportálja adatait",
+      "doubleTapToCopy": "Koppintson duplán az útvonal másolásához",
+      "restoreLocation": "Visszaállítás az AppFlowy alapértelmezett elérési útjára",
+      "customizeLocation": "Nyisson meg egy másik mappát",
+      "restartApp": "Kérjük, indítsa újra az alkalmazást, hogy a változtatások életbe lépjenek.",
+      "exportDatabase": "Adatbázis exportálása",
+      "selectFiles": "Válassza ki az exportálandó fájlokat",
+      "selectAll": "Mindet kiválaszt",
+      "deselectAll": "Törölje az összes kijelölését",
+      "createNewFolder": "Hozzon létre egy új mappát",
+      "createNewFolderDesc": "Mondja el, hol szeretné tárolni adatait",
+      "defineWhereYourDataIsStored": "Határozza meg, hol tárolják adatait",
+      "open": "Nyisd ki",
+      "openFolder": "Nyisson meg egy meglévő mappát",
+      "openFolderDesc": "Olvassa el és írja be a meglévő AppFlowy mappájába",
+      "folderHintText": "mappa neve",
+      "location": "Új mappa létrehozása",
+      "locationDesc": "Válasszon nevet az AppFlowy adatmappájának",
+      "browser": "Tallózás",
+      "create": "Teremt",
+      "set": "Készlet",
+      "folderPath": "A mappa tárolásának elérési útja",
+      "locationCannotBeEmpty": "Az útvonal nem lehet üres",
+      "pathCopiedSnackbar": "A fájl tárolási útvonala a vágólapra másolva!",
+      "changeLocationTooltips": "Módosítsa az adatkönyvtárat",
+      "change": "változás",
+      "openLocationTooltips": "Nyisson meg egy másik adatkönyvtárat",
+      "openCurrentDataFolder": "Nyissa meg az aktuális adatkönyvtárat",
+      "recoverLocationTooltips": "Állítsa vissza az AppFlowy alapértelmezett adatkönyvtárát",
+      "exportFileSuccess": "A fájl exportálása sikeres volt!",
+      "exportFileFail": "A fájl exportálása nem sikerült!",
+      "export": "Export"
+    },
+    "user": {
+      "name": "Név",
+      "selectAnIcon": "Válasszon ki egy ikont",
+      "pleaseInputYourOpenAIKey": "kérjük, adja meg OpenAI kulcsát"
+    }
+  },
+  "grid": {
+    "deleteView": "Biztosan törli ezt a nézetet?",
+    "createView": "Új",
+    "settings": {
+      "filter": "Szűrő",
+      "sort": "Fajta",
+      "sortBy": "Rendezés",
+      "properties": "Tulajdonságok",
+      "reorderPropertiesTooltip": "Húzza a tulajdonságok átrendezéséhez",
+      "group": "Csoport",
+      "addFilter": "Szűrő hozzáadása",
+      "deleteFilter": "Szűrő törlése",
+      "filterBy": "Szűrés vlami alapján...",
+      "typeAValue": "Írjon be egy értéket...",
+      "layout": "Elrendezés",
+      "databaseLayout": "Elrendezés"
+    },
+    "textFilter": {
+      "contains": "Tartalmaz",
+      "doesNotContain": "Nem tartalmaz",
+      "endsWith": "Végződik",
+      "startWith": "Ezzel kezdődik",
+      "is": "Is",
+      "isNot": "Nem",
+      "isEmpty": "Üres",
+      "isNotEmpty": "Nem üres",
+      "choicechipPrefix": {
+        "isNot": "Nem",
+        "startWith": "Ezzel kezdődik",
+        "endWith": "Végződik",
+        "isEmpty": "üres",
+        "isNotEmpty": "nem üres"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Ellenőrizve",
+      "isUnchecked": "Nincs bejelölve",
+      "choicechipPrefix": {
+        "is": "van"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "teljes",
+      "isIncomplted": "hiányos"
+    },
+    "singleSelectOptionFilter": {
+      "is": "Is",
+      "isNot": "Nem",
+      "isEmpty": "Üres",
+      "isNotEmpty": "Nem üres"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "Tartalmaz",
+      "doesNotContain": "Nem tartalmaz",
+      "isEmpty": "Üres",
+      "isNotEmpty": "Nem üres"
+    },
+    "field": {
+      "hide": "Elrejt",
+      "insertLeft": "Beszúrás balra",
+      "insertRight": "Jobb beszúrás",
+      "duplicate": "Másolat",
+      "delete": "Töröl",
+      "textFieldName": "Szöveg",
+      "checkboxFieldName": "Jelölőnégyzet",
+      "dateFieldName": "Dátum",
+      "updatedAtFieldName": "Utolsó módosítás időpontja",
+      "createdAtFieldName": "Létrehozott idő",
+      "numberFieldName": "Számok",
+      "singleSelectFieldName": "Válassza ki",
+      "multiSelectFieldName": "Többszörös választás",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Ellenőrzőlista",
+      "numberFormat": "Számformátum",
+      "dateFormat": "Dátum formátum",
+      "includeTime": "Tartalmazzon időt",
+      "dateFormatFriendly": "Hónap nap év",
+      "dateFormatISO": "Év hónap nap",
+      "dateFormatLocal": "Hónap nap év",
+      "dateFormatUS": "Év hónap nap",
+      "dateFormatDayMonthYear": "Nap hónap év",
+      "timeFormat": "Idő formátum",
+      "invalidTimeFormat": "Érvénytelen formátum",
+      "timeFormatTwelveHour": "12 óra",
+      "timeFormatTwentyFourHour": "24 óra",
+      "addSelectOption": "Adjon hozzá egy lehetőséget",
+      "optionTitle": "Lehetőségek",
+      "addOption": "Opció hozzáadása",
+      "editProperty": "Tulajdonság szerkesztése",
+      "newProperty": "Új ingatlan",
+      "deleteFieldPromptMessage": "biztos vagy ebben? Ez a tulajdonság törlésre kerül"
+    },
+    "sort": {
+      "ascending": "Emelkedő",
+      "descending": "Csökkenő",
+      "addSort": "Rendezés hozzáadása",
+      "deleteSort": "Rendezés törlése"
+    },
+    "row": {
+      "duplicate": "Másolat",
+      "delete": "Töröl",
+      "textPlaceholder": "Üres",
+      "copyProperty": "Tulajdonság a vágólapra másolva",
+      "count": "Számol",
+      "newRow": "Új sor",
+      "action": "Akció"
+    },
+    "selectOption": {
+      "create": "Teremt",
+      "purpleColor": "Lila",
+      "pinkColor": "Rózsaszín",
+      "lightPinkColor": "Világos rózsaszín",
+      "orangeColor": "narancs",
+      "yellowColor": "Sárga",
+      "limeColor": "Mész",
+      "greenColor": "Zöld",
+      "aquaColor": "Aqua",
+      "blueColor": "Kék",
+      "deleteTag": "Címke törlése",
+      "colorPanelTitle": "Színek",
+      "panelTitle": "Válasszon egy lehetőséget, vagy hozzon létre egyet",
+      "searchOption": "Keressen egy lehetőséget"
+    },
+    "checklist": {
+      "addNew": "Adjon hozzá egy elemet"
+    },
+    "menuName": "Rács",
+    "referencedGridPrefix": "Nézet"
+  },
+  "document": {
+    "menuName": "Dokumentum",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Válassza ki azt a táblát, amelyre hivatkozni szeretne",
+        "createANewBoard": "Hozzon létre egy új táblát"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Válassza ki a rácsot, amelyre hivatkozni szeretne",
+        "createANewGrid": "Hozzon létre egy új rácsot"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Válasszon egy naptárt a hivatkozáshoz",
+        "createANewCalendar": "Hozzon létre egy új naptárat"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Vázlat"
+    },
+    "plugins": {
+      "referencedBoard": "Hivatkozott tábla",
+      "referencedGrid": "Hivatkozott rács",
+      "referencedCalendar": "Hivatkozott naptár",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
+      "autoGeneratorTitleName": "OpenAI: Kérd meg az AI-t, hogy írjon bármit...",
+      "autoGeneratorLearnMore": "Tudj meg többet",
+      "autoGeneratorGenerate": "generál",
+      "autoGeneratorHintText": "Kérdezd meg az OpenAI-t...",
+      "autoGeneratorCantGetOpenAIKey": "Nem lehet beszerezni az OpenAI kulcsot",
+      "autoGeneratorRewrite": "Újraírni",
+      "smartEdit": "AI asszisztensek",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Helyesírás javítása",
+      "warning": "⚠️ Az AI-válaszok pontatlanok vagy félrevezetőek lehetnek.",
+      "smartEditSummarize": "Összesít",
+      "smartEditImproveWriting": "Az írás javítása",
+      "smartEditMakeLonger": "Hosszabb legyen",
+      "smartEditCouldNotFetchResult": "Nem sikerült lekérni az eredményt az OpenAI-ból",
+      "smartEditCouldNotFetchKey": "Nem sikerült lekérni az OpenAI kulcsot",
+      "smartEditDisabled": "Csatlakoztassa az OpenAI-t a Beállításokban",
+      "discardResponse": "El szeretné vetni az AI-válaszokat?",
+      "createInlineMathEquation": "Hozzon létre egyenletet",
+      "toggleList": "Lista váltása",
+      "cover": {
+        "changeCover": "Borítót változatni",
+        "colors": "Színek",
+        "images": "Képek",
+        "clearAll": "Mindent kitöröl",
+        "abstract": "Absztrakt",
+        "addCover": "Fedő hozzáadása",
+        "addLocalImage": "Helyi kép hozzáadása",
+        "invalidImageUrl": "Érvénytelen kép URL-je",
+        "failedToAddImageToGallery": "Nem sikerült hozzáadni a képet a galériához",
+        "enterImageUrl": "Adja meg a kép URL-jét",
+        "add": "Hozzáadás",
+        "back": "Vissza",
+        "saveToGallery": "Mentés a galériába",
+        "removeIcon": "Ikon eltávolítása",
+        "pasteImageUrl": "Illessze be a kép URL-jét",
+        "or": "VAGY",
+        "pickFromFiles": "Válasszon fájlokból",
+        "couldNotFetchImage": "Nem sikerült lekérni a képet",
+        "imageSavingFailed": "A kép mentése nem sikerült",
+        "addIcon": "Ikon hozzáadása",
+        "coverRemoveAlert": "A törlés után eltávolítjuk a borítóról.",
+        "alertDialogConfirmation": "Biztos vagy benne, hogy folytatni akarod?"
+      },
+      "mathEquation": {
+        "addMathEquation": "Adja hozzá a matematikai egyenletet",
+        "editMathEquation": "Matematikai egyenlet szerkesztése"
+      },
+      "optionAction": {
+        "click": "Kattintson",
+        "toOpenMenu": " menü megnyitásához",
+        "delete": "Töröl",
+        "duplicate": "Másolat",
+        "turnInto": "Válik",
+        "moveUp": "Lépj felfelé",
+        "moveDown": "Mozgás lefelé",
+        "color": "Szín",
+        "align": "Igazítsa",
+        "left": "Bal",
+        "center": "Központ",
+        "right": "Jobb",
+        "defaultColor": "Alapértelmezett"
+      },
+      "image": {
+        "copiedToPasteBoard": "A kép linkjét a vágólapra másolta"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Adjon hozzá címeket a tartalomjegyzék létrehozásához."
+      }
+    },
+    "textBlock": {
+      "placeholder": "Írja be a '/' karaktert a parancsokhoz"
+    },
+    "title": {
+      "placeholder": "Névtelen"
+    },
+    "imageBlock": {
+      "placeholder": "Kattintson a kép hozzáadásához",
+      "upload": {
+        "label": "Feltöltés",
+        "placeholder": "Kattintson a kép feltöltéséhez"
+      },
+      "url": {
+        "label": "Kép URL-je",
+        "placeholder": "Adja meg a kép URL-jét"
+      },
+      "support": "A képméret korlátja 5 MB. Támogatott formátumok: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Érvénytelen kép",
+        "invalidImageSize": "A kép méretének 5 MB-nál kisebbnek kell lennie",
+        "invalidImageFormat": "A képformátum nem támogatott. Támogatott formátumok: JPEG, PNG, GIF, SVG",
+        "invalidImageUrl": "Érvénytelen kép URL-je"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Nyelv",
+        "placeholder": "Válasszon nyelvet"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Illesszen be vagy írjon be egy hivatkozást",
+      "url": {
+        "label": "Link URL",
+        "placeholder": "Adja meg a link URL-jét"
+      },
+      "title": {
+        "label": "Link címe",
+        "placeholder": "Adja meg a link címét"
       }
     }
   },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+  "board": {
+    "column": {
+      "create_new_card": "Új"
+    },
+    "menuName": "Tábla",
+    "referencedBoardPrefix": "Nézet"
   },
-  "moreAction.small": "kicsi"
+  "calendar": {
+    "menuName": "Naptár",
+    "defaultNewCalendarTitle": "Névtelen",
+    "navigation": {
+      "today": "Ma",
+      "jumpToday": "Ugrás a mai napra",
+      "previousMonth": "Előző hónap",
+      "nextMonth": "Következő hónap"
+    },
+    "settings": {
+      "showWeekNumbers": "Heti számok megjelenítése",
+      "showWeekends": "Hétvégén mutatják be",
+      "firstDayOfWeek": "Kezdje a hetet",
+      "layoutDateField": "Elrendezés naptár által",
+      "noDateTitle": "Nincs dátum",
+      "noDateHint": "A nem tervezett események itt jelennek meg",
+      "clickToAdd": "Kattintson a naptárhoz való hozzáadáshoz",
+      "name": "Naptár elrendezés"
+    },
+    "referencedCalendarPrefix": "Nézet"
+  },
+  "errorDialog": {
+    "title": "AppFlowy hiba",
+    "howToFixFallback": "Elnézést kérünk a kellemetlenségért! Nyújtsa be a problémát a GitHub-oldalunkon, amely leírja a hibát.",
+    "github": "Megtekintés a GitHubon"
+  },
+  "search": {
+    "label": "Keresés",
+    "placeholder": {
+      "actions": "Keresési műveletek..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Másolva!",
+      "fail": "Nem lehet másolni"
+    }
+  },
+  "unSupportBlock": "A jelenlegi verzió nem támogatja ezt a blokkot.",
+  "views": {
+    "deleteContentTitle": "Biztosan törli a következőt: {pageType}?",
+    "deleteContentCaption": "ha törli ezt a {pageType} oldalt, visszaállíthatja a kukából."
+  }
 }
-

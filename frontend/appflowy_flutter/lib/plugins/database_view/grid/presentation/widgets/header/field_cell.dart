@@ -1,7 +1,8 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
+
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -124,10 +125,15 @@ class _DragToExpandLine extends StatelessWidget {
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: (details) {
+          context
+              .read<FieldCellBloc>()
+              .add(const FieldCellEvent.onResizeStart());
+        },
         onHorizontalDragUpdate: (value) {
           context
               .read<FieldCellBloc>()
-              .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
+              .add(FieldCellEvent.startUpdateWidth(value.localPosition.dx));
         },
         onHorizontalDragEnd: (end) {
           context
@@ -153,34 +159,33 @@ class FieldCellButton extends StatelessWidget {
   final FieldPB field;
   final int? maxLines;
   final BorderRadius? radius;
+  final EdgeInsets? margin;
   const FieldCellButton({
     required this.field,
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
+    this.margin,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Using this technique to have proper text ellipsis
-    // https://github.com/flutter/flutter/issues/18761#issuecomment-812390920
-    final text = Characters(field.name)
-        .replaceAll(Characters(''), Characters('\u{200B}'))
-        .toString();
     return FlowyButton(
-      hoverColor: AFThemeExtension.of(context).greyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: FlowySvg(
-        name: field.fieldType.iconName(),
+        field.fieldType.icon(),
+        color: Theme.of(context).iconTheme.color,
       ),
       radius: radius,
       text: FlowyText.medium(
-        text,
+        field.name,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
+        color: AFThemeExtension.of(context).textColor,
       ),
-      margin: GridSize.cellContentInsets,
+      margin: margin ?? GridSize.cellContentInsets,
     );
   }
 }

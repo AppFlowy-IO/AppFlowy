@@ -1,20 +1,20 @@
 use std::sync::Weak;
 
-use appflowy_integrate::{
-  calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
-};
 use diesel::SqliteConnection;
 
+use collab_integrate::{
+  calculate_snapshot_diff, CollabSnapshot, PersistenceError, SnapshotPersistence,
+};
 use flowy_error::FlowyError;
 use flowy_sqlite::{
   insert_or_ignore_into,
   prelude::*,
   schema::{collab_snapshot, collab_snapshot::dsl},
 };
-use flowy_user::services::UserSession;
+use flowy_user::manager::UserManager;
 use lib_infra::util::timestamp;
 
-pub struct SnapshotDBImpl(pub Weak<UserSession>);
+pub struct SnapshotDBImpl(pub Weak<UserManager>);
 
 impl SnapshotPersistence for SnapshotDBImpl {
   fn get_snapshots(&self, uid: i64, object_id: &str) -> Vec<CollabSnapshot> {

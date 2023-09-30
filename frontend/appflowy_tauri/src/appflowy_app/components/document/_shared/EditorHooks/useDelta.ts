@@ -2,31 +2,34 @@ import { useSubscribeNode } from '$app/components/document/_shared/SubscribeNode
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch } from '$app/stores/store';
 import { updateNodeDeltaThunk } from '$app_reducers/document/async-actions';
-import Delta from 'quill-delta';
+import Delta, { Op } from 'quill-delta';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
 
 export function useDelta({ id, onDeltaChange }: { id: string; onDeltaChange?: (delta: Delta) => void }) {
   const { controller } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const penddingRef = useRef(false);
-  const { node } = useSubscribeNode(id);
+  const { delta: deltaStr } = useSubscribeNode(id);
 
   const delta = useMemo(() => {
-    if (!node || !node.data.delta) return new Delta();
-    return new Delta(node.data.delta);
-  }, [node]);
+    if (!deltaStr) return new Delta();
+    const deltaJson = JSON.parse(deltaStr);
+
+    return new Delta(deltaJson);
+  }, [deltaStr]);
 
   useEffect(() => {
     onDeltaChange?.(delta);
   }, [delta, onDeltaChange]);
 
   const update = useCallback(
-    async (delta: Delta) => {
+    async (ops: Op[], newDelta: Delta) => {
       if (!controller) return;
       await dispatch(
         updateNodeDeltaThunk({
           id,
-          delta: delta.ops,
+          ops,
+          newDelta,
           controller,
         })
       );

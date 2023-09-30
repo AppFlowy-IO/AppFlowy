@@ -35,7 +35,7 @@ export const NewCheckListOption = ({
   };
 
   return (
-    <div className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-shade-6'}>
+    <div className={'flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 hover:bg-line-divider'}>
       <input
         onKeyDown={(e) => onNewOptionKeyDown(e as unknown as KeyboardEvent)}
         className={'min-w-0 flex-1 pl-7'}
@@ -44,7 +44,7 @@ export const NewCheckListOption = ({
       />
       <button
         onClick={() => onSaveNewOptionClick()}
-        className={'flex items-center gap-2 rounded-lg bg-main-accent px-4 py-2 text-white hover:bg-main-hovered'}
+        className={'flex items-center gap-2 rounded-lg bg-fill-hover px-4 py-2 text-white hover:bg-main-hovered'}
       >
         {t('grid.selectOption.create')}
       </button>
