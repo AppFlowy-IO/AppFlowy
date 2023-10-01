@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -69,9 +70,8 @@ class SidebarTopMenu extends StatelessWidget {
         ),
       ],
     );
-    return Tooltip(
+    return FlowyTooltip.delayedTooltip(
       richMessage: textSpan,
-      waitDuration: const Duration(milliseconds: 300),
       child: FlowyIconButton(
         width: 28,
         hoverColor: Colors.transparent,

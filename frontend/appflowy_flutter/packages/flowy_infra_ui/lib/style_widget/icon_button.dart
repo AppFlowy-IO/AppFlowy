@@ -1,5 +1,6 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
@@ -55,11 +56,10 @@ class FlowyIconButton extends StatelessWidget {
         height: size.height,
       ),
       decoration: decoration,
-      child: Tooltip(
+      child: FlowyTooltip.delayedTooltip(
         preferBelow: preferBelow,
         message: tooltipMessage,
         richMessage: richTooltipText,
-        waitDuration: const Duration(milliseconds: 300),
         showDuration: Duration.zero,
         child: RawMaterialButton(
           visualDensity: VisualDensity.compact,

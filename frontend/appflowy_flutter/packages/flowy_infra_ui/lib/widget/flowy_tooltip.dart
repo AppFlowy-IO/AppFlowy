@@ -7,12 +7,14 @@ class FlowyTooltip {
     String? message,
     InlineSpan? richMessage,
     bool? preferBelow,
+    Duration? showDuration,
     Widget? child,
   }) {
     return Tooltip(
       waitDuration: _tooltipWaitDuration,
       message: message,
       richMessage: richMessage,
+      showDuration: showDuration,
       preferBelow: preferBelow,
       child: child,
     );
