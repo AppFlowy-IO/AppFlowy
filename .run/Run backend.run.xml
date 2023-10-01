@@ -7,7 +7,7 @@
     <option name="emulateTerminal" value="false" />
     <option name="backtrace" value="SHORT" />
     <envs>
-      <env name="APP_ENVIRONMENT" value="production" />
+      <env name="Hello_APP_ENVIRONMENT" value="production" />
     </envs>
     <option name="isRedirectInput" value="false" />
     <option name="redirectInputPath" value="" />
