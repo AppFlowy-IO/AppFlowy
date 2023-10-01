@@ -48,13 +48,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   final inlinePageReferenceService = InlinePageReferenceService();
 
-  final List<CommandShortcutEvent> commandShortcutEvents = [
+  late final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
     ...standardCommandShortcutEvents,
+    ..._buildFindAndReplaceCommands(),
   ];
 
   final List<ToolbarItem> toolbarItems = [
@@ -146,6 +147,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
+
+    widget.editorState.dispose();
 
     super.dispose();
   }
@@ -480,5 +483,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (isRTL) {
       toolbarItems.addAll(textDirectionItems);
     }
+  }
+
+  List<CommandShortcutEvent> _buildFindAndReplaceCommands() {
+    return findAndReplaceCommands(
+      context: context,
+      style: FindReplaceStyle(
+        findMenuBuilder: (
+          context,
+          editorState,
+          localizations,
+          style,
+          showReplaceMenu,
+          onDismiss,
+        ) {
+          return Material(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: FindAndReplaceMenuWidget(
+                editorState: editorState,
+                onDismiss: onDismiss,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
