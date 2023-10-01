@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -65,13 +66,9 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
         ),
       ).then((value) {
         if (value == null) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: FlowyText.medium(
-              color: Theme.of(context).colorScheme.onPrimary,
-              LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-            ),
-          ),
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
         );
       }),
     );
