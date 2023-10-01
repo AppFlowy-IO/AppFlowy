@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
@@ -41,26 +42,31 @@ class DesktopHomeScreen extends StatelessWidget {
       ]),
       builder: (context, snapshots) {
         if (!snapshots.hasData) {
-          return const Center(child: CircularProgressIndicator.adaptive());
+          return _buildLoading();
         }
 
         final workspaceSetting = snapshots.data?[0].fold(
-          (workspaceSettingPB) {
-            return workspaceSettingPB as WorkspaceSettingPB;
-          },
+          (workspaceSettingPB) => workspaceSettingPB as WorkspaceSettingPB,
           (error) => null,
         );
-        final userProfile =
-            snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          return userProfilePB as UserProfilePB;
-        });
+        final userProfile = snapshots.data?[1].fold(
+          (error) => null,
+          (userProfilePB) => userProfilePB as UserProfilePB,
+        );
+
+        // In the unlikely case either of the above is null, eg.
+        // when a workspace is already open this can happen.
+        if (workspaceSetting == null || userProfile == null) {
+          return const WorkspaceFailedScreen();
+        }
+
         return MultiBlocProvider(
-          key: ValueKey(userProfile!.id),
+          key: ValueKey(userProfile.id),
           providers: [
             BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
             BlocProvider<HomeBloc>(
               create: (context) {
-                return HomeBloc(userProfile, workspaceSetting!)
+                return HomeBloc(userProfile, workspaceSetting)
                   ..add(const HomeEvent.initial());
               },
             ),
@@ -68,7 +74,7 @@ class DesktopHomeScreen extends StatelessWidget {
               create: (context) {
                 return HomeSettingBloc(
                   userProfile,
-                  workspaceSetting!,
+                  workspaceSetting,
                   context.read<AppearanceSettingsCubit>(),
                 )..add(const HomeSettingEvent.initial());
               },
@@ -105,8 +111,7 @@ class DesktopHomeScreen extends StatelessWidget {
                   builder: (context, state) {
                     return FlowyContainer(
                       Theme.of(context).colorScheme.surface,
-                      child:
-                          _buildBody(context, userProfile, workspaceSetting!),
+                      child: _buildBody(context, userProfile, workspaceSetting),
                     );
                   },
                 ),
@@ -117,6 +122,9 @@ class DesktopHomeScreen extends StatelessWidget {
       },
     );
   }
+
+  Widget _buildLoading() =>
+      const Center(child: CircularProgressIndicator.adaptive());
 
   Widget _buildBody(
     BuildContext context,
