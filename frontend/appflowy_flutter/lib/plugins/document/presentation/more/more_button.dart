@@ -16,7 +16,6 @@ class DocumentMoreButton extends StatelessWidget {
     return PopupMenuButton<int>(
       color: Theme.of(context).colorScheme.surfaceVariant,
       offset: const Offset(0, 30),
-      tooltip: LocaleKeys.moreAction_moreOptions.tr(),
       itemBuilder: (context) {
         return [
           PopupMenuItem(
@@ -29,10 +28,14 @@ class DocumentMoreButton extends StatelessWidget {
           ),
         ];
       },
-      child: FlowySvg(
-        FlowySvgs.details_s,
-        size: const Size(18, 18),
-        color: Theme.of(context).iconTheme.color,
+      child: Tooltip(
+        message: LocaleKeys.moreAction_moreOptions.tr(),
+        waitDuration: const Duration(milliseconds: 300),
+        child: FlowySvg(
+          FlowySvgs.details_s,
+          size: const Size(18, 18),
+          color: Theme.of(context).iconTheme.color,
+        ),
       ),
     );
   }
