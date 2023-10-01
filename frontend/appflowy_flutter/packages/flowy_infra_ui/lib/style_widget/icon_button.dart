@@ -59,6 +59,7 @@ class FlowyIconButton extends StatelessWidget {
         preferBelow: preferBelow,
         message: tooltipMessage,
         richMessage: richTooltipText,
+        waitDuration: const Duration(milliseconds: 300),
         showDuration: Duration.zero,
         child: RawMaterialButton(
           visualDensity: VisualDensity.compact,

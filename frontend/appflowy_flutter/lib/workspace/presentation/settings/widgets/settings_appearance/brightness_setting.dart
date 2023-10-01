@@ -21,6 +21,7 @@ class BrightnessSetting extends StatelessWidget {
           context,
           LocaleKeys.settings_appearance_themeMode_label.tr(),
         ),
+        waitDuration: const Duration(milliseconds: 300),
         child: ThemeSettingEntryTemplateWidget(
           label: LocaleKeys.settings_appearance_themeMode_label.tr(),
           onResetRequested:

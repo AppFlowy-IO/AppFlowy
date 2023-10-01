@@ -60,6 +60,7 @@ class SidebarUser extends StatelessWidget {
     final userProfile = state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
+      waitDuration: const Duration(milliseconds: 300),
       child: IconButton(
         onPressed: () {
           showDialog(

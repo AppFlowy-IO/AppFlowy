@@ -196,6 +196,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
+        waitDuration: const Duration(milliseconds: 300),
         child: child,
       );
     }
@@ -285,6 +286,7 @@ class FlowyRichTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
+        waitDuration: const Duration(milliseconds: 300),
         child: child,
       );
     }

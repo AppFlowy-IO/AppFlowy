@@ -71,6 +71,7 @@ class SidebarTopMenu extends StatelessWidget {
     );
     return Tooltip(
       richMessage: textSpan,
+      waitDuration: const Duration(milliseconds: 300),
       child: FlowyIconButton(
         width: 28,
         hoverColor: Colors.transparent,

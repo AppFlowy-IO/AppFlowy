@@ -157,6 +157,7 @@ class _AlignButton extends StatelessWidget {
         onTap: onTap,
         child: Tooltip(
           message: tooltips,
+          waitDuration: const Duration(milliseconds: 300),
           child: FlowySvg(
             icon,
             size: const Size.square(16),

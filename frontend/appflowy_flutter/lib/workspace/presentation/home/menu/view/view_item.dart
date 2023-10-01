@@ -340,6 +340,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewAddButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
+      waitDuration: const Duration(milliseconds: 300),
       child: ViewAddButton(
         parentViewId: widget.view.id,
         onEditing: (value) =>
@@ -380,6 +381,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   Widget _buildViewMoreActionButton(BuildContext context) {
     return Tooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
+      waitDuration: const Duration(milliseconds: 300),
       child: ViewMoreActionButton(
         view: widget.view,
         onEditing: (value) =>

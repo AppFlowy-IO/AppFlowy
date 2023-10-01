@@ -107,6 +107,7 @@ class EnableEncrypt extends StatelessWidget {
                   height: 40,
                   child: Tooltip(
                     message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
+                    waitDuration: const Duration(milliseconds: 300),
                     child: FlowyButton(
                       disable: !(state.config.enableEncrypt),
                       decoration: BoxDecoration(
