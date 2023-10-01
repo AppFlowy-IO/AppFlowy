@@ -158,7 +158,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final isRTL =
         context.read<AppearanceSettingsCubit>().state.layoutDirection ==
             LayoutDirection.rtlLayout;
-    final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+    final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
     _setRTLToolbarItems(isRTL);
 
@@ -195,8 +195,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         items: toolbarItems,
         editorState: widget.editorState,
         editorScrollController: editorScrollController,
+        textDirection: textDirection,
         child: Directionality(
-          textDirection: layoutDirection,
+          textDirection: textDirection,
           child: editor,
         ),
       ),
