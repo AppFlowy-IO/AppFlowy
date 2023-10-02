@@ -250,6 +250,9 @@ pub enum ErrorCode {
 
   #[error("Missing payload")]
   MissingPayload = 82,
+
+  #[error("Permission denied")]
+  NotEnoughPermissions = 83,
 }
 
 impl ErrorCode {

@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cus
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -160,7 +161,7 @@ class EditorOperations {
   /// Must call [showAtMenu] first.
   Future<void> tapAtMenuItemWithName(String name) async {
     final atMenuItem = find.descendant(
-      of: find.byType(SelectionMenuWidget),
+      of: find.byType(InlineActionsHandler),
       matching: find.text(name, findRichText: true),
     );
     await tester.tapButton(atMenuItem);

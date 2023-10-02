@@ -22,6 +22,7 @@ flowy-task = { workspace = true }
 flowy-server = { workspace = true }
 flowy-server-config = { workspace = true }
 flowy-config = { workspace = true }
+flowy-date = { workspace = true }
 collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
 flowy-ai = { workspace = true }
 collab-define = { version = "0.1.0" }
@@ -30,11 +31,13 @@ collab = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }
 uuid = { version = "1.3.3", features = ["v4"] }
 flowy-storage = { workspace = true }
+client-api = { version = "0.1.0", features = ["collab-sync"] }
 
 tracing = { version = "0.1", features = ["log"] }
 futures-core = { version = "0.3", default-features = false }
 bytes = "1.5"
 tokio = { version = "1.26", features = ["full"] }
+tokio-stream = {version = "0.1.14", features = ["sync"]}
 console-subscriber = { version = "0.1.8", optional = true }
 parking_lot = "0.12.1"
 anyhow = "1.0.75"
@@ -52,6 +55,7 @@ native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
+    "flowy-date/dart",
     "flowy-folder2/dart",
     "flowy-database2/dart",
     "flowy-document2/dart",
@@ -59,13 +63,12 @@ dart = [
 ]
 ts = [
     "flowy-user/ts",
+    "flowy-date/ts",
     "flowy-folder2/ts",
     "flowy-database2/ts",
     "flowy-document2/ts",
     "flowy-config/ts",
 ]
-rev-sqlite = [
-    "flowy-user/rev-sqlite",
-]
+rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 

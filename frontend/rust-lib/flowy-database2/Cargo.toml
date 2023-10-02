@@ -26,7 +26,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = {version = "1.0"}
 serde_repr = "0.1"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-chrono = { version = "0.4.27", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
 rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"
@@ -39,7 +39,7 @@ anyhow = "1.0"
 async-stream = "0.3.4"
 rayon = "1.6.1"
 nanoid = "0.4.0"
-async-trait = "0.1"
+async-trait = "0.1.73"
 chrono-tz = "0.8.2"
 csv = "1.1.6"
 

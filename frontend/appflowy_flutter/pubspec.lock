@@ -54,8 +54,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b422187
-      resolved-ref: b422187503fc99067756e9f387766bb28475331b
+      ref: "0fdca2f"
+      resolved-ref: "0fdca2f702485eeec1bfbe50127c06f2a8fd8b1e"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "1.4.3"
@@ -825,6 +825,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
+  local_notifier:
+    dependency: "direct main"
+    description:
+      name: local_notifier
+      sha256: cc855aa6362c8840e3d3b35b1c3b058a3a8becdb2b03d5a9aa3f3a1e861f0a03
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   logger:
     dependency: transitive
     description:

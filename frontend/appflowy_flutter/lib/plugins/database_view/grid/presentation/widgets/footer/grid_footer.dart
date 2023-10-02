@@ -40,7 +40,7 @@ class GridRowBottomBar extends StatelessWidget {
     return Container(
       padding: GridSize.footerContentInsets,
       height: GridSize.footerHeight,
-      margin: const EdgeInsets.only(bottom: 200),
+      margin: const EdgeInsets.only(bottom: 200, top: 8),
       child: const GridAddRowButton(),
     );
   }

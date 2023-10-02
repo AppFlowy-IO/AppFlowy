@@ -54,7 +54,7 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildUserIconSetting(context),
-              if (isSupabaseEnabled) ...[
+              if (isCloudEnabled) ...[
                 const VSpace(12),
                 UserEmailInput(user.email)
               ],
@@ -188,7 +188,7 @@ class SettingsUserView extends StatelessWidget {
     BuildContext context,
     SettingsUserState state,
   ) {
-    if (!isSupabaseEnabled) {
+    if (!isCloudEnabled) {
       return const SizedBox.shrink();
     }
 

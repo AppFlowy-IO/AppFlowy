@@ -59,11 +59,10 @@ class FlowyColorPicker extends StatelessWidget {
 
     final colorIcon = SizedBox.square(
       dimension: iconSize,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: option.color,
           shape: BoxShape.circle,
-          // border: border,
         ),
       ),
     );

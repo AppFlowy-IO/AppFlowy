@@ -37,7 +37,7 @@ pub fn get_supabase_dev_config() -> Option<SupabaseConfiguration> {
 }
 
 pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
-  let (server, encryption_impl) = appflowy_server(None);
+  let (server, encryption_impl) = supabase_server_service(None);
   Arc::new(SupabaseCollabStorageImpl::new(
     server,
     None,
@@ -46,17 +46,17 @@ pub fn collab_service() -> Arc<dyn RemoteCollabStorage> {
 }
 
 pub fn database_service() -> Arc<dyn DatabaseCloudService> {
-  let (server, _encryption_impl) = appflowy_server(None);
+  let (server, _encryption_impl) = supabase_server_service(None);
   Arc::new(SupabaseDatabaseServiceImpl::new(server))
 }
 
 pub fn user_auth_service() -> Arc<dyn UserCloudService> {
-  let (server, _encryption_impl) = appflowy_server(None);
+  let (server, _encryption_impl) = supabase_server_service(None);
   Arc::new(SupabaseUserServiceImpl::new(server, vec![], None))
 }
 
 pub fn folder_service() -> Arc<dyn FolderCloudService> {
-  let (server, _encryption_impl) = appflowy_server(None);
+  let (server, _encryption_impl) = supabase_server_service(None);
   Arc::new(SupabaseFolderServiceImpl::new(server))
 }
 
@@ -77,7 +77,7 @@ pub fn file_storage_service() -> Arc<dyn FileStorageService> {
 pub fn encryption_folder_service(
   secret: Option<String>,
 ) -> (Arc<dyn FolderCloudService>, Arc<dyn AppFlowyEncryption>) {
-  let (server, encryption_impl) = appflowy_server(secret);
+  let (server, encryption_impl) = supabase_server_service(secret);
   let service = Arc::new(SupabaseFolderServiceImpl::new(server));
   (service, encryption_impl)
 }
@@ -86,7 +86,7 @@ pub fn encryption_folder_service(
 pub fn encryption_collab_service(
   secret: Option<String>,
 ) -> (Arc<dyn RemoteCollabStorage>, Arc<dyn AppFlowyEncryption>) {
-  let (server, encryption_impl) = appflowy_server(secret);
+  let (server, encryption_impl) = supabase_server_service(secret);
   let service = Arc::new(SupabaseCollabStorageImpl::new(
     server,
     None,
@@ -120,7 +120,7 @@ pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
-pub fn appflowy_server(
+pub fn supabase_server_service(
   encryption_secret: Option<String>,
 ) -> (SupabaseServerServiceImpl, Arc<dyn AppFlowyEncryption>) {
   let config = SupabaseConfiguration::from_env().unwrap();
