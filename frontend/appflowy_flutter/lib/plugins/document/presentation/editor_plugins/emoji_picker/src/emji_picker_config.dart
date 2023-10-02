@@ -6,32 +6,37 @@ import 'models/category_models.dart';
 import 'emoji_picker.dart';
 
 /// Config for customizations
-class Config {
+class EmojiPickerConfig {
   /// Constructor
-  const Config({
-    this.columns = 7,
+  const EmojiPickerConfig({
+    this.emojiNumberPerRow = 7,
     this.emojiSizeMax = 32.0,
     this.verticalSpacing = 0,
     this.horizontalSpacing = 0,
     this.initCategory = Category.RECENT,
     this.bgColor = const Color(0xFFEBEFF2),
-    this.indicatorColor = Colors.blue,
-    this.selectedHoverColor = Colors.grey,
-    this.iconColor = Colors.grey,
-    this.iconColorSelected = Colors.blue,
+    this.categoryIconColor = Colors.grey,
+    this.selectedCategoryIconColor = Colors.blue,
+    this.selectedCategoryIconBackgroundColor = Colors.blue,
     this.progressIndicatorColor = Colors.blue,
     this.backspaceColor = Colors.blue,
     this.showRecentsTab = true,
     this.recentsLimit = 28,
+    this.searchHintText = 'Search emoji',
+    this.serachHintTextStyle,
+    this.serachBarEnableBorder,
+    this.serachBarFocusedBorder,
     this.noRecentsText = 'No Recents',
-    this.noRecentsStyle = const TextStyle(fontSize: 20, color: Colors.black26),
+    this.noRecentsStyle,
+    this.noEmojiFoundText = 'No emoji found',
+    this.scrollBarHandleColor,
     this.tabIndicatorAnimDuration = kTabScrollDuration,
     this.categoryIcons = const CategoryIcons(),
     this.buttonMode = ButtonMode.MATERIAL,
   });
 
   /// Number of emojis per row
-  final int columns;
+  final int emojiNumberPerRow;
 
   /// Width and height the emoji will be maximal displayed
   /// Can be smaller due to screen size and amount of columns
@@ -48,25 +53,22 @@ class Config {
   final Category initCategory;
 
   /// The background color of the Widget
-  final Color bgColor;
-
-  /// The color of the category indicator
-  final Color indicatorColor;
-
-  /// The background color of the selected category
-  final Color selectedHoverColor;
+  final Color? bgColor;
 
   /// The color of the category icons
-  final Color iconColor;
+  final Color? categoryIconColor;
 
   /// The color of the category icon when selected
-  final Color iconColorSelected;
+  final Color? selectedCategoryIconColor;
+
+  /// The color of the category indicator
+  final Color? selectedCategoryIconBackgroundColor;
 
   /// The color of the loading indicator during initialization
-  final Color progressIndicatorColor;
+  final Color? progressIndicatorColor;
 
   /// The color of the backspace icon button
-  final Color backspaceColor;
+  final Color? backspaceColor;
 
   /// Show extra tab with recently used emoji
   final bool showRecentsTab;
@@ -74,11 +76,29 @@ class Config {
   /// Limit of recently used emoji that will be saved
   final int recentsLimit;
 
+  /// The text to be displayed in the search field as a hint
+  final String searchHintText;
+
+  /// The text style for [searchHintText]
+  final TextStyle? serachHintTextStyle;
+
+  /// The border for the search field when enabled
+  final InputBorder? serachBarEnableBorder;
+
+  /// The border for the search field when focused
+  final InputBorder? serachBarFocusedBorder;
+
   /// The text to be displayed if no recent emojis to display
   final String noRecentsText;
 
   /// The text style for [noRecentsText]
-  final TextStyle noRecentsStyle;
+  final TextStyle? noRecentsStyle;
+
+  /// The text to be displayed if no emoji found
+  final String noEmojiFoundText;
+
+  /// The color of the scrollbar handle
+  final Color? scrollBarHandleColor;
 
   /// Duration of tab indicator to animate to next category
   final Duration tabIndicatorAnimDuration;
@@ -91,7 +111,7 @@ class Config {
 
   /// Get Emoji size based on properties and screen width
   double getEmojiSize(double width) {
-    final maxSize = width / columns;
+    final maxSize = width / emojiNumberPerRow;
     return min(maxSize, emojiSizeMax);
   }
 
@@ -123,46 +143,60 @@ class Config {
     }
   }
 
+// double check here
   @override
   bool operator ==(other) {
-    return (other is Config) &&
-        other.columns == columns &&
+    return (other is EmojiPickerConfig) &&
+        other.emojiNumberPerRow == emojiNumberPerRow &&
         other.emojiSizeMax == emojiSizeMax &&
         other.verticalSpacing == verticalSpacing &&
         other.horizontalSpacing == horizontalSpacing &&
         other.initCategory == initCategory &&
         other.bgColor == bgColor &&
-        other.indicatorColor == indicatorColor &&
-        other.iconColor == iconColor &&
-        other.iconColorSelected == iconColorSelected &&
+        other.categoryIconColor == categoryIconColor &&
+        other.selectedCategoryIconColor == selectedCategoryIconColor &&
+        other.selectedCategoryIconBackgroundColor ==
+            selectedCategoryIconBackgroundColor &&
         other.progressIndicatorColor == progressIndicatorColor &&
         other.backspaceColor == backspaceColor &&
         other.showRecentsTab == showRecentsTab &&
         other.recentsLimit == recentsLimit &&
+        other.searchHintText == searchHintText &&
+        other.serachHintTextStyle == serachHintTextStyle &&
+        other.serachBarEnableBorder == serachBarEnableBorder &&
+        other.serachBarFocusedBorder == serachBarFocusedBorder &&
         other.noRecentsText == noRecentsText &&
         other.noRecentsStyle == noRecentsStyle &&
+        other.noEmojiFoundText == noEmojiFoundText &&
         other.tabIndicatorAnimDuration == tabIndicatorAnimDuration &&
+        other.scrollBarHandleColor == scrollBarHandleColor &&
         other.categoryIcons == categoryIcons &&
         other.buttonMode == buttonMode;
   }
 
   @override
   int get hashCode =>
-      columns.hashCode ^
+      emojiNumberPerRow.hashCode ^
       emojiSizeMax.hashCode ^
       verticalSpacing.hashCode ^
       horizontalSpacing.hashCode ^
       initCategory.hashCode ^
       bgColor.hashCode ^
-      indicatorColor.hashCode ^
-      iconColor.hashCode ^
-      iconColorSelected.hashCode ^
+      categoryIconColor.hashCode ^
+      selectedCategoryIconColor.hashCode ^
+      selectedCategoryIconBackgroundColor.hashCode ^
       progressIndicatorColor.hashCode ^
       backspaceColor.hashCode ^
       showRecentsTab.hashCode ^
       recentsLimit.hashCode ^
+      searchHintText.hashCode ^
+      serachHintTextStyle.hashCode ^
+      serachBarEnableBorder.hashCode ^
+      serachBarFocusedBorder.hashCode ^
       noRecentsText.hashCode ^
       noRecentsStyle.hashCode ^
+      noEmojiFoundText.hashCode ^
+      scrollBarHandleColor.hashCode ^
       tabIndicatorAnimDuration.hashCode ^
       categoryIcons.hashCode ^
       buttonMode.hashCode;

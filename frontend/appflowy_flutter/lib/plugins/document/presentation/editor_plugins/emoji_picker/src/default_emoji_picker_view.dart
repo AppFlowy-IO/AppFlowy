@@ -1,7 +1,7 @@
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'config.dart';
+import 'emji_picker_config.dart';
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
 import 'emoji_view_state.dart';
@@ -9,8 +9,11 @@ import 'models/category_models.dart';
 import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
-  const DefaultEmojiPickerView(Config config, EmojiViewState state, {Key? key})
-      : super(config, state, key: key);
+  const DefaultEmojiPickerView(
+    EmojiPickerConfig config,
+    EmojiViewState state, {
+    Key? key,
+  }) : super(config, state, key: key);
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -66,6 +69,8 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   void dispose() {
     _emojiController.dispose();
     _emojiFocusNode.dispose();
+    _pageController?.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -100,56 +105,50 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     return LayoutBuilder(
       builder: (context, constraints) {
         final emojiSize = widget.config.getEmojiSize(constraints.maxWidth);
+        final style = Theme.of(context);
 
         return Container(
           color: widget.config.bgColor,
-          padding: const EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(4),
           child: Column(
             children: [
+              const VSpace(4),
+              // search bar
               SizedBox(
-                height: 25.0,
+                height: 32.0,
                 child: TextField(
                   controller: _emojiController,
                   focusNode: _emojiFocusNode,
                   autofocus: true,
-                  style: const TextStyle(fontSize: 14.0),
-                  cursorWidth: 1.0,
-                  cursorColor: Colors.black,
+                  style: style.textTheme.bodyMedium,
+                  cursorColor: style.textTheme.bodyMedium?.color,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    hintText: "Search emoji",
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: const BorderSide(),
-                      gapPadding: 0.0,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: const BorderSide(),
-                      gapPadding: 0.0,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    hoverColor: Colors.white,
+                    contentPadding: const EdgeInsets.all(8),
+                    hintText: widget.config.searchHintText,
+                    hintStyle: widget.config.serachHintTextStyle,
+                    enabledBorder: widget.config.serachBarEnableBorder,
+                    focusedBorder: widget.config.serachBarFocusedBorder,
                   ),
                 ),
               ),
+              const VSpace(4),
               Row(
                 children: [
                   Expanded(
                     child: TabBar(
-                      labelColor: widget.config.iconColorSelected,
-                      unselectedLabelColor: widget.config.iconColor,
+                      labelColor: widget.config.selectedCategoryIconColor,
+                      unselectedLabelColor: widget.config.categoryIconColor,
                       controller: isEmojiSearching()
                           ? TabController(length: 1, vsync: this)
                           : _tabController,
                       labelPadding: EdgeInsets.zero,
-                      indicatorColor: widget.config.indicatorColor,
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      indicatorColor:
+                          widget.config.selectedCategoryIconBackgroundColor,
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
                       indicator: BoxDecoration(
                         border: Border.all(color: Colors.transparent),
                         borderRadius: BorderRadius.circular(4.0),
-                        color: Colors.grey.withOpacity(0.5),
+                        color: style.colorScheme.secondary,
                       ),
                       onTap: (index) {
                         _pageController!.animateToPage(
@@ -182,12 +181,6 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
                       : widget.state.categoryEmoji.length,
                   controller: _pageController,
                   physics: const NeverScrollableScrollPhysics(),
-                  // onPageChanged: (index) {
-                  //   _tabController!.animateTo(
-                  //     index,
-                  //     duration: widget.config.tabIndicatorAnimDuration,
-                  //   );
-                  // },
                   itemBuilder: (context, index) {
                     final CategoryEmoji catEmoji = isEmojiSearching()
                         ? searchEmojiList
@@ -238,23 +231,22 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       return _buildNoRecent();
     } else if (categoryEmoji.category == Category.SEARCH &&
         categoryEmoji.emoji.isEmpty) {
-      return const Center(child: Text("No Emoji Found"));
+      return Center(child: Text(widget.config.noEmojiFoundText));
     }
     // Build page normally
     return ScrollbarListStack(
       axis: Axis.vertical,
       controller: scrollController,
       barSize: 4.0,
-      scrollbarPadding: const EdgeInsets.symmetric(horizontal: 5.0),
-      handleColor: const Color(0xffDFE0E0),
-      trackColor: const Color(0xffDFE0E0),
+      scrollbarPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+      handleColor: widget.config.scrollBarHandleColor,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: GridView.builder(
           controller: scrollController,
           padding: const EdgeInsets.all(0),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: widget.config.columns,
+            crossAxisCount: widget.config.emojiNumberPerRow,
             mainAxisSpacing: widget.config.verticalSpacing,
             crossAxisSpacing: widget.config.horizontalSpacing,
           ),
@@ -278,14 +270,16 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       onPressed: () {
         widget.state.onEmojiSelected(categoryEmoji.category, emoji);
       },
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          emoji.emoji,
-          textScaleFactor: 1.0,
-          style: TextStyle(
-            fontSize: emojiSize,
-            backgroundColor: Colors.transparent,
+      child: FlowyHover(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            emoji.emoji,
+            textScaleFactor: 1.0,
+            style: TextStyle(
+              fontSize: emojiSize,
+              backgroundColor: Colors.transparent,
+            ),
           ),
         ),
       ),
@@ -294,10 +288,9 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
 
   Widget _buildNoRecent() {
     return Center(
-      child: FlowyText.regular(
+      child: Text(
         widget.config.noRecentsText,
-        color: Theme.of(context).colorScheme.tertiary.withAlpha(77),
-        fontSize: widget.config.noRecentsStyle.fontSize,
+        style: widget.config.noRecentsStyle,
         textAlign: TextAlign.center,
       ),
     );

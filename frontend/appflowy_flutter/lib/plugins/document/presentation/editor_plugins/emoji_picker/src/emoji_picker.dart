@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/category_models.dart';
-import 'config.dart';
+import 'emji_picker_config.dart';
 import 'default_emoji_picker_view.dart';
 import 'models/emoji_model.dart';
 import 'emoji_lists.dart' as emoji_list;
@@ -69,7 +69,10 @@ typedef OnEmojiSelected = void Function(Category category, Emoji emoji);
 typedef OnBackspacePressed = void Function();
 
 /// Callback function for custom view
-typedef EmojiViewBuilder = Widget Function(Config config, EmojiViewState state);
+typedef EmojiViewBuilder = Widget Function(
+  EmojiPickerConfig config,
+  EmojiViewState state,
+);
 
 /// The Emoji Keyboard widget
 ///
@@ -84,7 +87,7 @@ class EmojiPicker extends StatefulWidget {
     Key? key,
     required this.onEmojiSelected,
     this.onBackspacePressed,
-    this.config = const Config(),
+    this.config = const EmojiPickerConfig(),
     this.customWidget,
   }) : super(key: key);
 
@@ -98,7 +101,7 @@ class EmojiPicker extends StatefulWidget {
   final OnBackspacePressed? onBackspacePressed;
 
   /// Config for customizations
-  final Config config;
+  final EmojiPickerConfig config;
 
   @override
   EmojiPickerState createState() => EmojiPickerState();
@@ -123,7 +126,7 @@ class EmojiPickerState extends State<EmojiPicker> {
   @override
   void didUpdateWidget(covariant EmojiPicker oldWidget) {
     if (oldWidget.config != widget.config) {
-      // Config changed - rebuild EmojiPickerView completely
+      // EmojiPickerConfig changed - rebuild EmojiPickerView completely
       loaded = false;
       updateEmojiFuture = _updateEmojis();
     }

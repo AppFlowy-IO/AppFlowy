@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'config.dart';
+import 'emji_picker_config.dart';
 import 'emoji_view_state.dart';
 
 /// Template class for custom implementation
@@ -11,7 +11,7 @@ abstract class EmojiPickerBuilder extends StatefulWidget {
       : super(key: key);
 
   /// Config for customizations
-  final Config config;
+  final EmojiPickerConfig config;
 
   /// State that holds current emoji data
   final EmojiViewState state;
