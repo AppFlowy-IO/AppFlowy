@@ -39,6 +39,8 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             _rowBackendSvc.createRowAfterRow(rowId);
           },
           didReceiveCells: (cellByFieldId, reason) async {
+            cellByFieldId
+                .removeWhere((_, cellContext) => !cellContext.isVisible());
             final cells = cellByFieldId.values
                 .map((e) => GridCellEquatable(e.fieldInfo))
                 .toList();
@@ -106,16 +108,18 @@ class RowState with _$RowState {
 
   factory RowState.initial(
     CellContextByFieldId cellByFieldId,
-  ) =>
-      RowState(
-        cellByFieldId: cellByFieldId,
-        cells: UnmodifiableListView(
-          cellByFieldId.values
-              .map((e) => GridCellEquatable(e.fieldInfo))
-              .toList(),
-        ),
-        rowSource: const RowSourece.disk(),
-      );
+  ) {
+    cellByFieldId.removeWhere((_, cellContext) => !cellContext.isVisible());
+    return RowState(
+      cellByFieldId: cellByFieldId,
+      cells: UnmodifiableListView(
+        cellByFieldId.values
+            .map((e) => GridCellEquatable(e.fieldInfo))
+            .toList(),
+      ),
+      rowSource: const RowSourece.disk(),
+    );
+  }
 }
 
 class GridCellEquatable extends Equatable {

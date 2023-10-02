@@ -25,6 +25,7 @@ use crate::migrations::migration::UserLocalDataMigration;
 use crate::migrations::sync_new_user::sync_user_data_to_cloud;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
+use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 use crate::services::database::UserDB;
 use crate::services::entities::{ResumableSignUp, Session};
 use crate::services::user_awareness::UserAwarenessDataSource;
@@ -59,6 +60,7 @@ pub struct UserManager {
   pub(crate) user_awareness: Arc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
+  pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
   resumable_sign_up: Mutex<Option<ResumableSignUp>>,
   current_session: parking_lot::RwLock<Option<Session>>,
 }
@@ -82,6 +84,7 @@ impl UserManager {
       user_awareness: Arc::new(Default::default()),
       user_status_callback,
       collab_builder,
+      collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
       resumable_sign_up: Default::default(),
       current_session: Default::default(),
     });
@@ -114,7 +117,11 @@ impl UserManager {
   /// it will attempt a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
-  pub async fn init<C: UserStatusCallback + 'static>(&self, user_status_callback: C) {
+  pub async fn init<C: UserStatusCallback + 'static, I: CollabInteract>(
+    &self,
+    user_status_callback: C,
+    collab_interact: I,
+  ) {
     if let Ok(session) = self.get_session() {
       // Do the user data migration if needed
       match (
@@ -155,6 +162,7 @@ impl UserManager {
       }
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
+    *self.collab_interact.write().await = Arc::new(collab_interact);
   }
 
   pub fn db_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {

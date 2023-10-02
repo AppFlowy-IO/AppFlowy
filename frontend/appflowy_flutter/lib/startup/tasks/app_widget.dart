@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -22,15 +23,22 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await NotificationService.initialize();
+
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
+    final dateTimeSettings =
+        await UserSettingsBackendService().getDateTimeSettings();
 
     // If the passed-in context is not the same as the context of the
     // application widget, the application widget will be rebuilt.
     final app = ApplicationWidget(
       key: ValueKey(context),
       appearanceSetting: appearanceSetting,
+      dateTimeSettings: dateTimeSettings,
       appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
@@ -71,21 +79,23 @@ class InitAppWidgetTask extends LaunchTask {
       ),
     );
 
-    return Future(() => {});
+    return;
   }
 }
 
 class ApplicationWidget extends StatefulWidget {
-  final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
-  final AppTheme appTheme;
-
   const ApplicationWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.appTheme,
     required this.appearanceSetting,
-  }) : super(key: key);
+    required this.dateTimeSettings,
+  });
+
+  final Widget child;
+  final AppearanceSettingsPB appearanceSetting;
+  final AppTheme appTheme;
+  final DateTimeSettingsPB dateTimeSettings;
 
   @override
   State<ApplicationWidget> createState() => _ApplicationWidgetState();
@@ -109,6 +119,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         BlocProvider<AppearanceSettingsCubit>(
           create: (_) => AppearanceSettingsCubit(
             widget.appearanceSetting,
+            widget.dateTimeSettings,
             widget.appTheme,
           )..readLocaleWhenAppLaunch(context),
         ),

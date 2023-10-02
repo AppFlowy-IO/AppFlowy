@@ -24,6 +24,7 @@ members = [
   "flowy-storage",
   "collab-integrate",
   "flowy-ai",
+  "flowy-date",
 ]
 
 [workspace.dependencies]
@@ -50,6 +51,7 @@ flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-ai = { workspace = true, path = "flowy-ai" }
+flowy-date = { workspace = true, path = "flowy-date" }
 
 [profile.dev]
 opt-level = 0
