@@ -26,7 +26,7 @@ class EmojiPickerConfig {
     this.serachHintTextStyle,
     this.serachBarEnableBorder,
     this.serachBarFocusedBorder,
-    this.noRecentsText = 'No Recents',
+    this.noRecentsText = 'No recent emoji',
     this.noRecentsStyle,
     this.noEmojiFoundText = 'No emoji found',
     this.scrollBarHandleColor,

@@ -723,6 +723,9 @@
     "gray": "Gray"
   },
   "emoji": {
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
     "filter": "Filter",
     "random": "Random",
     "selectSkinTone": "Select skin tone",

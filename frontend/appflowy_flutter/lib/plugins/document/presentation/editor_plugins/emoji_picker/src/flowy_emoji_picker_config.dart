@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/src/emji_picker_config.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 EmojiPickerConfig buildFlowyEmojiPickerConfig(BuildContext context) {
@@ -10,7 +12,7 @@ EmojiPickerConfig buildFlowyEmojiPickerConfig(BuildContext context) {
     selectedCategoryIconBackgroundColor: style.colorScheme.primary,
     progressIndicatorColor: style.colorScheme.primary,
     backspaceColor: style.colorScheme.primary,
-    searchHintText: 'Search emoji localations',
+    searchHintText: LocaleKeys.emoji_search.tr(),
     serachHintTextStyle: style.textTheme.bodyMedium?.copyWith(
       color: style.hintColor,
     ),
@@ -24,9 +26,9 @@ EmojiPickerConfig buildFlowyEmojiPickerConfig(BuildContext context) {
         color: style.colorScheme.primary,
       ),
     ),
-    noRecentsText: 'No Recents localations',
+    noRecentsText: LocaleKeys.emoji_noRecent.tr(),
     noRecentsStyle: style.textTheme.bodyMedium,
-    noEmojiFoundText: 'No emoji found localations',
+    noEmojiFoundText: LocaleKeys.emoji_noEmojiFound.tr(),
     scrollBarHandleColor: style.colorScheme.primary,
   );
 }
