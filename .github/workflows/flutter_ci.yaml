@@ -22,6 +22,7 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
+  CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
 
@@ -74,6 +75,7 @@ jobs:
           prefix-key: ${{ matrix.os }}
           workspaces: |
             frontend/rust-lib
+          cache-all-crates: true
 
       - uses: davidB/rust-cargo-make@v1
         with:
@@ -114,6 +116,34 @@ jobs:
         run: |
           cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
 
+      - uses: bissolli/gh-action-persist-workspace@v1
+        with:
+          action: persist
+  
+  flutter_unit_test:
+    needs: [build]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            flutter_profile: development-mac-x86_64
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: chatfood/gh-action-persist-workspace@master
+        with:
+          action: retrieve
+
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
         run: |
@@ -138,3 +168,52 @@ jobs:
           attempt_limit: 20
           attempt_delay: 10000
 
+  flutter_integration_test:
+    needs: [build]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            flutter_profile: development-linux-x86_64
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            flutter_profile: development-windows-x86
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: chatfood/gh-action-persist-workspace@master
+        with:
+          action: retrieve
+
+      - name: Run Flutter integration tests
+        working-directory: frontend/appflowy_flutter
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            export DISPLAY=:99
+            sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+            sudo apt-get install network-manager
+            flutter test integration_test/runner.dart -d Linux --coverage
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter test integration_test/runner.dart -d macOS --coverage
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            flutter test integration_test/runner.dart -d Windows --coverage
+          fi
+        shell: bash
+
+      - name: Upload coverage to Codecov
+        uses: Wandalen/wretry.action@v1.0.36
+        with:
+          action: codecov/codecov-action@v3
+          with: |
+            name: appflowy
+            flags: appflowy_flutter_integrateion_test
+            fail_ci_if_error: true
+            verbose: true
+            os: ${{ matrix.os }}
+            token: ${{ secrets.CODECOV_TOKEN }}
+          attempt_limit: 20
+          attempt_delay: 10000
