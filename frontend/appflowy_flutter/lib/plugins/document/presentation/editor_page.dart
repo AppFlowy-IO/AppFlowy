@@ -2,12 +2,12 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
-import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
-import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -18,7 +18,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 final List<CommandShortcutEvent> commandShortcutEvents = [
   toggleToggleListCommand,
   ...codeBlockCommands,
+  customCopyCommand,
+  customPasteCommand,
+  customCutCommand,
   ...standardCommandShortcutEvents,
+];
+
+final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
+  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
 ];
 
 /// Wrapper for the appflowy editor.
@@ -452,6 +459,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Future<void> _initializeShortcuts() async {
+    // TODO(Xazin): Refactor lazy initialization
+    defaultCommandShortcutEvents;
     final settingsShortcutService = SettingsShortcutService();
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();

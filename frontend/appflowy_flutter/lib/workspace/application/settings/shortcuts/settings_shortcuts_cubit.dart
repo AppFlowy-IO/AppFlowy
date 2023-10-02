@@ -91,7 +91,7 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
       ),
     );
     try {
-      await service.saveAllShortcuts(commandShortcutEvents);
+      await service.saveAllShortcuts(defaultCommandShortcutEvents);
       await fetchShortcuts();
     } catch (e) {
       emit(

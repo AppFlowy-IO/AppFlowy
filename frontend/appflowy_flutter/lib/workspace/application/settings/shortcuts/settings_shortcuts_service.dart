@@ -74,7 +74,7 @@ class SettingsShortcutService {
 
   Future<void> resetToDefaultShortcuts() async {
     await _initCompleter.future;
-    await saveAllShortcuts(commandShortcutEvents);
+    await saveAllShortcuts(defaultCommandShortcutEvents);
   }
 
   // Accesses the shortcuts.json file within the default AppFlowy Document Directory or creates a new file if it already doesn't exist.
