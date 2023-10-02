@@ -367,28 +367,13 @@ class FieldController {
 
   /// Listen for field changes in the backend.
   void _listenOnFieldChanges() {
-    void deleteFields(List<FieldIdPB> deletedFields) {
-      if (deletedFields.isEmpty) {
-        return;
-      }
-      final List<FieldInfo> newFields = fieldInfos;
-      final Map<String, FieldIdPB> deletedFieldMap = {
-        for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
-      };
-
-      newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
-      _fieldNotifier.fieldInfos = newFields;
-    }
-
     Future<FieldInfo> attachFieldSettings(FieldInfo fieldInfo) async {
       return _fieldSettingsBackendSvc
           .getFieldSettings(fieldInfo.id)
           .then((result) {
         final fieldSettings = result.fold(
           (fieldSettings) => fieldSettings,
-          (err) {
-            return null;
-          },
+          (err) => null,
         );
         if (fieldSettings == null) {
           return fieldInfo;
@@ -400,9 +385,25 @@ class FieldController {
       });
     }
 
-    Future<void> insertFields(List<IndexFieldPB> insertedFields) async {
+    List<FieldInfo> deleteFields(List<FieldIdPB> deletedFields) {
+      if (deletedFields.isEmpty) {
+        return fieldInfos;
+      }
+      final List<FieldInfo> newFields = fieldInfos;
+      final Map<String, FieldIdPB> deletedFieldMap = {
+        for (final fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
+      };
+
+      newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
+      return newFields;
+    }
+
+    Future<List<FieldInfo>> insertFields(
+      List<IndexFieldPB> insertedFields,
+      List<FieldInfo> fieldInfos,
+    ) async {
       if (insertedFields.isEmpty) {
-        return;
+        return fieldInfos;
       }
       final List<FieldInfo> newFieldInfos = fieldInfos;
       for (final indexField in insertedFields) {
@@ -414,32 +415,32 @@ class FieldController {
           newFieldInfos.add(fieldInfo);
         }
       }
-      _fieldNotifier.fieldInfos = newFieldInfos;
+      return newFieldInfos;
     }
 
-    Future<List<FieldInfo>> updateFields(List<FieldPB> updatedFieldPBs) async {
+    Future<(List<FieldInfo>, List<FieldInfo>)> updateFields(
+      List<FieldPB> updatedFieldPBs,
+      List<FieldInfo> fieldInfos,
+    ) async {
       if (updatedFieldPBs.isEmpty) {
-        return [];
+        return (<FieldInfo>[], fieldInfos);
       }
 
-      final List<FieldInfo> newFields = fieldInfos;
+      final List<FieldInfo> newFieldInfo = fieldInfos;
       final List<FieldInfo> updatedFields = [];
       for (final updatedFieldPB in updatedFieldPBs) {
         final index =
-            newFields.indexWhere((field) => field.id == updatedFieldPB.id);
+            newFieldInfo.indexWhere((field) => field.id == updatedFieldPB.id);
         if (index != -1) {
-          newFields.removeAt(index);
+          newFieldInfo.removeAt(index);
           final initial = FieldInfo.initial(updatedFieldPB);
           final fieldInfo = await attachFieldSettings(initial);
-          newFields.insert(index, fieldInfo);
+          newFieldInfo.insert(index, fieldInfo);
           updatedFields.add(fieldInfo);
         }
       }
 
-      if (updatedFields.isNotEmpty) {
-        _fieldNotifier.fieldInfos = newFields;
-      }
-      return updatedFields;
+      return (updatedFields, newFieldInfo);
     }
 
     // Listen on field's changes
@@ -450,10 +451,14 @@ class FieldController {
             if (_isDisposed) {
               return;
             }
-            deleteFields(changeset.deletedFields);
-            insertFields(changeset.insertedFields);
+            List<FieldInfo> updatedFields;
+            List<FieldInfo> fieldInfos = deleteFields(changeset.deletedFields);
+            fieldInfos =
+                await insertFields(changeset.insertedFields, fieldInfos);
+            (updatedFields, fieldInfos) =
+                await updateFields(changeset.updatedFields, fieldInfos);
 
-            final updatedFields = await updateFields(changeset.updatedFields);
+            _fieldNotifier.fieldInfos = fieldInfos;
             for (final listener in _updatedFieldCallbacks.values) {
               listener(updatedFields);
             }

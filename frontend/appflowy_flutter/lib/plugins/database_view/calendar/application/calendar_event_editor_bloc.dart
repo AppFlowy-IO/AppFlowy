@@ -23,12 +23,14 @@ class CalendarEventEditorBloc
       await event.when(
         initial: () {
           _startListening();
-          final cells = rowController.loadData();
+          final cells = rowController
+              .loadData()
+              .values
+              .where((cellContext) => cellContext.isVisible())
+              .toList();
           if (!isClosed) {
             add(
-              CalendarEventEditorEvent.didReceiveCellDatas(
-                cells.values.toList(),
-              ),
+              CalendarEventEditorEvent.didReceiveCellDatas(cells),
             );
           }
         },
@@ -47,8 +49,11 @@ class CalendarEventEditorBloc
     rowController.addListener(
       onRowChanged: (cells, reason) {
         if (!isClosed) {
+          final cellData = cells.values
+              .where((cellContext) => cellContext.isVisible())
+              .toList();
           add(
-            CalendarEventEditorEvent.didReceiveCellDatas(cells.values.toList()),
+            CalendarEventEditorEvent.didReceiveCellDatas(cellData),
           );
         }
       },
