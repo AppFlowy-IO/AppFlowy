@@ -38,7 +38,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return FieldCellBloc(cellContext: widget.cellContext);
+        return FieldCellBloc(fieldContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
@@ -54,7 +54,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: FieldCellButton(
-              field: widget.cellContext.field,
+              field: widget.cellContext.fieldInfo.field,
               onTap: () => popoverController.show(),
             ),
           );

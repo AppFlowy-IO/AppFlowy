@@ -63,6 +63,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     ],
   );
 
+  late final List<CommandShortcutEvent> commandShortcutEvents = [
+    toggleToggleListCommand,
+    ...codeBlockCommands,
+    customCopyCommand,
+    customPasteCommand,
+    customCutCommand,
+    ...standardCommandShortcutEvents,
+    ..._buildFindAndReplaceCommands(),
+  ];
+
   final List<ToolbarItem> toolbarItems = [
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -147,6 +157,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     }
     inlineActionsService.dispose();
 
+    widget.editorState.dispose();
+
     super.dispose();
   }
 
@@ -158,7 +170,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final isRTL =
         context.read<AppearanceSettingsCubit>().state.layoutDirection ==
             LayoutDirection.rtlLayout;
-    final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+    final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
     _setRTLToolbarItems(isRTL);
 
@@ -195,8 +207,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         items: toolbarItems,
         editorState: widget.editorState,
         editorScrollController: editorScrollController,
+        textDirection: textDirection,
         child: Directionality(
-          textDirection: layoutDirection,
+          textDirection: textDirection,
           child: editor,
         ),
       ),
@@ -465,7 +478,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();
     await settingsShortcutService.updateCommandShortcuts(
-      standardCommandShortcutEvents,
+      commandShortcutEvents,
       customizeShortcuts,
     );
   }
@@ -480,5 +493,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (isRTL) {
       toolbarItems.addAll(textDirectionItems);
     }
+  }
+
+  List<CommandShortcutEvent> _buildFindAndReplaceCommands() {
+    return findAndReplaceCommands(
+      context: context,
+      style: FindReplaceStyle(
+        findMenuBuilder: (
+          context,
+          editorState,
+          localizations,
+          style,
+          showReplaceMenu,
+          onDismiss,
+        ) {
+          return Material(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: FindAndReplaceMenuWidget(
+                editorState: editorState,
+                onDismiss: onDismiss,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

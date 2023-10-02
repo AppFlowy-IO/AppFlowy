@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -19,17 +21,19 @@ class FieldEditor extends StatefulWidget {
   final String viewId;
   final bool isGroupingField;
   final Function(String)? onDeleted;
-  final Function(String)? onHidden;
+  final Function(String)? onToggleVisibility;
   final FieldTypeOptionLoader typeOptionLoader;
+  final FieldInfo? fieldInfo;
 
   const FieldEditor({
     required this.viewId,
     required this.typeOptionLoader,
+    this.fieldInfo,
     this.isGroupingField = false,
     this.onDeleted,
-    this.onHidden,
-    Key? key,
-  }) : super(key: key);
+    this.onToggleVisibility,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _FieldEditorState();
@@ -53,14 +57,14 @@ class _FieldEditorState extends State<FieldEditor> {
   @override
   Widget build(BuildContext context) {
     final bool requireSpace = widget.onDeleted != null ||
-        widget.onHidden != null ||
+        widget.onToggleVisibility != null ||
         !widget.typeOptionLoader.field.isPrimary;
 
     final List<Widget> children = [
       FieldNameTextField(popoverMutex: popoverMutex),
       if (requireSpace) const VSpace(4),
       if (widget.onDeleted != null) _addDeleteFieldButton(),
-      if (widget.onHidden != null) _addHideFieldButton(),
+      if (widget.onToggleVisibility != null) _addHideFieldButton(),
       if (!widget.typeOptionLoader.field.isPrimary)
         FieldTypeOptionCell(popoverMutex: popoverMutex),
     ];
@@ -88,7 +92,7 @@ class _FieldEditorState extends State<FieldEditor> {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: _DeleteFieldButton(
+          child: DeleteFieldButton(
             popoverMutex: popoverMutex,
             onDeleted: () {
               state.field.fold(
@@ -107,12 +111,14 @@ class _FieldEditorState extends State<FieldEditor> {
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: HideFieldButton(
+          child: FieldVisibilityToggleButton(
+            isFieldHidden:
+                widget.fieldInfo!.visibility == FieldVisibility.AlwaysHidden,
             popoverMutex: popoverMutex,
-            onHidden: () {
+            onTap: () {
               state.field.fold(
                 () => Log.error('Can not hidden the field'),
-                (field) => widget.onHidden?.call(field.id),
+                (field) => widget.onToggleVisibility?.call(field.id),
               );
             },
           ),
@@ -218,15 +224,16 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
   }
 }
 
-class _DeleteFieldButton extends StatelessWidget {
+@visibleForTesting
+class DeleteFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
   final VoidCallback? onDeleted;
 
-  const _DeleteFieldButton({
+  const DeleteFieldButton({
     required this.popoverMutex,
     required this.onDeleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -253,15 +260,17 @@ class _DeleteFieldButton extends StatelessWidget {
 }
 
 @visibleForTesting
-class HideFieldButton extends StatelessWidget {
+class FieldVisibilityToggleButton extends StatelessWidget {
+  final bool isFieldHidden;
   final PopoverMutex popoverMutex;
-  final VoidCallback? onHidden;
+  final VoidCallback? onTap;
 
-  const HideFieldButton({
+  const FieldVisibilityToggleButton({
+    required this.isFieldHidden,
     required this.popoverMutex,
-    required this.onHidden,
-    Key? key,
-  }) : super(key: key);
+    required this.onTap,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -270,10 +279,13 @@ class HideFieldButton extends StatelessWidget {
       builder: (context, state) {
         final Widget button = FlowyButton(
           text: FlowyText.medium(
-            LocaleKeys.grid_field_hide.tr(),
+            isFieldHidden
+                ? LocaleKeys.grid_field_show.tr()
+                : LocaleKeys.grid_field_hide.tr(),
           ),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
-          onTap: () => onHidden?.call(),
+          leftIcon:
+              FlowySvg(isFieldHidden ? FlowySvgs.show_m : FlowySvgs.hide_m),
+          onTap: onTap,
           onHover: (_) => popoverMutex.close(),
         );
         return SizedBox(height: GridSize.popoverItemHeight, child: button);
