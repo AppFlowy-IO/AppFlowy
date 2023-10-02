@@ -1447,6 +1447,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "date_time_parser"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0521d96e513670773ac503e5f5239178c3aef16cffda1e77a3cdbdbe993fb5a"
+dependencies = [
+ "chrono",
+ "regex",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1909,6 +1919,7 @@ dependencies = [
  "flowy-config",
  "flowy-database-deps",
  "flowy-database2",
+ "flowy-date",
  "flowy-document-deps",
  "flowy-document2",
  "flowy-error",
@@ -1990,6 +2001,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-date"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "date_time_parser",
+ "fancy-regex 0.11.0",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "lib-dispatch",
+ "protobuf",
+ "strum_macros 0.21.1",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-derive"
 version = "0.1.0"
 dependencies = [
@@ -2068,6 +2096,7 @@ dependencies = [
  "client-api",
  "collab-database",
  "collab-document",
+ "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
  "flowy-sqlite",
@@ -2270,7 +2299,8 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
- "strum_macros 0.21.1",
+ "strum",
+ "strum_macros 0.25.2",
  "tokio",
  "tracing",
  "unicode-segmentation",
