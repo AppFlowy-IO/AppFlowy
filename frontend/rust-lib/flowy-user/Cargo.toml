@@ -44,7 +44,7 @@ validator = "0.16.0"
 unicode-segmentation = "1.10"
 fancy-regex = "0.11.0"
 uuid = { version = "1.3.3", features = [ "v4"] }
-chrono = { version = "0.4.27", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 base64 = "^0.21"
 
 [dev-dependencies]

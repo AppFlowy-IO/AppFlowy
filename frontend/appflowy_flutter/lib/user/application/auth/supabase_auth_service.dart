@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/startup/tasks/prelude.dart';
-import 'package:appflowy/user/application/auth/appflowy_auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
@@ -20,14 +20,15 @@ class SupabaseAuthService implements AuthService {
   SupabaseClient get _client => Supabase.instance.client;
   GoTrueClient get _auth => _client.auth;
 
-  final AppFlowyAuthService _appFlowyAuthService = AppFlowyAuthService();
+  final BackendAuthService _backendAuthService = BackendAuthService(
+    AuthTypePB.Supabase,
+  );
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUp({
     required String name,
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     // fetch the uuid from supabase.
@@ -41,11 +42,10 @@ class SupabaseAuthService implements AuthService {
     }
     // assign the uuid to our backend service.
     //  and will transfer this logic to backend later.
-    return _appFlowyAuthService.signUp(
+    return _backendAuthService.signUp(
       name: name,
       email: email,
       password: password,
-      authType: authType,
       params: {
         AuthServiceMapKeys.uuid: uuid,
       },
@@ -56,7 +56,6 @@ class SupabaseAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> signIn({
     required String email,
     required String password,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     try {
@@ -68,10 +67,9 @@ class SupabaseAuthService implements AuthService {
       if (uuid == null) {
         return Left(AuthError.supabaseSignInError);
       }
-      return _appFlowyAuthService.signIn(
+      return _backendAuthService.signIn(
         email: email,
         password: password,
-        authType: authType,
         params: {
           AuthServiceMapKeys.uuid: uuid,
         },
@@ -85,7 +83,6 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     // Before signing in, sign out any existing users. Otherwise, the callback will be triggered even if the user doesn't click the 'Sign In' button on the website
@@ -118,23 +115,18 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut({
-    AuthTypePB authType = AuthTypePB.Supabase,
-  }) async {
+  Future<void> signOut() async {
     await _auth.signOut();
-    await _appFlowyAuthService.signOut(
-      authType: authType,
-    );
+    await _backendAuthService.signOut();
   }
 
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
-    AuthTypePB authType = AuthTypePB.Supabase,
     Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.
     // so, just forward to our backend.
-    return _appFlowyAuthService.signUpAsGuest();
+    return _backendAuthService.signUpAsGuest();
   }
 
   @override
@@ -177,13 +169,12 @@ class SupabaseAuthService implements AuthService {
   Future<Either<FlowyError, UserProfilePB>> _setupAuth({
     required Map<String, String> map,
   }) async {
-    final payload = ThirdPartyAuthPB(
+    final payload = OAuthPB(
       authType: AuthTypePB.Supabase,
       map: map,
     );
-    return UserEventThirdPartyAuth(payload)
-        .send()
-        .then((value) => value.swap());
+
+    return UserEventOAuth(payload).send().then((value) => value.swap());
   }
 }
 

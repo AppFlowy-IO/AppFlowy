@@ -13,6 +13,6 @@ serde = { version = "1.0", features = ["derive"] }
 collab-define = { version = "0.1.0" }
 serde_json = { version = "1.0"}
 serde_repr = "0.1"
-chrono = { version = "0.4.27", default-features = false, features = ["clock", "serde"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock", "serde"] }
 anyhow = "1.0.71"
 tokio = { version = "1.26", features = ["sync"] }

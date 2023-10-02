@@ -15,7 +15,7 @@ pub trait DatabaseCloudService: Send + Sync {
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error>;
 
   fn batch_get_collab_updates(

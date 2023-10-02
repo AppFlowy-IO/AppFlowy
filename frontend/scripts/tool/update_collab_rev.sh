@@ -20,10 +20,15 @@ for dir in "${directories[@]}"; do
     collab_crates=($(grep -E '^collab[a-zA-Z0-9_-]* =' Cargo.toml | awk -F'=' '{print $1}' | tr -d ' '))
 
     # Update only the changed crates in Cargo.lock
+
+    crates_to_update=""
     for crate in "${collab_crates[@]}"; do
-        echo "Updating $crate"
-        cargo update -p $crate
+        crates_to_update="$crates_to_update -p $crate"
     done
+
+    # Update all the specified crates at once
+    echo "Updating crates: $crates_to_update"
+    cargo update $crates_to_update
 
     cd ..
 done

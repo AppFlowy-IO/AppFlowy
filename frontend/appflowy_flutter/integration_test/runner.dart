@@ -73,7 +73,7 @@ void main() {
   user_icon_test.main();
   user_language_test.main();
 
-  if (isSupabaseEnabled) {
+  if (isCloudEnabled) {
     auth_test_runner.main();
   }
 

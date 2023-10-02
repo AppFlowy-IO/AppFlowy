@@ -12,7 +12,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
   fn get_collab_update(
     &self,
     _object_id: &str,
-    _object_ty: CollabType,
+    _collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
