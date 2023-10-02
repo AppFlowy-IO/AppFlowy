@@ -22,6 +22,7 @@ impl From<AppError> for FlowyError {
       client_api::error::ErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       client_api::error::ErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
       client_api::error::ErrorCode::UserNameIsEmpty => ErrorCode::UserNameIsEmpty,
+      _ => ErrorCode::Internal,
     };
 
     FlowyError::new(code, error.message)

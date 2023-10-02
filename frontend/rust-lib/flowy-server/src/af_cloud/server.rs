@@ -3,7 +3,9 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::notify::{TokenState, TokenStateReceiver};
-use client_api::ws::{BusinessID, WSClient, WSClientConfig, WebSocketChannel};
+use client_api::ws::{
+  BusinessID, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
+};
 use client_api::Client;
 use tokio::sync::RwLock;
 
@@ -105,21 +107,24 @@ impl AppFlowyServer for AFCloudServer {
   fn collab_ws_channel(
     &self,
     object_id: &str,
-  ) -> FutureResult<Option<Arc<WebSocketChannel>>, anyhow::Error> {
+  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
     if self.enable_sync.load(Ordering::SeqCst) {
       let object_id = object_id.to_string();
       let weak_ws_client = Arc::downgrade(&self.ws_client);
       FutureResult::new(async move {
         match weak_ws_client.upgrade() {
           None => Ok(None),
-          Some(ws_client) => Ok(
-            ws_client
+          Some(ws_client) => {
+            let channel = ws_client
               .read()
               .await
               .subscribe(BusinessID::CollabId, object_id)
               .await
-              .ok(),
-          ),
+              .ok();
+            let connect_state_recv = ws_client.read().await.subscribe_connect_state().await;
+
+            Ok(channel.map(|c| (c, connect_state_recv)))
+          },
         }
       })
     } else {

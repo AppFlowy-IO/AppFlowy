@@ -38,7 +38,7 @@ custom-protocol = ["tauri/custom-protocol"]
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "206dd60" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b0c213" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -48,15 +48,14 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "206
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "ebde314" }
+collab = { path = "../../AppFlowy-Collab/collab" }
+collab-folder = { path = "../../AppFlowy-Collab/collab-folder" }
+collab-document = { path = "../../AppFlowy-Collab/collab-document" }
+collab-database = { path = "../../AppFlowy-Collab/collab-database" }
+collab-plugins = { path = "../../AppFlowy-Collab/collab-plugins" }
+collab-user = { path = "../../AppFlowy-Collab/collab-user" }
+collab-define = { path = "../../AppFlowy-Collab/collab-define" }
+collab-persistence = { path = "../../AppFlowy-Collab/collab-persistence" }
 
 
 

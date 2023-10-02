@@ -275,7 +275,7 @@ impl CollabStorageProvider for ServerProvider {
       } => {
         if let Ok(server) = self.get_server(&ServerType::AFCloud) {
           match server.collab_ws_channel(&collab_object.object_id).await {
-            Ok(Some(channel)) => {
+            Ok(Some((channel, ws_connect_state))) => {
               let origin = CollabOrigin::Client(CollabClient::new(
                 collab_object.uid,
                 collab_object.device_id.clone(),
@@ -291,6 +291,7 @@ impl CollabStorageProvider for ServerProvider {
                 sink_config,
                 stream,
                 Some(channel),
+                ws_connect_state,
               );
               plugins.push(Arc::new(sync_plugin));
             },
