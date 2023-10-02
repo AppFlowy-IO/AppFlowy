@@ -114,7 +114,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       decoration: InputDecoration(
         constraints: BoxConstraints(
             maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12,vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15,vertical: 12),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,
