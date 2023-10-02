@@ -48,13 +48,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   final inlinePageReferenceService = InlinePageReferenceService();
 
-  final List<CommandShortcutEvent> commandShortcutEvents = [
+  late final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
     ...standardCommandShortcutEvents,
+    ..._buildFindAndReplaceCommands(),
   ];
 
   final List<ToolbarItem> toolbarItems = [
@@ -147,6 +148,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       effectiveScrollController.dispose();
     }
 
+    widget.editorState.dispose();
+
     super.dispose();
   }
 
@@ -158,7 +161,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final isRTL =
         context.read<AppearanceSettingsCubit>().state.layoutDirection ==
             LayoutDirection.rtlLayout;
-    final layoutDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+    final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
     _setRTLToolbarItems(isRTL);
 
@@ -195,8 +198,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         items: toolbarItems,
         editorState: widget.editorState,
         editorScrollController: editorScrollController,
+        textDirection: textDirection,
         child: Directionality(
-          textDirection: layoutDirection,
+          textDirection: textDirection,
           child: editor,
         ),
       ),
@@ -479,5 +483,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (isRTL) {
       toolbarItems.addAll(textDirectionItems);
     }
+  }
+
+  List<CommandShortcutEvent> _buildFindAndReplaceCommands() {
+    return findAndReplaceCommands(
+      context: context,
+      style: FindReplaceStyle(
+        findMenuBuilder: (
+          context,
+          editorState,
+          localizations,
+          style,
+          showReplaceMenu,
+          onDismiss,
+        ) {
+          return Material(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: FindAndReplaceMenuWidget(
+                editorState: editorState,
+                onDismiss: onDismiss,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
