@@ -498,7 +498,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           onDismiss,
         ) {
           return Material(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(4),
