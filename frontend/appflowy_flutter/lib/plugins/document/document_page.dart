@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/document/presentation/export_page_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
     hide DocumentEvent;
@@ -17,7 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -145,18 +145,8 @@ class _DocumentPageState extends State<DocumentPage> {
     const encoder = JsonEncoder.withIndent('  ');
     final json = encoder.convert(data.toProto3Json());
     await File(path).writeAsString(json.base64.base64);
-
-    _showMessage('Export success to $path');
-  }
-
-  void _showMessage(String message) {
-    if (!mounted) {
-      return;
+    if (mounted) {
+      showSnackBarMessage(context, 'Export success to $path');
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: FlowyText(message),
-      ),
-    );
   }
 }

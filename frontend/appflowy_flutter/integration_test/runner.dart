@@ -22,6 +22,8 @@ import 'tabs_test.dart' as tabs_test;
 import 'hotkeys_test.dart' as hotkeys_test;
 import 'appearance_settings_test.dart' as appearance_test_runner;
 import 'auth/auth_test.dart' as auth_test_runner;
+import 'settings/user_icon_test.dart' as user_icon_test;
+import 'settings/user_language_test.dart' as user_language_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -67,7 +69,11 @@ void main() {
   // Appearance integration test
   appearance_test_runner.main();
 
-  if (isSupabaseEnabled) {
+  // User settings
+  user_icon_test.main();
+  user_language_test.main();
+
+  if (isCloudEnabled) {
     auth_test_runner.main();
   }
 

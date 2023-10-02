@@ -180,7 +180,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               builtInAssetImages[index],
             );
           },
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(builtInAssetImages[index]),
@@ -299,7 +299,7 @@ class NewCustomCoverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).colorScheme.primary,
@@ -484,7 +484,7 @@ class _ImageGridItemState extends State<ImageGridItem> {
         children: [
           InkWell(
             onTap: widget.onImageSelect,
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: FileImage(File(widget.imagePath)),
@@ -544,7 +544,7 @@ class ColorItem extends StatelessWidget {
         padding: const EdgeInsets.only(right: 10.0),
         child: SizedBox.square(
           dimension: 25,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: option.colorHex.tryToColor(),
               shape: BoxShape.circle,

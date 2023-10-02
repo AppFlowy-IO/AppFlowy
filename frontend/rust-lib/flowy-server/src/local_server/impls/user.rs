@@ -24,7 +24,7 @@ pub(crate) struct LocalServerUserAuthServiceImpl {
 }
 
 impl UserCloudService for LocalServerUserAuthServiceImpl {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     FutureResult::new(async move {
       let params = params.unbox_or_error::<SignUpParams>()?;
       let uid = ID_GEN.lock().next_id();
@@ -35,7 +35,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
       } else {
         params.name.clone()
       };
-      Ok(SignUpResponse {
+      Ok(AuthResponse {
         user_id: uid,
         name: user_name,
         latest_workspace: user_workspace.clone(),
@@ -49,7 +49,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let db = self.db.clone();
     FutureResult::new(async move {
       let params: SignInParams = params.unbox_or_error::<SignInParams>()?;
@@ -58,11 +58,12 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
       let user_workspace = db
         .get_user_workspace(uid)?
         .unwrap_or_else(make_user_workspace);
-      Ok(SignInResponse {
+      Ok(AuthResponse {
         user_id: uid,
         name: params.name,
         latest_workspace: user_workspace.clone(),
         user_workspaces: vec![user_workspace],
+        is_new_user: false,
         email: Some(params.email),
         token: None,
         device_id: params.device_id,
@@ -73,6 +74,14 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate callback url when using offline mode"
+      ))
+    })
   }
 
   fn update_user(

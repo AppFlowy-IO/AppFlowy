@@ -35,22 +35,22 @@ nanoid = "0.4.0"
 tracing = { version = "0.1.27" }
 parking_lot = "0.12.1"
 uuid = { version = "1.3.3", features = ["serde", "v4"] }
-
-[dev-dependencies]
-dotenv = "0.15.0"
-tempdir = "0.3.7"
-uuid = { version = "1.3.3", features = ["v4"] }
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-define = { version = "0.1.0" }
+
+[dev-dependencies]
+dotenv = "0.15.0"
+tempdir = "0.3.7"
+uuid = { version = "1.3.3", features = ["v4"] }
 assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
 zip = "0.6.6"
 
 [features]
-default = ["cloud_test"]
+default = ["supabase_cloud_test"]
 dart = ["flowy-core/dart"]
-cloud_test = []
+supabase_cloud_test = []

@@ -17,6 +17,7 @@ class FlowyIconButton extends StatelessWidget {
   final InlineSpan? richTooltipText;
   final bool preferBelow;
   final BoxDecoration? decoration;
+  final bool? isSelected;
 
   const FlowyIconButton({
     Key? key,
@@ -32,6 +33,7 @@ class FlowyIconButton extends StatelessWidget {
     this.tooltipText,
     this.richTooltipText,
     this.preferBelow = true,
+    this.isSelected,
     required this.icon,
   })  : assert((richTooltipText != null && tooltipText == null) ||
             (richTooltipText == null && tooltipText != null) ||
@@ -74,6 +76,7 @@ class FlowyIconButton extends StatelessWidget {
           elevation: 0,
           onPressed: onPressed,
           child: FlowyHover(
+            isSelected: isSelected != null ? () => isSelected! : null,
             style: HoverStyle(
               // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
               hoverColor: hoverColor,

@@ -81,7 +81,7 @@ pub struct SignUpParams {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SignUpResponse {
+pub struct AuthResponse {
   pub user_id: i64,
   pub name: String,
   pub latest_workspace: UserWorkspace,
@@ -93,7 +93,7 @@ pub struct SignUpResponse {
   pub encryption_type: EncryptionType,
 }
 
-impl UserAuthResponse for SignUpResponse {
+impl UserAuthResponse for AuthResponse {
   fn user_id(&self) -> i64 {
     self.user_id
   }
@@ -129,7 +129,7 @@ impl UserAuthResponse for SignUpResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is SelfHosted
+  /// Currently, the token is only used when the [AuthType] is AFCloud
   pub token: Option<String>,
 
   /// The user id
@@ -326,7 +326,7 @@ pub enum AuthType {
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  SelfHosted = 1,
+  AFCloud = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
@@ -347,14 +347,19 @@ impl From<i32> for AuthType {
   fn from(value: i32) -> Self {
     match value {
       0 => AuthType::Local,
-      1 => AuthType::SelfHosted,
+      1 => AuthType::AFCloud,
       2 => AuthType::Supabase,
       _ => AuthType::Local,
     }
   }
 }
-pub struct ThirdPartyParams {
+pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
+  pub device_id: String,
+}
+
+pub struct AFCloudOAuthParams {
+  pub sign_in_url: String,
   pub device_id: String,
 }

@@ -1,5 +1,18 @@
 # Release Notes
 
+## Version 0.3.4 - 10/02/2023
+
+### New Features
+- Added support for creating a reminder.
+- Added support for finding and replacing in the document page.
+- Added support for showing the hidden fields in row detail page.
+- Adjust the toolbar style in RTL mode.
+
+### Bug fixes
+- Improve snackbar UI design.
+- Improve dandelion theme.
+- Improve id-ID and pl-PL language translations.
+
 ## Version 0.3.3 - 09/24/2023
 
 ### New Features

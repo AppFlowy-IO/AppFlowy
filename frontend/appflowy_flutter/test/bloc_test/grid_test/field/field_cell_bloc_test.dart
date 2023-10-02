@@ -23,8 +23,8 @@ void main() {
     blocTest(
       'update field width',
       build: () => FieldCellBloc(
-        cellContext: FieldContext(
-          field: context.fieldContexts[0].field,
+        fieldContext: FieldContext(
+          fieldInfo: context.fieldContexts[0],
           viewId: context.gridView.id,
         ),
       )..add(const FieldCellEvent.initial()),
@@ -42,8 +42,8 @@ void main() {
     blocTest(
       'field width should not be lesser than 50px',
       build: () => FieldCellBloc(
-        cellContext: FieldContext(
-          field: context.fieldContexts[0].field,
+        fieldContext: FieldContext(
+          fieldInfo: context.fieldContexts[0],
           viewId: context.gridView.id,
         ),
       )..add(const FieldCellEvent.initial()),
