@@ -69,7 +69,7 @@ enum CloudType {
   supabase,
   appflowyCloud;
 
-  bool get isEnabled => this == CloudType.unknown;
+  bool get isEnabled => this != CloudType.unknown;
 }
 
 CloudType currentCloudType() {
