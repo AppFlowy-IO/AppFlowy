@@ -47,7 +47,7 @@ You are in charge of your data and customizations.
 
 ## Getting Started with development
 
-Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy) for OS specific development instructions
+Please view the [documentation](https://docs.appflowy.io/docs/documentation/appflowy/from-source) for OS specific development instructions
 
 ## Roadmap
 
