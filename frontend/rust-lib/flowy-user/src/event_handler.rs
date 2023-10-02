@@ -166,6 +166,46 @@ pub async fn get_appearance_setting(
   }
 }
 
+const DATE_TIME_SETTINGS_CACHE_KEY: &str = "date_time_settings";
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn set_date_time_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  data: AFPluginData<DateTimeSettingsPB>,
+) -> Result<(), FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let mut setting = data.into_inner();
+  if setting.timezone_id.is_empty() {
+    setting.timezone_id = "".to_string();
+  }
+
+  store_preferences.set_object(DATE_TIME_SETTINGS_CACHE_KEY, setting)?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_date_time_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<DateTimeSettingsPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  match store_preferences.get_str(DATE_TIME_SETTINGS_CACHE_KEY) {
+    None => data_result_ok(DateTimeSettingsPB::default()),
+    Some(s) => {
+      let setting = match serde_json::from_str(&s) {
+        Ok(setting) => setting,
+        Err(e) => {
+          tracing::error!(
+            "Deserialize AppearanceSettings failed: {:?}, fallback to default",
+            e
+          );
+          DateTimeSettingsPB::default()
+        },
+      };
+      data_result_ok(setting)
+    },
+  }
+}
+
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn get_user_setting(
   manager: AFPluginState<Weak<UserManager>>,
@@ -455,5 +495,29 @@ pub async fn reset_workspace_handler(
   }
   let session = manager.get_session()?;
   manager.reset_workspace(reset_pb, session.device_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn remove_reminder_event_handler(
+  data: AFPluginData<ReminderIdentifierPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+
+  let params = data.into_inner();
+  let _ = manager.remove_reminder(params.id.as_str()).await;
+
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_reminder_event_handler(
+  data: AFPluginData<ReminderPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager.update_reminder(params).await?;
   Ok(())
 }

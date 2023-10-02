@@ -109,6 +109,11 @@ dependencies:
   super_clipboard: ^0.6.3
   go_router: ^10.1.2
 
+  # Notifications
+  # TODO: Consider implementing custom package
+  # to gather notification handling for all platforms
+  local_notifier: ^0.1.5
+
 dev_dependencies:
   flutter_lints: ^2.0.1
 

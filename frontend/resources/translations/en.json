@@ -291,6 +291,19 @@
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
       "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Date format",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Time format",
+        "twelveHour": "Twelve hour",
+        "twentyFourHour": "Twenty four hour"
+      },
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
     },
     "files": {
@@ -754,6 +767,32 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
+  },
+  "inlineActions": {
+    "noResults": "No results",
+    "pageReference": "Page reference",
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Reminder",
+      "shortKeyword": "remind"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Notifications",
+    "empty": "Nothing to see here!"
+  },
+  "reminderNotification": {
+    "title": "Reminder",
+    "message": "Remember to check this before you forget!",
+    "tooltipDelete": "Delete",
+    "tooltipMarkRead": "Mark as read",
+    "tooltipMarkUnread": "Mark as unread"
   },
   "findAndReplace": {
     "find": "Find",

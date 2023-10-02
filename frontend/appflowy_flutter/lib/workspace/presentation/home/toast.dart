@@ -10,7 +10,7 @@ class FlowyMessageToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4)),
         color: Theme.of(context).colorScheme.surface,

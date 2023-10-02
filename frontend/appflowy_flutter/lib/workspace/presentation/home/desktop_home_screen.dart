@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
@@ -57,6 +58,9 @@ class DesktopHomeScreen extends StatelessWidget {
         return MultiBlocProvider(
           key: ValueKey(userProfile!.id),
           providers: [
+            BlocProvider<ReminderBloc>.value(
+              value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+            ),
             BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
             BlocProvider<HomeBloc>(
               create: (context) {
