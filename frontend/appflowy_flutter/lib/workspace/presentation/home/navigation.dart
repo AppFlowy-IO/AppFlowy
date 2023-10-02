@@ -66,7 +66,7 @@ class FlowyNavigation extends StatelessWidget {
         if (state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
-            child: FlowyTooltip.delayedTooltip(
+            child: FlowyTooltip.delayed(
               richMessage: sidebarTooltipTextSpan(
                 context,
                 LocaleKeys.sideBar_openSidebar.tr(),

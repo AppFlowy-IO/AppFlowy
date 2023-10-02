@@ -217,7 +217,7 @@ class SettingsUserView extends StatelessWidget {
     required bool hasIcon,
     required Widget child,
   }) =>
-      FlowyTooltip.delayedTooltip(
+      FlowyTooltip.delayed(
         message: LocaleKeys.settings_user_tooltipSelectIcon.tr(),
         child: Stack(
           children: [

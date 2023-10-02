@@ -156,7 +156,7 @@ class _AlignButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
-        child: FlowyTooltip.delayedTooltip(
+        child: FlowyTooltip.delayed(
           message: tooltips,
           child: FlowySvg(
             icon,

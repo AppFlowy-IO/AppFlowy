@@ -56,7 +56,7 @@ class FlowyIconButton extends StatelessWidget {
         height: size.height,
       ),
       decoration: decoration,
-      child: FlowyTooltip.delayedTooltip(
+      child: FlowyTooltip.delayed(
         preferBelow: preferBelow,
         message: tooltipMessage,
         richMessage: richTooltipText,

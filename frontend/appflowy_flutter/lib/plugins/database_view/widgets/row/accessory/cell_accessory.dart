@@ -67,7 +67,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip.delayedTooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.tooltip_openAsPage.tr(),
       child: SizedBox(
         width: 26,

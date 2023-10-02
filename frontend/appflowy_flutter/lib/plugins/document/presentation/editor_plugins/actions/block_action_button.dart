@@ -21,7 +21,7 @@ class BlockActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: FlowyTooltip.delayedTooltip(
+      child: FlowyTooltip.delayed(
         preferBelow: false,
         richMessage: richMessage,
         child: MouseRegion(

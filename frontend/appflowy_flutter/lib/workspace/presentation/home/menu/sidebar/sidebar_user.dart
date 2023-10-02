@@ -59,7 +59,7 @@ class SidebarUser extends StatelessWidget {
 
   Widget _buildSettingsButton(BuildContext context, MenuUserState state) {
     final userProfile = state.userProfile;
-    return FlowyTooltip.delayedTooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
         onPressed: () {

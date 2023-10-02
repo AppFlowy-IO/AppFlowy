@@ -17,7 +17,7 @@ class BrightnessSetting extends StatelessWidget {
   const BrightnessSetting({required this.currentThemeMode, super.key});
 
   @override
-  Widget build(BuildContext context) => FlowyTooltip.delayedTooltip(
+  Widget build(BuildContext context) => FlowyTooltip.delayed(
         richMessage: themeModeTooltipTextSpan(
           context,
           LocaleKeys.settings_appearance_themeMode_label.tr(),
