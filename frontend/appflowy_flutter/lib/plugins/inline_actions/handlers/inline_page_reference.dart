@@ -1,23 +1,20 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InlinePageReferenceService {
-  InlinePageReferenceService(this.context) {
+  InlinePageReferenceService({required this.currentViewId}) {
     init();
   }
 
   final Completer _initCompleter = Completer<void>();
-  final BuildContext context;
+  final String currentViewId;
 
   late final ViewBackendService service;
   List<InlineActionsMenuItem> _items = [];
@@ -25,7 +22,7 @@ class InlinePageReferenceService {
 
   Future<void> init() async {
     service = ViewBackendService();
-    final currentViewId = context.read<DocumentBloc>().view.id;
+
     _generatePageItems(currentViewId).then((value) {
       _items = value;
       _filtered = value;
