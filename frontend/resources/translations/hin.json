@@ -4,14 +4,14 @@
     "welcomeText": "आपका स्वागत है @:appName",
     "githubStarText": "गिटहब पर स्टार लगाएं",
     "subscribeNewsletterText": "समाचार पत्रिका के लिए सदस्यता लें",
-    "letsGoButtonText": "जल्दी शुरू",
+    "letsGoButtonText": "जल्दी शुरू करे",
     "title": "शीर्षक",
     "youCanAlso": "आप भी कर सकते हैं",
     "and": "और",
     "blockActions": {
       "addBelowTooltip": "नीचे जोड़ने के लिए क्लिक करें",
-      "addAboveCmd": "ऑल्ट + क्लिक ",
-      "addAboveMacCmd": "विकल्प + क्लिक",
+      "addAboveCmd": "Alt+click ",
+      "addAboveMacCmd": "Option+click",
       "addAboveTooltip": "ऊपर जोड़ने के लिए",
       "dragTooltip": "ले जाने के लिए ड्रैग करें",
       "openMenuTooltip": "मेनू खोलने के लिए क्लिक करें"
@@ -19,10 +19,10 @@
     "signUp": {
       "buttonText": "साइन अप करें",
       "title": "साइन अप करें @:appName",
-      "getStartedText": "शुरू करो",
+      "getStartedText": "शुरू करे",
       "emptyPasswordError": "पासवर्ड खाली नहीं हो सकता",
-      "repeatPasswordEmptyError": "दोबारा पासवर्ड खाली नहीं हो सकता",
-      "unmatchedPasswordError": "रिपीट पासवर्ड पासवर्ड के समान नहीं है",
+      "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं हो सकता",
+      "unmatchedPasswordError": "रिपीट पासवर्ड और पासवर्ड एक नहीं है",
       "alreadyHaveAnAccount": "क्या आपके पास पहले से एक खाता मौजूद है?",
       "emailHint": "ईमेल",
       "passwordHint": "पासवर्ड",
@@ -30,23 +30,23 @@
       "signUpWith": "इसके साथ साइन अप करें:"
     },
     "signIn": {
-      "loginTitle": "प्रवेश करें @:appName",
-      "loginButtonText": "प्रवेश करें",
-      "loginStartWithAnonymous": "एक अनाम सत्र से प्रारंभ करें",
+      "loginTitle": "लॉग इन करें @:appName",
+      "loginButtonText": "लॉग इन करें",
+      "loginStartWithAnonymous": "एक अज्ञात सत्र से प्रारंभ करें",
       "continueAnonymousUser": "अज्ञात सत्र जारी रखें",
-      "buttonText": "दाखिल करना",
+      "buttonText": "साइन इन",
       "forgotPassword": "पासवर्ड भूल गए?",
       "emailHint": "ईमेल",
       "passwordHint": "पासवर्ड",
       "dontHaveAnAccount": "कोई खाता नहीं है?",
-      "repeatPasswordEmptyError": "दोबारा पासवर्ड खाली नहीं हो सकता",
-      "unmatchedPasswordError": "रिपीट पासवर्ड पासवर्ड के समान नहीं है",
+      "repeatPasswordEmptyError": "रिपीट पासवर्ड खाली नहीं हो सकता",
+      "unmatchedPasswordError": "रिपीट पासवर्ड और पासवर्ड एक नहीं है",
       "syncPromptMessage": "डेटा को सिंक करने में कुछ समय लग सकता है. कृपया इस पेज को बंद न करें",
       "or": "या",
       "LogInWithGoogle": "गूगल से लॉग इन करें",
       "LogInWithGithub": "गिटहब से लॉग इन करें",
       "LogInWithDiscord": "डिस्कॉर्ड से लॉग इन करें",
-      "signInWith": "इसके साथ साइन अप करें:"
+      "signInWith": "इसके साथ साइन इन करें:"
     },
     "workspace": {
       "chooseWorkspace": "अपना कार्यक्षेत्र चुनें",
@@ -59,29 +59,29 @@
     "shareAction": {
       "buttonText": "शेयर",
       "workInProgress": "जल्द आ रहा है",
-      "markdown": "मार्कडौं",
-      "csv": "सीएसवी",
-      "copyLink": "लिंक की प्रतिलिपि करें"
+      "markdown": "markdown",
+      "csv": "csv",
+      "copyLink": "लिंक की कॉपी करें"
     },
     "moreAction": {
       "small": "छोटा",
       "medium": "मध्यम",
       "large": "बड़ा",
-      "fontSize": "फ़ॉन्ट आकार",
+      "fontSize": "अक्षर का आकर",
       "import": "आयात",
       "moreOptions": "अधिक विकल्प"
     },
     "importPanel": {
-      "textAndMarkdown": "टेक्स्ट और मार्कडाउन",
-      "documentFromV010": "v0.1.0 से दस्तावेज़",
-      "databaseFromV010": "v0.1.0 से डेटाबेस",
-      "csv": "सीएसवी",
-      "database": "डेटाबेस"
+      "textAndMarkdown": "Text & Markdown",
+      "documentFromV010": "Document from v0.1.0",
+      "databaseFromV010": "Database from v0.1.0",
+      "csv": "CSV",
+      "database": "Database"
     },
     "disclosureAction": {
       "rename": "नाम बदलें",
-      "delete": "Delete",
-      "duplicate": "हटाएं",
+      "delete": "हटाएं",
+      "duplicate": "डुप्लीकेट",
       "unfavorite": "पसंदीदा से हटाएँ",
       "favorite": "पसंदीदा में जोड़ें",
       "openNewTab": "एक नए टैब में खोलें",
@@ -89,7 +89,7 @@
       "addToFavorites": "पसंदीदा में जोड़ें",
       "copyLink": "कॉपी लिंक"
     },
-    "blankPageTitle": "रिक्त पृष्ठ",
+    "blankPageTitle": "रिक्त पेज",
     "newPageText": "नया पेज",
     "newDocumentText": "नया दस्तावेज़",
     "newGridText": "नया ग्रिड",
@@ -105,25 +105,25 @@
         "created": "बनाया गया"
       },
       "confirmDeleteAll": {
-        "title": "क्या आप निश्चित रूप से ट्रैश में मौजूद सभी पृष्ठों को हटाना चाहते हैं?",
+        "title": "क्या आप निश्चित रूप से ट्रैश में मौजूद सभी पेज को हटाना चाहते हैं?",
         "caption": "यह कार्रवाई पूर्ववत नहीं की जा सकती।"
       },
       "confirmRestoreAll": {
-        "title": "क्या आप निश्चित रूप से ट्रैश में सभी पृष्ठों को पुनर्स्थापित करना चाहते हैं?",
+        "title": "क्या आप निश्चित रूप से ट्रैश में सभी पेज को पुनर्स्थापित करना चाहते हैं?",
         "caption": "यह कार्रवाई पूर्ववत नहीं की जा सकती।"
       }
     },
     "deletePagePrompt": {
-      "text": "यह पृष्ठ कूड़ेदान में है",
-      "restore": "पुनर्स्थापित पृष्ठ",
+      "text": "यह पेज कूड़ेदान में है",
+      "restore": "पुनर्स्थापित पेज",
       "deletePermanent": "स्थायी रूप से हटाएँ"
     },
     "dialogCreatePageNameHint": "पेज का नाम",
     "questionBubble": {
       "shortcuts": "शॉर्टकट",
       "whatsNew": "क्या नया है?",
-      "help": "सहायता एवं सहायता",
-      "markdown": "मार्कडाउन",
+      "help": "सहायता",
+      "markdown": "markdown",
       "debug": {
         "name": "डीबग जानकारी",
         "success": "डिबग जानकारी क्लिपबोर्ड पर कॉपी की गई!",
@@ -134,12 +134,12 @@
     "menuAppHeader": {
       "moreButtonToolTip": "निकालें, नाम बदलें, और भी बहुत कुछ...",
       "addPageTooltip": "जल्दी से अंदर एक पेज जोड़ें",
-      "defaultNewPageName": "शीर्षक रहित",
+      "defaultNewPageName": "अनटाइटल्ड",
       "renameDialog": "नाम बदलें"
     },
     "toolbar": {
-      "undo": "पूर्ववत करें",
-      "redo": "फिर से करें",
+      "undo": "अनडू",
+      "redo": "रीडू",
       "bold": "बोल्ड",
       "italic": "इटैलिक",
       "underline": "अंडरलाइन",
@@ -148,7 +148,7 @@
       "bulletList": "बुलेट सूची",
       "checkList": "चेकलिस्ट",
       "inlineCode": "इनलाइन कोड",
-      "quote": "उद्धरण ब्लॉक",
+      "quote": "कोट",
       "header": "हेडर",
       "highlight": "हाइलाइट करें",
       "color": "रंग",
@@ -163,7 +163,7 @@
       "openMenu": "मेनू खोलने के लिए क्लिक करें",
       "dragRow": "पंक्ति को पुनः व्यवस्थित करने के लिए देर तक दबाएँ",
       "viewDataBase": "डेटाबेस देखें",
-      "referencePage": "यह {नाम} संदर्भित है",
+      "referencePage": "यह {नाम} रफेरेंसेड है",
       "addBlockBelow": "नीचे एक ब्लॉक जोड़ें"
     },
     "sideBar": {
@@ -173,7 +173,7 @@
       "favorites": "पसंदीदा",
       "clickToHidePersonal": "व्यक्तिगत अनुभाग को छिपाने के लिए क्लिक करें",
       "clickToHideFavorites": "पसंदीदा अनुभाग को छिपाने के लिए क्लिक करें",
-      "addAPage": "एक पृष्ठ जोड़ें"
+      "addAPage": "एक पेज जोड़ें"
     },
     "notifications": {
       "export": {
@@ -194,7 +194,7 @@
       "signIn": "साइन इन करें",
       "signOut": "साइन आउट करें",
       "complete": "पूर्ण",
-      "save": "सहेजें",
+      "save": "सेव",
       "generate": "उत्पन्न करें",
       "esc": "एस्केप",
       "keep": "रखें",
@@ -239,22 +239,22 @@
         "open": "सेटिंग्स खोलें",
         "logout": "लॉगआउट",
         "logoutPrompt": "क्या आप निश्चित रूप से लॉगआउट करना चाहते हैं?",
-        "selfEncryptionLogoutPrompt": "क्या आप वाकई लॉग आउट करना चाहते हैं? कृपया सुनिश्चित करें कि आपने एन्क्रिप्शन रहस्य की प्रतिलिपि बना ली है",
+        "selfEncryptionLogoutPrompt": "क्या आप वाकई लॉग आउट करना चाहते हैं? कृपया सुनिश्चित करें कि आपने एन्क्रिप्शन रहस्य की कॉपी बना ली है",
         "syncSetting": "सिंक सेटिंग",
-        "enableSync": "सिंक सक्षम करें",
+        "enableSync": "सिंक इनेबल करें",
         "enableEncrypt": "डेटा एन्क्रिप्ट करें",
         "enableEncryptPrompt": "इस रहस्य के साथ अपने डेटा को सुरक्षित करने के लिए एन्क्रिप्शन सक्रिय करें। इसे सुरक्षित रूप से संग्रहीत करें; एक बार सक्षम होने के बाद, इसे बंद नहीं किया जा सकता है। यदि खो जाता है, तो आपका डेटा पुनर्प्राप्त नहीं किया जा सकता है। कॉपी करने के लिए क्लिक करें",
         "inputEncryptPrompt": "कृपया अपना एन्क्रिप्शन रहस्य दर्ज करें",
-        "clickToCopySecret": "गुप्त प्रतिलिपि बनाने के लिए क्लिक करें",
+        "clickToCopySecret": "गुप्त कॉपी बनाने के लिए क्लिक करें",
         "inputTextFieldHint": "आपका रहस्य",
         "historicalUserList": "उपयोगकर्ता लॉगिन इतिहास",
-        "historicalUserListTooltip": "यह सूची आपके अनाम खातों को प्रदर्शित करती है। आप किसी खाते का विवरण देखने के लिए उस पर क्लिक कर सकते हैं। 'आरंभ करें' बटन पर क्लिक करके अनाम खाते बनाए जाते हैं",
-        "openHistoricalUser": "अनाम खाता खोलने के लिए क्लिक करें"
+        "historicalUserListTooltip": "यह सूची आपके अज्ञात खातों को प्रदर्शित करती है। आप किसी खाते का विवरण देखने के लिए उस पर क्लिक कर सकते हैं। 'आरंभ करें' बटन पर क्लिक करके अज्ञात खाते बनाए जाते हैं",
+        "openHistoricalUser": "अज्ञात खाता खोलने के लिए क्लिक करें"
       },
       "appearance": {
         "resetSetting": "इस सेटिंग को रीसेट करें",
         "fontFamily": {
-          "label": "फ़ॉन्ट परिवार",
+          "label": "फ़ॉन्ट फॅमिली",
           "search": "खोजें"
         },
         "themeMode": {
@@ -286,10 +286,10 @@
           "uploadSuccess": "आपका विषय सफलतापूर्वक अपलोड किया गया",
           "deletionFailure": "विषय को हटाने में विफल। इसे मैन्युअल रूप से हटाने का प्रयास करें।",
           "filePickerDialogTitle": "एक .flowy_plugin फ़ाइल चुनें",
-          "urlUploadFailure": "यूआरएल खोलने में विफल: {}"
+          "urlUploadFailure": "URL खोलने में विफल: {}"
         },
         "theme": "थीम",
-        "builtInsLabel": "अंतर्निहित थीम",
+        "builtInsLabel": "डिफ़ॉल्ट थीम",
         "pluginsLabel": "प्लगइन्स",
         "showNamingDialogWhenCreatingPage": "पेज बनाते समय नामकरण संवाद दिखाएँ"
       },
@@ -298,9 +298,9 @@
         "defaultLocation": "फ़ाइलें और डेटा संग्रहण स्थान पढ़ें",
         "exportData": "अपना डेटा निर्यात करें",
         "doubleTapToCopy": "पथ को कॉपी करने के लिए दो बार टैप करें",
-        "restoreLocation": "AppFlowy डिफ़ॉल्ट पथ पर पुनर्स्थापित करें",
+        "restoreLocation": "AppFlowy डिफ़ॉल्ट पथ पर रीस्टार्ट करें",
         "customizeLocation": "कोई अन्य फ़ोल्डर खोलें",
-        "restartApp": "परिवर्तनों को प्रभावी बनाने के लिए कृपया ऐप को पुनरारंभ करें।",
+        "restartApp": "परिवर्तनों को प्रभावी बनाने के लिए कृपया ऐप को रीस्टार्ट करें।",
         "exportDatabase": "डेटाबेस निर्यात करें",
         "selectFiles": "उन फ़ाइलों का चयन करें जिन्हें निर्यात करने की आवश्यकता है",
         "selectAll": "सभी का चयन करें",
@@ -334,7 +334,7 @@
         "email": "ईमेल",
         "tooltipSelectIcon": "आइकन चुनें",
         "selectAnIcon": "एक आइकन चुनें",
-        "pleaseInputYourOpenAIKey": "कृपया अपनी OpenAI कुंजी इनपुट करें",
+        "pleaseInputYourOpenAIKey": "कृपया अपनी OpenAI key इनपुट करें",
         "clickToLogout": "वर्तमान उपयोगकर्ता को लॉगआउट करने के लिए क्लिक करें"
       },
       "shortcuts": {
@@ -342,7 +342,7 @@
         "command": "कमांड",
         "keyBinding": "कीबाइंडिंग",
         "addNewCommand": "नया कमांड जोड़ें",
-        "updateShortcutStep": "इच्छित कुंजी संयोजन दबाएँ और ENTER दबाएँ",
+        "updateShortcutStep": "इच्छित key संयोजन दबाएँ और ENTER दबाएँ",
         "shortcutIsAlreadyUsed": "यह शॉर्टकट पहले से ही इसके लिए उपयोग किया जा चुका है: {संघर्ष}",
         "resetToDefault": "डिफ़ॉल्ट कीबाइंडिंग पर रीसेट करें",
         "couldNotLoadErrorMsg": "शॉर्टकट लोड नहीं हो सका, पुनः प्रयास करें",
@@ -353,7 +353,7 @@
       "deleteView": "क्या आप वाकई इस दृश्य को हटाना चाहते हैं?",
       "createView": "या",
       "title": {
-        "placeholder": "शीर्षक रहित"
+        "placeholder": "अनटाइटल्ड"
       },
       "settings": {
         "filter": "फ़िल्टर",
@@ -412,7 +412,7 @@
       "field": {
         "hide": "छिपाएँ",
         "insertLeft": "बायाँ सम्मिलित करें",
-        "insertRight": "दाएँ डालें",
+        "insertRight": "दाएँ सम्मिलित करें",
         "duplicate": "डुप्लिकेट",
         "delete": "हटाएं",
         "textFieldName": "टेक्स्ट",
@@ -423,7 +423,7 @@
         "numberFieldName": "नंबर",
         "singleSelectFieldName": "चुनें",
         "multiSelectFieldName": "मल्टीसेलेक्ट",
-        "urlFieldName": "यूआरएल",
+        "urlFieldName": "URL",
         "checklistFieldName": "चेकलिस्ट",
         "numberFormat": "संख्या प्रारूप",
         "dateFormat": "दिनांक प्रारूप",
@@ -448,15 +448,15 @@
         "newColumn": "नया कॉलम"
       },
       "sort": {
-        "ascending": "आरोही",
-        "descending": "अवरोही",
+        "ascending": "असेंडिंग",
+        "descending": "डिसेंडिंग",
         "deleteAllSorts": "सभी प्रकार हटाएँ",
         "addSort": "सॉर्ट जोड़ें"
       },
       "row": {
         "duplicate": "डुप्लिकेट",
         "delete": "डुप्लिकेट",
-        "titlePlaceholder": "शीर्षक रहित",
+        "titlePlaceholder": "अनटाइटल्ड",
         "textPlaceholder": "खाली",
         "copyProperty": "संपत्ति को क्लिपबोर्ड पर कॉपी किया गया",
         "count": "गिनो",
@@ -517,15 +517,15 @@
         "codeBlock": "कोड ब्लॉक"
       },
       "plugins": {
-        "referencedBoard": "संदर्भित बोर्ड",
-        "referencedGrid": "संदर्भित ग्रिड",
-        "referencedCalendar": "संदर्भित कैलेंडर",
+        "referencedBoard": "रेफेरेंस बोर्ड",
+        "referencedGrid": "रेफेरेंस ग्रिड",
+        "referencedCalendar": "रेफेरेंस कैलेंडर",
         "autoGeneratorMenuItemName": "OpenAI लेखक",
         "autoGeneratorTitleName": "OpenAI: AI को कुछ भी लिखने के लिए कहें...",
         "autoGeneratorLearnMore": "और जानें",
         "autoGeneratorGenerate": "उत्पन्न करें",
         "autoGeneratorHintText": "OpenAI से पूछें...",
-        "autoGeneratorCantGetOpenAIKey": "OpenAI कुंजी नहीं मिल सकी",
+        "autoGeneratorCantGetOpenAIKey": "OpenAI key नहीं मिल सकी",
         "autoGeneratorRewrite": "पुनः लिखें",
         "smartEdit": "एआई सहायक",
         "openAI": "OpenAI",
@@ -535,7 +535,7 @@
         "smartEditImproveWriting": "लिखने में सुधार करें",
         "smartEditMakeLonger": "लंबा बनाएं",
         "smartEditCouldNotFetchResult": "OpenAI से परिणाम प्राप्त नहीं किया जा सका",
-        "smartEditCouldNotFetchKey": "OpenAI कुंजी नहीं लायी जा सकी",
+        "smartEditCouldNotFetchKey": "OpenAI key नहीं लायी जा सकी",
         "smartEditDisabled": "सेटिंग्स में OpenAI कनेक्ट करें",
         "discardResponse": "क्या आप AI प्रतिक्रियाओं को छोड़ना चाहते हैं?",
         "createInlineMathEquation": "समीकरण बनाएं",
@@ -553,7 +553,7 @@
           "enterImageUrl": "छवि URL दर्ज करें",
           "add": "जोड़ें",
           "back": "पीछे",
-          "saveToGallery": "गैलरी में सहेजें",
+          "saveToGallery": "गैलरी में सेव करे",
           "removeIcon": "आइकन हटाएँ",
           "pasteImageUrl": "छवि URL चिपकाएँ",
           "or": "या",
@@ -607,7 +607,7 @@
         "placeholder": "कमांड के लिए '/' टाइप करें"
       },
       "title": {
-        "placeholder": "शीर्षक रहित"
+        "placeholder": "अनटाइटल्ड"
       },
       "imageBlock": {
         "placeholder": "छवि जोड़ने के लिए क्लिक करें",
@@ -616,15 +616,15 @@
           "placeholder": "छवि अपलोड करने के लिए क्लिक करें"
         },
         "url": {
-          "label": "छवि यूआरएल ",
-          "placeholder": "छवि यूआरएल दर्ज करें"
+          "label": "छवि URL ",
+          "placeholder": "छवि URL दर्ज करें"
         },
-        "support": "छवि आकार सीमा 5 एमबी है। समर्थित प्रारूप: जेपीईजी, पीएनजी, जीआईएफ, एसवीजी",
+        "support": "छवि आकार सीमा 5 एमबी है। समर्थित प्रारूप: JPEG, PNG, GIF, SVG",
         "error": {
           "invalidImage": "अमान्य छवि",
           "invalidImageSize": "छवि का आकार 5MB से कम होना चाहिए",
           "invalidImageFormat": "छवि प्रारूप समर्थित नहीं है। समर्थित प्रारूप: JPEG, PNG, GIF, SVG",
-          "invalidImageUrl": "अमान्य छवि यूआरएल"
+          "invalidImageUrl": "अमान्य छवि URL"
         }
       },
       "codeBlock": {
@@ -639,8 +639,8 @@
         "copyLink": "लिंक कॉपी करें",
         "removeLink": "लिंक हटाएँ",
         "url": {
-          "label": "लिंक यूआरएल",
-          "placeholder": "लिंक यूआरएल दर्ज करें"
+          "label": "लिंक URL",
+          "placeholder": "लिंक URL दर्ज करें"
         },
         "title": {
           "label": "लिंक शीर्षक",
@@ -648,7 +648,7 @@
         }
       },
       "mention": {
-        "placeholder": "किसी व्यक्ति या पृष्ठ या दिनांक का उल्लेख करें...",
+        "placeholder": "किसी व्यक्ति या पेज या दिनांक का उल्लेख करें...",
         "page": {
           "label": "पेज से लिंक करें",
           "tooltip": "पेज खोलने के लिए क्लिक करें"
@@ -667,7 +667,7 @@
     },
     "calendar": {
       "menuName": "कैलेंडर",
-      "defaultNewCalendarTitle": "शीर्षक रहित",
+      "defaultNewCalendarTitle": "अनटाइटल्ड",
       "newEventButtonTooltip": "एक नया ईवेंट जोड़ें",
       "navigation": {
         "today": "आज",
@@ -688,8 +688,8 @@
       "referencedCalendarPrefix": "का दृश्य"
     },
     "errorDialog": {
-      "title": "AppFlowy त्रुटि",
-      "howToFixFallback": "असुविधा के लिए हमें खेद है! हमारे GitHub पेज पर एक मुद्दा सबमिट करें जो आपकी त्रुटि का वर्णन करता है।",
+      "title": "AppFlowy error",
+      "howToFixFallback": "असुविधा के लिए हमें खेद है! हमारे GitHub पेज पर एक मुद्दा सबमिट करें जो आपकी error का वर्णन करता है।",
       "github": "GitHub पर देखें  "
     },
     "search": {
@@ -724,7 +724,7 @@
     },
     "emoji": {
       "filter": "फ़िल्टर",
-      "random": "यादृच्छिक",
+      "random": "रैंडम",
       "selectSkinTone": "त्वचा का रंग चुनें",
       "remove": "इमोजी हटाएं",
       "categories": {
