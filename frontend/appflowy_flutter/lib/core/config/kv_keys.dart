@@ -49,10 +49,4 @@ class KVKeys {
   /// The value is a boolean string.
   static const String showRenameDialogWhenCreatingNewFile =
       'showRenameDialogWhenCreatingNewFile';
-
-  ///The key for saving list of open views when using multi-pane feature
-  ///
-  ///The value is a json string with following format:
-  /// openedPlugins: {'pluginId': true, 'pluginId':false}
-  static const String openedPlugins = 'openedPlugins';
 }

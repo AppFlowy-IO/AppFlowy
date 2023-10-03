@@ -30,7 +30,6 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -135,7 +134,7 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   getIt.registerLazySingleton<PanesCubit>(
-    () => PanesCubit(offset: Sizes.sideBarWidth),
+    () => PanesCubit(),
   );
 }
 
