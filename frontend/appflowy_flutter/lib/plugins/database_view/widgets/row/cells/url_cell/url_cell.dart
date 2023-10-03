@@ -158,7 +158,7 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
                       Theme.of(context).textTheme.bodyMedium)
                   ?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
-                decoration: _controller.text != ""
+                decoration: _controller.text.isNotEmpty
                     ? TextDecoration.underline
                     : TextDecoration.none,
               ),
