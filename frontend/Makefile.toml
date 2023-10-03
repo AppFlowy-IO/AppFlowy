@@ -136,9 +136,9 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 LINUX_ARCH = "x64"
-OPENSSL_STATIC = 1
-ZSTD_SYS_USE_PKG_CONFIG = 1
-ROCKSDB_LIB_DIR = "/usr/lib/"
+# OPENSSL_STATIC = 1
+# ZSTD_SYS_USE_PKG_CONFIG = 1
+# ROCKSDB_LIB_DIR = "/usr/lib/"
 
 [env.production-linux-x86_64]
 CARGO_PROFILE = "release"
@@ -258,9 +258,9 @@ TEST_COMPILE_TARGET = "aarch64-apple-darwin"
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "so"
 TEST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
-OPENSSL_STATIC = 1
-ZSTD_SYS_USE_PKG_CONFIG = 1
-ROCKSDB_LIB_DIR = "/usr/lib/"
+# OPENSSL_STATIC = 1
+# ZSTD_SYS_USE_PKG_CONFIG = 1
+# ROCKSDB_LIB_DIR = "/usr/lib/"
 
 [env.test-windows]
 TEST_CRATE_TYPE = "cdylib"

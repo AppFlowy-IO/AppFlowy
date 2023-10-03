@@ -85,6 +85,19 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-prepare]
+run_task = { name = [
+  "appflowy-core-dev",
+  "code_generation",
+], parallel = true }
+
+[tasks.appflowy-make-product]
+run_task = { name = [
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"
