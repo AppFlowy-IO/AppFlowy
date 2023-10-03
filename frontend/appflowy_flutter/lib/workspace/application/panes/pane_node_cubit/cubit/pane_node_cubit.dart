@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:appflowy_backend/log.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 

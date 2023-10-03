@@ -1,7 +1,7 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
-import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -26,31 +26,38 @@ class PanesService {
         children: const [],
         axis: axis,
         tabs: null,
+        encoding: node.encoding,
       );
+      final oldChildEncoding = [direction == Direction.front ? 0 : 1];
+      final newChildEncoding = [direction == Direction.front ? 1 : 0];
       final oldChildNode = node.copyWith(
-        paneId: nanoid(),
         parent: newHolderNode,
         axis: null,
         tabs: TabsController(
           pageManagers: node.tabs.pageManagers,
+          encoding: oldChildEncoding.toString(),
         ),
+        encoding: [direction == Direction.front ? 0 : 1],
       );
+
       final newChildNode = fromNode?.copyWith(
             parent: newHolderNode,
             paneId: nanoid(),
             children: const [],
             axis: null,
             tabs: TabsController(
-              pageManagers: fromNode.tabs.pageManagers,
-            ),
+                pageManagers: fromNode.tabs.pageManagers,
+                encoding: newChildEncoding.toString()),
+            encoding: newChildEncoding,
           ) ??
           PaneNode(
             paneId: nanoid(),
             children: const [],
             parent: newHolderNode,
             axis: null,
-            tabs: TabsController(pageManagers: [PageManager()])
+            tabs: TabsController(encoding: newChildEncoding.toString())
               ..openPlugin(plugin: plugin!),
+            encoding: newChildEncoding,
           );
       final ret = newHolderNode.copyWith(
         children: direction == Direction.front
@@ -71,35 +78,40 @@ class PanesService {
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
+          final encode = node.encoding.toString() +
+              (direction == Direction.front ? "${i + 1}" : "$i");
           final newNode = fromNode?.copyWith(
                 paneId: nanoid(),
+                parent: node.parent,
                 tabs: TabsController(
                   pageManagers: fromNode.tabs.pageManagers,
+                  encoding: encode,
                 ),
               ) ??
               PaneNode(
                 paneId: nanoid(),
                 children: const [],
                 parent: node.parent,
-                tabs: TabsController(pageManagers: [PageManager()])
+                tabs: TabsController(encoding: encode)
                   ..openPlugin(plugin: plugin!),
               );
           if (direction == Direction.front) {
-            if (i == node.children.length) {
-              node.children.add(newNode);
-            } else {
-              node.children.insert(i + 1, newNode);
-            }
+            node = node.copyWith(
+              children: insertAndEncode(node.children, i + 1, newNode),
+            );
           } else {
-            node.children.insert(i, newNode);
+            node = node.copyWith(
+              children: insertAndEncode(node.children, i, newNode),
+            );
           }
           final ret = node.copyWith(
             paneId: nanoid(),
-            tabs: TabsController(),
+            tabs: TabsController(encoding: node.tabs.encoding),
             children: node.children
                 .map(
                   (e) => e.copyWith(
                     tabs: TabsController(
+                      encoding: e.tabs.encoding,
                       pageManagers: e.tabs.pageManagers,
                     ),
                   ),
@@ -139,13 +151,16 @@ class PanesService {
     for (var i = 0; i < node.children.length; i++) {
       final element = node.children[i];
       if (element.paneId == targetPaneId) {
-        node.children.remove(element..tabs.closeAllViews);
+        element.tabs.closeAllViews();
+        node = node.copyWith(children: removeAndEncode(node.children, i));
         if (node.children.length == 1) {
           final ret = node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
+            encoding: node.parent == null ? [] : [...node.parent!.encoding, 0],
             tabs: TabsController(
               pageManagers: node.children.first.tabs.pageManagers,
+              encoding: "[]",
             ),
           );
           return ret;
@@ -156,6 +171,7 @@ class PanesService {
               .map(
                 (e) => e.copyWith(
                   tabs: TabsController(
+                    encoding: e.tabs.encoding,
                     pageManagers: e.tabs.pageManagers,
                   ),
                 ),
@@ -177,4 +193,41 @@ class PanesService {
 
     return node.copyWith(children: newChildren);
   }
+}
+
+List<PaneNode> insertAndEncode(List<PaneNode> list, int index, PaneNode node) {
+  if (index <= 0) index = 0;
+  if (index >= list.length) index = list.length - 1;
+
+  List<PaneNode> ret = [...list, node];
+  for (int i = ret.length - 1; i > index; i--) {
+    Log.warn(ret.length);
+    Log.warn(index);
+    ret[i] = ret[i - 1].copyWith(
+      encoding: node.parent == null ? [i] : [...node.parent!.encoding, i],
+    );
+  }
+  ret[index] = node.copyWith(
+    encoding: node.parent == null ? [index] : [...node.parent!.encoding, index],
+  );
+  return ret;
+}
+
+List<PaneNode> removeAndEncode(List<PaneNode> list, int index) {
+  List<PaneNode> ret = [];
+  for (int i = 0; i < list.length; i++) {
+    if (i < index) {
+      ret.add(list[i]);
+    }
+    if (i > index) {
+      ret.add(
+        list[i].copyWith(
+          encoding: list[i].parent == null
+              ? [i - 1]
+              : [...list[i].parent!.encoding, i - 1],
+        ),
+      );
+    }
+  }
+  return ret;
 }

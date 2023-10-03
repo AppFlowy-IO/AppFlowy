@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
@@ -51,9 +49,6 @@ class FlowyRunner {
         await getIt<ApplicationDataStorage>().getPath().then(
               (value) => Directory(value),
             );
-
-    // remove panes shared preference
-    await getIt<KeyValueStorage>().remove(KVKeys.openedPlugins);
 
     // add task
     final launcher = getIt<AppLauncher>();

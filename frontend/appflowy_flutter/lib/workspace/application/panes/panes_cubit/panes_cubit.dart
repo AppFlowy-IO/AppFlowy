@@ -1,6 +1,8 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -15,7 +17,7 @@ enum SplitDirection { left, right, up, down, none }
 
 class PanesCubit extends Cubit<PanesState> {
   final PanesService panesService;
-  PanesCubit({required double offset})
+  PanesCubit()
       : panesService = PanesService(),
         super(PanesState.initial());
 

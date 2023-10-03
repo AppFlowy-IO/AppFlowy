@@ -61,7 +61,7 @@ class HomeStack extends StatelessWidget {
 
   //TODO(squidrye): Remove before merge
   void _printTree(PaneNode node, [String prefix = '']) {
-    print('$prefix${node.tabs.hashCode}');
+    print('$prefix${node.encoding}');
     for (var child in node.children) {
       _printTree(child, '$prefix └─ ');
     }
@@ -203,15 +203,17 @@ abstract mixin class NavigationItem {
 class PageNotifier extends ChangeNotifier {
   Plugin _plugin;
   bool _readOnly;
+  String position;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   Widget tabBarWidget(String pluginId) =>
       _plugin.widgetBuilder.tabBarItem(pluginId);
 
-  PageNotifier({Plugin? plugin, bool? readOnly})
+  PageNotifier({Plugin? plugin, bool? readOnly, required String encoding})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank),
-        _readOnly = readOnly ?? false;
+        _readOnly = readOnly ?? false,
+        position = encoding;
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -237,11 +239,11 @@ class PageNotifier extends ChangeNotifier {
 
 // PageManager manages the view for one Tab
 class PageManager {
-  final PageNotifier _notifier = PageNotifier();
+  final PageNotifier _notifier;
 
   PageNotifier get notifier => _notifier;
 
-  PageManager();
+  PageManager(String encoding) : _notifier = PageNotifier(encoding: encoding);
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;

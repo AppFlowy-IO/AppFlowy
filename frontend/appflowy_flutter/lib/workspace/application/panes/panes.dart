@@ -8,14 +8,16 @@ class PaneNode extends Equatable {
   final Axis? axis;
   final String paneId;
   final TabsController tabs;
+  final List<int> encoding;
 
   PaneNode({
     required this.paneId,
     required this.children,
+    this.encoding = const [],
     this.parent,
     this.axis,
     TabsController? tabs,
-  }) : tabs = tabs ?? TabsController();
+  }) : tabs = tabs ?? TabsController(encoding: "[]");
 
   PaneNode copyWith({
     PaneNode? parent,
@@ -23,6 +25,7 @@ class PaneNode extends Equatable {
     Axis? axis,
     String? paneId,
     TabsController? tabs,
+    List<int>? encoding,
   }) {
     return PaneNode(
       parent: parent ?? this.parent,
@@ -30,6 +33,7 @@ class PaneNode extends Equatable {
       children: children ?? this.children,
       paneId: paneId ?? this.paneId,
       tabs: tabs ?? this.tabs,
+      encoding: encoding ?? this.encoding,
     );
   }
 
@@ -38,6 +42,6 @@ class PaneNode extends Equatable {
 
   @override
   String toString() {
-    return '${(paneId, axis)} =>  Children($children) \n';
+    return '${(paneId, axis)} =>  post ${encoding} \n';
   }
 }

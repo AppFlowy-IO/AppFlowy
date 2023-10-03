@@ -1,10 +1,13 @@
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_service.dart';
+import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
+import 'package:appflowy_backend/log.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -14,26 +17,42 @@ class TabsController extends ChangeNotifier {
   int get pages => pageManagers.length;
   PageManager get currentPageManager => pageManagers[currentIndex];
   final MenuSharedState menuSharedState;
+  final String encoding;
 
-  TabsController({int? currentIndex, List<PageManager>? pageManagers})
-      : pageManagers = pageManagers ?? [PageManager()],
+  TabsController({
+    int? currentIndex,
+    List<PageManager>? pageManagers,
+    required this.encoding,
+  })  : pageManagers = pageManagers ?? [PageManager("${encoding}0")],
         menuSharedState = getIt<MenuSharedState>(),
         currentIndex = currentIndex ?? 0;
 
-  Future<void> closeAllViews() async {
-    for (final page in pageManagers) {
+  void closeAllViews() {
+    final pageManagersCopy = List<PageManager>.from(pageManagers);
+    for (final page in pageManagersCopy) {
       closeView(page.plugin.id, closePaneSubRoutine: true);
     }
+    pageManagers = pageManagersCopy;
+    notifyListeners();
   }
 
-  void openView(Plugin plugin) async {
+  void openView(Plugin plugin) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
-
+    final length = pageManagers.length;
     if (!selectExistingPlugin) {
-      final readOnly = await TabsService.setPluginOpenedInCache(plugin);
-      pageManagers.add(PageManager()
-        ..setPlugin(plugin)
-        ..setReadOnlyStatus(readOnly));
+      // check if view is already open
+      final openPlugins = menuSharedState.openPlugins;
+      if (openPlugins.containsKey(plugin.id)) {
+        pageManagers.add(PageManager("$encoding$length")
+          ..setPlugin(plugin)
+          ..setReadOnlyStatus(true));
+      } else {
+        pageManagers.add(PageManager("$menuSharedState$length")
+          ..setPlugin(plugin)
+          ..setReadOnlyStatus(false));
+      }
+      openPlugins[plugin.id] = [...?openPlugins[plugin.id], "$encoding$length"];
+      menuSharedState.openPlugins = openPlugins;
     }
     currentIndex = pageManagers.length - 1;
 
@@ -41,15 +60,40 @@ class TabsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void closeView(String pluginId, {bool? closePaneSubRoutine}) async {
-    // Avoid closing the only open tab
-    if (pageManagers.length == 1) {
-      if (closePaneSubRoutine ?? false) {
-        await TabsService.setPluginClosedInCache(pluginId);
-      }
+  void closeView(
+    String pluginId, {
+    bool closePaneSubRoutine = false,
+  }) async {
+    // Avoid closing the only open tab unless it is part of subroutine to close pane
+    if (pageManagers.length == 1 && (!closePaneSubRoutine)) {
       return;
     }
-    await TabsService.setPluginClosedInCache(pluginId);
+    final openPlugins = menuSharedState.openPlugins;
+    final pm = pageManagers.firstWhere((pm) {
+      return pm.plugin.id == pluginId;
+    });
+
+    openPlugins.update(
+      pluginId,
+      (value) => value..remove(pm.notifier.position),
+    );
+
+    if (openPlugins[pluginId]?.isEmpty ?? false) {
+      openPlugins.remove(pluginId);
+    }
+
+    if (!pm.readOnly && openPlugins.containsKey(pluginId)) {
+      final newPath = openPlugins[pluginId]!.first;
+      Log.warn(
+        "New path is $newPath navigate to here in tree, sync and remove readOnly",
+      );
+      _getPluginOnPath(
+        newPath,
+        getIt<PanesCubit>().state.root,
+        1,
+      ).setReadOnlyStatus(false);
+    }
+
     pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
 
     /// If currentIndex is greater than the amount of allowed indices
@@ -60,8 +104,10 @@ class TabsController extends ChangeNotifier {
         ? currentIndex - 1
         : currentIndex;
 
-    setLatestOpenView();
-    notifyListeners();
+    if (!closePaneSubRoutine) {
+      setLatestOpenView();
+      notifyListeners();
+    }
   }
 
   /// Checks if a [Plugin.id] is already associated with an open tab.
@@ -86,15 +132,33 @@ class TabsController extends ChangeNotifier {
   /// If the plugin is already open in a tab, then that tab
   /// will become selected.
   ///
-  void openPlugin({required Plugin plugin}) async {
+  void openPlugin({required Plugin plugin, bool newPane = false}) async {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (!selectExistingPlugin) {
-      await TabsService.setPluginClosedInCache(currentPageManager.plugin.id);
-      final readOnly = await TabsService.setPluginOpenedInCache(plugin);
-      pageManagers[currentIndex]
-        ..setPlugin(plugin)
-        ..setReadOnlyStatus(readOnly);
+      final openPlugins = menuSharedState.openPlugins;
+      //remove current plugin path from state store
+      if (openPlugins.containsKey(plugin.id)) {
+        openPlugins.update(
+          plugin.id,
+          (value) =>
+              value..remove(pageManagers[currentIndex].notifier.position),
+        );
+      }
+      if (openPlugins.containsKey(plugin.id)) {
+        pageManagers[currentIndex]
+          ..setPlugin(plugin)
+          ..setReadOnlyStatus(true);
+      } else {
+        pageManagers[currentIndex]
+          ..setPlugin(plugin)
+          ..setReadOnlyStatus(false);
+      }
+      openPlugins[plugin.id] = [
+        ...?openPlugins[plugin.id],
+        "$encoding$currentIndex",
+      ];
+      menuSharedState.openPlugins = openPlugins;
     }
     setLatestOpenView();
     notifyListeners();
@@ -116,16 +180,14 @@ class TabsController extends ChangeNotifier {
     final selectExistingPlugin = _selectPluginIfOpen(from.plugin.id);
 
     if (!selectExistingPlugin) {
-      final readOnly = await TabsService.setPluginOpenedInCache(from.plugin);
-      final newPm = PageManager()
-        ..setPlugin(from.plugin)
-        ..setReadOnlyStatus(readOnly);
       switch (position) {
         case TabDraggableHoverPosition.none:
           return;
         case TabDraggableHoverPosition.left:
           {
             final index = pageManagers.indexOf(to);
+            final newPm = PageManager("$encoding$index")
+              ..setPlugin(from.plugin);
             pageManagers.insert(index, newPm);
             currentIndex = index;
             break;
@@ -133,6 +195,8 @@ class TabsController extends ChangeNotifier {
         case TabDraggableHoverPosition.right:
           {
             final index = pageManagers.indexOf(to);
+            final newPm = PageManager("$encoding${index + 1}")
+              ..setPlugin(from.plugin);
             if (index + 1 == pageManagers.length) {
               pageManagers.add(newPm);
             } else {
@@ -156,5 +220,17 @@ class TabsController extends ChangeNotifier {
         menuSharedState.latestOpenView = notifier.view;
       }
     }
+  }
+
+  PageManager _getPluginOnPath(String encoding, PaneNode node, int index) {
+    if (index == encoding.length - 2) {
+      return node.tabs.pageManagers[int.parse(encoding[encoding.length - 1])];
+    }
+
+    return _getPluginOnPath(
+      encoding,
+      node.children[int.parse(encoding[index])],
+      index + 1,
+    );
   }
 }

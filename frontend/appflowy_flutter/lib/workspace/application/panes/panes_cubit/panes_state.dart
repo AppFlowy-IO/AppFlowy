@@ -4,16 +4,17 @@ class PanesState extends Equatable {
   final PaneNode root;
   final int count;
   final PaneNode activePane;
+  final MenuSharedState menuSharedState;
 
-  const PanesState({
+  PanesState({
     required this.activePane,
     required this.root,
     required this.count,
-  });
+  }) : menuSharedState = getIt<MenuSharedState>();
 
   factory PanesState.initial() {
     final pane = PaneNode(
-      tabs: TabsController(),
+      tabs: TabsController(encoding: '[]'),
       children: const [],
       paneId: nanoid(),
       axis: null,

@@ -76,11 +76,11 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     BuildContext context,
     FlowyDraggableHoverPosition position,
   ) {
-    final (left, top, height, width) = _getHoverWidgetPosition(position);
-
     if (position == FlowyDraggableHoverPosition.none) {
       return const SizedBox.shrink();
     }
+
+    final (left, top, height, width) = _getHoverWidgetPosition(position);
 
     return Positioned(
       top: top,
@@ -128,8 +128,8 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
         break;
       case FlowyDraggableHoverPosition.tab:
         top = 0;
-        left = null;
-        height = top;
+        left = 0;
+        height = topOffset;
         width = widget.size.width;
         break;
       default:
