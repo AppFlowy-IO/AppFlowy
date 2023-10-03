@@ -90,7 +90,7 @@ class TabsController extends ChangeNotifier {
         1,
       ).setReadOnlyStatus(false);
     }
-
+    menuSharedState.openPlugins = openPlugins;
     pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
 
     /// If currentIndex is greater than the amount of allowed indices
