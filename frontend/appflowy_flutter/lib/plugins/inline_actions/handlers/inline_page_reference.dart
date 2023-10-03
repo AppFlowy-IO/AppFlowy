@@ -1,19 +1,23 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InlinePageReferenceService {
-  InlinePageReferenceService() {
+  InlinePageReferenceService(this.context) {
     init();
   }
 
   final Completer _initCompleter = Completer<void>();
+  final BuildContext context;
 
   late final ViewBackendService service;
   List<InlineActionsMenuItem> _items = [];
@@ -21,8 +25,8 @@ class InlinePageReferenceService {
 
   Future<void> init() async {
     service = ViewBackendService();
-
-    _generatePageItems().then((value) {
+    final currentViewId = context.read<DocumentBloc>().view.id;
+    _generatePageItems(currentViewId).then((value) {
       _items = value;
       _filtered = value;
       _initCompleter.complete();
@@ -59,7 +63,9 @@ class InlinePageReferenceService {
     );
   }
 
-  Future<List<InlineActionsMenuItem>> _generatePageItems() async {
+  Future<List<InlineActionsMenuItem>> _generatePageItems(
+    String currentViewId,
+  ) async {
     final views = await service.fetchViews();
     if (views.isEmpty) {
       return [];
@@ -69,6 +75,10 @@ class InlinePageReferenceService {
     views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
 
     for (final view in views) {
+      if (view.id == currentViewId) {
+        continue;
+      }
+
       final pageSelectionMenuItem = InlineActionsMenuItem(
         keywords: [view.name.toLowerCase()],
         label: view.name,

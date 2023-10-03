@@ -57,7 +57,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final InlineActionsService inlineActionsService = InlineActionsService(
     context: context,
     handlers: [
-      InlinePageReferenceService().inlinePageReferenceDelegate,
+      InlinePageReferenceService(context).inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
       ReminderReferenceService(context).reminderReferenceDelegate,
     ],
