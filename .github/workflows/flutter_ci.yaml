@@ -116,10 +116,13 @@ jobs:
         run: |
           cargo make --profile ${{ matrix.flutter_profile }} appflowy-prepare
 
+      - name: Compress appflowy_flutter
+        run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
+
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.run_id }}${{ matrix.os}}
-          path: frontend/appflowy_flutter 
+          name: ${{ github.run_id }}-${{ matrix.os }}
+          path: appflowy_flutter.tar.gz
 
   unit_test:
     needs: [prepare]
@@ -204,8 +207,11 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ github.run_id }}${{ matrix.os}}
-          path: frontend/appflowy_flutter
+          name: ${{ github.run_id }}-${{ matrix.os }}
+          path: frontend/
+
+      - name: Uncompress appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
 
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
@@ -311,8 +317,11 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ github.run_id }}${{ matrix.os}}
-          path: frontend/appflowy_flutter
+          name: ${{ github.run_id }}-${{ matrix.os }}
+          path: frontend/
+
+      - name: Uncompress appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
 
       - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
@@ -426,9 +435,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ github.run_id }}${{ matrix.os}}
-          path: frontend/appflowy_flutter
-      
+          name: ${{ github.run_id }}-${{ matrix.os }}
+          path: frontend/
+
+      - name: Uncompress appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
+     
       - name: Build flutter product
         working-directory: frontend
         run: |
