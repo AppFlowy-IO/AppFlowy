@@ -201,8 +201,6 @@ List<PaneNode> insertAndEncode(List<PaneNode> list, int index, PaneNode node) {
 
   List<PaneNode> ret = [...list, node];
   for (int i = ret.length - 1; i > index; i--) {
-    Log.warn(ret.length);
-    Log.warn(index);
     ret[i] = ret[i - 1].copyWith(
       encoding: node.parent == null ? [i] : [...node.parent!.encoding, i],
     );

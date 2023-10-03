@@ -84,9 +84,6 @@ class TabsController extends ChangeNotifier {
 
     if (!pm.readOnly && openPlugins.containsKey(pluginId)) {
       final newPath = openPlugins[pluginId]!.first;
-      Log.warn(
-        "New path is $newPath navigate to here in tree, sync and remove readOnly",
-      );
       _getPluginOnPath(
         newPath,
         getIt<PanesCubit>().state.root,
