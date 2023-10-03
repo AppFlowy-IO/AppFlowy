@@ -37,8 +37,9 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::OAuth, oauth_handler)
-    .event(UserEvent::OAuthCallbackURL, get_oauth_url_handler)
+    .event(UserEvent::OauthSignIn, oauth_handler)
+    .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
+    .event(UserEvent::SignInWithProvider, sign_in_with_provider_handler)
     .event(
       UserEvent::GetAllUserWorkspaces,
       get_all_user_workspace_handler,
@@ -230,13 +231,16 @@ pub enum UserEvent {
   #[event(output = "UserSettingPB")]
   GetUserSetting = 9,
 
-  #[event(input = "OAuthPB", output = "UserProfilePB")]
-  OAuth = 10,
+  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
+  OauthSignIn = 10,
 
   /// Get the OAuth callback url
   /// Only use when the [AuthType] is AFCloud
-  #[event(input = "OAuthCallbackRequestPB", output = "OAuthCallbackResponsePB")]
-  OAuthCallbackURL = 11,
+  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
+  GetSignInURL = 11,
+
+  #[event(input = "SignInProviderPB", output = "SignInProviderDataPB")]
+  SignInWithProvider = 12,
 
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,

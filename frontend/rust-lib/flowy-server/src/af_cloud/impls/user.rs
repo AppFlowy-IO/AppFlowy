@@ -3,7 +3,9 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use client_api::entity::dto::UserUpdateParams;
-use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams};
+use client_api::entity::{
+  AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
+};
 use collab_define::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -54,7 +56,7 @@ where
     FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
   }
 
-  fn generate_sign_in_callback_url(&self, email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error> {
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -62,7 +64,19 @@ where
       let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
       let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
       let url = try_get_client?
-        .generate_sign_in_callback_url(&admin_email, &admin_password, &email)
+        .generate_sign_in_url_with_email(&admin_email, &admin_password, &email)
+        .await?;
+      Ok(url)
+    })
+  }
+
+  fn generate_sign_in_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
+    let provider = OAuthProvider::from(provider);
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let provider = provider.ok_or(anyhow!("invalid provider"))?;
+      let url = try_get_client?
+        .generate_sign_in_url_with_provider(&provider)
         .await?;
       Ok(url)
     })
@@ -219,7 +233,7 @@ pub async fn user_sign_in_with_url(
   client: Arc<AFCloudClient>,
   params: AFCloudOAuthParams,
 ) -> Result<AuthResponse, FlowyError> {
-  let is_new_user = client.sign_in_url(&params.sign_in_url).await?;
+  let is_new_user = client.sign_in_with_url(&params.sign_in_url).await?;
   let (profile, af_workspaces) = tokio::try_join!(client.profile(), client.workspaces())?;
 
   let latest_workspace = to_user_workspace(

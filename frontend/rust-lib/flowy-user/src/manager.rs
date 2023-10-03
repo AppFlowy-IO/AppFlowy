@@ -543,7 +543,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub(crate) async fn generate_sign_in_callback_url(
+  pub(crate) async fn generate_sign_in_url(
     &self,
     auth_type: &AuthType,
     email: &str,
@@ -551,7 +551,19 @@ impl UserManager {
     self.update_auth_type(auth_type).await;
 
     let auth_service = self.cloud_services.get_user_service()?;
-    let url = auth_service.generate_sign_in_callback_url(email).await?;
+    let url = auth_service.generate_sign_in_url_with_email(email).await?;
+    Ok(url)
+  }
+
+  pub(crate) async fn generate_oauth_url(
+    &self,
+    oauth_provider: &str,
+  ) -> Result<String, FlowyError> {
+    self.update_auth_type(&AuthType::AFCloud).await;
+    let auth_service = self.cloud_services.get_user_service()?;
+    let url = auth_service
+      .generate_sign_in_url_with_provider(oauth_provider)
+      .await?;
     Ok(url)
   }
 

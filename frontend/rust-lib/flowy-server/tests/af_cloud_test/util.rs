@@ -34,7 +34,7 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
   api_client
-    .generate_sign_in_callback_url(&admin_email, &admin_password, user_email)
+    .generate_sign_in_url_with_email(&admin_email, &admin_password, user_email)
     .await
     .unwrap()
 }

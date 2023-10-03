@@ -4,7 +4,7 @@ use flowy_folder2::entities::WorkspaceSettingPB;
 use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::{event_builder::EventBuilder, FlowyCoreTest};
-use flowy_user::entities::{AuthTypePB, OAuthPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, OauthSignInPB, UserProfilePB};
 use flowy_user::event_map::UserEvent::*;
 
 use crate::util::*;
@@ -19,13 +19,13 @@ async fn initial_workspace_test() {
       USER_EMAIL.to_string(),
       format!("{}@gmail.com", uuid::Uuid::new_v4()),
     );
-    let payload = OAuthPB {
+    let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let _ = EventBuilder::new(test.clone())
-      .event(OAuth)
+      .event(OauthSignIn)
       .payload(payload)
       .async_send()
       .await
