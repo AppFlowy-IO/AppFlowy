@@ -84,7 +84,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
-  fn generate_sign_in_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
     FutureResult::new(async { Err(anyhow::anyhow!("Can't oauth url when using offline mode")) })
   }
 

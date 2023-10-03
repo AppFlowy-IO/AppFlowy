@@ -70,13 +70,13 @@ where
     })
   }
 
-  fn generate_sign_in_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
     let provider = OAuthProvider::from(provider);
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let provider = provider.ok_or(anyhow!("invalid provider"))?;
       let url = try_get_client?
-        .generate_sign_in_url_with_provider(&provider)
+        .generate_oauth_url_with_provider(&provider)
         .await?;
       Ok(url)
     })

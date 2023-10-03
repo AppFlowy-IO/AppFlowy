@@ -108,9 +108,9 @@ pub struct SignInUrlPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInProviderPB {
+pub struct OauthProviderPB {
   #[pb(index = 1)]
-  pub provider_type: ProviderTypePB,
+  pub provider: ProviderTypePB,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -173,7 +173,7 @@ impl Default for ProviderTypePB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInProviderDataPB {
+pub struct OauthProviderDataPB {
   #[pb(index = 1)]
   pub oauth_url: String,
 }

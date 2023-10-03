@@ -236,7 +236,7 @@ pub async fn get_sign_in_url_handler(
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
   let sign_in_url = manager
-    .generate_sign_in_url(&auth_type, &params.email)
+    .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
   let resp = SignInUrlPB { sign_in_url };
   data_result_ok(resp)
@@ -244,14 +244,14 @@ pub async fn get_sign_in_url_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn sign_in_with_provider_handler(
-  data: AFPluginData<SignInProviderPB>,
+  data: AFPluginData<OauthProviderPB>,
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<SignInProviderDataPB, FlowyError> {
+) -> DataResult<OauthProviderDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let oauth_url = manager
-    .generate_oauth_url(data.provider_type.as_str())
-    .await?;
-  data_result_ok(SignInProviderDataPB { oauth_url })
+  let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  data_result_ok(OauthProviderDataPB {
+    oauth_url: sign_in_url,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
