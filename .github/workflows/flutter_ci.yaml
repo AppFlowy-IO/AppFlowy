@@ -211,7 +211,7 @@ jobs:
           path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
+        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
 
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
@@ -321,7 +321,7 @@ jobs:
           path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
+        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
 
       - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
@@ -439,7 +439,7 @@ jobs:
           path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
+        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
      
       - name: Build flutter product
         working-directory: frontend
