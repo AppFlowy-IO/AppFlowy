@@ -133,9 +133,7 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
-  getIt.registerLazySingleton<PanesCubit>(
-    () => PanesCubit(),
-  );
+  getIt.registerLazySingleton<PanesCubit>(() => PanesCubit());
 }
 
 void _resolveFolderDeps(GetIt getIt) {
