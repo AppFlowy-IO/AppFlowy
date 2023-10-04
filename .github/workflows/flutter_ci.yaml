@@ -120,7 +120,7 @@ jobs:
 
   unit_test:
     needs: [prepare]
-    if: false
+    if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
@@ -196,10 +196,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
-          path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
+        run: tar -xf appflowy_flutter.tar.gz
 
       - name: Flutter Analyzer
         working-directory: frontend/appflowy_flutter
@@ -227,7 +226,7 @@ jobs:
 
   integration_test:
     needs: [prepare]
-    if: false
+    if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
@@ -303,10 +302,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
-          path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
+        run: tar -xf appflowy_flutter.tar.gz
 
       - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
@@ -415,18 +413,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
-          path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf frontend/appflowy_flutter.tar.gz
-
-      - name: List
-        run: |
-          ls -la frontend/
-          ls -la frontend/appflowy_flutter/
-          ls -la frontend/appflowy_flutter/lib/
-          ls -la frontend/appflowy_flutter/lib/generated/
-        shell: bash
+        run: tar -xf appflowy_flutter.tar.gz
      
       - name: Build flutter product
         working-directory: frontend
