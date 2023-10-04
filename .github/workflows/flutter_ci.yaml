@@ -220,7 +220,7 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          cargo make dart_unit_test
+          cargo make dart_unit_test_no_build
 
       - name: Upload coverage to Codecov
         uses: Wandalen/wretry.action@v1.0.36
