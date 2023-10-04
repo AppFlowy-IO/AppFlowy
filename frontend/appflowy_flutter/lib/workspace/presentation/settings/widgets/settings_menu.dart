@@ -19,7 +19,7 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool showSyncSetting = isCloudEnabled &&
+    final bool showSyncSetting = isCloudEnabled &&
         context.read<SettingsDialogBloc>().state.userProfile.authType !=
             AuthTypePB.Local;
     return Column(
