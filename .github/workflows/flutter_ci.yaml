@@ -422,7 +422,10 @@ jobs:
 
       - name: List
         run: |
-          ls -la ./
+          ls -la frontend/
+          ls -la frontend/appflowy_flutter/
+          ls -la frontend/appflowy_flutter/lib/
+          ls -la frontend/appflowy_flutter/lib/generated/
         shell: bash
      
       - name: Build flutter product
