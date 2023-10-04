@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use client_api::ws::WebSocketChannel;
+use client_api::ws::{WSConnectStateReceiver, WebSocketChannel};
 use collab_define::CollabObject;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
@@ -94,7 +94,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<Arc<WebSocketChannel>>, anyhow::Error> {
+  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
     FutureResult::new(async { Ok(None) })
   }
 

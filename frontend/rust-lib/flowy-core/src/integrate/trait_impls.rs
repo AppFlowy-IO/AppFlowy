@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use bytes::Bytes;
+use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_define::CollabType;
-use collab_plugins::sync_plugin::{SyncObject, SyncPlugin};
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -177,14 +177,14 @@ impl DatabaseCloudService for ServerProvider {
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     let server = self.get_server(&self.get_server_type());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id, object_ty)
+        .get_collab_update(&database_id, collab_type)
         .await
     })
   }
@@ -273,19 +273,31 @@ impl CollabStorageProvider for ServerProvider {
         collab_object,
         local_collab,
       } => {
-        if let Ok(server) = self.get_server(&ServerType::AppFlowyCloud) {
+        if let Ok(server) = self.get_server(&ServerType::AFCloud) {
           match server.collab_ws_channel(&collab_object.object_id).await {
-            Ok(Some(channel)) => {
+            Ok(Some((channel, ws_connect_state))) => {
               let origin = CollabOrigin::Client(CollabClient::new(
                 collab_object.uid,
                 collab_object.device_id.clone(),
               ));
               let sync_object = SyncObject::from(collab_object);
               let (sink, stream) = (channel.sink(), channel.stream());
-              let sync_plugin = SyncPlugin::new(origin, sync_object, local_collab, sink, stream);
+              let sink_config = SinkConfig::new().with_timeout(6);
+              let sync_plugin = SyncPlugin::new(
+                origin,
+                sync_object,
+                local_collab,
+                sink,
+                sink_config,
+                stream,
+                Some(channel),
+                ws_connect_state,
+              );
               plugins.push(Arc::new(sync_plugin));
             },
-            Ok(None) => {},
+            Ok(None) => {
+              tracing::error!("🔴Failed to get collab ws channel: channel is none");
+            },
             Err(err) => tracing::error!("🔴Failed to get collab ws channel: {:?}", err),
           }
         }

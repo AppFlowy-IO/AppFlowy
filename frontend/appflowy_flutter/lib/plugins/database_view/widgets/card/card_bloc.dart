@@ -93,6 +93,8 @@ List<DatabaseCellContext> _makeCells(
   CellContextByFieldId originalCellMap,
 ) {
   final List<DatabaseCellContext> cells = [];
+  originalCellMap
+      .removeWhere((fieldId, cellContext) => !cellContext.isVisible());
   for (final entry in originalCellMap.entries) {
     // Filter out the cell if it's fieldId equal to the groupFieldId
     if (groupFieldId != null) {

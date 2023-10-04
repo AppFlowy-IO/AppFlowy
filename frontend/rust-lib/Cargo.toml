@@ -24,6 +24,7 @@ members = [
   "flowy-storage",
   "collab-integrate",
   "flowy-ai",
+  "flowy-date",
 ]
 
 [workspace.dependencies]
@@ -50,6 +51,7 @@ flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-ai = { workspace = true, path = "flowy-ai" }
+flowy-date = { workspace = true, path = "flowy-date" }
 
 [profile.dev]
 opt-level = 0
@@ -75,9 +77,12 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8f6a" }
-
-# ⚠️⚠️⚠️
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b0c213" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -87,12 +92,11 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "8f8
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-sync-protocol = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "bf3a19" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }

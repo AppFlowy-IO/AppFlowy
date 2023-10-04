@@ -13,6 +13,7 @@ export 'database/database_view_block_component.dart';
 export 'database/inline_database_menu_item.dart';
 export 'database/referenced_database_menu_item.dart';
 export 'extensions/flowy_tint_extension.dart';
+export 'find_and_replace/find_and_replace_menu.dart';
 export 'font/customize_font_toolbar_item.dart';
 export 'header/cover_editor_bloc.dart';
 export 'header/custom_cover_picker.dart';

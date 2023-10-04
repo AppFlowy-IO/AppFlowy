@@ -21,11 +21,13 @@ pub fn make_plugins(
   let database_plugin = flowy_database2::event_map::init(database_manager);
   let document_plugin2 = flowy_document2::event_map::init(document_manager2);
   let config_plugin = flowy_config::event_map::init(store_preferences);
+  let date_plugin = flowy_date::event_map::init();
   vec![
     user_plugin,
     folder_plugin,
     database_plugin,
     document_plugin2,
     config_plugin,
+    date_plugin,
   ]
 }

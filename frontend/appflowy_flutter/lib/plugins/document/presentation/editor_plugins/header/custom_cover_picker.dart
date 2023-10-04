@@ -201,7 +201,7 @@ class CoverImagePreviewWidget extends StatefulWidget {
 
 class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
   _buildFilePickerWidget(BuildContext ctx) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: Corners.s6Border,
@@ -263,7 +263,7 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
         onTap: () {
           ctx.read<CoverImagePickerBloc>().add(const DeleteImage());
         },
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).colorScheme.onPrimary,

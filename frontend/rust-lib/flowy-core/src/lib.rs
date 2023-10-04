@@ -2,42 +2,33 @@
 
 use std::sync::Weak;
 use std::time::Duration;
-use std::{
-  fmt,
-  sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-  },
-};
+use std::{fmt, sync::Arc};
 
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
-use flowy_error::FlowyResult;
-use flowy_folder2::manager::{FolderInitializeDataSource, FolderManager};
+use flowy_folder2::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_storage::FileStorageService;
 use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::{UserCloudServiceProvider, UserStatusCallback};
+use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::manager::{UserManager, UserSessionConfig};
-use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::{AuthType, UserProfile, UserWorkspace};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
-use lib_infra::future::{to_fut, Fut};
 use module::make_plugins;
 pub use module::*;
 
 use crate::deps_resolve::*;
+use crate::integrate::collab_interact::CollabInteractImpl;
+use crate::integrate::log::{create_log_filter, init_log};
 use crate::integrate::server::{current_server_provider, ServerProvider, ServerType};
+use crate::integrate::user::UserStatusCallbackImpl;
 
 mod deps_resolve;
 mod integrate;
 pub mod module;
-
-static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.
@@ -73,41 +64,6 @@ impl AppFlowyCoreConfig {
     self.log_filter = create_log_filter(level.to_owned(), with_crates);
     self
   }
-}
-
-fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
-  let level = std::env::var("RUST_LOG").unwrap_or(level);
-  let mut filters = with_crates
-    .into_iter()
-    .map(|crate_name| format!("{}={}", crate_name, level))
-    .collect::<Vec<String>>();
-  filters.push(format!("flowy_core={}", level));
-  filters.push(format!("flowy_folder2={}", level));
-  filters.push(format!("collab_sync={}", level));
-  filters.push(format!("collab_folder={}", level));
-  filters.push(format!("collab_persistence={}", level));
-  filters.push(format!("collab_database={}", level));
-  filters.push(format!("collab_plugins={}", level));
-  filters.push(format!("appflowy_integrate={}", level));
-  filters.push(format!("collab={}", level));
-  filters.push(format!("flowy_user={}", level));
-  filters.push(format!("flowy_document2={}", level));
-  filters.push(format!("flowy_database2={}", level));
-  filters.push(format!("flowy_server={}", level));
-  filters.push(format!("flowy_notification={}", "info"));
-  filters.push(format!("lib_infra={}", level));
-  filters.push(format!("flowy_task={}", level));
-
-  filters.push(format!("dart_ffi={}", "info"));
-  filters.push(format!("flowy_sqlite={}", "info"));
-  filters.push(format!("flowy_net={}", level));
-  #[cfg(feature = "profiling")]
-  filters.push(format!("tokio={}", level));
-
-  #[cfg(feature = "profiling")]
-  filters.push(format!("runtime={}", level));
-
-  filters.join(",")
 }
 
 #[derive(Clone)]
@@ -162,7 +118,7 @@ impl AppFlowyCore {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(server_provider.clone()));
-      let user_manager = mk_user_session(
+      let user_manager = init_user_manager(
         &config,
         &store_preference,
         server_provider.clone(),
@@ -206,7 +162,7 @@ impl AppFlowyCore {
       )
     });
 
-    let user_status_listener = UserStatusCallbackImpl {
+    let user_status_callback = UserStatusCallbackImpl {
       collab_builder,
       folder_manager: folder_manager.clone(),
       database_manager: database_manager.clone(),
@@ -215,10 +171,17 @@ impl AppFlowyCore {
       config: config.clone(),
     };
 
+    let collab_interact_impl = CollabInteractImpl {
+      database_manager: Arc::downgrade(&database_manager),
+      document_manager: Arc::downgrade(&document_manager),
+    };
+
     let cloned_user_session = Arc::downgrade(&user_manager);
     runtime.block_on(async move {
       if let Some(user_session) = cloned_user_session.upgrade() {
-        user_session.init(user_status_listener).await;
+        user_session
+          .init(user_status_callback, collab_interact_impl)
+          .await;
       }
     });
 
@@ -250,17 +213,7 @@ impl AppFlowyCore {
   }
 }
 
-fn init_log(config: &AppFlowyCoreConfig) {
-  if !INIT_LOG.load(Ordering::SeqCst) {
-    INIT_LOG.store(true, Ordering::SeqCst);
-
-    let _ = lib_log::Builder::new("AppFlowy-Client", &config.storage_path)
-      .env_filter(&config.log_filter)
-      .build();
-  }
-}
-
-fn mk_user_session(
+fn init_user_manager(
   config: &AppFlowyCoreConfig,
   storage_preference: &Arc<StorePreferences>,
   user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
@@ -275,183 +228,11 @@ fn mk_user_session(
   )
 }
 
-struct UserStatusCallbackImpl {
-  collab_builder: Arc<AppFlowyCollabBuilder>,
-  folder_manager: Arc<FolderManager>,
-  database_manager: Arc<DatabaseManager>,
-  document_manager: Arc<DocumentManager>,
-  server_provider: Arc<ServerProvider>,
-  #[allow(dead_code)]
-  config: AppFlowyCoreConfig,
-}
-
-impl UserStatusCallback for UserStatusCallbackImpl {
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
-
-  fn did_init(
-    &self,
-    user_id: i64,
-    cloud_config: &Option<UserCloudConfig>,
-    user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    let user_workspace = user_workspace.clone();
-    self.collab_builder.initialize(user_workspace.id.clone());
-
-    let folder_manager = self.folder_manager.clone();
-    let database_manager = self.database_manager.clone();
-    let document_manager = self.document_manager.clone();
-
-    if let Some(cloud_config) = cloud_config {
-      self
-        .server_provider
-        .set_enable_sync(user_id, cloud_config.enable_sync);
-      if cloud_config.enable_encrypt() {
-        self
-          .server_provider
-          .set_encrypt_secret(cloud_config.encrypt_secret.clone());
-      }
-    }
-
-    to_fut(async move {
-      folder_manager
-        .initialize(
-          user_id,
-          &user_workspace.id,
-          FolderInitializeDataSource::LocalDisk {
-            create_if_not_exist: false,
-          },
-        )
-        .await?;
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
-      Ok(())
-    })
-  }
-
-  fn did_sign_in(
-    &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    let user_id = user_id.to_owned();
-    let user_workspace = user_workspace.clone();
-    let folder_manager = self.folder_manager.clone();
-    let database_manager = self.database_manager.clone();
-    let document_manager = self.document_manager.clone();
-
-    to_fut(async move {
-      folder_manager
-        .initialize_with_workspace_id(user_id, &user_workspace.id)
-        .await?;
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
-      Ok(())
-    })
-  }
-
-  fn did_sign_up(
-    &self,
-    is_new_user: bool,
-    user_profile: &UserProfile,
-    user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    let user_profile = user_profile.clone();
-    let folder_manager = self.folder_manager.clone();
-    let database_manager = self.database_manager.clone();
-    let user_workspace = user_workspace.clone();
-    let document_manager = self.document_manager.clone();
-
-    to_fut(async move {
-      folder_manager
-        .initialize_with_new_user(
-          user_profile.uid,
-          &user_profile.token,
-          is_new_user,
-          FolderInitializeDataSource::LocalDisk {
-            create_if_not_exist: true,
-          },
-          &user_workspace.id,
-        )
-        .await?;
-      database_manager
-        .initialize_with_new_user(
-          user_profile.uid,
-          user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
-        )
-        .await?;
-
-      document_manager
-        .initialize_with_new_user(user_profile.uid, user_workspace.id)
-        .await?;
-      Ok(())
-    })
-  }
-
-  fn did_expired(&self, _token: &str, user_id: i64) -> Fut<FlowyResult<()>> {
-    let folder_manager = self.folder_manager.clone();
-    to_fut(async move {
-      folder_manager.clear(user_id).await;
-      Ok(())
-    })
-  }
-
-  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
-    let user_workspace = user_workspace.clone();
-    self.collab_builder.initialize(user_workspace.id.clone());
-
-    let folder_manager = self.folder_manager.clone();
-    let database_manager = self.database_manager.clone();
-    let document_manager = self.document_manager.clone();
-
-    to_fut(async move {
-      folder_manager
-        .initialize_with_workspace_id(user_id, &user_workspace.id)
-        .await?;
-
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.database_views_aggregate_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
-      Ok(())
-    })
-  }
-
-  fn did_update_network(&self, reachable: bool) {
-    self.collab_builder.update_network(reachable);
-  }
-}
-
 impl From<ServerType> for CollabSource {
-  fn from(server_provider: ServerType) -> Self {
-    match server_provider {
+  fn from(server_type: ServerType) -> Self {
+    match server_type {
       ServerType::Local => CollabSource::Local,
-      ServerType::AppFlowyCloud => CollabSource::Local,
+      ServerType::AFCloud => CollabSource::AFCloud,
       ServerType::Supabase => CollabSource::Supabase,
     }
   }

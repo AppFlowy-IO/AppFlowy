@@ -246,14 +246,11 @@ class RowCache {
     // ignore: prefer_collection_literals
     final cellContextMap = CellContextByFieldId();
     for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      if (fieldInfo.visibility != null &&
-          fieldInfo.visibility != FieldVisibility.AlwaysHidden) {
-        cellContextMap[fieldInfo.id] = DatabaseCellContext(
-          rowMeta: rowMeta,
-          viewId: viewId,
-          fieldInfo: fieldInfo,
-        );
-      }
+      cellContextMap[fieldInfo.id] = DatabaseCellContext(
+        rowMeta: rowMeta,
+        viewId: viewId,
+        fieldInfo: fieldInfo,
+      );
     }
     return cellContextMap;
   }

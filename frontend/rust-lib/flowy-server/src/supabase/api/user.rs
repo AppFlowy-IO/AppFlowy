@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
@@ -63,11 +64,11 @@ impl<T> UserCloudService for SupabaseUserServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error> {
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let params = third_party_params_from_box_any(params)?;
+      let params = oauth_params_from_box_any(params)?;
       let is_new_user = postgrest
         .from(USER_TABLE)
         .select("uid")
@@ -117,7 +118,7 @@ where
         user_profile.name
       };
 
-      Ok(SignUpResponse {
+      Ok(AuthResponse {
         user_id: user_profile.uid,
         name: user_name,
         latest_workspace: latest_workspace.unwrap(),
@@ -131,11 +132,11 @@ where
     })
   }
 
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error> {
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let params = third_party_params_from_box_any(params)?;
+      let params = oauth_params_from_box_any(params)?;
       let uuid = params.uuid;
       let response = get_user_profile(postgrest.clone(), GetUserProfileParams::Uuid(uuid))
         .await?
@@ -146,11 +147,12 @@ where
         .find(|user_workspace| user_workspace.id == response.latest_workspace_id)
         .cloned();
 
-      Ok(SignInResponse {
+      Ok(AuthResponse {
         user_id: response.uid,
         name: DEFAULT_USER_NAME(),
         latest_workspace: latest_workspace.unwrap(),
         user_workspaces,
+        is_new_user: false,
         email: None,
         token: None,
         device_id: params.device_id,
@@ -161,6 +163,14 @@ where
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate callback url when using supabase"
+      ))
+    })
   }
 
   fn update_user(
@@ -623,4 +633,16 @@ fn empty_workspace_update(collab_object: &CollabObject) -> Vec<u8> {
   });
   folder.set_current_workspace(&workspace_id);
   collab.encode_as_update_v1().0
+}
+
+fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {
+  let map: HashMap<String, String> = any.unbox_or_error()?;
+  let uuid = uuid_from_map(&map)?;
+  let email = map.get("email").cloned().unwrap_or_default();
+  let device_id = map.get("device_id").cloned().unwrap_or_default();
+  Ok(SupabaseOAuthParams {
+    uuid,
+    email,
+    device_id,
+  })
 }

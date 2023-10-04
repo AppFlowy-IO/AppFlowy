@@ -88,7 +88,6 @@ class FlowyColorScheme {
   final Color calendarWeekendBGColor;
   //grid bottom count color
   final Color gridRowCountColor;
-
   const FlowyColorScheme({
     required this.surface,
     required this.hover,

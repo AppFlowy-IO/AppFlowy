@@ -17,7 +17,7 @@ async fn supabase_user_sign_up_test() {
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
   assert!(!user.latest_workspace.id.is_empty());
   assert!(!user.user_workspaces.is_empty());
   assert!(!user.latest_workspace.database_views_aggregate_id.is_empty());
@@ -31,11 +31,11 @@ async fn supabase_user_sign_up_with_existing_uuid_test() {
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let _user: SignUpResponse = user_service
+  let _user: AuthResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
     .unwrap();
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
   assert!(!user.latest_workspace.id.is_empty());
   assert!(!user.latest_workspace.database_views_aggregate_id.is_empty());
   assert!(!user.user_workspaces.is_empty());
@@ -49,7 +49,7 @@ async fn supabase_update_user_profile_test() {
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service
+  let user: AuthResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
     .unwrap();
@@ -87,7 +87,7 @@ async fn supabase_get_user_profile_test() {
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service
+  let user: AuthResponse = user_service
     .sign_up(BoxAny::new(params.clone()))
     .await
     .unwrap();
@@ -123,7 +123,7 @@ async fn user_encryption_sign_test() {
   let user_service = user_auth_service();
   let uuid = Uuid::new_v4().to_string();
   let params = third_party_sign_up_param(uuid);
-  let user: SignUpResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
+  let user: AuthResponse = user_service.sign_up(BoxAny::new(params)).await.unwrap();
 
   // generate encryption sign
   let secret = generate_encryption_secret();
