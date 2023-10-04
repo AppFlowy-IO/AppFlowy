@@ -45,9 +45,10 @@ dependencies:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: a183c57
   appflowy_editor:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: '0fdca2f'
+    path: /Users/lucas.xu/Desktop/appflowy-editor
+    # git:
+    #   url: https://github.com/AppFlowy-IO/appflowy-editor.git
+    #   ref: '0fdca2f'
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -108,6 +109,8 @@ dependencies:
   hive_flutter: ^1.1.0
   super_clipboard: ^0.6.3
   go_router: ^10.1.2
+  string_validator: ^1.0.0
+  unsplash_client: ^2.1.1
 
   # Notifications
   # TODO: Consider implementing custom package

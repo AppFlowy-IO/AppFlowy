@@ -53,11 +53,9 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "0fdca2f"
-      resolved-ref: "0fdca2f702485eeec1bfbe50127c06f2a8fd8b1e"
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
+      path: "/Users/lucas.xu/Desktop/appflowy-editor"
+      relative: false
+    source: path
     version: "1.4.3"
   appflowy_popover:
     dependency: "direct main"
@@ -1447,7 +1445,7 @@ packages:
     source: hosted
     version: "1.2.0"
   string_validator:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: string_validator
       sha256: b419cf5d21d608522e6e7cafed4deb34b6f268c43df866e63c320bab98a08cf6
@@ -1615,6 +1613,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0+1"
+  unsplash_client:
+    dependency: "direct main"
+    description:
+      name: unsplash_client
+      sha256: "832011981ef358ef4f816f356375620791d24dc6e1afb33a37f066df9aaea537"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   url_launcher:
     dependency: "direct main"
     description:
