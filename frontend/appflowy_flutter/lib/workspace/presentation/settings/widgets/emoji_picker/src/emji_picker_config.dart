@@ -3,13 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'models/category_models.dart';
+import 'models/emoji_category_models.dart';
 import 'emoji_picker.dart';
 
 part 'emji_picker_config.freezed.dart';
 
 @freezed
 class EmojiPickerConfig with _$EmojiPickerConfig {
+  // private empty constructor is used to make method work in freezed
+  // https://pub.dev/packages/freezed#adding-getters-and-methods-to-our-models
+  const EmojiPickerConfig._();
   const factory EmojiPickerConfig({
     @Default(7) int emojiNumberPerRow,
     // The maximum size(width and height) of emoji
@@ -19,8 +22,8 @@ class EmojiPickerConfig with _$EmojiPickerConfig {
     @Default(0) double verticalSpacing,
     // Horizontal spacing between emojis
     @Default(0) double horizontalSpacing,
-    // The initial [Category] that will be selected
-    @Default(Category.RECENT) Category initCategory,
+    // The initial [EmojiCategory] that will be selected
+    @Default(EmojiCategory.RECENT) EmojiCategory initCategory,
     // The background color of the Widget
     @Default(Color(0xFFEBEFF2)) Color? bgColor,
     // The color of the category icons
@@ -49,8 +52,8 @@ class EmojiPickerConfig with _$EmojiPickerConfig {
     Color? scrollBarHandleColor,
     // Duration of tab indicator to animate to next category
     @Default(kTabScrollDuration) Duration tabIndicatorAnimDuration,
-    // Determines the icon to display for each [Category]
-    @Default(CategoryIcons()) CategoryIcons categoryIcons,
+    // Determines the icon to display for each [EmojiCategory]
+    @Default(EmojiCategoryIcons()) EmojiCategoryIcons emojiCategoryIcons,
     // Change between Material and Cupertino button style
     @Default(ButtonMode.MATERIAL) ButtonMode buttonMode,
   }) = _EmojiPickerConfig;
@@ -62,30 +65,30 @@ class EmojiPickerConfig with _$EmojiPickerConfig {
   }
 
   /// Returns the icon for the category
-  IconData getIconForCategory(Category category) {
+  IconData getIconForCategory(EmojiCategory category) {
     switch (category) {
-      case Category.RECENT:
-        return categoryIcons.recentIcon;
-      case Category.SMILEYS:
-        return categoryIcons.smileyIcon;
-      case Category.ANIMALS:
-        return categoryIcons.animalIcon;
-      case Category.FOODS:
-        return categoryIcons.foodIcon;
-      case Category.TRAVEL:
-        return categoryIcons.travelIcon;
-      case Category.ACTIVITIES:
-        return categoryIcons.activityIcon;
-      case Category.OBJECTS:
-        return categoryIcons.objectIcon;
-      case Category.SYMBOLS:
-        return categoryIcons.symbolIcon;
-      case Category.FLAGS:
-        return categoryIcons.flagIcon;
-      case Category.SEARCH:
-        return categoryIcons.searchIcon;
+      case EmojiCategory.RECENT:
+        return emojiCategoryIcons.recentIcon;
+      case EmojiCategory.SMILEYS:
+        return emojiCategoryIcons.smileyIcon;
+      case EmojiCategory.ANIMALS:
+        return emojiCategoryIcons.animalIcon;
+      case EmojiCategory.FOODS:
+        return emojiCategoryIcons.foodIcon;
+      case EmojiCategory.TRAVEL:
+        return emojiCategoryIcons.travelIcon;
+      case EmojiCategory.ACTIVITIES:
+        return emojiCategoryIcons.activityIcon;
+      case EmojiCategory.OBJECTS:
+        return emojiCategoryIcons.objectIcon;
+      case EmojiCategory.SYMBOLS:
+        return emojiCategoryIcons.symbolIcon;
+      case EmojiCategory.FLAGS:
+        return emojiCategoryIcons.flagIcon;
+      case EmojiCategory.SEARCH:
+        return emojiCategoryIcons.searchIcon;
       default:
-        throw Exception('Unsupported Category');
+        throw Exception('Unsupported EmojiCategory');
     }
   }
 }
