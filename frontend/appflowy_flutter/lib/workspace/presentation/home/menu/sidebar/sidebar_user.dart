@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -64,7 +65,7 @@ class SidebarUser extends StatelessWidget {
 
   Widget _buildSettingsButton(BuildContext context, MenuUserState state) {
     final userProfile = state.userProfile;
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
         onPressed: () {

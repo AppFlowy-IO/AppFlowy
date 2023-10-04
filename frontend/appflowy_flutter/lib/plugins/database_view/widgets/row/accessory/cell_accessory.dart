@@ -3,6 +3,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -66,7 +67,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.tooltip_openAsPage.tr(),
       child: SizedBox(
         width: 26,

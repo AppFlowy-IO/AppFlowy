@@ -24,7 +24,7 @@ class GridTextCellStyle extends GridCellStyle {
     this.autofocus = false,
     this.showEmoji = true,
     this.emojiFontSize = 16,
-    this.emojiHPadding = 0,
+    this.emojiHPadding = 4,
     this.useRoundedBorder = false,
   });
 }
