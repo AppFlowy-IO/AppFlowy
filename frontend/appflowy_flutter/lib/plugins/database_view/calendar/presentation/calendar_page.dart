@@ -375,9 +375,14 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                   _popoverController.show();
                 }
               },
-              child: FlowyText.regular(
-                "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
-                fontSize: 10,
+              child: Tooltip(
+                message: state.unscheduleEvents.isEmpty
+                    ? "Unscheduled events will show up here"
+                    : "${state.unscheduleEvents.length} events are unscheduled",
+                child: FlowyText.regular(
+                  "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
+                  fontSize: 10,
+                ),
               ),
             ),
             popupBuilder: (context) {
