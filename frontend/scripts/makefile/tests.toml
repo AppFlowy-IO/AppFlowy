@@ -379,6 +379,8 @@ script = [
     dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
     dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/${TARGET_OS}
     rm ${dest}
+    echo ${dart_ffi_dir}
+    ls ${dart_ffi_dir}
 
     cp ${dart_ffi_dir}/${lib} ${dest}
   """,
