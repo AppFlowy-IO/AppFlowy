@@ -272,13 +272,10 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       },
       child: FlowyHover(
         child: FittedBox(
-          fit: BoxFit.scaleDown,
           child: Text(
             emoji.emoji,
-            textScaleFactor: 1.0,
             style: TextStyle(
               fontSize: emojiSize,
-              backgroundColor: Colors.transparent,
             ),
           ),
         ),
