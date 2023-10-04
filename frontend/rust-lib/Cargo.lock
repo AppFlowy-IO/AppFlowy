@@ -1976,6 +1976,7 @@ dependencies = [
  "hyper",
  "lazy_static",
  "lib-infra",
+ "mime",
  "mime_guess",
  "parking_lot",
  "postgrest",
