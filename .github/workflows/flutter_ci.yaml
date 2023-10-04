@@ -418,7 +418,7 @@ jobs:
           path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xvf frontend/appflowy_flutter.tar.gz -C frontend/
+        run: tar -xf frontend/appflowy_flutter.tar.gz
 
       - name: List
         run: |
