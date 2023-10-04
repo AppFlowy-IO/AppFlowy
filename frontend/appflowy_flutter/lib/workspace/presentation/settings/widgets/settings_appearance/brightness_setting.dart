@@ -17,30 +17,32 @@ class BrightnessSetting extends StatelessWidget {
   const BrightnessSetting({required this.currentThemeMode, super.key});
 
   @override
-  Widget build(BuildContext context) => FlowyTooltip.delayed(
-        richMessage: themeModeTooltipTextSpan(
-          context,
-          LocaleKeys.settings_appearance_themeMode_label.tr(),
-        ),
-        child: ThemeSettingEntryTemplateWidget(
-          label: LocaleKeys.settings_appearance_themeMode_label.tr(),
-          onResetRequested:
-              context.read<AppearanceSettingsCubit>().resetThemeMode,
-          trailing: [
-            ThemeValueDropDown(
-              currentValue: _themeModeLabelText(currentThemeMode),
-              popupBuilder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _themeModeItemButton(context, ThemeMode.light),
-                  _themeModeItemButton(context, ThemeMode.dark),
-                  _themeModeItemButton(context, ThemeMode.system),
-                ],
-              ),
+  Widget build(BuildContext context) {
+    return FlowyTooltip.delayed(
+      margin: const EdgeInsets.only(left: 180),
+      richMessage: themeModeTooltipTextSpan(
+        LocaleKeys.settings_appearance_themeMode_label.tr(),
+      ),
+      child: ThemeSettingEntryTemplateWidget(
+        label: LocaleKeys.settings_appearance_themeMode_label.tr(),
+        onResetRequested:
+            context.read<AppearanceSettingsCubit>().resetThemeMode,
+        trailing: [
+          ThemeValueDropDown(
+            currentValue: _themeModeLabelText(currentThemeMode),
+            popupBuilder: (context) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _themeModeItemButton(context, ThemeMode.light),
+                _themeModeItemButton(context, ThemeMode.dark),
+                _themeModeItemButton(context, ThemeMode.system),
+              ],
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 
   TextSpan themeModeTooltipTextSpan(String hintText) => TextSpan(
         children: [
