@@ -1,3 +1,4 @@
+export 'emoji_menu_item.dart';
 export 'src/emji_picker_config.dart';
 export 'src/emoji_picker.dart';
 export 'src/emoji_picker_builder.dart';
