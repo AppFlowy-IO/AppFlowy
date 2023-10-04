@@ -1,113 +1,59 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'models/category_models.dart';
 import 'emoji_picker.dart';
 
-/// Config for customizations
-class EmojiPickerConfig {
-  /// Constructor
-  const EmojiPickerConfig({
-    this.emojiNumberPerRow = 7,
-    this.emojiSizeMax = 32.0,
-    this.verticalSpacing = 0,
-    this.horizontalSpacing = 0,
-    this.initCategory = Category.RECENT,
-    this.bgColor = const Color(0xFFEBEFF2),
-    this.categoryIconColor = Colors.grey,
-    this.selectedCategoryIconColor = Colors.blue,
-    this.selectedCategoryIconBackgroundColor = Colors.blue,
-    this.progressIndicatorColor = Colors.blue,
-    this.backspaceColor = Colors.blue,
-    this.showRecentsTab = true,
-    this.recentsLimit = 28,
-    this.searchHintText = 'Search emoji',
-    this.serachHintTextStyle,
-    this.serachBarEnableBorder,
-    this.serachBarFocusedBorder,
-    this.noRecentsText = 'No recent emoji',
-    this.noRecentsStyle,
-    this.noEmojiFoundText = 'No emoji found',
-    this.scrollBarHandleColor,
-    this.tabIndicatorAnimDuration = kTabScrollDuration,
-    this.categoryIcons = const CategoryIcons(),
-    this.buttonMode = ButtonMode.MATERIAL,
-  });
+part 'emji_picker_config.freezed.dart';
 
-  /// Number of emojis per row
-  final int emojiNumberPerRow;
-
-  /// Width and height the emoji will be maximal displayed
-  /// Can be smaller due to screen size and amount of columns
-  final double emojiSizeMax;
-
-  /// Vertical spacing between emojis
-  final double verticalSpacing;
-
-  /// Horizontal spacing between emojis
-  final double horizontalSpacing;
-
-  /// The initial [Category] that will be selected
-  /// This [Category] will have its button in the bottombar darkened
-  final Category initCategory;
-
-  /// The background color of the Widget
-  final Color? bgColor;
-
-  /// The color of the category icons
-  final Color? categoryIconColor;
-
-  /// The color of the category icon when selected
-  final Color? selectedCategoryIconColor;
-
-  /// The color of the category indicator
-  final Color? selectedCategoryIconBackgroundColor;
-
-  /// The color of the loading indicator during initialization
-  final Color? progressIndicatorColor;
-
-  /// The color of the backspace icon button
-  final Color? backspaceColor;
-
-  /// Show extra tab with recently used emoji
-  final bool showRecentsTab;
-
-  /// Limit of recently used emoji that will be saved
-  final int recentsLimit;
-
-  /// The text to be displayed in the search field as a hint
-  final String searchHintText;
-
-  /// The text style for [searchHintText]
-  final TextStyle? serachHintTextStyle;
-
-  /// The border for the search field when enabled
-  final InputBorder? serachBarEnableBorder;
-
-  /// The border for the search field when focused
-  final InputBorder? serachBarFocusedBorder;
-
-  /// The text to be displayed if no recent emojis to display
-  final String noRecentsText;
-
-  /// The text style for [noRecentsText]
-  final TextStyle? noRecentsStyle;
-
-  /// The text to be displayed if no emoji found
-  final String noEmojiFoundText;
-
-  /// The color of the scrollbar handle
-  final Color? scrollBarHandleColor;
-
-  /// Duration of tab indicator to animate to next category
-  final Duration tabIndicatorAnimDuration;
-
-  /// Determines the icon to display for each [Category]
-  final CategoryIcons categoryIcons;
-
-  /// Change between Material and Cupertino button style
-  final ButtonMode buttonMode;
+@freezed
+class EmojiPickerConfig with _$EmojiPickerConfig {
+  const factory EmojiPickerConfig({
+    @Default(7) int emojiNumberPerRow,
+    // The maximum size(width and height) of emoji
+    // It also depaneds on the screen size and emojiNumberPerRow
+    @Default(32) double emojiSizeMax,
+    // Vertical spacing between emojis
+    @Default(0) double verticalSpacing,
+    // Horizontal spacing between emojis
+    @Default(0) double horizontalSpacing,
+    // The initial [Category] that will be selected
+    @Default(Category.RECENT) Category initCategory,
+    // The background color of the Widget
+    @Default(Color(0xFFEBEFF2)) Color? bgColor,
+    // The color of the category icons
+    @Default(Colors.grey) Color? categoryIconColor,
+    // The color of the category icon when selected
+    @Default(Colors.blue) Color? selectedCategoryIconColor,
+    // The color of the category indicator
+    @Default(Colors.blue) Color? selectedCategoryIconBackgroundColor,
+    // The color of the loading indicator during initialization
+    @Default(Colors.blue) Color? progressIndicatorColor,
+    // The color of the backspace icon button
+    @Default(Colors.blue) Color? backspaceColor,
+    // Show extra tab with recently used emoji
+    @Default(true) bool showRecentsTab,
+    // Limit of recently used emoji that will be saved
+    @Default(28) int recentsLimit,
+    @Default('Search emoji') String searchHintText,
+    TextStyle? serachHintTextStyle,
+    InputBorder? serachBarEnableBorder,
+    InputBorder? serachBarFocusedBorder,
+    // The text to be displayed if no recent emojis to display
+    @Default('No recent emoji') String noRecentsText,
+    TextStyle? noRecentsStyle,
+    // The text to be displayed if no emoji found
+    @Default('No emoji found') String noEmojiFoundText,
+    Color? scrollBarHandleColor,
+    // Duration of tab indicator to animate to next category
+    @Default(kTabScrollDuration) Duration tabIndicatorAnimDuration,
+    // Determines the icon to display for each [Category]
+    @Default(CategoryIcons()) CategoryIcons categoryIcons,
+    // Change between Material and Cupertino button style
+    @Default(ButtonMode.MATERIAL) ButtonMode buttonMode,
+  }) = _EmojiPickerConfig;
 
   /// Get Emoji size based on properties and screen width
   double getEmojiSize(double width) {
@@ -142,62 +88,4 @@ class EmojiPickerConfig {
         throw Exception('Unsupported Category');
     }
   }
-
-// double check here
-  @override
-  bool operator ==(other) {
-    return (other is EmojiPickerConfig) &&
-        other.emojiNumberPerRow == emojiNumberPerRow &&
-        other.emojiSizeMax == emojiSizeMax &&
-        other.verticalSpacing == verticalSpacing &&
-        other.horizontalSpacing == horizontalSpacing &&
-        other.initCategory == initCategory &&
-        other.bgColor == bgColor &&
-        other.categoryIconColor == categoryIconColor &&
-        other.selectedCategoryIconColor == selectedCategoryIconColor &&
-        other.selectedCategoryIconBackgroundColor ==
-            selectedCategoryIconBackgroundColor &&
-        other.progressIndicatorColor == progressIndicatorColor &&
-        other.backspaceColor == backspaceColor &&
-        other.showRecentsTab == showRecentsTab &&
-        other.recentsLimit == recentsLimit &&
-        other.searchHintText == searchHintText &&
-        other.serachHintTextStyle == serachHintTextStyle &&
-        other.serachBarEnableBorder == serachBarEnableBorder &&
-        other.serachBarFocusedBorder == serachBarFocusedBorder &&
-        other.noRecentsText == noRecentsText &&
-        other.noRecentsStyle == noRecentsStyle &&
-        other.noEmojiFoundText == noEmojiFoundText &&
-        other.tabIndicatorAnimDuration == tabIndicatorAnimDuration &&
-        other.scrollBarHandleColor == scrollBarHandleColor &&
-        other.categoryIcons == categoryIcons &&
-        other.buttonMode == buttonMode;
-  }
-
-  @override
-  int get hashCode =>
-      emojiNumberPerRow.hashCode ^
-      emojiSizeMax.hashCode ^
-      verticalSpacing.hashCode ^
-      horizontalSpacing.hashCode ^
-      initCategory.hashCode ^
-      bgColor.hashCode ^
-      categoryIconColor.hashCode ^
-      selectedCategoryIconColor.hashCode ^
-      selectedCategoryIconBackgroundColor.hashCode ^
-      progressIndicatorColor.hashCode ^
-      backspaceColor.hashCode ^
-      showRecentsTab.hashCode ^
-      recentsLimit.hashCode ^
-      searchHintText.hashCode ^
-      serachHintTextStyle.hashCode ^
-      serachBarEnableBorder.hashCode ^
-      serachBarFocusedBorder.hashCode ^
-      noRecentsText.hashCode ^
-      noRecentsStyle.hashCode ^
-      noEmojiFoundText.hashCode ^
-      scrollBarHandleColor.hashCode ^
-      tabIndicatorAnimDuration.hashCode ^
-      categoryIcons.hashCode ^
-      buttonMode.hashCode;
 }
