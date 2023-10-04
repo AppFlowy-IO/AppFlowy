@@ -82,6 +82,7 @@ class ReminderReferenceService {
         .toList();
 
     if (options.isEmpty && _keywords.any((k) => search.startsWith(k))) {
+      _setOptions();
       options = _allOptions;
     }
   }
