@@ -2,7 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/presentation/notifications/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -17,9 +19,11 @@ class SidebarUser extends StatelessWidget {
   const SidebarUser({
     super.key,
     required this.user,
+    required this.views,
   });
 
   final UserProfilePB user;
+  final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +45,8 @@ class SidebarUser extends StatelessWidget {
               child: _buildUserName(context, state),
             ),
             _buildSettingsButton(context, state),
+            const HSpace(4),
+            NotificationButton(views: views),
           ],
         ),
       ),

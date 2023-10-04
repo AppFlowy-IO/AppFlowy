@@ -30,9 +30,53 @@ impl UserManager {
     let reminder = Reminder::from(reminder_pb);
     self
       .with_awareness((), |user_awareness| {
-        user_awareness.add_reminder(reminder);
+        user_awareness.add_reminder(reminder.clone());
       })
       .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .add_reminder(reminder)
+      .await?;
+    Ok(())
+  }
+
+  /// Removes a specific reminder for the user by its id
+  ///
+  pub async fn remove_reminder(&self, reminder_id: &str) -> FlowyResult<()> {
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.remove_reminder(reminder_id);
+      })
+      .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .remove_reminder(reminder_id)
+      .await?;
+    Ok(())
+  }
+
+  /// Updates an existing reminder
+  ///
+  pub async fn update_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
+    let reminder = Reminder::from(reminder_pb);
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.update_reminder(&reminder.id, |new_reminder| {
+          new_reminder.clone_from(&reminder)
+        });
+      })
+      .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .update_reminder(reminder)
+      .await?;
+
     Ok(())
   }
 

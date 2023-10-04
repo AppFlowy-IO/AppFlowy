@@ -37,7 +37,8 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
+    .event(UserEvent::OAuth, oauth_handler)
+    .event(UserEvent::OAuthCallbackURL, get_oauth_url_handler)
     .event(
       UserEvent::GetAllUserWorkspaces,
       get_all_user_workspace_handler,
@@ -54,7 +55,11 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
+    .event(UserEvent::RemoveReminder, remove_reminder_event_handler)
+    .event(UserEvent::UpdateReminder, update_reminder_event_handler)
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
+    .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
+    .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
 }
 
 pub struct SignUpContext {
@@ -225,8 +230,13 @@ pub enum UserEvent {
   #[event(output = "UserSettingPB")]
   GetUserSetting = 9,
 
-  #[event(input = "ThirdPartyAuthPB", output = "UserProfilePB")]
-  ThirdPartyAuth = 10,
+  #[event(input = "OAuthPB", output = "UserProfilePB")]
+  OAuth = 10,
+
+  /// Get the OAuth callback url
+  /// Only use when the [AuthType] is AFCloud
+  #[event(input = "OAuthCallbackRequestPB", output = "OAuthCallbackResponsePB")]
+  OAuthCallbackURL = 11,
 
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,
@@ -262,8 +272,9 @@ pub enum UserEvent {
   #[event(input = "HistoricalUserPB")]
   OpenHistoricalUser = 26,
 
-  /// Push a realtime event to the user. Currently, the realtime event is only used
-  /// when the auth type is: [AuthType::Supabase].
+  /// Push a realtime event to the user. Currently, the realtime event
+  /// is only used when the auth type is: [AuthType::Supabase].
+  ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
 
@@ -273,6 +284,20 @@ pub enum UserEvent {
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
 
+  #[event(input = "ReminderIdentifierPB")]
+  RemoveReminder = 30,
+
+  #[event(input = "ReminderPB")]
+  UpdateReminder = 31,
+
   #[event(input = "ResetWorkspacePB")]
-  ResetWorkspace = 30,
+  ResetWorkspace = 32,
+
+  /// Change the Date/Time formats globally
+  #[event(input = "DateTimeSettingsPB")]
+  SetDateTimeSettings = 33,
+
+  /// Retrieve the Date/Time formats
+  #[event(output = "DateTimeSettingsPB")]
+  GetDateTimeSettings = 34,
 }

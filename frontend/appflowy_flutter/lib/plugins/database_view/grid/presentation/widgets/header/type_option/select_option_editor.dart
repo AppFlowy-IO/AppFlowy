@@ -224,7 +224,7 @@ class _SelectOptionColorCell extends StatelessWidget {
 
     final colorIcon = SizedBox.square(
       dimension: 16,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: color.toColor(context),
           shape: BoxShape.circle,

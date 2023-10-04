@@ -14,9 +14,7 @@ use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
-use flowy_user::entities::{
-  AuthTypePB, ThirdPartyAuthPB, UpdateUserProfilePayloadPB, UserProfilePB,
-};
+use flowy_user::entities::{AuthTypePB, OAuthPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -32,13 +30,13 @@ async fn third_party_sign_up_test() {
       USER_EMAIL.to_string(),
       format!("{}@appflowy.io", nanoid!(6)),
     );
-    let payload = ThirdPartyAuthPB {
+    let payload = OAuthPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
+      .event(OAuth)
       .payload(payload)
       .async_send()
       .await
@@ -74,8 +72,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     map.insert(USER_EMAIL.to_string(), email.clone());
 
     let response_1 = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
-      .payload(ThirdPartyAuthPB {
+      .event(OAuth)
+      .payload(OAuthPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })
@@ -85,8 +83,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     dbg!(&response_1);
 
     let response_2 = EventBuilder::new(test.clone())
-      .event(ThirdPartyAuth)
-      .payload(ThirdPartyAuthPB {
+      .event(OAuth)
+      .payload(OAuthPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })
@@ -103,11 +101,11 @@ async fn third_party_sign_up_with_duplicated_email() {
     let test = FlowyCoreTest::new();
     let email = format!("{}@appflowy.io", nanoid!(6));
     test
-      .third_party_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
+      .supabase_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
       .await
       .unwrap();
     let error = test
-      .third_party_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
+      .supabase_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
       .await
       .err()
       .unwrap();
@@ -127,10 +125,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     let old_workspace = test.folder_manager.get_current_workspace().await.unwrap();
 
     let uuid = uuid::Uuid::new_v4().to_string();
-    test
-      .third_party_sign_up_with_uuid(&uuid, None)
-      .await
-      .unwrap();
+    test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     let new_views = test
       .folder_manager
       .get_current_workspace_views()
@@ -159,7 +154,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     let email = format!("{}@appflowy.io", nanoid!(6));
     // The workspace of the guest will be migrated to the new user with given uuid
     let _user_profile = test
-      .third_party_sign_up_with_uuid(&uuid, Some(email.clone()))
+      .supabase_sign_up_with_uuid(&uuid, Some(email.clone()))
       .await
       .unwrap();
     let old_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -185,7 +180,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     // upload to cloud user with given uuid. This time the workspace of the guest will not be merged
     // because the cloud user already has a workspace
     test
-      .third_party_sign_up_with_uuid(&uuid, Some(email))
+      .supabase_sign_up_with_uuid(&uuid, Some(email))
       .await
       .unwrap();
     let new_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -214,10 +209,7 @@ async fn check_not_exist_user_test() {
 async fn get_user_profile_test() {
   if let Some(test) = FlowySupabaseTest::new() {
     let uuid = uuid::Uuid::new_v4().to_string();
-    test
-      .third_party_sign_up_with_uuid(&uuid, None)
-      .await
-      .unwrap();
+    test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
 
     let result = test.get_user_profile().await;
     assert!(result.is_ok());
@@ -228,10 +220,7 @@ async fn get_user_profile_test() {
 async fn update_user_profile_test() {
   if let Some(test) = FlowySupabaseTest::new() {
     let uuid = uuid::Uuid::new_v4().to_string();
-    let profile = test
-      .third_party_sign_up_with_uuid(&uuid, None)
-      .await
-      .unwrap();
+    let profile = test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     test
       .update_user_profile(UpdateUserProfilePayloadPB::new(profile.id).name("lucas"))
       .await;
@@ -246,11 +235,11 @@ async fn update_user_profile_with_existing_email_test() {
   if let Some(test) = FlowySupabaseTest::new() {
     let email = format!("{}@appflowy.io", nanoid!(6));
     let _ = test
-      .third_party_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
+      .supabase_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
       .await;
 
     let profile = test
-      .third_party_sign_up_with_uuid(
+      .supabase_sign_up_with_uuid(
         &uuid::Uuid::new_v4().to_string(),
         Some(format!("{}@appflowy.io", nanoid!(6))),
       )

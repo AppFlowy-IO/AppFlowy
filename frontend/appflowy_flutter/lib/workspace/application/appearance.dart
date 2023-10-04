@@ -5,6 +5,7 @@ import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/mobile/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -23,11 +24,14 @@ const _white = Color(0xFFFFFFFF);
 /// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
+  final DateTimeSettingsPB _dateTimeSettings;
 
   AppearanceSettingsCubit(
     AppearanceSettingsPB setting,
+    DateTimeSettingsPB dateTimeSettings,
     AppTheme appTheme,
   )   : _setting = setting,
+        _dateTimeSettings = dateTimeSettings,
         super(
           AppearanceSettingsState.initial(
             appTheme,
@@ -39,6 +43,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             setting.locale,
             setting.isMenuCollapsed,
             setting.menuOffset,
+            dateTimeSettings.dateFormat,
+            dateTimeSettings.timeFormat,
+            dateTimeSettings.timezoneId,
           ),
         );
 
@@ -173,6 +180,29 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setLocale(context, state.locale);
   }
 
+  void setDateFormat(UserDateFormatPB format) {
+    _dateTimeSettings.dateFormat = format;
+    _saveDateTimeSettings();
+    emit(state.copyWith(dateFormat: format));
+  }
+
+  void setTimeFormat(UserTimeFormatPB format) {
+    _dateTimeSettings.timeFormat = format;
+    _saveDateTimeSettings();
+    emit(state.copyWith(timeFormat: format));
+  }
+
+  Future<void> _saveDateTimeSettings() async {
+    UserSettingsBackendService()
+        .setDateTimeSettings(_dateTimeSettings)
+        .then((result) {
+      result.fold(
+        (error) => Log.error(error),
+        (_) => null,
+      );
+    });
+  }
+
   Future<void> _saveAppearanceSettings() async {
     UserSettingsBackendService().setAppearanceSetting(_setting).then((result) {
       result.fold(
@@ -271,6 +301,9 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
+    required UserDateFormatPB dateFormat,
+    required UserTimeFormatPB timeFormat,
+    required String timezoneId,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -283,6 +316,9 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
+    UserDateFormatPB dateFormat,
+    UserTimeFormatPB timeFormat,
+    String timezoneId,
   ) {
     return AppearanceSettingsState(
       appTheme: appTheme,
@@ -294,6 +330,9 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
       menuOffset: menuOffset,
+      dateFormat: dateFormat,
+      timeFormat: timeFormat,
+      timezoneId: timezoneId,
     );
   }
 

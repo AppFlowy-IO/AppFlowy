@@ -44,7 +44,7 @@ test "" = "$(grep '^Signed-off-by: ' "$1" |
 if [ $? -ne 0 ]
 then
     printError "Please fix your commit message to match AppFlowy coding standards"
-    printError "https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/software-contributions/submitting-code/code-submission-guidelines#commit-message-guidelines"
+    printError "https://docs.appflowy.io/docs/documentation/software-contributions/conventions/git-conventions"
     exit 1
 fi
 
