@@ -51,9 +51,9 @@
     "workspace": {
       "chooseWorkspace": "अपना कार्यक्षेत्र चुनें",
       "create": "कार्यक्षेत्र बनाएं",
-      "reset": "कार्यस्थान रीसेट करें",
-      "resetWorkspacePrompt": "कार्यस्थान को रीसेट करने से उसमें मौजूद सभी पृष्ठ और डेटा हट जाएंगे। क्या आप वाकई कार्यक्षेत्र को रीसेट करना चाहते हैं? वैकल्पिक रूप से, आप कार्यक्षेत्र को पुनर्स्थापित करने के लिए सहायता टीम से संपर्क कर सकते हैं",
-      "hint": "कार्यस्थान",
+      "reset": "कार्यक्षेत्र रीसेट करें",
+      "resetWorkspacePrompt": "कार्यक्षेत्र को रीसेट करने से उसमें मौजूद सभी पृष्ठ और डेटा हट जाएंगे। क्या आप वाकई कार्यक्षेत्र को रीसेट करना चाहते हैं? वैकल्पिक रूप से, आप कार्यक्षेत्र को पुनर्स्थापित करने के लिए सहायता टीम से संपर्क कर सकते हैं",
+      "hint": "कार्यक्षेत्र",
       "notFoundError": "कार्यस्थल नहीं मिला"
     },
     "shareAction": {
@@ -61,7 +61,7 @@
       "workInProgress": "जल्द आ रहा है",
       "markdown": "markdown",
       "csv": "csv",
-      "copyLink": "लिंक की कॉपी करें"
+      "copyLink": "लिंक कॉपी करें"
     },
     "moreAction": {
       "small": "छोटा",
@@ -134,7 +134,7 @@
     "menuAppHeader": {
       "moreButtonToolTip": "निकालें, नाम बदलें, और भी बहुत कुछ...",
       "addPageTooltip": "जल्दी से अंदर एक पेज जोड़ें",
-      "defaultNewPageName": "अनटाइटल्ड",
+      "defaultNewPageName": "शीर्षकहीन",
       "renameDialog": "नाम बदलें"
     },
     "toolbar": {
@@ -207,10 +207,10 @@
       "delete": "हटाएं",
       "duplicate": "डुप्लिकेट",
       "done": "किया",
-      "putback": "पुटबैक"
+      "putback": "पुन्हा डालिए"
     },
     "label": {
-      "welcome": "आपका स्वागत है स्वागत है!",
+      "welcome": "आपका स्वागत है",
       "firstName": "पहला नाम",
       "middleName": "मध्य नाम",
       "lastName": "अंतिम नाम",
@@ -232,7 +232,7 @@
     "settings": {
       "title": "सेटिंग्स",
       "menu": {
-        "appearance": "प्रकटन",
+        "appearance": "दृश्य ",
         "language": "भाषा",
         "user": "उपयोगकर्ता",
         "files": "फ़ाइलें",
@@ -270,8 +270,8 @@
           "rtl": "आरटीएल"
         },
         "textDirection": {
-          "label": "डिफ़ॉल्ट पाठ दिशा",
-          "hint": "निर्दिष्ट करें कि पाठ को डिफ़ॉल्ट के रूप में बाएँ या दाएँ से प्रारंभ करना चाहिए।",
+          "label": "डिफ़ॉल्ट वाक्य दिशा",
+          "hint": "निर्दिष्ट करें कि वाक्य को डिफ़ॉल्ट के रूप में बाएँ या दाएँ से प्रारंभ करना चाहिए।",
           "ltr": "एलटीआर",
           "rtl": "आरटीएल",
           "auto": "ऑटो",
@@ -291,7 +291,7 @@
         "theme": "थीम",
         "builtInsLabel": "डिफ़ॉल्ट थीम",
         "pluginsLabel": "प्लगइन्स",
-        "showNamingDialogWhenCreatingPage": "पेज बनाते समय नामकरण संवाद दिखाएँ"
+        "showNamingDialogWhenCreatingPage": "पेज बनाते समय उसका नाम लेने के लिए डायलॉग देखे"
       },
       "files": {
         "copy": "कॉपी करें",
@@ -343,17 +343,17 @@
         "keyBinding": "कीबाइंडिंग",
         "addNewCommand": "नया कमांड जोड़ें",
         "updateShortcutStep": "इच्छित key संयोजन दबाएँ और ENTER दबाएँ",
-        "shortcutIsAlreadyUsed": "यह शॉर्टकट पहले से ही इसके लिए उपयोग किया जा चुका है: {संघर्ष}",
+        "shortcutIsAlreadyUsed": "यह शॉर्टकट पहले से ही इसके लिए उपयोग किया जा चुका है: {conflict}",
         "resetToDefault": "डिफ़ॉल्ट कीबाइंडिंग पर रीसेट करें",
         "couldNotLoadErrorMsg": "शॉर्टकट लोड नहीं हो सका, पुनः प्रयास करें",
-        "couldNotSaveErrorMsg": "शॉर्टकट सहेजे नहीं जा सके, पुनः प्रयास करें"
+        "couldNotSaveErrorMsg": "शॉर्टकट सेव नहीं किये जा सके, पुनः प्रयास करें"
       }
     },
     "grid": {
       "deleteView": "क्या आप वाकई इस दृश्य को हटाना चाहते हैं?",
       "createView": "या",
       "title": {
-        "placeholder": "अनटाइटल्ड"
+        "placeholder": "शीर्षकहीन"
       },
       "settings": {
         "filter": "फ़िल्टर",
@@ -365,7 +365,7 @@
         "addFilter": "फ़िल्टर जोड़ें",
         "deleteFilter": "फ़िल्टर हटाएँ",
         "filterBy": "फ़िल्टरबाय...",
-        "typeAValue": "एक मान टाइप करें...",
+        "typeAValue": "एक वैल्यू टाइप करें...",
         "layout": "लेआउट",
         "databaseLayout": "लेआउट"
       },
@@ -415,14 +415,14 @@
         "insertRight": "दाएँ सम्मिलित करें",
         "duplicate": "डुप्लिकेट",
         "delete": "हटाएं",
-        "textFieldName": "टेक्स्ट",
+        "textFieldName": "लेख",
         "checkboxFieldName": "चेकबॉक्स",
         "dateFieldName": "दिनांक",
         "updatedAtFieldName": "अंतिम संशोधित समय",
-        "createdAtFieldName": "समय बनाया गया",
-        "numberFieldName": "नंबर",
-        "singleSelectFieldName": "चुनें",
-        "multiSelectFieldName": "मल्टीसेलेक्ट",
+        "createdAtFieldName": "बनाने का समय",
+        "numberFieldName": "संख्या",
+        "singleSelectFieldName": "चुनाव",
+        "multiSelectFieldName": "बहु चुनाव",
         "urlFieldName": "URL",
         "checklistFieldName": "चेकलिस्ट",
         "numberFormat": "संख्या प्रारूप",
@@ -436,15 +436,15 @@
         "dateFormatDayMonthYear": "दिन/माह/वर्ष",
         "timeFormat": "समय प्रारूप",
         "invalidTimeFormat": "अमान्य प्रारूप",
-        "timeFormatTwelveHour": "12 घंटा",
-        "timeFormatTwentyFourHour": "24 घंटे",
-        "clearDate": "तिथि साफ़ करें",
+        "timeFormatTwelveHour": "१२ घंटा",
+        "timeFormatTwentyFourHour": "२४ घंटे",
+        "clearDate": "तिथि मिटाए",
         "addSelectOption": "एक विकल्प जोड़ें",
         "optionTitle": "विकल्प",
         "addOption": "विकल्प जोड़ें",
-        "editProperty": "संपत्ति संपादित करें",
-        "newProperty": "नई संपत्ति",
-        "deleteFieldPromptMessage": "क्या आप निश्चित हैं? यह संपत्ति हटा दी जाएगी",
+        "editProperty": "डेटा का प्रकार संपादित करें",
+        "newProperty": "नया डेटा का प्रकार",
+        "deleteFieldPromptMessage": "क्या आप निश्चित हैं? यह डेटा का प्रकार हटा दी जाएगी",
         "newColumn": "नया कॉलम"
       },
       "sort": {
@@ -456,10 +456,10 @@
       "row": {
         "duplicate": "डुप्लिकेट",
         "delete": "डुप्लिकेट",
-        "titlePlaceholder": "अनटाइटल्ड",
-        "textPlaceholder": "खाली",
-        "copyProperty": "संपत्ति को क्लिपबोर्ड पर कॉपी किया गया",
-        "count": "गिनो",
+        "titlePlaceholder": "शीर्षकहीन",
+        "textPlaceholder": "रिक्त",
+        "copyProperty": "डेटा के प्रकार को क्लिपबोर्ड पर कॉपी किया गया",
+        "count": "गिनती",
         "newRow": "नई पंक्ति",
         "action": "कार्रवाई",
         "add": "नीचे जोड़ें पर क्लिक करें",
@@ -607,7 +607,7 @@
         "placeholder": "कमांड के लिए '/' टाइप करें"
       },
       "title": {
-        "placeholder": "अनटाइटल्ड"
+        "placeholder": "शीर्षकहीन"
       },
       "imageBlock": {
         "placeholder": "छवि जोड़ने के लिए क्लिक करें",
@@ -667,7 +667,7 @@
     },
     "calendar": {
       "menuName": "कैलेंडर",
-      "defaultNewCalendarTitle": "अनटाइटल्ड",
+      "defaultNewCalendarTitle": "शीर्षकहीन",
       "newEventButtonTooltip": "एक नया ईवेंट जोड़ें",
       "navigation": {
         "today": "आज",
