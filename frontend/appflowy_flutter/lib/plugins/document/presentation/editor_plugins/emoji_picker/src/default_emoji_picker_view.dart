@@ -240,6 +240,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
       barSize: 4.0,
       scrollbarPadding: const EdgeInsets.symmetric(horizontal: 4.0),
       handleColor: widget.config.scrollBarHandleColor,
+      showTrack: true,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: GridView.builder(
