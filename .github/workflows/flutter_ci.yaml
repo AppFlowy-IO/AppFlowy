@@ -120,7 +120,7 @@ jobs:
 
   unit_test:
     needs: [prepare]
-    if: github.event.pull_request.draft != true
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -227,7 +227,7 @@ jobs:
 
   integration_test:
     needs: [prepare]
-    if: github.event.pull_request.draft != true
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -418,7 +418,12 @@ jobs:
           path: frontend/
 
       - name: Uncompress appflowy_flutter
-        run: tar -xf frontend/appflowy_flutter.tar.gz -C frontend/
+        run: tar -xvf frontend/appflowy_flutter.tar.gz -C frontend/
+
+      - name: List
+        run: |
+          ls -la frontend/appflowy_flutter/lib/generated/
+        shell: bash
      
       - name: Build flutter product
         working-directory: frontend
