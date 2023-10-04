@@ -20,7 +20,6 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
-  final int maxLines;
 
   const FlowyTextField({
     this.hintText = "",
@@ -38,7 +37,6 @@ class FlowyTextField extends StatefulWidget {
     this.submitOnLeave = false,
     this.debounceDuration,
     this.errorText,
-    this.maxLines = 1,
     Key? key,
   }) : super(key: key);
 
@@ -68,6 +66,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             TextPosition(offset: controller.text.length));
       });
     }
+
     super.initState();
   }
 
@@ -88,7 +87,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   void _onSubmitted(String text) {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
-      // using `controller.clear()` instead of `controller.text = ''` which will crash on Windows.
       controller.clear();
     }
   }
@@ -107,14 +105,15 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       },
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
-      maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
+      keyboardType: TextInputType.multiline,
+      maxLines: null,
       decoration: InputDecoration(
-        constraints: BoxConstraints(
-            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15,vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        isDense: true,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.outline,
@@ -122,7 +121,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           ),
           borderRadius: Corners.s8Border,
         ),
-        isDense: false,
         hintText: widget.hintText,
         errorText: widget.errorText,
         errorStyle: Theme.of(context)

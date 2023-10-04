@@ -168,7 +168,6 @@ class _AutoCompletionBlockComponentState
     return FlowyTextField(
       hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
       controller: controller,
-      maxLines: 3,
       focusNode: textFieldFocusNode,
       autoFocus: false,
     );
