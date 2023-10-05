@@ -46,8 +46,18 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
       ),
       popupBuilder: (context) {
         return UploadImageMenu(
-          onPickFile: insertLocalImage,
-          onSubmit: insertNetworkImage,
+          onPickFile: (path) {
+            controller.close();
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              insertLocalImage(path);
+            });
+          },
+          onSubmit: (url) {
+            controller.close();
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              insertNetworkImage(url);
+            });
+          },
         );
       },
       child: DecoratedBox(
