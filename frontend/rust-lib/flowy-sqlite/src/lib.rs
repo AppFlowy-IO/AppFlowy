@@ -14,7 +14,7 @@ use crate::sqlite::PoolConfig;
 pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
 
 pub mod kv;
-mod sqlite;
+pub mod sqlite;
 
 pub mod schema;
 
