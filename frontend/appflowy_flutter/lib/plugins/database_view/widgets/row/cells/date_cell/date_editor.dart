@@ -282,7 +282,7 @@ class _DatePickerState extends State<DatePicker> {
                 state.isRange ? false : isSameDay(state.dateTime, day),
             onDaySelected: (selectedDay, focusedDay) {
               context.read<DateCellCalendarBloc>().add(
-                    DateCellCalendarEvent.selectDay(selectedDay.toLocal().date),
+                    DateCellCalendarEvent.selectDay(selectedDay),
                   );
             },
             onRangeSelected: (start, end, focusedDay) {
