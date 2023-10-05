@@ -374,15 +374,8 @@ script_runner = "@duckscript"
 private = true
 script = [
   """
-    # Copy the appflowy_backend lib to system temp directory for flutter unit test.
-    lib = set lib${LIB_NAME}.${LIB_EXT}
-    dest = set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/.sandbox/${lib}
-    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/packages/appflowy_backend/macos
-    rm ${dest}
-    echo ${dart_ffi_dir}/${lib}
-    ls ${dart_ffi_dir}
-
-    cp ${dart_ffi_dir}/${lib} ${dest}
+    echo "This is not possible for mac because the tests wont work with .a lib"
+    exit 127
   """,
 ]
 script_runner = "@duckscript"

@@ -220,7 +220,11 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          cargo make dart_unit_test_no_build
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            cargo make dart_unit_test
+          else
+            cargo make dart_unit_test_no_build
+          fi
 
       - name: Upload coverage to Codecov
         uses: Wandalen/wretry.action@v1.0.36
