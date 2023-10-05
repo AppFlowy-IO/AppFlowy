@@ -13,7 +13,6 @@ impl From<AppError> for FlowyError {
       client_api::error::ErrorCode::InvalidPassword => ErrorCode::PasswordFormatInvalid,
       client_api::error::ErrorCode::OAuthError => ErrorCode::UserUnauthorized,
       client_api::error::ErrorCode::MissingPayload => ErrorCode::MissingPayload,
-      client_api::error::ErrorCode::StorageError => ErrorCode::Internal,
       client_api::error::ErrorCode::OpenError => ErrorCode::Internal,
       client_api::error::ErrorCode::InvalidUrl => ErrorCode::InvalidURL,
       client_api::error::ErrorCode::InvalidRequestParams => ErrorCode::InvalidParams,

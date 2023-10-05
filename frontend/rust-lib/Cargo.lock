@@ -461,7 +461,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.13.2",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -660,7 +660,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
  "anyhow",
  "bytes",
@@ -719,7 +719,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -738,7 +738,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -768,7 +768,7 @@ dependencies = [
 [[package]]
 name = "collab-define"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -782,7 +782,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -794,7 +794,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "collab",
@@ -814,7 +814,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "chrono",
@@ -845,16 +845,18 @@ dependencies = [
  "collab-persistence",
  "collab-plugins",
  "futures",
+ "lib-infra",
  "parking_lot",
  "serde",
  "serde_json",
+ "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "async-trait",
  "bincode",
@@ -875,7 +877,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -902,7 +904,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=86c5e8#86c5e8891af93de2d035a57214894e854d39662a"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=82975da#82975da119a0c9d0e8b70585966bb89ed6c97cd3"
 dependencies = [
  "anyhow",
  "collab",
@@ -1261,13 +1263,15 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
+ "anyhow",
  "chrono",
  "collab-define",
  "serde",
  "serde_json",
  "sqlx",
+ "thiserror",
  "uuid",
  "validator",
 ]
@@ -2433,7 +2437,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2443,12 +2447,13 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -2806,7 +2811,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -4820,9 +4825,10 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=5dd632d#5dd632d6f082e96ceee6413d309fc1828bbd0391"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=74a362#74a362687fd2c77262f8198e26e0f3e3dbaedb74"
 dependencies = [
  "anyhow",
+ "database-entity",
  "gotrue-entity",
  "opener",
  "reqwest",
@@ -5431,7 +5437,9 @@ checksum = "212d5dcb2a1ce06d81107c3d0ffa3121fe974b73f068c8282cb1c32328113b6c"
 dependencies = [
  "futures-util",
  "log",
+ "native-tls",
  "tokio",
+ "tokio-native-tls",
  "tungstenite",
 ]
 
@@ -5659,6 +5667,7 @@ dependencies = [
  "http",
  "httparse",
  "log",
+ "native-tls",
  "rand 0.8.5",
  "sha1",
  "thiserror",

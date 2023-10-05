@@ -159,13 +159,17 @@ impl FolderManager {
         } => {
           let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
           if is_exist {
-            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            let collab = self
+              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+              .await?;
             Folder::open(collab, Some(folder_notifier))
           } else if create_if_not_exist {
             let folder_data =
               DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
                 .await;
-            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            let collab = self
+              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+              .await?;
             Folder::create(collab, Some(folder_notifier), Some(folder_data))
           } else {
             return Err(FlowyError::new(
@@ -178,11 +182,15 @@ impl FolderManager {
           if raw_data.is_empty() {
             return Err(workspace_data_not_sync_error(uid, &workspace_id));
           }
-          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
+          let collab = self
+            .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
+            .await?;
           Folder::open(collab, Some(folder_notifier))
         },
         FolderInitializeDataSource::FolderData(folder_data) => {
-          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          let collab = self
+            .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+            .await?;
           Folder::create(collab, Some(folder_notifier), Some(folder_data))
         },
       };
@@ -205,21 +213,24 @@ impl FolderManager {
     Ok(())
   }
 
-  fn collab_for_folder(
+  async fn collab_for_folder(
     &self,
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
     raw_data: CollabRawData,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
-    let collab = self.collab_builder.build_with_config(
-      uid,
-      workspace_id,
-      CollabType::Folder,
-      collab_db,
-      raw_data,
-      &CollabPersistenceConfig::new().enable_snapshot(true),
-    )?;
+    let collab = self
+      .collab_builder
+      .build_with_config(
+        uid,
+        workspace_id,
+        CollabType::Folder,
+        collab_db,
+        raw_data,
+        &CollabPersistenceConfig::new().enable_snapshot(true),
+      )
+      .await?;
     Ok(collab)
   }
 

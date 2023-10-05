@@ -20,6 +20,8 @@ tracing = "0.1"
 parking_lot = "0.12.1"
 futures = "0.3"
 async-trait = "0.1.73"
+tokio = {version = "1.26", features = ["sync"]}
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [features]
 default = []

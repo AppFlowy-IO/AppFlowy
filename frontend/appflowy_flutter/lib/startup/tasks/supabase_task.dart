@@ -28,7 +28,7 @@ SupbaseRealtimeService? realtimeService;
 class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!isCloudEnabled) {
+    if (!isSupabaseEnabled) {
       return;
     }
 

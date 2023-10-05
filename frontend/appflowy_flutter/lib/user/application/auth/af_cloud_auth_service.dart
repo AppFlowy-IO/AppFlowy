@@ -97,7 +97,7 @@ class AFCloudAuthService implements AuthService {
         // Sign in with url
         final deviceId = await getDeviceId();
         final payload = OauthSignInPB(
-          authType: AuthTypePB.Supabase,
+          authType: AuthTypePB.AFCloud,
           map: {
             AuthServiceMapKeys.signInURL: uri.toString(),
             AuthServiceMapKeys.deviceId: deviceId

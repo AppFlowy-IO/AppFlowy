@@ -11,6 +11,7 @@ use collab_database::user::{
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_define::CollabType;
+use futures::executor::block_on;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -426,16 +427,14 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_raw_data: CollabRawData,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self
-      .collab_builder
-      .build_with_config(
-        uid,
-        object_id,
-        object_type,
-        collab_db,
-        collab_raw_data,
-        config,
-      )
-      .unwrap()
+    block_on(self.collab_builder.build_with_config(
+      uid,
+      object_id,
+      object_type,
+      collab_db,
+      collab_raw_data,
+      config,
+    ))
+    .unwrap()
   }
 }

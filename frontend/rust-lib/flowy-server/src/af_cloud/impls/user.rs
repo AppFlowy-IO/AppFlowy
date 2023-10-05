@@ -210,7 +210,6 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = InsertCollabParams::new(
-        collab_object.uid,
         collab_object.object_id.clone(),
         collab_object.collab_type.clone(),
         data,

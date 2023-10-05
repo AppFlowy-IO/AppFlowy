@@ -253,6 +253,9 @@ pub enum ErrorCode {
 
   #[error("Permission denied")]
   NotEnoughPermissions = 83,
+
+  #[error("Internal server error")]
+  InternalServerError = 84,
 }
 
 impl ErrorCode {

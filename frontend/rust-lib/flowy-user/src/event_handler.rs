@@ -242,12 +242,13 @@ pub async fn get_sign_in_url_handler(
   data_result_ok(resp)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn sign_in_with_provider_handler(
   data: AFPluginData<OauthProviderPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<OauthProviderDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
+  tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
   let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
   data_result_ok(OauthProviderDataPB {
     oauth_url: sign_in_url,

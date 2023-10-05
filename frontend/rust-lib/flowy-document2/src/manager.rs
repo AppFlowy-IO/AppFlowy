@@ -175,8 +175,22 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)
+      .await?;
     Ok(collab)
+
+    // let doc_id = doc_id.to_string();
+    // let (tx, rx) = oneshot::channel();
+    // let collab_builder = self.collab_builder.clone();
+    // tokio::spawn(async move {
+    //   let collab = collab_builder
+    //     .build(uid, &doc_id, CollabType::Document, updates, db)
+    //     .await
+    //     .unwrap();
+    //   let _ = tx.send(collab);
+    // });
+    //
+    // Ok(rx.await.unwrap())
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
