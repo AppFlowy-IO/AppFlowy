@@ -1,8 +1,8 @@
 {
     "appName": "AppFlowy",
     "defaultUsername": "में",
-    "welcomeText": "आपका स्वागत है @:appName",
-    "githubStarText": "गिटहब पर स्टार लगाएं",
+    "welcomeText": " @:appName में आपका स्वागत है",
+    "githubStarText": "गिटहब पर स्टार करे",
     "subscribeNewsletterText": "समाचार पत्रिका के लिए सदस्यता लें",
     "letsGoButtonText": "जल्दी शुरू करे",
     "title": "शीर्षक",
@@ -700,7 +700,7 @@
     },
     "message": {
       "copy": {
-        "success": "कल किया गया!",
+        "success": "कॉपी सफलता पूर्ण हुआ!",
         "fail": "कॉपी करने में असमर्थ"
       }
     },
