@@ -1,17 +1,18 @@
 import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'mask.dart';
 import 'mutex.dart';
 
 class PopoverController {
   PopoverState? _state;
 
-  close() {
+  void close() {
     _state?.close();
   }
 
-  show() {
+  void show() {
     _state?.showOverlay();
   }
 }

@@ -55,7 +55,9 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       actions: SmartEditAction.values
           .map((action) => SmartEditActionWrapper(action))
           .toList(),
+      onClosed: () => keepEditorFocusNotifier.value -= 1,
       buildChild: (controller) {
+        keepEditorFocusNotifier.value += 1;
         return FlowyIconButton(
           hoverColor: Colors.transparent,
           tooltipText: isOpenAIEnabled
