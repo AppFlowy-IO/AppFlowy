@@ -113,17 +113,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   Widget build(BuildContext context) {
     return EmojiPicker(
       onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-      config: const Config(
-        columns: 7,
-        emojiSizeMax: 28,
-        bgColor: Colors.transparent,
-        iconColor: Colors.grey,
-        iconColorSelected: Color(0xff333333),
-        indicatorColor: Color(0xff333333),
-        progressIndicatorColor: Color(0xff333333),
-        buttonMode: ButtonMode.CUPERTINO,
-        initCategory: Category.RECENT,
-      ),
+      config: buildFlowyEmojiPickerConfig(context),
     );
   }
 }
