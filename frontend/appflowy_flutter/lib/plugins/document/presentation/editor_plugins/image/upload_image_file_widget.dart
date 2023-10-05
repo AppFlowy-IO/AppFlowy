@@ -28,11 +28,7 @@ class UploadImageFileWidget extends StatelessWidget {
             type: FileType.image,
             allowedExtensions: allowedExtensions,
           );
-          if (result == null || result.files.isEmpty) {
-            onPickFile(null);
-          } else {
-            onPickFile(result.files.first.path);
-          }
+          onPickFile(result?.files.firstOrNull?.path);
         },
         child: Container(
           alignment: Alignment.center,

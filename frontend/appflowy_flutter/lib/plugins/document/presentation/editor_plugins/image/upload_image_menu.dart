@@ -61,13 +61,14 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               Theme.of(context).colorScheme.secondary,
             ),
             padding: EdgeInsets.zero,
-            splashBorderRadius: BorderRadius.circular(4),
+            // splashBorderRadius: BorderRadius.circular(4),
             tabs: UploadImageType.values
                 .where(
                   (element) => element != UploadImageType.ai,
                 ) // ai is not implemented yet
                 .map(
                   (e) => FlowyHover(
+                    style: const HoverStyle(borderRadius: BorderRadius.zero),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12.0,

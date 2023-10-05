@@ -19,7 +19,7 @@ class ImageMenu extends StatefulWidget {
   });
 
   final Node node;
-  final CustomImageBlockComponentWidgetState state;
+  final CustomImageBlockComponentState state;
 
   @override
   State<ImageMenu> createState() => _ImageMenuState();
@@ -110,7 +110,7 @@ class _ImageAlignButton extends StatefulWidget {
   });
 
   final Node node;
-  final CustomImageBlockComponentWidgetState state;
+  final CustomImageBlockComponentState state;
 
   @override
   State<_ImageAlignButton> createState() => _ImageAlignButtonState();

@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flutter/material.dart';
 
 class EmbedImageUrlWidget extends StatefulWidget {
@@ -23,11 +22,9 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // input textfield
-        FlowyFormTextInput(
+        FlowyTextField(
           autoFocus: true,
           hintText: LocaleKeys.document_imageBlock_embedLink_placeholder.tr(),
-          textAlign: TextAlign.left,
           onChanged: (value) => inputText = value,
           onEditingComplete: () => widget.onSubmit(inputText),
         ),

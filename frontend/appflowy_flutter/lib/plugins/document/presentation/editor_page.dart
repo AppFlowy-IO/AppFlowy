@@ -268,7 +268,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       ImageBlockKeys.type: CustomImageBlockComponentBuilder(
         configuration: configuration,
         showMenu: true,
-        menuBuilder: (Node node, CustomImageBlockComponentWidgetState state) =>
+        menuBuilder: (Node node, CustomImageBlockComponentState state) =>
             Positioned(
           top: 0,
           right: 10,

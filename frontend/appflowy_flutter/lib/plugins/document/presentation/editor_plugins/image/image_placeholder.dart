@@ -50,7 +50,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
           onSubmit: insertNetworkImage,
         );
       },
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(4),

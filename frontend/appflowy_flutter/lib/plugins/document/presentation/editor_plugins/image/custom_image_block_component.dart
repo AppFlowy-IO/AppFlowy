@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
-  CustomImageBlockComponentWidgetState state,
+  CustomImageBlockComponentState state,
 );
 
 class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
@@ -24,7 +24,7 @@ class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
-    return CustomImageBlockComponentWidget(
+    return CustomImageBlockComponent(
       key: node.key,
       node: node,
       showActions: showActions(node),
@@ -42,8 +42,8 @@ class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) => node.delta == null && node.children.isEmpty;
 }
 
-class CustomImageBlockComponentWidget extends BlockComponentStatefulWidget {
-  const CustomImageBlockComponentWidget({
+class CustomImageBlockComponent extends BlockComponentStatefulWidget {
+  const CustomImageBlockComponent({
     super.key,
     required super.node,
     super.showActions,
@@ -59,12 +59,11 @@ class CustomImageBlockComponentWidget extends BlockComponentStatefulWidget {
   final CustomImageBlockComponentMenuBuilder? menuBuilder;
 
   @override
-  State<CustomImageBlockComponentWidget> createState() =>
-      CustomImageBlockComponentWidgetState();
+  State<CustomImageBlockComponent> createState() =>
+      CustomImageBlockComponentState();
 }
 
-class CustomImageBlockComponentWidgetState
-    extends State<CustomImageBlockComponentWidget>
+class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     with SelectableMixin, BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -113,12 +112,6 @@ class CustomImageBlockComponentWidgetState
             },
           );
 
-    child = Padding(
-      key: imageKey,
-      padding: padding,
-      child: child,
-    );
-
     child = BlockSelectionContainer(
       node: node,
       delegate: this,
@@ -127,7 +120,11 @@ class CustomImageBlockComponentWidgetState
       supportTypes: const [
         BlockSelectionType.block,
       ],
-      child: child,
+      child: Padding(
+        key: imageKey,
+        padding: padding,
+        child: child,
+      ),
     );
 
     if (widget.showActions && widget.actionBuilder != null) {

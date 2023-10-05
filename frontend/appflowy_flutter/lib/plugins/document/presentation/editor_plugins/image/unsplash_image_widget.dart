@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
@@ -52,10 +51,10 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FlowyFormTextInput(
+        FlowyTextField(
           autoFocus: true,
           hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
-          textAlign: TextAlign.left,
+          // textAlign: TextAlign.left,
           onChanged: (value) => query = value,
           onEditingComplete: () => setState(() {
             randomPhotos = client.photos
