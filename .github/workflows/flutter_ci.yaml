@@ -225,6 +225,7 @@ jobs:
           else
             cargo make dart_unit_test_no_build
           fi
+        shell: bash
 
       - name: Upload coverage to Codecov
         uses: Wandalen/wretry.action@v1.0.36
