@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 
 import 'home_layout.dart';
+import 'menu/menu_shared_state.dart';
 
 typedef NavigationCallback = void Function(String id);
 
@@ -61,7 +62,7 @@ class HomeStack extends StatelessWidget {
 
   //TODO(squidrye): Remove before merge
   void _printTree(PaneNode node, [String prefix = '']) {
-    print('$prefix${node.encoding}');
+    print('$prefix${node} ${getIt<MenuSharedState>().openPlugins}');
     for (var child in node.children) {
       _printTree(child, '$prefix └─ ');
     }
@@ -88,19 +89,6 @@ class _PageStackState extends State<PageStack>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (widget.pageManager.readOnly) {
-      return Stack(
-        children: [
-          AbsorbPointer(
-            child: Opacity(
-              opacity: 0.5,
-              child: _buildWidgetStack(context),
-            ),
-          ),
-          Positioned(child: _buildReadOnlyBanner())
-        ],
-      );
-    }
     return _buildWidgetStack(context);
   }
 
@@ -112,29 +100,7 @@ class _PageStackState extends State<PageStack>
           onDeleted: (view, index) {
             widget.delegate.didDeleteStackWidget(view, index);
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReadOnlyBanner() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 20),
-      child: Container(
-        width: double.infinity,
-        color: colorScheme.primary,
-        child: FittedBox(
-          alignment: Alignment.center,
-          fit: BoxFit.scaleDown,
-          child: Row(
-            children: [
-              FlowyText.medium(
-                LocaleKeys.readOnlyViewText.tr(),
-                fontSize: 14,
-              ),
-            ],
-          ),
+          context: context,
         ),
       ),
     );
@@ -203,17 +169,15 @@ abstract mixin class NavigationItem {
 class PageNotifier extends ChangeNotifier {
   Plugin _plugin;
   bool _readOnly;
-  String position;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   Widget tabBarWidget(String pluginId) =>
       _plugin.widgetBuilder.tabBarItem(pluginId);
 
-  PageNotifier({Plugin? plugin, bool? readOnly, required String encoding})
+  PageNotifier({Plugin? plugin, bool? readOnly})
       : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank),
-        _readOnly = readOnly ?? false,
-        position = encoding;
+        _readOnly = readOnly ?? false;
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -243,7 +207,7 @@ class PageManager {
 
   PageNotifier get notifier => _notifier;
 
-  PageManager(String encoding) : _notifier = PageNotifier(encoding: encoding);
+  PageManager() : _notifier = PageNotifier();
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
@@ -281,32 +245,75 @@ class PageManager {
     );
   }
 
-  Widget stackWidget({required Function(ViewPB, int?) onDeleted}) {
+  Widget _buildWidgetStack({required Function(ViewPB, int?) onDeleted}) {
+    return FadingIndexedStack(
+      index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
+      children: getIt<PluginSandbox>().supportPluginTypes.map(
+        (pluginType) {
+          if (pluginType == notifier.plugin.pluginType) {
+            final builder = notifier.plugin.widgetBuilder;
+            final pluginWidget = builder.buildWidget(
+              context: PluginContext(onDeleted: onDeleted),
+              shrinkWrap: false,
+            );
+
+            return Padding(
+              padding: builder.contentPadding,
+              child: pluginWidget,
+            );
+          }
+
+          return const BlankPage();
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildReadOnlyBanner(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 20),
+      child: Container(
+        width: double.infinity,
+        color: colorScheme.primary,
+        child: FittedBox(
+          alignment: Alignment.center,
+          fit: BoxFit.scaleDown,
+          child: Row(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.readOnlyViewText.tr(),
+                fontSize: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget stackWidget({
+    required Function(ViewPB, int?) onDeleted,
+    required BuildContext context,
+  }) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
         builder: (_, PageNotifier notifier, __) {
-          return FadingIndexedStack(
-            index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
-            children: getIt<PluginSandbox>().supportPluginTypes.map(
-              (pluginType) {
-                if (pluginType == notifier.plugin.pluginType) {
-                  final builder = notifier.plugin.widgetBuilder;
-                  final pluginWidget = builder.buildWidget(
-                    context: PluginContext(onDeleted: onDeleted),
-                    shrinkWrap: false,
-                  );
-
-                  return Padding(
-                    padding: builder.contentPadding,
-                    child: pluginWidget,
-                  );
-                }
-
-                return const BlankPage();
-              },
-            ).toList(),
-          );
+          if (notifier.readOnly) {
+            return Stack(
+              children: [
+                AbsorbPointer(
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: _buildWidgetStack(onDeleted: onDeleted),
+                  ),
+                ),
+                Positioned(child: _buildReadOnlyBanner(context))
+              ],
+            );
+          }
+          return _buildWidgetStack(onDeleted: onDeleted);
         },
       ),
     );

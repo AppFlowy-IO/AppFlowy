@@ -113,9 +113,9 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       final fromTab = from.draggable as TabNode;
       final plugin = (from.draggable as TabNode).pageManager.plugin;
       if (fromTab.tabs != to.tabs) {
-        fromTab.tabs.closeView(plugin.id);
+        fromTab.tabs.closeView(plugin.id, move: true);
       } else {
-        to.tabs.closeView(plugin.id);
+        to.tabs.closeView(plugin.id, move: true);
       }
       to.tabs.move(
         from: fromTab.pageManager,

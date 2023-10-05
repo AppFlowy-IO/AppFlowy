@@ -17,15 +17,29 @@ class TabsController extends ChangeNotifier {
   int get pages => pageManagers.length;
   PageManager get currentPageManager => pageManagers[currentIndex];
   final MenuSharedState menuSharedState;
-  final String encoding;
-
   TabsController({
     int? currentIndex,
     List<PageManager>? pageManagers,
-    required this.encoding,
-  })  : pageManagers = pageManagers ?? [PageManager("${encoding}0")],
+  })  : pageManagers = pageManagers ?? [PageManager()],
         menuSharedState = getIt<MenuSharedState>(),
         currentIndex = currentIndex ?? 0;
+
+  bool _dispose = false;
+
+  @override
+  void notifyListeners() {
+    if (!_dispose) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (!_dispose) {
+      super.dispose();
+    }
+    _dispose = true;
+  }
 
   void closeAllViews() {
     final pageManagersCopy = List<PageManager>.from(pageManagers);
@@ -33,25 +47,28 @@ class TabsController extends ChangeNotifier {
       closeView(page.plugin.id, closePaneSubRoutine: true);
     }
     pageManagers = pageManagersCopy;
-    notifyListeners();
   }
 
   void openView(Plugin plugin) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
-    final length = pageManagers.length;
     if (!selectExistingPlugin) {
       // check if view is already open
       final openPlugins = menuSharedState.openPlugins;
+
       if (openPlugins.containsKey(plugin.id)) {
-        pageManagers.add(PageManager("$encoding$length")
+        pageManagers.add(PageManager()
           ..setPlugin(plugin)
           ..setReadOnlyStatus(true));
       } else {
-        pageManagers.add(PageManager("$menuSharedState$length")
+        pageManagers.add(PageManager()
           ..setPlugin(plugin)
           ..setReadOnlyStatus(false));
       }
-      openPlugins[plugin.id] = [...?openPlugins[plugin.id], "$encoding$length"];
+      openPlugins.update(
+        plugin.id,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
       menuSharedState.openPlugins = openPlugins;
     }
     currentIndex = pageManagers.length - 1;
@@ -63,7 +80,8 @@ class TabsController extends ChangeNotifier {
   void closeView(
     String pluginId, {
     bool closePaneSubRoutine = false,
-  }) async {
+    bool move = false,
+  }) {
     // Avoid closing the only open tab unless it is part of subroutine to close pane
     if (pageManagers.length == 1 && (!closePaneSubRoutine)) {
       return;
@@ -73,22 +91,20 @@ class TabsController extends ChangeNotifier {
       return pm.plugin.id == pluginId;
     });
 
-    openPlugins.update(
-      pluginId,
-      (value) => value..remove(pm.notifier.position),
-    );
-
-    if (openPlugins[pluginId]?.isEmpty ?? false) {
-      openPlugins.remove(pluginId);
+    if (!pm.readOnly && openPlugins.containsKey(pluginId) && !move) {
+      _updateWriteStatus(
+        pluginId,
+        getIt<PanesCubit>().state.root,
+      )?.setReadOnlyStatus(false);
     }
 
-    if (!pm.readOnly && openPlugins.containsKey(pluginId)) {
-      final newPath = openPlugins[pluginId]!.first;
-      _getPluginOnPath(
-        newPath,
-        getIt<PanesCubit>().state.root,
-        1,
-      ).setReadOnlyStatus(false);
+    openPlugins.update(
+      pluginId,
+      (value) => value - 1,
+    );
+
+    if (openPlugins[pluginId] == 0) {
+      openPlugins.remove(pluginId);
     }
     menuSharedState.openPlugins = openPlugins;
     pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
@@ -129,32 +145,75 @@ class TabsController extends ChangeNotifier {
   /// If the plugin is already open in a tab, then that tab
   /// will become selected.
   ///
-  void openPlugin({required Plugin plugin, bool newPane = false}) async {
+  void openPlugin({
+    required Plugin plugin,
+    bool newPane = false,
+    int? index,
+  }) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (!selectExistingPlugin) {
       final openPlugins = menuSharedState.openPlugins;
       //remove current plugin path from state store
+
       if (openPlugins.containsKey(plugin.id)) {
-        openPlugins.update(
-          plugin.id,
-          (value) =>
-              value..remove(pageManagers[currentIndex].notifier.position),
-        );
-      }
-      if (openPlugins.containsKey(plugin.id)) {
-        pageManagers[currentIndex]
-          ..setPlugin(plugin)
-          ..setReadOnlyStatus(true);
+        if (index != null) {
+          if (index >= pageManagers.length) {
+            pageManagers.add(PageManager()
+              ..setPlugin(plugin)
+              ..setReadOnlyStatus(true));
+          } else {
+            pageManagers.insert(
+                index,
+                PageManager()
+                  ..setPlugin(plugin)
+                  ..setReadOnlyStatus(true));
+          }
+        } else {
+          if (openPlugins.containsKey(pageManagers[currentIndex].plugin.id)) {
+            openPlugins.update(
+                pageManagers[currentIndex].plugin.id, (value) => value - 1);
+
+            if (openPlugins[pageManagers[currentIndex].plugin.id] == 0) {
+              openPlugins.remove(pageManagers[currentIndex].plugin.id);
+            }
+          }
+          pageManagers[currentIndex]
+            ..setPlugin(plugin)
+            ..setReadOnlyStatus(true);
+        }
       } else {
-        pageManagers[currentIndex]
-          ..setPlugin(plugin)
-          ..setReadOnlyStatus(false);
+        if (index != null) {
+          if (index >= pageManagers.length) {
+            pageManagers.add(PageManager()
+              ..setPlugin(plugin)
+              ..setReadOnlyStatus(false));
+          } else {
+            pageManagers.insert(
+                index,
+                PageManager()
+                  ..setPlugin(plugin)
+                  ..setReadOnlyStatus(false));
+          }
+        } else {
+          if (openPlugins.containsKey(pageManagers[currentIndex].plugin.id)) {
+            openPlugins.update(
+                pageManagers[currentIndex].plugin.id, (value) => value - 1);
+
+            if (openPlugins[pageManagers[currentIndex].plugin.id] == 0) {
+              openPlugins.remove(pageManagers[currentIndex].plugin.id);
+            }
+          }
+          pageManagers[currentIndex]
+            ..setPlugin(plugin)
+            ..setReadOnlyStatus(false);
+        }
       }
-      openPlugins[plugin.id] = [
-        ...?openPlugins[plugin.id],
-        "$encoding$currentIndex",
-      ];
+      openPlugins.update(
+        plugin.id,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
       menuSharedState.openPlugins = openPlugins;
     }
     setLatestOpenView();
@@ -173,7 +232,7 @@ class TabsController extends ChangeNotifier {
     required PageManager from,
     required PageManager to,
     required TabDraggableHoverPosition position,
-  }) async {
+  }) {
     final selectExistingPlugin = _selectPluginIfOpen(from.plugin.id);
 
     if (!selectExistingPlugin) {
@@ -183,22 +242,14 @@ class TabsController extends ChangeNotifier {
         case TabDraggableHoverPosition.left:
           {
             final index = pageManagers.indexOf(to);
-            final newPm = PageManager("$encoding$index")
-              ..setPlugin(from.plugin);
-            pageManagers.insert(index, newPm);
+            openPlugin(plugin: from.plugin, index: index);
             currentIndex = index;
             break;
           }
         case TabDraggableHoverPosition.right:
           {
             final index = pageManagers.indexOf(to);
-            final newPm = PageManager("$encoding${index + 1}")
-              ..setPlugin(from.plugin);
-            if (index + 1 == pageManagers.length) {
-              pageManagers.add(newPm);
-            } else {
-              pageManagers.insert(index + 1, newPm);
-            }
+            openPlugin(plugin: from.plugin, index: index);
             currentIndex = index + 1;
             break;
           }
@@ -219,15 +270,19 @@ class TabsController extends ChangeNotifier {
     }
   }
 
-  PageManager _getPluginOnPath(String encoding, PaneNode node, int index) {
-    if (index == encoding.length - 2) {
-      return node.tabs.pageManagers[int.parse(encoding[encoding.length - 1])];
+  PageManager? _updateWriteStatus(String pluginId, PaneNode node) {
+    for (final page in node.tabs.pageManagers) {
+      Log.warn(page.plugin.id);
+      if (page.plugin.id == pluginId && page.readOnly) {
+        return page;
+      }
     }
-
-    return _getPluginOnPath(
-      encoding,
-      node.children[int.parse(encoding[index])],
-      index + 1,
-    );
+    for (int i = 0; i < node.children.length; i++) {
+      final result = _updateWriteStatus(pluginId, node.children[i]);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
   }
 }

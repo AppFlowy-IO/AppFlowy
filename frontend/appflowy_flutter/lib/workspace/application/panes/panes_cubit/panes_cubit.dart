@@ -61,12 +61,13 @@ class PanesCubit extends Cubit<PanesState> {
     setActivePane(state.root.children.last);
   }
 
-  void closePane({required String paneId}) {
+  void closePane({required String paneId, bool move = false}) {
     emit(
       state.copyWith(
         root: panesService.closePaneHandler(
           node: state.root,
           targetPaneId: paneId,
+          move: move,
         ),
         count: state.count - 1,
       ),
@@ -126,6 +127,6 @@ class PanesCubit extends Cubit<PanesState> {
         count: state.count + 1,
       ),
     );
-    closePane(paneId: from.paneId);
+    closePane(paneId: from.paneId, move: true);
   }
 }
