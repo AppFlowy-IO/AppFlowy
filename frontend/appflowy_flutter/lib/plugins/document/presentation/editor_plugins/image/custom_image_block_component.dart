@@ -206,11 +206,8 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     Position position, {
     bool shiftWithBaseOffset = false,
   }) {
-    if (_renderBox == null) {
-      return null;
-    }
-    final size = _renderBox!.size;
-    return Rect.fromLTWH(-size.width / 2.0, 0, size.width, size.height);
+    final rects = getRectsInSelection(Selection.collapsed(position));
+    return rects.firstOrNull;
   }
 
   @override
