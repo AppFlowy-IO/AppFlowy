@@ -144,8 +144,10 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
           _controller.text = state.content;
         },
         builder: (context, state) {
+          final style = widget.cellStyle?.textStyle ??
+              Theme.of(context).textTheme.bodyMedium!;
           widget._cellDataNotifier.value = state.content;
-          final urlEditor = Padding(
+          return Padding(
             padding: EdgeInsets.only(
               left: GridSize.cellContentInsets.left,
               right: GridSize.cellContentInsets.right,
@@ -154,13 +156,9 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
               controller: _controller,
               focusNode: focusNode,
               maxLines: null,
-              style: (widget.cellStyle?.textStyle ??
-                      Theme.of(context).textTheme.bodyMedium)
-                  ?.copyWith(
+              style: style.copyWith(
                 color: Theme.of(context).colorScheme.primary,
-                decoration: _controller.text.isNotEmpty
-                    ? TextDecoration.underline
-                    : TextDecoration.none,
+                decoration: TextDecoration.underline,
               ),
               autofocus: false,
               decoration: InputDecoration(
@@ -170,11 +168,11 @@ class _GridURLCellState extends GridEditableTextCell<GridURLCell> {
                 ),
                 border: InputBorder.none,
                 hintText: widget.cellStyle?.placeholder,
+                hintStyle: style.copyWith(color: Theme.of(context).hintColor),
                 isDense: true,
               ),
             ),
           );
-          return urlEditor;
         },
       ),
     );
