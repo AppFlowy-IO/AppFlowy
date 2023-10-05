@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/uti
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -454,24 +455,14 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
           });
         },
         onError: (error) async {
-          await _showError(error.message);
+          showSnackBarMessage(
+            context,
+            error.message,
+            showCancel: true,
+          );
           await _onExit();
         },
       );
     }
-  }
-
-  Future<void> _showError(String message) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        action: SnackBarAction(
-          label: LocaleKeys.button_Cancel.tr(),
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-        content: FlowyText(message),
-      ),
-    );
   }
 }

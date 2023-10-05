@@ -79,7 +79,7 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct ThirdPartyAuthPB {
+pub struct OAuthPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.
   /// Supabase:
@@ -92,10 +92,25 @@ pub struct ThirdPartyAuthPB {
   pub auth_type: AuthTypePB,
 }
 
+#[derive(ProtoBuf, Default)]
+pub struct OAuthCallbackRequestPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub auth_type: AuthTypePB,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct OAuthCallbackResponsePB {
+  #[pb(index = 1)]
+  pub sign_in_url: String,
+}
+
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
 pub enum AuthTypePB {
   Local = 0,
-  SelfHosted = 1,
+  AFCloud = 1,
   Supabase = 2,
 }
 

@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -16,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -258,6 +260,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
+      resetHoverOnRebuild: widget.showActions,
       buildWhenOnHover: () => !widget.showActions,
       builder: (_, onHover) => _buildViewItem(onHover),
       isSelected: () =>
@@ -336,7 +339,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
@@ -350,22 +353,21 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           createNewView,
         ) {
           if (createNewView) {
-            NavigatorTextFieldDialog(
-              title: _convertLayoutToHintText(pluginBuilder.layoutType!),
-              value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-              autoSelectAllText: true,
-              confirm: (value) {
-                if (value.isNotEmpty) {
+            createViewAndShowRenameDialogIfNeeded(
+              context,
+              _convertLayoutToHintText(pluginBuilder.layoutType!),
+              (viewName) {
+                if (viewName.isNotEmpty) {
                   context.read<ViewBloc>().add(
                         ViewEvent.createView(
-                          value,
+                          viewName,
                           pluginBuilder.layoutType!,
                           openAfterCreated: openAfterCreated,
                         ),
                       );
                 }
               },
-            ).show(context);
+            );
           }
           context.read<ViewBloc>().add(
                 const ViewEvent.setIsExpanded(true),
@@ -377,7 +379,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // ··· more action button
   Widget _buildViewMoreActionButton(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,

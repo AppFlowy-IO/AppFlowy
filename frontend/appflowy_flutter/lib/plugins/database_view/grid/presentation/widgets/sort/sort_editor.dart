@@ -210,6 +210,7 @@ class DatabaseDeleteSortButton extends StatelessWidget {
               context
                   .read<SortEditorBloc>()
                   .add(const SortEditorEvent.deleteAllSorts());
+              PopoverContainer.of(context).close();
             },
             leftIcon: const FlowySvg(FlowySvgs.delete_s),
           ),

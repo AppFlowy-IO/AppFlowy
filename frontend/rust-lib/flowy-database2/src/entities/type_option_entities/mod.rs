@@ -4,6 +4,7 @@ mod date_entities;
 mod number_entities;
 mod select_option;
 mod text_entities;
+mod timestamp_entities;
 mod url_entities;
 
 pub use checkbox_entities::*;
@@ -12,4 +13,5 @@ pub use date_entities::*;
 pub use number_entities::*;
 pub use select_option::*;
 pub use text_entities::*;
+pub use timestamp_entities::*;
 pub use url_entities::*;

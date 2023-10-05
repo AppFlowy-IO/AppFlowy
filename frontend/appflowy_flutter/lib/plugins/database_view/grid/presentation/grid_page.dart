@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
@@ -7,10 +5,10 @@ import 'package:appflowy/plugins/database_view/tar_bar/setting_menu.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -257,59 +255,38 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    if (Platform.isWindows) {
-      // Workaround: On Windows, the focusing of the text cell is not working
-      // properly when the list is reorderable. So using the ListView instead.
-      return ListView.builder(
-        controller: scrollController.verticalController,
-        itemCount: rowInfos.length + 1, // the extra item is the footer
-        itemBuilder: (context, index) {
-          if (index < rowInfos.length) {
-            final rowInfo = rowInfos[index];
-            return _renderRow(
-              context,
-              rowInfo.rowId,
-              isDraggable: false,
-              index: index,
-            );
-          }
-          return const GridRowBottomBar(key: Key('gridFooter'));
-        },
-      );
-    } else {
-      return ReorderableListView.builder(
-        /// TODO(Xazin): Resolve inconsistent scrollbar behavior
-        ///  This is a workaround related to
-        ///  https://github.com/flutter/flutter/issues/25652
-        cacheExtent: 5000,
-        scrollController: scrollController.verticalController,
-        buildDefaultDragHandles: false,
-        proxyDecorator: (child, index, animation) => Material(
-          color: Colors.white.withOpacity(.1),
-          child: Opacity(opacity: .5, child: child),
-        ),
-        onReorder: (fromIndex, newIndex) {
-          final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-          if (fromIndex == toIndex) {
-            return;
-          }
-          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
-        },
-        itemCount: rowInfos.length + 1, // the extra item is the footer
-        itemBuilder: (context, index) {
-          if (index < rowInfos.length) {
-            final rowInfo = rowInfos[index];
-            return _renderRow(
-              context,
-              rowInfo.rowId,
-              isDraggable: state.reorderable,
-              index: index,
-            );
-          }
-          return const GridRowBottomBar(key: Key('gridFooter'));
-        },
-      );
-    }
+    return ReorderableListView.builder(
+      /// TODO(Xazin): Resolve inconsistent scrollbar behavior
+      ///  This is a workaround related to
+      ///  https://github.com/flutter/flutter/issues/25652
+      cacheExtent: 5000,
+      scrollController: scrollController.verticalController,
+      buildDefaultDragHandles: false,
+      proxyDecorator: (child, index, animation) => Material(
+        color: Colors.white.withOpacity(.1),
+        child: Opacity(opacity: .5, child: child),
+      ),
+      onReorder: (fromIndex, newIndex) {
+        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+        if (fromIndex == toIndex) {
+          return;
+        }
+        context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
+      },
+      itemCount: rowInfos.length + 1, // the extra item is the footer
+      itemBuilder: (context, index) {
+        if (index < rowInfos.length) {
+          final rowInfo = rowInfos[index];
+          return _renderRow(
+            context,
+            rowInfo.rowId,
+            isDraggable: state.reorderable,
+            index: index,
+          );
+        }
+        return const GridRowBottomBar(key: Key('gridFooter'));
+      },
+    );
   }
 
   Widget _renderRow(
@@ -433,14 +410,21 @@ class _GridFooter extends StatelessWidget {
       builder: (context, rowCount) {
         return Padding(
           padding: GridSize.contentInsets,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              FlowyText.medium(
-                rowCountString(rowCount),
-                color: Theme.of(context).hintColor,
-              ),
-            ],
+          child: RichText(
+            text: TextSpan(
+              text: rowCountString(),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+              children: [
+                TextSpan(
+                  text: ' $rowCount',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AFThemeExtension.of(context).gridRowCountColor,
+                      ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -448,6 +432,6 @@ class _GridFooter extends StatelessWidget {
   }
 }
 
-String rowCountString(int count) {
-  return '${LocaleKeys.grid_row_count.tr()} : $count';
+String rowCountString() {
+  return '${LocaleKeys.grid_row_count.tr()} :';
 }

@@ -8,12 +8,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 part 'checklist_cell_bloc.freezed.dart';
 
-class ChecklistCardCellBloc
-    extends Bloc<ChecklistCellEvent, ChecklistCellState> {
+class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
   final ChecklistCellBackendService _checklistCellSvc;
   void Function()? _onCellChangedFn;
-  ChecklistCardCellBloc({
+  ChecklistCellBloc({
     required this.cellController,
   })  : _checklistCellSvc = ChecklistCellBackendService(
           viewId: cellController.viewId,
@@ -29,13 +28,23 @@ class ChecklistCardCellBloc
             _loadOptions();
           },
           didReceiveOptions: (data) {
-            emit(
-              state.copyWith(
-                allOptions: data.options,
-                selectedOptions: data.selectedOptions,
-                percent: data.percentage,
-              ),
-            );
+            if (data == null) {
+              emit(
+                const ChecklistCellState(
+                  allOptions: [],
+                  selectedOptions: [],
+                  percent: 0,
+                ),
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  allOptions: data.options,
+                  selectedOptions: data.selectedOptions,
+                  percent: data.percentage,
+                ),
+              );
+            }
           },
         );
       },
@@ -58,7 +67,7 @@ class ChecklistCardCellBloc
         _loadOptions();
       },
       onCellChanged: (data) {
-        if (!isClosed && data != null) {
+        if (!isClosed) {
           add(ChecklistCellEvent.didReceiveOptions(data));
         }
       },
@@ -81,7 +90,7 @@ class ChecklistCardCellBloc
 class ChecklistCellEvent with _$ChecklistCellEvent {
   const factory ChecklistCellEvent.initial() = _InitialCell;
   const factory ChecklistCellEvent.didReceiveOptions(
-    ChecklistCellDataPB data,
+    ChecklistCellDataPB? data,
   ) = _DidReceiveCellUpdate;
 }
 

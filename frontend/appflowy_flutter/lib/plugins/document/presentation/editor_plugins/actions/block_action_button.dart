@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,7 @@ class BlockActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: Tooltip(
+      child: FlowyTooltip.delayed(
         preferBelow: false,
         richMessage: richMessage,
         child: MouseRegion(

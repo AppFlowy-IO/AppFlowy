@@ -43,6 +43,15 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
+        removeUserIcon: () {
+          // Empty Icon URL = No icon
+          _userService.updateUserProfile(iconUrl: "").then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
+        },
         updateUserOpenAIKey: (openAIKey) {
           _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
             result.fold(
@@ -105,8 +114,9 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory SettingsUserEvent.updateUserEmail(String email) = _UpdateEmail;
-  const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
+  const factory SettingsUserEvent.updateUserIcon({required String iconUrl}) =
       _UpdateUserIcon;
+  const factory SettingsUserEvent.removeUserIcon() = _RemoveUserIcon;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
       _UpdateUserOpenaiKey;
   const factory SettingsUserEvent.didReceiveUserProfile(

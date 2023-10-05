@@ -69,8 +69,8 @@ windows/flutter/dart_ffi/
 **/.sandbox
 **/.vscode/
 
-*.env
-*.env.*
+.env
+.env.*
 
 coverage/
 

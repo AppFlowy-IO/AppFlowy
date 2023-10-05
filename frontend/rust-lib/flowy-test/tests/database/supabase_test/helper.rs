@@ -5,7 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
-use collab_plugins::cloud_storage::CollabType;
+use collab_define::CollabType;
 
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
@@ -23,20 +23,14 @@ impl FlowySupabaseDatabaseTest {
   #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
-    inner
-      .third_party_sign_up_with_uuid(&uuid, None)
-      .await
-      .unwrap();
+    inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })
   }
 
   pub async fn new_with_new_user() -> Option<Self> {
     let inner = FlowySupabaseTest::new()?;
     let uuid = uuid::Uuid::new_v4().to_string();
-    let _ = inner
-      .third_party_sign_up_with_uuid(&uuid, None)
-      .await
-      .unwrap();
+    let _ = inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })
   }
 

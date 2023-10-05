@@ -1,6 +1,7 @@
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +101,7 @@ class FlowyButton extends StatelessWidget {
       decoration: decoration,
       child: Padding(
         padding:
-            margin ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            margin ?? const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: child,
       ),
     );
@@ -194,7 +195,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = Tooltip(
+      child = FlowyTooltip.delayed(
         message: tooltip!,
         child: child,
       );
@@ -283,7 +284,7 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = Tooltip(
+      child = FlowyTooltip.delayed(
         message: tooltip!,
         child: child,
       );

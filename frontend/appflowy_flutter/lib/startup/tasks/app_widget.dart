@@ -1,12 +1,15 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
+import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../user/application/user_settings_service.dart';
 import '../../workspace/application/appearance.dart';
@@ -20,15 +23,22 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await NotificationService.initialize();
+
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
+    final dateTimeSettings =
+        await UserSettingsBackendService().getDateTimeSettings();
 
     // If the passed-in context is not the same as the context of the
     // application widget, the application widget will be rebuilt.
     final app = ApplicationWidget(
       key: ValueKey(context),
       appearanceSetting: appearanceSetting,
+      dateTimeSettings: dateTimeSettings,
       appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
@@ -56,6 +66,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('ru', 'RU'),
           Locale('sv'),
           Locale('tr', 'TR'),
+          Locale('ur'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
           Locale('fa'),
@@ -68,36 +79,56 @@ class InitAppWidgetTask extends LaunchTask {
       ),
     );
 
-    return Future(() => {});
+    return;
   }
 }
 
-class ApplicationWidget extends StatelessWidget {
-  final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
-  final AppTheme appTheme;
-
+class ApplicationWidget extends StatefulWidget {
   const ApplicationWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.appTheme,
     required this.appearanceSetting,
-  }) : super(key: key);
+    required this.dateTimeSettings,
+  });
+
+  final Widget child;
+  final AppearanceSettingsPB appearanceSetting;
+  final AppTheme appTheme;
+  final DateTimeSettingsPB dateTimeSettings;
+
+  @override
+  State<ApplicationWidget> createState() => _ApplicationWidgetState();
+}
+
+class _ApplicationWidgetState extends State<ApplicationWidget> {
+  late final GoRouter routerConfig;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // avoid rebuild routerConfig when the appTheme is changed.
+    routerConfig = generateRouter(widget.child);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting, appTheme)
-      ..readLocaleWhenAppLaunch(context);
-
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: cubit),
+        BlocProvider<AppearanceSettingsCubit>(
+          create: (_) => AppearanceSettingsCubit(
+            widget.appearanceSetting,
+            widget.dateTimeSettings,
+            widget.appTheme,
+          )..readLocaleWhenAppLaunch(context),
+        ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
       ],
       child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp(
+        builder: (context, state) => MaterialApp.router(
           builder: overlayManagerBuilder(),
           debugShowCheckedModeBanner: false,
           theme: state.lightTheme,
@@ -107,8 +138,7 @@ class ApplicationWidget extends StatelessWidget {
               [AppFlowyEditorLocalizations.delegate],
           supportedLocales: context.supportedLocales,
           locale: state.locale,
-          navigatorKey: AppGlobals.rootNavKey,
-          home: child,
+          routerConfig: routerConfig,
         ),
       ),
     );
@@ -149,7 +179,6 @@ Future<AppTheme> appTheme(String themeName) async {
     try {
       return await AppTheme.fromName(themeName);
     } catch (e) {
-      Log.error(e);
       return AppTheme.fallback;
     }
   }

@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use appflowy_integrate::{RocksCollabDB, YrsDocAction};
 use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::core::Folder;
 
+use collab_integrate::{RocksCollabDB, YrsDocAction};
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::migrations::migration::UserDataMigration;

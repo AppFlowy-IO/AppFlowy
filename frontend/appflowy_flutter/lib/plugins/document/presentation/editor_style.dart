@@ -1,7 +1,11 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+
+import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+
+import 'package:appflowy/util/google_font_family_extension.dart';
+
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +34,13 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final defaultTextDirection =
+        context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: theme.colorScheme.primary,
+      defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
@@ -156,6 +164,17 @@ class EditorStyleCustomizer {
     );
   }
 
+  InlineActionsMenuStyle inlineActionsMenuStyleBuilder() {
+    final theme = Theme.of(context);
+    return InlineActionsMenuStyle(
+      backgroundColor: theme.cardColor,
+      groupTextColor: theme.colorScheme.onBackground.withOpacity(.8),
+      menuItemTextColor: theme.colorScheme.onBackground,
+      menuItemSelectedColor: theme.hoverColor,
+      menuItemSelectedTextColor: theme.colorScheme.onSurface,
+    );
+  }
+
   FloatingToolbarStyle floatingToolbarStyleBuilder() {
     final theme = Theme.of(context);
     return FloatingToolbarStyle(
@@ -189,19 +208,37 @@ class EditorStyleCustomizer {
       return textSpan;
     }
 
-    // customize the inline mention block, like inline page
-    final mention = attributes[MentionBlockKeys.mention] as Map?;
+    // try to refresh font here.
+    if (attributes.fontFamily != null) {
+      try {
+        GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Inline Mentions (Page Reference, Date, Reminder, etc.)
+    final mention =
+        attributes[MentionBlockKeys.mention] as Map<String, dynamic>?;
     if (mention != null) {
       final type = mention[MentionBlockKeys.type];
-      if (type == MentionType.page.name) {
-        return WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: MentionBlock(
-            key: ValueKey(mention[MentionBlockKeys.pageId]),
-            mention: mention,
+      return WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: MentionBlock(
+          key: ValueKey(
+            switch (type) {
+              MentionType.page => mention[MentionBlockKeys.pageId],
+              MentionType.date ||
+              MentionType.reminder =>
+                mention[MentionBlockKeys.date],
+              _ => MentionBlockKeys.mention,
+            },
           ),
-        );
-      }
+          node: node,
+          index: index,
+          mention: mention,
+        ),
+      );
     }
 
     // customize the inline math equation block

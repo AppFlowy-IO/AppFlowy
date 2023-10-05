@@ -15,6 +15,7 @@ import { DOCUMENT_NAME, RANGE_NAME, RECT_RANGE_NAME, SLASH_COMMAND_NAME } from '
 import { blockEditSlice } from '$app_reducers/document/block_edit_slice';
 import { Op } from 'quill-delta';
 import { mentionSlice } from '$app_reducers/document/mention_slice';
+import { generateId } from '$app/utils/document/block';
 
 const initialState: Record<string, DocumentState> = {};
 
@@ -37,6 +38,7 @@ export const documentSlice = createSlice({
       state[docId] = {
         nodes: {},
         children: {},
+        deltaMap: {},
       };
     },
     clear: (state, action: PayloadAction<string>) => {
@@ -52,13 +54,15 @@ export const documentSlice = createSlice({
         docId: string;
         nodes: Record<string, Node>;
         children: Record<string, string[]>;
+        deltaMap: Record<string, string>;
       }>
     ) => {
-      const { docId, nodes, children } = action.payload;
+      const { docId, nodes, children, deltaMap } = action.payload;
 
       state[docId] = {
         nodes,
         children,
+        deltaMap,
       };
     },
 
@@ -72,10 +76,16 @@ export const documentSlice = createSlice({
     ) => {
       const { docId, delta, rootId } = action.payload;
       const documentState = state[docId];
+
       if (!documentState) return;
       const rootNode = documentState.nodes[rootId];
+
       if (!rootNode) return;
-      rootNode.data.delta = delta;
+      let externalId = rootNode.externalId;
+
+      if (!externalId) externalId = generateId();
+      rootNode.externalId = externalId;
+      documentState.deltaMap[externalId] = JSON.stringify(delta);
     },
     /**
      This function listens for changes in the data layer triggered by the data API,

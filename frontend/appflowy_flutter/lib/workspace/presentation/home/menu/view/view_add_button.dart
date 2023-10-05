@@ -153,5 +153,5 @@ class TemplateActionWrapper extends ActionCell {
   Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.template_s);
 
   @override
-  String get name => LocaleKeys.shareAction_template.tr();
+  String get name => LocaleKeys.template_title.tr();
 }

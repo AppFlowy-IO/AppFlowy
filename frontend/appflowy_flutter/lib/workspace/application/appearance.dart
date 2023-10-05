@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/mobile/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -21,20 +24,28 @@ const _white = Color(0xFFFFFFFF);
 /// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   final AppearanceSettingsPB _setting;
+  final DateTimeSettingsPB _dateTimeSettings;
 
   AppearanceSettingsCubit(
     AppearanceSettingsPB setting,
+    DateTimeSettingsPB dateTimeSettings,
     AppTheme appTheme,
   )   : _setting = setting,
+        _dateTimeSettings = dateTimeSettings,
         super(
           AppearanceSettingsState.initial(
             appTheme,
             setting.themeMode,
             setting.font,
             setting.monospaceFont,
+            setting.layoutDirection,
+            setting.textDirection,
             setting.locale,
             setting.isMenuCollapsed,
             setting.menuOffset,
+            dateTimeSettings.dateFormat,
+            dateTimeSettings.timeFormat,
+            dateTimeSettings.timezoneId,
           ),
         );
 
@@ -67,6 +78,19 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setThemeMode(
       currentThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
     );
+  }
+
+  void setLayoutDirection(LayoutDirection layoutDirection) {
+    _setting.layoutDirection = layoutDirection.toLayoutDirectionPB();
+    _saveAppearanceSettings();
+    emit(state.copyWith(layoutDirection: layoutDirection));
+  }
+
+  void setTextDirection(AppFlowyTextDirection? textDirection) {
+    _setting.textDirection =
+        textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
+    _saveAppearanceSettings();
+    emit(state.copyWith(textDirection: textDirection));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -156,6 +180,29 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     setLocale(context, state.locale);
   }
 
+  void setDateFormat(UserDateFormatPB format) {
+    _dateTimeSettings.dateFormat = format;
+    _saveDateTimeSettings();
+    emit(state.copyWith(dateFormat: format));
+  }
+
+  void setTimeFormat(UserTimeFormatPB format) {
+    _dateTimeSettings.timeFormat = format;
+    _saveDateTimeSettings();
+    emit(state.copyWith(timeFormat: format));
+  }
+
+  Future<void> _saveDateTimeSettings() async {
+    UserSettingsBackendService()
+        .setDateTimeSettings(_dateTimeSettings)
+        .then((result) {
+      result.fold(
+        (error) => Log.error(error),
+        (_) => null,
+      );
+    });
+  }
+
   Future<void> _saveAppearanceSettings() async {
     UserSettingsBackendService().setAppearanceSetting(_setting).then((result) {
       result.fold(
@@ -190,6 +237,56 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
   }
 }
 
+enum LayoutDirection {
+  ltrLayout,
+  rtlLayout;
+
+  static LayoutDirection fromLayoutDirectionPB(
+    LayoutDirectionPB layoutDirectionPB,
+  ) =>
+      layoutDirectionPB == LayoutDirectionPB.RTLLayout
+          ? LayoutDirection.rtlLayout
+          : LayoutDirection.ltrLayout;
+
+  LayoutDirectionPB toLayoutDirectionPB() => this == LayoutDirection.rtlLayout
+      ? LayoutDirectionPB.RTLLayout
+      : LayoutDirectionPB.LTRLayout;
+}
+
+enum AppFlowyTextDirection {
+  ltr,
+  rtl,
+  auto;
+
+  static AppFlowyTextDirection? fromTextDirectionPB(
+    TextDirectionPB? textDirectionPB,
+  ) {
+    switch (textDirectionPB) {
+      case TextDirectionPB.LTR:
+        return AppFlowyTextDirection.ltr;
+      case TextDirectionPB.RTL:
+        return AppFlowyTextDirection.rtl;
+      case TextDirectionPB.AUTO:
+        return AppFlowyTextDirection.auto;
+      default:
+        return null;
+    }
+  }
+
+  TextDirectionPB toTextDirectionPB() {
+    switch (this) {
+      case AppFlowyTextDirection.ltr:
+        return TextDirectionPB.LTR;
+      case AppFlowyTextDirection.rtl:
+        return TextDirectionPB.RTL;
+      case AppFlowyTextDirection.auto:
+        return TextDirectionPB.AUTO;
+      default:
+        return TextDirectionPB.FALLBACK;
+    }
+  }
+}
+
 @freezed
 class AppearanceSettingsState with _$AppearanceSettingsState {
   const AppearanceSettingsState._();
@@ -199,9 +296,14 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required ThemeMode themeMode,
     required String font,
     required String monospaceFont,
+    required LayoutDirection layoutDirection,
+    required AppFlowyTextDirection? textDirection,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
+    required UserDateFormatPB dateFormat,
+    required UserTimeFormatPB timeFormat,
+    required String timezoneId,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -209,18 +311,28 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     ThemeModePB themeModePB,
     String font,
     String monospaceFont,
+    LayoutDirectionPB layoutDirectionPB,
+    TextDirectionPB? textDirectionPB,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
+    UserDateFormatPB dateFormat,
+    UserTimeFormatPB timeFormat,
+    String timezoneId,
   ) {
     return AppearanceSettingsState(
       appTheme: appTheme,
       font: font,
       monospaceFont: monospaceFont,
+      layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
+      textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
       menuOffset: menuOffset,
+      dateFormat: dateFormat,
+      timeFormat: timeFormat,
+      timezoneId: timezoneId,
     );
   }
 
@@ -268,7 +380,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       onSurface: theme.hoverFG,
       // grey hover color
       inverseSurface: theme.hoverBG3,
-      onError: theme.shader7,
+      onError: theme.onPrimary,
       error: theme.red,
       outline: theme.shader4,
       surfaceVariant: theme.sidebarBg,
@@ -281,7 +393,15 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       MaterialState.dragged,
     };
 
-    return ThemeData(
+    if (PlatformExtension.isMobile) {
+      // Mobile version has only one theme(light mode) for now.
+      // The desktop theme and the mobile theme are independent.
+      final mobileThemeData = getMobileThemeData();
+      return mobileThemeData;
+    }
+
+    // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
+    final desktopThemeData = ThemeData(
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
       textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
@@ -352,6 +472,8 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           toggleOffFill: theme.shader5,
           progressBarBGColor: theme.progressBarBGColor,
           toggleButtonBGColor: theme.toggleButtonBGColor,
+          calendarWeekendBGColor: theme.calendarWeekendBGColor,
+          gridRowCountColor: theme.gridRowCountColor,
           code: _getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
@@ -369,9 +491,10 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
             fontWeight: FontWeight.w400,
             fontColor: theme.hint,
           ),
-        )
+        ),
       ],
     );
+    return desktopThemeData;
   }
 
   TextStyle _getFontStyle({

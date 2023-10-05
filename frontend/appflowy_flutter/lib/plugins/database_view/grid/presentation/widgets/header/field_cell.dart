@@ -38,7 +38,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return FieldCellBloc(cellContext: widget.cellContext);
+        return FieldCellBloc(fieldContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
@@ -54,7 +54,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: FieldCellButton(
-              field: widget.cellContext.field,
+              field: widget.cellContext.fieldInfo.field,
               onTap: () => popoverController.show(),
             ),
           );
@@ -125,10 +125,15 @@ class _DragToExpandLine extends StatelessWidget {
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: (details) {
+          context
+              .read<FieldCellBloc>()
+              .add(const FieldCellEvent.onResizeStart());
+        },
         onHorizontalDragUpdate: (value) {
           context
               .read<FieldCellBloc>()
-              .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
+              .add(FieldCellEvent.startUpdateWidth(value.localPosition.dx));
         },
         onHorizontalDragEnd: (end) {
           context
@@ -154,29 +159,33 @@ class FieldCellButton extends StatelessWidget {
   final FieldPB field;
   final int? maxLines;
   final BorderRadius? radius;
+  final EdgeInsets? margin;
   const FieldCellButton({
     required this.field,
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
+    this.margin,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      hoverColor: AFThemeExtension.of(context).greyHover,
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: FlowySvg(
         field.fieldType.icon(),
+        color: Theme.of(context).iconTheme.color,
       ),
       radius: radius,
       text: FlowyText.medium(
         field.name,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
+        color: AFThemeExtension.of(context).textColor,
       ),
-      margin: GridSize.cellContentInsets,
+      margin: margin ?? GridSize.cellContentInsets,
     );
   }
 }

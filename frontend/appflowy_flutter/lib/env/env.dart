@@ -1,5 +1,6 @@
 // lib/env/env.dart
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:envied/envied.dart';
 
 part 'env.g.dart';
@@ -19,6 +20,29 @@ part 'env.g.dart';
 abstract class Env {
   @EnviedField(
     obfuscate: true,
+    varName: 'CLOUD_TYPE',
+    defaultValue: '0',
+  )
+  static final int cloudType = _Env.cloudType;
+
+  /// AppFlowy Cloud Configuration
+  @EnviedField(
+    obfuscate: true,
+    varName: 'APPFLOWY_CLOUD_BASE_URL',
+    defaultValue: '',
+  )
+  static final String afCloudBaseUrl = _Env.afCloudBaseUrl;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'APPFLOWY_CLOUD_BASE_WS_URL',
+    defaultValue: '',
+  )
+  static final String afCloudBaseWSUrl = _Env.afCloudBaseWSUrl;
+
+  // Supabase Configuration:
+  @EnviedField(
+    obfuscate: true,
     varName: 'SUPABASE_URL',
     defaultValue: '',
   )
@@ -31,11 +55,42 @@ abstract class Env {
   static final String supabaseAnonKey = _Env.supabaseAnonKey;
 }
 
-bool get isSupabaseEnabled {
+bool get isCloudEnabled {
   // Only enable supabase in release and develop mode.
   if (integrationMode().isRelease || integrationMode().isDevelop) {
-    return Env.supabaseUrl.isNotEmpty && Env.supabaseAnonKey.isNotEmpty;
+    return currentCloudType().isEnabled;
   } else {
     return false;
   }
+}
+
+enum CloudType {
+  unknown,
+  supabase,
+  appflowyCloud;
+
+  bool get isEnabled => this != CloudType.unknown;
+}
+
+CloudType currentCloudType() {
+  final value = Env.cloudType;
+  if (value == 1) {
+    if (Env.supabaseUrl.isEmpty || Env.supabaseAnonKey.isEmpty) {
+      Log.error("Supabase is not configured");
+      return CloudType.unknown;
+    } else {
+      return CloudType.supabase;
+    }
+  }
+
+  if (value == 2) {
+    if (Env.afCloudBaseUrl.isEmpty || Env.afCloudBaseWSUrl.isEmpty) {
+      Log.error("AppFlowy cloud is not configured");
+      return CloudType.unknown;
+    } else {
+      return CloudType.appflowyCloud;
+    }
+  }
+
+  return CloudType.unknown;
 }

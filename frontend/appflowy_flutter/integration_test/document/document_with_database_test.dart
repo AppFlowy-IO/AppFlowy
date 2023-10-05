@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -31,6 +32,18 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      // https://github.com/AppFlowy-IO/AppFlowy/issues/3533
+      // test: the selection of editor should be clear when editing the grid
+      await tester.editor.updateSelection(
+        Selection.collapsed(
+          Position(path: [1]),
+        ),
+      );
+      final gridTextCell = find.byType(GridTextCell).first;
+      await tester.tapButton(gridTextCell);
+
+      expect(tester.editor.getCurrentEditorState().selection, isNull);
     });
 
     testWidgets('insert a referenced board', (tester) async {

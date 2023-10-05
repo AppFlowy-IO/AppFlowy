@@ -1,28 +1,36 @@
 use anyhow::Error;
+use client_api::entity::QueryCollabParams;
+use collab::core::origin::CollabOrigin;
+use collab_define::CollabType;
 
-use flowy_folder_deps::cloud::{
-  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
-};
+use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
-use lib_infra::util::timestamp;
 
-pub(crate) struct AFCloudFolderCloudServiceImpl();
+use crate::af_cloud::AFServer;
 
-impl FolderCloudService for AFCloudFolderCloudServiceImpl {
-  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let name = name.to_string();
-    FutureResult::new(async move {
-      Ok(Workspace {
-        id: gen_workspace_id().to_string(),
-        name: name.to_string(),
-        child_views: Default::default(),
-        created_at: timestamp(),
-      })
-    })
+pub(crate) struct AFCloudFolderCloudServiceImpl<T>(pub T);
+
+impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
+where
+  T: AFServer,
+{
+  fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
+    FutureResult::new(async move { todo!() })
   }
 
-  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
-    FutureResult::new(async move { Ok(None) })
+  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let params = QueryCollabParams {
+        object_id: workspace_id.clone(),
+        collab_type: CollabType::Folder,
+      };
+      let updates = vec![try_get_client?.get_collab(params).await?];
+      let folder =
+        Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+      Ok(folder.get_folder_data())
+    })
   }
 
   fn get_folder_snapshots(
@@ -33,15 +41,20 @@ impl FolderCloudService for AFCloudFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_folder_updates(
-    &self,
-    _workspace_id: &str,
-    _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
-    FutureResult::new(async move { Ok(vec![]) })
+  fn get_folder_updates(&self, workspace_id: &str, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let params = QueryCollabParams {
+        object_id: workspace_id,
+        collab_type: CollabType::Folder,
+      };
+      let updates = vec![try_get_client?.get_collab(params).await?];
+      Ok(updates)
+    })
   }
 
   fn service_name(&self) -> String {
-    "SelfHosted".to_string()
+    "AppFlowy Cloud".to_string()
   }
 }

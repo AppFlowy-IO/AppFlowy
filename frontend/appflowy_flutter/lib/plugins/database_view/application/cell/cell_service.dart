@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -72,4 +74,13 @@ class DatabaseCellContext with _$DatabaseCellContext {
 
   /// Only the primary field can have an emoji.
   String? get emoji => fieldInfo.field.isPrimary ? rowMeta.icon : null;
+
+  /// Determines whether a database cell context should be visible.
+  /// It will be visible when the field is not hidden or when hidden fields
+  /// should be shown.
+  bool isVisible({bool showHiddenFields = false}) {
+    return fieldInfo.visibility != null &&
+        (showHiddenFields ||
+            fieldInfo.visibility != FieldVisibility.AlwaysHidden);
+  }
 }

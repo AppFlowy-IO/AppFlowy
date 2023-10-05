@@ -12,15 +12,18 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/mock_auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -28,7 +31,7 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -91,14 +94,24 @@ void _resolveCommonService(
 }
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
-  if (isSupabaseEnabled) {
-    if (mode.isIntegrationTest) {
-      getIt.registerFactory<AuthService>(() => MockAuthService());
-    } else {
-      getIt.registerFactory<AuthService>(() => SupabaseAuthService());
-    }
-  } else {
-    getIt.registerFactory<AuthService>(() => AppFlowyAuthService());
+  switch (currentCloudType()) {
+    case CloudType.unknown:
+      getIt.registerFactory<AuthService>(
+        () => BackendAuthService(
+          AuthTypePB.Local,
+        ),
+      );
+      break;
+    case CloudType.supabase:
+      if (mode.isIntegrationTest) {
+        getIt.registerFactory<AuthService>(() => MockAuthService());
+      } else {
+        getIt.registerFactory<AuthService>(() => SupabaseAuthService());
+      }
+      break;
+    case CloudType.appflowyCloud:
+      getIt.registerFactory<AuthService>(() => AFCloudAuthService());
+      break;
   }
 
   getIt.registerFactory<AuthRouter>(() => AuthRouter());
@@ -110,7 +123,7 @@ void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
     () => SignUpBloc(getIt<AuthService>()),
   );
 
-  getIt.registerFactory<SplashRoute>(() => SplashRoute());
+  getIt.registerFactory<SplashRouter>(() => SplashRouter());
   getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
@@ -125,8 +138,8 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
-    (user, _) => WelcomeBloc(
+  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
+    (user, _) => WorkspaceBloc(
       userService: UserBackendService(userId: user.id),
     ),
   );
@@ -136,7 +149,11 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
+  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
+
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
+
+  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {

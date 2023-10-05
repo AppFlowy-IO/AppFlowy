@@ -1,7 +1,12 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
+import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -9,6 +14,19 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+final List<CommandShortcutEvent> commandShortcutEvents = [
+  toggleToggleListCommand,
+  ...codeBlockCommands,
+  customCopyCommand,
+  customPasteCommand,
+  customCutCommand,
+  ...standardCommandShortcutEvents,
+];
+
+final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
+  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
+];
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -33,27 +51,28 @@ class AppFlowyEditorPage extends StatefulWidget {
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
 
-final List<CommandShortcutEvent> commandShortcutEvents = [
-  ...codeBlockCommands,
-  ...standardCommandShortcutEvents,
-];
-
-final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
-  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
-];
-
 class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final ScrollController effectiveScrollController;
 
-  final inlinePageReferenceService = InlinePageReferenceService();
+  late final InlineActionsService inlineActionsService = InlineActionsService(
+    context: context,
+    handlers: [
+      InlinePageReferenceService(
+        currentViewId: documentBloc.view.id,
+      ).inlinePageReferenceDelegate,
+      DateReferenceService(context).dateReferenceDelegate,
+      ReminderReferenceService(context).reminderReferenceDelegate,
+    ],
+  );
 
-  final List<CommandShortcutEvent> commandShortcutEvents = [
+  late final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
     ...codeBlockCommands,
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
     ...standardCommandShortcutEvents,
+    ..._buildFindAndReplaceCommands(),
   ];
 
   final List<ToolbarItem> toolbarItems = [
@@ -74,6 +93,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     alignToolbarItem,
     buildTextColorItem(),
     buildHighlightColorItem(),
+    customizeFontToolbarItem,
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
@@ -82,9 +102,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       _customAppFlowyBlockComponentBuilders();
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
-        // inline page reference list
-        ...inlinePageReferenceShortcuts,
-
         // code block
         ...codeBlockCharacterEvents,
 
@@ -102,19 +119,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           ..removeWhere(
             (element) => element == slashCommand,
           ), // remove the default slash command.
-      ];
 
-  late final inlinePageReferenceShortcuts = [
-    inlinePageReferenceService.customPageLinkMenu(
-      character: '@',
-      style: styleCustomizer.selectionMenuStyleBuilder(),
-    ),
-    // uncomment this to enable the inline page reference list
-    // inlinePageReferenceService.customPageLinkMenu(
-    //   character: '+',
-    //   style: styleCustomizer.selectionMenuStyleBuilder(),
-    // ),
-  ];
+        /// Inline Actions
+        /// - Reminder
+        /// - Inline-page reference
+        inlineActionsCommand(
+          inlineActionsService,
+          style: styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+      ];
 
   late final showSlashMenu = customSlashCommand(
     slashMenuItems,
@@ -134,6 +147,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
     effectiveScrollController = widget.scrollController ?? ScrollController();
+
+    // keep the previous font style when typing new text.
+    AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
   @override
@@ -141,6 +157,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.scrollController == null) {
       effectiveScrollController.dispose();
     }
+    inlineActionsService.dispose();
+
+    widget.editorState.dispose();
 
     super.dispose();
   }
@@ -150,37 +169,49 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final (bool autoFocus, Selection? selection) =
         _computeAutoFocusParameters();
 
+    final isRTL =
+        context.read<AppearanceSettingsCubit>().state.layoutDirection ==
+            LayoutDirection.rtlLayout;
+    final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
+
+    _setRTLToolbarItems(isRTL);
+
+    final editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+      shrinkWrap: widget.shrinkWrap,
+      scrollController: effectiveScrollController,
+    );
+
     final editor = AppFlowyEditor(
       editorState: widget.editorState,
       editable: true,
-      shrinkWrap: widget.shrinkWrap,
-      scrollController: effectiveScrollController,
+      editorScrollController: editorScrollController,
       // setup the auto focus parameters
       autoFocus: widget.autoFocus ?? autoFocus,
       focusedSelection: selection,
       // setup the theme
       editorStyle: styleCustomizer.style(),
-      // customize the block builder
+      // customize the block builders
       blockComponentBuilders: blockComponentBuilders,
       // customize the shortcuts
       characterShortcutEvents: characterShortcutEvents,
       commandShortcutEvents: commandShortcutEvents,
+      // customize the context menu items
       contextMenuItems: customContextMenuItems,
+      // customize the header and footer.
       header: widget.header,
       footer: const VSpace(200),
     );
 
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: double.infinity,
-          maxHeight: double.infinity,
-        ),
-        child: FloatingToolbar(
-          style: styleCustomizer.floatingToolbarStyleBuilder(),
-          items: toolbarItems,
-          editorState: widget.editorState,
-          scrollController: effectiveScrollController,
+      child: FloatingToolbar(
+        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        items: toolbarItems,
+        editorState: widget.editorState,
+        editorScrollController: editorScrollController,
+        textDirection: textDirection,
+        child: Directionality(
+          textDirection: textDirection,
           child: editor,
         ),
       ),
@@ -201,6 +232,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final configuration = BlockComponentConfiguration(
       padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     );
+
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: TextBlockComponentBuilder(
@@ -442,14 +474,55 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   }
 
   Future<void> _initializeShortcuts() async {
-    //TODO(Xazin): Refactor lazy initialization
+    // TODO(Xazin): Refactor lazy initialization
     defaultCommandShortcutEvents;
     final settingsShortcutService = SettingsShortcutService();
     final customizeShortcuts =
         await settingsShortcutService.getCustomizeShortcuts();
     await settingsShortcutService.updateCommandShortcuts(
-      standardCommandShortcutEvents,
+      commandShortcutEvents,
       customizeShortcuts,
+    );
+  }
+
+  void _setRTLToolbarItems(bool isRTL) {
+    final textDirectionItemIds = textDirectionItems.map((e) => e.id);
+    // clear all the text direction items
+    toolbarItems.removeWhere(
+      (item) => textDirectionItemIds.contains(item.id),
+    );
+    // only show the rtl item when the layout direction is ltr.
+    if (isRTL) {
+      toolbarItems.addAll(textDirectionItems);
+    }
+  }
+
+  List<CommandShortcutEvent> _buildFindAndReplaceCommands() {
+    return findAndReplaceCommands(
+      context: context,
+      style: FindReplaceStyle(
+        findMenuBuilder: (
+          context,
+          editorState,
+          localizations,
+          style,
+          showReplaceMenu,
+          onDismiss,
+        ) {
+          return Material(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: FindAndReplaceMenuWidget(
+                editorState: editorState,
+                onDismiss: onDismiss,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

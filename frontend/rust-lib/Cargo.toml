@@ -2,7 +2,6 @@
 members = [
   "lib-dispatch",
   "lib-log",
-  "flowy-net",
   "flowy-core",
   "dart-ffi",
   "flowy-user",
@@ -23,7 +22,36 @@ members = [
   "flowy-config",
   "flowy-encrypt",
   "flowy-storage",
+  "collab-integrate",
+  "flowy-ai",
+  "flowy-date",
 ]
+
+[workspace.dependencies]
+lib-dispatch = { workspace = true, path = "lib-dispatch" }
+lib-log = { workspace = true, path = "lib-log" }
+flowy-core = { workspace = true, path = "flowy-core" }
+dart-ffi = { workspace = true, path = "dart-ffi" }
+flowy-user = { workspace = true, path = "flowy-user" }
+flowy-user-deps = { workspace = true, path = "flowy-user-deps" }
+flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
+flowy-folder2 = { workspace = true, path = "flowy-folder2" }
+flowy-folder-deps = { workspace = true, path = "flowy-folder-deps" }
+flowy-notification = { workspace = true, path = "flowy-notification" }
+flowy-document2 = { workspace = true, path = "flowy-document2" }
+flowy-document-deps = { workspace = true, path = "flowy-document-deps" }
+flowy-error = { workspace = true, path = "flowy-error" }
+flowy-database2 = { workspace = true, path = "flowy-database2" }
+flowy-database-deps = { workspace = true, path = "flowy-database-deps" }
+flowy-task = { workspace = true, path = "flowy-task" }
+flowy-server = { workspace = true, path = "flowy-server" }
+flowy-server-config = { workspace = true, path = "flowy-server-config" }
+flowy-config = { workspace = true, path = "flowy-config" }
+flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
+flowy-storage = { workspace = true, path = "flowy-storage" }
+collab-integrate = { workspace = true, path = "collab-integrate" }
+flowy-ai = { workspace = true, path = "flowy-ai" }
+flowy-date = { workspace = true, path = "flowy-date" }
 
 [profile.dev]
 opt-level = 0
@@ -49,20 +77,26 @@ lto = false
 incremental = false
 
 [patch.crates-io]
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-appflowy-integrate = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "a6ce82" }
-
-#collab = { path = "../AppFlowy-Collab/collab" }
-#collab-folder = { path = "../AppFlowy-Collab/collab-folder" }
-#collab-database= { path = "../AppFlowy-Collab/collab-database" }
-#collab-document = { path = "../AppFlowy-Collab/collab-document" }
-#collab-plugins = { path = "../AppFlowy-Collab/collab-plugins" }
-#appflowy-integrate = { path = "../AppFlowy-Collab/appflowy-integrate" }
-#collab-user = { path = "../AppFlowy-Collab/collab-user" }
-#collab-define = { path = "../AppFlowy-Collab/collab-define" }
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b0c213" }
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }

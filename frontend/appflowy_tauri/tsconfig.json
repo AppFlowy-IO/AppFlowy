@@ -20,8 +20,8 @@
     "paths": {
       "@/*": ["src/*"],
       "$app/*": ["src/appflowy_app/*"],
-      "$app_reducers/*": ["src/appflowy_app/stores/reducers/*"],
-    },
+      "$app_reducers/*": ["src/appflowy_app/stores/reducers/*"]
+    }
   },
   "include": ["src", "vite.config.ts", "../app_flowy/assets/translations"],
   "exclude": ["node_modules"],

@@ -238,6 +238,21 @@ pub enum ErrorCode {
 
   #[error("Parse url failed")]
   InvalidURL = 78,
+
+  #[error("Require Email Confirmation, Sign in after email confirmation")]
+  AwaitingEmailConfirmation = 79,
+
+  #[error("Text id is empty")]
+  TextIdIsEmpty = 80,
+
+  #[error("Record already exists")]
+  RecordAlreadyExists = 81,
+
+  #[error("Missing payload")]
+  MissingPayload = 82,
+
+  #[error("Permission denied")]
+  NotEnoughPermissions = 83,
 }
 
 impl ErrorCode {

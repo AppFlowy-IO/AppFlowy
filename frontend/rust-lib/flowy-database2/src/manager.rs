@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
-use appflowy_integrate::collab_builder::AppFlowyCollabBuilder;
-use appflowy_integrate::{CollabPersistenceConfig, CollabType, RocksCollabDB};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, YrsDocAction};
@@ -12,8 +10,11 @@ use collab_database::user::{
   WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_define::CollabType;
 use tokio::sync::RwLock;
 
+use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
