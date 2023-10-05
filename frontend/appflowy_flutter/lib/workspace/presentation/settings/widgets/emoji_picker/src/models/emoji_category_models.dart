@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'emoji_model.dart';
 import '../emoji_picker.dart';
 
-/// Container for Category and their emoji
-class CategoryEmoji {
-  /// Constructor
-  CategoryEmoji(this.category, this.emoji);
+/// EmojiCategory with its emojis
+class EmojiCategoryGroup {
+  EmojiCategoryGroup(this.category, this.emoji);
 
-  /// Category instance
-  final Category category;
+  final EmojiCategory category;
 
   /// List of emoji of this category
   List<Emoji> emoji;
@@ -20,10 +18,10 @@ class CategoryEmoji {
   }
 }
 
-/// Class that defines the icon representing a [Category]
-class CategoryIcon {
+/// Class that defines the icon representing a [EmojiCategory]
+class EmojiCategoryIcon {
   /// Icon of Category
-  const CategoryIcon({
+  const EmojiCategoryIcon({
     required this.icon,
     this.color = const Color(0xffd3d3d3),
     this.selectedColor = const Color(0xffb2b2b2),
@@ -39,14 +37,14 @@ class CategoryIcon {
   final Color selectedColor;
 }
 
-/// Class used to define all the [CategoryIcon] shown for each [Category]
+/// Class used to define all the [EmojiCategoryIcon] shown for each [EmojiCategory]
 ///
 /// This allows the keyboard to be personalized by changing icons shown.
-/// If a [CategoryIcon] is set as null or not defined during initialization,
+/// If a [EmojiCategoryIcon] is set as null or not defined during initialization,
 /// the default icons will be used instead
-class CategoryIcons {
+class EmojiCategoryIcons {
   /// Constructor
-  const CategoryIcons({
+  const EmojiCategoryIcons({
     this.recentIcon = Icons.access_time,
     this.smileyIcon = Icons.tag_faces,
     this.animalIcon = Icons.pets,
@@ -59,33 +57,33 @@ class CategoryIcons {
     this.searchIcon = Icons.search,
   });
 
-  /// Icon for [Category.RECENT]
+  /// Icon for [EmojiCategory.RECENT]
   final IconData recentIcon;
 
-  /// Icon for [Category.SMILEYS]
+  /// Icon for [EmojiCategory.SMILEYS]
   final IconData smileyIcon;
 
-  /// Icon for [Category.ANIMALS]
+  /// Icon for [EmojiCategory.ANIMALS]
   final IconData animalIcon;
 
-  /// Icon for [Category.FOODS]
+  /// Icon for [EmojiCategory.FOODS]
   final IconData foodIcon;
 
-  /// Icon for [Category.ACTIVITIES]
+  /// Icon for [EmojiCategory.ACTIVITIES]
   final IconData activityIcon;
 
-  /// Icon for [Category.TRAVEL]
+  /// Icon for [EmojiCategory.TRAVEL]
   final IconData travelIcon;
 
-  /// Icon for [Category.OBJECTS]
+  /// Icon for [EmojiCategory.OBJECTS]
   final IconData objectIcon;
 
-  /// Icon for [Category.SYMBOLS]
+  /// Icon for [EmojiCategory.SYMBOLS]
   final IconData symbolIcon;
 
-  /// Icon for [Category.FLAGS]
+  /// Icon for [EmojiCategory.FLAGS]
   final IconData flagIcon;
 
-  /// Icon for [Category.SEARCH]
+  /// Icon for [EmojiCategory.SEARCH]
   final IconData searchIcon;
 }
