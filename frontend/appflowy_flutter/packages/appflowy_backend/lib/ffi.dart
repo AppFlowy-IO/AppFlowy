@@ -19,8 +19,9 @@ DynamicLibrary _open() {
     if (Platform.isAndroid)
       return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isMacOS)
-      return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
-    if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
+      return io.File('${prefix}/libdart_ffi.dylib').existsSync() ? DynamicLibrary.open('${prefix}/libdart_ffi.dylib') : DynamicLibrary.open('${prefix}/libdart_ffi.a');
+    if (Platform.isIOS) 
+      return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isWindows)
       return DynamicLibrary.open('${prefix}/dart_ffi.dll');
   } else {
