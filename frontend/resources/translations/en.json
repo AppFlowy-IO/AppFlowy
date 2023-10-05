@@ -616,7 +616,8 @@
         "defaultColor": "Default"
       },
       "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard"
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImage": "Add an image"
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
@@ -657,7 +658,12 @@
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "Invalid image URL"
-      }
+      },
+      "embedLink": {
+        "label": "Embed link",
+        "placeholder": "Paste or type an image link"
+      },
+      "searchForAnImage": "Search for an image"
     },
     "codeBlock": {
       "language": {
@@ -755,6 +761,9 @@
     "gray": "Gray"
   },
   "emoji": {
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
     "filter": "Filter",
     "random": "Random",
     "selectSkinTone": "Select skin tone",

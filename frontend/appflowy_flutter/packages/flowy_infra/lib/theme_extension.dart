@@ -153,8 +153,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
           Color.lerp(toggleButtonBGColor, other.toggleButtonBGColor, t)!,
       calendarWeekendBGColor:
           Color.lerp(calendarWeekendBGColor, other.calendarWeekendBGColor, t)!,
-      gridRowCountColor: Color.lerp(
-          gridRowCountColor, other.gridRowCountColor, t)!,
+      gridRowCountColor:
+          Color.lerp(gridRowCountColor, other.gridRowCountColor, t)!,
       code: other.code,
       callout: other.callout,
       caption: other.caption,

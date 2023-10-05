@@ -107,7 +107,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: _darkMain1,
-          shadow: _black,
+          shadow: const Color(0xff0F131C),
           sidebarBg: const Color(0xff2D223B),
           divider: _darkShader3,
           topbarBg: _darkShader1,

@@ -124,8 +124,8 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Track color
         var trackColor = widget.trackColor ??
             (Theme.of(context).brightness == Brightness.dark
-                ? AFThemeExtension.of(context).greyHover.withOpacity(.1)
-                : AFThemeExtension.of(context).greyHover.withOpacity(.3));
+                ? AFThemeExtension.of(context).lightGreyHover
+                : AFThemeExtension.of(context).greyHover);
 
         // Layout the stack, it just contains a child, and
         return Stack(
@@ -225,6 +225,7 @@ class ScrollbarListStack extends StatelessWidget {
   final EdgeInsets? scrollbarPadding;
   final Color? handleColor;
   final Color? trackColor;
+  final bool showTrack;
   final bool autoHideScrollbar;
 
   const ScrollbarListStack({
@@ -238,6 +239,7 @@ class ScrollbarListStack extends StatelessWidget {
     this.handleColor,
     this.autoHideScrollbar = true,
     this.trackColor,
+    this.showTrack = false,
   });
 
   @override
@@ -262,6 +264,7 @@ class ScrollbarListStack extends StatelessWidget {
             trackColor: trackColor,
             handleColor: handleColor,
             autoHideScrollbar: autoHideScrollbar,
+            showTrack: showTrack,
           ),
         )
             // The animate will be used by the children that using styled_widget.
