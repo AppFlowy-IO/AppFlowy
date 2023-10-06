@@ -14,12 +14,14 @@ pub enum DatabaseNotification {
   DidUpdateViewRows = 20,
   /// Trigger when the visibility of the row was changed. For example, updating the filter will trigger the notification
   DidUpdateViewRowsVisibility = 21,
-  /// Trigger after inserting/deleting/updating a field
-  DidUpdateFields = 22,
+  /// Trigger after editing a field properties including rename, update type option, etc
+  DidUpdateField = 22,
   /// Trigger after editing a cell
   DidUpdateCell = 40,
-  /// Trigger after editing a field properties including rename,update type option, etc
-  DidUpdateField = 50,
+  /// Trigger after inserting/deleting/updating a field
+  DidInsertFields = 50,
+  DidUpdateFields = 51,
+  DidDeleteFields = 52,
   /// Trigger after the number of groups is changed
   DidUpdateNumOfGroups = 60,
   /// Trigger after inserting/deleting/updating/moving a row
@@ -50,8 +52,6 @@ pub enum DatabaseNotification {
   DidMoveDatabaseViewToTrash = 84,
   DidUpdateDatabaseSyncUpdate = 85,
   DidUpdateDatabaseSnapshotState = 86,
-  // Trigger when the field setting is changed
-  DidUpdateFieldSettings = 87,
 }
 
 impl std::convert::From<DatabaseNotification> for i32 {
@@ -66,9 +66,11 @@ impl std::convert::From<i32> for DatabaseNotification {
       19 => DatabaseNotification::DidFetchRow,
       20 => DatabaseNotification::DidUpdateViewRows,
       21 => DatabaseNotification::DidUpdateViewRowsVisibility,
-      22 => DatabaseNotification::DidUpdateFields,
+      22 => DatabaseNotification::DidUpdateField,
       40 => DatabaseNotification::DidUpdateCell,
-      50 => DatabaseNotification::DidUpdateField,
+      50 => DatabaseNotification::DidInsertFields,
+      51 => DatabaseNotification::DidUpdateFields,
+      52 => DatabaseNotification::DidDeleteFields,
       60 => DatabaseNotification::DidUpdateNumOfGroups,
       61 => DatabaseNotification::DidUpdateGroupRow,
       62 => DatabaseNotification::DidGroupByField,
@@ -83,7 +85,6 @@ impl std::convert::From<i32> for DatabaseNotification {
       82 => DatabaseNotification::DidUpdateDatabaseLayout,
       83 => DatabaseNotification::DidDeleteDatabaseView,
       84 => DatabaseNotification::DidMoveDatabaseViewToTrash,
-      87 => DatabaseNotification::DidUpdateFieldSettings,
       _ => DatabaseNotification::Unknown,
     }
   }

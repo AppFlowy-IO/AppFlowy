@@ -25,13 +25,11 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetFields, get_fields_handler)
         .event(DatabaseEvent::GetPrimaryField, get_primary_field_handler)
         .event(DatabaseEvent::UpdateField, update_field_handler)
-        .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
-        .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
+        .event(DatabaseEvent::UpdateFieldType, switch_field_type_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
-        .event(DatabaseEvent::GetTypeOption, get_field_type_option_data_handler)
-        .event(DatabaseEvent::CreateTypeOption, create_field_type_option_data_handler)
+        .event(DatabaseEvent::CreateField, create_field_with_type_option_data_handler)
         // Row
         .event(DatabaseEvent::CreateRow, create_row_handler)
         .event(DatabaseEvent::GetRow, get_row_handler)
@@ -76,8 +74,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::ExportCSV, export_csv_handler)
         .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
         // Field settings
-        .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
-        .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
 }
 
@@ -134,19 +130,6 @@ pub enum DatabaseEvent {
   #[event(input = "FieldChangesetPB")]
   UpdateField = 11,
 
-  /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
-  /// types have user-defined options such as color, date format, number format, or a list of values
-  /// for a multi-select list. These options are defined within a specialization of the
-  /// FieldTypeOption class.
-  ///
-  /// Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
-  /// for more information.
-  ///
-  /// The event handler accepts a [TypeOptionChangesetPB] and returns errors if failed to modify the
-  /// field.
-  #[event(input = "TypeOptionChangesetPB")]
-  UpdateFieldTypeOption = 12,
-
   /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
   /// is used to delete the field from the Database.
   #[event(input = "DeleteFieldPayloadPB")]
@@ -172,18 +155,11 @@ pub enum DatabaseEvent {
   #[event(input = "MoveFieldPayloadPB")]
   MoveField = 22,
 
-  /// [TypeOptionPathPB] event is used to get the FieldTypeOption data for a specific field type.
-  ///
-  /// Check out the [TypeOptionPB] for more details. If the [FieldTypeOptionData] does exist
-  /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
-  ///
-  /// Return the [TypeOptionPB] if there are no errors.
-  #[event(input = "TypeOptionPathPB", output = "TypeOptionPB")]
-  GetTypeOption = 23,
-
-  /// [CreateTypeOption] event is used to create a new FieldTypeOptionData.
-  #[event(input = "CreateFieldPayloadPB", output = "TypeOptionPB")]
-  CreateTypeOption = 24,
+  /// [CreateField] event is used to create a new field with the given
+  /// FieldTypeOptionData if provided. If not, the default one for the field
+  /// will be used.
+  #[event(input = "CreateFieldPayloadPB", output = "FieldPB")]
+  CreateField = 24,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
   GetPrimaryField = 25,
@@ -320,13 +296,6 @@ pub enum DatabaseEvent {
   /// Returns all the snapshots of the database view.
   #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseSnapshotPB")]
   GetDatabaseSnapshots = 150,
-
-  /// Returns the field settings for the provided fields in the given view
-  #[event(input = "FieldIdsPB", output = "RepeatedFieldSettingsPB")]
-  GetFieldSettings = 160,
-
-  #[event(input = "DatabaseViewIdPB", output = "RepeatedFieldSettingsPB")]
-  GetAllFieldSettings = 161,
 
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]

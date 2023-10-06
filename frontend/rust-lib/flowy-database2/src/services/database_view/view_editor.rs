@@ -32,7 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
-use crate::services::field_settings::FieldSettings;
+use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -128,8 +128,6 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     view_id: &str,
     field_ids: &[String],
   ) -> HashMap<String, FieldSettings>;
-
-  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings>;
 
   fn update_field_settings(
     &self,
@@ -514,7 +512,7 @@ impl DatabaseViewEditor {
     Ok(sort)
   }
 
-  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<Vec<String>> {
     let notification = self
       .sort_controller
       .write()
@@ -525,8 +523,13 @@ impl DatabaseViewEditor {
       .await;
 
     self.delegate.remove_sort(&self.view_id, &params.sort_id);
-    notify_did_update_sort(notification).await;
-    Ok(())
+    notify_did_update_sort(notification.clone()).await;
+    let field_ids = notification
+      .delete_sorts
+      .into_iter()
+      .map(|sort| sort.field_id)
+      .collect();
+    Ok(field_ids)
   }
 
   pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
@@ -588,7 +591,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<Vec<String>> {
     let filter_type = params.filter_type;
     let changeset = self
       .filter_controller
@@ -598,10 +601,18 @@ impl DatabaseViewEditor {
     self
       .delegate
       .delete_filter(&self.view_id, &filter_type.filter_id);
-    if changeset.is_some() {
-      notify_did_update_filter(changeset.unwrap()).await;
-    }
-    Ok(())
+
+    let field_ids = if let Some(changeset) = changeset {
+      notify_did_update_filter(changeset.clone()).await;
+      changeset
+        .delete_filters
+        .into_iter()
+        .map(|filter| filter.field_id)
+        .collect()
+    } else {
+      vec![]
+    };
+    Ok(field_ids)
   }
 
   pub async fn v_get_filter(&self, filter_id: &str) -> Option<Filter> {
@@ -910,12 +921,32 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_get_field_settings(&self, field_ids: &[String]) -> HashMap<String, FieldSettings> {
-    self.delegate.get_field_settings(&self.view_id, field_ids)
-  }
+  pub async fn v_get_field_settings(
+    &self,
+    layout_ty: DatabaseLayout,
+    field_ids: &[String],
+  ) -> HashMap<String, FieldSettings> {
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+    let found_field_settings = self.delegate.get_field_settings(&self.view_id, field_ids);
+    let field_settings = field_ids
+      .into_iter()
+      .map(|field_id| {
+        if let Some(field_settings) = found_field_settings.get(field_id) {
+          (field_id.clone(), field_settings.to_owned())
+        } else {
+          (
+            field_id.clone(),
+            FieldSettings::try_from_anymap(field_id.clone(), default_field_settings.clone())
+              .unwrap(),
+          )
+        }
+      })
+      .collect();
 
-  pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
-    self.delegate.get_all_field_settings(&self.view_id)
+    field_settings
   }
 
   pub async fn v_update_field_settings(

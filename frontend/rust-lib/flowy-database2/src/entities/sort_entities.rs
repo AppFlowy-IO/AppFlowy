@@ -202,7 +202,7 @@ pub struct DeleteSortParams {
   pub sort_id: String,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct SortChangesetNotificationPB {
   #[pb(index = 1)]
   pub view_id: String,

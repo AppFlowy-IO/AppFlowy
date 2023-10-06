@@ -24,8 +24,8 @@ use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, Data
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
-  SelectOptionIds, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds,
+  TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -196,8 +196,20 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_filter(params).await?;
+    let view_id = params.view_id.clone();
+    let view_editor = self.database_views.get_view_editor(&view_id).await?;
+    let field_ids = view_editor.v_delete_filter(params).await?;
+    for id in field_ids.into_iter() {
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: id,
+        has_filter: Some(false),
+        ..Default::default()
+      };
+      send_notification(&view_id, DatabaseNotification::DidUpdateField)
+        .payload(field_notification)
+        .send();
+    }
+
     Ok(())
   }
 
@@ -208,8 +220,19 @@ impl DatabaseEditor {
   }
 
   pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_sort(params).await?;
+    let view_id = params.view_id.clone();
+    let view_editor = self.database_views.get_view_editor(&view_id).await?;
+    let field_ids = view_editor.v_delete_sort(params).await?;
+    for id in field_ids.into_iter() {
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: id,
+        has_sort: Some(false),
+        ..Default::default()
+      };
+      send_notification(&view_id, DatabaseNotification::DidUpdateField)
+        .payload(field_notification)
+        .send();
+    }
     Ok(())
   }
 
@@ -258,20 +281,49 @@ impl DatabaseEditor {
     database.get_fields_in_view(view_id, Some(field_ids))
   }
 
-  pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
+  pub async fn update_field(
+    &self,
+    params: FieldChangesetParams,
+    field_type: FieldType,
+  ) -> FlowyResult<()> {
+    let type_option = params
+      .type_option
+      .clone()
+      .map(|type_option_data| type_option_data_from_pb(type_option_data, &field_type).ok())
+      .flatten();
+
     self
       .database
       .lock()
       .fields
       .update_field(&params.field_id, |update| {
-        update
-          .set_name_if_not_none(params.name)
-          .set_width_at_if_not_none(params.width.map(|value| value as i64))
-          .set_visibility_if_not_none(params.visibility);
+        let update = update
+          .set_name_if_not_none(params.name.clone())
+          .set_width_at_if_not_none(params.width.map(|value| value as i64));
+
+        if type_option.is_some() {
+          update.set_type_option(field_type.into(), type_option);
+        }
       });
-    self
-      .notify_did_update_database_field(&params.field_id)
-      .await?;
+
+    let field_notification = FieldUpdateNotificationPB {
+      field_id: params.field_id.clone(),
+      name: params.name,
+      width: params.width,
+      type_option: params.type_option,
+      ..Default::default()
+    };
+
+    send_notification(&params.field_id, DatabaseNotification::DidUpdateField)
+      .payload(field_notification.clone())
+      .send();
+
+    let views = self.database.lock().get_all_views_description();
+    for view in views {
+      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+        .payload(field_notification.clone())
+        .send();
+    }
     Ok(())
   }
 
@@ -291,14 +343,16 @@ impl DatabaseEditor {
       ));
     }
 
-    let database_id = {
-      let database = self.database.lock();
-      database.delete_field(field_id);
-      database.get_database_id()
-    };
-    let notified_changeset =
-      DatabaseFieldChangesetPB::delete(&database_id, vec![FieldIdPB::from(field_id)]);
-    self.notify_did_update_database(notified_changeset).await?;
+    self.database.lock().delete_field(field_id);
+
+    let field_notification = RepeatedFieldIdPB::from(field_id.to_string());
+
+    let views = self.database.lock().get_all_views_description();
+    for view in views {
+      send_notification(&view.id, DatabaseNotification::DidDeleteFields)
+        .payload(field_notification.clone())
+        .send();
+    }
     Ok(())
   }
 
@@ -319,60 +373,93 @@ impl DatabaseEditor {
           tracing::warn!("Cannot update primary field type");
         } else {
           update.update_type_options(|type_options_update| {
-            type_options_update.insert(&field_type.to_string(), type_option_data);
+            type_options_update.insert(&field_type.to_string(), type_option_data.clone());
           });
         }
       });
 
     self
       .database_views
-      .did_update_field_type_option(view_id, field_id, &old_field)
+      .did_update_field_type_option(view_id, field_id.clone(), &old_field)
       .await?;
-    let _ = self.notify_did_update_database_field(field_id).await;
+
+    let field_notification = FieldUpdateNotificationPB {
+      field_id: field_id.to_string(),
+      type_option: Some(type_option_to_pb(type_option_data, &field_type).to_vec()),
+      ..Default::default()
+    };
+
+    send_notification(&field_id, DatabaseNotification::DidUpdateField)
+      .payload(field_notification.clone())
+      .send();
+
+    let views = self.database.lock().get_all_views_description();
+    for view in views {
+      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+        .payload(field_notification.clone())
+        .send();
+    }
+
     Ok(())
   }
 
-  pub async fn switch_to_field_type(
+  pub async fn switch_field_type(
     &self,
     field_id: &str,
     new_field_type: &FieldType,
   ) -> FlowyResult<()> {
     let field = self.database.lock().fields.get_field(field_id);
-    match field {
-      None => {},
-      Some(field) => {
-        if field.is_primary {
-          return Err(FlowyError::new(
-            ErrorCode::Internal,
-            "Can not update primary field's field type",
-          ));
-        }
+    if let Some(field) = field {
+      if field.is_primary {
+        return Err(FlowyError::new(
+          ErrorCode::Internal,
+          "Can not update primary field's field type",
+        ));
+      }
 
-        let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type.clone());
-        let new_type_option = field
-          .get_any_type_option(new_field_type)
-          .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
+      let old_field_type = FieldType::from(field.field_type);
+      let old_type_option = field.get_any_type_option(old_field_type.clone());
+      let new_type_option = field
+        .get_any_type_option(new_field_type)
+        .unwrap_or(default_type_option_data_from_type(new_field_type));
 
-        let transformed_type_option = transform_type_option(
-          &new_type_option,
-          new_field_type,
-          old_type_option,
-          old_field_type,
-        );
-        self
-          .database
-          .lock()
-          .fields
-          .update_field(field_id, |update| {
-            update
-              .set_field_type(new_field_type.into())
-              .set_type_option(new_field_type.into(), Some(transformed_type_option));
-          });
-      },
+      let transformed_type_option = transform_type_option(
+        &new_type_option,
+        new_field_type,
+        old_type_option,
+        old_field_type,
+      );
+      self
+        .database
+        .lock()
+        .fields
+        .update_field(field_id, |update| {
+          update
+            .set_field_type(new_field_type.into())
+            .set_type_option(new_field_type.into(), Some(transformed_type_option.clone()));
+        });
+
+      let payload = type_option_to_pb(transformed_type_option, new_field_type);
+
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: field.id,
+        field_type: Some(new_field_type.to_owned()),
+        type_option: Some(payload.to_vec()),
+        ..Default::default()
+      };
+
+      let views = self.database.lock().get_all_views_description();
+      for view in views {
+        send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+          .payload(field_notification.clone())
+          .send();
+      }
+
+      send_notification(field_id, DatabaseNotification::DidUpdateField)
+        .payload(field_notification)
+        .send();
     }
 
-    self.notify_did_update_database_field(field_id).await?;
     Ok(())
   }
 
@@ -396,10 +483,187 @@ impl DatabaseEditor {
       .database
       .lock()
       .duplicate_field(view_id, field_id, |field| format!("{} (copy)", field.name));
-    if let Some((index, duplicated_field)) = value {
-      let _ = self
-        .notify_did_insert_database_field(duplicated_field, index)
-        .await;
+
+    if let Some((index, field)) = value {
+      let field_id = field.id.clone();
+      let type_options = self.get_field_type_options(&vec![field.clone()]).await;
+      let type_option_data = type_options.get(&field_id).unwrap();
+      let field_info = self
+        .get_field_info_in_view(view_id, &vec![field.clone()])
+        .await
+        .unwrap();
+
+      let index_field = IndexFieldPB {
+        field: FieldPB {
+          id: field.id,
+          name: field.name,
+          field_type: field.field_type.into(),
+          width: field.width as i32,
+          is_primary: field.is_primary,
+          type_option_data: type_option_data.to_vec(),
+          has_sort: false,
+          has_filter: false,
+          visibility: field_info.get(&field_id).unwrap().visibility.clone(),
+        },
+        index: index as i32,
+      };
+
+      for view in self.database.lock().get_all_views_description() {
+        send_notification(&view.id, DatabaseNotification::DidInsertFields)
+          .payload(index_field.clone())
+          .send();
+      }
+    }
+
+    Ok(())
+  }
+
+  pub async fn get_field_info_in_view(
+    &self,
+    view_id: &str,
+    fields: &Vec<Field>,
+  ) -> FlowyResult<HashMap<String, ViewFieldInfoParams>> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+
+    let field_ids: Vec<String> = fields.into_iter().map(|field| field.id.clone()).collect();
+
+    let sorting_field_ids: Vec<String> = view_editor
+      .v_get_all_sorts()
+      .await
+      .into_iter()
+      .map(|sort| sort.field_id)
+      .collect();
+
+    let filtering_field_ids: Vec<String> = view_editor
+      .v_get_all_filters()
+      .await
+      .into_iter()
+      .map(|filter| filter.field_id.clone())
+      .collect();
+
+    let layout_type = view_editor.v_get_layout_type().await;
+    let field_settings = view_editor
+      .v_get_field_settings(layout_type, &field_ids)
+      .await;
+
+    let field_infos = field_ids
+      .iter()
+      .map(|id| {
+        (
+          id.clone(),
+          ViewFieldInfoParams {
+            has_filter: sorting_field_ids.contains(id),
+            has_sort: filtering_field_ids.contains(id),
+            visibility: field_settings.get(id).unwrap().visibility.clone(),
+          },
+        )
+      })
+      .collect();
+
+    Ok(field_infos)
+  }
+
+  pub async fn get_field_type_options(&self, fields: &Vec<Field>) -> HashMap<String, Bytes> {
+    let type_options = fields
+      .into_iter()
+      .map(|field| {
+        let field_type = FieldType::from(field.field_type);
+        let type_option = field
+          .get_any_type_option(field_type.clone())
+          .unwrap_or(default_type_option_data_from_type(&field_type));
+        (
+          field.id.clone(),
+          type_option_to_pb(type_option, &field_type),
+        )
+      })
+      .collect();
+
+    type_options
+  }
+
+  pub async fn create_field_with_type_option(
+    &self,
+    view_id: &str,
+    field_type: &FieldType,
+    type_option_data: Option<Vec<u8>>,
+  ) -> FieldPB {
+    let name = field_type.default_name();
+
+    let type_option_data = type_option_data
+      .map(|data| type_option_data_from_pb(data, field_type).ok())
+      .flatten()
+      .unwrap_or(default_type_option_data_from_type(field_type));
+
+    let (index, field) = self.database.lock().create_field_with_mut(
+      view_id,
+      name,
+      field_type.into(),
+      |field| {
+        field
+          .type_options
+          .insert(field_type.to_string(), type_option_data.clone());
+      },
+      default_field_settings_by_layout_map(),
+    );
+
+    let type_option_data = type_option_to_pb(type_option_data, &field_type);
+    let field_info = self
+      .get_field_info_in_view(view_id, &vec![field.clone()])
+      .await
+      .unwrap();
+    let field_id = field.id.clone();
+    let field = FieldPB {
+      id: field.id,
+      name: field.name,
+      field_type: field.field_type.into(),
+      width: field.width as i32,
+      is_primary: field.is_primary,
+      type_option_data: type_option_data.clone().to_vec(),
+      has_sort: false,
+      has_filter: false,
+      visibility: field_info.get(&field_id).unwrap().visibility.clone(),
+    };
+
+    let index_field = IndexFieldPB {
+      field: field.clone(),
+      index: index as i32,
+    };
+
+    for view in self.database.lock().get_all_views_description() {
+      send_notification(&view.id, DatabaseNotification::DidInsertFields)
+        .payload(index_field.clone())
+        .send();
+    }
+
+    field
+  }
+
+  pub async fn move_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    from: i32,
+    to: i32,
+  ) -> FlowyResult<()> {
+    let field = {
+      let database = self.database.lock();
+      database.views.update_database_view(view_id, |view_update| {
+        view_update.move_field_order(from as u32, to as u32);
+      });
+      let field = database.fields.get_field(field_id);
+      field
+    };
+
+    if let Some(field) = field {
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: field.id,
+        index: Some(to),
+        ..Default::default()
+      };
+
+      send_notification(view_id, DatabaseNotification::DidUpdateFields)
+        .payload(field_notification.clone())
+        .send();
     }
     Ok(())
   }
@@ -460,79 +724,6 @@ impl DatabaseEditor {
     }
 
     Ok(None)
-  }
-
-  pub async fn get_field_type_option_data(&self, field_id: &str) -> Option<(Field, Bytes)> {
-    let field = self.database.lock().fields.get_field(field_id);
-    field.map(|field| {
-      let field_type = FieldType::from(field.field_type);
-      let type_option = field
-        .get_any_type_option(field_type.clone())
-        .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
-      (field, type_option_to_pb(type_option, &field_type))
-    })
-  }
-
-  pub async fn create_field_with_type_option(
-    &self,
-    view_id: &str,
-    field_type: &FieldType,
-    type_option_data: Option<Vec<u8>>,
-  ) -> (Field, Bytes) {
-    let name = field_type.default_name();
-    let type_option_data = match type_option_data {
-      None => default_type_option_data_from_type(field_type),
-      Some(type_option_data) => type_option_data_from_pb_or_default(type_option_data, field_type),
-    };
-    let (index, field) = self.database.lock().create_field_with_mut(
-      view_id,
-      name,
-      field_type.into(),
-      |field| {
-        field
-          .type_options
-          .insert(field_type.to_string(), type_option_data.clone());
-      },
-      default_field_settings_by_layout_map(),
-    );
-
-    let _ = self
-      .notify_did_insert_database_field(field.clone(), index)
-      .await;
-
-    (field, type_option_to_pb(type_option_data, field_type))
-  }
-
-  pub async fn move_field(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    from: i32,
-    to: i32,
-  ) -> FlowyResult<()> {
-    let (database_id, field) = {
-      let database = self.database.lock();
-      database.views.update_database_view(view_id, |view_update| {
-        view_update.move_field_order(from as u32, to as u32);
-      });
-      let field = database.fields.get_field(field_id);
-      let database_id = database.get_database_id();
-      (database_id, field)
-    };
-
-    if let Some(field) = field {
-      let delete_field = FieldIdPB::from(field_id);
-      let insert_field = IndexFieldPB::from_field(field, to as usize);
-      let notified_changeset = DatabaseFieldChangesetPB {
-        view_id: database_id,
-        inserted_fields: vec![insert_field],
-        deleted_fields: vec![delete_field],
-        updated_fields: vec![],
-      };
-
-      self.notify_did_update_database(notified_changeset).await?;
-    }
-    Ok(())
   }
 
   pub async fn get_rows(&self, view_id: &str) -> FlowyResult<Vec<Arc<RowDetail>>> {
@@ -1011,51 +1202,6 @@ impl DatabaseEditor {
     view.v_get_calendar_event(row_id).await
   }
 
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  async fn notify_did_insert_database_field(&self, field: Field, index: usize) -> FlowyResult<()> {
-    let database_id = self.database.lock().get_database_id();
-    let index_field = IndexFieldPB::from_field(field, index);
-    let notified_changeset = DatabaseFieldChangesetPB::insert(&database_id, vec![index_field]);
-    let _ = self.notify_did_update_database(notified_changeset).await;
-    Ok(())
-  }
-
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  async fn notify_did_update_database_field(&self, field_id: &str) -> FlowyResult<()> {
-    let (database_id, field) = {
-      let database = self.database.lock();
-      let database_id = database.get_database_id();
-      let field = database.fields.get_field(field_id);
-      (database_id, field)
-    };
-
-    if let Some(field) = field {
-      let updated_field = FieldPB::from(field);
-      let notified_changeset =
-        DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
-      self.notify_did_update_database(notified_changeset).await?;
-      send_notification(field_id, DatabaseNotification::DidUpdateField)
-        .payload(updated_field)
-        .send();
-    }
-
-    Ok(())
-  }
-
-  async fn notify_did_update_database(
-    &self,
-    changeset: DatabaseFieldChangesetPB,
-  ) -> FlowyResult<()> {
-    let views = self.database.lock().get_all_views_description();
-    for view in views {
-      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
-        .payload(changeset.clone())
-        .send();
-    }
-
-    Ok(())
-  }
-
   pub async fn get_database_view_setting(
     &self,
     view_id: &str,
@@ -1110,62 +1256,6 @@ impl DatabaseEditor {
     .await
     .map_err(internal_error)??;
     Ok(csv)
-  }
-
-  pub async fn get_field_settings(
-    &self,
-    view_id: &str,
-    layout_ty: DatabaseLayout,
-    field_ids: Vec<String>,
-  ) -> FlowyResult<Vec<FieldSettings>> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-    let default_field_settings = default_field_settings_by_layout_map()
-      .get(&layout_ty)
-      .unwrap()
-      .to_owned();
-
-    let found_field_settings = view.v_get_field_settings(&field_ids).await;
-
-    let field_settings = field_ids
-      .into_iter()
-      .map(|field_id| {
-        if let Some(field_settings) = found_field_settings.get(&field_id) {
-          field_settings.to_owned()
-        } else {
-          FieldSettings::try_from_anymap(field_id, default_field_settings.clone()).unwrap()
-        }
-      })
-      .collect();
-
-    Ok(field_settings)
-  }
-
-  pub async fn get_all_field_settings(
-    &self,
-    view_id: &str,
-    layout_ty: DatabaseLayout,
-  ) -> FlowyResult<Vec<FieldSettings>> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-    let default_field_settings = default_field_settings_by_layout_map()
-      .get(&layout_ty)
-      .unwrap()
-      .to_owned();
-    let fields = self.get_fields(view_id, None);
-
-    let found_field_settings = view.v_get_all_field_settings().await;
-
-    let field_settings = fields
-      .into_iter()
-      .map(|field| {
-        if let Some(field_settings) = found_field_settings.get(&field.id) {
-          field_settings.to_owned()
-        } else {
-          FieldSettings::try_from_anymap(field.id, default_field_settings.clone()).unwrap()
-        }
-      })
-      .collect();
-
-    Ok(field_settings)
   }
 
   pub async fn update_field_settings_with_changeset(
@@ -1442,22 +1532,6 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       .collect()
   }
 
-  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings> {
-    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
-
-    field_settings_map
-      .into_iter()
-      .filter_map(|(field_id, field_settings)| {
-        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
-        if let Ok(settings) = field_settings {
-          Some((field_id, settings))
-        } else {
-          None
-        }
-      })
-      .collect()
-  }
-
   fn update_field_settings(
     &self,
     view_id: &str,
@@ -1490,8 +1564,13 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       new_field_settings.clone(),
     );
 
-    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
-      .payload(FieldSettingsPB::from(new_field_settings))
-      .send()
+    let field_notification = FieldUpdateNotificationPB {
+      field_id: field_id.to_string(),
+      visibility: Some(new_field_settings.visibility),
+      ..Default::default()
+    };
+    send_notification(view_id, DatabaseNotification::DidUpdateFields)
+      .payload(field_notification)
+      .send();
   }
 }

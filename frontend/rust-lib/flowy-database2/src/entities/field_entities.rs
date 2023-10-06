@@ -12,9 +12,10 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::impl_into_field_type;
+use crate::{impl_into_field_type, impl_into_field_visibility};
 
-/// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
+/// [FieldPB] defines a [Field]'s attributes such as the name, id, field_type,
+/// as well as its properties in the current view: has_sort, has_filter, etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldPB {
   #[pb(index = 1)]
@@ -27,26 +28,22 @@ pub struct FieldPB {
   pub field_type: FieldType,
 
   #[pb(index = 4)]
-  pub visibility: bool,
-
-  #[pb(index = 5)]
   pub width: i32,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub is_primary: bool,
-}
 
-impl std::convert::From<Field> for FieldPB {
-  fn from(field: Field) -> Self {
-    Self {
-      id: field.id,
-      name: field.name,
-      field_type: FieldType::from(field.field_type),
-      visibility: field.visibility,
-      width: field.width as i32,
-      is_primary: field.is_primary,
-    }
-  }
+  #[pb(index = 6)]
+  pub type_option_data: Vec<u8>,
+
+  #[pb(index = 7)]
+  pub has_sort: bool,
+
+  #[pb(index = 8)]
+  pub has_filter: bool,
+
+  #[pb(index = 9)]
+  pub visibility: FieldVisibility,
 }
 
 /// [FieldIdPB] id of the [Field]
@@ -85,49 +82,6 @@ impl std::convert::From<&Arc<Field>> for FieldIdPB {
     }
   }
 }
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct DatabaseFieldChangesetPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub inserted_fields: Vec<IndexFieldPB>,
-
-  #[pb(index = 3)]
-  pub deleted_fields: Vec<FieldIdPB>,
-
-  #[pb(index = 4)]
-  pub updated_fields: Vec<FieldPB>,
-}
-
-impl DatabaseFieldChangesetPB {
-  pub fn insert(database_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
-    Self {
-      view_id: database_id.to_owned(),
-      inserted_fields,
-      deleted_fields: vec![],
-      updated_fields: vec![],
-    }
-  }
-
-  pub fn delete(database_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
-    Self {
-      view_id: database_id.to_string(),
-      inserted_fields: vec![],
-      deleted_fields,
-      updated_fields: vec![],
-    }
-  }
-
-  pub fn update(database_id: &str, updated_fields: Vec<FieldPB>) -> Self {
-    Self {
-      view_id: database_id.to_string(),
-      inserted_fields: vec![],
-      deleted_fields: vec![],
-      updated_fields,
-    }
-  }
-}
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct IndexFieldPB {
@@ -136,15 +90,6 @@ pub struct IndexFieldPB {
 
   #[pb(index = 2)]
   pub index: i32,
-}
-
-impl IndexFieldPB {
-  pub fn from_field(field: Field, index: usize) -> Self {
-    Self {
-      field: FieldPB::from(field),
-      index: index as i32,
-    }
-  }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -215,49 +160,46 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
   }
 }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct TypeOptionPathPB {
-  #[pb(index = 1)]
-  pub view_id: String,
+// #[derive(Debug, Default, ProtoBuf)]
+// pub struct TypeOptionPathPB {
+//   #[pb(index = 1)]
+//   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub field_id: String,
+//   #[pb(index = 2)]
+//   pub field_id: String,
 
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-}
+//   #[pb(index = 3)]
+//   pub field_type: FieldType,
+// }
 
-pub struct TypeOptionPathParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
+// pub struct TypeOptionPathParams {
+//   pub view_id: String,
+//   pub field_id: String,
+//   pub field_type: FieldType,
+// }
 
-impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
-  type Error = ErrorCode;
+// impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
+//   type Error = ErrorCode;
 
-  fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
-    let database_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    Ok(TypeOptionPathParams {
-      view_id: database_id.0,
-      field_id: field_id.0,
-      field_type: self.field_type,
-    })
-  }
-}
+//   fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
+//     let database_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+//     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+//     Ok(TypeOptionPathParams {
+//       view_id: database_id.0,
+//       field_id: field_id.0,
+//       field_type: self.field_type,
+//     })
+//   }
+// }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct TypeOptionPB {
-  #[pb(index = 1)]
-  pub view_id: String,
+// #[derive(Debug, Default, ProtoBuf)]
+// pub struct TypeOptionPB {
+//   #[pb(index = 1)]
+//   pub view_id: String,
 
-  #[pb(index = 2)]
-  pub field: FieldPB,
-
-  #[pb(index = 3)]
-  pub type_option_data: Vec<u8>,
-}
+//   #[pb(index = 2)]
+//   pub type_option_data: Vec<u8>,
+// }
 
 /// Collection of the [FieldPB]
 #[derive(Debug, Default, ProtoBuf)]
@@ -288,6 +230,12 @@ impl std::convert::From<Vec<FieldPB>> for RepeatedFieldPB {
 pub struct RepeatedFieldIdPB {
   #[pb(index = 1)]
   pub items: Vec<FieldIdPB>,
+}
+
+impl RepeatedFieldIdPB {
+  pub fn new() -> Self {
+    Self::default()
+  }
 }
 
 impl std::ops::Deref for RepeatedFieldIdPB {
@@ -412,10 +360,10 @@ pub struct FieldChangesetPB {
   pub frozen: Option<bool>,
 
   #[pb(index = 6, one_of)]
-  pub visibility: Option<bool>,
+  pub width: Option<i32>,
 
   #[pb(index = 7, one_of)]
-  pub width: Option<i32>,
+  pub type_option: Option<Vec<u8>>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -424,11 +372,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    // if let Some(type_option_data) = self.type_option_data.as_ref() {
-    //     if type_option_data.is_empty() {
-    //         return Err(ErrorCode::TypeOptionDataIsEmpty);
-    //     }
-    // }
 
     Ok(FieldChangesetParams {
       field_id: field_id.0,
@@ -436,18 +379,17 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
       name: self.name,
       desc: self.desc,
       frozen: self.frozen,
-      visibility: self.visibility,
       width: self.width,
-      // type_option_data: self.type_option_data,
+      type_option: self.type_option,
     })
   }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct FieldChangesetParams {
-  pub field_id: String,
-
   pub view_id: String,
+
+  pub field_id: String,
 
   pub name: Option<String>,
 
@@ -455,11 +397,41 @@ pub struct FieldChangesetParams {
 
   pub frozen: Option<bool>,
 
-  pub visibility: Option<bool>,
-
   pub width: Option<i32>,
-  // pub type_option_data: Option<Vec<u8>>,
+
+  pub type_option: Option<Vec<u8>>,
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldUpdateNotificationPB {
+  #[pb(index = 1)]
+  pub field_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub name: Option<String>,
+
+  #[pb(index = 3, one_of)]
+  pub field_type: Option<FieldType>,
+
+  #[pb(index = 4, one_of)]
+  pub width: Option<i32>,
+
+  #[pb(index = 5, one_of)]
+  pub type_option: Option<Vec<u8>>,
+
+  #[pb(index = 6, one_of)]
+  pub has_sort: Option<bool>,
+
+  #[pb(index = 7, one_of)]
+  pub has_filter: Option<bool>,
+
+  #[pb(index = 8, one_of)]
+  pub visibility: Option<FieldVisibility>,
+
+  #[pb(index = 9, one_of)]
+  pub index: Option<i32>,
+}
+
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization
 /// of the FieldTypeOption class.
@@ -668,4 +640,28 @@ impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
 pub struct FieldIdParams {
   pub field_id: String,
   pub view_id: String,
+}
+
+pub struct ViewFieldInfoParams {
+  pub has_sort: bool,
+  pub has_filter: bool,
+  pub visibility: FieldVisibility,
+}
+
+#[repr(u8)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq)]
+pub enum FieldVisibility {
+  #[default]
+  AlwaysShown = 0,
+  HideWhenEmpty = 1,
+  AlwaysHidden = 2,
+}
+
+impl_into_field_visibility!(i64);
+impl_into_field_visibility!(u8);
+
+impl From<FieldVisibility> for i64 {
+  fn from(value: FieldVisibility) -> Self {
+    (value as u8) as i64
+  }
 }

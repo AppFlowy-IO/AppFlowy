@@ -1,6 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
+use collab_database::fields::Field;
 use collab_database::rows::RowId;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -11,9 +12,7 @@ use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::cell::CellBuilder;
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
-use crate::services::field::{
-  type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
-};
+use crate::services::field::{DateCellChangeset, SelectOptionCellChangeset};
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::{GroupChangeset, GroupSettingChangeset};
 use crate::services::share::csv::CSVFormat;
@@ -156,12 +155,33 @@ pub(crate) async fn get_fields_handler(
   let manager = upgrade_manager(manager)?;
   let params: GetFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let fields = database_editor
-    .get_fields(&params.view_id, params.field_ids)
+
+  let fields = database_editor.get_fields(&params.view_id, params.field_ids);
+  let type_options = database_editor.get_field_type_options(&fields).await;
+  let field_info_in_view = database_editor
+    .get_field_info_in_view(&params.view_id, &fields)
+    .await?;
+
+  let fields = fields
     .into_iter()
-    .map(FieldPB::from)
+    .map(|field| {
+      let field_info = field_info_in_view.get(&field.id).unwrap();
+      let type_option = type_options.get(&field.id).unwrap();
+      FieldPB {
+        id: field.id,
+        name: field.name,
+        field_type: field.field_type.into(),
+        is_primary: field.is_primary,
+        width: field.width as i32,
+        type_option_data: type_option.to_vec(),
+        has_sort: field_info.has_sort,
+        has_filter: field_info.has_filter,
+        visibility: field_info.visibility.clone(),
+      }
+    })
     .collect::<Vec<FieldPB>>()
     .into();
+
   data_result_ok(fields)
 }
 
@@ -177,21 +197,37 @@ pub(crate) async fn get_primary_field_handler(
     .get_fields(&view_id, None)
     .into_iter()
     .filter(|field| field.is_primary)
-    .map(FieldPB::from)
-    .collect::<Vec<FieldPB>>();
+    .collect::<Vec<Field>>();
 
-  if fields.is_empty() {
-    // The primary field should not be empty. Because it is created when the database is created.
-    // If it is empty, it must be a bug.
-    Err(FlowyError::record_not_found())
-  } else {
-    if fields.len() > 1 {
-      // The primary field should not be more than one. If it is more than one,
-      // it must be a bug.
-      tracing::error!("The primary field is more than one");
-    }
-    data_result_ok(fields.remove(0))
+  if fields.is_empty() || fields.len() > 1 {
+    // There should be exactly one primary field because it is created when the
+    // database is created.
+    return Err(FlowyError::record_not_found());
   }
+
+  let primary_field = fields.pop().unwrap();
+  let field_infos = database_editor
+    .get_field_info_in_view(&view_id, &vec![primary_field.clone()])
+    .await?;
+  let field_info = field_infos.get(&primary_field.id).unwrap();
+  let type_option_datas = database_editor
+    .get_field_type_options(&vec![primary_field.clone()])
+    .await;
+  let type_option_data = type_option_datas.get(&primary_field.id).unwrap();
+
+  let primary_field = FieldPB {
+    id: primary_field.id,
+    name: primary_field.name,
+    field_type: primary_field.field_type.into(),
+    is_primary: primary_field.is_primary,
+    width: primary_field.width as i32,
+    type_option_data: type_option_data.to_vec(),
+    has_sort: field_info.has_sort,
+    has_filter: field_info.has_filter,
+    visibility: field_info.visibility.clone(),
+  };
+
+  data_result_ok(primary_field)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -202,33 +238,36 @@ pub(crate) async fn update_field_handler(
   let manager = upgrade_manager(manager)?;
   let params: FieldChangesetParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  database_editor.update_field(params).await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn update_field_type_option_handler(
-  data: AFPluginData<TypeOptionChangesetPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   if let Some(old_field) = database_editor.get_field(&params.field_id) {
     let field_type = FieldType::from(old_field.field_type);
-    let type_option_data =
-      type_option_data_from_pb_or_default(params.type_option_data, &field_type);
-    database_editor
-      .update_field_type_option(
-        &params.view_id,
-        &params.field_id,
-        type_option_data,
-        old_field,
-      )
-      .await?;
+    database_editor.update_field(params, field_type).await?;
   }
   Ok(())
 }
+
+// #[tracing::instrument(level = "trace", skip(data, manager), err)]
+// pub(crate) async fn update_field_type_option_handler(
+//   data: AFPluginData<TypeOptionChangesetPB>,
+//   manager: AFPluginState<Weak<DatabaseManager>>,
+// ) -> Result<(), FlowyError> {
+//   let manager = upgrade_manager(manager)?;
+//   let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
+//   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+//   if let Some(old_field) = database_editor.get_field(&params.field_id) {
+//     let field_type = FieldType::from(old_field.field_type);
+//     let type_option_data = type_option_data_from_pb(params.type_option_data, &field_type)
+//       .unwrap_or(default_type_option_data_from_type(&field_type));
+//     database_editor
+//       .update_field_type_option(
+//         &params.view_id,
+//         &params.field_id,
+//         type_option_data,
+//         old_field,
+//       )
+//       .await?;
+//   }
+//   Ok(())
+// }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
@@ -243,38 +282,17 @@ pub(crate) async fn delete_field_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn switch_to_field_handler(
+pub(crate) async fn switch_field_type_handler(
   data: AFPluginData<UpdateFieldTypePayloadPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: EditFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let old_field = database_editor.get_field(&params.field_id);
   database_editor
-    .switch_to_field_type(&params.field_id, &params.field_type)
+    .switch_field_type(&params.field_id, &params.field_type)
     .await?;
 
-  if let Some(new_type_option) = database_editor
-    .get_field(&params.field_id)
-    .map(|field| field.get_any_type_option(field.field_type))
-  {
-    match (old_field, new_type_option) {
-      (Some(old_field), Some(new_type_option)) => {
-        database_editor
-          .update_field_type_option(
-            &params.view_id,
-            &params.field_id,
-            new_type_option,
-            old_field,
-          )
-          .await?;
-      },
-      _ => {
-        tracing::warn!("Old field and the new type option should not be empty");
-      },
-    }
-  }
   Ok(())
 }
 
@@ -292,49 +310,20 @@ pub(crate) async fn duplicate_field_handler(
   Ok(())
 }
 
-/// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
+/// Create a [Field] with an optional type option data and save it. Return the new field.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn get_field_type_option_data_handler(
-  data: AFPluginData<TypeOptionPathPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<TypeOptionPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: TypeOptionPathParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  if let Some((field, data)) = database_editor
-    .get_field_type_option_data(&params.field_id)
-    .await
-  {
-    let data = TypeOptionPB {
-      view_id: params.view_id,
-      field: FieldPB::from(field),
-      type_option_data: data.to_vec(),
-    };
-    data_result_ok(data)
-  } else {
-    Err(FlowyError::record_not_found())
-  }
-}
-
-/// Create TypeOptionPB and save it. Return the FieldTypeOptionData.
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn create_field_type_option_data_handler(
+pub(crate) async fn create_field_with_type_option_data_handler(
   data: AFPluginData<CreateFieldPayloadPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<TypeOptionPB, FlowyError> {
+) -> DataResult<FieldPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: CreateFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let (field, data) = database_editor
+  let field = database_editor
     .create_field_with_type_option(&params.view_id, &params.field_type, params.type_option_data)
     .await;
 
-  let data = TypeOptionPB {
-    view_id: params.view_id,
-    field: FieldPB::from(field),
-    type_option_data: data.to_vec(),
-  };
-  data_result_ok(data)
+  data_result_ok(field)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -894,52 +883,6 @@ pub(crate) async fn get_snapshots_handler(
   let view_id = data.into_inner().value;
   let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_field_settings_handler(
-  data: AFPluginData<FieldIdsPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let (view_id, field_ids) = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&view_id).await?;
-
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
-  let field_settings = database_editor
-    .get_field_settings(&view_id, layout_ty, field_ids.clone())
-    .await?
-    .into_iter()
-    .map(FieldSettingsPB::from)
-    .collect();
-
-  data_result_ok(RepeatedFieldSettingsPB {
-    items: field_settings,
-  })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_all_field_settings_handler(
-  data: AFPluginData<DatabaseViewIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let view_id = data.into_inner();
-  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
-  let field_settings = database_editor
-    .get_all_field_settings(view_id.as_ref(), layout_ty)
-    .await?
-    .into_iter()
-    .map(FieldSettingsPB::from)
-    .collect();
-
-  data_result_ok(RepeatedFieldSettingsPB {
-    items: field_settings,
-  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
