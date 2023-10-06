@@ -66,7 +66,7 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
                 .goAndGet();
           }),
         ),
-        const HSpace(12.0),
+        const VSpace(12.0),
         Expanded(
           child: FutureBuilder(
             future: randomPhotos,
