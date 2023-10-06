@@ -1,0 +1,81 @@
+name: Rust-CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
+
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.70"
+
+jobs:
+  test-on-ubuntu:
+    environment: SUPABASE_CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rustfmt, clippy
+          profile: minimal
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: 'ubuntu-latest'
+          workspaces: |
+            frontend/rust-lib
+
+      - name: Create .env file in flowy-server
+        working-directory: frontend/rust-lib/flowy-server
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+
+      - name: Create .env file in flowy-test
+        working-directory: frontend/rust-lib/flowy-test
+        run: |
+          touch .env.ci
+          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
+          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
+          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
+
+      - name: Run rust-lib tests
+        working-directory: frontend/rust-lib
+        run: RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
+
+      - name: rustfmt rust-lib
+        run: cargo fmt --all -- --check
+        working-directory: frontend/rust-lib/
+
+      - name: clippy rust-lib
+        run: cargo clippy --all
+        working-directory: frontend/rust-lib
