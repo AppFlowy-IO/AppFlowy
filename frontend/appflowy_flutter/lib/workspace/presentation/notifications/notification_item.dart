@@ -17,6 +17,7 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
+    this.readOnly = false,
     this.onAction,
     this.onDelete,
     this.onReadChanged,
@@ -27,6 +28,7 @@ class NotificationItem extends StatefulWidget {
   final Int64 scheduled;
   final String body;
   final bool isRead;
+  final bool readOnly;
 
   final VoidCallback? onAction;
   final VoidCallback? onDelete;
@@ -53,7 +55,7 @@ class _NotificationItemState extends State<NotificationItem> {
           GestureDetector(
             onTap: widget.onAction,
             child: Opacity(
-              opacity: widget.isRead ? 0.5 : 1,
+              opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -68,7 +70,7 @@ class _NotificationItemState extends State<NotificationItem> {
                     Stack(
                       children: [
                         const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
-                        if (!widget.isRead)
+                        if (!widget.isRead && !widget.readOnly)
                           Positioned(
                             bottom: 1,
                             right: 1,
@@ -89,11 +91,12 @@ class _NotificationItemState extends State<NotificationItem> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
-                                child: FlowyText.semibold(widget.title),
+                              FlowyText.semibold(
+                                widget.title,
+                                fontSize: 14,
                               ),
+                              const HSpace(8),
                               FlowyText.regular(
                                 _scheduledString(widget.scheduled),
                                 fontSize: 10,
@@ -110,7 +113,7 @@ class _NotificationItemState extends State<NotificationItem> {
               ),
             ),
           ),
-          if (_isHovering)
+          if (_isHovering && !widget.readOnly)
             Positioned(
               right: 4,
               top: 4,

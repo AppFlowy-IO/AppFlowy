@@ -1,25 +1,37 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/notifications/notification_item.dart';
+import 'package:appflowy/workspace/presentation/notifications/notification_view.dart';
+import 'package:appflowy/workspace/presentation/notifications/notification_view_actions.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-extension _ReminderReady on ReminderPB {
-  DateTime get scheduledDate =>
-      DateTime.fromMillisecondsSinceEpoch(scheduledAt.toInt() * 1000);
-
-  bool isBefore(DateTime date) => scheduledDate.isBefore(date);
+enum ReminderSortOption {
+  descending,
+  ascending,
 }
 
-class NotificationDialog extends StatelessWidget {
+extension _ReminderSort on Iterable<ReminderPB> {
+  List<ReminderPB> sortByScheduledAt({
+    ReminderSortOption reminderSortOption = ReminderSortOption.descending,
+  }) =>
+      sorted(
+        (a, b) => switch (reminderSortOption) {
+          ReminderSortOption.descending =>
+            b.scheduledAt.compareTo(a.scheduledAt),
+          ReminderSortOption.ascending =>
+            a.scheduledAt.compareTo(b.scheduledAt),
+        },
+      );
+}
+
+class NotificationDialog extends StatefulWidget {
   const NotificationDialog({
     super.key,
     required this.views,
@@ -30,6 +42,32 @@ class NotificationDialog extends StatelessWidget {
   final PopoverMutex mutex;
 
   @override
+  State<NotificationDialog> createState() => _NotificationDialogState();
+}
+
+class _NotificationDialogState extends State<NotificationDialog>
+    with SingleTickerProviderStateMixin {
+  late final TabController _controller = TabController(length: 2, vsync: this);
+
+  bool sortDescending = true;
+  bool unreadOnly = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_updateState);
+  }
+
+  void _updateState() => setState(() {});
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateState);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final reminderBloc = getIt<ReminderBloc>();
 
@@ -37,84 +75,92 @@ class NotificationDialog extends StatelessWidget {
       value: reminderBloc,
       child: BlocBuilder<ReminderBloc, ReminderState>(
         builder: (context, state) {
-          final shownReminders = state.reminders
-              .where((reminder) => reminder.isBefore(DateTime.now()))
-              .sorted((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+          final sortOption = sortDescending
+              ? ReminderSortOption.descending
+              : ReminderSortOption.ascending;
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Theme.of(context).dividerColor,
-                            ),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 10,
-                          ),
-                          child: FlowyText.semibold(
-                            LocaleKeys.notificationHub_title.tr(),
-                            fontSize: 16,
-                          ),
+          final pastReminders = state.pastReminders
+              .where((r) => unreadOnly ? !r.isRead : true)
+              .sortByScheduledAt(reminderSortOption: sortOption);
+
+          final upcomingReminders = state.upcomingReminders.sortByScheduledAt(
+            reminderSortOption: sortOption,
+          );
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).dividerColor,
                         ),
                       ),
+                    ),
+                    child: SizedBox(
+                      width: 215,
+                      child: TabBar(
+                        controller: _controller,
+                        indicator: UnderlineTabIndicator(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            width: 1,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        tabs: [
+                          Tab(
+                            height: 26,
+                            child: FlowyText.regular(
+                              LocaleKeys.notificationHub_tabs_inbox.tr(),
+                            ),
+                          ),
+                          Tab(
+                            height: 26,
+                            child: FlowyText.regular(
+                              LocaleKeys.notificationHub_tabs_upcoming.tr(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  NotificationViewActions(
+                    showUnreadOnlyAction: _controller.index == 0,
+                    onSortChanged: (sort) =>
+                        setState(() => sortDescending = sort),
+                    onUnreadOnlyChanged: (unreadFilter) =>
+                        setState(() => unreadOnly = unreadFilter),
+                  ),
+                ],
+              ),
+              const VSpace(4),
+              Expanded(
+                child: TabBarView(
+                  controller: _controller,
+                  children: [
+                    NotificationsView(
+                      shownReminders: pastReminders,
+                      reminderBloc: reminderBloc,
+                      views: widget.views,
+                      mutex: widget.mutex,
+                    ),
+                    NotificationsView(
+                      shownReminders: upcomingReminders,
+                      reminderBloc: reminderBloc,
+                      views: widget.views,
+                      mutex: widget.mutex,
+                      isUpcoming: true,
                     ),
                   ],
                 ),
-                const VSpace(4),
-                if (shownReminders.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Center(
-                      child: FlowyText.regular(
-                        LocaleKeys.notificationHub_empty.tr(),
-                      ),
-                    ),
-                  )
-                else
-                  ...shownReminders.map((reminder) {
-                    return NotificationItem(
-                      reminderId: reminder.id,
-                      key: ValueKey(reminder.id),
-                      title: reminder.title,
-                      scheduled: reminder.scheduledAt,
-                      body: reminder.message,
-                      isRead: reminder.isRead,
-                      onReadChanged: (isRead) => reminderBloc.add(
-                        ReminderEvent.update(
-                          ReminderUpdate(id: reminder.id, isRead: isRead),
-                        ),
-                      ),
-                      onDelete: () => reminderBloc
-                          .add(ReminderEvent.remove(reminderId: reminder.id)),
-                      onAction: () {
-                        final view = views.firstWhereOrNull(
-                          (view) => view.id == reminder.objectId,
-                        );
-
-                        if (view == null) {
-                          return;
-                        }
-
-                        reminderBloc.add(
-                          ReminderEvent.pressReminder(reminderId: reminder.id),
-                        );
-
-                        mutex.close();
-                      },
-                    );
-                  }),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),

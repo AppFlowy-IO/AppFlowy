@@ -810,7 +810,17 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!"
+    "empty": "Nothing to see here!",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Upcoming"
+    },
+    "actions": {
+      "sortByAscending": "Sort ascending",
+      "sortByDescending": "Sort descending",
+      "filterUnreadOnly": "Show unreads only",
+      "filterAll": "Show all"
+    }
   },
   "reminderNotification": {
     "title": "Reminder",
