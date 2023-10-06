@@ -113,8 +113,7 @@ pub struct OauthProviderPB {
   pub provider: ProviderTypePB,
 }
 
-#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
-#[derive(Default)]
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone, Default)]
 pub enum ProviderTypePB {
   Apple = 0,
   Azure = 1,
@@ -167,8 +166,6 @@ impl ProviderTypePB {
     }
   }
 }
-
-
 
 #[derive(ProtoBuf, Default)]
 pub struct OauthProviderDataPB {
