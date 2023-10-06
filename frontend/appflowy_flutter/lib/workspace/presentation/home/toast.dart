@@ -1,4 +1,6 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ class FlowyMessageToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4)),
         color: Theme.of(context).colorScheme.surface,
@@ -40,9 +42,22 @@ void showMessageToast(String message) {
   );
 }
 
-void showSnackBarMessage(BuildContext context, String message) {
+void showSnackBarMessage(
+  BuildContext context,
+  String message, {
+  bool showCancel = false,
+}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
+      action: !showCancel
+          ? null
+          : SnackBarAction(
+              label: LocaleKeys.button_Cancel.tr(),
+              textColor: Theme.of(context).colorScheme.onSurface,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
       content: FlowyText(
         message,
         color: Theme.of(context).colorScheme.onSurface,

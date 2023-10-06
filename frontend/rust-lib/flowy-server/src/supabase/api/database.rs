@@ -29,7 +29,7 @@ where
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
@@ -38,7 +38,7 @@ where
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          let updates = FetchObjectUpdateAction::new(object_id.to_string(), object_ty, postgrest)
+          let updates = FetchObjectUpdateAction::new(object_id.to_string(), collab_type, postgrest)
             .run_with_fix_interval(5, 10)
             .await?;
           Ok(updates)

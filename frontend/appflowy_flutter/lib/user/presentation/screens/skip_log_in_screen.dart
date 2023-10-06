@@ -21,14 +21,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SkipLogInScreen extends StatefulWidget {
-  final AuthRouter router;
-  final AuthService authService;
   static const routeName = '/SkipLogInScreen';
 
   const SkipLogInScreen({
     super.key,
-    required this.router,
-    required this.authService,
   });
 
   @override
@@ -86,13 +82,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   }
 
   Future<void> _autoRegister(BuildContext context) async {
-    final result = await widget.authService.signUpAsGuest();
+    final result = await getIt<AuthService>().signUpAsGuest();
     result.fold(
       (error) {
         Log.error(error);
       },
       (user) {
-        widget.router.pushHomeScreen(context, user);
+        getIt<AuthRouter>().goHomeScreen(context, user);
       },
     );
   }

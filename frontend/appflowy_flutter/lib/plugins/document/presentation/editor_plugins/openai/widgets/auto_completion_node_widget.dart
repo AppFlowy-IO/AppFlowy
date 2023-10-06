@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/uti
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -196,9 +197,13 @@ class _AutoCompletionBlockComponentState
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
       loading.stop();
-      await _showError(
-        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
-      );
+      if (mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+          showCancel: true,
+        );
+      }
       return;
     }
 
@@ -231,7 +236,11 @@ class _AutoCompletionBlockComponentState
       },
       onError: (error) async {
         loading.stop();
-        await _showError(error.message);
+        showSnackBarMessage(
+          context,
+          error.message,
+          showCancel: true,
+        );
       },
     );
     await _updateGenerationCount();
@@ -282,9 +291,13 @@ class _AutoCompletionBlockComponentState
         .then((value) => value.toOption().toNullable());
     if (userProfile == null) {
       loading.stop();
-      await _showError(
-        LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
-      );
+      if (mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
+          showCancel: true,
+        );
+      }
       return;
     }
     final textRobot = TextRobot(editorState: editorState);
@@ -311,7 +324,11 @@ class _AutoCompletionBlockComponentState
       onEnd: () async {},
       onError: (error) async {
         loading.stop();
-        await _showError(error.message);
+        showSnackBarMessage(
+          context,
+          error.message,
+          showCancel: true,
+        );
       },
     );
     await _updateGenerationCount();
@@ -397,20 +414,6 @@ class _AutoCompletionBlockComponentState
     });
     transaction.afterSelection = selection;
     await editorState.apply(transaction);
-  }
-
-  Future<void> _showError(String message) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        action: SnackBarAction(
-          label: LocaleKeys.button_Cancel.tr(),
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-        content: FlowyText(message),
-      ),
-    );
   }
 
   void _subscribeSelectionGesture() {

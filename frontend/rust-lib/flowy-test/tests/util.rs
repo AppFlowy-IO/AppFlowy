@@ -11,12 +11,14 @@ use collab_plugins::cloud_storage::RemoteCollabStorage;
 use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::timeout;
+use uuid::Uuid;
 use zip::ZipArchive;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
+use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::Cleaner;
@@ -210,4 +212,36 @@ pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(
     Cleaner::new(PathBuf::from(output_folder_path)),
     PathBuf::from(path),
   ))
+}
+
+pub struct AFCloudTest {
+  inner: FlowyCoreTest,
+}
+
+impl AFCloudTest {
+  pub fn new() -> Option<Self> {
+    let _ = get_af_cloud_config()?;
+    let test = FlowyCoreTest::new();
+    test.set_auth_type(AuthTypePB::AFCloud);
+    test.server_provider.set_auth_type(AuthType::AFCloud);
+
+    Some(Self { inner: test })
+  }
+}
+
+impl Deref for AFCloudTest {
+  type Target = FlowyCoreTest;
+
+  fn deref(&self) -> &Self::Target {
+    &self.inner
+  }
+}
+
+pub fn generate_test_email() -> String {
+  format!("{}@test.com", Uuid::new_v4())
+}
+
+pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
+  dotenv::from_filename("./.env.ci").ok()?;
+  AFCloudConfiguration::from_env().ok()
 }

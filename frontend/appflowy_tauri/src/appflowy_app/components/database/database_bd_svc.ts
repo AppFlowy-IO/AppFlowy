@@ -48,6 +48,7 @@ import {
   DatabaseSnapshotPB,
   FilterPB,
   SortPB,
+  MoveRowPayloadPB,
 } from '@/services/backend';
 import {
   DatabaseEventGetDatabases,
@@ -92,6 +93,7 @@ import {
   DatabaseEventGetDatabaseSnapshots,
   DatabaseEventGetAllFilters,
   DatabaseEventGetAllSorts,
+  DatabaseEventMoveRow,
 } from "@/services/backend/events/flowy-database2";
 
 export async function getDatabases(): Promise<DatabaseDescriptionPB[]> {
@@ -164,7 +166,7 @@ export async function setLayoutSetting(viewId: string, setting: {
       show_week_numbers: setting.calendar.showWeekNumbers,
     } : undefined,
   });
-  
+
   const result = await DatabaseEventSetLayoutSetting(payload);
 
   return result.unwrap();
@@ -493,13 +495,25 @@ export async function deleteRow(viewId: string, rowId: string, groupId?: string)
   return result.unwrap();
 }
 
+export async function moveRow(viewId: string, fromRowId: string, toRowId: string): Promise<void> {
+  const payload = MoveRowPayloadPB.fromObject({
+    view_id: viewId,
+    from_row_id: fromRowId,
+    to_row_id: toRowId,
+  });
+
+  const result = await DatabaseEventMoveRow(payload);
+
+  return result.unwrap();
+}
+
 /**
  * Move the row from one group to another group
  *
- * @param fromRowId 
- * @param toGroupId 
+ * @param fromRowId
+ * @param toGroupId
  * @param toRowId used to locate the moving row location.
- * @returns 
+ * @returns
  */
 export async function moveGroupRow(viewId: string, fromRowId: string, toGroupId: string, toRowId?: string): Promise<void> {
   const payload = MoveGroupRowPayloadPB.fromObject({
@@ -671,7 +685,7 @@ export async function updateDateCell(
   });
 
   const result = await DatabaseEventUpdateDateCell(payload);
-  
+
   return result.unwrap();
 }
 

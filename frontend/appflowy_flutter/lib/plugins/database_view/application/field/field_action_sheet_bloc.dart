@@ -15,16 +15,16 @@ class FieldActionSheetBloc
   final FieldSettingsBackendService fieldSettingsService;
 
   FieldActionSheetBloc({required FieldContext fieldCellContext})
-      : fieldId = fieldCellContext.field.id,
+      : fieldId = fieldCellContext.fieldInfo.id,
         fieldService = FieldBackendService(
           viewId: fieldCellContext.viewId,
-          fieldId: fieldCellContext.field.id,
+          fieldId: fieldCellContext.fieldInfo.id,
         ),
         fieldSettingsService =
             FieldSettingsBackendService(viewId: fieldCellContext.viewId),
         super(
           FieldActionSheetState.initial(
-            TypeOptionPB.create()..field_2 = fieldCellContext.field,
+            TypeOptionPB.create()..field_2 = fieldCellContext.fieldInfo.field,
           ),
         ) {
     on<FieldActionSheetEvent>(

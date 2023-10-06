@@ -146,7 +146,7 @@ void main() {
       await tester.openFirstRowDetailPage();
 
       // Assert that the first field in the row details page is the select
-      // option tyoe
+      // option type
       tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
 
       // Reorder first field in list
@@ -166,6 +166,54 @@ void main() {
 
       // First field is now back to select option
       tester.assertFirstFieldInRowDetailByType(FieldType.SingleSelect);
+    });
+
+    testWidgets('hide and show hidden fields', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create a new grid
+      await tester.createNewPageWithName(layout: ViewLayoutPB.Grid);
+
+      // Hover first row and then open the row page
+      await tester.openFirstRowDetailPage();
+
+      // Assert that the show hidden fields button isn't visible
+      tester.assertToggleShowHiddenFieldsVisibility(false);
+
+      // Hide the first field in the field list
+      await tester.tapGridFieldWithNameInRowDetailPage("Type");
+      await tester.tapHidePropertyButtonInFieldEditor();
+
+      // Assert that the field is now hidden
+      tester.noFieldWithName("Type");
+
+      // Assert that the show hidden fields button appears
+      tester.assertToggleShowHiddenFieldsVisibility(true);
+
+      // Click on the show hidden fields button
+      await tester.toggleShowHiddenFields();
+
+      // Assert that the hidden field is shown again and that the show
+      // hidden fields button is still present
+      tester.findFieldWithName("Type");
+      tester.assertToggleShowHiddenFieldsVisibility(true);
+
+      // Click hide hidden fields
+      await tester.toggleShowHiddenFields();
+
+      // Assert that the hidden field has vanished
+      tester.noFieldWithName("Type");
+
+      // Click show hidden fields
+      await tester.toggleShowHiddenFields();
+
+      // delete the hidden field
+      await tester.tapGridFieldWithNameInRowDetailPage("Type");
+      await tester.tapDeletePropertyInFieldEditor();
+
+      // Assert that the that the show hidden fields button is gone
+      tester.assertToggleShowHiddenFieldsVisibility(false);
     });
 
     testWidgets('check document exists in row detail page', (tester) async {

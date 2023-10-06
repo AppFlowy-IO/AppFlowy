@@ -17,9 +17,12 @@ void main() {
 
   group('$AppearanceSettingsCubit', () {
     late AppearanceSettingsPB appearanceSetting;
+    late DateTimeSettingsPB dateTimeSettings;
     setUp(() async {
       appearanceSetting =
           await UserSettingsBackendService().getAppearanceSetting();
+      dateTimeSettings =
+          await UserSettingsBackendService().getDateTimeSettings();
       await blocResponseFuture();
     });
 
@@ -27,6 +30,7 @@ void main() {
       'default theme',
       build: () => AppearanceSettingsCubit(
         appearanceSetting,
+        dateTimeSettings,
         AppTheme.fallback,
       ),
       verify: (bloc) {
@@ -41,6 +45,7 @@ void main() {
       'save key/value',
       build: () => AppearanceSettingsCubit(
         appearanceSetting,
+        dateTimeSettings,
         AppTheme.fallback,
       ),
       act: (bloc) {
@@ -55,6 +60,7 @@ void main() {
       'remove key/value',
       build: () => AppearanceSettingsCubit(
         appearanceSetting,
+        dateTimeSettings,
         AppTheme.fallback,
       ),
       act: (bloc) {
@@ -69,6 +75,7 @@ void main() {
       'initial state uses fallback theme',
       build: () => AppearanceSettingsCubit(
         appearanceSetting,
+        dateTimeSettings,
         AppTheme.fallback,
       ),
       verify: (bloc) {

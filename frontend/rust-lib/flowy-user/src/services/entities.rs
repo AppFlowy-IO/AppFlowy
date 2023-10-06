@@ -7,8 +7,8 @@ use serde::de::{Deserializer, MapAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use flowy_user_deps::entities::{AuthResponse, UserProfile, UserWorkspace};
 use flowy_user_deps::entities::{AuthType, UserAuthResponse};
-use flowy_user_deps::entities::{SignUpResponse, UserProfile, UserWorkspace};
 
 use crate::entities::AuthTypePB;
 use crate::migrations::MigrationUser;
@@ -162,7 +162,7 @@ impl From<AuthTypePB> for AuthType {
     match pb {
       AuthTypePB::Supabase => AuthType::Supabase,
       AuthTypePB::Local => AuthType::Local,
-      AuthTypePB::SelfHosted => AuthType::SelfHosted,
+      AuthTypePB::AFCloud => AuthType::AFCloud,
     }
   }
 }
@@ -172,7 +172,7 @@ impl From<AuthType> for AuthTypePB {
     match auth_type {
       AuthType::Supabase => AuthTypePB::Supabase,
       AuthType::Local => AuthTypePB::Local,
-      AuthType::SelfHosted => AuthTypePB::SelfHosted,
+      AuthType::AFCloud => AuthTypePB::AFCloud,
     }
   }
 }
@@ -206,7 +206,7 @@ const DEFAULT_AUTH_TYPE: fn() -> AuthType = || AuthType::Local;
 #[derive(Clone)]
 pub(crate) struct ResumableSignUp {
   pub user_profile: UserProfile,
-  pub response: SignUpResponse,
+  pub response: AuthResponse,
   pub auth_type: AuthType,
   pub migration_user: Option<MigrationUser>,
 }

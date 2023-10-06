@@ -34,14 +34,14 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
   @override
   Widget build(BuildContext context) {
     if (_showFieldEditor) {
-      final field = widget.cellContext.field;
       return SizedBox(
         width: 400,
         child: FieldEditor(
           viewId: widget.cellContext.viewId,
+          fieldInfo: widget.cellContext.fieldInfo,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.cellContext.viewId,
-            field: field,
+            field: widget.cellContext.fieldInfo.field,
           ),
         ),
       );
@@ -96,8 +96,8 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final FieldContext fieldInfo;
-  const _FieldOperationList(this.fieldInfo, {Key? key}) : super(key: key);
+  final FieldContext fieldContext;
+  const _FieldOperationList(this.fieldContext, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +128,7 @@ class _FieldOperationList extends StatelessWidget {
     bool enable = true;
 
     // If the field is primary, delete and duplicate are disabled.
-    if (fieldInfo.field.isPrimary) {
+    if (fieldContext.fieldInfo.isPrimary) {
       switch (action) {
         case FieldAction.hide:
           break;
@@ -145,7 +145,7 @@ class _FieldOperationList extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FieldActionCell(
-          fieldInfo: fieldInfo,
+          fieldInfo: fieldContext,
           action: action,
           enable: enable,
         ),
@@ -217,7 +217,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, FieldContext fieldInfo) {
+  void run(BuildContext context, FieldContext fieldContext) {
     switch (this) {
       case FieldAction.hide:
         context
@@ -228,8 +228,8 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldBackendService(
-          viewId: fieldInfo.viewId,
-          fieldId: fieldInfo.field.id,
+          viewId: fieldContext.viewId,
+          fieldId: fieldContext.fieldInfo.id,
         ).duplicateField();
 
         break;
@@ -240,8 +240,8 @@ extension _FieldActionExtension on FieldAction {
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             FieldBackendService(
-              viewId: fieldInfo.viewId,
-              fieldId: fieldInfo.field.id,
+              viewId: fieldContext.viewId,
+              fieldId: fieldContext.fieldInfo.field.id,
             ).deleteField();
           },
         ).show(context);

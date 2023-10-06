@@ -6,6 +6,14 @@
   "subscribeNewsletterText": "Sottoscrivi la Newsletter",
   "letsGoButtonText": "Andiamo",
   "title": "Titolo",
+  "youCanAlso": "Puoi anche",
+  "and": "E",
+  "blockActions": {
+    "addBelowTooltip": "Fare clic per aggiungere di seguito",
+    "addAboveCmd": "Alt+clic",
+    "addAboveMacCmd": "Opzione+clic",
+    "addAboveTooltip": "aggiungere sopra"
+  },
   "signUp": {
     "buttonText": "Registrati",
     "title": "Registrati per @:appName",
@@ -28,8 +36,8 @@
     "dontHaveAnAccount": "Non hai un account?",
     "repeatPasswordEmptyError": "La password ripetuta non può essere vuota",
     "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
-    "loginAsGuestButtonText": "Iniziare",
-    "signInWith": "Loggati con:"
+    "signInWith": "Loggati con:",
+    "loginAsGuestButtonText": "Iniziare"
   },
   "workspace": {
     "create": "Crea spazio di lavoro",
@@ -41,6 +49,21 @@
     "workInProgress": "Prossimamente",
     "markdown": "Markdown",
     "copyLink": "Copia Link"
+  },
+  "moreAction": {
+    "small": "piccolo",
+    "medium": "medio",
+    "large": "grande",
+    "fontSize": "Dimensione del font",
+    "import": "Importare",
+    "moreOptions": "Più opzioni"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Testo e markdown",
+    "documentFromV010": "Documento dalla v0.1.0",
+    "databaseFromV010": "Database dalla v0.1.0",
+    "csv": "CSV",
+    "database": "Banca dati"
   },
   "disclosureAction": {
     "rename": "Rinomina",
@@ -75,15 +98,15 @@
   },
   "dialogCreatePageNameHint": "Nome pagina",
   "questionBubble": {
+    "shortcuts": "Scorciatoie",
     "whatsNew": "Cosa c'è di nuovo?",
     "help": "Aiuto & Supporto",
+    "markdown": "Markdown",
     "debug": {
       "name": "Informazioni di debug",
       "success": "Informazioni di debug copiate negli appunti!",
       "fail": "Impossibile copiare le informazioni di debug negli appunti"
     },
-    "shortcuts": "Scorciatoie",
-    "markdown": "Markdown",
     "feedback": "Feedback"
   },
   "menuAppHeader": {
@@ -120,6 +143,16 @@
     "referencePage": "Questo {nome} è referenziato",
     "addBlockBelow": "Aggiungi un blocco qui sotto"
   },
+  "sideBar": {
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Nota esportata in Markdown",
+      "path": "Documenti/fluido"
+    }
+  },
   "contactsPage": {
     "title": "Contatti",
     "whatsHappening": "Cosa accadrà la prossima settimana?",
@@ -128,12 +161,12 @@
   },
   "button": {
     "OK": "OK",
+    "Done": "Fatto",
     "Cancel": "Annulla",
     "signIn": "Accedi",
     "signOut": "Esci",
     "complete": "Completa",
     "save": "Salva",
-    "Done": "Fatto",
     "generate": "creare",
     "esc": "ESC",
     "keep": "Mantenere",
@@ -173,21 +206,21 @@
     "menu": {
       "appearance": "Aspetto",
       "language": "Lingua",
-      "open": "Apri le impostazioni",
       "user": "Utente",
       "files": "File",
+      "open": "Apri le impostazioni",
       "supabaseSetting": "Impostazione Supabase"
     },
     "appearance": {
+      "fontFamily": {
+        "label": "Famiglia di font",
+        "search": "Ricerca"
+      },
       "themeMode": {
         "label": "Modalità tema",
         "light": "Modalità Chiara",
         "dark": "Modalità Scura",
         "system": "Segui il sistema"
-      },
-      "fontFamily": {
-        "label": "Famiglia di font",
-        "search": "Ricerca"
       },
       "themeUpload": {
         "button": "Caricamento",
@@ -257,7 +290,6 @@
     }
   },
   "grid": {
-    "menuName": "Griglia",
     "deleteView": "Sei sicuro di voler eliminare questa vista?",
     "createView": "Nuovo",
     "settings": {
@@ -352,8 +384,8 @@
     "sort": {
       "ascending": "Ascendente",
       "descending": "Discendente",
-      "deleteSort": "Elimina ordinamento",
-      "addSort": "Aggiungi ordinamento"
+      "addSort": "Aggiungi ordinamento",
+      "deleteSort": "Elimina ordinamento"
     },
     "row": {
       "duplicate": "Duplicare",
@@ -383,6 +415,7 @@
     "checklist": {
       "addNew": "Aggiungi un elemento"
     },
+    "menuName": "Griglia",
     "referencedGridPrefix": "Vista di"
   },
   "document": {
@@ -522,39 +555,6 @@
         "label": "Titolo collegamento",
         "placeholder": "Inserisci il titolo del collegamento"
       }
-    }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
-  "moreAction": {
-    "small": "piccolo",
-    "medium": "medio",
-    "large": "grande",
-    "fontSize": "Dimensione del font",
-    "import": "Importare",
-    "moreOptions": "Più opzioni"
-  },
-  "youCanAlso": "Puoi anche",
-  "and": "E",
-  "blockActions": {
-    "addBelowTooltip": "Fare clic per aggiungere di seguito",
-    "addAboveCmd": "Alt+clic",
-    "addAboveMacCmd": "Opzione+clic",
-    "addAboveTooltip": "aggiungere sopra"
-  },
-  "importPanel": {
-    "textAndMarkdown": "Testo e markdown",
-    "documentFromV010": "Documento dalla v0.1.0",
-    "databaseFromV010": "Database dalla v0.1.0",
-    "csv": "CSV",
-    "database": "Banca dati"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Nota esportata in Markdown",
-      "path": "Documenti/fluido"
     }
   },
   "board": {
