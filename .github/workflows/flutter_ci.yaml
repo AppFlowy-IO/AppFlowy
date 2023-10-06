@@ -256,6 +256,17 @@ jobs:
         with:
           version: '0.36.6'
 
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0
+          fi
+        shell: bash
+
       - name: Enable Flutter Desktop
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
@@ -354,6 +365,17 @@ jobs:
       - uses: davidB/rust-cargo-make@v1
         with:
           version: '0.36.6'
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0
+          fi
+        shell: bash
 
       - name: Enable Flutter Desktop
         run: |
