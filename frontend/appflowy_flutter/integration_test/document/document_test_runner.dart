@@ -9,6 +9,7 @@ import 'document_option_action_test.dart' as document_option_action_test;
 import 'document_text_direction_test.dart' as document_text_direction_test;
 import 'document_with_cover_image_test.dart' as document_with_cover_image_test;
 import 'document_with_database_test.dart' as document_with_database_test;
+import 'document_with_image_block_test.dart' as document_with_image_block_test;
 import 'document_with_inline_math_equation_test.dart'
     as document_with_inline_math_equation_test;
 import 'document_with_inline_page_test.dart' as document_with_inline_page_test;
@@ -33,4 +34,5 @@ void startTesting() {
   document_alignment_test.main();
   document_text_direction_test.main();
   document_option_action_test.main();
+  document_with_image_block_test.main();
 }

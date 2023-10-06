@@ -53,9 +53,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "/Users/lucas.xu/Desktop/appflowy-editor"
-      relative: false
-    source: path
+      path: "."
+      ref: af8d96b
+      resolved-ref: af8d96bc1aab07046f4febdd991e1787c75c6e38
+      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
+    source: git
     version: "1.4.3"
   appflowy_popover:
     dependency: "direct main"
@@ -887,6 +889,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  mockito:
+    dependency: transitive
+    description:
+      name: mockito
+      sha256: "8b46d7eb40abdda92d62edd01546051f0c27365e65608c284de336dccfef88cc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.1"
   mocktail:
     dependency: "direct main"
     description:
@@ -1215,6 +1225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  run_with_network_images:
+    dependency: "direct dev"
+    description:
+      name: run_with_network_images
+      sha256: "8bf2de4e5120ab24037eda09596408938aa8f5b09f6afabd49683bd01c7baa36"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   rxdart:
     dependency: transitive
     description:
