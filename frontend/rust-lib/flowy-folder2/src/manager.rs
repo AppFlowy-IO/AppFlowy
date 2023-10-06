@@ -12,7 +12,7 @@ use collab_folder::core::{
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
-use tracing::{event, Level};
+use tracing::{event, info, instrument, Level};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
@@ -247,7 +247,7 @@ impl FolderManager {
       .get_folder_updates(workspace_id, user_id)
       .await?;
 
-    tracing::info!(
+    info!(
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
       folder_updates.len()
@@ -265,6 +265,7 @@ impl FolderManager {
 
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
@@ -274,29 +275,41 @@ impl FolderManager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
-    tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
+    info!("initialize_when_sign_up: is_new: {}", is_new);
     if is_new {
       self.initialize(user_id, workspace_id, data_source).await?;
     } else {
       // The folder updates should not be empty, as the folder data is stored
       // when the user signs up for the first time.
-      let folder_updates = self
+      let result = self
         .cloud_service
         .get_folder_updates(workspace_id, user_id)
-        .await?;
+        .await
+        .map_err(|err| FlowyError::from(err));
 
-      tracing::info!(
-        "Get folder updates via {}, number of updates: {}",
-        self.cloud_service.service_name(),
-        folder_updates.len()
-      );
-      self
-        .initialize(
-          user_id,
-          workspace_id,
-          FolderInitializeDataSource::Cloud(folder_updates),
-        )
-        .await?;
+      match result {
+        Ok(folder_updates) => {
+          info!(
+            "Get folder updates via {}, number of updates: {}",
+            self.cloud_service.service_name(),
+            folder_updates.len()
+          );
+          self
+            .initialize(
+              user_id,
+              workspace_id,
+              FolderInitializeDataSource::Cloud(folder_updates),
+            )
+            .await?;
+        },
+        Err(err) => {
+          if err.is_record_not_found() {
+            self.initialize(user_id, workspace_id, data_source).await?;
+          } else {
+            return Err(err);
+          }
+        },
+      }
     }
     Ok(())
   }

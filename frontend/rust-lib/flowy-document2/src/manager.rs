@@ -8,6 +8,7 @@ use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -55,6 +56,7 @@ impl DocumentManager {
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
     self.initialize(uid, workspace_id).await?;
     Ok(())

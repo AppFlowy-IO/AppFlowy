@@ -134,6 +134,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         )
         .await
         .context("FolderManager error")?;
+
       database_manager
         .initialize_with_new_user(
           user_profile.uid,
