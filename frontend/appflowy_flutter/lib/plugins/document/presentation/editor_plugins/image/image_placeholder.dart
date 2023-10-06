@@ -44,6 +44,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
         maxHeight: 260,
         minHeight: 80,
       ),
+      clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (context) {
         return UploadImageMenu(
           onPickFile: (path) {
