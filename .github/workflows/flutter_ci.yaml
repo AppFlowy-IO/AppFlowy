@@ -100,7 +100,11 @@ jobs:
       - name: Build AppFlowy
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev &&\
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-core-dev
+
+      - name: Run code generation
+        working-directory: frontend
+        run: |
           cargo make code_generation
 
       - name: Compress appflowy_flutter
