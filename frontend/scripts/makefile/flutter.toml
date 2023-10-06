@@ -85,17 +85,31 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
-[tasks.appflowy-prepare]
+[tasks.appflowy-prepare-release]
+run_task = { name = [
+  "appflowy-core-release",
+  "code_generation",
+], parallel = true }
+
+[tasks.appflowy-prepare-dev]
 run_task = { name = [
   "appflowy-core-dev",
   "code_generation",
 ], parallel = true }
 
-[tasks.appflowy-make-product]
+[tasks.appflowy-make-product-dev]
 run_task = { name = [
   "set-app-version",
   "flutter-build",
   "copy-to-product",
+] }
+
+[tasks.appflowy-make-product-release]
+run_task = { name = [
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+  "create-release-archive",
 ] }
 
 [tasks.copy-to-product]

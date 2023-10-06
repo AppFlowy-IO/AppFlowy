@@ -49,7 +49,7 @@ RUN dart pub global activate protoc_plugin 20.0.1
 # Install build dependencies for AppFlowy
 RUN yay -S --noconfirm jemalloc4 cargo-make cargo-binstall
 RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync rocksdb zstd
-RUN source ~/.cargo/env && cargo binstall duckscript_cli
+RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 
 # Build AppFlowy
 COPY . /appflowy
@@ -59,7 +59,8 @@ RUN cd frontend && \
     source ~/.cargo/env && \
     cargo make appflowy-flutter-deps-tools && \
     cargo make flutter_clean && \
-    OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-linux
+    OPENSSL_STATIC=1 ZSTD_SYS_USE_PKG_CONFIG=1 ROCKSDB_LIB_DIR="/usr/lib/" cargo make -p production-linux-x86_64 appflowy-prepare-release && \
+    cargo make -p production-linux-x86_64 appflowy-make-product-release
 
 
 #================

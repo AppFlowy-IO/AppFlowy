@@ -100,7 +100,7 @@ jobs:
       - name: Build AppFlowy
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-prepare
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-prepare-dev
 
       - name: Compress appflowy_flutter
         run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
@@ -396,4 +396,4 @@ jobs:
       - name: Build flutter product
         working-directory: frontend
         run: |
-          cargo make --profile ${{ matrix.flutter_profile }} appflowy-make-product
+          cargo make --profile ${{ matrix.flutter_profile }} appflowy-make-product-dev
