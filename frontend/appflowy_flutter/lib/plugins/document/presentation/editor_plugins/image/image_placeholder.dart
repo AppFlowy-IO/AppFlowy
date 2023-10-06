@@ -41,7 +41,7 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
       direction: PopoverDirection.bottomWithCenterAligned,
       constraints: const BoxConstraints(
         maxWidth: 540,
-        maxHeight: 260,
+        maxHeight: 360,
         minHeight: 80,
       ),
       clickHandler: PopoverClickHandler.gestureDetector,
