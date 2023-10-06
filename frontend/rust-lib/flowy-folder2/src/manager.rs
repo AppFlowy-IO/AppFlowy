@@ -285,7 +285,7 @@ impl FolderManager {
         .cloud_service
         .get_folder_updates(workspace_id, user_id)
         .await
-        .map_err(|err| FlowyError::from(err));
+        .map_err(FlowyError::from);
 
       match result {
         Ok(folder_updates) => {

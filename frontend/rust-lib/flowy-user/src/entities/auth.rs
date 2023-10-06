@@ -114,6 +114,7 @@ pub struct OauthProviderPB {
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
+#[derive(Default)]
 pub enum ProviderTypePB {
   Apple = 0,
   Azure = 1,
@@ -123,6 +124,7 @@ pub enum ProviderTypePB {
   Figma = 5,
   Github = 6,
   Gitlab = 7,
+  #[default]
   Google = 8,
   Keycloak = 9,
   Kakao = 10,
@@ -166,11 +168,7 @@ impl ProviderTypePB {
   }
 }
 
-impl Default for ProviderTypePB {
-  fn default() -> Self {
-    ProviderTypePB::Google
-  }
-}
+
 
 #[derive(ProtoBuf, Default)]
 pub struct OauthProviderDataPB {
