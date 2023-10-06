@@ -26,3 +26,5 @@ openssl-sys = { version = "0.9.80", optional = true, features = ["vendored"] }
 [dev-dependencies]
 tempfile = "3.5.0"
 
+[features]
+openssl_vendored = ["openssl", "openssl-sys"]
