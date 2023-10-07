@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/open_ai_image_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -13,7 +15,8 @@ enum UploadImageType {
   local,
   url,
   unsplash,
-  ai;
+  stabilityAI,
+  openAI;
 
   String get description {
     switch (this) {
@@ -23,8 +26,10 @@ enum UploadImageType {
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
         return 'Unsplash';
-      case UploadImageType.ai:
+      case UploadImageType.openAI:
         return LocaleKeys.document_imageBlock_ai_label.tr();
+      case UploadImageType.stabilityAI:
+        return LocaleKeys.document_imageBlock_stability_ai_label.tr();
     }
   }
 }
@@ -46,7 +51,7 @@ class UploadImageMenu extends StatefulWidget {
 class _UploadImageMenuState extends State<UploadImageMenu> {
   int currentTabIndex = 0;
   List<UploadImageType> values = UploadImageType.values;
-  bool supportAI = false;
+  bool supportOpenAI = false;
 
   @override
   void initState() {
@@ -54,13 +59,13 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
 
     UserBackendService.getCurrentUserProfile().then(
       (value) {
-        final supportAI = value.fold(
+        final supportOpenAI = value.fold(
           (l) => false,
           (r) => r.openaiKey.isNotEmpty,
         );
-        if (supportAI != this.supportAI) {
+        if (supportOpenAI != this.supportOpenAI) {
           setState(() {
-            this.supportAI = supportAI;
+            this.supportOpenAI = supportOpenAI;
           });
         }
       },
@@ -135,8 +140,8 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
           ),
         );
-      case UploadImageType.ai:
-        return supportAI
+      case UploadImageType.openAI:
+        return supportOpenAI
             ? Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -149,6 +154,23 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
                 padding: const EdgeInsets.all(8.0),
                 child: FlowyText(
                   LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
+                ),
+              );
+      case UploadImageType.stabilityAI:
+        return stabilityAIApiKey.isNotEmpty
+            ? Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StabilityAIImageWidget(
+                    onSelectImage: widget.onPickFile,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlowyText(
+                  LocaleKeys.document_imageBlock_pleaseInputYourStabilityAIKey
+                      .tr(),
                 ),
               );
     }

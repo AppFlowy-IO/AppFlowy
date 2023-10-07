@@ -71,6 +71,8 @@ abstract class OpenAIRepository {
   ///
   /// [prompt] is the prompt text
   /// [n] is the number of images to generate
+  ///
+  /// the result is a list of urls
   Future<Either<OpenAIError, List<String>>> generateImage({
     required String prompt,
     int n = 1,
