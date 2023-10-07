@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/open_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -22,7 +24,7 @@ enum UploadImageType {
       case UploadImageType.unsplash:
         return 'Unsplash';
       case UploadImageType.ai:
-        return 'Generate from AI';
+        return LocaleKeys.document_imageBlock_ai_label.tr();
     }
   }
 }
@@ -43,11 +45,32 @@ class UploadImageMenu extends StatefulWidget {
 
 class _UploadImageMenuState extends State<UploadImageMenu> {
   int currentTabIndex = 0;
+  List<UploadImageType> values = UploadImageType.values;
+  bool supportAI = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    UserBackendService.getCurrentUserProfile().then(
+      (value) {
+        final supportAI = value.fold(
+          (l) => false,
+          (r) => r.openaiKey.isNotEmpty,
+        );
+        if (supportAI != this.supportAI) {
+          setState(() {
+            this.supportAI = supportAI;
+          });
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // UploadImageType.values.length, // ai is not implemented yet
+      length: values.length,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -62,10 +85,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
             padding: EdgeInsets.zero,
             // splashBorderRadius: BorderRadius.circular(4),
-            tabs: UploadImageType.values
-                .where(
-                  (element) => element != UploadImageType.ai,
-                ) // ai is not implemented yet
+            tabs: values
                 .map(
                   (e) => FlowyHover(
                     style: const HoverStyle(borderRadius: BorderRadius.zero),
@@ -116,7 +136,21 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           ),
         );
       case UploadImageType.ai:
-        return const FlowyText.medium('ai');
+        return supportAI
+            ? Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: OpenAIImageWidget(
+                    onSelectNetworkImage: widget.onSubmit,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlowyText(
+                  LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
+                ),
+              );
     }
   }
 }

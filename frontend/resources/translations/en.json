@@ -652,6 +652,10 @@
         "label": "Image URL",
         "placeholder": "Enter image URL"
       },
+      "ai": {
+        "label": "Generate image from AI",
+        "placeholder": "Please input the prompt for AI to generate image"
+      },
       "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Invalid image",
@@ -663,7 +667,8 @@
         "label": "Embed link",
         "placeholder": "Paste or type an image link"
       },
-      "searchForAnImage": "Search for an image"
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page"
     },
     "codeBlock": {
       "language": {
