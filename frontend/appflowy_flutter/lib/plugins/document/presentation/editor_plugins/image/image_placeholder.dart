@@ -41,13 +41,24 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
       direction: PopoverDirection.bottomWithCenterAligned,
       constraints: const BoxConstraints(
         maxWidth: 540,
-        maxHeight: 260,
+        maxHeight: 360,
         minHeight: 80,
       ),
+      clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (context) {
         return UploadImageMenu(
-          onPickFile: insertLocalImage,
-          onSubmit: insertNetworkImage,
+          onPickFile: (path) {
+            controller.close();
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              insertLocalImage(path);
+            });
+          },
+          onSubmit: (url) {
+            controller.close();
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              insertNetworkImage(url);
+            });
+          },
         );
       },
       child: DecoratedBox(
