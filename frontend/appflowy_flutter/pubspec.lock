@@ -26,7 +26,7 @@ packages:
     source: hosted
     version: "2.0.7"
   app_links:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
       ref: c64ce17

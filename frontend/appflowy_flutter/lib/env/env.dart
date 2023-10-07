@@ -35,10 +35,17 @@ abstract class Env {
 
   @EnviedField(
     obfuscate: true,
-    varName: 'APPFLOWY_CLOUD_BASE_WS_URL',
+    varName: 'APPFLOWY_CLOUD_WS_BASE_URL',
     defaultValue: '',
   )
-  static final String afCloudBaseWSUrl = _Env.afCloudBaseWSUrl;
+  static final String afCloudWSBaseUrl = _Env.afCloudWSBaseUrl;
+
+  @EnviedField(
+    obfuscate: true,
+    varName: 'APPFLOWY_CLOUD_GOTRUE_URL',
+    defaultValue: '',
+  )
+  static final String afCloudGoTrueUrl = _Env.afCloudGoTrueUrl;
 
   // Supabase Configuration:
   @EnviedField(
@@ -64,6 +71,24 @@ bool get isCloudEnabled {
   }
 }
 
+bool get isSupabaseEnabled {
+  // Only enable supabase in release and develop mode.
+  if (integrationMode().isRelease || integrationMode().isDevelop) {
+    return currentCloudType() == CloudType.supabase;
+  } else {
+    return false;
+  }
+}
+
+bool get isAppFlowyCloudEnabled {
+  // Only enable appflowy cloud in release and develop mode.
+  if (integrationMode().isRelease || integrationMode().isDevelop) {
+    return currentCloudType() == CloudType.appflowyCloud;
+  } else {
+    return false;
+  }
+}
+
 enum CloudType {
   unknown,
   supabase,
@@ -84,7 +109,7 @@ CloudType currentCloudType() {
   }
 
   if (value == 2) {
-    if (Env.afCloudBaseUrl.isEmpty || Env.afCloudBaseWSUrl.isEmpty) {
+    if (Env.afCloudBaseUrl.isEmpty || Env.afCloudWSBaseUrl.isEmpty) {
       Log.error("AppFlowy cloud is not configured");
       return CloudType.unknown;
     } else {

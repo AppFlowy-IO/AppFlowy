@@ -4,6 +4,7 @@ use std::sync::{Arc, Weak};
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
+use tracing::{debug, info};
 use uuid::Uuid;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -134,7 +135,7 @@ impl UserManager {
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {
-                tracing::info!("Did apply migrations: {:?}", applied_migrations);
+                info!("Did apply migrations: {:?}", applied_migrations);
               }
             },
             Err(e) => tracing::error!("User data migration failed: {:?}", e),
@@ -312,16 +313,16 @@ impl UserManager {
       UserAwarenessDataSource::Remote
     };
 
+    debug!("Sign up response: {:?}", response);
     if response.is_new_user {
       if let Some(old_user) = migration_user {
         let new_user = MigrationUser {
           user_profile: user_profile.clone(),
           session: new_session.clone(),
         };
-        tracing::info!(
+        info!(
           "Migrate old user data from {:?} to {:?}",
-          old_user.user_profile.uid,
-          new_user.user_profile.uid
+          old_user.user_profile.uid, new_user.user_profile.uid
         );
         self
           .migrate_local_user_to_cloud(&old_user, &new_user)
@@ -524,7 +525,7 @@ impl UserManager {
   }
 
   pub(crate) fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    tracing::debug!("Set current user: {:?}", session);
+    debug!("Set current user: {:?}", session);
     match &session {
       None => {
         self.current_session.write().take();
@@ -543,7 +544,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub(crate) async fn generate_sign_in_callback_url(
+  pub(crate) async fn generate_sign_in_url_with_email(
     &self,
     auth_type: &AuthType,
     email: &str,
@@ -551,7 +552,22 @@ impl UserManager {
     self.update_auth_type(auth_type).await;
 
     let auth_service = self.cloud_services.get_user_service()?;
-    let url = auth_service.generate_sign_in_callback_url(email).await?;
+    let url = auth_service
+      .generate_sign_in_url_with_email(email)
+      .await
+      .map_err(|err| FlowyError::server_error().with_context(err))?;
+    Ok(url)
+  }
+
+  pub(crate) async fn generate_oauth_url(
+    &self,
+    oauth_provider: &str,
+  ) -> Result<String, FlowyError> {
+    self.update_auth_type(&AuthType::AFCloud).await;
+    let auth_service = self.cloud_services.get_user_service()?;
+    let url = auth_service
+      .generate_oauth_url_with_provider(oauth_provider)
+      .await?;
     Ok(url)
   }
 
@@ -588,7 +604,7 @@ impl UserManager {
   async fn handler_user_update(&self, user_update: UserUpdate) -> FlowyResult<()> {
     let session = self.get_session()?;
     if session.user_id == user_update.uid {
-      tracing::debug!("Receive user update: {:?}", user_update);
+      debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
 
       if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {

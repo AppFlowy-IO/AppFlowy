@@ -70,8 +70,15 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign out an account
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
-  /// Generate a sign in callback url for the user with the given email
-  fn generate_sign_in_callback_url(&self, email: &str) -> FutureResult<String, Error>;
+  /// Generate a sign in url for the user with the given email
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
+
+  /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
+  /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
+  /// which will call [Client::sign_in_with_url] to sign in.
+  ///
+  /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error>;
 
   /// Using the user's token to update the user information
   fn update_user(

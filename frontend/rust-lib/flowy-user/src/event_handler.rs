@@ -215,11 +215,9 @@ pub async fn get_user_setting(
   data_result_ok(user_setting)
 }
 
-/// Only used for third party auth.
-/// Use [UserEvent::SignIn] or [UserEvent::SignUp] If the [AuthType] is Local or SelfHosted
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn oauth_handler(
-  data: AFPluginData<OAuthPB>,
+  data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -230,18 +228,31 @@ pub async fn oauth_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn get_oauth_url_handler(
-  data: AFPluginData<OAuthCallbackRequestPB>,
+pub async fn get_sign_in_url_handler(
+  data: AFPluginData<SignInUrlPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<OAuthCallbackResponsePB, FlowyError> {
+) -> DataResult<SignInUrlPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   let auth_type: AuthType = params.auth_type.into();
   let sign_in_url = manager
-    .generate_sign_in_callback_url(&auth_type, &params.email)
+    .generate_sign_in_url_with_email(&auth_type, &params.email)
     .await?;
-  let resp = OAuthCallbackResponsePB { sign_in_url };
+  let resp = SignInUrlPB { sign_in_url };
   data_result_ok(resp)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn sign_in_with_provider_handler(
+  data: AFPluginData<OauthProviderPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<OauthProviderDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  tracing::debug!("Sign in with provider: {:?}", data.provider.as_str());
+  let sign_in_url = manager.generate_oauth_url(data.provider.as_str()).await?;
+  data_result_ok(OauthProviderDataPB {
+    oauth_url: sign_in_url,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

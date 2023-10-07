@@ -1,17 +1,3 @@
-use crate::{
-  errors::{DispatchError, InternalError},
-  module::{container::AFPluginStateMap, AFPluginState},
-  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-  response::{AFPluginEventResponse, AFPluginResponder},
-  service::{
-    factory, AFPluginHandler, AFPluginHandlerService, AFPluginServiceFactory, BoxService,
-    BoxServiceFactory, Service, ServiceRequest, ServiceResponse,
-  },
-};
-use futures_core::future::BoxFuture;
-use futures_core::ready;
-use nanoid::nanoid;
-use pin_project::pin_project;
 use std::sync::Arc;
 use std::{
   collections::HashMap,
@@ -21,6 +7,23 @@ use std::{
   hash::Hash,
   pin::Pin,
   task::{Context, Poll},
+};
+
+use futures_core::future::BoxFuture;
+use futures_core::ready;
+use nanoid::nanoid;
+use pin_project::pin_project;
+
+use crate::service::AFPluginHandler;
+use crate::{
+  errors::{DispatchError, InternalError},
+  module::{container::AFPluginStateMap, AFPluginState},
+  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+  response::{AFPluginEventResponse, AFPluginResponder},
+  service::{
+    factory, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
+    Service, ServiceRequest, ServiceResponse,
+  },
 };
 
 pub type AFPluginMap = Arc<HashMap<AFPluginEvent, Arc<AFPlugin>>>;
@@ -93,6 +96,7 @@ impl AFPlugin {
     self
   }
 
+  #[track_caller]
   pub fn event<E, H, T, R>(mut self, event: E, handler: H) -> Self
   where
     H: AFPluginHandler<T, R>,

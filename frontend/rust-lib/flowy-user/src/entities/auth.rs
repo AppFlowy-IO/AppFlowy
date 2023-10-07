@@ -79,7 +79,7 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct OAuthPB {
+pub struct OauthSignInPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.
   /// Supabase:
@@ -93,7 +93,7 @@ pub struct OAuthPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct OAuthCallbackRequestPB {
+pub struct SignInUrlPayloadPB {
   #[pb(index = 1)]
   pub email: String,
 
@@ -102,9 +102,75 @@ pub struct OAuthCallbackRequestPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct OAuthCallbackResponsePB {
+pub struct SignInUrlPB {
   #[pb(index = 1)]
   pub sign_in_url: String,
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct OauthProviderPB {
+  #[pb(index = 1)]
+  pub provider: ProviderTypePB,
+}
+
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone, Default)]
+pub enum ProviderTypePB {
+  Apple = 0,
+  Azure = 1,
+  Bitbucket = 2,
+  Discord = 3,
+  Facebook = 4,
+  Figma = 5,
+  Github = 6,
+  Gitlab = 7,
+  #[default]
+  Google = 8,
+  Keycloak = 9,
+  Kakao = 10,
+  Linkedin = 11,
+  Notion = 12,
+  Spotify = 13,
+  Slack = 14,
+  Workos = 15,
+  Twitch = 16,
+  Twitter = 17,
+  Email = 18,
+  Phone = 19,
+  Zoom = 20,
+}
+
+impl ProviderTypePB {
+  pub fn as_str(&self) -> &str {
+    match self {
+      ProviderTypePB::Apple => "apple",
+      ProviderTypePB::Azure => "azure",
+      ProviderTypePB::Bitbucket => "bitbucket",
+      ProviderTypePB::Discord => "discord",
+      ProviderTypePB::Facebook => "facebook",
+      ProviderTypePB::Figma => "figma",
+      ProviderTypePB::Github => "github",
+      ProviderTypePB::Gitlab => "gitlab",
+      ProviderTypePB::Google => "google",
+      ProviderTypePB::Keycloak => "keycloak",
+      ProviderTypePB::Kakao => "kakao",
+      ProviderTypePB::Linkedin => "linkedin",
+      ProviderTypePB::Notion => "notion",
+      ProviderTypePB::Spotify => "spotify",
+      ProviderTypePB::Slack => "slack",
+      ProviderTypePB::Workos => "workos",
+      ProviderTypePB::Twitch => "twitch",
+      ProviderTypePB::Twitter => "twitter",
+      ProviderTypePB::Email => "email",
+      ProviderTypePB::Phone => "phone",
+      ProviderTypePB::Zoom => "zoom",
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default)]
+pub struct OauthProviderDataPB {
+  #[pb(index = 1)]
+  pub oauth_url: String,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
