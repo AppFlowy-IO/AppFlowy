@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/tar_bar_bloc.dart';
+import 'package:appflowy/plugins/database_view/banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -82,11 +83,12 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
             },
           ),
         ],
-        child: Column(
-          children: [
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
+        child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                if (state.isDeleted) _buildBanner(context),
+                ValueListenableBuilder<bool>(
                   valueListenable: state
                       .tabBarControllerByViewId[state.parentView.id]!
                       .controller
@@ -105,29 +107,29 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       ),
                     );
                   },
-                );
-              },
-            ),
-            BlocBuilder<GridTabBarBloc, GridTabBarState>(
-              builder: (context, state) {
-                return pageSettingBarExtensionFromState(state);
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<GridTabBarBloc, GridTabBarState>(
-                builder: (context, state) {
-                  return PageView(
+                ),
+                pageSettingBarExtensionFromState(state),
+                Expanded(
+                  child: PageView(
                     pageSnapping: false,
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     children: pageContentFromState(state),
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildBanner(BuildContext context) {
+    final bloc = context.read<GridTabBarBloc>();
+    return DatabaseViewBanner(
+      onRestore: () => bloc.add(const GridTabBarEvent.restorePage()),
+      onDelete: () => bloc.add(const GridTabBarEvent.deletePermanently()),
     );
   }
 
