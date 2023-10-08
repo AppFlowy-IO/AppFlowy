@@ -8,7 +8,7 @@ import 'choicechip/number.dart';
 import 'choicechip/select_option/select_option.dart';
 import 'choicechip/text.dart';
 import 'choicechip/url.dart';
-import 'filter_info.dart';
+import '../../../../application/filter/filter_info.dart';
 
 class FilterMenuItem extends StatelessWidget {
   final FilterInfo filterInfo;
@@ -21,7 +21,7 @@ class FilterMenuItem extends StatelessWidget {
 }
 
 Widget buildFilterChoicechip(FilterInfo filterInfo) {
-  switch (filterInfo.fieldInfo.fieldType) {
+  switch (filterInfo.field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxFilterChoicechip(filterInfo: filterInfo);
     case FieldType.DateTime:

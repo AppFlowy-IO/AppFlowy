@@ -12,7 +12,7 @@ import 'dart:math' as math;
 
 import 'sort_choice_button.dart';
 import 'sort_editor.dart';
-import 'sort_info.dart';
+import '../../../../application/sort/sort_info.dart';
 
 class SortMenu extends StatelessWidget {
   final FieldController fieldController;

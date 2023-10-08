@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../condition_button.dart';
 import '../../disclosure_button.dart';
-import '../../filter_info.dart';
+import '../../../../../../application/filter/filter_info.dart';
 import '../choicechip.dart';
 
 class ChecklistFilterChoicechip extends StatefulWidget {
@@ -93,7 +93,7 @@ class ChecklistState extends State<ChecklistFilterEditor> {
               children: [
                 Expanded(
                   child: FlowyText(
-                    state.filterInfo.fieldInfo.field.name,
+                    state.filterInfo.field.name,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

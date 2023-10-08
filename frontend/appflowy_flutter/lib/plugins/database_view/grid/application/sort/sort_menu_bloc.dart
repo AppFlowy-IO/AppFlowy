@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import '../../../application/field/field_controller.dart';
-import '../../presentation/widgets/sort/sort_info.dart';
+import '../../../application/sort/sort_info.dart';
 import 'util.dart';
 
 part 'sort_menu_bloc.freezed.dart';

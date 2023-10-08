@@ -1,6 +1,6 @@
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:flutter/material.dart';
 
-import '../filter_info.dart';
 import 'choicechip.dart';
 
 class DateFilterChoicechip extends StatelessWidget {

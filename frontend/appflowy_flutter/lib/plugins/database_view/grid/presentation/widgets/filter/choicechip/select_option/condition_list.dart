@@ -1,15 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:easy_localization/easy_localization.dart';
-
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../condition_button.dart';
-import '../../filter_info.dart';
 
 class SelectOptionFilterConditionList extends StatelessWidget {
   final FilterInfo filterInfo;
@@ -34,7 +33,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
             (action) => ConditionWrapper(
               action,
               selectOptionFilter.condition == action,
-              filterInfo.fieldInfo.fieldType,
+              filterInfo.field.fieldType,
             ),
           )
           .toList(),
@@ -52,7 +51,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
   }
 
   String filterName(SelectOptionFilterPB filter) {
-    if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
+    if (filterInfo.field.fieldType == FieldType.SingleSelect) {
       return filter.condition.singleSelectFilterName;
     } else {
       return filter.condition.multiSelectFilterName;

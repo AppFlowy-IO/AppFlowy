@@ -1,34 +1,33 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-
-import '../group/group_service.dart';
 
 part 'group_bloc.freezed.dart';
 
 class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   final FieldController _fieldController;
   final GroupBackendService _groupBackendSvc;
-  Function(List<FieldInfo>)? _onFieldsFn;
+  Function(List<FieldPB>)? _onFieldsFn;
 
   DatabaseGroupBloc({
     required String viewId,
     required FieldController fieldController,
   })  : _fieldController = fieldController,
         _groupBackendSvc = GroupBackendService(viewId),
-        super(DatabaseGroupState.initial(viewId, fieldController.fieldInfos)) {
+        super(DatabaseGroupState.initial(viewId, fieldController.fields)) {
     on<DatabaseGroupEvent>(
       (event, emit) async {
         event.when(
           initial: () {
             _startListening();
           },
-          didReceiveFieldUpdate: (fieldInfos) {
-            emit(state.copyWith(fieldInfos: fieldInfos));
+          didReceiveFieldUpdate: (fields) {
+            emit(state.copyWith(fields: fields));
           },
           setGroupByField: (String fieldId, FieldType fieldType) async {
             final result = await _groupBackendSvc.groupByField(
@@ -51,8 +50,8 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   }
 
   void _startListening() {
-    _onFieldsFn = (fieldInfos) =>
-        add(DatabaseGroupEvent.didReceiveFieldUpdate(fieldInfos));
+    _onFieldsFn =
+        (fields) => add(DatabaseGroupEvent.didReceiveFieldUpdate(fields));
     _fieldController.addListener(
       onReceiveFields: _onFieldsFn,
       listenWhen: () => !isClosed,
@@ -68,7 +67,7 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
     FieldType fieldType,
   ) = _DatabaseGroupEvent;
   const factory DatabaseGroupEvent.didReceiveFieldUpdate(
-    List<FieldInfo> fields,
+    List<FieldPB> fields,
   ) = _DidReceiveFieldUpdate;
 }
 
@@ -76,15 +75,15 @@ class DatabaseGroupEvent with _$DatabaseGroupEvent {
 class DatabaseGroupState with _$DatabaseGroupState {
   const factory DatabaseGroupState({
     required String viewId,
-    required List<FieldInfo> fieldInfos,
+    required List<FieldPB> fields,
   }) = _DatabaseGroupState;
 
   factory DatabaseGroupState.initial(
     String viewId,
-    List<FieldInfo> fieldInfos,
+    List<FieldPB> fields,
   ) =>
       DatabaseGroupState(
         viewId: viewId,
-        fieldInfos: fieldInfos,
+        fields: fields,
       );
 }

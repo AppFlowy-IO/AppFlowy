@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
@@ -6,8 +7,6 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-
-import '../filter_info.dart';
 
 class ChoiceChipButton extends StatelessWidget {
   final FilterInfo filterInfo;
@@ -40,13 +39,13 @@ class ChoiceChipButton extends StatelessWidget {
         decoration: decoration,
         useIntrinsicWidth: true,
         text: FlowyText(
-          filterInfo.fieldInfo.field.name,
+          filterInfo.field.name,
           color: AFThemeExtension.of(context).textColor,
         ),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),
         leftIcon: FlowySvg(
-          filterInfo.fieldInfo.fieldType.icon(),
+          filterInfo.field.fieldType.icon(),
           color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: _ChoicechipFilterDesc(filterDesc: filterDesc),

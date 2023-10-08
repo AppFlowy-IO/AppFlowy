@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/util.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -12,12 +15,10 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math' as math;
 
 import 'create_sort_list.dart';
 import 'order_panel.dart';
 import 'sort_choice_button.dart';
-import 'sort_info.dart';
 
 class SortEditor extends StatefulWidget {
   final String viewId;
@@ -110,7 +111,7 @@ class DatabaseSortItem extends StatelessWidget {
         SizedBox(
           height: 26,
           child: SortChoiceButton(
-            text: sortInfo.fieldInfo.name,
+            text: sortInfo.field.name,
             editable: false,
           ),
         ),
@@ -174,7 +175,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
-          disable: getCreatableSorts(widget.fieldController.fieldInfos).isEmpty,
+          disable: getCreatableSorts(widget.fieldController.fields).isEmpty,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),
@@ -262,7 +263,7 @@ class _DatabaseSortItemOrderButtonState
         );
       },
       child: SortChoiceButton(
-        text: widget.sortInfo.sortPB.condition.title,
+        text: widget.sortInfo.sort.condition.title,
         rightIcon: arrow,
         onTap: () => popoverController.show(),
       ),

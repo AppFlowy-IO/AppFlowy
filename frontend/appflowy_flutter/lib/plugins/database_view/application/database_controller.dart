@@ -1,27 +1,30 @@
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
+import 'dart:collection';
+
+import 'package:appflowy/plugins/database_view/application/filter/filter_controller.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:collection/collection.dart';
-import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+
 import 'database_view_service.dart';
 import 'defines.dart';
+import 'field/field_controller.dart';
 import 'field/field_info.dart';
+import 'group/group_listener.dart';
 import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
-import 'group/group_listener.dart';
 import 'row/row_service.dart';
+import 'sort/sort_controller.dart';
+import 'view/view_cache.dart';
 
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
@@ -78,9 +81,11 @@ class DatabaseController {
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
+  late final SortController sortController;
+  late final FilterController filterController;
+  late final DatabaseViewCache _viewCache;
   DatabaseLayoutPB databaseLayout;
   DatabaseLayoutSettingPB? databaseLayoutSetting;
-  late DatabaseViewCache _viewCache;
 
   // Callbacks
   final List<DatabaseCallbacks> _databaseCallbacks = [];
@@ -103,12 +108,16 @@ class DatabaseController {
         _groupListener = DatabaseGroupListener(view.id),
         databaseLayout = databaseLayoutFromViewLayout(view.layout),
         _layoutListener = DatabaseLayoutSettingListener(view.id) {
+    sortController = SortController(fieldController: fieldController);
+    filterController = FilterController(fieldController: fieldController);
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
     );
     _listenOnRowsChanged();
     _listenOnFieldsChanged();
+    _listenOnSortsChanged();
+    _listenOnFiltersChanged();
     _listenOnGroupChanged();
     _listenOnLayoutChanged();
   }
@@ -240,6 +249,8 @@ class DatabaseController {
   Future<void> dispose() async {
     await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
+    await sortController.dispose();
+    await filterController.dispose();
     await _groupListener.stop();
     await _viewCache.dispose();
     _databaseCallbacks.clear();
@@ -310,12 +321,22 @@ class DatabaseController {
           callback.onFieldsChanged?.call(UnmodifiableListView(fields));
         }
       },
-      onSorts: (sorts) {
+    );
+  }
+
+  void _listenOnSortsChanged() {
+    sortController.addListener(
+      onReceiveSorts: (sorts) {
         for (final callback in _databaseCallbacks) {
           callback.onSortsChanged?.call(sorts);
         }
       },
-      onFilters: (filters) {
+    );
+  }
+
+  void _listenOnFiltersChanged() {
+    filterController.addListener(
+      onReceiveFilters: (filters) {
         for (final callback in _databaseCallbacks) {
           callback.onFiltersChanged?.call(filters);
         }

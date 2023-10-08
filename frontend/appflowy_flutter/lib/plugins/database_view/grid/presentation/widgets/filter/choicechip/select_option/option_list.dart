@@ -1,15 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../../widgets/row/cells/select_option_cell/extension.dart';
-import '../../filter_info.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterList extends StatelessWidget {
@@ -28,17 +27,17 @@ class SelectOptionFilterList extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         late SelectOptionFilterListBloc bloc;
-        if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
+        if (filterInfo.field.fieldType == FieldType.SingleSelect) {
           bloc = SelectOptionFilterListBloc(
             viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
+            fieldPB: filterInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate: SingleSelectOptionFilterDelegateImpl(filterInfo),
           );
         } else {
           bloc = SelectOptionFilterListBloc(
             viewId: filterInfo.viewId,
-            fieldPB: filterInfo.fieldInfo.field,
+            fieldPB: filterInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate: MultiSelectOptionFilterDelegateImpl(filterInfo),
           );

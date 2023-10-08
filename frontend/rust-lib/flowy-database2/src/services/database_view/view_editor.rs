@@ -14,9 +14,9 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
-  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
-  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldUpdateNotificationPB, FieldVisibility,
+  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB,
+  RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -503,6 +503,17 @@ impl DatabaseViewEditor {
         .did_receive_changes(SortChangeset::from_update(sort_type))
         .await
     } else {
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: params.field_id.clone(),
+        has_sort: Some(true),
+        ..Default::default()
+      };
+      send_notification(
+        &params.field_id.clone(),
+        DatabaseNotification::DidUpdateField,
+      )
+      .payload(field_notification)
+      .send();
       sort_controller
         .did_receive_changes(SortChangeset::from_insert(sort_type))
         .await
@@ -578,6 +589,17 @@ impl DatabaseViewEditor {
         .await
     } else {
       self.delegate.insert_filter(&self.view_id, filter);
+      let field_notification = FieldUpdateNotificationPB {
+        field_id: params.field_id.clone(),
+        has_filter: Some(true),
+        ..Default::default()
+      };
+      send_notification(
+        &params.field_id.clone(),
+        DatabaseNotification::DidUpdateField,
+      )
+      .payload(field_notification)
+      .send();
       filter_controller
         .did_receive_changes(FilterChangeset::from_insert(filter_type))
         .await

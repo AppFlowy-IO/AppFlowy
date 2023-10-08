@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../disclosure_button.dart';
-import '../../filter_info.dart';
 import '../choicechip.dart';
 import 'condition_list.dart';
 import 'option_list.dart';
@@ -29,7 +29,7 @@ class _SelectOptionFilterChoicechipState
 
   @override
   void initState() {
-    if (widget.filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
+    if (widget.filterInfo.field.fieldType == FieldType.SingleSelect) {
       bloc = SelectOptionFilterEditorBloc(
         filterInfo: widget.filterInfo,
         delegate: SingleSelectOptionFilterDelegateImpl(widget.filterInfo),
@@ -144,7 +144,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.field.name,
+              state.filterInfo.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),

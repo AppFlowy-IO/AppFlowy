@@ -9,12 +9,12 @@ import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart'
 
 typedef SortNotifiedValue = Either<SortChangesetNotificationPB, FlowyError>;
 
-class SortsListener {
+class SortListener {
   final String viewId;
   PublishNotifier<SortNotifiedValue>? _notifier = PublishNotifier();
   DatabaseNotificationListener? _listener;
 
-  SortsListener({required this.viewId});
+  SortListener({required this.viewId});
 
   void start({
     required void Function(SortNotifiedValue) onSortChanged,

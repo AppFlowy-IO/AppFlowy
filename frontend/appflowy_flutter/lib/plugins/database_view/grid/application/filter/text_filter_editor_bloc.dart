@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/filter/filter_listener.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'text_filter_editor_bloc.freezed.dart';
 
@@ -31,7 +32,7 @@ class TextFilterEditorBloc
           updateCondition: (TextFilterConditionPB condition) {
             _filterBackendSvc.insertTextFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.fieldId,
               condition: condition,
               content: state.filter.content,
             );
@@ -39,16 +40,16 @@ class TextFilterEditorBloc
           updateContent: (content) {
             _filterBackendSvc.insertTextFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.fieldId,
               condition: state.filter.condition,
               content: content,
             );
           },
           delete: () {
             _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.fieldId,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
+              fieldType: filterInfo.field.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {

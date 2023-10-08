@@ -245,30 +245,6 @@ pub(crate) async fn update_field_handler(
   Ok(())
 }
 
-// #[tracing::instrument(level = "trace", skip(data, manager), err)]
-// pub(crate) async fn update_field_type_option_handler(
-//   data: AFPluginData<TypeOptionChangesetPB>,
-//   manager: AFPluginState<Weak<DatabaseManager>>,
-// ) -> Result<(), FlowyError> {
-//   let manager = upgrade_manager(manager)?;
-//   let params: TypeOptionChangesetParams = data.into_inner().try_into()?;
-//   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-//   if let Some(old_field) = database_editor.get_field(&params.field_id) {
-//     let field_type = FieldType::from(old_field.field_type);
-//     let type_option_data = type_option_data_from_pb(params.type_option_data, &field_type)
-//       .unwrap_or(default_type_option_data_from_type(&field_type));
-//     database_editor
-//       .update_field_type_option(
-//         &params.view_id,
-//         &params.field_id,
-//         type_option_data,
-//         old_field,
-//       )
-//       .await?;
-//   }
-//   Ok(())
-// }
-
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
   data: AFPluginData<DeleteFieldPayloadPB>,

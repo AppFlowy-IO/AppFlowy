@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/filter/filter_listener.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,15 +31,15 @@ class CheckboxFilterEditorBloc
           updateCondition: (CheckboxFilterConditionPB condition) {
             _filterBackendSvc.insertCheckboxFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.fieldId,
               condition: condition,
             );
           },
           delete: () {
             _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.fieldId,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
+              fieldType: filterInfo.field.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {

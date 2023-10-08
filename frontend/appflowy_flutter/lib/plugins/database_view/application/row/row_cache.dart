@@ -15,8 +15,8 @@ typedef RowUpdateCallback = void Function();
 
 /// A delegate that provides the fields of the row.
 abstract class RowFieldsDelegate {
-  UnmodifiableListView<FieldInfo> get fieldInfos;
-  void onFieldsChanged(void Function(List<FieldInfo>) callback);
+  UnmodifiableListView<FieldPB> get fields;
+  void onFieldsChanged(void Function(List<FieldPB>) callback);
 }
 
 abstract mixin class RowLifeCycle {
@@ -245,11 +245,11 @@ class RowCache {
   CellContextByFieldId _makeCells(RowMetaPB rowMeta) {
     // ignore: prefer_collection_literals
     final cellContextMap = CellContextByFieldId();
-    for (final fieldInfo in _fieldDelegate.fieldInfos) {
-      cellContextMap[fieldInfo.id] = DatabaseCellContext(
+    for (final field in _fieldDelegate.fields) {
+      cellContextMap[field.id] = DatabaseCellContext(
         rowMeta: rowMeta,
         viewId: viewId,
-        fieldInfo: fieldInfo,
+        field: field,
       );
     }
     return cellContextMap;
@@ -258,7 +258,7 @@ class RowCache {
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {
     return RowInfo(
       viewId: viewId,
-      fields: _fieldDelegate.fieldInfos,
+      fields: _fieldDelegate.fields,
       rowId: rowMetaPB.id,
       rowMeta: rowMetaPB,
     );
@@ -290,7 +290,7 @@ class RowInfo with _$RowInfo {
   factory RowInfo({
     required String rowId,
     required String viewId,
-    required UnmodifiableListView<FieldInfo> fields,
+    required UnmodifiableListView<FieldPB> fields,
     required RowMetaPB rowMeta,
   }) = _RowInfo;
 }

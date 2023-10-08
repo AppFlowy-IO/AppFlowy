@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/checkbox_filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../condition_button.dart';
 import '../disclosure_button.dart';
-import '../filter_info.dart';
 import 'choicechip.dart';
 
 class CheckboxFilterChoicechip extends StatefulWidget {
@@ -110,7 +110,7 @@ class _CheckboxFilterEditorState extends State<CheckboxFilterEditor> {
         children: [
           Expanded(
             child: FlowyText(
-              state.filterInfo.fieldInfo.field.name,
+              state.filterInfo.field.name,
               overflow: TextOverflow.ellipsis,
             ),
           ),

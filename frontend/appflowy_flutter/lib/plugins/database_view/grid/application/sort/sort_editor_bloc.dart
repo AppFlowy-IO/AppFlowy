@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';

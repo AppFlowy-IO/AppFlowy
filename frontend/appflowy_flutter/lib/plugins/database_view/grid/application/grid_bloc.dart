@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
+
 import 'package:appflowy/plugins/database_view/application/defines.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/sort/sort_info.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -12,7 +13,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../application/database_controller.dart';
-import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
 
@@ -157,7 +157,7 @@ class GridEvent with _$GridEvent {
     ChangedReason reason,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    List<FieldInfo> fields,
+    List<FieldPB> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
@@ -200,25 +200,24 @@ class GridState with _$GridState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final List<FieldInfo> _fieldInfos;
+  final List<FieldPB> _fields;
   const GridFieldEquatable(
-    List<FieldInfo> fieldInfos,
-  ) : _fieldInfos = fieldInfos;
+    List<FieldPB> fields,
+  ) : _fields = fields;
 
   @override
   List<Object?> get props {
-    if (_fieldInfos.isEmpty) {
+    if (_fields.isEmpty) {
       return [];
     }
 
     return [
-      _fieldInfos.length,
-      _fieldInfos
-          .map((fieldInfo) => fieldInfo.field.width)
+      _fields.length,
+      _fields
+          .map((field) => field.width)
           .reduce((value, element) => value + element),
     ];
   }
 
-  UnmodifiableListView<FieldInfo> get value =>
-      UnmodifiableListView(_fieldInfos);
+  UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }

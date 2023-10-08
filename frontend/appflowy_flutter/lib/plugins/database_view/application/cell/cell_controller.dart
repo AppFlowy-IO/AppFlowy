@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_listener.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_meta_listener.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -44,11 +43,11 @@ class CellController<T, D> extends Equatable {
 
   RowId get rowId => _cellContext.rowId;
 
-  String get fieldId => _cellContext.fieldInfo.id;
+  String get fieldId => _cellContext.fieldId;
 
-  FieldInfo get fieldInfo => _cellContext.fieldInfo;
+  FieldPB get field => _cellContext.field;
 
-  FieldType get fieldType => _cellContext.fieldInfo.fieldType;
+  FieldType get fieldType => _cellContext.fieldType;
 
   String? get emoji => _cellContext.emoji;
 
@@ -65,16 +64,16 @@ class CellController<T, D> extends Equatable {
         _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _fieldBackendSvc = FieldBackendService(
           viewId: cellContext.viewId,
-          fieldId: cellContext.fieldInfo.id,
+          fieldId: cellContext.fieldId,
         ),
         _cacheKey = CellCacheKey(
           rowId: cellContext.rowId,
-          fieldId: cellContext.fieldInfo.id,
+          fieldId: cellContext.fieldId,
         ) {
     _cellDataNotifier = CellDataNotifier(value: _cellCache.get(_cacheKey));
     _cellListener = CellListener(
       rowId: cellContext.rowId,
-      fieldId: cellContext.fieldInfo.id,
+      fieldId: cellContext.fieldId,
     );
 
     /// 1.Listen on user edit event and load the new cell data if needed.
@@ -104,7 +103,7 @@ class CellController<T, D> extends Equatable {
     );
 
     // Only the primary can listen on the row meta changes.
-    if (_cellContext.fieldInfo.field.isPrimary) {
+    if (_cellContext.field.isPrimary) {
       _rowMetaListener?.start(
         callback: (newRowMeta) {
           _cellContext = _cellContext.copyWith(rowMeta: newRowMeta);
@@ -219,7 +218,7 @@ class CellController<T, D> extends Equatable {
   @override
   List<Object> get props => [
         _cellCache.get(_cacheKey) ?? "",
-        _cellContext.rowId + _cellContext.fieldInfo.id
+        _cellContext.rowId + _cellContext.fieldId
       ];
 }
 

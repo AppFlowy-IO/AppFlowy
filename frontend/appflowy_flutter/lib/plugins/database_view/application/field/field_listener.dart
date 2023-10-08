@@ -49,20 +49,30 @@ class SingleFieldListener {
   }
 }
 
+typedef InsertFieldsNotifiedValue = Either<RepeatedIndexFieldPB, FlowyError>;
 typedef UpdateFieldsNotifiedValue
     = Either<DatabaseFieldChangesetPB, FlowyError>;
+typedef DeleteFieldsNotifiedValue = Either<RepeatedFieldIdPB, FlowyError>;
 
 class FieldsListener {
   final String viewId;
-  PublishNotifier<UpdateFieldsNotifiedValue>? updateFieldsNotifier =
+  PublishNotifier<InsertFieldsNotifiedValue>? _insertFieldsNotifier =
+      PublishNotifier();
+  PublishNotifier<UpdateFieldsNotifiedValue>? _updateFieldsNotifier =
+      PublishNotifier();
+  PublishNotifier<DeleteFieldsNotifiedValue>? _deleteFieldsNotifier =
       PublishNotifier();
   DatabaseNotificationListener? _listener;
   FieldsListener({required this.viewId});
 
   void start({
-    required void Function(UpdateFieldsNotifiedValue) onFieldsChanged,
+    required void Function(InsertFieldsNotifiedValue) onFieldsInserted,
+    required void Function(UpdateFieldsNotifiedValue) onFieldsUpdated,
+    required void Function(DeleteFieldsNotifiedValue) onFieldsDeleted,
   }) {
-    updateFieldsNotifier?.addPublishListener(onFieldsChanged);
+    _insertFieldsNotifier?.addPublishListener(onFieldsInserted);
+    _updateFieldsNotifier?.addPublishListener(onFieldsUpdated);
+    _deleteFieldsNotifier?.addPublishListener(onFieldsDeleted);
     _listener = DatabaseNotificationListener(
       objectId: viewId,
       handler: _handler,
@@ -71,13 +81,26 @@ class FieldsListener {
 
   void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
     switch (ty) {
-      case DatabaseNotification.DidUpdateFields:
+      case DatabaseNotification.DidInsertFields:
         result.fold(
-          (payload) => updateFieldsNotifier?.value =
-              left(DatabaseFieldChangesetPB.fromBuffer(payload)),
-          (error) => updateFieldsNotifier?.value = right(error),
+          (payload) => _insertFieldsNotifier?.value =
+              left(RepeatedIndexFieldPB.fromBuffer(payload)),
+          (error) => _insertFieldsNotifier?.value = right(error),
         );
         break;
+      case DatabaseNotification.DidUpdateFields:
+        result.fold(
+          (payload) => _updateFieldsNotifier?.value =
+              left(DatabaseFieldChangesetPB.fromBuffer(payload)),
+          (error) => _updateFieldsNotifier?.value = right(error),
+        );
+        break;
+      case DatabaseNotification.DidDeleteFields:
+        result.fold(
+          (payload) => _deleteFieldsNotifier?.value =
+              left(RepeatedFieldIdPB.fromBuffer(payload)),
+          (error) => _deleteFieldsNotifier?.value = right(error),
+        );
       default:
         break;
     }
@@ -85,7 +108,11 @@ class FieldsListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    updateFieldsNotifier?.dispose();
-    updateFieldsNotifier = null;
+    _insertFieldsNotifier?.dispose();
+    _insertFieldsNotifier = null;
+    _updateFieldsNotifier?.dispose();
+    _updateFieldsNotifier = null;
+    _deleteFieldsNotifier?.dispose();
+    _deleteFieldsNotifier = null;
   }
 }

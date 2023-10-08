@@ -1,9 +1,8 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-
-import '../../filter_info.dart';
 
 abstract class SelectOptionFilterDelegate {
   Future<List<SelectOptionPB>> loadOptions();
@@ -16,7 +15,7 @@ class SingleSelectOptionFilterDelegateImpl
   SingleSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
       : typeOptionContext = makeSingleSelectTypeOptionContext(
           viewId: filterInfo.viewId,
-          fieldPB: filterInfo.fieldInfo.field,
+          fieldPB: filterInfo.field,
         );
 
   @override
@@ -36,7 +35,7 @@ class MultiSelectOptionFilterDelegateImpl
   MultiSelectOptionFilterDelegateImpl(FilterInfo filterInfo)
       : typeOptionContext = makeMultiSelectTypeOptionContext(
           viewId: filterInfo.viewId,
-          fieldPB: filterInfo.fieldInfo.field,
+          fieldPB: filterInfo.field,
         );
 
   @override
