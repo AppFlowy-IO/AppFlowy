@@ -4,7 +4,7 @@
   "welcomeText": "Bienvenido a @:appName",
   "githubStarText": "Favorito en GitHub",
   "subscribeNewsletterText": "Suscribir al boletín",
-  "letsGoButtonText": "Vamos",
+  "letsGoButtonText": "Inicio rápido",
   "title": "Título",
   "youCanAlso": "Tú también puedes",
   "and": "y",
@@ -12,41 +12,61 @@
     "addBelowTooltip": "Haga clic para agregar a continuación",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Opción+clic",
-    "addAboveTooltip": "para agregar arriba"
+    "addAboveTooltip": "para agregar arriba",
+    "dragTooltip": "Arrastrar para mover",
+    "openMenuTooltip": "Clic para abrir menú"
   },
   "signUp": {
-    "buttonText": "Registrar",
-    "title": "Registrar en @:appName",
+    "buttonText": "Registro",
+    "title": "Registro en @:appName",
     "getStartedText": "Empezar",
     "emptyPasswordError": "La contraseña no puede estar en blanco",
-    "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
+    "repeatPasswordEmptyError": "La contraseña repetida no puede estar vacía",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
-    "alreadyHaveAnAccount": "¿Posee credenciales?",
-    "emailHint": "Correo",
+    "alreadyHaveAnAccount": "¿Ya posee una cuenta?",
+    "emailHint": "Correo electrónico",
     "passwordHint": "Contraseña",
-    "repeatPasswordHint": "Repetir contraseña"
+    "repeatPasswordHint": "Repetir contraseña",
+    "signUpWith": "Registro con:"
   },
   "signIn": {
-    "loginTitle": "Ingresa a @:appName",
-    "loginButtonText": "Ingresar",
+    "loginTitle": "Iniciar sesión a @:appName",
+    "loginButtonText": "Iniciar sesión",
+    "loginStartWithAnonymous": "Empezar con una sesión anónima",
+    "continueAnonymousUser": "Continuar con una sesión anónima",
     "buttonText": "Ingresar",
     "forgotPassword": "¿Olvidó su contraseña?",
-    "emailHint": "Correo",
+    "emailHint": "Correo electrónico",
     "passwordHint": "Contraseña",
-    "dontHaveAnAccount": "¿No posee credenciales?",
+    "dontHaveAnAccount": "¿No posee una cuenta?",
     "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
+    "syncPromptMessage": "La sincronización de los datos puede tardar un poco. Por favor, no cierre esta página",
+    "or": "OR",
+    "LogInWithGoogle": "Ingresar con Google",
+    "LogInWithGithub": "Ingresar con Github",
+    "LogInWithDiscord": "Ingresar con Discord",
+    "signInWith": "Ingresar con:",
     "loginAsGuestButtonText": "Empezar"
   },
   "workspace": {
+    "chooseWorkspace": "Elija su espacio de trabajo",
     "create": "Crear espacio de trabajo",
+    "reset": "Restablecer espacio de trabajo",
+    "resetWorkspacePrompt": "Al restablecer el espacio de trabajo se eliminarán todas las páginas y datos que contenga. ¿Está seguro de que quiere restablecer el espacio de trabajo? También puede ponerse en contacto con el equipo de asistencia para restablecer el espacio de trabajo",
     "hint": "Espacio de trabajo",
-    "notFoundError": "Espacio de trabajo no encontrado"
+    "notFoundError": "Espacio de trabajo no encontrado",
+    "failedToLoad": "Algo ha ido mal. No se ha podido cargar el espacio de trabajo. Intente cerrar cualquier instancia abierta de AppFlowy e inténtelo de nuevo.",
+    "errorActions": {
+      "reportIssue": "Informe el problema",
+      "reachOut": "Pone en contacto vía Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Compartir",
     "workInProgress": "Próximamente",
-    "markdown": "Marcador",
+    "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copiar enlace"
   },
   "moreAction": {
@@ -55,10 +75,10 @@
     "large": "grande",
     "fontSize": "Tamaño de fuente",
     "import": "Importar",
-    "moreOptions": "Mas opciones"
+    "moreOptions": "Más opciones"
   },
   "importPanel": {
-    "textAndMarkdown": "Texto y descuento",
+    "textAndMarkdown": "Texto y Markdown",
     "documentFromV010": "Documento de v0.1.0",
     "databaseFromV010": "Base de datos desde v0.1.0",
     "csv": "CSV",
@@ -68,10 +88,19 @@
     "rename": "Renombrar",
     "delete": "Eliminar",
     "duplicate": "Duplicar",
-    "openNewTab": "Abrir en una pestaña nueva"
+    "unfavorite": "Quitar de los favoritos",
+    "favorite": "Agregar a los favoritos",
+    "openNewTab": "Abrir en una pestaña nueva",
+    "moveTo": "Moverlo",
+    "addToFavorites": "Agregar a Favoritos",
+    "copyLink": "Copiar enlace"
   },
   "blankPageTitle": "Página en blanco",
   "newPageText": "Nueva página",
+  "newDocumentText": "Nuevo documento",
+  "newGridText": "Nueva rejilla",
+  "newCalendarText": "Nuevo calendario",
+  "newBoardText": "Nuevo tablero",
   "trash": {
     "text": "Papelera",
     "restoreAll": "Recuperar todo",
@@ -82,11 +111,11 @@
       "created": "Creado"
     },
     "confirmDeleteAll": {
-      "title": "¿Estás seguro de eliminar todas las páginas de la Papelera?",
+      "title": "¿Está seguro de eliminar todas las páginas de la Papelera?",
       "caption": "Esta acción no se puede deshacer."
     },
     "confirmRestoreAll": {
-      "title": "¿Estás seguro de restaurar todas las páginas en la Papelera?",
+      "title": "¿Está seguro de recuperar todas las páginas de la Papelera?",
       "caption": "Esta acción no se puede deshacer."
     }
   },
@@ -100,15 +129,16 @@
     "shortcuts": "Atajos",
     "whatsNew": "¿Qué hay de nuevo?",
     "help": "Ayuda y Soporte",
-    "markdown": "Reducción",
+    "markdown": "Markdown",
     "debug": {
       "name": "Información de depuración",
-      "success": "¡Información copiada!",
+      "success": "¡Información del depurador copiada!",
       "fail": "No fue posible copiar la información"
     },
     "feedback": "Comentario"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Quitar, renombrar y más...",
     "addPageTooltip": "Inserta una página",
     "defaultNewPageName": "Sin Título",
     "renameDialog": "Renombrar"
@@ -139,16 +169,21 @@
     "openMenu": "Haga clic para abrir el menú",
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
-    "referencePage": "Se hace referencia a este {nombre}",
+    "referencePage": "Se hace referencia a este {name}",
     "addBlockBelow": "Añadir un bloque a continuación"
   },
   "sideBar": {
     "closeSidebar": "Cerrar panel lateral",
-    "openSidebar": "Abrir panel lateral"
+    "openSidebar": "Abrir panel lateral",
+    "personal": "Personal",
+    "favorites": "Favoritos",
+    "clickToHidePersonal": "Clic para ocultar sección personal",
+    "clickToHideFavorites": "Clic para ocultar sección de favoritos",
+    "addAPage": "Agregar una página"
   },
   "notifications": {
     "export": {
-      "markdown": "Nota exportada a Markdown",
+      "markdown": "Nota exportada a formato Markdown",
       "path": "Documentos/flowy"
     }
   },
@@ -178,7 +213,7 @@
     "delete": "Borrar",
     "duplicate": "Duplicar",
     "done": "Hecho",
-    "putback": "Volver"
+    "putback": "Volver a poner"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -189,14 +224,14 @@
   },
   "oAuth": {
     "err": {
-      "failedTitle": "Imposible conectarse con sus credenciales.",
-      "failedMsg": "Por favor asegurese haber completado el proceso de ingreso en su navegador."
+      "failedTitle": "No se puede conectar a su cuenta.",
+      "failedMsg": "Por favor asegúrese haber completado el proceso de inicio de sesión en su navegador."
     },
     "google": {
       "title": "Ingresar con Google",
-      "instruction1": "Para importar sus contactos de Google, debe autorizar esta aplicación usando su navegador web.",
-      "instruction2": "Copie este código al presionar el icono o al seleccionar el texto:",
-      "instruction3": "Navege al siguiente enlace en su navegador web, e ingrese el código anterior:",
+      "instruction1": "Para importar sus contactos de Google, debe autorizar a esta aplicación usando su navegador web.",
+      "instruction2": "Copie este código en su portapapeles haciendo clic en el icono o seleccionando el texto:",
+      "instruction3": "Navegue al siguiente enlace en su navegador web e introduzca el código anterior:",
       "instruction4": "Presione el botón de abajo cuando haya completado su registro:"
     }
   },
@@ -206,34 +241,77 @@
       "appearance": "Apariencia",
       "language": "Lenguaje",
       "user": "Usuario",
-      "files": "archivos",
-      "open": "Abrir ajustes",
+      "files": "Archivos",
+      "open": "Abrir Ajustes",
+      "logout": "Salir sesión",
+      "logoutPrompt": "¿Está seguro de salir de la sesión?",
+      "selfEncryptionLogoutPrompt": "¿Está seguro de que desea cerrar la sesión? Por favor, asegúrese de que ha copiado el secreto cifrado",
+      "syncSetting": "Ajustes de la sincronización",
+      "enableSync": "Habilitar sincronización",
+      "enableEncrypt": "Cifrar datos",
+      "enableEncryptPrompt": "Activa la encriptación para proteger sus datos con este secreto. Guardelo en un lugar seguro; una vez activado, no se puede desactivar. En caso de pérdida, tus datos serán irrecuperables. Haz clic para copiar",
+      "inputEncryptPrompt": "Por favor, ingrese su secreto de cifrado",
+      "clickToCopySecret": "Haga clic para copiar el secreto",
+      "inputTextFieldHint": "Su secreto",
+      "historicalUserList": "Historial de acceso del usuario",
+      "historicalUserListTooltip": "Esta lista muestra sus cuentas anónimas. Puede hacer clic en una cuenta para ver sus detalles. Las cuentas anónimas se crean pulsando el botón \"Empezar\".",
+      "openHistoricalUser": "Clic para abrir una cuenta anónima",
       "supabaseSetting": "Ajuste de base superior"
     },
     "appearance": {
+      "resetSetting": "Restablecer este ajuste",
       "fontFamily": {
         "label": "Familia tipográfica",
         "search": "Buscar"
       },
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Modo Temático",
         "light": "Modo Claro",
         "dark": "Modo Oscuro",
-        "system": "Adapt to System"
+        "system": "Adaptarse al sistema"
+      },
+      "layoutDirection": {
+        "label": "Dirección del Diseño",
+        "hint": "Controla el flujo de contenidos en su pantalla, de izquierda a derecha o de derecha a izquierda.",
+        "ltr": "IaD",
+        "rtl": "DaI"
+      },
+      "textDirection": {
+        "label": "Dirección del texto predeterminado",
+        "hint": "Especifique si el texto debe empezar de manera predetermnada por la izquierda o la derecha.",
+        "ltr": "IaD",
+        "rtl": "DaI",
+        "auto": "Automático",
+        "fallback": "Igual que la dirección del diseño"
       },
       "themeUpload": {
         "button": "Subir",
-        "description": "Cargue su propio tema AppFlowy usando el botón de abajo.",
+        "uploadTheme": "Subir tema",
+        "description": "Subir su propio tema AppFlowy usando el botón de abajo.",
         "failure": "El tema que se cargó tenía un formato no válido.",
-        "loading": "Espere mientras validamos y cargamos su tema...",
-        "uploadSuccess": "Tu tema fue subido con éxito",
-        "deletionFailure": "No se pudo eliminar el tema. Intenta eliminarlo manualmente.",
+        "loading": "Espere mientras validamos y subimos su tema...",
+        "uploadSuccess": "Su tema fue subido con éxito",
+        "deletionFailure": "No se pudo eliminar el tema. Intente eliminarlo manualmente.",
         "filePickerDialogTitle": "Elija un archivo .flowy_plugin",
         "urlUploadFailure": "No se pudo abrir la URL: {}"
       },
       "theme": "Tema",
       "builtInsLabel": "Temas incorporados",
-      "pluginsLabel": "Complementos"
+      "pluginsLabel": "Complementos",
+      "dateFormat": {
+        "label": "Formato de fecha",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Amigable",
+        "dmy": "D/M/A"
+      },
+      "timeFormat": {
+        "label": "Formato de hora",
+        "twelveHour": "12 horas",
+        "twentyFourHour": "24 horas"
+      },
+      "showNamingDialogWhenCreatingPage": "Mostrar diálogo de nombres al crear una página"
     },
     "files": {
       "copy": "Copiar",
@@ -248,9 +326,9 @@
       "selectAll": "Seleccionar todo",
       "deselectAll": "Deseleccionar todo",
       "createNewFolder": "Crear una nueva carpeta",
-      "createNewFolderDesc": "Dinos dónde quieres almacenar tus datos",
+      "createNewFolderDesc": "Diganos dónde desea almacenar sus datos",
       "defineWhereYourDataIsStored": "Defina dónde se almacenan sus datos",
-      "open": "Abierto",
+      "open": "Abrir",
       "openFolder": "Abrir una carpeta existente",
       "openFolderDesc": "Léalo y escríbalo en su carpeta AppFlowy existente",
       "folderHintText": "nombre de la carpeta",
@@ -267,19 +345,36 @@
       "openLocationTooltips": "Abrir otro directorio de datos",
       "openCurrentDataFolder": "Abrir el directorio de datos actual",
       "recoverLocationTooltips": "Restablecer al directorio de datos predeterminado de AppFlowy",
-      "exportFileSuccess": "¡Exportar archivo con éxito!",
+      "exportFileSuccess": "¡Exportación del archivo con éxito!",
       "exportFileFail": "¡Error en la exportación del archivo!",
       "export": "Exportar"
     },
     "user": {
       "name": "Nombre",
-      "selectAnIcon": "Seleccione un icono",
-      "pleaseInputYourOpenAIKey": "por favor ingrese su clave OpenAI"
+      "email": "Correo electrónico",
+      "tooltipSelectIcon": "Seleccionar ícono",
+      "selectAnIcon": "Seleccione un ícono",
+      "pleaseInputYourOpenAIKey": "por favor ingrese su clave OpenAI",
+      "clickToLogout": "Haga clic para cerrar la sesión del usuario actual"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Atajos",
+      "command": "Comando",
+      "keyBinding": "Combinación de teclas",
+      "addNewCommand": "Añadir nuevo comando",
+      "updateShortcutStep": "Pulse la combinación de teclas deseada y luego ENTER",
+      "shortcutIsAlreadyUsed": "Este atajo ya es usado por: {conflict}",
+      "resetToDefault": "Restablecer las combinaciones de teclas por defecto",
+      "couldNotLoadErrorMsg": "No se han podido cargar los accesos directos. Inténtelo nuevamente",
+      "couldNotSaveErrorMsg": "No se han podido guardar los atajos. Inténtelo nuevamente"
     }
   },
   "grid": {
     "deleteView": "¿Está seguro de que desea eliminar esta vista?",
     "createView": "Nuevo",
+    "title": {
+      "placeholder": "Sin título"
+    },
     "settings": {
       "filter": "Filtrar",
       "sort": "Clasificar",
@@ -302,92 +397,113 @@
       "startWith": "Comienza con",
       "is": "Es",
       "isNot": "No es",
-      "isEmpty": "Esta vacio",
+      "isEmpty": "Esta vacío",
       "isNotEmpty": "No está vacío",
       "choicechipPrefix": {
         "isNot": "No",
         "startWith": "Comienza con",
         "endWith": "Termina con",
-        "isEmpty": "esta vacio",
+        "isEmpty": "está vacío",
         "isNotEmpty": "no está vacío"
       }
     },
     "checkboxFilter": {
       "isChecked": "Comprobado",
-      "isUnchecked": "Desenfrenado",
+      "isUnchecked": "Sin marcar",
       "choicechipPrefix": {
         "is": "es"
       }
     },
     "checklistFilter": {
-      "isComplete": "Esta completo",
-      "isIncomplted": "esta incompleto"
+      "isComplete": "está completo",
+      "isIncomplted": "está incompleto"
     },
     "singleSelectOptionFilter": {
       "is": "Es",
       "isNot": "No es",
-      "isEmpty": "Esta vacio",
+      "isEmpty": "Está vacío",
       "isNotEmpty": "No está vacío"
     },
     "multiSelectOptionFilter": {
       "contains": "Contiene",
       "doesNotContain": "No contiene",
-      "isEmpty": "Esta vacio",
+      "isEmpty": "Está vacío",
       "isNotEmpty": "No está vacío"
     },
     "field": {
       "hide": "Ocultar",
-      "insertLeft": "Insertar a la Izquierda",
-      "insertRight": "Insertar a la Derecha",
+      "show": "Mostrar",
+      "insertLeft": "Insertar a la izquierda",
+      "insertRight": "Insertar a la derecha",
       "duplicate": "Duplicar",
       "delete": "Eliminar",
       "textFieldName": "Texto",
       "checkboxFieldName": "Casilla de verificación",
       "dateFieldName": "Fecha",
-      "updatedAtFieldName": "Última hora de modificación",
-      "createdAtFieldName": "tiempo creado",
+      "updatedAtFieldName": "Última modificación",
+      "createdAtFieldName": "Hora de creación",
       "numberFieldName": "Números",
       "singleSelectFieldName": "Seleccionar",
       "multiSelectFieldName": "Selección múltiple",
       "urlFieldName": "URL",
-      "checklistFieldName": "Lista de Verificación",
+      "checklistFieldName": "Lista de verificación",
       "numberFormat": "Formato numérico",
       "dateFormat": "Formato de fecha",
       "includeTime": "Incluir tiempo",
+      "isRange": "Fecha final",
       "dateFormatFriendly": "Mes Día, Año",
       "dateFormatISO": "Año-Mes-Día",
       "dateFormatLocal": "Mes/Día/Año",
       "dateFormatUS": "Año/Mes/Día",
-      "dateFormatDayMonthYear": "Día mes año",
-      "timeFormat": "Formato de tiempo",
-      "invalidTimeFormat": "Formato de tiempo inválido",
+      "dateFormatDayMonthYear": "Día/Mes/Año",
+      "timeFormat": "Formato de hora",
+      "invalidTimeFormat": "Formato de hora inválido",
       "timeFormatTwelveHour": "12 horas",
       "timeFormatTwentyFourHour": "24 horas",
+      "clearDate": "Eliminar fecha",
       "addSelectOption": "Añadir una opción",
       "optionTitle": "Opciones",
       "addOption": "Añadir opción",
       "editProperty": "Editar propiedad",
       "newProperty": "Nueva propiedad",
-      "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada"
+      "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada",
+      "newColumn": "Nueva columna"
+    },
+    "rowPage": {
+      "newField": "Agregar un nuevo campo",
+      "showHiddenFields": {
+        "one": "Mostrar campo oculto {}",
+        "many": "Mostrar campos ocultos {}",
+        "other": "Mostrar campos ocultos {}"
+      },
+      "hideHiddenFields": {
+        "one": "Ocultar campo oculto {}",
+        "many": "Ocultar campos ocultos {}",
+        "other": "Ocultar campos ocultos {}"
+      }
     },
     "sort": {
-      "ascending": "ascendente",
+      "ascending": "Ascendente",
       "descending": "Descendente",
+      "deleteAllSorts": "Eliminar todas las clasificaciones",
       "addSort": "Agregar clasificación",
       "deleteSort": "Borrar ordenar"
     },
     "row": {
       "duplicate": "Duplicar",
       "delete": "Eliminar",
+      "titlePlaceholder": "Sin título",
       "textPlaceholder": "Vacío",
       "copyProperty": "Propiedad copiada al portapapeles",
       "count": "Contar",
       "newRow": "Nueva fila",
-      "action": "Acción"
+      "action": "Acción",
+      "add": "Clic a continuación para añadir",
+      "drag": "Arrastrar para mover"
     },
     "selectOption": {
       "create": "Crear",
-      "purpleColor": "Morado",
+      "purpleColor": "Púrpura",
       "pinkColor": "Rosa",
       "lightPinkColor": "Rosa Claro",
       "orangeColor": "Naranja",
@@ -399,10 +515,15 @@
       "deleteTag": "Borrar etiqueta",
       "colorPanelTitle": "Colores",
       "panelTitle": "Selecciona una opción o crea una",
-      "searchOption": "Buscar una opción"
+      "searchOption": "Buscar una opción",
+      "searchOrCreateOption": "Buscar o crera una opción...",
+      "createNew": "Crear una nueva",
+      "orSelectOne": "O seleccionar una opción"
     },
     "checklist": {
-      "addNew": "Agregar un elemento"
+      "taskHint": "Descripción de la tarea",
+      "addNew": "Añadir una nueva tarea",
+      "submitNewTask": "Crear"
     },
     "menuName": "Cuadrícula",
     "referencedGridPrefix": "Vista de"
@@ -428,7 +549,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Describir"
+      "outline": "Describir",
+      "codeBlock": "Bloque de código"
     },
     "plugins": {
       "referencedBoard": "Tablero referenciado",
@@ -436,26 +558,26 @@
       "referencedCalendar": "Calendario referenciado",
       "autoGeneratorMenuItemName": "Escritor de OpenAI",
       "autoGeneratorTitleName": "OpenAI: Pídele a AI que escriba cualquier cosa...",
-      "autoGeneratorLearnMore": "Aprende más",
+      "autoGeneratorLearnMore": "Más información",
       "autoGeneratorGenerate": "Generar",
       "autoGeneratorHintText": "Pregúntale a OpenAI...",
       "autoGeneratorCantGetOpenAIKey": "No puedo obtener la clave de OpenAI",
-      "autoGeneratorRewrite": "Volver a escribir",
+      "autoGeneratorRewrite": "Reescribir",
       "smartEdit": "Asistentes de IA",
-      "openAI": "IA abierta",
+      "openAI": "OpenAI",
       "smartEditFixSpelling": "Corregir ortografía",
       "warning": "⚠️ Las respuestas de la IA pueden ser inexactas o engañosas.",
       "smartEditSummarize": "Resumir",
       "smartEditImproveWriting": "Mejorar la escritura",
-      "smartEditMakeLonger": "hacer más largo",
+      "smartEditMakeLonger": "Hacer más largo",
       "smartEditCouldNotFetchResult": "No se pudo obtener el resultado de OpenAI",
       "smartEditCouldNotFetchKey": "No se pudo obtener la clave de OpenAI",
-      "smartEditDisabled": "Conectar OpenAI en Configuración",
-      "discardResponse": "¿Quieres descartar las respuestas de IA?",
+      "smartEditDisabled": "Conectar OpenAI en Ajustes",
+      "discardResponse": "¿Desea descartar las respuestas de IA?",
       "createInlineMathEquation": "Crear ecuación",
       "toggleList": "Alternar lista",
       "cover": {
-        "changeCover": "Cubierta de cambio",
+        "changeCover": "Cambiar portada",
         "colors": "Colores",
         "images": "Imágenes",
         "clearAll": "Limpiar todo",
@@ -464,26 +586,26 @@
         "addLocalImage": "Agregar imagen local",
         "invalidImageUrl": "URL de imagen no válida",
         "failedToAddImageToGallery": "No se pudo agregar la imagen a la galería",
-        "enterImageUrl": "Introduce la URL de la imagen",
+        "enterImageUrl": "Ingrese la URL de la imagen",
         "add": "Agregar",
         "back": "Atrás",
         "saveToGallery": "Guardar en la galería",
-        "removeIcon": "Eliminar icono",
+        "removeIcon": "Eliminar ícono",
         "pasteImageUrl": "Pegar URL de imagen",
         "or": "O",
         "pickFromFiles": "Seleccionar de archivos",
         "couldNotFetchImage": "No se pudo obtener la imagen",
         "imageSavingFailed": "Error al guardar la imagen",
-        "addIcon": "Añadir icono",
+        "addIcon": "Añadir ícono",
         "coverRemoveAlert": "Se eliminará de la portada después de que se elimine.",
-        "alertDialogConfirmation": "¿Estás seguro de que quieres continuar?"
+        "alertDialogConfirmation": "¿Está seguro de que desea continuar?"
       },
       "mathEquation": {
         "addMathEquation": "Agregar ecuación matemática",
         "editMathEquation": "Editar ecuación matemática"
       },
       "optionAction": {
-        "click": "Hacer clic",
+        "click": "Clic",
         "toOpenMenu": " para abrir menú",
         "delete": "Borrar",
         "duplicate": "Duplicar",
@@ -494,14 +616,28 @@
         "align": "Alinear",
         "left": "Izquierda",
         "center": "Centro",
-        "right": "Bien",
+        "right": "Derecha",
         "defaultColor": "Por defecto"
       },
       "image": {
-        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles."
+        "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles.",
+        "addAnImage": "Agregar una imagen"
       },
       "outline": {
         "addHeadingToCreateOutline": "Agregue encabezados para crear una tabla de contenido."
+      },
+      "table": {
+        "addAfter": "Añadir después de",
+        "addBefore": "Añadir después de",
+        "delete": "Eliminar",
+        "clear": "Limpiar contenido",
+        "duplicate": "Duplicar",
+        "bgColor": "Color de fondo"
+      },
+      "contextMenu": {
+        "copy": "Copiar",
+        "cut": "Cortar",
+        "paste": "Pegar"
       }
     },
     "textBlock": {
@@ -511,14 +647,14 @@
       "placeholder": "Intitulado"
     },
     "imageBlock": {
-      "placeholder": "Haga clic para agregar imagen",
+      "placeholder": "Clic para agregar imagen",
       "upload": {
         "label": "Subir",
-        "placeholder": "Haga clic para cargar la imagen"
+        "placeholder": "Clic para cargar la imagen"
       },
       "url": {
         "label": "URL de la imagen",
-        "placeholder": "Introduce la URL de la imagen"
+        "placeholder": "Ingrese la URL de la imagen"
       },
       "support": "El límite de tamaño de la imagen es de 5 MB. Formatos admitidos: JPEG, PNG, GIF, SVG",
       "error": {
@@ -526,7 +662,12 @@
         "invalidImageSize": "El tamaño de la imagen debe ser inferior a 5 MB",
         "invalidImageFormat": "El formato de imagen no es compatible. Formatos admitidos: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL de imagen no válida"
-      }
+      },
+      "embedLink": {
+        "label": "Incrustar enlace",
+        "placeholder": "Pegar o tipear el enlace de imagen"
+      },
+      "searchForAnImage": "Buscar una imagen"
     },
     "codeBlock": {
       "language": {
@@ -536,26 +677,40 @@
     },
     "inlineLink": {
       "placeholder": "Pegar o escribir un enlace",
+      "openInNewTab": "Abrir en una nueva pestaña",
+      "copyLink": "Copiar enlace",
+      "removeLink": "Quitar enlace",
       "url": {
         "label": "URL del enlace",
-        "placeholder": "Introduzca la URL del enlace"
+        "placeholder": "Ingrese la URL del enlace"
       },
       "title": {
         "label": "Título del enlace",
-        "placeholder": "Introduce el título del enlace"
+        "placeholder": "Ingrese el título del enlace"
       }
+    },
+    "mention": {
+      "placeholder": "Mencione a una persona, una página o una fecha...",
+      "page": {
+        "label": "Enlace a la página",
+        "tooltip": "Clic para abrir página"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Restablecer valores por defecto"
     }
   },
   "board": {
     "column": {
       "create_new_card": "Nuevo"
     },
-    "menuName": "Junta",
+    "menuName": "Tablero",
     "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendario",
     "defaultNewCalendarTitle": "Intitulado",
+    "newEventButtonTooltip": "Agregar un nuevo evento",
     "navigation": {
       "today": "Hoy",
       "jumpToday": "Saltar a hoy",
@@ -567,16 +722,16 @@
       "showWeekends": "Mostrar fines de semana",
       "firstDayOfWeek": "Empieza la semana en",
       "layoutDateField": "Diseño de calendario por",
-      "noDateTitle": "Sin cita",
+      "noDateTitle": "Sin fecha",
       "noDateHint": "Los eventos no programados se mostrarán aquí",
-      "clickToAdd": "Haga clic para agregar al calendario",
+      "clickToAdd": "Clic para agregar al calendario",
       "name": "Diseño de calendario"
     },
     "referencedCalendarPrefix": "Vista de"
   },
   "errorDialog": {
-    "title": "Error de flujo de aplicación",
-    "howToFixFallback": "¡Lamentamos las molestias! Envíe un problema en nuestra página de GitHub que describa su error.",
+    "title": "Error de AppFlowy",
+    "howToFixFallback": "¡Lamentamos las molestias! Envíe un reporte del problema a nuestra página de GitHub que describa el error.",
     "github": "Ver en GitHub"
   },
   "search": {
@@ -588,12 +743,83 @@
   "message": {
     "copy": {
       "success": "¡Copiado!",
-      "fail": "no se puede copiar"
+      "fail": "No se puede copiar"
     }
   },
   "unSupportBlock": "La versión actual no es compatible con este bloque.",
   "views": {
     "deleteContentTitle": "¿Está seguro de que desea eliminar {pageType}?",
     "deleteContentCaption": "si elimina este {pageType}, puede restaurarlo de la papelera."
+  },
+  "colors": {
+    "custom": "Personalizado",
+    "default": "Predeterminado",
+    "red": "Rojo",
+    "orange": "Naranja",
+    "yellow": "Amarillo",
+    "green": "Verde",
+    "blue": "Azul",
+    "purple": "Púrpura",
+    "pink": "Rosa",
+    "brown": "Marrón",
+    "gray": "Gris"
+  },
+  "emoji": {
+    "search": "Buscar emoji",
+    "noRecent": "Ningún emoji reciente",
+    "noEmojiFound": "No se encuentra emoji",
+    "filter": "Filtrar",
+    "random": "Aleatorio",
+    "selectSkinTone": "Seleccionar tono de piel",
+    "remove": "Quitar emoji",
+    "categories": {
+      "smileys": "Emoción y smileys",
+      "people": "Gente & Cuerpo",
+      "animals": "Animales & Naturaleza",
+      "food": "Comida & Tragos",
+      "activities": "Actividades",
+      "places": "Viajes & Lugares",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Banderas",
+      "nature": "Naturaleza",
+      "frequentlyUsed": "Frecuentemente usado"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Sin resultados",
+    "pageReference": "Referencia de página",
+    "date": "Fecha",
+    "reminder": {
+      "groupTitle": "Recordatorio",
+      "shortKeyword": "recordar"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Ayer",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "oneWeek": "1 semana"
+  },
+  "notificationHub": {
+    "title": "Notificaciones",
+    "empty": "¡No hay nada que ver aquí!"
+  },
+  "reminderNotification": {
+    "title": "Recordatorio",
+    "message": "¡Recuerde de comprobarlo antes de que se le olvide!",
+    "tooltipDelete": "Eliminar",
+    "tooltipMarkRead": "Marcar como leído",
+    "tooltipMarkUnread": "Marcar como no leído"
+  },
+  "findAndReplace": {
+    "find": "Buscar",
+    "previousMatch": "Coincidencia anterior",
+    "nextMatch": "Siguiente coincidencia",
+    "close": "Cerrar",
+    "replace": "Reemplazar",
+    "replaceAll": "Reemplazar todo",
+    "noResult": "Sin resultados",
+    "caseSensitive": "Distingue entre mayúsculas y minúsculas"
   }
 }
