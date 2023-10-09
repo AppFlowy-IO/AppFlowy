@@ -29,10 +29,12 @@ class PaneNode extends Equatable {
       axis: axis ?? this.axis,
       children: children ?? this.children,
       paneId: paneId ?? this.paneId,
-      tabs: tabs ?? this.tabs,
+      tabs: tabs != null
+          ? TabsController.reconstruct(tabs)
+          : TabsController.reconstruct(this.tabs),
     );
   }
 
   @override
-  List<Object?> get props => [paneId, axis, children, parent, tabs];
+  List<Object?> get props => [paneId, axis, children.length, parent, tabs];
 }
