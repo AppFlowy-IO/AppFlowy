@@ -62,10 +62,7 @@ class CellController<T, D> extends Equatable {
         _cellDataPersistence = cellDataPersistence,
         _rowMetaListener = RowMetaListener(cellContext.rowId),
         _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        _fieldBackendSvc = FieldBackendService(
-          viewId: cellContext.viewId,
-          fieldId: cellContext.fieldId,
-        ),
+        _fieldBackendSvc = FieldBackendService(viewId: cellContext.viewId),
         _cacheKey = CellCacheKey(
           rowId: cellContext.rowId,
           fieldId: cellContext.fieldId,

@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database_view/application/field/type_option/tim
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
@@ -14,34 +13,17 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'builder.dart';
 import 'date.dart';
 
-class TimestampTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final TimestampTypeOptionWidget _widget;
-
-  TimestampTypeOptionWidgetBuilder(
-    TimestampTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
-  ) : _widget = TimestampTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
-          popoverMutex: popoverMutex,
-        );
-
-  @override
-  Widget? build(BuildContext context) {
-    return _widget;
-  }
-}
-
-class TimestampTypeOptionWidget extends TypeOptionWidget {
-  final TimestampTypeOptionContext typeOptionContext;
+class TimestampTypeOptionEditor extends StatelessWidget {
+  final TimestampTypeOptionParser parser;
   final PopoverMutex popoverMutex;
-  const TimestampTypeOptionWidget({
-    required this.typeOptionContext,
+
+  const TimestampTypeOptionEditor({
+    required this.parser,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

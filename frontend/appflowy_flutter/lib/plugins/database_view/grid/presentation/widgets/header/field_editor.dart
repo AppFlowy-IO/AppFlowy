@@ -1,34 +1,34 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import '../../layout/sizes.dart';
-import 'field_type_option_editor.dart';
+
+import 'field_type_switcher.dart';
+import 'type_option/builder.dart';
 
 class FieldEditor extends StatefulWidget {
-  final String viewId;
+  final String fieldId;
+  final FieldController fieldController;
+
   final bool isGroupingField;
   final Function(String)? onDeleted;
   final Function(String)? onToggleVisibility;
-  final FieldTypeOptionLoader typeOptionLoader;
-  final FieldInfo? fieldInfo;
 
   const FieldEditor({
-    required this.viewId,
-    required this.typeOptionLoader,
-    this.fieldInfo,
+    required this.fieldId,
+    required this.fieldController,
     this.isGroupingField = false,
     this.onDeleted,
     this.onToggleVisibility,
@@ -56,103 +56,68 @@ class _FieldEditorState extends State<FieldEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final bool requireSpace = widget.onDeleted != null ||
-        widget.onToggleVisibility != null ||
-        !widget.typeOptionLoader.field.isPrimary;
-
-    final List<Widget> children = [
-      FieldNameTextField(popoverMutex: popoverMutex),
-      if (requireSpace) const VSpace(4),
-      if (widget.onDeleted != null) _addDeleteFieldButton(),
-      if (widget.onToggleVisibility != null) _addHideFieldButton(),
-      if (!widget.typeOptionLoader.field.isPrimary)
-        FieldTypeOptionCell(popoverMutex: popoverMutex),
-    ];
     return BlocProvider(
       create: (context) {
         return FieldEditorBloc(
+          fieldId: widget.fieldId,
+          fieldController: widget.fieldController,
           isGroupField: widget.isGroupingField,
-          loader: widget.typeOptionLoader,
-          field: widget.typeOptionLoader.field,
         )..add(const FieldEditorEvent.initial());
       },
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: children.length,
-        itemBuilder: (context, index) => children[index],
-        separatorBuilder: (context, index) =>
-            VSpace(GridSize.typeOptionSeparatorHeight),
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
+        builder: (context, state) {
+          final bool requireSpace = widget.onDeleted != null ||
+              widget.onToggleVisibility != null ||
+              !state.field.isPrimary;
+
+          final List<Widget> children = [
+            FieldNameTextField(popoverMutex: popoverMutex),
+            if (requireSpace) const VSpace(4),
+            if (widget.onDeleted != null) _addDeleteFieldButton(state.field),
+            if (widget.onToggleVisibility != null)
+              _addHideFieldButton(state.field),
+            if (!state.field.isPrimary)
+              SwitchFieldButton(popoverMutex: popoverMutex),
+            if (state.field.fieldType.hasTypeOptions())
+              const TypeOptionSeparator(spacing: 2.0),
+            TypeOptionEditor(field: state.field, popoverMutex: popoverMutex),
+          ];
+
+          return ListView.separated(
+            shrinkWrap: true,
+            itemCount: children.length,
+            itemBuilder: (context, index) => children[index],
+            separatorBuilder: (context, index) =>
+                VSpace(GridSize.typeOptionSeparatorHeight),
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+          );
+        },
       ),
     );
   }
 
-  Widget _addDeleteFieldButton() {
-    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: DeleteFieldButton(
-            popoverMutex: popoverMutex,
-            onDeleted: () {
-              state.field.fold(
-                () => Log.error('Can not delete the field'),
-                (field) => widget.onDeleted?.call(field.id),
-              );
-            },
-          ),
-        );
-      },
+  Widget _addDeleteFieldButton(FieldPB field) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: DeleteFieldButton(
+        popoverMutex: popoverMutex,
+        onDeleted: () {
+          widget.onDeleted?.call(field.id);
+        },
+      ),
     );
   }
 
-  Widget _addHideFieldButton() {
-    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: FieldVisibilityToggleButton(
-            isFieldHidden:
-                widget.fieldInfo!.visibility == FieldVisibility.AlwaysHidden,
-            popoverMutex: popoverMutex,
-            onTap: () {
-              state.field.fold(
-                () => Log.error('Can not hidden the field'),
-                (field) => widget.onToggleVisibility?.call(field.id),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-class FieldTypeOptionCell extends StatelessWidget {
-  final PopoverMutex popoverMutex;
-
-  const FieldTypeOptionCell({
-    Key? key,
-    required this.popoverMutex,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      buildWhen: (p, c) => p.field != c.field,
-      builder: (context, state) {
-        return state.field.fold(
-          () => const SizedBox.shrink(),
-          (fieldInfo) {
-            final dataController =
-                context.read<FieldEditorBloc>().dataController;
-            return FieldTypeOptionEditor(
-              dataController: dataController,
-              popoverMutex: popoverMutex,
-            );
-          },
-        );
-      },
+  Widget _addHideFieldButton(FieldPB field) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: FieldVisibilityToggleButton(
+        isFieldHidden: field.visibility == FieldVisibility.AlwaysHidden,
+        popoverMutex: popoverMutex,
+        onTap: () {
+          widget.onToggleVisibility?.call(field.id);
+        },
+      ),
     );
   }
 }
@@ -161,8 +126,8 @@ class FieldNameTextField extends StatefulWidget {
   final PopoverMutex popoverMutex;
   const FieldNameTextField({
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<FieldNameTextField> createState() => _FieldNameTextFieldState();
@@ -199,7 +164,7 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
             focusNode: focusNode,
             controller: textController,
             onSubmitted: (String _) => PopoverContainer.of(context).close(),
-            text: state.name,
+            text: state.field.name,
             errorText: state.errorText.isEmpty ? null : state.errorText,
             onChanged: (newName) {
               context
@@ -240,7 +205,7 @@ class DeleteFieldButton extends StatelessWidget {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
-        final enable = !state.canDelete && !state.isGroupField;
+        final enable = !state.field.isPrimary && !state.isGroupField;
         final Widget button = FlowyButton(
           disable: !enable,
           text: FlowyText.medium(

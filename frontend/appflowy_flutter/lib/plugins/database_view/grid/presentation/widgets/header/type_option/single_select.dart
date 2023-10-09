@@ -1,39 +1,43 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/single_select_type_option.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
-import 'package:flutter/material.dart';
-import '../field_type_option_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'builder.dart';
+import 'package:flutter/widgets.dart';
+
 import 'select_option.dart';
 
-class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final SingleSelectTypeOptionWidget _widget;
+// class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
+//   final SingleSelectTypeOptionWidget _widget;
 
-  SingleSelectTypeOptionWidgetBuilder(
-    SingleSelectTypeOptionContext singleSelectTypeOption,
-    PopoverMutex popoverMutex,
-  ) : _widget = SingleSelectTypeOptionWidget(
-          selectOptionAction: SingleSelectAction(
-            fieldId: singleSelectTypeOption.fieldId,
-            viewId: singleSelectTypeOption.viewId,
-            typeOptionContext: singleSelectTypeOption,
-          ),
-          popoverMutex: popoverMutex,
-        );
+//   SingleSelectTypeOptionWidgetBuilder(
+//     SingleSelectTypeOptionContext singleSelectTypeOption,
+//     PopoverMutex popoverMutex,
+//   ) : _widget = SingleSelectTypeOptionWidget(
+//           selectOptionAction: SingleSelectAction(
+//             fieldId: singleSelectTypeOption.fieldId,
+//             viewId: singleSelectTypeOption.viewId,
+//             typeOptionContext: singleSelectTypeOption,
+//           ),
+//           popoverMutex: popoverMutex,
+//         );
 
-  @override
-  Widget? build(BuildContext context) => _widget;
-}
+//   @override
+//   Widget? build(BuildContext context) => _widget;
+// }
 
-class SingleSelectTypeOptionWidget extends TypeOptionWidget {
+class SingleSelectTypeOptionEditor extends StatelessWidget {
+  final SingleSelectTypeOptionParser parser;
   final SingleSelectAction selectOptionAction;
   final PopoverMutex? popoverMutex;
 
-  const SingleSelectTypeOptionWidget({
-    Key? key,
-    required this.selectOptionAction,
+  SingleSelectTypeOptionEditor({
+    required this.parser,
     this.popoverMutex,
-  }) : super(key: key);
+    super.key,
+  }) : selectOptionAction = SingleSelectAction(
+          fieldId: singleSelectTypeOption.fieldId,
+          viewId: singleSelectTypeOption.viewId,
+          typeOptionContext: singleSelectTypeOption,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,6 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
       },
       popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
-      // key: ValueKey(state.typeOption.hashCode),
     );
   }
 }

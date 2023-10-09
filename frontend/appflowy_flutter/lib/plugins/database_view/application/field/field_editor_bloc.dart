@@ -1,72 +1,52 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
-import 'field_service.dart';
-import 'type_option/type_option_parser.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'type_option/type_option_data_controller.dart';
+
+import 'field_controller.dart';
+import 'field_listener.dart';
 
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final TypeOptionController dataController;
+  final String fieldId;
+  final SingleFieldListener _fieldListener;
+  final FieldController fieldController;
 
   FieldEditorBloc({
+    required this.fieldId,
+    required this.fieldController,
     required bool isGroupField,
-    required FieldPB field,
-    required FieldTypeOptionLoader loader,
-  })  : dataController = TypeOptionController(
-          field: field,
-          loader: loader,
-        ),
+  })  : _fieldListener = SingleFieldListener(fieldId: fieldId),
         super(
-          FieldEditorState.initial(
-            loader.viewId,
-            loader.field.name,
-            isGroupField,
-          ),
+          FieldEditorState.initial(fieldId, fieldController, isGroupField),
         ) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
-            dataController.addFieldListener((field) {
-              if (!isClosed) {
-                add(FieldEditorEvent.didReceiveFieldChanged(field));
-              }
-            });
-            await dataController.reloadTypeOption();
-            add(FieldEditorEvent.didReceiveFieldChanged(dataController.field));
-          },
-          updateName: (name) {
-            if (state.name != name) {
-              dataController.fieldName = name;
-              emit(state.copyWith(name: name));
-            }
-          },
-          didReceiveFieldChanged: (FieldPB field) {
-            emit(
-              state.copyWith(
-                field: Some(field),
-                name: field.name,
-                canDelete: field.isPrimary,
-              ),
-            );
-          },
-          deleteField: () {
-            state.field.fold(
-              () => null,
-              (field) {
-                final fieldService = FieldBackendService(
-                  viewId: loader.viewId,
-                  fieldId: field.id,
-                );
-                fieldService.deleteField();
+            _fieldListener.start(
+              onFieldChanged: (field) {
+                if (!isClosed) {
+                  add(FieldEditorEvent.didReceiveFieldChanged(field));
+                }
               },
             );
           },
+          updateName: (name) {
+            fieldController.fieldService
+                .updateField(fieldId: fieldId, name: name);
+          },
+          didReceiveFieldChanged: (FieldPB field) {
+            emit(state.copyWith(field: field));
+          },
+          deleteField: () {
+            fieldController.fieldService.deleteField(fieldId: fieldId);
+          },
           switchToField: (FieldType fieldType) async {
-            await dataController.switchToField(fieldType);
+            await fieldController.fieldService.switchToField(
+              fieldId: fieldId,
+              newFieldType: fieldType,
+            );
           },
         );
       },
@@ -88,25 +68,21 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required String viewId,
+    required FieldPB field,
     required String errorText,
-    required String name,
-    required Option<FieldPB> field,
-    required bool canDelete,
     required bool isGroupField,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(
-    String viewId,
-    String fieldName,
+    String fieldId,
+    FieldController fieldController,
     bool isGroupField,
-  ) =>
-      FieldEditorState(
-        viewId: viewId,
-        errorText: '',
-        field: none(),
-        canDelete: false,
-        name: fieldName,
-        isGroupField: isGroupField,
-      );
+  ) {
+    final field = fieldController.getField(fieldId);
+    return FieldEditorState(
+      field: field!,
+      errorText: '',
+      isGroupField: isGroupField,
+    );
+  }
 }

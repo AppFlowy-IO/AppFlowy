@@ -13,24 +13,21 @@ class FieldActionSheetBloc
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
 
-  FieldActionSheetBloc({required FieldContext fieldCellContext})
-      : fieldId = fieldCellContext.fieldInfo.id,
-        fieldService = FieldBackendService(
-          viewId: fieldCellContext.viewId,
-          fieldId: fieldCellContext.fieldInfo.id,
-        ),
-        fieldSettingsService =
-            FieldSettingsBackendService(viewId: fieldCellContext.viewId),
-        super(
-          FieldActionSheetState.initial(
-            TypeOptionPB.create()..field_2 = fieldCellContext.fieldInfo.field,
-          ),
-        ) {
+  FieldActionSheetBloc({
+    required String viewId,
+    required FieldPB field,
+  })  : fieldId = field.id,
+        fieldService = FieldBackendService(viewId: viewId),
+        fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
+        super(FieldActionSheetState.initial(field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
           updateFieldName: (_UpdateFieldName value) async {
-            final result = await fieldService.updateField(name: value.name);
+            final result = await fieldService.updateField(
+              fieldId: fieldId,
+              name: value.name,
+            );
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -57,14 +54,14 @@ class FieldActionSheetBloc
             );
           },
           deleteField: (_DeleteField value) async {
-            final result = await fieldService.deleteField();
+            final result = await fieldService.deleteField(fieldId: fieldId);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           duplicateField: (_DuplicateField value) async {
-            final result = await fieldService.duplicateField();
+            final result = await fieldService.duplicateField(fieldId: fieldId);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -91,15 +88,14 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
 @freezed
 class FieldActionSheetState with _$FieldActionSheetState {
   const factory FieldActionSheetState({
-    required TypeOptionPB fieldTypeOptionData,
+    required List<int> typeOptionData,
     required String errorText,
     required String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(TypeOptionPB data) =>
-      FieldActionSheetState(
-        fieldTypeOptionData: data,
+  factory FieldActionSheetState.initial(FieldPB field) => FieldActionSheetState(
+        typeOptionData: field.typeOptionData,
         errorText: '',
-        fieldName: data.field_2.name,
+        fieldName: field.name,
       );
 }

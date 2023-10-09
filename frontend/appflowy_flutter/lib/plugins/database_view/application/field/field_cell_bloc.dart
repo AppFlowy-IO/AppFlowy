@@ -11,18 +11,16 @@ import 'field_service.dart';
 part 'field_cell_bloc.freezed.dart';
 
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
+  final String viewId;
   final SingleFieldListener _fieldListener;
   final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
-    required FieldContext fieldContext,
-  })  : _fieldListener =
-            SingleFieldListener(fieldId: fieldContext.fieldInfo.id),
-        _fieldBackendSvc = FieldBackendService(
-          viewId: fieldContext.viewId,
-          fieldId: fieldContext.fieldInfo.id,
-        ),
-        super(FieldCellState.initial(fieldContext)) {
+    required this.viewId,
+    required FieldPB field,
+  })  : _fieldListener = SingleFieldListener(fieldId: field.id),
+        _fieldBackendSvc = FieldBackendService(viewId: viewId),
+        super(FieldCellState.initial(field)) {
     on<FieldCellEvent>(
       (event, emit) async {
         event.when(
@@ -30,7 +28,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
             _startListening();
           },
           didReceiveFieldUpdate: (field) {
-            emit(state.copyWith(field: fieldContext.fieldInfo.field));
+            emit(state.copyWith(field: field, width: field.width.toDouble()));
           },
           onResizeStart: () {
             emit(state.copyWith(resizeStart: state.width));
@@ -41,7 +39,10 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           },
           endUpdateWidth: () {
             if (state.width != state.field.width.toDouble()) {
-              _fieldBackendSvc.updateField(width: state.width);
+              _fieldBackendSvc.updateField(
+                fieldId: field.id,
+                width: state.width,
+              );
             }
           },
         );
@@ -81,16 +82,14 @@ class FieldCellEvent with _$FieldCellEvent {
 @freezed
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
-    required String viewId,
     required FieldPB field,
     required double width,
     required double resizeStart,
   }) = _FieldCellState;
 
-  factory FieldCellState.initial(FieldContext cellContext) => FieldCellState(
-        viewId: cellContext.viewId,
-        field: cellContext.fieldInfo.field,
-        width: cellContext.fieldInfo.field.width.toDouble(),
+  factory FieldCellState.initial(FieldPB field) => FieldCellState(
+        field: field,
+        width: field.width.toDouble(),
         resizeStart: 0,
       );
 }

@@ -7,14 +7,13 @@ import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:protobuf/protobuf.dart';
-import 'type_option_data_controller.dart';
 
 abstract class TypeOptionParser<T> {
   T fromBuffer(List<int> buffer);
 }
 
 // Number
-typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOptionPB>;
+typedef NumberTypeOptionParser = TypeOptionParser<NumberTypeOptionPB>;
 
 class NumberTypeOptionDataParser extends TypeOptionParser<NumberTypeOptionPB> {
   @override
@@ -24,7 +23,7 @@ class NumberTypeOptionDataParser extends TypeOptionParser<NumberTypeOptionPB> {
 }
 
 // RichText
-typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOptionPB>;
+typedef RichTextTypeOptionParser = TypeOptionParser<RichTextTypeOptionPB>;
 
 class RichTextTypeOptionDataParser
     extends TypeOptionParser<RichTextTypeOptionPB> {
@@ -35,7 +34,7 @@ class RichTextTypeOptionDataParser
 }
 
 // Checkbox
-typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOptionPB>;
+typedef CheckboxTypeOptionParser = TypeOptionParser<CheckboxTypeOptionPB>;
 
 class CheckboxTypeOptionDataParser
     extends TypeOptionParser<CheckboxTypeOptionPB> {
@@ -46,7 +45,7 @@ class CheckboxTypeOptionDataParser
 }
 
 // URL
-typedef URLTypeOptionContext = TypeOptionContext<URLTypeOptionPB>;
+typedef URLTypeOptionParser = TypeOptionParser<URLTypeOptionPB>;
 
 class URLTypeOptionDataParser extends TypeOptionParser<URLTypeOptionPB> {
   @override
@@ -56,7 +55,7 @@ class URLTypeOptionDataParser extends TypeOptionParser<URLTypeOptionPB> {
 }
 
 // DateTime
-typedef DateTypeOptionContext = TypeOptionContext<DateTypeOptionPB>;
+typedef DateTypeOptionParser = TypeOptionParser<DateTypeOptionPB>;
 
 class DateTypeOptionDataParser extends TypeOptionParser<DateTypeOptionPB> {
   @override
@@ -66,7 +65,7 @@ class DateTypeOptionDataParser extends TypeOptionParser<DateTypeOptionPB> {
 }
 
 // LastModified and CreatedAt
-typedef TimestampTypeOptionContext = TypeOptionContext<TimestampTypeOptionPB>;
+typedef TimestampTypeOptionParser = TypeOptionParser<TimestampTypeOptionPB>;
 
 class TimestampTypeOptionDataParser
     extends TypeOptionParser<TimestampTypeOptionPB> {
@@ -77,8 +76,8 @@ class TimestampTypeOptionDataParser
 }
 
 // SingleSelect
-typedef SingleSelectTypeOptionContext
-    = TypeOptionContext<SingleSelectTypeOptionPB>;
+typedef SingleSelectTypeOptionParser
+    = TypeOptionParser<SingleSelectTypeOptionPB>;
 
 class SingleSelectTypeOptionDataParser
     extends TypeOptionParser<SingleSelectTypeOptionPB> {
@@ -89,8 +88,7 @@ class SingleSelectTypeOptionDataParser
 }
 
 // Multi-select
-typedef MultiSelectTypeOptionContext
-    = TypeOptionContext<MultiSelectTypeOptionPB>;
+typedef MultiSelectTypeOptionParser = TypeOptionParser<MultiSelectTypeOptionPB>;
 
 class MultiSelectTypeOptionDataParser
     extends TypeOptionParser<MultiSelectTypeOptionPB> {
@@ -101,54 +99,12 @@ class MultiSelectTypeOptionDataParser
 }
 
 // Multi-select
-typedef ChecklistTypeOptionContext = TypeOptionContext<ChecklistTypeOptionPB>;
+typedef ChecklistTypeOptionParser = TypeOptionParser<ChecklistTypeOptionPB>;
 
 class ChecklistTypeOptionDataParser
     extends TypeOptionParser<ChecklistTypeOptionPB> {
   @override
   ChecklistTypeOptionPB fromBuffer(List<int> buffer) {
     return ChecklistTypeOptionPB.fromBuffer(buffer);
-  }
-}
-
-class TypeOptionContext<T extends GeneratedMessage> {
-  T? _typeOptionObject;
-  final TypeOptionParser<T> dataParser;
-  final TypeOptionController _dataController;
-
-  TypeOptionContext({
-    required this.dataParser,
-    required TypeOptionController dataController,
-  }) : _dataController = dataController;
-
-  String get viewId => _dataController.loader.viewId;
-
-  String get fieldId => _dataController.field.id;
-
-  Future<T> loadTypeOptionData({
-    void Function(T)? onCompleted,
-    required void Function(FlowyError) onError,
-  }) async {
-    await _dataController.reloadTypeOption().then((result) {
-      result.fold((l) => null, (err) => onError(err));
-    });
-
-    onCompleted?.call(typeOption);
-    return typeOption;
-  }
-
-  T get typeOption {
-    if (_typeOptionObject != null) {
-      return _typeOptionObject!;
-    }
-
-    final T object = _dataController.getTypeOption(dataParser);
-    _typeOptionObject = object;
-    return object;
-  }
-
-  set typeOption(T typeOption) {
-    _dataController.typeOptionData = typeOption.writeToBuffer();
-    _typeOptionObject = typeOption;
   }
 }

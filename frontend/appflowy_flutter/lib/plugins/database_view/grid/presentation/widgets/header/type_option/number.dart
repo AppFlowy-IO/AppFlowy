@@ -13,40 +13,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
-import '../field_type_option_editor.dart';
-import 'builder.dart';
 
-class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final NumberTypeOptionWidget _widget;
-
-  NumberTypeOptionWidgetBuilder(
-    NumberTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
-  ) : _widget = NumberTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
-          popoverMutex: popoverMutex,
-        );
-
-  @override
-  Widget? build(BuildContext context) {
-    return Column(
-      children: [
-        VSpace(GridSize.typeOptionSeparatorHeight),
-        const TypeOptionSeparator(),
-        _widget,
-      ],
-    );
-  }
-}
-
-class NumberTypeOptionWidget extends TypeOptionWidget {
-  final NumberTypeOptionContext typeOptionContext;
+class NumberTypeOptionEditor extends StatelessWidget {
+  final NumberTypeOptionParser parser;
   final PopoverMutex popoverMutex;
-  const NumberTypeOptionWidget({
-    required this.typeOptionContext,
+
+  const NumberTypeOptionEditor({
+    required this.parser,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

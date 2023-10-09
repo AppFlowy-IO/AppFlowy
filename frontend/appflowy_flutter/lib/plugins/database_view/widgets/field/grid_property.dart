@@ -1,7 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -44,7 +42,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
-          final cells = state.fieldContexts.map((field) {
+          final cells = state.fields.map((field) {
             return GridPropertyCell(
               key: ValueKey(field.id),
               viewId: widget.viewId,
@@ -78,13 +76,13 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
 
 @visibleForTesting
 class GridPropertyCell extends StatefulWidget {
-  final FieldInfo fieldInfo;
+  final FieldPB field;
   final String viewId;
   final PopoverMutex popoverMutex;
 
   const GridPropertyCell({
     super.key,
-    required this.fieldInfo,
+    required this.field,
     required this.viewId,
     required this.popoverMutex,
   });
@@ -98,9 +96,9 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
 
   @override
   Widget build(BuildContext context) {
-    final visiblity = widget.fieldInfo.visibility;
+    final visiblity = widget.field.visibility;
     final visibleIcon = FlowySvg(
-      visiblity != null && visiblity != FieldVisibility.AlwaysHidden
+      visiblity != FieldVisibility.AlwaysHidden
           ? FlowySvgs.show_m
           : FlowySvgs.hide_m,
       color: Theme.of(context).iconTheme.color,
@@ -119,26 +117,20 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
-            widget.fieldInfo.name,
+            widget.field.name,
             color: AFThemeExtension.of(context).textColor,
           ),
           leftIcon: FlowySvg(
-            widget.fieldInfo.fieldType.icon(),
+            widget.field.fieldType.icon(),
             color: Theme.of(context).iconTheme.color,
           ),
           rightIcon: FlowyIconButton(
             hoverColor: Colors.transparent,
             onPressed: () {
-              if (widget.fieldInfo.fieldSettings == null) {
-                return;
-              }
-
-              final newVisiblity = _newFieldVisibility(
-                widget.fieldInfo.fieldSettings!.visibility,
-              );
+              final newVisiblity = _newFieldVisibility(widget.field.visibility);
               context.read<DatabasePropertyBloc>().add(
                     DatabasePropertyEvent.setFieldVisibility(
-                      widget.fieldInfo.id,
+                      widget.field.id,
                       newVisiblity,
                     ),
                   );
@@ -151,7 +143,7 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
-          fieldInfo: widget.fieldInfo,
+          field: widget.field,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.viewId,
             field: widget.fieldInfo.field,

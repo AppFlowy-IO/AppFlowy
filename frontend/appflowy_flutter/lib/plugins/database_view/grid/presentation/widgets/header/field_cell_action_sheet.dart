@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
@@ -20,9 +21,13 @@ import '../../layout/sizes.dart';
 import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
-  final FieldContext cellContext;
-  const GridFieldCellActionSheet({required this.cellContext, Key? key})
-      : super(key: key);
+  final String viewId;
+  final FieldPB field;
+  const GridFieldCellActionSheet({
+    required this.viewId,
+    required this.field,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() => _GridFieldCellActionSheetState();
@@ -37,18 +42,16 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       return SizedBox(
         width: 400,
         child: FieldEditor(
-          viewId: widget.cellContext.viewId,
-          fieldInfo: widget.cellContext.fieldInfo,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.cellContext.viewId,
-            field: widget.cellContext.fieldInfo.field,
-          ),
+          viewId: widget.viewId,
+          field: widget.field,
         ),
       );
     }
     return BlocProvider(
-      create: (context) =>
-          getIt<FieldActionSheetBloc>(param1: widget.cellContext),
+      create: (context) => getIt<FieldActionSheetBloc>(
+        param1: widget.viewId,
+        param2: widget.field,
+      ),
       child: IntrinsicWidth(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,8 +99,10 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final FieldContext fieldContext;
-  const _FieldOperationList(this.fieldContext, {Key? key}) : super(key: key);
+  final String viewId;
+  final FieldBackendService _fieldService;
+  _FieldOperationList({required this.viewId})
+      : _fieldService = FieldBackendService(viewId: viewId);
 
   @override
   Widget build(BuildContext context) {
@@ -155,16 +160,17 @@ class _FieldOperationList extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final FieldContext fieldInfo;
+  final String viewId;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
-    required this.fieldInfo,
     required this.action,
     required this.enable,
-    Key? key,
-  }) : super(key: key);
+    required this.viewId,
+    required this.field,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +183,7 @@ class FieldActionCell extends StatelessWidget {
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () => action.run(context, fieldInfo),
+      onTap: () => action.run(context, viewId, fieldId),
       leftIcon: FlowySvg(
         action.icon(),
         color: enable
@@ -217,7 +223,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, FieldContext fieldContext) {
+  void run(BuildContext context, String viewId, String fieldId) {
     switch (this) {
       case FieldAction.hide:
         context
@@ -228,8 +234,8 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldBackendService(
-          viewId: fieldContext.viewId,
-          fieldId: fieldContext.fieldInfo.id,
+          viewId: viewId,
+          fieldId: fieldInfo.id,
         ).duplicateField();
 
         break;

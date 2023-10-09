@@ -11,34 +11,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
-import '../field_type_option_editor.dart';
-import 'builder.dart';
 
-class DateTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-  final DateTypeOptionWidget _widget;
-
-  DateTypeOptionWidgetBuilder(
-    DateTypeOptionContext typeOptionContext,
-    PopoverMutex popoverMutex,
-  ) : _widget = DateTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
-          popoverMutex: popoverMutex,
-        );
-
-  @override
-  Widget? build(BuildContext context) {
-    return _widget;
-  }
-}
-
-class DateTypeOptionWidget extends TypeOptionWidget {
-  final DateTypeOptionContext typeOptionContext;
+class DateTimeTypeOptionEditor extends StatelessWidget {
+  final DateTypeOptionParser parser;
   final PopoverMutex popoverMutex;
-  const DateTypeOptionWidget({
-    required this.typeOptionContext,
+
+  const DateTimeTypeOptionEditor({
+    required this.parser,
     required this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
