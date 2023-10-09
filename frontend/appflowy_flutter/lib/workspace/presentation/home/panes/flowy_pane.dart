@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -39,9 +40,10 @@ class _FlowyPaneState extends State<FlowyPane> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TabsController>(
+      key: ValueKey(widget.node.tabs.tabId),
       create: (context) => widget.node.tabs,
       child: Consumer<TabsController>(
-        builder: (context, value, child) {
+        builder: (_, value, __) {
           return DraggablePaneTarget(
             size: widget.size,
             paneContext: widget.paneContext,
@@ -50,6 +52,7 @@ class _FlowyPaneState extends State<FlowyPane> {
               behavior: const ScrollBehavior().copyWith(scrollbars: true),
               child: SingleChildScrollView(
                 controller: verticalController,
+                scrollDirection: Axis.vertical,
                 child: SingleChildScrollView(
                   controller: horizontalController,
                   scrollDirection: Axis.horizontal,

@@ -34,6 +34,7 @@ class FlowyPaneGroup extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => context.read<PanesCubit>().setActivePane(node),
         child: FlowyPane(
+          key: ValueKey(node.paneId),
           node: node,
           delegate: delegate,
           layout: layout,

@@ -93,7 +93,6 @@ class _TabsManagerState extends State<TabsManager>
                   tabs: widget.tabs,
                   pageManager: pm,
                   child: FlowyTab(
-                    key: ValueKey(pm.notifier.plugin.id),
                     paneNode: widget.pane,
                     pageManager: pm,
                     isCurrent: widget.tabs.currentPageManager == pm,
