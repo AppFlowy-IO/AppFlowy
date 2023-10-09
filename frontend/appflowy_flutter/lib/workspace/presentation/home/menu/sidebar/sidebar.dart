@@ -71,12 +71,10 @@ class HomeSideBar extends StatelessWidget {
                 if (action != null) {
                   switch (action.type) {
                     case ActionType.openView:
-                      final view = context
-                          .read<MenuBloc>()
-                          .state
-                          .views
-                          .firstWhereOrNull(
-                              (view) => action.objectId == view.id);
+                      final view =
+                          context.read<MenuBloc>().state.views.firstWhereOrNull(
+                                (view) => action.objectId == view.id,
+                              );
 
                       if (view != null) {
                         context
