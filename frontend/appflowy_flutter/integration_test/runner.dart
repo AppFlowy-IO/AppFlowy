@@ -18,12 +18,13 @@ import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
-import 'tabs_test.dart' as tabs_test;
+import 'tabs/tabs_test.dart' as tabs_test;
 import 'hotkeys_test.dart' as hotkeys_test;
 import 'appearance_settings_test.dart' as appearance_test_runner;
 import 'auth/auth_test.dart' as auth_test_runner;
 import 'settings/user_icon_test.dart' as user_icon_test;
 import 'settings/user_language_test.dart' as user_language_test;
+import 'panes/panes_test.dart' as panes_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -62,6 +63,9 @@ void main() {
 
   // Tabs
   tabs_test.main();
+
+  //Panes
+  panes_test.main();
 
   // Others
   hotkeys_test.main();
