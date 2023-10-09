@@ -259,7 +259,7 @@ class NotificationFilterPopover extends StatelessWidget {
                           ? () =>
                               bloc.add(const NotificationFilterEvent.reset())
                           : null,
-                      text: FlowyText('Reset to default'),
+                      text: const FlowyText('Reset to default'),
                     ),
                   ),
                 ],

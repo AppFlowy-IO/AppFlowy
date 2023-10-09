@@ -75,13 +75,16 @@ class NotificationsGroupView extends StatelessWidget {
                                 ? (isRead) => reminderBloc.add(
                                       ReminderEvent.update(
                                         ReminderUpdate(
-                                            id: reminder.id, isRead: isRead),
+                                          id: reminder.id,
+                                          isRead: isRead,
+                                        ),
                                       ),
                                     )
                                 : null,
                             onDelete: !isUpcoming
                                 ? () => reminderBloc.add(
-                                    ReminderEvent.remove(reminder: reminder))
+                                      ReminderEvent.remove(reminder: reminder),
+                                    )
                                 : null,
                             onAction: () {
                               final view = views.firstWhereOrNull(
@@ -94,7 +97,8 @@ class NotificationsGroupView extends StatelessWidget {
 
                               reminderBloc.add(
                                 ReminderEvent.pressReminder(
-                                    reminderId: reminder.id),
+                                  reminderId: reminder.id,
+                                ),
                               );
 
                               mutex.close();
