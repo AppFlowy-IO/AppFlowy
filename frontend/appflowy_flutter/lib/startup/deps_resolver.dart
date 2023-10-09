@@ -9,12 +9,13 @@ import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -79,6 +80,23 @@ void _resolveCommonService(
           return HttpOpenAIRepository(
             client: http.Client(),
             apiKey: r.openaiKey,
+          );
+        },
+      );
+    },
+  );
+
+  getIt.registerFactoryAsync<StabilityAIRepository>(
+    () async {
+      final result = await UserBackendService.getCurrentUserProfile();
+      return result.fold(
+        (l) {
+          throw Exception('Failed to get user profile: ${l.msg}');
+        },
+        (r) {
+          return HttpStabilityAIRepository(
+            client: http.Client(),
+            apiKey: r.stabilityAiKey,
           );
         },
       );

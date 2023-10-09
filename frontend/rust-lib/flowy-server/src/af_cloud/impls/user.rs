@@ -116,6 +116,7 @@ where
         token: token_from_client(client).await.unwrap_or("".to_string()),
         icon_url: "".to_owned(),
         openai_key: "".to_owned(),
+        stability_ai_key: "".to_owned(),
         workspace_id: match profile.latest_workspace_id {
           Some(w) => w.to_string(),
           None => "".to_string(),

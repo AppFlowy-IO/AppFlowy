@@ -64,6 +64,7 @@ async fn supabase_update_user_profile_test() {
         password: None,
         icon_url: None,
         openai_key: None,
+        stability_ai_key: None,
         encryption_sign: None,
       },
     )
