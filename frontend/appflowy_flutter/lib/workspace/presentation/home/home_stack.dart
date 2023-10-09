@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
@@ -15,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +47,7 @@ class HomeStack extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PanesCubit, PanesState>(
       builder: (context, state) {
-        _printTree(state.root);
+        // _printTree(state.root);
         return BlocBuilder<HomeSettingBloc, HomeSettingState>(
           builder: (context, homeState) {
             return FlowyPaneGroup(
@@ -245,53 +248,6 @@ class PageManager {
     );
   }
 
-  Widget _buildWidgetStack({required Function(ViewPB, int?) onDeleted}) {
-    return FadingIndexedStack(
-      index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
-      children: getIt<PluginSandbox>().supportPluginTypes.map(
-        (pluginType) {
-          if (pluginType == notifier.plugin.pluginType) {
-            final builder = notifier.plugin.widgetBuilder;
-            final pluginWidget = builder.buildWidget(
-              context: PluginContext(onDeleted: onDeleted),
-              shrinkWrap: false,
-            );
-
-            return Padding(
-              padding: builder.contentPadding,
-              child: pluginWidget,
-            );
-          }
-
-          return const BlankPage();
-        },
-      ).toList(),
-    );
-  }
-
-  Widget _buildReadOnlyBanner(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 20),
-      child: Container(
-        width: double.infinity,
-        color: colorScheme.primary,
-        child: FittedBox(
-          alignment: Alignment.center,
-          fit: BoxFit.scaleDown,
-          child: Row(
-            children: [
-              FlowyText.medium(
-                LocaleKeys.readOnlyViewText.tr(),
-                fontSize: 14,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget stackWidget({
     required Function(ViewPB, int?) onDeleted,
     required BuildContext context,
@@ -300,20 +256,10 @@ class PageManager {
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(
         builder: (_, PageNotifier notifier, __) {
-          if (notifier.readOnly) {
-            return Stack(
-              children: [
-                AbsorbPointer(
-                  child: Opacity(
-                    opacity: 0.5,
-                    child: _buildWidgetStack(onDeleted: onDeleted),
-                  ),
-                ),
-                Positioned(child: _buildReadOnlyBanner(context))
-              ],
-            );
-          }
-          return _buildWidgetStack(onDeleted: onDeleted);
+          return HomeBody(
+            notifier: notifier,
+            onDeleted: onDeleted,
+          );
         },
       ),
     );
@@ -365,6 +311,132 @@ class HomeTopBar extends StatelessWidget {
           ],
         ),
       ).bottomBorder(color: Theme.of(context).dividerColor),
+    );
+  }
+}
+
+class HomeBody extends StatefulWidget {
+  final PageNotifier notifier;
+  final Function(ViewPB, int?) onDeleted;
+
+  const HomeBody({
+    super.key,
+    required this.notifier,
+    required this.onDeleted,
+  });
+
+  @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  late final absorbTapsNotifier = ValueNotifier<bool>(widget.notifier.readOnly);
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.notifier.readOnly) {
+      return ValueListenableBuilder(
+        valueListenable: absorbTapsNotifier,
+        builder: (_, value, __) => Stack(
+          children: [
+            GestureDetector(
+              child: Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerPanZoomUpdate: (event) {
+                  absorbTapsNotifier.value = false;
+                  _timer?.cancel();
+                },
+                onPointerPanZoomEnd: (event) {
+                  _timer?.cancel();
+
+                  _timer = Timer(const Duration(milliseconds: 500), () {
+                    absorbTapsNotifier.value = true;
+                    _timer?.cancel();
+                  });
+                },
+                onPointerPanZoomStart: (event) {
+                  absorbTapsNotifier.value = false;
+                },
+                onPointerSignal: (signal) {
+                  if (signal is PointerScrollEvent) {
+                    absorbTapsNotifier.value = false;
+
+                    _timer?.cancel();
+
+                    _timer = Timer(const Duration(milliseconds: 20), () {
+                      absorbTapsNotifier.value = true;
+                      _timer?.cancel();
+                    });
+                  }
+                },
+                child: IgnorePointer(
+                  ignoring: value,
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: _buildWidgetStack(onDeleted: widget.onDeleted),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(child: _buildReadOnlyBanner(context))
+          ],
+        ),
+      );
+    }
+    return _buildWidgetStack(onDeleted: widget.onDeleted);
+  }
+
+  Widget _buildWidgetStack({required Function(ViewPB, int?) onDeleted}) {
+    return FadingIndexedStack(
+      index: getIt<PluginSandbox>().indexOf(widget.notifier.plugin.pluginType),
+      children: getIt<PluginSandbox>().supportPluginTypes.map(
+        (pluginType) {
+          if (pluginType == widget.notifier.plugin.pluginType) {
+            final builder = widget.notifier.plugin.widgetBuilder;
+            final pluginWidget = builder.buildWidget(
+              context: PluginContext(onDeleted: onDeleted),
+              shrinkWrap: true,
+            );
+
+            return Padding(
+              padding: builder.contentPadding,
+              child: pluginWidget,
+            );
+          }
+
+          return const BlankPage();
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildReadOnlyBanner(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 20),
+      child: Container(
+        width: double.infinity,
+        color: colorScheme.primary,
+        child: FittedBox(
+          alignment: Alignment.center,
+          fit: BoxFit.scaleDown,
+          child: Row(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.readOnlyViewText.tr(),
+                fontSize: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
