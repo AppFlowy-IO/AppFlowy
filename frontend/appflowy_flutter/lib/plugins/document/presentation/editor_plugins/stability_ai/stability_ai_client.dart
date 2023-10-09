@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_error.dart';
+import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
-
-// Please fill in your own API key
-const stabilityAIApiKey = '';
 
 enum StabilityAIRequestType {
   imageGenerations;
@@ -26,7 +25,7 @@ abstract class StabilityAIRepository {
   /// [n] is the number of images to generate
   ///
   /// the return value is a list of base64 encoded images
-  Future<List<String>> generateImage({
+  Future<Either<StabilityAIRequestError, List<String>>> generateImage({
     required String prompt,
     int n = 1,
   });
@@ -47,7 +46,7 @@ class HttpStabilityAIRepository implements StabilityAIRepository {
       };
 
   @override
-  Future<List<String>> generateImage({
+  Future<Either<StabilityAIRequestError, List<String>>> generateImage({
     required String prompt,
     int n = 1,
   }) async {
@@ -67,21 +66,30 @@ class HttpStabilityAIRepository implements StabilityAIRepository {
         body: json.encode(parameters),
       );
 
+      final data = json.decode(
+        utf8.decode(response.bodyBytes),
+      );
       if (response.statusCode == 200) {
-        final data = json.decode(
-          utf8.decode(response.bodyBytes),
-        )['artifacts'] as List;
-        final base64Images = data
+        final artifacts = data['artifacts'] as List;
+        final base64Images = artifacts
             .map(
               (e) => e['base64'].toString(),
             )
             .toList();
-        return base64Images;
+        return Right(base64Images);
       } else {
-        return [];
+        return Left(
+          StabilityAIRequestError(
+            data['message'].toString(),
+          ),
+        );
       }
     } catch (error) {
-      return [];
+      return Left(
+        StabilityAIRequestError(
+          error.toString(),
+        ),
+      );
     }
   }
 }

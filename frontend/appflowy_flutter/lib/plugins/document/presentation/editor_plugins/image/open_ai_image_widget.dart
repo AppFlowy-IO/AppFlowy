@@ -64,7 +64,13 @@ class _OpenAIImageWidgetState extends State<OpenAIImageWidget> {
                   return const CircularProgressIndicator.adaptive();
                 }
                 return data.fold(
-                  (l) => FlowyText(l.message),
+                  (l) => Center(
+                    child: FlowyText(
+                      l.message,
+                      maxLines: 3,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                   (r) => GridView.count(
                     crossAxisCount: 3,
                     mainAxisSpacing: 16.0,

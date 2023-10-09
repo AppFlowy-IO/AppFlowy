@@ -96,7 +96,7 @@ void _resolveCommonService(
         (r) {
           return HttpStabilityAIRepository(
             client: http.Client(),
-            apiKey: stabilityAIApiKey,
+            apiKey: r.stabilityAiKey,
           );
         },
       );

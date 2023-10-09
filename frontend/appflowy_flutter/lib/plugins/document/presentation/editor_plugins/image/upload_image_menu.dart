@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/open
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -52,6 +51,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
   int currentTabIndex = 0;
   List<UploadImageType> values = UploadImageType.values;
   bool supportOpenAI = false;
+  bool supportStabilityAI = false;
 
   @override
   void initState() {
@@ -63,9 +63,15 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           (l) => false,
           (r) => r.openaiKey.isNotEmpty,
         );
-        if (supportOpenAI != this.supportOpenAI) {
+        final supportStabilityAI = value.fold(
+          (l) => false,
+          (r) => r.stabilityAiKey.isNotEmpty,
+        );
+        if (supportOpenAI != this.supportOpenAI ||
+            supportStabilityAI != this.supportStabilityAI) {
           setState(() {
             this.supportOpenAI = supportOpenAI;
+            this.supportStabilityAI = supportStabilityAI;
           });
         }
       },
@@ -157,7 +163,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
                 ),
               );
       case UploadImageType.stabilityAI:
-        return stabilityAIApiKey.isNotEmpty
+        return supportStabilityAI
             ? Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

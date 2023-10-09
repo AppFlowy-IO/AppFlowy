@@ -353,6 +353,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "shortcuts": {

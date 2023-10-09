@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
 
 class UserBackendService {
@@ -26,6 +26,7 @@ class UserBackendService {
     String? email,
     String? iconUrl,
     String? openAIKey,
+    String? stabilityAiKey,
   }) {
     final payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -47,6 +48,10 @@ class UserBackendService {
 
     if (openAIKey != null) {
       payload.openaiKey = openAIKey;
+    }
+
+    if (stabilityAiKey != null) {
+      payload.stabilityAiKey = stabilityAiKey;
     }
 
     return UserEventUpdateUserProfile(payload).send();

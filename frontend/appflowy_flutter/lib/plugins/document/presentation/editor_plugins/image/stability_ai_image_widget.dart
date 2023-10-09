@@ -4,7 +4,9 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_error.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -25,7 +27,7 @@ class StabilityAIImageWidget extends StatefulWidget {
 }
 
 class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
-  Future<List<String>>? future;
+  Future<Either<StabilityAIRequestError, List<String>>>? future;
   String query = '';
 
   @override
@@ -68,32 +70,38 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
                     data == null) {
                   return const CircularProgressIndicator.adaptive();
                 }
-                return data.isEmpty
-                    ? const Text('No result')
-                    : GridView.count(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 16.0,
-                        crossAxisSpacing: 10.0,
-                        childAspectRatio: 4 / 3,
-                        children: data.map(
-                          (e) {
-                            final base64Image = base64Decode(e);
-                            return GestureDetector(
-                              onTap: () async {
-                                final tempDirectory =
-                                    await getTemporaryDirectory();
-                                final path = p.join(
-                                  tempDirectory.path,
-                                  '${uuid()}.png',
-                                );
-                                File(path).writeAsBytesSync(base64Image);
-                                widget.onSelectImage(path);
-                              },
-                              child: Image.memory(base64Image),
+                return data.fold(
+                  (l) => Center(
+                    child: FlowyText(
+                      l.message,
+                      maxLines: 3,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  (r) => GridView.count(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 16.0,
+                    crossAxisSpacing: 10.0,
+                    childAspectRatio: 4 / 3,
+                    children: r.map(
+                      (e) {
+                        final base64Image = base64Decode(e);
+                        return GestureDetector(
+                          onTap: () async {
+                            final tempDirectory = await getTemporaryDirectory();
+                            final path = p.join(
+                              tempDirectory.path,
+                              '${uuid()}.png',
                             );
+                            File(path).writeAsBytesSync(base64Image);
+                            widget.onSelectImage(path);
                           },
-                        ).toList(),
-                      );
+                          child: Image.memory(base64Image),
+                        );
+                      },
+                    ).toList(),
+                  ),
+                );
               },
             ),
           )
