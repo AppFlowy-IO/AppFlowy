@@ -259,7 +259,9 @@ class NotificationFilterPopover extends StatelessWidget {
                           ? () =>
                               bloc.add(const NotificationFilterEvent.reset())
                           : null,
-                      text: const FlowyText('Reset to default'),
+                      text: FlowyText(
+                        LocaleKeys.notificationHub_filters_resetToDefault.tr(),
+                      ),
                     ),
                   ),
                 ],
@@ -286,8 +288,10 @@ class _ShowUnreadsToggle extends StatelessWidget {
           return Row(
             children: [
               const HSpace(4),
-              const Expanded(
-                child: FlowyText('Show unreads only'),
+              Expanded(
+                child: FlowyText(
+                  LocaleKeys.notificationHub_filters_showUnreadsOnly.tr(),
+                ),
               ),
               Toggle(
                 style: ToggleStyle.big,
@@ -320,8 +324,10 @@ class _GroupByDateToggle extends StatelessWidget {
           return Row(
             children: [
               const HSpace(4),
-              const Expanded(
-                child: FlowyText('Group by date'),
+              Expanded(
+                child: FlowyText(
+                  LocaleKeys.notificationHub_filters_groupByDate.tr(),
+                ),
               ),
               Toggle(
                 style: ToggleStyle.big,
@@ -394,7 +400,9 @@ class _SortByOptionState extends State<_SortByOption> {
                           : Theme.of(context).iconTheme.color,
                     ),
                     text: FlowyText.regular(
-                      isSortDescending ? 'Descending' : 'Ascending',
+                      isSortDescending
+                          ? LocaleKeys.notificationHub_filters_descending.tr()
+                          : LocaleKeys.notificationHub_filters_ascending.tr(),
                       color: _isHovering
                           ? Theme.of(context).colorScheme.onSurface
                           : Theme.of(context).textTheme.bodyMedium?.color,

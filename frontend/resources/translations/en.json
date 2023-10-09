@@ -815,11 +815,12 @@
       "inbox": "Inbox",
       "upcoming": "Upcoming"
     },
-    "actions": {
-      "sortByAscending": "Sort ascending",
-      "sortByDescending": "Sort descending",
-      "filterUnreadOnly": "Show unreads only",
-      "filterAll": "Show all"
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Group by date",
+      "showUnreadsOnly": "Show unreads only",
+      "resetToDefault": "Reset to default"
     }
   },
   "reminderNotification": {
