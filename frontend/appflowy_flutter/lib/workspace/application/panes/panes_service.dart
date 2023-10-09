@@ -28,26 +28,24 @@ class PanesService {
       );
 
       final oldChildNode = node.copyWith(
-        paneId: nanoid(),
         parent: newHolderNode,
         axis: null,
-        tabs: TabsController(pageManagers: node.tabs.pageManagers),
+        children: const [],
       );
 
       final newChildNode = fromNode?.copyWith(
-            parent: newHolderNode,
             paneId: nanoid(),
+            parent: newHolderNode,
             children: const [],
             axis: null,
-            tabs: TabsController(pageManagers: fromNode.tabs.pageManagers),
           ) ??
           PaneNode(
             paneId: nanoid(),
             children: const [],
             parent: newHolderNode,
-            axis: null,
-            tabs: TabsController()..openPlugin(plugin: plugin!, newPane: true),
+            tabs: TabsController()..openPlugin(plugin: plugin!),
           );
+
       final ret = newHolderNode.copyWith(
         children: direction == Direction.front
             ? [
@@ -63,42 +61,43 @@ class PanesService {
     }
 
     /// if we haven't found our target node there is a possibility that our
-    /// target node is a child of an already existing holder node, we do a quick lookup at children of current node, if we find target in children, we just append a new child at correct location and return
+    /// target node is a child of an already existing holder node, we do a
+    /// quick lookup at children of current node, if we find target in
+    /// children, we just append a new child at correct location and return
     if (node.axis == axis) {
       for (int i = 0; i < node.children.length; i++) {
         if (node.children[i].paneId == targetPaneId) {
           final newNode = fromNode?.copyWith(
-                parent: node.parent,
-                tabs: TabsController(pageManagers: fromNode.tabs.pageManagers),
+                paneId: nanoid(),
+                parent: node,
               ) ??
               PaneNode(
                 paneId: nanoid(),
                 children: const [],
-                parent: node.parent,
+                parent: node,
                 tabs: TabsController()..openPlugin(plugin: plugin!),
               );
+
+          final list = [...node.children];
+
           if (direction == Direction.front) {
             if (i == node.children.length) {
-              node.children.add(newNode);
+              list.add(newNode);
             } else {
-              node.children.insert(i + 1, newNode);
+              list.insert(i + 1, newNode);
             }
           } else {
-            node.children.insert(i, newNode);
+            list.insert(i, newNode);
           }
-          final ret = node.copyWith(
+
+          ///copyWith is called to assign new paneId and children with updated/
+          ///reconstructed tabscontroller to trigger build of consecutive
+          ///widget else it won't reflect on ui.
+
+          return node.copyWith(
             paneId: nanoid(),
-            children: node.children
-                .map(
-                  (e) => e.copyWith(
-                    tabs: TabsController(
-                      pageManagers: e.tabs.pageManagers,
-                    ),
-                  ),
-                )
-                .toList(),
+            children: list.map((e) => e.copyWith()).toList(),
           );
-          return ret;
         }
       }
     }
@@ -118,13 +117,14 @@ class PanesService {
           ),
         )
         .toList();
+
     return node.copyWith(children: newChildren);
   }
 
   PaneNode closePaneHandler({
     required PaneNode node,
     required String targetPaneId,
-    required bool move,
+    required bool closingToMove,
   }) {
     if (node.paneId == targetPaneId) {
       return node;
@@ -132,35 +132,25 @@ class PanesService {
     for (var i = 0; i < node.children.length; i++) {
       final element = node.children[i];
       if (element.paneId == targetPaneId) {
-        if (!move) {
+        if (!closingToMove) {
           element.tabs.closeAllViews();
         }
+
         node.children.remove(element);
+        final list = List<PaneNode>.from(node.children)..remove(element);
+
         if (node.children.length == 1) {
           final ret = node.children.first.copyWith(
             paneId: nanoid(),
             parent: node.parent,
-            tabs: TabsController(
-              pageManagers: node.children.first.tabs.pageManagers,
-            ),
           );
           return ret;
         }
 
-        final ret = node.copyWith(
-          children: node.children
-              .map(
-                (e) => e.copyWith(
-                  tabs: TabsController(
-                    pageManagers: e.tabs.pageManagers,
-                  ),
-                ),
-              )
-              .toList(),
+        return node.copyWith(
           paneId: nanoid(),
+          children: list.map((e) => e.copyWith()).toList(),
         );
-
-        return ret;
       }
     }
 
@@ -168,7 +158,7 @@ class PanesService {
       return closePaneHandler(
         node: childNode,
         targetPaneId: targetPaneId,
-        move: move,
+        closingToMove: closingToMove,
       );
     }).toList();
 
