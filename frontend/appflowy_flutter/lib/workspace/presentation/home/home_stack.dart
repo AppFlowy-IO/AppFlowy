@@ -89,6 +89,7 @@ class _PageStackState extends State<PageStack>
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: FocusTraversalGroup(
+        descendantsAreFocusable: !widget.pageManager.readOnly,
         child: widget.pageManager.stackWidget(
           onDeleted: (view, index) {
             widget.delegate.didDeleteStackWidget(view, index);
@@ -216,6 +217,7 @@ class PageManager {
 
   void setReadOnlyStatus(bool status) {
     _notifier.readOnlyStatus = status;
+    _notifier._plugin.notifier?.readOnlyStatus = status;
   }
 
   void setStackWithId(String id) {

@@ -157,7 +157,7 @@ class TabsController extends ChangeNotifier {
       tabService.menuSharedState.latestOpenView = view;
     } else {
       final notifier = currentPageManager.plugin.notifier;
-      if (notifier is ViewPluginNotifier) {
+      if (notifier is ViewPluginNotifier && !currentPageManager.readOnly) {
         tabService.menuSharedState.latestOpenView = notifier.view;
       }
     }

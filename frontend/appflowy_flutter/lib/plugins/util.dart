@@ -12,6 +12,12 @@ class ViewPluginNotifier extends PluginNotifier<Option<DeletedViewPB>> {
   @override
   final ValueNotifier<Option<DeletedViewPB>> isDeleted = ValueNotifier(none());
 
+  @override
+  bool get readOnlyStatus => false;
+
+  @override
+  set readOnlyStatus(bool value) => readOnlyStatus = value;
+
   ViewPluginNotifier({
     required this.view,
   }) : _viewListener = ViewListener(viewId: view.id) {

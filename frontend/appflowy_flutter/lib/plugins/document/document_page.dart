@@ -28,10 +28,12 @@ class DocumentPage extends StatefulWidget {
     super.key,
     required this.onDeleted,
     required this.view,
+    required this.readOnlyStatus,
   });
 
   final VoidCallback onDeleted;
   final ViewPB view;
+  final bool readOnlyStatus;
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -99,6 +101,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
+      autoFocus: !widget.readOnlyStatus,
       editorState: editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,

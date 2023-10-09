@@ -96,6 +96,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
       builder: (_, state) {
         return DocumentPage(
           view: view,
+          readOnlyStatus: notifier.readOnlyStatus,
           onDeleted: () => context?.onDeleted(view, deletedViewIndex),
           key: ValueKey(view.id),
         );
