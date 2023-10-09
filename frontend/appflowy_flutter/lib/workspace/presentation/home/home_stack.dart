@@ -24,7 +24,6 @@ import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 
 import 'home_layout.dart';
-import 'menu/menu_shared_state.dart';
 
 typedef NavigationCallback = void Function(String id);
 
@@ -47,7 +46,6 @@ class HomeStack extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PanesCubit, PanesState>(
       builder: (context, state) {
-        // _printTree(state.root);
         return BlocBuilder<HomeSettingBloc, HomeSettingState>(
           builder: (context, homeState) {
             return FlowyPaneGroup(
@@ -61,14 +59,6 @@ class HomeStack extends StatelessWidget {
         );
       },
     );
-  }
-
-  //TODO(squidrye): Remove before merge
-  void _printTree(PaneNode node, [String prefix = '']) {
-    print('$prefix${node} ${getIt<MenuSharedState>().openPlugins}');
-    for (var child in node.children) {
-      _printTree(child, '$prefix └─ ');
-    }
   }
 }
 

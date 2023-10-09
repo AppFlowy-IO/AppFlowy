@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';

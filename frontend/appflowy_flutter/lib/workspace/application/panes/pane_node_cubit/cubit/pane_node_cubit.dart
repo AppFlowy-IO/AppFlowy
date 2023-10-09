@@ -45,8 +45,10 @@ class PaneNodeCubit extends Cubit<PaneNodeState> {
           if (targetReduction >= flex.length) return;
         }
         final newFlex = changeFlex.abs();
-        flex[targetIndex - 1] = min(flex[targetIndex - 1] + newFlex,
-            1 - ((flex.length - targetIndex) * minFlex + prefixFlex));
+        flex[targetIndex - 1] = min(
+          flex[targetIndex - 1] + newFlex,
+          1 - ((flex.length - targetIndex) * minFlex + prefixFlex),
+        );
 
         flex[targetReduction] = max(flex[targetReduction] - newFlex, minFlex);
       } else {
@@ -56,15 +58,18 @@ class PaneNodeCubit extends Cubit<PaneNodeState> {
           if (targetReduction < 0) return;
         }
         final newFlex = changeFlex.abs();
-        flex[targetIndex] = min(flex[targetIndex] + newFlex,
-            1 - ((flex.length - targetIndex) * minFlex + prefixFlex));
+        flex[targetIndex] = min(
+          flex[targetIndex] + newFlex,
+          1 - ((flex.length - targetIndex) * minFlex + prefixFlex),
+        );
 
         flex[targetReduction] = max(flex[targetReduction] - newFlex, minFlex);
       }
       emit(
         state.copyWith(
-            flex: flex,
-            resizeOffset: state.resizeOffset..[targetIndex] = newPosition),
+          flex: flex,
+          resizeOffset: state.resizeOffset..[targetIndex] = newPosition,
+        ),
       );
     }
   }
