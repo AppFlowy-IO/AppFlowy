@@ -5,6 +5,7 @@ use std::time::Duration;
 use std::{fmt, sync::Arc};
 
 use tokio::sync::RwLock;
+use tracing::error;
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
@@ -179,9 +180,12 @@ impl AppFlowyCore {
     let cloned_user_session = Arc::downgrade(&user_manager);
     runtime.block_on(async move {
       if let Some(user_session) = cloned_user_session.upgrade() {
-        user_session
+        if let Err(err) = user_session
           .init(user_status_callback, collab_interact_impl)
-          .await;
+          .await
+        {
+          error!("Init user failed: {}", err)
+        }
       }
     });
 

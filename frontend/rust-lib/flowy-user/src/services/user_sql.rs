@@ -71,6 +71,7 @@ pub struct UserTableChangeset {
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
   pub encryption_type: Option<String>,
+  pub token: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -87,6 +88,7 @@ impl UserTableChangeset {
       icon_url: params.icon_url,
       openai_key: params.openai_key,
       encryption_type,
+      token: params.token,
     }
   }
 
@@ -100,6 +102,7 @@ impl UserTableChangeset {
       icon_url: Some(user_profile.icon_url),
       openai_key: Some(user_profile.openai_key),
       encryption_type: Some(encryption_type),
+      token: Some(user_profile.token),
     }
   }
 }

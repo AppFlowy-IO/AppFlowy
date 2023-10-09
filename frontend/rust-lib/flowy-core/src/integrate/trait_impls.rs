@@ -1,11 +1,13 @@
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::Error;
 use bytes::Bytes;
-use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
+use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
-use collab_define::CollabType;
+use collab_entity::CollabType;
+use tokio_stream::wrappers::WatchStream;
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -19,7 +21,7 @@ use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, W
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::AuthType;
+use flowy_user_deps::entities::{AuthType, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
@@ -51,6 +53,17 @@ impl FileStorageService for ServerProvider {
 }
 
 impl UserCloudServiceProvider for ServerProvider {
+  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
+    let server = self.get_server(&self.get_server_type())?;
+    server.set_token(token)?;
+    Ok(())
+  }
+
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
+    let server = self.get_server(&self.get_server_type()).ok()?;
+    server.subscribe_token_state()
+  }
+
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     match self.get_server(&self.get_server_type()) {
       Ok(server) => {
@@ -281,7 +294,9 @@ impl CollabStorageProvider for ServerProvider {
                 ));
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
-                let sink_config = SinkConfig::new().with_timeout(6);
+                let sink_config = SinkConfig::new()
+                  .with_timeout(6)
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,

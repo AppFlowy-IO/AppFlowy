@@ -54,19 +54,12 @@ async fn supabase_update_user_profile_test() {
     .await
     .unwrap();
 
+  let params = UpdateUserProfileParams::new(user.user_id)
+    .with_name("123")
+    .with_email(format!("{}@test.com", Uuid::new_v4()));
+
   user_service
-    .update_user(
-      UserCredentials::from_uid(user.user_id),
-      UpdateUserProfileParams {
-        uid: user.user_id,
-        name: Some("123".to_string()),
-        email: Some(format!("{}@test.com", Uuid::new_v4())),
-        password: None,
-        icon_url: None,
-        openai_key: None,
-        encryption_sign: None,
-      },
-    )
+    .update_user(UserCredentials::from_uid(user.user_id), params)
     .await
     .unwrap();
 

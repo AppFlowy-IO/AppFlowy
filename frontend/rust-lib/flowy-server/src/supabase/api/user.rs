@@ -9,7 +9,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;

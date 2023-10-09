@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 use anyhow::Error;
 use chrono::{DateTime, Utc};
 use collab::preclude::merge_updates_v1;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
   MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };

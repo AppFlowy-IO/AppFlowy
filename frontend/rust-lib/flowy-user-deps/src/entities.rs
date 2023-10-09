@@ -265,6 +265,7 @@ pub struct UpdateUserProfileParams {
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
   pub encryption_sign: Option<String>,
+  pub token: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -275,23 +276,28 @@ impl UpdateUserProfileParams {
     }
   }
 
-  pub fn with_name(mut self, name: &str) -> Self {
-    self.name = Some(name.to_owned());
+  pub fn with_token(mut self, token: String) -> Self {
+    self.token = Some(token);
     self
   }
 
-  pub fn with_email(mut self, email: &str) -> Self {
-    self.email = Some(email.to_owned());
+  pub fn with_name<T: ToString>(mut self, name: T) -> Self {
+    self.name = Some(name.to_string());
     self
   }
 
-  pub fn with_password(mut self, password: &str) -> Self {
-    self.password = Some(password.to_owned());
+  pub fn with_email<T: ToString>(mut self, email: T) -> Self {
+    self.email = Some(email.to_string());
     self
   }
 
-  pub fn with_icon_url(mut self, icon_url: &str) -> Self {
-    self.icon_url = Some(icon_url.to_owned());
+  pub fn with_password<T: ToString>(mut self, password: T) -> Self {
+    self.password = Some(password.to_string());
+    self
+  }
+
+  pub fn with_icon_url<T: ToString>(mut self, icon_url: T) -> Self {
+    self.icon_url = Some(icon_url.to_string());
     self
   }
 
@@ -362,4 +368,10 @@ pub struct SupabaseOAuthParams {
 pub struct AFCloudOAuthParams {
   pub sign_in_url: String,
   pub device_id: String,
+}
+
+#[derive(Clone, Debug)]
+pub enum UserTokenState {
+  Refresh { token: String },
+  Invalid,
 }

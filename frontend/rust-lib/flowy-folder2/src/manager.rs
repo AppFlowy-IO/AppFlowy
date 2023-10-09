@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 use collab_folder::core::{
   FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
   View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,

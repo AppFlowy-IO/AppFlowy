@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,

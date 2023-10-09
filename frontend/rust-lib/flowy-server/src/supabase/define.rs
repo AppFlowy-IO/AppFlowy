@@ -1,4 +1,4 @@
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
 pub const AF_COLLAB_KEY_COLUMN: &str = "key";

@@ -9,7 +9,7 @@ use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
 use collab_database::user::{get_database_with_views, DatabaseWithViews};
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use collab_folder::core::{Folder, View, ViewLayout};
 use parking_lot::Mutex;
 

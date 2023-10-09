@@ -1,7 +1,7 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
 use client_api::error::ErrorCode::RecordNotFound;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,

@@ -1,8 +1,8 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
 use collab_document::document::Document;
+use collab_entity::CollabType;
 
 use flowy_document_deps::cloud::*;
 use flowy_error::FlowyError;

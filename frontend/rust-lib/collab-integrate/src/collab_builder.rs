@@ -5,7 +5,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::preclude::{CollabBuilder, CollabPlugin};
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use collab_plugins::cloud_storage::network_state::{CollabNetworkReachability, CollabNetworkState};
 use collab_plugins::local_storage::rocksdb::RocksdbDiskPlugin;

@@ -25,7 +25,7 @@ flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
 flowy-ai = { workspace = true }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0", features = ["sync_plugin"] }
 collab = { version = "0.1.0" }
 diesel = { version = "1.4.8", features = ["sqlite"] }

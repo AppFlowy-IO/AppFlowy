@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_button.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -81,7 +82,13 @@ class SidebarUser extends StatelessWidget {
                     Navigator.of(dialogContext).pop();
                     await runAppFlowy();
                   },
-                  dismissDialog: () => Navigator.of(context).pop(),
+                  dismissDialog: () {
+                    if (Navigator.of(dialogContext).canPop()) {
+                      Navigator.of(dialogContext).pop();
+                    } else {
+                      Log.warn("Can't pop dialog context");
+                    }
+                  },
                   didOpenUser: () async {
                     // Pop the dialog using the dialog context
                     Navigator.of(dialogContext).pop();

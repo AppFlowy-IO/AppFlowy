@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-database-deps = { workspace = true }
 
