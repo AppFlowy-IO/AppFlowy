@@ -454,14 +454,23 @@ extension CommonOperations on WidgetTester {
     });
   }
 
-  Future<void> closePaneWithVisibleCloseButton() async {
+  Future<void> closePaneWithVisibleCloseButton({
+    bool first = true,
+  }) async {
     await tapButton(
-      find
-          .descendant(
-            of: find.byType(BlocBuilder<PanesCubit, PanesState>),
-            matching: find.byIcon(Icons.close_sharp),
-          )
-          .first,
+      first
+          ? find
+              .descendant(
+                of: find.byType(BlocBuilder<PanesCubit, PanesState>),
+                matching: find.byIcon(Icons.close_sharp),
+              )
+              .first
+          : find
+              .descendant(
+                of: find.byType(BlocBuilder<PanesCubit, PanesState>),
+                matching: find.byIcon(Icons.close_sharp),
+              )
+              .last,
     );
   }
 }

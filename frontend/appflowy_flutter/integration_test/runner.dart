@@ -25,6 +25,7 @@ import 'auth/auth_test.dart' as auth_test_runner;
 import 'settings/user_icon_test.dart' as user_icon_test;
 import 'settings/user_language_test.dart' as user_language_test;
 import 'panes/panes_test.dart' as panes_test;
+import 'panes/panes_overlay_test.dart' as panes_overlay_test;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -66,6 +67,7 @@ void main() {
 
   //Panes
   panes_test.main();
+  panes_overlay_test.main();
 
   // Others
   hotkeys_test.main();
