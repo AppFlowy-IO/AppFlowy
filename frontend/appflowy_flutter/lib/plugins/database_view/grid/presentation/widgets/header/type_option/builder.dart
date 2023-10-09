@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_data_controller.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
@@ -210,7 +210,7 @@ TypeOptionContext<T>
     case FieldType.Checkbox:
       return CheckboxTypeOptionContext(
         dataController: dataController,
-        dataParser: CheckboxTypeOptionWidgetDataParser(),
+        dataParser: CheckboxTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.DateTime:
       return DateTypeOptionContext(
@@ -226,33 +226,33 @@ TypeOptionContext<T>
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionContext(
         dataController: dataController,
-        dataParser: SingleSelectTypeOptionWidgetDataParser(),
+        dataParser: SingleSelectTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.MultiSelect:
       return MultiSelectTypeOptionContext(
         dataController: dataController,
-        dataParser: MultiSelectTypeOptionWidgetDataParser(),
+        dataParser: MultiSelectTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.Checklist:
       return ChecklistTypeOptionContext(
         dataController: dataController,
-        dataParser: ChecklistTypeOptionWidgetDataParser(),
+        dataParser: ChecklistTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.Number:
       return NumberTypeOptionContext(
         dataController: dataController,
-        dataParser: NumberTypeOptionWidgetDataParser(),
+        dataParser: NumberTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
     case FieldType.RichText:
       return RichTextTypeOptionContext(
         dataController: dataController,
-        dataParser: RichTextTypeOptionWidgetDataParser(),
+        dataParser: RichTextTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
 
     case FieldType.URL:
       return URLTypeOptionContext(
         dataController: dataController,
-        dataParser: URLTypeOptionWidgetDataParser(),
+        dataParser: URLTypeOptionDataParser(),
       ) as TypeOptionContext<T>;
   }
 

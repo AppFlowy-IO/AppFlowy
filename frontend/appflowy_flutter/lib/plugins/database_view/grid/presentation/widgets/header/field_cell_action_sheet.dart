@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';

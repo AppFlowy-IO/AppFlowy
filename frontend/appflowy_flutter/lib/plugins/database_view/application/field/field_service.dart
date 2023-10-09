@@ -1,12 +1,10 @@
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'field_service.freezed.dart';
 
 /// FieldService consists of lots of event functions. We define the events in the backend(Rust),
 /// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
@@ -14,11 +12,14 @@ part 'field_service.freezed.dart';
 /// You could check out the rust-lib/flowy-database/event_map.rs for more information.
 class FieldBackendService {
   final String viewId;
-  final String fieldId;
 
-  FieldBackendService({required this.viewId, required this.fieldId});
+  FieldBackendService({required this.viewId});
 
-  Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
+  Future<Either<Unit, FlowyError>> moveField(
+    String fieldId,
+    int fromIndex,
+    int toIndex,
+  ) {
     final payload = MoveFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
@@ -29,6 +30,7 @@ class FieldBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateField({
+    required String fieldId,
     String? name,
     bool? frozen,
     double? width,
@@ -52,20 +54,31 @@ class FieldBackendService {
     return DatabaseEventUpdateField(payload).send();
   }
 
-  static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
-    required String viewId,
+  Future<Either<Unit, FlowyError>> switchToField({
+    required String fieldId,
+    required FieldType newFieldType,
+  }) async {
+    final payload = UpdateFieldTypePayloadPB.create()
+      ..viewId = viewId
+      ..fieldId = fieldId
+      ..fieldType = newFieldType;
+
+    return DatabaseEventUpdateFieldType(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateFieldTypeOption({
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    final payload = TypeOptionChangesetPB.create()
+    final payload = FieldChangesetPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
-      ..typeOptionData = typeOptionData;
+      ..typeOption = typeOptionData;
 
-    return DatabaseEventUpdateFieldTypeOption(payload).send();
+    return DatabaseEventUpdateField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteField() {
+  Future<Either<Unit, FlowyError>> deleteField({required String fieldId}) {
     final payload = DeleteFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
@@ -73,7 +86,7 @@ class FieldBackendService {
     return DatabaseEventDeleteField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateField() {
+  Future<Either<Unit, FlowyError>> duplicateField({required String fieldId}) {
     final payload = DuplicateFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
@@ -81,34 +94,33 @@ class FieldBackendService {
     return DatabaseEventDuplicateField(payload).send();
   }
 
-  Future<Either<TypeOptionPB, FlowyError>> getFieldTypeOptionData({
-    required FieldType fieldType,
-  }) {
-    final payload = TypeOptionPathPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..fieldType = fieldType;
-    return DatabaseEventGetTypeOption(payload).send().then((result) {
-      return result.fold(
-        (data) => left(data),
-        (err) => right(err),
-      );
-    });
-  }
-
-  /// Returns the primary field of the view.
   static Future<Either<FieldPB, FlowyError>> getPrimaryField({
     required String viewId,
   }) {
     final payload = DatabaseViewIdPB.create()..value = viewId;
     return DatabaseEventGetPrimaryField(payload).send();
   }
-}
 
-@freezed
-class FieldContext with _$FieldContext {
-  const factory FieldContext({
+  Future<Either<SelectOptionPB, FlowyError>> newOption({
+    required String fieldId,
+    required String name,
+  }) {
+    final payload = CreateSelectOptionPayloadPB.create()
+      ..optionName = name
+      ..viewId = viewId
+      ..fieldId = fieldId;
+
+    return DatabaseEventCreateSelectOption(payload).send();
+  }
+
+  Future<Either<FieldPB, FlowyError>> createField({
     required String viewId,
-    required FieldInfo fieldInfo,
-  }) = _FieldCellContext;
+    FieldType fieldType = FieldType.RichText,
+  }) {
+    final payload = CreateFieldPayloadPB.create()
+      ..viewId = viewId
+      ..fieldType = fieldType;
+
+    return DatabaseEventCreateField(payload).send();
+  }
 }

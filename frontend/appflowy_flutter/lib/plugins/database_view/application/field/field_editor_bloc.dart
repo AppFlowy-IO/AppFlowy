@@ -2,7 +2,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'field_service.dart';
-import 'type_option/type_option_context.dart';
+import 'type_option/type_option_parser.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'type_option/type_option_data_controller.dart';
 

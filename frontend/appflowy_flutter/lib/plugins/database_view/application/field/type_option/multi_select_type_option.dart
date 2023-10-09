@@ -2,7 +2,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'dart:async';
 import 'select_option_type_option_bloc.dart';
-import 'type_option_context.dart';
+import 'type_option_parser.dart';
 import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
 

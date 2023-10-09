@@ -6,8 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import '../field/field_service.dart';
-
 part 'property_bloc.freezed.dart';
 
 class DatabasePropertyBloc
@@ -42,12 +40,8 @@ class DatabasePropertyBloc
             emit(state.copyWith(fields: fields));
           },
           moveField: (fieldId, fromIndex, toIndex) async {
-            final fieldBackendService = FieldBackendService(
-              viewId: viewId,
-              fieldId: fieldId,
-            );
-            final result =
-                await fieldBackendService.moveField(fromIndex, toIndex);
+            final result = await fieldController.fieldService
+                .moveField(fieldId, fromIndex, toIndex);
 
             result.fold((l) => null, (r) => Log.error(r));
           },

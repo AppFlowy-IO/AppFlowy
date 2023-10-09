@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';

@@ -1,12 +1,11 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-import '../../application/field/field_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
 
@@ -20,28 +19,21 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }) : super(GridHeaderState.initial()) {
     on<GridHeaderEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialHeader value) async {
+        await event.when(
+          initial: () async {
             _startListening();
             add(
-              GridHeaderEvent.didReceiveFieldUpdate(fieldController.fieldInfos),
+              GridHeaderEvent.didReceiveFieldUpdate(fieldController.fields),
             );
           },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(
-              state.copyWith(
-                fields: value.fields
-                    .where(
-                      (element) =>
-                          element.visibility != null &&
-                          element.visibility != FieldVisibility.AlwaysHidden,
-                    )
-                    .toList(),
-              ),
+          didReceiveFieldUpdate: (fields) {
+            fields.retainWhere(
+              (field) => field.visibility != FieldVisibility.AlwaysHidden,
             );
+            emit(GridHeaderState(fields: fields));
           },
-          moveField: (_MoveField value) async {
-            await _moveField(value, emit);
+          moveField: (FieldPB field, int fromIndex, int toIndex) async {
+            await _moveField(field.id, fromIndex, toIndex, emit);
           },
         );
       },
@@ -49,18 +41,19 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(
-    _MoveField value,
+    String fieldId,
+    int fromIndex,
+    int toIndex,
     Emitter<GridHeaderState> emit,
   ) async {
-    final fields = List<FieldInfo>.from(state.fields);
-    fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
+    final fields = List<FieldPB>.from(state.fields);
+    fields.insert(toIndex, fields.removeAt(fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final fieldService =
-        FieldBackendService(viewId: viewId, fieldId: value.field.id);
-    final result = await fieldService.moveField(
-      value.fromIndex,
-      value.toIndex,
+    final result = await fieldController.fieldService.moveField(
+      fieldId,
+      fromIndex,
+      toIndex,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }
@@ -77,7 +70,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 @freezed
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
-  const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldInfo> fields) =
+  const factory GridHeaderEvent.didReceiveFieldUpdate(List<FieldPB> fields) =
       _DidReceiveFieldUpdate;
   const factory GridHeaderEvent.moveField(
     FieldPB field,
@@ -88,7 +81,7 @@ class GridHeaderEvent with _$GridHeaderEvent {
 
 @freezed
 class GridHeaderState with _$GridHeaderState {
-  const factory GridHeaderState({required List<FieldInfo> fields}) =
+  const factory GridHeaderState({required List<FieldPB> fields}) =
       _GridHeaderState;
 
   factory GridHeaderState.initial() => const GridHeaderState(fields: []);

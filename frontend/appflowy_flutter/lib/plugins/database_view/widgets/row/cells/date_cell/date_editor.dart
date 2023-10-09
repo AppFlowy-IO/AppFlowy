@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';

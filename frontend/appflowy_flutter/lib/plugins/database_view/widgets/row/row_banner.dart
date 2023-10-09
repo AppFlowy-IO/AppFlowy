@@ -173,7 +173,7 @@ class _BannerTitleState extends State<_BannerTitle> {
           final cellContext = DatabaseCellContext(
             viewId: widget.rowController.viewId,
             rowMeta: widget.rowController.rowMeta,
-            fieldInfo: FieldInfo.initial(state.primaryField!),
+            field: state.primaryField!,
           );
           children.add(
             Expanded(

@@ -1,4 +1,3 @@
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
@@ -7,8 +6,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/text_entities.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
 import 'type_option_data_controller.dart';
 
@@ -19,8 +16,7 @@ abstract class TypeOptionParser<T> {
 // Number
 typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOptionPB>;
 
-class NumberTypeOptionWidgetDataParser
-    extends TypeOptionParser<NumberTypeOptionPB> {
+class NumberTypeOptionDataParser extends TypeOptionParser<NumberTypeOptionPB> {
   @override
   NumberTypeOptionPB fromBuffer(List<int> buffer) {
     return NumberTypeOptionPB.fromBuffer(buffer);
@@ -30,7 +26,7 @@ class NumberTypeOptionWidgetDataParser
 // RichText
 typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOptionPB>;
 
-class RichTextTypeOptionWidgetDataParser
+class RichTextTypeOptionDataParser
     extends TypeOptionParser<RichTextTypeOptionPB> {
   @override
   RichTextTypeOptionPB fromBuffer(List<int> buffer) {
@@ -41,7 +37,7 @@ class RichTextTypeOptionWidgetDataParser
 // Checkbox
 typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOptionPB>;
 
-class CheckboxTypeOptionWidgetDataParser
+class CheckboxTypeOptionDataParser
     extends TypeOptionParser<CheckboxTypeOptionPB> {
   @override
   CheckboxTypeOptionPB fromBuffer(List<int> buffer) {
@@ -52,7 +48,7 @@ class CheckboxTypeOptionWidgetDataParser
 // URL
 typedef URLTypeOptionContext = TypeOptionContext<URLTypeOptionPB>;
 
-class URLTypeOptionWidgetDataParser extends TypeOptionParser<URLTypeOptionPB> {
+class URLTypeOptionDataParser extends TypeOptionParser<URLTypeOptionPB> {
   @override
   URLTypeOptionPB fromBuffer(List<int> buffer) {
     return URLTypeOptionPB.fromBuffer(buffer);
@@ -84,7 +80,7 @@ class TimestampTypeOptionDataParser
 typedef SingleSelectTypeOptionContext
     = TypeOptionContext<SingleSelectTypeOptionPB>;
 
-class SingleSelectTypeOptionWidgetDataParser
+class SingleSelectTypeOptionDataParser
     extends TypeOptionParser<SingleSelectTypeOptionPB> {
   @override
   SingleSelectTypeOptionPB fromBuffer(List<int> buffer) {
@@ -96,7 +92,7 @@ class SingleSelectTypeOptionWidgetDataParser
 typedef MultiSelectTypeOptionContext
     = TypeOptionContext<MultiSelectTypeOptionPB>;
 
-class MultiSelectTypeOptionWidgetDataParser
+class MultiSelectTypeOptionDataParser
     extends TypeOptionParser<MultiSelectTypeOptionPB> {
   @override
   MultiSelectTypeOptionPB fromBuffer(List<int> buffer) {
@@ -107,7 +103,7 @@ class MultiSelectTypeOptionWidgetDataParser
 // Multi-select
 typedef ChecklistTypeOptionContext = TypeOptionContext<ChecklistTypeOptionPB>;
 
-class ChecklistTypeOptionWidgetDataParser
+class ChecklistTypeOptionDataParser
     extends TypeOptionParser<ChecklistTypeOptionPB> {
   @override
   ChecklistTypeOptionPB fromBuffer(List<int> buffer) {
@@ -154,37 +150,5 @@ class TypeOptionContext<T extends GeneratedMessage> {
   set typeOption(T typeOption) {
     _dataController.typeOptionData = typeOption.writeToBuffer();
     _typeOptionObject = typeOption;
-  }
-}
-
-abstract class TypeOptionFieldDelegate {
-  void onFieldChanged(void Function(String) callback);
-  void dispose();
-}
-
-abstract class ITypeOptionLoader {
-  String get viewId;
-  String get fieldName;
-
-  Future<Either<TypeOptionPB, FlowyError>> initialize();
-}
-
-/// Uses when editing a existing field
-class FieldTypeOptionLoader {
-  final String viewId;
-  final FieldPB field;
-
-  FieldTypeOptionLoader({
-    required this.viewId,
-    required this.field,
-  });
-
-  Future<Either<TypeOptionPB, FlowyError>> load() {
-    final payload = TypeOptionPathPB.create()
-      ..viewId = viewId
-      ..fieldId = field.id
-      ..fieldType = field.fieldType;
-
-    return DatabaseEventGetTypeOption(payload).send();
   }
 }

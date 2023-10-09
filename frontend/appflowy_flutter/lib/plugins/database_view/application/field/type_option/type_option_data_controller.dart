@@ -7,7 +7,7 @@ import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:appflowy_backend/log.dart';
 
 import '../field_service.dart';
-import 'type_option_context.dart';
+import 'type_option_parser.dart';
 
 class TypeOptionController {
   late TypeOptionPB _typeOption;

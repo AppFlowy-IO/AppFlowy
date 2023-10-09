@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/multi_select_type_option.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 

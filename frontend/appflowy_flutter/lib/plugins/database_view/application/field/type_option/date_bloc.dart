@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 
-import 'type_option_context.dart';
+import 'type_option_parser.dart';
 part 'date_bloc.freezed.dart';
 
 class DateTypeOptionBloc

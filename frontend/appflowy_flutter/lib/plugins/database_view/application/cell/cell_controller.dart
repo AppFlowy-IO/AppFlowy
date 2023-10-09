@@ -9,7 +9,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import '../field/field_service.dart';
-import '../field/type_option/type_option_context.dart';
+import '../field/type_option/type_option_parser.dart';
 import 'cell_listener.dart';
 import 'cell_service.dart';
 
