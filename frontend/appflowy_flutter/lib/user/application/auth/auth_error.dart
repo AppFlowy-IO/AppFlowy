@@ -17,4 +17,16 @@ class AuthError {
   static final supabaseGetUserError = FlowyError()
     ..msg = 'unable to get user from supabase  -10004'
     ..code = ErrorCode.UserUnauthorized;
+
+  static final signInWithOauthError = FlowyError()
+    ..msg = 'sign in with oauth error -10003'
+    ..code = ErrorCode.UserUnauthorized;
+
+  static final emptyDeeplink = FlowyError()
+    ..msg = 'Unexpected empty deeplink'
+    ..code = ErrorCode.UnexpectedEmpty;
+
+  static final deeplinkError = FlowyError()
+    ..msg = 'Deeplink error'
+    ..code = ErrorCode.Internal;
 }

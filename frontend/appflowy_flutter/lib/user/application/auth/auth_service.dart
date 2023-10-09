@@ -1,5 +1,4 @@
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:dartz/dartz.dart';
 
@@ -10,6 +9,7 @@ class AuthServiceMapKeys {
   static const String uuid = 'uuid';
   static const String email = 'email';
   static const String deviceId = 'device_id';
+  static const String signInURL = 'sign_in_url';
 }
 
 /// `AuthService` is an abstract class that defines methods related to user authentication.
@@ -21,7 +21,6 @@ abstract class AuthService {
   ///
   /// - `email`: The email address of the user.
   /// - `password`: The password of the user.
-  /// - `authType`: The type of authentication (optional).
   /// - `params`: Additional parameters for authentication (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
@@ -29,7 +28,6 @@ abstract class AuthService {
   Future<Either<FlowyError, UserProfilePB>> signIn({
     required String email,
     required String password,
-    AuthTypePB authType,
     Map<String, String> params,
   });
 
@@ -38,7 +36,6 @@ abstract class AuthService {
   /// - `name`: The name of the user.
   /// - `email`: The email address of the user.
   /// - `password`: The password of the user.
-  /// - `authType`: The type of authentication (optional).
   /// - `params`: Additional parameters for registration (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
@@ -46,31 +43,26 @@ abstract class AuthService {
     required String name,
     required String email,
     required String password,
-    AuthTypePB authType,
     Map<String, String> params,
   });
 
   /// Registers a new user with an OAuth platform.
   ///
   /// - `platform`: The OAuth platform name.
-  /// - `authType`: The type of authentication (optional).
   /// - `params`: Additional parameters for OAuth registration (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
   Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
     required String platform,
-    AuthTypePB authType,
     Map<String, String> params,
   });
 
   /// Registers a user as a guest.
   ///
-  /// - `authType`: The type of authentication (optional).
   /// - `params`: Additional parameters for guest registration (optional).
   ///
   /// Returns a default [UserProfilePB].
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
-    AuthTypePB authType,
     Map<String, String> params,
   });
 

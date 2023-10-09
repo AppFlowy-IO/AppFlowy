@@ -8,6 +8,7 @@ use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -17,6 +18,7 @@ use flowy_storage::FileStorageService;
 
 use crate::document::MutexDocument;
 use crate::entities::DocumentSnapshotPB;
+use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -54,10 +56,20 @@ impl DocumentManager {
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
     self.initialize(uid, workspace_id).await?;
     Ok(())
   }
+
+  pub async fn handle_reminder_action(&self, action: DocumentReminderAction) {
+    match action {
+      DocumentReminderAction::Add { reminder: _ } => {},
+      DocumentReminderAction::Remove { reminder_id: _ } => {},
+      DocumentReminderAction::Update { reminder: _ } => {},
+    }
+  }
+
   /// Create a new document.
   ///
   /// if the document already exists, return the existing document.
@@ -165,8 +177,22 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)
+      .await?;
     Ok(collab)
+
+    // let doc_id = doc_id.to_string();
+    // let (tx, rx) = oneshot::channel();
+    // let collab_builder = self.collab_builder.clone();
+    // tokio::spawn(async move {
+    //   let collab = collab_builder
+    //     .build(uid, &doc_id, CollabType::Document, updates, db)
+    //     .await
+    //     .unwrap();
+    //   let _ = tx.send(collab);
+    // });
+    //
+    // Ok(rx.await.unwrap())
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {

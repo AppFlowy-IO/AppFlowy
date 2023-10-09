@@ -10,12 +10,9 @@ class UserSettingsBackendService {
     final result = await UserEventGetAppearanceSetting().send();
 
     return result.fold(
-      (AppearanceSettingsPB setting) {
-        return setting;
-      },
-      (error) {
-        throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty);
-      },
+      (AppearanceSettingsPB setting) => setting,
+      (error) =>
+          throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty),
     );
   }
 
@@ -27,5 +24,21 @@ class UserSettingsBackendService {
     AppearanceSettingsPB setting,
   ) {
     return UserEventSetAppearanceSetting(setting).send();
+  }
+
+  Future<DateTimeSettingsPB> getDateTimeSettings() async {
+    final result = await UserEventGetDateTimeSettings().send();
+
+    return result.fold(
+      (DateTimeSettingsPB setting) => setting,
+      (error) =>
+          throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty),
+    );
+  }
+
+  Future<Either<FlowyError, Unit>> setDateTimeSettings(
+    DateTimeSettingsPB settings,
+  ) async {
+    return (await UserEventSetDateTimeSettings(settings).send()).swap();
   }
 }

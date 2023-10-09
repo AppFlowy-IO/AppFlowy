@@ -151,6 +151,7 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
       popupBuilder: (BuildContext context) {
         return FieldEditor(
           viewId: widget.viewId,
+          fieldInfo: widget.fieldInfo,
           typeOptionLoader: FieldTypeOptionLoader(
             viewId: widget.viewId,
             field: widget.fieldInfo.field,

@@ -81,7 +81,7 @@ pub struct SignUpParams {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SignUpResponse {
+pub struct AuthResponse {
   pub user_id: i64,
   pub name: String,
   pub latest_workspace: UserWorkspace,
@@ -93,7 +93,7 @@ pub struct SignUpResponse {
   pub encryption_type: EncryptionType,
 }
 
-impl UserAuthResponse for SignUpResponse {
+impl UserAuthResponse for AuthResponse {
   fn user_id(&self) -> i64 {
     self.user_id
   }
@@ -129,7 +129,7 @@ impl UserAuthResponse for SignUpResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [AuthType] is SelfHosted
+  /// Currently, the token is only used when the [AuthType] is AFCloud
   pub token: Option<String>,
 
   /// The user id
@@ -191,6 +191,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
+  pub stability_ai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
@@ -252,6 +253,7 @@ where
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
+      stability_ai_key: "".to_owned(),
     }
   }
 }
@@ -264,6 +266,7 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub stability_ai_key: Option<String>,
   pub encryption_sign: Option<String>,
 }
 
@@ -300,6 +303,11 @@ impl UpdateUserProfileParams {
     self
   }
 
+  pub fn with_stability_ai_key(mut self, stability_ai_key: &str) -> Self {
+    self.stability_ai_key = Some(stability_ai_key.to_owned());
+    self
+  }
+
   pub fn with_encryption_type(mut self, encryption_type: EncryptionType) -> Self {
     let sign = match encryption_type {
       EncryptionType::NoEncryption => "".to_string(),
@@ -316,6 +324,7 @@ impl UpdateUserProfileParams {
       && self.icon_url.is_none()
       && self.openai_key.is_none()
       && self.encryption_sign.is_none()
+      && self.stability_ai_key.is_none()
   }
 }
 
@@ -326,7 +335,7 @@ pub enum AuthType {
   Local = 0,
   /// Currently not supported. It will be supported in the future when the
   /// [AppFlowy-Server](https://github.com/AppFlowy-IO/AppFlowy-Server) ready.
-  SelfHosted = 1,
+  AFCloud = 1,
   /// It uses Supabase as the backend.
   Supabase = 2,
 }
@@ -347,14 +356,19 @@ impl From<i32> for AuthType {
   fn from(value: i32) -> Self {
     match value {
       0 => AuthType::Local,
-      1 => AuthType::SelfHosted,
+      1 => AuthType::AFCloud,
       2 => AuthType::Supabase,
       _ => AuthType::Local,
     }
   }
 }
-pub struct ThirdPartyParams {
+pub struct SupabaseOAuthParams {
   pub uuid: Uuid,
   pub email: String,
+  pub device_id: String,
+}
+
+pub struct AFCloudOAuthParams {
+  pub sign_in_url: String,
   pub device_id: String,
 }

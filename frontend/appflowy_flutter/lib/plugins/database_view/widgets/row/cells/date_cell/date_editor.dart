@@ -3,17 +3,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,9 +22,6 @@ import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 import 'date_cal_bloc.dart';
-
-final kFirstDay = DateTime.utc(1970, 1, 1);
-final kLastDay = DateTime.utc(2100, 1, 1);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
@@ -51,9 +47,9 @@ class _DateCellEditor extends State<DateCellEditor> {
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -81,22 +77,14 @@ class _CellCalendarWidget extends StatefulWidget {
   const _CellCalendarWidget({
     required this.cellContext,
     required this.dateTypeOptionPB,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CellCalendarWidget> createState() => _CellCalendarWidgetState();
 }
 
 class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
-  late PopoverMutex popoverMutex;
-
-  @override
-  void initState() {
-    popoverMutex = PopoverMutex();
-
-    super.initState();
-  }
+  final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +281,7 @@ class _DatePickerState extends State<DatePicker> {
                 state.isRange ? false : isSameDay(state.dateTime, day),
             onDaySelected: (selectedDay, focusedDay) {
               context.read<DateCellCalendarBloc>().add(
-                    DateCellCalendarEvent.selectDay(selectedDay.toLocal().date),
+                    DateCellCalendarEvent.selectDay(selectedDay),
                   );
             },
             onRangeSelected: (start, end, focusedDay) {
@@ -387,8 +375,7 @@ class _TimeTextField extends StatefulWidget {
     required this.timeStr,
     required this.popoverMutex,
     required this.isEndTime,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();

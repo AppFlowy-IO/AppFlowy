@@ -54,7 +54,12 @@
     "reset": "Reset workspace",
     "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
     "hint": "workspace",
-    "notFoundError": "Workspace not found"
+    "notFoundError": "Workspace not found",
+    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
+    "errorActions": {
+      "reportIssue": "Report issue",
+      "reachOut": "Reach out on Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Share",
@@ -296,6 +301,19 @@
       "theme": "Theme",
       "builtInsLabel": "Built-in Themes",
       "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Date format",
+        "local": "Local",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Time format",
+        "twelveHour": "Twelve hour",
+        "twentyFourHour": "Twenty four hour"
+      },
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
     },
     "files": {
@@ -340,6 +358,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "shortcuts": {
@@ -416,6 +435,7 @@
     },
     "field": {
       "hide": "Hide",
+      "show": "Show",
       "insertLeft": "Insert Left",
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
@@ -451,6 +471,19 @@
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column"
+    },
+    "rowPage": {
+      "newField": "Add a new field",
+      "showHiddenFields": {
+        "one": "Show {} hidden field",
+        "many": "Show {} hidden fields",
+        "other": "Show {} hidden fields"
+      },
+      "hideHiddenFields": {
+        "one": "Hide {} hidden field",
+        "many": "Hide {} hidden fields",
+        "other": "Hide {} hidden fields"
+      }
     },
     "sort": {
       "ascending": "Ascending",
@@ -589,7 +622,8 @@
         "defaultColor": "Default"
       },
       "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard"
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImage": "Add an image"
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
@@ -624,13 +658,28 @@
         "label": "Image URL",
         "placeholder": "Enter image URL"
       },
+      "ai": {
+        "label": "Generate image from OpenAI",
+        "placeholder": "Please input the prompt for OpenAI to generate image"
+      },
+      "stability_ai": {
+        "label": "Generate image from Stability AI",
+        "placeholder": "Please input the prompt for Stability AI to generate image"
+      },
       "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "Invalid image URL"
-      }
+      },
+      "embedLink": {
+        "label": "Embed link",
+        "placeholder": "Paste or type an image link"
+      },
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
     },
     "codeBlock": {
       "language": {
@@ -728,6 +777,9 @@
     "gray": "Gray"
   },
   "emoji": {
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
     "filter": "Filter",
     "random": "Random",
     "selectSkinTone": "Select skin tone",
@@ -745,5 +797,41 @@
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
     }
+  },
+  "inlineActions": {
+    "noResults": "No results",
+    "pageReference": "Page reference",
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Reminder",
+      "shortKeyword": "remind"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Notifications",
+    "empty": "Nothing to see here!"
+  },
+  "reminderNotification": {
+    "title": "Reminder",
+    "message": "Remember to check this before you forget!",
+    "tooltipDelete": "Delete",
+    "tooltipMarkRead": "Mark as read",
+    "tooltipMarkUnread": "Mark as unread"
+  },
+  "findAndReplace": {
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "close": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "noResult": "No results",
+    "caseSensitive": "Case sensitive"
   }
 }

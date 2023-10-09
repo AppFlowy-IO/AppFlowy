@@ -301,7 +301,7 @@ where
             is_changed = true;
           },
           Some(pos) => {
-            let mut old_group = configuration.groups.get_mut(pos).unwrap();
+            let old_group = configuration.groups.get_mut(pos).unwrap();
             // Take the old group setting
             group.visible = old_group.visible;
             if !is_changed {

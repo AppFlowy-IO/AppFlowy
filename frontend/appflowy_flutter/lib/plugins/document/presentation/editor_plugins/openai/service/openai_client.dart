@@ -1,20 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_edit.dart';
-
-import 'text_completion.dart';
 import 'package:dartz/dartz.dart';
-import 'dart:async';
+import 'package:http/http.dart' as http;
 
 import 'error.dart';
-import 'package:http/http.dart' as http;
+import 'text_completion.dart';
 
 // Please fill in your own API key
 const apiKey = '';
 
 enum OpenAIRequestType {
   textCompletion,
-  textEdit;
+  textEdit,
+  imageGenerations;
 
   Uri get uri {
     switch (this) {
@@ -22,6 +22,8 @@ enum OpenAIRequestType {
         return Uri.parse('https://api.openai.com/v1/completions');
       case OpenAIRequestType.textEdit:
         return Uri.parse('https://api.openai.com/v1/edits');
+      case OpenAIRequestType.imageGenerations:
+        return Uri.parse('https://api.openai.com/v1/images/generations');
     }
   }
 }
@@ -63,6 +65,17 @@ abstract class OpenAIRepository {
     required String input,
     required String instruction,
     double temperature = 0.3,
+  });
+
+  /// Generate image from GPT-3
+  ///
+  /// [prompt] is the prompt text
+  /// [n] is the number of images to generate
+  ///
+  /// the result is a list of urls
+  Future<Either<OpenAIError, List<String>>> generateImage({
+    required String prompt,
+    int n = 1,
   });
 }
 
@@ -226,6 +239,42 @@ class HttpOpenAIRepository implements OpenAIRepository {
       );
     } else {
       return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+    }
+  }
+
+  @override
+  Future<Either<OpenAIError, List<String>>> generateImage({
+    required String prompt,
+    int n = 1,
+  }) async {
+    final parameters = {
+      'prompt': prompt,
+      'n': n,
+      'size': '512x512',
+    };
+
+    try {
+      final response = await client.post(
+        OpenAIRequestType.imageGenerations.uri,
+        headers: headers,
+        body: json.encode(parameters),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(
+          utf8.decode(response.bodyBytes),
+        )['data'] as List;
+        final urls = data
+            .map((e) => e.values)
+            .expand((e) => e)
+            .map((e) => e.toString())
+            .toList();
+        return Right(urls);
+      } else {
+        return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+      }
+    } catch (error) {
+      return Left(OpenAIError(message: error.toString()));
     }
   }
 }

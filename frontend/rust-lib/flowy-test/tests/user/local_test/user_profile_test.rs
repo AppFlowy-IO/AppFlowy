@@ -48,6 +48,29 @@ async fn user_update_with_name() {
 }
 
 #[tokio::test]
+async fn user_update_with_ai_key() {
+  let sdk = FlowyCoreTest::new();
+  let user = sdk.init_user().await;
+  let openai_key = "openai_key".to_owned();
+  let stability_ai_key = "stability_ai_key".to_owned();
+  let request = UpdateUserProfilePayloadPB::new(user.id)
+    .openai_key(&openai_key)
+    .stability_ai_key(&stability_ai_key);
+  let _ = EventBuilder::new(sdk.clone())
+    .event(UpdateUserProfile)
+    .payload(request)
+    .sync_send();
+
+  let user_profile = EventBuilder::new(sdk.clone())
+    .event(GetUserProfile)
+    .sync_send()
+    .parse::<UserProfilePB>();
+
+  assert_eq!(user_profile.openai_key, openai_key,);
+  assert_eq!(user_profile.stability_ai_key, stability_ai_key,);
+}
+
+#[tokio::test]
 async fn user_update_with_email() {
   let sdk = FlowyCoreTest::new();
   let user = sdk.init_user().await;

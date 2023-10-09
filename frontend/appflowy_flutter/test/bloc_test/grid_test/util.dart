@@ -89,8 +89,8 @@ class GridTestContext {
   }
 
   FieldContext singleSelectFieldCellContext() {
-    final field = singleSelectFieldContext().field;
-    return FieldContext(viewId: gridView.id, field: field);
+    final fieldInfo = singleSelectFieldContext();
+    return FieldContext(viewId: gridView.id, fieldInfo: fieldInfo);
   }
 
   FieldInfo textFieldContext() {

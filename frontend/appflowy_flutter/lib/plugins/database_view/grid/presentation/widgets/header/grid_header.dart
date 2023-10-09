@@ -98,12 +98,12 @@ class _GridHeaderState extends State<_GridHeader> {
             .map(
               (field) => FieldContext(
                 viewId: widget.viewId,
-                field: field.field,
+                fieldInfo: field,
               ),
             )
             .map(
               (ctx) => GridFieldCell(
-                key: _getKeyById(ctx.field.id),
+                key: _getKeyById(ctx.fieldInfo.id),
                 cellContext: ctx,
               ),
             )
@@ -136,7 +136,7 @@ class _GridHeaderState extends State<_GridHeader> {
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = cells[oldIndex].cellContext.field;
+      final field = cells[oldIndex].cellContext.fieldInfo.field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));

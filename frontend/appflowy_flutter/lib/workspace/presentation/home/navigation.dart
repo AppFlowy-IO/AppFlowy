@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -65,7 +66,7 @@ class FlowyNavigation extends StatelessWidget {
         if (state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
-            child: Tooltip(
+            child: FlowyTooltip.delayed(
               richMessage: sidebarTooltipTextSpan(
                 context,
                 LocaleKeys.sideBar_openSidebar.tr(),

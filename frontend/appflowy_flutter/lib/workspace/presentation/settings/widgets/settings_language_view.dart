@@ -32,7 +32,7 @@ class SettingsLanguageView extends StatelessWidget {
 
 class LanguageSelector extends StatelessWidget {
   final Locale currentLocale;
-  
+
   const LanguageSelector({
     super.key,
     required this.currentLocale,

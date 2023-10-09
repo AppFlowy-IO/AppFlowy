@@ -11,6 +11,7 @@ pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 pub const USER_UUID: &str = "uuid";
+pub const USER_SIGN_IN_URL: &str = "sign_in_url";
 pub const USER_UID: &str = "uid";
 pub const OWNER_USER_UID: &str = "owner_uid";
 pub const USER_EMAIL: &str = "email";
