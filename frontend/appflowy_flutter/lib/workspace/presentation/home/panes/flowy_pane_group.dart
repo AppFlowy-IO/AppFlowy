@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -93,35 +94,32 @@ class FlowyPaneGroup extends StatelessWidget {
     return Positioned(
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,
-      child: MouseRegion(
-        cursor: paneLayout.resizeCursorType,
-        child: GestureDetector(
-          dragStartBehavior: DragStartBehavior.down,
-          onHorizontalDragUpdate: (details) {
-            context
-                .read<PaneNodeCubit>()
-                .paneResized(indexNode.$1, details.delta.dx, groupWidth);
-          },
-          onVerticalDragUpdate: (details) {
-            context
-                .read<PaneNodeCubit>()
-                .paneResized(indexNode.$1, details.delta.dy, groupHeight);
-          },
-          onHorizontalDragStart: (_) =>
-              context.read<PaneNodeCubit>().resizeStart(),
-          onVerticalDragStart: (_) =>
-              context.read<PaneNodeCubit>().resizeStart(),
-          behavior: HitTestBehavior.translucent,
-          child: Container(
+      child: GestureDetector(
+        dragStartBehavior: DragStartBehavior.down,
+        onHorizontalDragUpdate: (details) {
+          context
+              .read<PaneNodeCubit>()
+              .paneResized(indexNode.$1, details.delta.dx, groupWidth);
+        },
+        onVerticalDragUpdate: (details) {
+          context
+              .read<PaneNodeCubit>()
+              .paneResized(indexNode.$1, details.delta.dy, groupHeight);
+        },
+        onHorizontalDragStart: (_) =>
+            context.read<PaneNodeCubit>().resizeStart(),
+        onVerticalDragStart: (_) => context.read<PaneNodeCubit>().resizeStart(),
+        behavior: HitTestBehavior.translucent,
+        child: FlowyHover(
+          style: HoverStyle(
+            backgroundColor: Theme.of(context).dividerColor,
+            hoverColor: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.zero,
+          ),
+          cursor: paneLayout.resizeCursorType,
+          child: SizedBox(
             width: paneLayout.resizerWidth,
             height: paneLayout.resizerHeight,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              border: Border(
-                top: BorderSide(color: Theme.of(context).dividerColor),
-                left: BorderSide(color: Theme.of(context).dividerColor),
-              ),
-            ),
           ),
         ),
       ),
