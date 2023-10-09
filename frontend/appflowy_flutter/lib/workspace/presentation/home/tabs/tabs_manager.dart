@@ -87,6 +87,7 @@ class _TabsManagerState extends State<TabsManager>
         tabs: widget.tabs.pageManagers
             .map(
               (pm) => SizedBox(
+                key: ValueKey(pm.plugin.id),
                 width: HomeSizes.tabBarWidth,
                 height: HomeSizes.tabBarHeigth,
                 child: DraggableTabItem(

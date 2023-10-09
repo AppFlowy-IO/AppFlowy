@@ -42,7 +42,7 @@ class _FlowyPaneState extends State<FlowyPane> {
       key: ValueKey(widget.node.tabs.tabId),
       create: (context) => widget.node.tabs,
       child: Consumer<TabsController>(
-        builder: (_, value, __) {
+        builder: (context, value, __) {
           return DraggablePaneTarget(
             size: widget.size,
             paneContext: widget.paneContext,

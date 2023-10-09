@@ -43,10 +43,10 @@ class TabsController extends ChangeNotifier {
     pageManagers = pageManagersCopy;
   }
 
-  void openView(Plugin plugin) {
+  void openView(Plugin plugin, {int? index}) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
     if (!selectExistingPlugin) {
-      tabService.openView(this, plugin);
+      tabService.openViewHandler(this, plugin, index: index);
     }
     currentIndex = pageManagers.length - 1;
 
@@ -64,7 +64,7 @@ class TabsController extends ChangeNotifier {
       return;
     }
 
-    tabService.closeView(this, pluginId, move: move);
+    tabService.closeViewHandler(this, pluginId, move: move);
 
     /// If currentIndex is greater than the amount of allowed indices
     /// And the current selected tab isn't the first (index 0)
@@ -104,15 +104,13 @@ class TabsController extends ChangeNotifier {
   ///
   void openPlugin({
     required Plugin plugin,
-    int? index,
   }) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (!selectExistingPlugin) {
-      tabService.openPlugin(
+      tabService.openPluginHandler(
         this,
         plugin,
-        index: index,
       );
     }
     setLatestOpenView();
@@ -132,27 +130,23 @@ class TabsController extends ChangeNotifier {
     required PageManager to,
     required TabDraggableHoverPosition position,
   }) {
-    final selectExistingPlugin = _selectPluginIfOpen(from.plugin.id);
-
-    if (!selectExistingPlugin) {
-      switch (position) {
-        case TabDraggableHoverPosition.none:
-          return;
-        case TabDraggableHoverPosition.left:
-          {
-            final index = pageManagers.indexOf(to);
-            openPlugin(plugin: from.plugin, index: index);
-            currentIndex = index;
-            break;
-          }
-        case TabDraggableHoverPosition.right:
-          {
-            final index = pageManagers.indexOf(to);
-            openPlugin(plugin: from.plugin, index: index);
-            currentIndex = index + 1;
-            break;
-          }
-      }
+    switch (position) {
+      case TabDraggableHoverPosition.none:
+        break;
+      case TabDraggableHoverPosition.left:
+        {
+          final index = pageManagers.indexOf(to);
+          openView(from.plugin, index: index);
+          currentIndex = index;
+          break;
+        }
+      case TabDraggableHoverPosition.right:
+        {
+          final index = pageManagers.indexOf(to);
+          openView(from.plugin, index: index);
+          currentIndex = index + 1;
+          break;
+        }
     }
     setLatestOpenView();
     notifyListeners();

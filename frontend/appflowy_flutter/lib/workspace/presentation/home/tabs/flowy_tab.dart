@@ -46,7 +46,7 @@ class _FlowyTabState extends State<FlowyTab> {
               children: [
                 Expanded(
                   child: widget.pageManager.notifier
-                      .tabBarWidget(widget.pageManager.plugin.id),
+                      .tabBarWidget(widget.pageManager.notifier.plugin.id),
                 ),
                 Visibility(
                   visible: _isHovering,

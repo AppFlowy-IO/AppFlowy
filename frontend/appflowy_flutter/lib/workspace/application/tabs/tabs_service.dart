@@ -11,14 +11,14 @@ class TabService {
 
   TabService() : menuSharedState = getIt<MenuSharedState>();
 
-  PageManager? updateWriteStatus(String pluginId, PaneNode node) {
+  PageManager? updateWriteStatusHandler(String pluginId, PaneNode node) {
     for (final page in node.tabs.pageManagers) {
       if (page.plugin.id == pluginId && page.readOnly) {
         return page;
       }
     }
     for (int i = 0; i < node.children.length; i++) {
-      final result = updateWriteStatus(pluginId, node.children[i]);
+      final result = updateWriteStatusHandler(pluginId, node.children[i]);
       if (result != null) {
         return result..setReadOnlyStatus(false);
       }
@@ -26,15 +26,19 @@ class TabService {
     return null;
   }
 
-  void openView(TabsController controller, Plugin plugin) {
-    // check if view is already open
+  void openViewHandler(TabsController controller, Plugin plugin, {int? index}) {
     final openPlugins = menuSharedState.openPlugins;
 
-    controller.pageManagers.add(
-      PageManager()
-        ..setPlugin(plugin)
-        ..setReadOnlyStatus(openPlugins.containsKey(plugin.id)),
-    );
+    ///determine placement of new pagemanager in list of pagemanagers
+    final pageManager = PageManager()
+      ..setPlugin(plugin)
+      ..setReadOnlyStatus(openPlugins.containsKey(plugin.id));
+
+    if (index == null || index >= controller.pageManagers.length - 1) {
+      controller.pageManagers.add(pageManager);
+    } else {
+      controller.pageManagers.insert(index, pageManager);
+    }
 
     openPlugins.update(
       plugin.id,
@@ -44,7 +48,7 @@ class TabService {
     menuSharedState.openPlugins = openPlugins;
   }
 
-  void closeView(
+  void closeViewHandler(
     TabsController controller,
     String pluginId, {
     bool move = false,
@@ -55,7 +59,7 @@ class TabService {
     });
 
     if (!pm.readOnly && openPlugins.containsKey(pluginId) && !move) {
-      controller.tabService.updateWriteStatus(
+      controller.tabService.updateWriteStatusHandler(
         pluginId,
         getIt<PanesCubit>().state.root,
       );
@@ -73,11 +77,10 @@ class TabService {
     controller.pageManagers.removeWhere((pm) => pm.plugin.id == pluginId);
   }
 
-  void openPlugin(
+  void openPluginHandler(
     TabsController controller,
-    Plugin plugin, {
-    int? index,
-  }) {
+    Plugin plugin,
+  ) {
     final openPlugins = menuSharedState.openPlugins;
     final isPluginOpen = openPlugins.containsKey(plugin.id);
     final isCurrentPluginOpen =
@@ -87,7 +90,7 @@ class TabService {
     if (isCurrentPluginOpen) {
       ///if a similar plugin is open and current plugin is writable, make some other plugin writable and sync data before currentPlugin is closed.
       if (!controller.currentPageManager.readOnly) {
-        updateWriteStatus(
+        updateWriteStatusHandler(
           controller.currentPageManager.plugin.id,
           getIt<PanesCubit>().state.root,
         );
@@ -109,16 +112,7 @@ class TabService {
       ..setPlugin(plugin)
       ..setReadOnlyStatus(isPluginOpen);
 
-    ///determine placement of new pagemanager in list of pagemanagers
-    if (index != null) {
-      if (index >= controller.pageManagers.length) {
-        controller.pageManagers.add(pageManager);
-      } else {
-        controller.pageManagers.insert(index, pageManager);
-      }
-    } else {
-      controller.currentPageManager = pageManager;
-    }
+    controller.currentPageManager = pageManager;
 
     ///update total count of open views holding similar id as passed plugin
     openPlugins.update(

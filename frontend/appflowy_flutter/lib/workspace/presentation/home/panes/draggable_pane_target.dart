@@ -197,10 +197,18 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
         case CrossDraggableType.tab:
           {
             final fromTab = from.draggable as TabNode;
-            (to.draggable as PaneNode)
-                .tabs
-                .openView(fromTab.pageManager.plugin);
-            fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
+            final destinationPaneNode = to.draggable as PaneNode;
+            bool contains = false;
+            for (final element in destinationPaneNode.tabs.pageManagers) {
+              if (element.plugin.id == fromTab.pageManager.plugin.id) {
+                contains = true;
+                break;
+              }
+            }
+            if (!contains) {
+              destinationPaneNode.tabs.openView(fromTab.pageManager.plugin);
+              fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
+            }
             return;
           }
         default:
