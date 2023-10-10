@@ -98,7 +98,7 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     double? left, top, height, width;
 
     final topOffset = (widget.pane.draggable as PaneNode).tabs.pages > 1
-        ? HomeSizes.tabBarHeigth + HomeSizes.topBarHeight
+        ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
         : HomeSizes.topBarHeight;
 
     switch (position) {
@@ -145,7 +145,7 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     CrossDraggableType type,
   ) {
     final top = (widget.pane.draggable as PaneNode).tabs.pages > 1
-        ? HomeSizes.tabBarHeigth + HomeSizes.topBarHeight
+        ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
         : HomeSizes.topBarHeight;
 
     if (offset.dy <= top) {

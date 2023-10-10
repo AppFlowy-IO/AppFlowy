@@ -66,7 +66,7 @@ class _TabsManagerState extends State<TabsManager>
     }
     return Container(
       alignment: Alignment.bottomLeft,
-      height: HomeSizes.tabBarHeigth,
+      height: HomeSizes.tabBarHeight,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
       ),
@@ -87,9 +87,8 @@ class _TabsManagerState extends State<TabsManager>
         tabs: widget.tabs.pageManagers
             .map(
               (pm) => SizedBox(
+                width: HomeSizes.tabWidth,
                 key: ValueKey(pm.plugin.id),
-                width: HomeSizes.tabBarWidth,
-                height: HomeSizes.tabBarHeigth,
                 child: DraggableTabItem(
                   tabs: widget.tabs,
                   pageManager: pm,

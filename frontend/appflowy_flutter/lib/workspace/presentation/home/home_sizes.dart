@@ -3,8 +3,8 @@ class HomeSizes {
   static const double topBarHeight = 60;
   static const double editPanelTopBarHeight = 60;
   static const double editPanelWidth = 400;
-  static const double tabBarHeigth = 40;
-  static const double tabBarWidth = 200;
+  static const double tabBarHeight = 40;
+  static const double tabWidth = 200;
   static const double resizeBarThickness = 2;
 }
 

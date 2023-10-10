@@ -39,7 +39,6 @@ class _FlowyPaneState extends State<FlowyPane> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TabsController>(
-      key: ValueKey(widget.node.tabs.tabId),
       create: (context) => widget.node.tabs,
       child: Consumer<TabsController>(
         builder: (context, value, __) {

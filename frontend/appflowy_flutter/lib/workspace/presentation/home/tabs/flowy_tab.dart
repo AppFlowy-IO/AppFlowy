@@ -35,8 +35,8 @@ class _FlowyTabState extends State<FlowyTab> {
         onEnter: (_) => _setHovering(true),
         onExit: (_) => _setHovering(),
         child: Container(
-          width: HomeSizes.tabBarWidth,
-          height: HomeSizes.tabBarHeigth,
+          width: HomeSizes.tabWidth,
+          height: HomeSizes.tabBarHeight,
           decoration: BoxDecoration(
             color: _getBackgroundColor(),
           ),
