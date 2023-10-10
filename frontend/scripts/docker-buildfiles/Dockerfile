@@ -47,7 +47,7 @@ RUN flutter doctor
 RUN dart pub global activate protoc_plugin 20.0.1
 
 # Install build dependencies for AppFlowy
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify
+RUN sudo pacman -S --noconfirm git libkeybinder3 libnotify sqlite clang rsync libnotify
 RUN source ~/.cargo/env && cargo install --force cargo-make duckscript_cli
 
 # Build AppFlowy
@@ -71,7 +71,7 @@ FROM archlinux/archlinux
 RUN pacman -Syyu --noconfirm
 
 # Install runtime dependencies
-RUN pacman -S --noconfirm xdg-user-dirs gtk3 libkeybinder3 && \
+RUN pacman -S --noconfirm xdg-user-dirs gtk3 libkeybinder3 libnotify && \
     pacman -Scc --noconfirm
 
 # Set up appflowy user
