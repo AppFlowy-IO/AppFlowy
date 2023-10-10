@@ -1,17 +1,18 @@
 import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'mask.dart';
 import 'mutex.dart';
 
 class PopoverController {
   PopoverState? _state;
 
-  close() {
+  void close() {
     _state?.close();
   }
 
-  show() {
+  void show() {
     _state?.showOverlay();
   }
 }
@@ -47,6 +48,11 @@ enum PopoverDirection {
   custom,
 }
 
+enum PopoverClickHandler {
+  listener,
+  gestureDetector,
+}
+
 class Popover extends StatefulWidget {
   final PopoverController? controller;
 
@@ -77,11 +83,18 @@ class Popover extends StatefulWidget {
 
   final bool asBarrier;
 
+  /// The widget that will be used to trigger the popover.
+  ///
+  /// Why do we need this?
+  /// Because if the parent widget of the popover is GestureDetector,
+  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
+  final PopoverClickHandler clickHandler;
+
   /// The content area of the popover.
   final Widget child;
 
   const Popover({
-    Key? key,
+    super.key,
     required this.child,
     required this.popupBuilder,
     this.controller,
@@ -96,7 +109,8 @@ class Popover extends StatefulWidget {
     this.onClose,
     this.canClose,
     this.asBarrier = false,
-  }) : super(key: key);
+    this.clickHandler = PopoverClickHandler.listener,
+  });
 
   @override
   State<Popover> createState() => PopoverState();
@@ -202,15 +216,30 @@ class PopoverState extends State<Popover> {
           showOverlay();
         }
       },
-      child: Listener(
-        child: widget.child,
-        onPointerDown: (_) {
+      child: _buildClickHandler(
+        widget.child,
+        () {
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }
         },
       ),
     );
+  }
+
+  Widget _buildClickHandler(Widget child, VoidCallback handler) {
+    switch (widget.clickHandler) {
+      case PopoverClickHandler.listener:
+        return Listener(
+          onPointerDown: (_) => handler(),
+          child: child,
+        );
+      case PopoverClickHandler.gestureDetector:
+        return GestureDetector(
+          onTap: handler,
+          child: child,
+        );
+    }
   }
 }
 

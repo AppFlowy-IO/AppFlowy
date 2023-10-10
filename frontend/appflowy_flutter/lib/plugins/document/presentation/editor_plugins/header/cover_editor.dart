@@ -41,36 +41,6 @@ class ChangeCoverPopover extends StatefulWidget {
   State<ChangeCoverPopover> createState() => _ChangeCoverPopoverState();
 }
 
-class ColorOption {
-  final String colorHex;
-
-  final String name;
-  const ColorOption({
-    required this.colorHex,
-    required this.name,
-  });
-}
-
-class CoverColorPicker extends StatefulWidget {
-  final String? selectedBackgroundColorHex;
-
-  final Color pickerBackgroundColor;
-  final Color pickerItemHoverColor;
-  final void Function(String color) onSubmittedBackgroundColorHex;
-  final List<ColorOption> backgroundColorOptions;
-  const CoverColorPicker({
-    super.key,
-    this.selectedBackgroundColorHex,
-    required this.pickerBackgroundColor,
-    required this.backgroundColorOptions,
-    required this.pickerItemHoverColor,
-    required this.onSubmittedBackgroundColorHex,
-  });
-
-  @override
-  State<CoverColorPicker> createState() => _CoverColorPickerState();
-}
-
 class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
   bool isAddingImage = false;
 
@@ -81,7 +51,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         editorState: widget.editorState,
         node: widget.node,
       )..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
-      child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+      child: BlocConsumer<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+        listener: (context, state) {
+          if (state is Loaded && state.selectLatestImage) {
+            widget.onCoverChanged(
+              CoverType.file,
+              state.imageNames.last,
+            );
+          }
+        },
         builder: (context, state) {
           return Padding(
             padding: const EdgeInsets.all(12),
@@ -91,14 +69,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       onBackPressed: () => setState(() {
                         isAddingImage = false;
                       }),
-                      onFileSubmit: (List<String> path) {
+                      onFileSubmit: (_) {
                         context.read<ChangeCoverPopoverBloc>().add(
                               const ChangeCoverPopoverEvent
-                                  .fetchPickedImagePaths(),
+                                  .fetchPickedImagePaths(
+                                selectLatestImage: true,
+                              ),
                             );
-                        setState(() {
-                          isAddingImage = false;
-                        });
+
+                        setState(() => isAddingImage = false);
                       },
                     )
                   : _buildCoverSelection(),
@@ -201,7 +180,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               builtInAssetImages[index],
             );
           },
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(builtInAssetImages[index]),
@@ -294,7 +273,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             },
           );
         }
-        return Container();
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -314,11 +294,12 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 @visibleForTesting
 class NewCustomCoverButton extends StatelessWidget {
   final VoidCallback onPressed;
+
   const NewCustomCoverButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).colorScheme.primary,
@@ -333,6 +314,85 @@ class NewCustomCoverButton extends StatelessWidget {
         hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
         onPressed: onPressed,
       ),
+    );
+  }
+}
+
+class ColorOption {
+  final String colorHex;
+
+  final String name;
+  const ColorOption({
+    required this.colorHex,
+    required this.name,
+  });
+}
+
+class CoverColorPicker extends StatefulWidget {
+  final String? selectedBackgroundColorHex;
+
+  final Color pickerBackgroundColor;
+  final Color pickerItemHoverColor;
+  final void Function(String color) onSubmittedBackgroundColorHex;
+  final List<ColorOption> backgroundColorOptions;
+  const CoverColorPicker({
+    super.key,
+    this.selectedBackgroundColorHex,
+    required this.pickerBackgroundColor,
+    required this.backgroundColorOptions,
+    required this.pickerItemHoverColor,
+    required this.onSubmittedBackgroundColorHex,
+  });
+
+  @override
+  State<CoverColorPicker> createState() => _CoverColorPickerState();
+}
+
+class _CoverColorPickerState extends State<CoverColorPicker> {
+  final scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 30,
+      alignment: Alignment.center,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+          platform: TargetPlatform.windows,
+        ),
+        child: SingleChildScrollView(
+          child: _buildColorItems(
+            widget.backgroundColorOptions,
+            widget.selectedBackgroundColorHex,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
+  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: options
+          .map(
+            (e) => ColorItem(
+              option: e,
+              isChecked: e.colorHex == selectedColor,
+              hoverColor: widget.pickerItemHoverColor,
+              onTap: widget.onSubmittedBackgroundColorHex,
+            ),
+          )
+          .toList(),
     );
   }
 }
@@ -424,14 +484,9 @@ class _ImageGridItemState extends State<ImageGridItem> {
         children: [
           InkWell(
             onTap: widget.onImageSelect,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(File(widget.imagePath)),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: Corners.s8Border,
-              ),
+            child: ClipRRect(
+              borderRadius: Corners.s8Border,
+              child: Image.file(File(widget.imagePath), fit: BoxFit.cover),
             ),
           ),
           if (showDeleteButton)
@@ -454,55 +509,6 @@ class _ImageGridItemState extends State<ImageGridItem> {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _CoverColorPickerState extends State<CoverColorPicker> {
-  final scrollController = ScrollController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      alignment: Alignment.center,
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-          platform: TargetPlatform.windows,
-        ),
-        child: SingleChildScrollView(
-          child: _buildColorItems(
-            widget.backgroundColorOptions,
-            widget.selectedBackgroundColorHex,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    scrollController.dispose();
-  }
-
-  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: options
-          .map(
-            (e) => ColorItem(
-              option: e,
-              isChecked: e.colorHex == selectedColor,
-              hoverColor: widget.pickerItemHoverColor,
-              onTap: widget.onSubmittedBackgroundColorHex,
-            ),
-          )
-          .toList(),
     );
   }
 }
@@ -533,7 +539,7 @@ class ColorItem extends StatelessWidget {
         padding: const EdgeInsets.only(right: 10.0),
         child: SizedBox.square(
           dimension: 25,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: option.colorHex.tryToColor(),
               shape: BoxShape.circle,

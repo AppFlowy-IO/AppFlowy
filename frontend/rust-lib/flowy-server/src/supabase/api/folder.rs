@@ -3,7 +3,7 @@ use std::str::FromStr;
 use anyhow::Error;
 use chrono::{DateTime, Utc};
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
 

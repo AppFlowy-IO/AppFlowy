@@ -1,5 +1,7 @@
 import 'package:appflowy/workspace/application/appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/create_file_setting.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/date_format_setting.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/time_format_setting.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,23 +21,32 @@ class SettingsAppearanceView extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BrightnessSetting(
-                  currentThemeMode: state.themeMode,
-                ),
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
                   bloc: context.read<DynamicPluginBloc>(),
                 ),
+                BrightnessSetting(
+                  currentThemeMode: state.themeMode,
+                ),
+                const Divider(),
                 ThemeFontFamilySetting(
                   currentFontFamily: state.font,
                 ),
-                // TODO: enablt them in version 0.3.3
-                // LayoutDirectionSetting(
-                //   currentLayoutDirection: state.layoutDirection,
-                // ),
-                // TextDirectionSetting(
-                //   currentTextDirection: state.textDirection,
-                // ),
+                const Divider(),
+                LayoutDirectionSetting(
+                  currentLayoutDirection: state.layoutDirection,
+                ),
+                TextDirectionSetting(
+                  currentTextDirection: state.textDirection,
+                ),
+                const Divider(),
+                DateFormatSetting(
+                  currentFormat: state.dateFormat,
+                ),
+                TimeFormatSetting(
+                  currentFormat: state.timeFormat,
+                ),
+                const Divider(),
                 CreateFileSettings(),
               ],
             );

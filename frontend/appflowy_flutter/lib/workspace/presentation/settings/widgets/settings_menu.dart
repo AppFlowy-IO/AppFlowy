@@ -19,6 +19,9 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool showSyncSetting = isCloudEnabled &&
+        context.read<SettingsDialogBloc>().state.userProfile.authType !=
+            AuthTypePB.Local;
     return Column(
       children: [
         SettingsMenuElement(
@@ -58,11 +61,12 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-
+        if (showSyncSetting)
+          const SizedBox(
+            height: 10,
+          ),
         // Only show supabase setting if supabase is enabled and the current auth type is not local
-        if (isSupabaseEnabled &&
-            context.read<SettingsDialogBloc>().state.userProfile.authType !=
-                AuthTypePB.Local)
+        if (showSyncSetting)
           SettingsMenuElement(
             page: SettingsPage.syncSetting,
             selectedPage: currentPage,

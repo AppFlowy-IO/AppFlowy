@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -108,6 +109,6 @@ class FieldBackendService {
 class FieldContext with _$FieldContext {
   const factory FieldContext({
     required String viewId,
-    required FieldPB field,
+    required FieldInfo fieldInfo,
   }) = _FieldCellContext;
 }

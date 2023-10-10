@@ -4,6 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 
 final alignToolbarItem = ToolbarItem(
@@ -151,14 +152,17 @@ class _AlignButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Tooltip(
-        message: tooltips,
-        child: FlowySvg(
-          icon,
-          size: const Size.square(16),
-          color: Colors.white,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: FlowyTooltip.delayed(
+          message: tooltips,
+          child: FlowySvg(
+            icon,
+            size: const Size.square(16),
+            color: Colors.white,
+          ),
         ),
       ),
     );

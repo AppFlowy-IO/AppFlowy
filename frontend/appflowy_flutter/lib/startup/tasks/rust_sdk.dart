@@ -36,8 +36,15 @@ AppFlowyEnv getAppFlowyEnv() {
     anon_key: Env.supabaseAnonKey,
   );
 
+  final appflowyCloudConfig = AppFlowyCloudConfiguration(
+    base_url: Env.afCloudBaseUrl,
+    ws_base_url: Env.afCloudWSBaseUrl,
+    gotrue_url: Env.afCloudGoTrueUrl,
+  );
+
   return AppFlowyEnv(
     supabase_config: supabaseConfig,
+    appflowy_cloud_config: appflowyCloudConfig,
   );
 }
 

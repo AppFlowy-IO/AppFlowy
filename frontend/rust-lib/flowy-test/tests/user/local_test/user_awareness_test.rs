@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
 use flowy_user::entities::{ReminderPB, RepeatedReminderPB};
@@ -7,14 +9,18 @@ use flowy_user::event_map::UserEvent::*;
 async fn user_update_with_name() {
   let sdk = FlowyCoreTest::new();
   let _ = sdk.sign_up_as_guest().await;
+  let mut meta = HashMap::new();
+  meta.insert("object_id".to_string(), "".to_string());
+
   let payload = ReminderPB {
     id: "".to_string(),
     scheduled_at: 0,
     is_ack: false,
-    ty: 0,
+    is_read: false,
     title: "".to_string(),
     message: "".to_string(),
-    reminder_object_id: "".to_string(),
+    object_id: "".to_string(),
+    meta,
   };
   let _ = EventBuilder::new(sdk.clone())
     .event(CreateReminder)

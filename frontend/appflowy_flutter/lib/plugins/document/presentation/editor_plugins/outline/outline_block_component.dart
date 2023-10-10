@@ -32,11 +32,8 @@ Node outlineBlockNode() {
 
 class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   OutlineBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -138,7 +135,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
         ),
       );
     }
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         color: backgroundColor,

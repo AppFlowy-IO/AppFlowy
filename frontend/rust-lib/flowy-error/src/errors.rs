@@ -99,6 +99,7 @@ impl FlowyError {
     ErrorCode::UnexpectedCalendarFieldType
   );
   static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
+  static_flowy_error!(server_error, ErrorCode::InternalServerError);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -135,5 +136,11 @@ impl From<anyhow::Error> for FlowyError {
   fn from(e: anyhow::Error) -> Self {
     e.downcast::<FlowyError>()
       .unwrap_or_else(|err| FlowyError::new(ErrorCode::Internal, err))
+  }
+}
+
+impl From<fancy_regex::Error> for FlowyError {
+  fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
   }
 }

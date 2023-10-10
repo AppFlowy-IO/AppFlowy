@@ -38,7 +38,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return FieldCellBloc(cellContext: widget.cellContext);
+        return FieldCellBloc(fieldContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
@@ -54,7 +54,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: FieldCellButton(
-              field: widget.cellContext.field,
+              field: widget.cellContext.fieldInfo.field,
               onTap: () => popoverController.show(),
             ),
           );
@@ -125,10 +125,15 @@ class _DragToExpandLine extends StatelessWidget {
       onTap: () {},
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: (details) {
+          context
+              .read<FieldCellBloc>()
+              .add(const FieldCellEvent.onResizeStart());
+        },
         onHorizontalDragUpdate: (value) {
           context
               .read<FieldCellBloc>()
-              .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
+              .add(FieldCellEvent.startUpdateWidth(value.localPosition.dx));
         },
         onHorizontalDragEnd: (end) {
           context

@@ -17,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -249,23 +250,22 @@ class SingleInnerViewItem extends StatefulWidget {
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
-  bool _isHovering = false;
-
   @override
   Widget build(BuildContext context) {
     if (widget.isFeedback) {
       return _buildViewItem(false);
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      child: FlowyHover(
-        isSelected: () =>
-            widget.showActions ||
-            getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
-        child: _buildViewItem(_isHovering),
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: Theme.of(context).colorScheme.secondary,
       ),
+      resetHoverOnRebuild: widget.showActions,
+      buildWhenOnHover: () => !widget.showActions,
+      builder: (_, onHover) => _buildViewItem(onHover),
+      isSelected: () =>
+          widget.showActions ||
+          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
     );
   }
 
@@ -339,7 +339,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
@@ -379,7 +379,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // ··· more action button
   Widget _buildViewMoreActionButton(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip.delayed(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,

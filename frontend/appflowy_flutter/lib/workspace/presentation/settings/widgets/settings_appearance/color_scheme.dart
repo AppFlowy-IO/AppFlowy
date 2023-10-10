@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -30,8 +31,8 @@ class ColorSchemeSetting extends StatelessWidget {
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
-        ColorSchemeUploadOverlayButton(bloc: bloc),
         ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
+        ColorSchemeUploadOverlayButton(bloc: bloc),
       ],
     );
   }
@@ -46,11 +47,14 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      icon: const FlowySvg(
+      icon: FlowySvg(
         FlowySvgs.folder_m,
-        size: Size.square(16),
+        size: const Size.square(16),
+        color: Theme.of(context).iconTheme.color,
       ),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
+      hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+      tooltipText: LocaleKeys.settings_appearance_themeUpload_uploadTheme.tr(),
       onPressed: () => Dialogs.show(
         context,
         child: BlocProvider<DynamicPluginBloc>.value(
@@ -62,13 +66,9 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
         ),
       ).then((value) {
         if (value == null) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: FlowyText.medium(
-              color: Theme.of(context).colorScheme.onPrimary,
-              LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-            ),
-          ),
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
         );
       }),
     );
@@ -156,6 +156,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 if (currentTheme != theme) {
                   context.read<AppearanceSettingsCubit>().setTheme(theme);
                 }
+                PopoverContainer.of(context).close();
               },
             ),
           ),

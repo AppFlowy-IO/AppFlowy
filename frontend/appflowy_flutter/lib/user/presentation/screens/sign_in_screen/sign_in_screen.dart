@@ -12,11 +12,9 @@ import '../../helpers/helpers.dart';
 class SignInScreen extends StatelessWidget {
   const SignInScreen({
     super.key,
-    required this.router,
   });
 
   static const routeName = '/SignInScreen';
-  final AuthRouter router;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,11 @@ class SignInScreen extends StatelessWidget {
         listener: (context, state) {
           state.successOrFail.fold(
             () => null,
-            (result) => handleSuccessOrFail(result, context, router),
+            (userProfileResult) => handleUserProfileResult(
+              userProfileResult,
+              context,
+              getIt<AuthRouter>(),
+            ),
           );
         },
         builder: (context, state) {

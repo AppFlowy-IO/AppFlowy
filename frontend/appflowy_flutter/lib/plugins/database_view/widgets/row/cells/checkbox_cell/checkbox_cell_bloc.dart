@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -11,7 +10,6 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
-    required CellBackendService service,
     required this.cellController,
   }) : super(CheckboxCellState.initial(cellController)) {
     on<CheckboxCellEvent>(
@@ -20,11 +18,11 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
           initial: () {
             _startListening();
           },
-          select: () async {
-            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
-          },
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
+          },
+          select: () async {
+            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
           },
         );
       },
@@ -73,5 +71,6 @@ class CheckboxCellState with _$CheckboxCellState {
 }
 
 bool _isSelected(String? cellData) {
+  // The backend use "Yes" and "No" to represent the checkbox cell data.
   return cellData == "Yes";
 }

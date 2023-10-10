@@ -73,6 +73,8 @@ class LavenderColorScheme extends FlowyColorScheme {
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightSelector,
+          calendarWeekendBGColor: const Color(0xFFFBFBFC),
+          gridRowCountColor: _black,
         );
 
   const LavenderColorScheme.dark()
@@ -105,7 +107,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: _darkMain1,
-          shadow: _black,
+          shadow: const Color(0xff0F131C),
           sidebarBg: const Color(0xff2D223B),
           divider: _darkShader3,
           topbarBg: _darkShader1,
@@ -123,5 +125,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
+          calendarWeekendBGColor: const Color(0xff121212),
+          gridRowCountColor: _darkMain1,
         );
 }

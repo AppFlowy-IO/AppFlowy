@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -13,8 +13,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  SignInResponse, SignUpResponse, ThirdPartyParams, UpdateUserProfileParams, UserCredentials,
-  UserProfile, UserWorkspace,
+  AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,14 +61,24 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
   /// Use the `unbox_or_error` of the [BoxAny] to get the params.
-  fn sign_up(&self, params: BoxAny) -> FutureResult<SignUpResponse, Error>;
+  fn sign_up(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
 
   /// Sign in an account
   /// The type of the params is defined the this trait's implementation.
-  fn sign_in(&self, params: BoxAny) -> FutureResult<SignInResponse, Error>;
+  fn sign_in(&self, params: BoxAny) -> FutureResult<AuthResponse, Error>;
 
   /// Sign out an account
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
+
+  /// Generate a sign in url for the user with the given email
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
+
+  /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
+  /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
+  /// which will call [Client::sign_in_with_url] to sign in.
+  ///
+  /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error>;
 
   /// Using the user's token to update the user information
   fn update_user(
@@ -127,18 +136,6 @@ pub struct UserUpdate {
   pub name: String,
   pub email: String,
   pub encryption_sign: String,
-}
-
-pub fn third_party_params_from_box_any(any: BoxAny) -> Result<ThirdPartyParams, Error> {
-  let map: HashMap<String, String> = any.unbox_or_error()?;
-  let uuid = uuid_from_map(&map)?;
-  let email = map.get("email").cloned().unwrap_or_default();
-  let device_id = map.get("device_id").cloned().unwrap_or_default();
-  Ok(ThirdPartyParams {
-    uuid,
-    email,
-    device_id,
-  })
 }
 
 pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {

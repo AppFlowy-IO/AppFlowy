@@ -1,9 +1,11 @@
 use std::sync::{Arc, Weak};
 
+use anyhow::Context;
 use collab::core::collab::{CollabRawData, MutexCollab};
-use collab_define::reminder::Reminder;
-use collab_define::CollabType;
+use collab_entity::reminder::Reminder;
+use collab_entity::CollabType;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
+use tracing::{error, trace};
 
 use collab_integrate::RocksCollabDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -30,9 +32,53 @@ impl UserManager {
     let reminder = Reminder::from(reminder_pb);
     self
       .with_awareness((), |user_awareness| {
-        user_awareness.add_reminder(reminder);
+        user_awareness.add_reminder(reminder.clone());
       })
       .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .add_reminder(reminder)
+      .await?;
+    Ok(())
+  }
+
+  /// Removes a specific reminder for the user by its id
+  ///
+  pub async fn remove_reminder(&self, reminder_id: &str) -> FlowyResult<()> {
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.remove_reminder(reminder_id);
+      })
+      .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .remove_reminder(reminder_id)
+      .await?;
+    Ok(())
+  }
+
+  /// Updates an existing reminder
+  ///
+  pub async fn update_reminder(&self, reminder_pb: ReminderPB) -> FlowyResult<()> {
+    let reminder = Reminder::from(reminder_pb);
+    self
+      .with_awareness((), |user_awareness| {
+        user_awareness.update_reminder(&reminder.id, |new_reminder| {
+          new_reminder.clone_from(&reminder)
+        });
+      })
+      .await;
+    self
+      .collab_interact
+      .read()
+      .await
+      .update_reminder(reminder)
+      .await?;
+
     Ok(())
   }
 
@@ -57,12 +103,8 @@ impl UserManager {
     source: UserAwarenessDataSource,
   ) {
     match self.try_initial_user_awareness(session, source).await {
-      Ok(_) => {
-        tracing::trace!("User awareness initialized");
-      },
-      Err(e) => {
-        tracing::error!("Failed to initialize user awareness: {:?}", e);
-      },
+      Ok(_) => trace!("User awareness initialized"),
+      Err(e) => error!("Failed to initialize user awareness: {:?}", e),
     }
   }
 
@@ -84,11 +126,13 @@ impl UserManager {
     session: &Session,
     source: UserAwarenessDataSource,
   ) -> FlowyResult<()> {
-    tracing::trace!("Initializing user awareness from {:?}", source);
+    trace!("Initializing user awareness from {:?}", source);
     let collab_db = self.get_collab_db(session.user_id)?;
     let user_awareness = match source {
       UserAwarenessDataSource::Local => {
-        let collab = self.collab_for_user_awareness(session, collab_db, vec![])?;
+        let collab = self
+          .collab_for_user_awareness(session, collab_db, vec![])
+          .await?;
         MutexUserAwareness::new(UserAwareness::create(collab, None))
       },
       UserAwarenessDataSource::Remote => {
@@ -97,7 +141,10 @@ impl UserManager {
           .get_user_service()?
           .get_user_awareness_updates(session.user_id)
           .await?;
-        let collab = self.collab_for_user_awareness(session, collab_db, data)?;
+        trace!("Get user awareness collab: {}", data.len());
+        let collab = self
+          .collab_for_user_awareness(session, collab_db, data)
+          .await?;
         MutexUserAwareness::new(UserAwareness::create(collab, None))
       },
     };
@@ -110,7 +157,7 @@ impl UserManager {
   /// This function constructs a collaboration instance based on the given session and raw data,
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
-  fn collab_for_user_awareness(
+  async fn collab_for_user_awareness(
     &self,
     session: &Session,
     collab_db: Weak<RocksCollabDB>,
@@ -120,13 +167,16 @@ impl UserManager {
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
-    let collab = collab_builder.build(
-      session.user_id,
-      &session.user_id.to_string(),
-      CollabType::UserAwareness,
-      raw_data,
-      collab_db,
-    )?;
+    let collab = collab_builder
+      .build(
+        session.user_id,
+        &session.user_id.to_string(),
+        CollabType::UserAwareness,
+        raw_data,
+        collab_db,
+      )
+      .await
+      .context("Build collab for user awareness failed")?;
     Ok(collab)
   }
 

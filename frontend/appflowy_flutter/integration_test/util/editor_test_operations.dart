@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -159,7 +161,7 @@ class EditorOperations {
   /// Must call [showAtMenu] first.
   Future<void> tapAtMenuItemWithName(String name) async {
     final atMenuItem = find.descendant(
-      of: find.byType(SelectionMenuWidget),
+      of: find.byType(InlineActionsHandler),
       matching: find.text(name, findRichText: true),
     );
     await tester.tapButton(atMenuItem);
@@ -173,5 +175,35 @@ class EditorOperations {
       reason: SelectionUpdateReason.uiEvent,
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
+  /// hover and click on the + button beside the block component.
+  Future<void> hoverAndClickOptionAddButton(
+    Path path,
+    bool withModifiedKey, // alt on windows or linux, option on macos
+  ) async {
+    final optionAddButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is BlockComponentActionWrapper &&
+          widget.node.path.equals(path),
+    );
+    await tester.hoverOnWidget(
+      optionAddButton,
+      onHover: () async {
+        if (withModifiedKey) {
+          await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+        }
+        await tester.tapButton(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is BlockAddButton &&
+                widget.blockComponentContext.node.path.equals(path),
+          ),
+        );
+        if (withModifiedKey) {
+          await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+        }
+      },
+    );
   }
 }

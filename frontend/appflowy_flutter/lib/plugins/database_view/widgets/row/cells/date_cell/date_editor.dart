@@ -3,17 +3,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,9 +22,6 @@ import '../../../../grid/presentation/layout/sizes.dart';
 import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 import 'date_cal_bloc.dart';
-
-final kFirstDay = DateTime.utc(1970, 1, 1);
-final kLastDay = DateTime.utc(2100, 1, 1);
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
@@ -51,9 +47,9 @@ class _DateCellEditor extends State<DateCellEditor> {
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
           return _buildWidget(snapshot);
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -81,22 +77,14 @@ class _CellCalendarWidget extends StatefulWidget {
   const _CellCalendarWidget({
     required this.cellContext,
     required this.dateTypeOptionPB,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_CellCalendarWidget> createState() => _CellCalendarWidgetState();
 }
 
 class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
-  late PopoverMutex popoverMutex;
-
-  @override
-  void initState() {
-    popoverMutex = PopoverMutex();
-
-    super.initState();
-  }
+  final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -106,30 +94,13 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
         cellData: widget.cellContext.getCellData(),
         cellController: widget.cellContext,
       )..add(const DateCellCalendarEvent.initial()),
-      child: BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
-        builder: (context, state) {
-          final List<Widget> children = [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime
-                  ? _TimeTextField(
-                      isEndTime: false,
-                      timeStr: state.time,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            if (state.includeTime && state.isRange) const VSpace(8.0),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: state.includeTime && state.isRange
-                  ? _TimeTextField(
-                      isEndTime: true,
-                      timeStr: state.endTime,
-                      popoverMutex: popoverMutex,
-                    )
-                  : const SizedBox.shrink(),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StartTextField(popoverMutex: popoverMutex),
+            EndTextField(popoverMutex: popoverMutex),
             const DatePicker(),
             const TypeOptionSeparator(spacing: 12.0),
             const EndTimeButton(),
@@ -139,16 +110,8 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             DateTypeOptionButton(popoverMutex: popoverMutex),
             const VSpace(4.0),
             const ClearDateButton(),
-          ];
-
-          return ListView.builder(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
-            padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -157,6 +120,55 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   void dispose() {
     popoverMutex.dispose();
     super.dispose();
+  }
+}
+
+class StartTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const StartTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime
+              ? _TimeTextField(
+                  isEndTime: false,
+                  timeStr: state.time,
+                  popoverMutex: popoverMutex,
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
+  }
+}
+
+class EndTextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
+  const EndTextField({super.key, required this.popoverMutex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DateCellCalendarBloc, DateCellCalendarState>(
+      builder: (context, state) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: state.includeTime && state.isRange
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: _TimeTextField(
+                    isEndTime: true,
+                    timeStr: state.endTime,
+                    popoverMutex: popoverMutex,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        );
+      },
+    );
   }
 }
 
@@ -177,7 +189,7 @@ class _DatePickerState extends State<DatePicker> {
       builder: (context, state) {
         final textStyle = Theme.of(context).textTheme.bodyMedium!;
         final boxDecoration = BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).cardColor,
           shape: BoxShape.circle,
         );
         return Padding(
@@ -269,7 +281,7 @@ class _DatePickerState extends State<DatePicker> {
                 state.isRange ? false : isSameDay(state.dateTime, day),
             onDaySelected: (selectedDay, focusedDay) {
               context.read<DateCellCalendarBloc>().add(
-                    DateCellCalendarEvent.selectDay(selectedDay.toLocal().date),
+                    DateCellCalendarEvent.selectDay(selectedDay),
                   );
             },
             onRangeSelected: (start, end, focusedDay) {
@@ -363,8 +375,7 @@ class _TimeTextField extends StatefulWidget {
     required this.timeStr,
     required this.popoverMutex,
     required this.isEndTime,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_TimeTextField> createState() => _TimeTextFieldState();
@@ -437,6 +448,18 @@ class _TimeTextFieldState extends State<_TimeTextField> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.removeListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+    _focusNode.dispose();
+    super.dispose();
   }
 }
 

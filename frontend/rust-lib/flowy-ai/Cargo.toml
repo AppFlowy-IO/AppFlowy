@@ -6,15 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
-flowy-notification = { path = "../flowy-notification" }
-flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error"] }
-lib-dispatch = { path = "../lib-dispatch" }
-lib-infra = { path = "../../../shared-lib/lib-infra" }
-
-protobuf = {version = "2.28.0"}
-bytes = { version = "1.4" }
-strum_macros = "0.21"
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+anyhow = "1.0.75"
+lib-infra = { path = "../../../shared-lib/lib-infra" }
+async-openai = "0.14.2"
+tokio = { version = "1.12", features = ["rt", "sync"] }
+dotenv = "0.15.0"

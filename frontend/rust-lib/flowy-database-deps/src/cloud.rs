@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use anyhow::Error;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use lib_infra::future::FutureResult;
 
@@ -15,7 +15,7 @@ pub trait DatabaseCloudService: Send + Sync {
   fn get_collab_update(
     &self,
     object_id: &str,
-    object_ty: CollabType,
+    collab_type: CollabType,
   ) -> FutureResult<CollabObjectUpdate, Error>;
 
   fn batch_get_collab_updates(

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -257,7 +257,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: BoxConstraints.loose(const Size(320, 380)),
+          constraints: BoxConstraints.loose(const Size(300, 250)),
           child: FlowyButton(
             leftIconSize: const Size.square(18),
             useIntrinsicWidth: true,
@@ -324,6 +324,7 @@ class DocumentCover extends StatefulWidget {
 class DocumentCoverState extends State<DocumentCover> {
   bool isOverlayButtonsHidden = true;
   bool isPopoverOpen = false;
+  final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -382,12 +383,15 @@ class DocumentCoverState extends State<DocumentCover> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppFlowyPopover(
+            controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
             offset: const Offset(0, 8),
             direction: PopoverDirection.bottomWithCenterAligned,
             constraints: BoxConstraints.loose(const Size(380, 450)),
             margin: EdgeInsets.zero,
             onClose: () => isPopoverOpen = false,
             child: RoundedTextButton(
+              onPressed: () => popoverController.show(),
               hoverColor: Theme.of(context).colorScheme.surface,
               textColor: Theme.of(context).colorScheme.tertiary,
               fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
