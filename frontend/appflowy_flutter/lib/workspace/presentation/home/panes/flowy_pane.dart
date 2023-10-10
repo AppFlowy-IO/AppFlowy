@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
+import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -68,7 +69,7 @@ class _FlowyPaneState extends State<FlowyPane> {
                           paneContext: widget.paneContext,
                           pane: CrossDraggablesEntity(draggable: widget.node),
                           feedback: (context) =>
-                              widget.node.tabs.currentPageManager.title(),
+                              _buildPaneDraggableFeedback(context),
                           child: Column(
                             children: [
                               Padding(
@@ -117,11 +118,21 @@ class _FlowyPaneState extends State<FlowyPane> {
     );
   }
 
+  Widget _buildPaneDraggableFeedback(BuildContext context) {
+    return FlowyContainer(
+      Theme.of(context).colorScheme.onSecondaryContainer,
+      child: widget.node.tabs.currentPageManager.title(),
+    ).padding(all: 4);
+  }
+
   bool _proportionalScroll(ScrollNotification notification) {
-    if (notification is ScrollEndNotification &&
-        notification.metrics.axis == Axis.vertical) {
-      final scrollPercentage =
-          notification.metrics.pixels / notification.metrics.maxScrollExtent;
+    final axis = notification.metrics.axis;
+
+    if (notification is ScrollEndNotification && axis == Axis.vertical) {
+      final pixelsMoved = notification.metrics.pixels;
+      final extent = notification.metrics.maxScrollExtent;
+
+      final scrollPercentage = pixelsMoved / extent;
 
       final outerScrollExtent = scrollPercentage * widget.size.height;
 

@@ -1,6 +1,5 @@
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 
 class DraggablePaneItem extends StatefulWidget {
