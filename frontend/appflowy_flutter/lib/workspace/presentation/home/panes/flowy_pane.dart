@@ -52,55 +52,58 @@ class _FlowyPaneState extends State<FlowyPane> {
               child: SingleChildScrollView(
                 controller: verticalController,
                 scrollDirection: Axis.vertical,
-                child: SingleChildScrollView(
-                  controller: horizontalController,
-                  scrollDirection: Axis.horizontal,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      DraggablePaneItem(
-                        size: widget.size,
-                        paneContext: widget.paneContext,
-                        pane: CrossDraggablesEntity(draggable: widget.node),
-                        feedback: (context) =>
-                            widget.node.tabs.currentPageManager.title(),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: widget.layout.menuSpacing,
-                              ),
-                              child: TabsManager(
-                                pane: widget.node,
-                                pageController: pageController,
-                                tabs: value,
-                              ),
-                            ),
-                            value.currentPageManager.stackTopBar(
-                              layout: widget.layout,
-                              paneId: widget.node.paneId,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: PageView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          controller: pageController,
-                          children: value.pageManagers
-                              .map(
-                                (pm) => PageStack(
-                                  pageManager: pm,
-                                  delegate: widget.delegate,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _proportionalScroll,
+                  child: SingleChildScrollView(
+                    controller: horizontalController,
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        DraggablePaneItem(
+                          size: widget.size,
+                          paneContext: widget.paneContext,
+                          pane: CrossDraggablesEntity(draggable: widget.node),
+                          feedback: (context) =>
+                              widget.node.tabs.currentPageManager.title(),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: widget.layout.menuSpacing,
                                 ),
-                              )
-                              .toList(),
+                                child: TabsManager(
+                                  pane: widget.node,
+                                  pageController: pageController,
+                                  tabs: value,
+                                ),
+                              ),
+                              value.currentPageManager.stackTopBar(
+                                layout: widget.layout,
+                                paneId: widget.node.paneId,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ).constrained(
-                    width: widget.layout.homePageWidth,
-                    height: widget.layout.homePageHeight,
+                        Expanded(
+                          child: PageView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            controller: pageController,
+                            children: value.pageManagers
+                                .map(
+                                  (pm) => PageStack(
+                                    pageManager: pm,
+                                    delegate: widget.delegate,
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    ).constrained(
+                      width: widget.layout.homePageWidth,
+                      height: widget.layout.homePageHeight,
+                    ),
                   ),
                 ),
               ),
@@ -109,6 +112,23 @@ class _FlowyPaneState extends State<FlowyPane> {
         },
       ),
     );
+  }
+
+  bool _proportionalScroll(ScrollNotification notification) {
+    if (notification is ScrollEndNotification &&
+        notification.metrics.axis == Axis.vertical) {
+      final scrollPercentage =
+          notification.metrics.pixels / notification.metrics.maxScrollExtent;
+
+      final outerScrollExtent = scrollPercentage * widget.size.height;
+
+      verticalController.animateTo(
+        outerScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+    return false;
   }
 
   @override

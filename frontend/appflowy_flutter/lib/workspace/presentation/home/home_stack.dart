@@ -348,13 +348,14 @@ class _HomeBodyState extends State<HomeBody> {
                 onPointerPanZoomEnd: (event) {
                   _timer?.cancel();
 
-                  _timer = Timer(const Duration(milliseconds: 500), () {
+                  _timer = Timer(const Duration(milliseconds: 600), () {
                     absorbTapsNotifier.value = true;
                     _timer?.cancel();
                   });
                 },
                 onPointerPanZoomStart: (event) {
                   absorbTapsNotifier.value = false;
+                  _timer?.cancel();
                 },
                 onPointerSignal: (signal) {
                   if (signal is PointerScrollEvent) {
