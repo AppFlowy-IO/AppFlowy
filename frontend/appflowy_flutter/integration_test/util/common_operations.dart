@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
@@ -19,7 +18,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -435,43 +433,38 @@ extension CommonOperations on WidgetTester {
   }
 
   // tap the button with [FlowySvgData]
-  Future<void> tapButtonWithFlowySvgData(FlowySvgData svg) async {
+  Future<void> tapButtonWithFlowySvgData(
+    FlowySvgData svg, [
+    bool first = true,
+  ]) async {
     final button = find.byWidgetPredicate(
       (widget) => widget is FlowySvg && widget.svg.path == svg.path,
     );
-    await tapButton(button);
+    first ? await tapButton(button.first) : await tapButton(button.last);
   }
 
-  Future<void> openViewInNewPane(String name, ViewLayoutPB layout,
-      [Axis axis = Axis.vertical]) async {
-    await hoverOnPageName(name, onHover: () async {
-      if (axis == Axis.vertical) {
-        await tapSplitRightButton();
-      } else {
-        await tapSplitDownButton();
-      }
-      await pumpAndSettle();
-    });
+  Future<void> openViewInNewPane(
+    String name,
+    ViewLayoutPB layout, [
+    Axis axis = Axis.vertical,
+  ]) async {
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        if (axis == Axis.vertical) {
+          await tapSplitRightButton();
+        } else {
+          await tapSplitDownButton();
+        }
+        await pumpAndSettle();
+      },
+    );
   }
 
   Future<void> closePaneWithVisibleCloseButton({
     bool first = true,
   }) async {
-    await tapButton(
-      first
-          ? find
-              .descendant(
-                of: find.byType(BlocBuilder<PanesCubit, PanesState>),
-                matching: find.byIcon(Icons.close_sharp),
-              )
-              .first
-          : find
-              .descendant(
-                of: find.byType(BlocBuilder<PanesCubit, PanesState>),
-                matching: find.byIcon(Icons.close_sharp),
-              )
-              .last,
-    );
+    await tapButtonWithFlowySvgData(FlowySvgs.close_s, first);
   }
 }
 
