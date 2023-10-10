@@ -124,7 +124,7 @@ class _FlowyPaneState extends State<FlowyPane> {
 
       verticalController.animateTo(
         outerScrollExtent,
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 10),
         curve: Curves.easeInOut,
       );
     }
