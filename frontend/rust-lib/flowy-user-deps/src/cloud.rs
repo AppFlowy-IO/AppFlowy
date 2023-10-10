@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;

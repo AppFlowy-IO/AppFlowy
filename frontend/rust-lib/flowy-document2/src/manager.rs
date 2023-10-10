@@ -2,11 +2,11 @@ use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use collab::core::collab::MutexCollab;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
+use collab_entity::CollabType;
 use parking_lot::RwLock;
 use tracing::instrument;
 

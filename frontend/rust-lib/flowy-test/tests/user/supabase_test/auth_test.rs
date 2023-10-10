@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use assert_json_diff::assert_json_eq;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
+use collab_entity::CollabType;
 use collab_folder::core::FolderData;
 use nanoid::nanoid;
 use serde_json::json;

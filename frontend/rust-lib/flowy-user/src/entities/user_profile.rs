@@ -197,6 +197,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       icon_url,
       openai_key,
       encryption_sign: None,
+      token: None,
       stability_ai_key,
     })
   }

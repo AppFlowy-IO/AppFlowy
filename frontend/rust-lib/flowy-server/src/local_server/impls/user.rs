@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 

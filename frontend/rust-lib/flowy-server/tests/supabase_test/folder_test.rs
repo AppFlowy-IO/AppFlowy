@@ -1,5 +1,5 @@
 use assert_json_diff::assert_json_eq;
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use serde_json::json;
 use uuid::Uuid;
 use yrs::types::ToJson;
