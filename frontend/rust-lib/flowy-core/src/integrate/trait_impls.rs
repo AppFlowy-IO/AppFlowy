@@ -295,7 +295,7 @@ impl CollabStorageProvider for ServerProvider {
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
-                  .with_timeout(6)
+                  .send_timeout(6)
                   .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
                 let sync_plugin = SyncPlugin::new(
                   origin,

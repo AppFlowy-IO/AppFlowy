@@ -25,7 +25,7 @@ anyhow = "1.0"
 uuid = { version = "1.3.3", features = ["v4"] }
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 collab = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0", features = ["sync_plugin"] }
+collab-plugins = { version = "0.1.0"}
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 hex = "0.4.3"
