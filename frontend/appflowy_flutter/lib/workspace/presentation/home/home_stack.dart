@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -293,10 +294,13 @@ class HomeTopBar extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
 
-                return IconButton(
+                return FlowyIconButton(
                   onPressed: () =>
                       context.read<PanesCubit>().closePane(paneId: paneId),
-                  icon: const Icon(Icons.close_sharp),
+                  icon: FlowySvg(
+                    FlowySvgs.close_s,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
                 );
               },
             )
