@@ -34,7 +34,7 @@ class TabService {
       ..setPlugin(plugin)
       ..setReadOnlyStatus(openPlugins.containsKey(plugin.id));
 
-    if (index == null || index >= controller.pageManagers.length - 1) {
+    if (index == null || index >= controller.pageManagers.length) {
       controller.pageManagers.add(pageManager);
     } else {
       controller.pageManagers.insert(index, pageManager);

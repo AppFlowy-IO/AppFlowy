@@ -57,6 +57,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
     );
 
     return CombinedDraggableItem<CrossDraggablesEntity>(
+      dragAnchorStrategy: pointerDragAnchorStrategy,
       enableAutoScroll: false,
       data: widget.tabs,
       onWillAccept: (data) => true,
@@ -112,6 +113,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
     } else if (type == CrossDraggableType.tab) {
       final fromTab = from.draggable as TabNode;
       final plugin = (from.draggable as TabNode).pageManager.plugin;
+
       if (fromTab.tabs != to.tabs) {
         fromTab.tabs.closeView(plugin.id, move: true);
       } else {

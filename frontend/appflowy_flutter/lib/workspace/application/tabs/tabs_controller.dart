@@ -47,8 +47,8 @@ class TabsController extends ChangeNotifier {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
     if (!selectExistingPlugin) {
       tabService.openViewHandler(this, plugin, index: index);
+      currentIndex = index ?? pageManagers.length - 1;
     }
-    currentIndex = pageManagers.length - 1;
 
     setLatestOpenView();
     notifyListeners();
@@ -143,7 +143,7 @@ class TabsController extends ChangeNotifier {
       case TabDraggableHoverPosition.right:
         {
           final index = pageManagers.indexOf(to);
-          openView(from.plugin, index: index);
+          openView(from.plugin, index: index + 1);
           currentIndex = index + 1;
           break;
         }
