@@ -353,6 +353,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
               styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
         ),
       ),
+      errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+        ),
+      ),
     };
 
     final builders = {
