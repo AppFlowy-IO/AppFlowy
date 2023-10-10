@@ -151,6 +151,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     effectiveScrollController = widget.scrollController ?? ScrollController();
 
     // keep the previous font style when typing new text.
+    supportSlashMenuNodeWhiteList.addAll([
+      ToggleListBlockKeys.type,
+    ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
