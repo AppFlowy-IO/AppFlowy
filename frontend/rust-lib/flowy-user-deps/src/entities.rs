@@ -191,6 +191,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
+  pub stability_ai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
@@ -252,6 +253,7 @@ where
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
+      stability_ai_key: "".to_owned(),
     }
   }
 }
@@ -264,6 +266,7 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub stability_ai_key: Option<String>,
   pub encryption_sign: Option<String>,
   pub token: Option<String>,
 }
@@ -306,6 +309,11 @@ impl UpdateUserProfileParams {
     self
   }
 
+  pub fn with_stability_ai_key(mut self, stability_ai_key: &str) -> Self {
+    self.stability_ai_key = Some(stability_ai_key.to_owned());
+    self
+  }
+
   pub fn with_encryption_type(mut self, encryption_type: EncryptionType) -> Self {
     let sign = match encryption_type {
       EncryptionType::NoEncryption => "".to_string(),
@@ -322,6 +330,7 @@ impl UpdateUserProfileParams {
       && self.icon_url.is_none()
       && self.openai_key.is_none()
       && self.encryption_sign.is_none()
+      && self.stability_ai_key.is_none()
   }
 }
 

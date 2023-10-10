@@ -215,6 +215,7 @@ where
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
+          stability_ai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
