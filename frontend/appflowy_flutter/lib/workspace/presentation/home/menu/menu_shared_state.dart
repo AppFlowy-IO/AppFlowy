@@ -32,10 +32,6 @@ class MenuSharedState {
     _latestOpenView.removeListener(listener);
   }
 
-  void removePluginListListener(VoidCallback listener) {
-    _openPlugins.removeListener(listener);
-  }
-
   Map<String, int> get openPlugins => _openPlugins.value;
 
   set openPlugins(Map<String, int> value) {
