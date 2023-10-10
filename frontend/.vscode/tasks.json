@@ -85,7 +85,7 @@
       }
     },
     {
-      "label": "AF: Clean + Rebuild All (Android)",
+      "label": "AF-Android: Clean + Rebuild All",
       "type": "shell",
       "dependsOrder": "sequence",
       "dependsOn": [
@@ -104,7 +104,7 @@
       }
     },
     {
-      "label": "AF: Build Appflowy Core For Android",
+      "label": "AF-Android: Build Appflowy Core",
       "type": "shell",
       "command": "cargo make --profile production-android appflowy-core-dev-android",
       "group": "build",
