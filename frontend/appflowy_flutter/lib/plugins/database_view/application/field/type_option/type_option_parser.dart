@@ -5,8 +5,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/text_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:protobuf/protobuf.dart';
 
 abstract class TypeOptionParser<T> {
   T fromBuffer(List<int> buffer);
@@ -98,7 +96,7 @@ class MultiSelectTypeOptionDataParser
   }
 }
 
-// Multi-select
+// Checklist
 typedef ChecklistTypeOptionParser = TypeOptionParser<ChecklistTypeOptionPB>;
 
 class ChecklistTypeOptionDataParser

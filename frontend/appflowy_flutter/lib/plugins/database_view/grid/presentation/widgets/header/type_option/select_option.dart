@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -15,51 +14,48 @@ import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
 import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 
-class SelectOptionTypeOptionWidget extends StatelessWidget {
+class SelectOptionTypeOptionEditor extends StatefulWidget {
   final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
   final ISelectOptionAction typeOptionAction;
   final PopoverMutex? popoverMutex;
 
-  const SelectOptionTypeOptionWidget({
+  const SelectOptionTypeOptionEditor({
     required this.options,
     required this.beginEdit,
     required this.typeOptionAction,
     this.popoverMutex,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
+
+  @override
+  State<SelectOptionTypeOptionEditor> createState() =>
+      _SelectOptionTypeOptionEditorState();
+}
+
+class _SelectOptionTypeOptionEditorState
+    extends State<SelectOptionTypeOptionEditor> {
+  bool _isEditingOption = false;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SelectOptionTypeOptionBloc(
-        options: options,
-        typeOptionAction: typeOptionAction,
-      ),
-      child:
-          BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
-        builder: (context, state) {
-          final List<Widget> children = [
-            const TypeOptionSeparator(),
-            const OptionTitle(),
-            if (state.isEditingOption)
-              CreateOptionTextField(popoverMutex: popoverMutex),
-            if (state.options.isNotEmpty && state.isEditingOption)
-              const VSpace(10),
-            if (state.options.isEmpty && !state.isEditingOption)
-              const _AddOptionButton(),
-            _OptionList(popoverMutex: popoverMutex)
-          ];
+    final List<Widget> children = [
+      const TypeOptionSeparator(),
+      const OptionTitle(),
+      if (state.isEditingOption)
+        CreateOptionTextField(popoverMutex: widget.popoverMutex),
+      if (state.options.isNotEmpty && state.isEditingOption) const VSpace(10),
+      if (state.options.isEmpty && !state.isEditingOption)
+        const _AddOptionButton(),
+      _OptionList(popoverMutex: widget.popoverMutex)
+    ];
 
-          return ListView.builder(
-            shrinkWrap: true,
-            itemCount: children.length,
-            itemBuilder: (context, index) {
-              return children[index];
-            },
-          );
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: children.length,
+      itemBuilder: (context, index) {
+        return children[index];
+      },
     );
   }
 }
@@ -216,7 +212,7 @@ class _OptionCellState extends State<_OptionCell> {
         child: child,
       ),
       popupBuilder: (BuildContext popoverContext) {
-        return SelectOptionTypeOptionEditor(
+        return SelectOptionEditor(
           option: widget.option,
           onDeleted: () {
             context

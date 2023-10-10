@@ -1,8 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';

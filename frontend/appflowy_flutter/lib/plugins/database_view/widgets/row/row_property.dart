@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
@@ -31,15 +30,15 @@ class RowPropertyList extends StatelessWidget {
   const RowPropertyList({
     required this.viewId,
     required this.cellBuilder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
         final children = state.visibleCells
-            .where((element) => !element.fieldInfo.field.isPrimary)
+            .where((element) => !element.field.isPrimary)
             .mapIndexed(
               (index, cell) => _PropertyCell(
                 key: ValueKey('row_detail_${cell.fieldId}'),
@@ -177,7 +176,7 @@ class _PropertyCellState extends State<_PropertyCell> {
                 width: 160,
                 height: 30,
                 child: FieldCellButton(
-                  field: widget.cellContext.fieldInfo.field,
+                  field: widget.cellContext.field,
                   onTap: () => _popoverController.show(),
                   radius: BorderRadius.circular(6),
                   margin:

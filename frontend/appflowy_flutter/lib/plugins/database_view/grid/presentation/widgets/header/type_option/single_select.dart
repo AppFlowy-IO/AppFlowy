@@ -1,51 +1,42 @@
 import 'package:appflowy/plugins/database_view/application/field/type_option/single_select_type_option.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/widgets.dart';
 
+import 'builder.dart';
 import 'select_option.dart';
 
-// class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
-//   final SingleSelectTypeOptionWidget _widget;
-
-//   SingleSelectTypeOptionWidgetBuilder(
-//     SingleSelectTypeOptionContext singleSelectTypeOption,
-//     PopoverMutex popoverMutex,
-//   ) : _widget = SingleSelectTypeOptionWidget(
-//           selectOptionAction: SingleSelectAction(
-//             fieldId: singleSelectTypeOption.fieldId,
-//             viewId: singleSelectTypeOption.viewId,
-//             typeOptionContext: singleSelectTypeOption,
-//           ),
-//           popoverMutex: popoverMutex,
-//         );
-
-//   @override
-//   Widget? build(BuildContext context) => _widget;
-// }
-
 class SingleSelectTypeOptionEditor extends StatelessWidget {
-  final SingleSelectTypeOptionParser parser;
-  final SingleSelectAction selectOptionAction;
+  final String viewId;
+  final FieldPB field;
+  final TypeOptionDataCallback onTypeOptionUpdated;
+  late final SingleSelectTypeOptionPB typeOption;
+  late final SingleSelectAction selectOptionAction;
   final PopoverMutex? popoverMutex;
 
   SingleSelectTypeOptionEditor({
-    required this.parser,
+    required this.viewId,
+    required this.field,
+    required this.onTypeOptionUpdated,
+    required SingleSelectTypeOptionParser parser,
     this.popoverMutex,
     super.key,
-  }) : selectOptionAction = SingleSelectAction(
-          fieldId: singleSelectTypeOption.fieldId,
-          viewId: singleSelectTypeOption.viewId,
-          typeOptionContext: singleSelectTypeOption,
-        );
+  }) {
+    typeOption = parser.fromBuffer(field.typeOptionData);
+    selectOptionAction = SingleSelectAction(
+      fieldId: field.id,
+      viewId: viewId,
+      typeOption: typeOption,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SelectOptionTypeOptionWidget(
+    return SelectOptionTypeOptionEditor(
       options: selectOptionAction.typeOption.options,
-      beginEdit: () {
-        PopoverContainer.of(context).closeAll();
-      },
+      beginEdit: () => PopoverContainer.of(context).closeAll(),
       popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
     );

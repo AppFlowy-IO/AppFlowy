@@ -17,13 +17,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import '../../../layout/sizes.dart';
 import '../../common/type_option_separator.dart';
 
-class SelectOptionTypeOptionEditor extends StatelessWidget {
+class SelectOptionEditor extends StatelessWidget {
   final SelectOptionPB option;
   final VoidCallback onDeleted;
   final Function(SelectOptionPB) onUpdated;
   final bool showOptions;
   final bool autoFocus;
-  const SelectOptionTypeOptionEditor({
+  const SelectOptionEditor({
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
@@ -32,7 +32,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  static String get identifier => (SelectOptionTypeOptionEditor).toString();
+  static String get identifier => (SelectOptionEditor).toString();
 
   @override
   Widget build(BuildContext context) {

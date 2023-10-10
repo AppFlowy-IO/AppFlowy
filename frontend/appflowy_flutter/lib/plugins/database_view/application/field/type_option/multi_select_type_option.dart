@@ -1,31 +1,20 @@
+import 'dart:async';
+
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
-import 'dart:async';
 import 'select_option_type_option_bloc.dart';
-import 'type_option_parser.dart';
-import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
 
 class MultiSelectAction with ISelectOptionAction {
   final String viewId;
   final String fieldId;
-  final TypeOptionBackendService service;
-  final MultiSelectTypeOptionContext typeOptionContext;
+  final MultiSelectTypeOptionPB typeOption;
 
-  MultiSelectAction({
+  const MultiSelectAction({
     required this.viewId,
     required this.fieldId,
-    required this.typeOptionContext,
-  }) : service = TypeOptionBackendService(
-          viewId: viewId,
-          fieldId: fieldId,
-        );
-
-  MultiSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
-
-  set typeOption(MultiSelectTypeOptionPB newTypeOption) {
-    typeOptionContext.typeOption = newTypeOption;
-  }
+    required this.typeOption,
+  });
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
@@ -45,7 +34,8 @@ class MultiSelectAction with ISelectOptionAction {
   @override
   Future<List<SelectOptionPB>> Function(String) get insertOption {
     return (String optionName) {
-      return service.newOption(name: optionName).then((result) {
+      return newOption(viewId: viewId, fieldId: fieldId, name: optionName)
+          .then((result) {
         return result.fold(
           (option) {
             typeOption.freeze();

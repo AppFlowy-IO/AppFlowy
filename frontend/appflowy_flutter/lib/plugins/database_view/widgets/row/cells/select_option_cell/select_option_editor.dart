@@ -348,7 +348,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         child: child,
       ),
       popupBuilder: (BuildContext popoverContext) {
-        return SelectOptionTypeOptionEditor(
+        return SelectOptionEditor(
           option: widget.option,
           onDeleted: () {
             context

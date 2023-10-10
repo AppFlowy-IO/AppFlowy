@@ -1,57 +1,44 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/date_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:appflowy/generated/locale_keys.g.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:protobuf/protobuf.dart';
+
 import '../../../layout/sizes.dart';
-import '../../common/type_option_separator.dart';
+import 'builder.dart';
 
 class DateTimeTypeOptionEditor extends StatelessWidget {
-  final DateTypeOptionParser parser;
+  final FieldPB field;
+  final DateTypeOptionPB typeOption;
+  final TypeOptionDataCallback onTypeOptionUpdated;
   final PopoverMutex popoverMutex;
 
-  const DateTimeTypeOptionEditor({
-    required this.parser,
+  DateTimeTypeOptionEditor({
+    required this.field,
+    required this.onTypeOptionUpdated,
+    required DateTypeOptionParser parser,
     required this.popoverMutex,
     super.key,
-  });
+  }) : typeOption = parser.fromBuffer(field.typeOptionData);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          DateTypeOptionBloc(typeOptionContext: typeOptionContext),
-      child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
-        listener: (context, state) =>
-            typeOptionContext.typeOption = state.typeOption,
-        builder: (context, state) {
-          final List<Widget> children = [
-            const TypeOptionSeparator(),
-            _renderDateFormatButton(context, state.typeOption.dateFormat),
-            _renderTimeFormatButton(context, state.typeOption.timeFormat),
-          ];
+    final List<Widget> children = [
+      _renderDateFormatButton(context, typeOption.dateFormat),
+      _renderTimeFormatButton(context, typeOption.timeFormat),
+    ];
 
-          return ListView.separated(
-            shrinkWrap: true,
-            controller: ScrollController(),
-            separatorBuilder: (context, index) {
-              if (index == 0) {
-                return const SizedBox();
-              } else {
-                return VSpace(GridSize.typeOptionSeparatorHeight);
-              }
-            },
-            itemCount: children.length,
-            itemBuilder: (BuildContext context, int index) => children[index],
-          );
-        },
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      separatorBuilder: (context, index) =>
+          VSpace(GridSize.typeOptionSeparatorHeight),
+      itemCount: children.length,
+      itemBuilder: (BuildContext context, int index) => children[index],
     );
   }
 
@@ -69,9 +56,7 @@ class DateTimeTypeOptionEditor extends StatelessWidget {
         return DateFormatList(
           selectedFormat: dataFormat,
           onSelected: (format) {
-            context
-                .read<DateTypeOptionBloc>()
-                .add(DateTypeOptionEvent.didSelectDateFormat(format));
+            _updateTypeOption(dateFormat: format);
             PopoverContainer.of(popoverContext).close();
           },
         );
@@ -97,9 +82,7 @@ class DateTimeTypeOptionEditor extends StatelessWidget {
         return TimeFormatList(
           selectedFormat: timeFormat,
           onSelected: (format) {
-            context
-                .read<DateTypeOptionBloc>()
-                .add(DateTypeOptionEvent.didSelectTimeFormat(format));
+            _updateTypeOption(timeFormat: format);
             PopoverContainer.of(popoverContext).close();
           },
         );
@@ -110,6 +93,22 @@ class DateTimeTypeOptionEditor extends StatelessWidget {
       ),
     );
   }
+
+  void _updateTypeOption({
+    DateFormatPB? dateFormat,
+    TimeFormatPB? timeFormat,
+  }) {
+    typeOption.freeze();
+    final newTypeOption = typeOption.rebuild((typeOption) {
+      if (dateFormat != null) {
+        typeOption.dateFormat = dateFormat;
+      }
+      if (timeFormat != null) {
+        typeOption.timeFormat = timeFormat;
+      }
+    });
+    onTypeOptionUpdated.call(newTypeOption.writeToBuffer());
+  }
 }
 
 class DateFormatButton extends StatelessWidget {
@@ -118,8 +117,8 @@ class DateFormatButton extends StatelessWidget {
   const DateFormatButton({
     this.onTap,
     this.onHover,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

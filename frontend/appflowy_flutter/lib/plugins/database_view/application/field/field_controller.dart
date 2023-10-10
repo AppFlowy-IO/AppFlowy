@@ -51,7 +51,7 @@ class FieldController {
   // Getters
   List<FieldPB> get fields => [..._fieldNotifier.fields];
 
-  FieldPB? getField(String fieldId, {FieldType? fieldType}) {
+  FieldPB? getField(String fieldId, [FieldType? fieldType]) {
     return _fieldNotifier.fields.firstWhereOrNull(
       (field) =>
           field.id == fieldId &&

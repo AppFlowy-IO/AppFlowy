@@ -1,4 +1,7 @@
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -11,6 +14,19 @@ abstract mixin class ISelectOptionAction {
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption;
 
   List<SelectOptionPB> Function(SelectOptionPB) get updateOption;
+
+  Future<Either<SelectOptionPB, FlowyError>> newOption({
+    required String viewId,
+    required String fieldId,
+    required String name,
+  }) {
+    final payload = CreateSelectOptionPayloadPB.create()
+      ..optionName = name
+      ..viewId = viewId
+      ..fieldId = fieldId;
+
+    return DatabaseEventCreateSelectOption(payload).send();
+  }
 }
 
 class SelectOptionTypeOptionBloc

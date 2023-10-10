@@ -80,7 +80,11 @@ class _FieldEditorState extends State<FieldEditor> {
               SwitchFieldButton(popoverMutex: popoverMutex),
             if (state.field.fieldType.hasTypeOptions())
               const TypeOptionSeparator(spacing: 2.0),
-            TypeOptionEditor(field: state.field, popoverMutex: popoverMutex),
+            TypeOptionEditor(
+              viewId: widget.fieldController.viewId,
+              field: state.field,
+              popoverMutex: popoverMutex,
+            ),
           ];
 
           return ListView.separated(

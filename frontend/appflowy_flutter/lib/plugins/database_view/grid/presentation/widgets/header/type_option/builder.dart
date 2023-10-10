@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
@@ -27,9 +29,12 @@ typedef TypeOptionData = Uint8List;
 typedef TypeOptionDataCallback = void Function(TypeOptionData typeOptionData);
 
 class TypeOptionEditor extends StatelessWidget {
+  final String viewId;
   final FieldPB field;
   final PopoverMutex popoverMutex;
+
   const TypeOptionEditor({
+    required this.viewId,
     required this.field,
     required this.popoverMutex,
     super.key,
@@ -38,42 +43,64 @@ class TypeOptionEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fieldType = field.fieldType;
+    typeOptionDataCallback(TypeOptionData typeOptionData) {
+      context
+          .read<FieldEditorBloc>()
+          .add(FieldEditorEvent.updateTypeOption(typeOptionData));
+    }
+
     return switch (fieldType) {
       FieldType.Checkbox => CheckboxTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<CheckboxTypeOptionPB>(fieldType),
           popoverMutex: popoverMutex,
         ),
       FieldType.DateTime => DateTimeTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<DateTypeOptionPB>(fieldType),
+          onTypeOptionUpdated: typeOptionDataCallback,
           popoverMutex: popoverMutex,
         ),
       FieldType.LastEditedTime ||
       FieldType.CreatedTime =>
         TimestampTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<TimestampTypeOptionPB>(fieldType),
+          onTypeOptionUpdated: typeOptionDataCallback,
           popoverMutex: popoverMutex,
         ),
       FieldType.SingleSelect => SingleSelectTypeOptionEditor(
+          field: field,
+          viewId: viewId,
           parser: makeTypeOptionParser<SingleSelectTypeOptionPB>(fieldType),
+          onTypeOptionUpdated: typeOptionDataCallback,
           popoverMutex: popoverMutex,
         ),
       FieldType.MultiSelect => MultiSelectTypeOptionEditor(
+          field: field,
+          viewId: viewId,
           parser: makeTypeOptionParser<MultiSelectTypeOptionPB>(fieldType),
+          onTypeOptionUpdated: typeOptionDataCallback,
           popoverMutex: popoverMutex,
         ),
       FieldType.Number => NumberTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<NumberTypeOptionPB>(fieldType),
+          onTypeOptionUpdated: typeOptionDataCallback,
           popoverMutex: popoverMutex,
         ),
       FieldType.RichText => RichTextTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<RichTextTypeOptionPB>(fieldType),
           popoverMutex: popoverMutex,
         ),
       FieldType.Checklist => ChecklistTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<ChecklistTypeOptionPB>(fieldType),
           popoverMutex: popoverMutex,
         ),
       FieldType.URL => URLTypeOptionEditor(
+          field: field,
           parser: makeTypeOptionParser<URLTypeOptionPB>(fieldType),
           popoverMutex: popoverMutex,
         ),
