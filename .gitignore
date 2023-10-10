@@ -43,3 +43,5 @@ frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
+
+frontend/appflowy_flutter/android/app/.cxx/
