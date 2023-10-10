@@ -8,15 +8,16 @@ import 'package:flutter/material.dart';
 class ViewPluginNotifier extends PluginNotifier<Option<DeletedViewPB>> {
   final ViewListener? _viewListener;
   ViewPB view;
+  bool _readOnlyStatus = false;
 
   @override
   final ValueNotifier<Option<DeletedViewPB>> isDeleted = ValueNotifier(none());
 
   @override
-  bool get readOnlyStatus => false;
+  bool get readOnlyStatus => _readOnlyStatus;
 
   @override
-  set readOnlyStatus(bool value) => readOnlyStatus = value;
+  set readOnlyStatus(bool value) => _readOnlyStatus = value;
 
   ViewPluginNotifier({
     required this.view,

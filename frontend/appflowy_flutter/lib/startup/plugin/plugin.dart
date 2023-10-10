@@ -38,7 +38,9 @@ abstract class PluginNotifier<T> {
   /// Notify if the plugin get deleted
   ValueNotifier<T> get isDeleted;
 
-  bool readOnlyStatus = false;
+  bool get readOnlyStatus;
+
+  set readOnlyStatus(bool value);
 
   void dispose() {}
 }
