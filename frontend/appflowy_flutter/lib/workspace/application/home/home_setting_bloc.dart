@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -43,7 +44,28 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           collapseMenu: (_CollapseMenu e) {
             final isMenuCollapsed = !state.isMenuCollapsed;
             _appearanceSettingsCubit.saveIsMenuCollapsed(isMenuCollapsed);
-            emit(state.copyWith(isMenuCollapsed: isMenuCollapsed));
+            emit(
+              state.copyWith(
+                isMenuCollapsed: isMenuCollapsed,
+                keepMenuCollapsed: isMenuCollapsed,
+              ),
+            );
+          },
+          checkScreenSize: (_CheckScreenSize e) {
+            final bool isScreenSmall =
+                e.screenWidthPx < PageBreaks.tabletLandscape;
+
+            if (state.isScreenSmall != isScreenSmall) {
+              final isMenuCollapsed = isScreenSmall || state.keepMenuCollapsed;
+              emit(
+                state.copyWith(
+                  isMenuCollapsed: isMenuCollapsed,
+                  isScreenSmall: isScreenSmall,
+                ),
+              );
+            } else {
+              emit(state.copyWith(isScreenSmall: isScreenSmall));
+            }
           },
           editPanelResizeStart: (_EditPanelResizeStart e) {
             emit(
@@ -102,6 +124,8 @@ class HomeSettingEvent with _$HomeSettingEvent {
     WorkspaceSettingPB setting,
   ) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
+  const factory HomeSettingEvent.checkScreenSize(double screenWidthPx) =
+      _CheckScreenSize;
   const factory HomeSettingEvent.editPanelResized(double offset) =
       _EditPanelResized;
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;
@@ -115,6 +139,8 @@ class HomeSettingState with _$HomeSettingState {
     required WorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
+    required bool keepMenuCollapsed,
+    required bool isScreenSmall,
     required double resizeOffset,
     required double resizeStart,
     required MenuResizeType resizeType,
@@ -129,6 +155,8 @@ class HomeSettingState with _$HomeSettingState {
         workspaceSetting: workspaceSetting,
         unauthorized: false,
         isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
+        isScreenSmall: appearanceSettingsState.isMenuCollapsed,
+        keepMenuCollapsed: false,
         resizeOffset: appearanceSettingsState.menuOffset,
         resizeStart: 0,
         resizeType: MenuResizeType.slide,
