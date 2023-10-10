@@ -51,7 +51,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
               ),
             );
           },
-          screenSmall: (_ScreenSmall e) {
+          checkScreenSize: (_CheckScreenSize e) {
             final bool isScreenSmall =
                 e.screenWidthPx < PageBreaks.tabletLandscape;
 
@@ -124,8 +124,8 @@ class HomeSettingEvent with _$HomeSettingEvent {
     WorkspaceSettingPB setting,
   ) = _DidReceiveWorkspaceSetting;
   const factory HomeSettingEvent.collapseMenu() = _CollapseMenu;
-  const factory HomeSettingEvent.screenSmall(double screenWidthPx) =
-      _ScreenSmall;
+  const factory HomeSettingEvent.checkScreenSize(double screenWidthPx) =
+      _CheckScreenSize;
   const factory HomeSettingEvent.editPanelResized(double offset) =
       _EditPanelResized;
   const factory HomeSettingEvent.editPanelResizeStart() = _EditPanelResizeStart;

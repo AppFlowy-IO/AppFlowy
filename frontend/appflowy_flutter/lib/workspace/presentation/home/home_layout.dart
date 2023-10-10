@@ -32,7 +32,7 @@ class HomeLayout {
     final screenWidthPx = context.widthPx;
     context
         .read<HomeSettingBloc>()
-        .add(HomeSettingEvent.screenSmall(screenWidthPx));
+        .add(HomeSettingEvent.checkScreenSize(screenWidthPx));
 
     if (homeSetting.isMenuCollapsed) {
       showMenu = false;
