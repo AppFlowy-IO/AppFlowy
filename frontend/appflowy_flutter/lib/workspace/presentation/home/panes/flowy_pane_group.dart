@@ -18,6 +18,7 @@ class FlowyPaneGroup extends StatelessWidget {
   final double groupHeight;
   final HomeLayout layout;
   final HomeStackDelegate delegate;
+  final bool allowPaneDrag;
 
   const FlowyPaneGroup({
     super.key,
@@ -26,6 +27,7 @@ class FlowyPaneGroup extends StatelessWidget {
     required this.groupHeight,
     required this.layout,
     required this.delegate,
+    required this.allowPaneDrag,
   });
 
   @override
@@ -37,6 +39,7 @@ class FlowyPaneGroup extends StatelessWidget {
         child: FlowyPane(
           key: ValueKey(node.tabs.tabId),
           node: node,
+          allowPaneDrag: allowPaneDrag,
           delegate: delegate,
           layout: layout,
           paneContext: context,
@@ -91,6 +94,9 @@ class FlowyPaneGroup extends StatelessWidget {
     BuildContext context,
     PaneLayout paneLayout,
   ) {
+    if (indexNode.$1 == 0) {
+      return const SizedBox.expand();
+    }
     return Positioned(
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,
@@ -140,6 +146,7 @@ class FlowyPaneGroup extends StatelessWidget {
         groupHeight: paneLayout.childPaneHeight,
         delegate: delegate,
         layout: layout,
+        allowPaneDrag: allowPaneDrag,
       ).constrained(
         width: paneLayout.childPaneWidth,
         height: paneLayout.childPaneHeight,

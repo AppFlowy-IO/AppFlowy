@@ -55,6 +55,7 @@ class HomeStack extends StatelessWidget {
               node: state.root,
               layout: layout,
               delegate: delegate,
+              allowPaneDrag: state.allowPaneDrag,
             );
           },
         );

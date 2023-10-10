@@ -97,11 +97,27 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => _selectTab(context, 1),
     ).register();
 
+    // Enable pane drag
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.controlLeft,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _setDragStatus(context, true),
+      keyUpHandler: (_) => _setDragStatus(context, false),
+    ).register();
+
     return child;
   }
 
   void _selectTab(BuildContext context, int change) {
     final bloc = context.read<PanesCubit>();
     bloc.selectTab(index: bloc.state.activePane.tabs.currentIndex + change);
+  }
+
+  void _setDragStatus(BuildContext context, bool status) {
+    final bloc = context.read<PanesCubit>();
+    bloc.setDragStatus(status);
   }
 }

@@ -16,6 +16,8 @@ class FlowyPane extends StatefulWidget {
   final HomeStackDelegate delegate;
   final BuildContext paneContext;
   final Size size;
+  final bool allowPaneDrag;
+
   const FlowyPane({
     super.key,
     required this.node,
@@ -23,6 +25,7 @@ class FlowyPane extends StatefulWidget {
     required this.delegate,
     required this.paneContext,
     required this.size,
+    required this.allowPaneDrag,
   });
 
   @override
@@ -60,6 +63,7 @@ class _FlowyPaneState extends State<FlowyPane> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         DraggablePaneItem(
+                          allowPaneDrag: widget.allowPaneDrag,
                           size: widget.size,
                           paneContext: widget.paneContext,
                           pane: CrossDraggablesEntity(draggable: widget.node),

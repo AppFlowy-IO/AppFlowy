@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 
 class DraggablePaneItem extends StatefulWidget {
@@ -10,6 +11,7 @@ class DraggablePaneItem extends StatefulWidget {
     required this.child,
     required this.paneContext,
     required this.size,
+    required this.allowPaneDrag,
   });
 
   final CrossDraggablesEntity pane; //pass target pane
@@ -17,6 +19,7 @@ class DraggablePaneItem extends StatefulWidget {
   final Widget child;
   final BuildContext paneContext;
   final Size size;
+  final bool allowPaneDrag;
 
   @override
   State<DraggablePaneItem> createState() => _DraggablePaneItemState();
@@ -25,6 +28,9 @@ class DraggablePaneItem extends StatefulWidget {
 class _DraggablePaneItemState extends State<DraggablePaneItem> {
   @override
   Widget build(BuildContext context) {
+    if (!widget.allowPaneDrag) {
+      return widget.child;
+    }
     return DraggableItem<CrossDraggablesEntity>(
       dragAnchorStrategy: pointerDragAnchorStrategy,
       data: widget.pane,
