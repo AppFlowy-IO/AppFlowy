@@ -69,6 +69,7 @@ void main() {
     testWidgets('import a template', (tester) async {
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
+      await tester.openPage(gettingStarted);
 
       await tester.editor.tapLineOfEditorAt(0);
 

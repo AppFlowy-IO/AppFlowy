@@ -191,6 +191,7 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
+  pub stability_ai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
@@ -252,6 +253,7 @@ where
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
+      stability_ai_key: "".to_owned(),
     }
   }
 }
@@ -264,7 +266,9 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub stability_ai_key: Option<String>,
   pub encryption_sign: Option<String>,
+  pub token: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -275,28 +279,38 @@ impl UpdateUserProfileParams {
     }
   }
 
-  pub fn with_name(mut self, name: &str) -> Self {
-    self.name = Some(name.to_owned());
+  pub fn with_token(mut self, token: String) -> Self {
+    self.token = Some(token);
     self
   }
 
-  pub fn with_email(mut self, email: &str) -> Self {
-    self.email = Some(email.to_owned());
+  pub fn with_name<T: ToString>(mut self, name: T) -> Self {
+    self.name = Some(name.to_string());
     self
   }
 
-  pub fn with_password(mut self, password: &str) -> Self {
-    self.password = Some(password.to_owned());
+  pub fn with_email<T: ToString>(mut self, email: T) -> Self {
+    self.email = Some(email.to_string());
     self
   }
 
-  pub fn with_icon_url(mut self, icon_url: &str) -> Self {
-    self.icon_url = Some(icon_url.to_owned());
+  pub fn with_password<T: ToString>(mut self, password: T) -> Self {
+    self.password = Some(password.to_string());
+    self
+  }
+
+  pub fn with_icon_url<T: ToString>(mut self, icon_url: T) -> Self {
+    self.icon_url = Some(icon_url.to_string());
     self
   }
 
   pub fn with_openai_key(mut self, openai_key: &str) -> Self {
     self.openai_key = Some(openai_key.to_owned());
+    self
+  }
+
+  pub fn with_stability_ai_key(mut self, stability_ai_key: &str) -> Self {
+    self.stability_ai_key = Some(stability_ai_key.to_owned());
     self
   }
 
@@ -316,6 +330,7 @@ impl UpdateUserProfileParams {
       && self.icon_url.is_none()
       && self.openai_key.is_none()
       && self.encryption_sign.is_none()
+      && self.stability_ai_key.is_none()
   }
 }
 
@@ -362,4 +377,10 @@ pub struct SupabaseOAuthParams {
 pub struct AFCloudOAuthParams {
   pub sign_in_url: String,
   pub device_id: String,
+}
+
+#[derive(Clone, Debug)]
+pub enum UserTokenState {
+  Refresh { token: String },
+  Invalid,
 }

@@ -3,8 +3,10 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use client_api::entity::dto::UserUpdateParams;
-use client_api::entity::{AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams};
-use collab_define::CollabObject;
+use client_api::entity::{
+  AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
+};
+use collab_entity::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserCloudService;
@@ -54,7 +56,7 @@ where
     FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
   }
 
-  fn generate_sign_in_callback_url(&self, email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error> {
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -62,7 +64,19 @@ where
       let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
       let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
       let url = try_get_client?
-        .generate_sign_in_callback_url(&admin_email, &admin_password, &email)
+        .generate_sign_in_url_with_email(&admin_email, &admin_password, &email)
+        .await?;
+      Ok(url)
+    })
+  }
+
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error> {
+    let provider = OAuthProvider::from(provider);
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let provider = provider.ok_or(anyhow!("invalid provider"))?;
+      let url = try_get_client?
+        .generate_oauth_url_with_provider(&provider)
         .await?;
       Ok(url)
     })
@@ -99,9 +113,10 @@ where
       Ok(Some(UserProfile {
         email: profile.email.unwrap_or("".to_string()),
         name: profile.name.unwrap_or("".to_string()),
-        token: token_from_client(client).await.unwrap_or("".to_string()),
+        token: client.get_token()?,
         icon_url: "".to_owned(),
         openai_key: "".to_owned(),
+        stability_ai_key: "".to_owned(),
         workspace_id: match profile.latest_workspace_id {
           Some(w) => w.to_string(),
           None => "".to_string(),
@@ -126,7 +141,6 @@ where
     FutureResult::new(async move {
       // from params
       let token = credential.token.ok_or(anyhow!("expecting token"))?;
-      let uuid = credential.uuid.ok_or(anyhow!("expecting uuid"))?;
       let uid = credential.uid.ok_or(anyhow!("expecting uid"))?;
 
       // from cloud
@@ -135,9 +149,6 @@ where
       let client_token = client.access_token()?;
 
       // compare and check
-      if uuid != profile.uuid.ok_or(anyhow!("expecting uuid"))?.to_string() {
-        return Err(anyhow!("uuid mismatch"));
-      }
       if uid != profile.uid.ok_or(anyhow!("expecting uid"))? {
         return Err(anyhow!("uid mismatch"));
       }
@@ -196,7 +207,6 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = InsertCollabParams::new(
-        collab_object.uid,
         collab_object.object_id.clone(),
         collab_object.collab_type.clone(),
         data,
@@ -219,7 +229,7 @@ pub async fn user_sign_in_with_url(
   client: Arc<AFCloudClient>,
   params: AFCloudOAuthParams,
 ) -> Result<AuthResponse, FlowyError> {
-  let is_new_user = client.sign_in_url(&params.sign_in_url).await?;
+  let is_new_user = client.sign_in_with_url(&params.sign_in_url).await?;
   let (profile, af_workspaces) = tokio::try_join!(client.profile(), client.workspaces())?;
 
   let latest_workspace = to_user_workspace(
@@ -238,15 +248,11 @@ pub async fn user_sign_in_with_url(
     latest_workspace,
     user_workspaces,
     email: profile.email,
-    token: token_from_client(client.clone()).await,
+    token: Some(client.get_token()?),
     device_id: params.device_id,
     encryption_type,
     is_new_user,
   })
-}
-
-async fn token_from_client(client: Arc<AFCloudClient>) -> Option<String> {
-  client.access_token().ok()
 }
 
 fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {

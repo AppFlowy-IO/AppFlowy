@@ -56,7 +56,7 @@ class MockAuthService implements AuthService {
       final uuid = response.user!.id;
       final email = response.user!.email!;
 
-      final payload = OAuthPB(
+      final payload = OauthSignInPB(
         authType: AuthTypePB.Supabase,
         map: {
           AuthServiceMapKeys.uuid: uuid,
@@ -65,7 +65,7 @@ class MockAuthService implements AuthService {
         },
       );
 
-      return UserEventOAuth(payload).send().then((value) => value.swap());
+      return UserEventOauthSignIn(payload).send().then((value) => value.swap());
     } on AuthException catch (e) {
       Log.error(e);
       return Left(AuthError.supabaseSignInError);

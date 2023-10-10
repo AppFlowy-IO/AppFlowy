@@ -353,6 +353,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "shortcuts": {
@@ -616,7 +617,8 @@
         "defaultColor": "Default"
       },
       "image": {
-        "copiedToPasteBoard": "The image link has been copied to the clipboard"
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImage": "Add an image"
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents."
@@ -651,13 +653,28 @@
         "label": "Image URL",
         "placeholder": "Enter image URL"
       },
+      "ai": {
+        "label": "Generate image from OpenAI",
+        "placeholder": "Please input the prompt for OpenAI to generate image"
+      },
+      "stability_ai": {
+        "label": "Generate image from Stability AI",
+        "placeholder": "Please input the prompt for Stability AI to generate image"
+      },
       "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
         "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "Invalid image URL"
-      }
+      },
+      "embedLink": {
+        "label": "Embed link",
+        "placeholder": "Paste or type an image link"
+      },
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
     },
     "codeBlock": {
       "language": {
@@ -688,6 +705,10 @@
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "The current version does not support this block.",
+      "blockContentHasBeenCopied": "The block content has been copied."
     }
   },
   "board": {
@@ -755,6 +776,9 @@
     "gray": "Gray"
   },
   "emoji": {
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
     "filter": "Filter",
     "random": "Random",
     "selectSkinTone": "Select skin tone",

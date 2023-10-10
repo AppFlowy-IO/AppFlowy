@@ -18,8 +18,15 @@ class AppFlowyPopover extends StatelessWidget {
   final EdgeInsets windowPadding;
   final Decoration? decoration;
 
+  /// The widget that will be used to trigger the popover.
+  ///
+  /// Why do we need this?
+  /// Because if the parent widget of the popover is GestureDetector,
+  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
+  final PopoverClickHandler clickHandler;
+
   const AppFlowyPopover({
-    Key? key,
+    super.key,
     required this.child,
     required this.popupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
@@ -34,7 +41,8 @@ class AppFlowyPopover extends StatelessWidget {
     this.margin = const EdgeInsets.all(6),
     this.windowPadding = const EdgeInsets.all(8.0),
     this.decoration,
-  }) : super(key: key);
+    this.clickHandler = PopoverClickHandler.listener,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +56,7 @@ class AppFlowyPopover extends StatelessWidget {
       triggerActions: triggerActions,
       windowPadding: windowPadding,
       offset: offset,
+      clickHandler: clickHandler,
       popupBuilder: (context) {
         final child = popupBuilder(context);
         return _PopoverContainer(

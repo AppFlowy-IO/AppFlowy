@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab_define::reminder::Reminder;
+use collab_entity::reminder::Reminder;
 
 use lib_infra::future::FutureResult;
 

@@ -9,8 +9,10 @@ class FlowyTooltip {
     bool? preferBelow,
     Duration? showDuration,
     Widget? child,
+    EdgeInsetsGeometry? margin,
   }) {
     return Tooltip(
+      margin: margin,
       waitDuration: _tooltipWaitDuration,
       message: message,
       richMessage: richMessage,

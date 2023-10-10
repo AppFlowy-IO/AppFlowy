@@ -54,7 +54,7 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/emoji_picker/emoji_menu_item.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';

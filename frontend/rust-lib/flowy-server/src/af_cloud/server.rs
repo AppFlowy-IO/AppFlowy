@@ -7,7 +7,9 @@ use client_api::ws::{
   BusinessID, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::Client;
-use tokio::sync::RwLock;
+use tokio::sync::watch;
+use tokio_stream::wrappers::WatchStream;
+use tracing::{error, info};
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
@@ -16,6 +18,7 @@ use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::entities::UserTokenState;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::{
@@ -33,7 +36,7 @@ pub struct AFCloudServer {
   enable_sync: AtomicBool,
   #[allow(dead_code)]
   device_id: Arc<parking_lot::RwLock<String>>,
-  ws_client: Arc<RwLock<WSClient>>,
+  ws_client: Arc<WSClient>,
 }
 
 impl AFCloudServer {
@@ -42,22 +45,16 @@ impl AFCloudServer {
     enable_sync: bool,
     device_id: Arc<parking_lot::RwLock<String>>,
   ) -> Self {
-    let http_client = reqwest::Client::new();
-    let api_client = client_api::Client::from(
-      http_client,
-      &config.base_url,
-      &config.base_ws_url,
-      &config.gotrue_url,
-    );
+    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = AtomicBool::new(enable_sync);
 
     let ws_client = WSClient::new(WSClientConfig {
       buffer_capacity: 100,
       ping_per_secs: 8,
-      retry_connect_per_pings: 5,
+      retry_connect_per_pings: 6,
     });
-    let ws_client = Arc::new(RwLock::new(ws_client));
+    let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
 
     spawn_ws_conn(&device_id, token_state_rx, &ws_client, &api_client);
@@ -80,8 +77,42 @@ impl AFCloudServer {
 }
 
 impl AppFlowyServer for AFCloudServer {
+  fn set_token(&self, token: &str) -> Result<(), Error> {
+    self
+      .client
+      .set_token(token)
+      .map_err(|err| Error::new(FlowyError::unauthorized().with_context(err)))
+  }
+
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
+    let mut token_state_rx = self.client.subscribe_token_state();
+    let (watch_tx, watch_rx) = watch::channel(UserTokenState::Invalid);
+    let weak_client = Arc::downgrade(&self.client);
+    tokio::spawn(async move {
+      while let Ok(token_state) = token_state_rx.recv().await {
+        if let Some(client) = weak_client.upgrade() {
+          match token_state {
+            TokenState::Refresh => match client.get_token() {
+              Ok(token) => {
+                let _ = watch_tx.send(UserTokenState::Refresh { token });
+              },
+              Err(err) => {
+                error!("Failed to get token after token state changed: {}", err);
+              },
+            },
+            TokenState::Invalid => {
+              let _ = watch_tx.send(UserTokenState::Invalid);
+            },
+          }
+        }
+      }
+    });
+
+    Some(WatchStream::new(watch_rx))
+  }
+
   fn set_enable_sync(&self, uid: i64, enable: bool) {
-    tracing::info!("{} cloud sync: {}", uid, enable);
+    info!("{} cloud sync: {}", uid, enable);
     self.enable_sync.store(enable, Ordering::SeqCst);
   }
   fn user_service(&self) -> Arc<dyn UserCloudService> {
@@ -115,14 +146,8 @@ impl AppFlowyServer for AFCloudServer {
         match weak_ws_client.upgrade() {
           None => Ok(None),
           Some(ws_client) => {
-            let channel = ws_client
-              .read()
-              .await
-              .subscribe(BusinessID::CollabId, object_id)
-              .await
-              .ok();
-            let connect_state_recv = ws_client.read().await.subscribe_connect_state().await;
-
+            let channel = ws_client.subscribe(BusinessID::CollabId, object_id).ok();
+            let connect_state_recv = ws_client.subscribe_connect_state();
             Ok(channel.map(|c| (c, connect_state_recv)))
           },
         }
@@ -145,7 +170,7 @@ impl AppFlowyServer for AFCloudServer {
 fn spawn_ws_conn(
   device_id: &Arc<parking_lot::RwLock<String>>,
   mut token_state_rx: TokenStateReceiver,
-  ws_client: &Arc<RwLock<WSClient>>,
+  ws_client: &Arc<WSClient>,
   api_client: &Arc<Client>,
 ) {
   let weak_device_id = Arc::downgrade(device_id);
@@ -154,7 +179,7 @@ fn spawn_ws_conn(
 
   tokio::spawn(async move {
     if let Some(ws_client) = weak_ws_client.upgrade() {
-      let mut state_recv = ws_client.read().await.subscribe_connect_state().await;
+      let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
         if !state.is_timeout() {
           continue;
@@ -166,8 +191,8 @@ fn spawn_ws_conn(
         {
           let device_id = device_id.read().clone();
           if let Ok(ws_addr) = api_client.ws_url(&device_id) {
-            tracing::info!("🟢WebSocket Reconnecting");
-            let _ = ws_client.write().await.connect(ws_addr).await;
+            info!("🟢WebSocket Reconnecting");
+            let _ = ws_client.connect(ws_addr).await;
           }
         }
       }
@@ -179,7 +204,7 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   tokio::spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
-      tracing::info!("🟢Token state: {:?}", token_state);
+      info!("🟢Token state: {:?}", token_state);
       match token_state {
         TokenState::Refresh => {
           if let (Some(api_client), Some(ws_client), Some(device_id)) = (
@@ -189,14 +214,14 @@ fn spawn_ws_conn(
           ) {
             let device_id = device_id.read().clone();
             if let Ok(ws_addr) = api_client.ws_url(&device_id) {
-              let _ = ws_client.write().await.connect(ws_addr).await;
+              let _ = ws_client.connect(ws_addr).await;
             }
           }
         },
         TokenState::Invalid => {
           if let Some(ws_client) = weak_ws_client.upgrade() {
-            tracing::info!("🟡WebSocket Disconnecting");
-            ws_client.write().await.disconnect().await;
+            info!("🟡WebSocket Disconnecting");
+            ws_client.disconnect().await;
           }
         },
       }

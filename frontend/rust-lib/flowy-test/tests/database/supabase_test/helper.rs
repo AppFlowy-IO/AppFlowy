@@ -5,7 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;

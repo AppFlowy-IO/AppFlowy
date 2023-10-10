@@ -152,12 +152,13 @@ class TemplateService {
     if (archive == null) return;
 
     final directory = await getTemporaryDirectory();
+    print(directory.absolute.path);
 
     for (final file in archive) {
       final filename = '${directory.path}/${file.name}';
       final data = file.content as List<int>;
       final outputFile = File(filename);
-      await outputFile.create(recursive: true);
+      await outputFile.create();
       await outputFile.writeAsBytes(data);
     }
 

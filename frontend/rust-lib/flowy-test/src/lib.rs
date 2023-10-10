@@ -29,7 +29,7 @@ use flowy_notification::entities::SubscribeObject;
 use flowy_notification::{register_notification_sender, NotificationSender};
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_URL, USER_UUID};
 use flowy_user::entities::{
-  AuthTypePB, OAuthCallbackRequestPB, OAuthCallbackResponsePB, OAuthPB, UpdateCloudConfigPB,
+  AuthTypePB, OauthSignInPB, SignInUrlPB, SignInUrlPayloadPB, UpdateCloudConfigPB,
   UserCloudConfigPB, UserProfilePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
@@ -169,13 +169,13 @@ impl FlowyCoreTest {
 
   pub async fn supabase_party_sign_up(&self) -> UserProfilePB {
     let map = third_party_sign_up_param(Uuid::new_v4().to_string());
-    let payload = OAuthPB {
+    let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     EventBuilder::new(self.clone())
-      .event(OAuth)
+      .event(OauthSignIn)
       .payload(payload)
       .async_send()
       .await
@@ -198,28 +198,28 @@ impl FlowyCoreTest {
   }
 
   pub async fn af_cloud_sign_in_with_email(&self, email: &str) -> FlowyResult<UserProfilePB> {
-    let payload = OAuthCallbackRequestPB {
+    let payload = SignInUrlPayloadPB {
       email: email.to_string(),
       auth_type: AuthTypePB::AFCloud,
     };
     let sign_in_url = EventBuilder::new(self.clone())
-      .event(OAuthCallbackURL)
+      .event(GetSignInURL)
       .payload(payload)
       .async_send()
       .await
-      .try_parse::<OAuthCallbackResponsePB>()?
+      .try_parse::<SignInUrlPB>()?
       .sign_in_url;
 
     let mut map = HashMap::new();
     map.insert(USER_SIGN_IN_URL.to_string(), sign_in_url);
     map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
-    let payload = OAuthPB {
+    let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::AFCloud,
     };
 
     let user_profile = EventBuilder::new(self.clone())
-      .event(OAuth)
+      .event(OauthSignIn)
       .payload(payload)
       .async_send()
       .await
@@ -240,13 +240,13 @@ impl FlowyCoreTest {
       USER_EMAIL.to_string(),
       email.unwrap_or_else(|| format!("{}@appflowy.io", nanoid!(10))),
     );
-    let payload = OAuthPB {
+    let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let user_profile = EventBuilder::new(self.clone())
-      .event(OAuth)
+      .event(OauthSignIn)
       .payload(payload)
       .async_send()
       .await

@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-error = { workspace = true }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 anyhow = "1.0.71"

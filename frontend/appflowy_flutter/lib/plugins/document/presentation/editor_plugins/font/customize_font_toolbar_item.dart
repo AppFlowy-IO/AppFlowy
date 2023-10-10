@@ -22,7 +22,7 @@ final customizeFontToolbarItem = ToolbarItem(
         onClose: () => keepEditorFocusNotifier.value -= 1,
         showResetButton: true,
         onFontFamilyChanged: (fontFamily) async {
-          await popoverController.close();
+          popoverController.close();
           try {
             await editorState.formatDelta(selection, {
               AppFlowyRichTextKeys.fontFamily: fontFamily,

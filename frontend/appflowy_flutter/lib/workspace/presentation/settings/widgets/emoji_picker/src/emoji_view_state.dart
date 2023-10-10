@@ -1,17 +1,17 @@
-import 'models/category_models.dart';
+import 'models/emoji_category_models.dart';
 import 'emoji_picker.dart';
 
 /// State that holds current emoji data
 class EmojiViewState {
   /// Constructor
   EmojiViewState(
-    this.categoryEmoji,
+    this.emojiCategoryGroupList,
     this.onEmojiSelected,
     this.onBackspacePressed,
   );
 
-  /// List of all category including their emoji
-  final List<CategoryEmoji> categoryEmoji;
+  /// List of all categories including their emojis
+  final List<EmojiCategoryGroup> emojiCategoryGroupList;
 
   /// Callback when pressed on emoji
   final OnEmojiSelected onEmojiSelected;

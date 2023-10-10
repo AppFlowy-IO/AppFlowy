@@ -82,7 +82,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b0c213" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6faefb0" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -92,11 +92,11 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b0c
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-define = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
-collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "86c5e8" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }
+collab-persistence = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2f5734ae" }

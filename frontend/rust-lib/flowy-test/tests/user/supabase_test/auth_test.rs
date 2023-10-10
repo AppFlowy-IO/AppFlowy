@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use assert_json_diff::assert_json_eq;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
+use collab_entity::CollabType;
 use collab_folder::core::FolderData;
 use nanoid::nanoid;
 use serde_json::json;
@@ -14,7 +14,7 @@ use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
 use flowy_test::document::document_event::DocumentEventTest;
 use flowy_test::event_builder::EventBuilder;
 use flowy_test::FlowyCoreTest;
-use flowy_user::entities::{AuthTypePB, OAuthPB, UpdateUserProfilePayloadPB, UserProfilePB};
+use flowy_user::entities::{AuthTypePB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -30,13 +30,13 @@ async fn third_party_sign_up_test() {
       USER_EMAIL.to_string(),
       format!("{}@appflowy.io", nanoid!(6)),
     );
-    let payload = OAuthPB {
+    let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
-      .event(OAuth)
+      .event(OauthSignIn)
       .payload(payload)
       .async_send()
       .await
@@ -72,8 +72,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     map.insert(USER_EMAIL.to_string(), email.clone());
 
     let response_1 = EventBuilder::new(test.clone())
-      .event(OAuth)
-      .payload(OAuthPB {
+      .event(OauthSignIn)
+      .payload(OauthSignInPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })
@@ -83,8 +83,8 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     dbg!(&response_1);
 
     let response_2 = EventBuilder::new(test.clone())
-      .event(OAuth)
-      .payload(OAuthPB {
+      .event(OauthSignIn)
+      .payload(OauthSignInPB {
         map: map.clone(),
         auth_type: AuthTypePB::Supabase,
       })

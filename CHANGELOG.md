@@ -1,5 +1,17 @@
 # Release Notes
 
+## Version 0.3.5 - 10/09/2023
+
+### New Features
+- Added support for browsing and inserting images from Unsplash.
+- Revamp and unify the emoji picker throughout AppFlowy.
+
+### Bug fixes
+- Improve layout of the settings page.
+- Improve design of the restore page banner.
+- Improve UX of the reminders.
+- Other UI fixes.
+
 ## Version 0.3.4 - 10/02/2023
 
 ### New Features
