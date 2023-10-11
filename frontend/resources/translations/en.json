@@ -469,6 +469,7 @@
     },
     "rowPage": {
       "newField": "Add a new field",
+      "fieldDragEelementTooltip": "Click to open menu",
       "showHiddenFields": {
         "one": "Show {} hidden field",
         "many": "Show {} hidden fields",
