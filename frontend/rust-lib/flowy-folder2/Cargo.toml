@@ -30,10 +30,6 @@ protobuf = {version = "2.28.0"}
 uuid = { version = "1.3.3", features = ["v4"] }
 tokio-stream = { version = "0.1.14", features = ["sync"] }
 
-[dev-dependencies]
-flowy-folder2  = { workspace = true }
-flowy-test = { path = "../flowy-test", default-features = false }
-
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}
 
