@@ -156,7 +156,7 @@ class HomeSettingState with _$HomeSettingState {
         unauthorized: false,
         isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
         isScreenSmall: appearanceSettingsState.isMenuCollapsed,
-        keepMenuCollapsed: false,
+        keepMenuCollapsed: true,
         resizeOffset: appearanceSettingsState.menuOffset,
         resizeStart: 0,
         resizeType: MenuResizeType.slide,
