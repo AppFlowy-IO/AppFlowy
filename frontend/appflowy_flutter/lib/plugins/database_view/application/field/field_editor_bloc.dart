@@ -4,15 +4,18 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field_controller.dart';
 import 'field_listener.dart';
+import 'field_service.dart';
 
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
+  final String viewId;
   final String fieldId;
   final SingleFieldListener _fieldListener;
   final FieldController fieldController;
 
   FieldEditorBloc({
+    required this.viewId,
     required this.fieldId,
     required this.fieldController,
     required bool isGroupField,
@@ -33,11 +36,15 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             );
           },
           updateName: (name) {
-            fieldController.fieldService
-                .updateField(fieldId: fieldId, name: name);
+            FieldBackendService.updateField(
+              viewId: viewId,
+              fieldId: fieldId,
+              name: name,
+            );
           },
           updateTypeOption: (typeOptionData) {
-            fieldController.fieldService.updateFieldTypeOption(
+            FieldBackendService.updateFieldTypeOption(
+              viewId: viewId,
               fieldId: fieldId,
               typeOptionData: typeOptionData,
             );
@@ -46,10 +53,11 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: field));
           },
           deleteField: () {
-            fieldController.fieldService.deleteField(fieldId: fieldId);
+            FieldBackendService.deleteField(viewId: viewId, fieldId: fieldId);
           },
           switchToField: (FieldType fieldType) async {
-            await fieldController.fieldService.switchToField(
+            await FieldBackendService.switchToField(
+              viewId: viewId,
               fieldId: fieldId,
               newFieldType: fieldType,
             );

@@ -64,14 +64,11 @@ class DateCellState with _$DateCellState {
   const factory DateCellState({
     required DateCellDataPB? data,
     required String dateStr,
-    required FieldInfo fieldInfo,
   }) = _DateCellState;
 
   factory DateCellState.initial(DateCellController context) {
     final cellData = context.getCellData();
-
     return DateCellState(
-      fieldInfo: context.fieldInfo,
       data: cellData,
       dateStr: _dateStrFromCellData(cellData),
     );

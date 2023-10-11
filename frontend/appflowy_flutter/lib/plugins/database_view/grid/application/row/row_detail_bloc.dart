@@ -12,6 +12,8 @@ part 'row_detail_bloc.freezed.dart';
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
   final RowController rowController;
 
+  String get viewId => rowController.viewId;
+
   RowDetailBloc({
     required this.rowController,
   }) : super(RowDetailState.initial(rowController.loadData())) {
@@ -31,9 +33,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             );
           },
           deleteField: (fieldId) {
-            final fieldService =
-                FieldBackendService(viewId: rowController.viewId);
-            fieldService.deleteField(fieldId: fieldId);
+            FieldBackendService.deleteField(viewId: viewId, fieldId: fieldId);
           },
           toggleFieldVisibility: (fieldId) async {
             final fieldInfo = state.allCells
@@ -140,11 +140,11 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     final toIndexInAllFields =
         state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
 
-    final fieldService = FieldBackendService(viewId: rowController.viewId);
-    final result = await fieldService.moveField(
-      reorderedFieldId,
-      fromIndexInAllFields,
-      toIndexInAllFields,
+    final result = await FieldBackendService.moveField(
+      viewId: viewId,
+      fieldId: reorderedFieldId,
+      fromIndex: fromIndexInAllFields,
+      toIndex: toIndexInAllFields,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }

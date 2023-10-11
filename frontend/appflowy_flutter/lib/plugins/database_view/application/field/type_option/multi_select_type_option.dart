@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
@@ -38,8 +39,11 @@ class MultiSelectAction with ISelectOptionAction {
   @override
   Future<List<SelectOptionPB>> Function(String) get insertOption {
     return (String optionName) {
-      return newOption(viewId: viewId, fieldId: fieldId, name: optionName)
-          .then((result) {
+      return FieldBackendService.newOption(
+        viewId: viewId,
+        fieldId: fieldId,
+        name: optionName,
+      ).then((result) {
         return result.fold(
           (option) {
             typeOption.freeze();

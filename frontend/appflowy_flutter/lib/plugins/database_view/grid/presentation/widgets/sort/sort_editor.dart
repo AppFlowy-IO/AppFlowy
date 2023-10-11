@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/application/sort/util.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -163,6 +163,8 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isCreatableFieldExist =
+        widget.fieldController.fields.any((field) => field.canCreateSort);
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
@@ -175,7 +177,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
-          disable: getCreatableSorts(widget.fieldController.fields).isEmpty,
+          disable: !isCreatableFieldExist,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),

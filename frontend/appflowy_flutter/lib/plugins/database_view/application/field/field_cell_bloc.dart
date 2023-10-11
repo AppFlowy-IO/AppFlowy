@@ -13,13 +13,11 @@ part 'field_cell_bloc.freezed.dart';
 class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
   final String viewId;
   final SingleFieldListener _fieldListener;
-  final FieldBackendService _fieldBackendSvc;
 
   FieldCellBloc({
     required this.viewId,
     required FieldPB field,
   })  : _fieldListener = SingleFieldListener(fieldId: field.id),
-        _fieldBackendSvc = FieldBackendService(viewId: viewId),
         super(FieldCellState.initial(field)) {
     on<FieldCellEvent>(
       (event, emit) async {
@@ -39,7 +37,8 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
           },
           endUpdateWidth: () {
             if (state.width != state.field.width.toDouble()) {
-              _fieldBackendSvc.updateField(
+              FieldBackendService.updateField(
+                viewId: viewId,
                 fieldId: field.id,
                 width: state.width,
               );

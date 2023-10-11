@@ -1,12 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_create_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -58,12 +57,12 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
         },
         child: BlocBuilder<CreateSortBloc, CreateSortState>(
           builder: (context, state) {
-            final cells = state.creatableFields.map((fieldInfo) {
+            final cells = state.creatableFields.map((field) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: GridSortPropertyCell(
-                  fieldInfo: fieldInfo,
-                  onTap: (fieldInfo) => createSort(fieldInfo),
+                  field: field,
+                  onTap: (fieldInfo) => createSort(field),
                 ),
               );
             }).toList();
@@ -105,7 +104,7 @@ class _GridCreateSortListState extends State<GridCreateSortList> {
     super.dispose();
   }
 
-  void createSort(FieldInfo field) {
+  void createSort(FieldPB field) {
     editBloc.add(CreateSortEvent.createDefaultSort(field));
     widget.onCreateSort?.call();
   }
@@ -149,25 +148,26 @@ class _SortTextFieldDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class GridSortPropertyCell extends StatelessWidget {
-  final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
+  final FieldPB field;
+  final Function(FieldPB) onTap;
+
   const GridSortPropertyCell({
-    required this.fieldInfo,
+    required this.field,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
-        fieldInfo.name,
+        field.name,
         color: AFThemeExtension.of(context).textColor,
       ),
-      onTap: () => onTap(fieldInfo),
+      onTap: () => onTap(field),
       leftIcon: FlowySvg(
-        fieldInfo.fieldType.icon(),
+        field.fieldType.icon(),
         color: Theme.of(context).iconTheme.color,
       ),
     );

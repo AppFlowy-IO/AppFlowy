@@ -99,11 +99,6 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final String viewId;
-  final FieldBackendService _fieldService;
-  _FieldOperationList({required this.viewId})
-      : _fieldService = FieldBackendService(viewId: viewId);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -149,26 +144,19 @@ class _FieldOperationList extends StatelessWidget {
     return Flexible(
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: FieldActionCell(
-          fieldInfo: fieldContext,
-          action: action,
-          enable: enable,
-        ),
+        child: FieldActionCell(action: action, enable: enable),
       ),
     );
   }
 }
 
 class FieldActionCell extends StatelessWidget {
-  final String viewId;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
     required this.action,
     required this.enable,
-    required this.viewId,
-    required this.field,
     super.key,
   });
 
@@ -183,7 +171,7 @@ class FieldActionCell extends StatelessWidget {
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () => action.run(context, viewId, fieldId),
+      onTap: () => action.run(context),
       leftIcon: FlowySvg(
         action.icon(),
         color: enable
@@ -223,32 +211,28 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, String viewId, String fieldId) {
+  void run(BuildContext context) {
     switch (this) {
       case FieldAction.hide:
+        PopoverContainer.of(context).close();
         context
             .read<FieldActionSheetBloc>()
             .add(const FieldActionSheetEvent.hideField());
         break;
       case FieldAction.duplicate:
         PopoverContainer.of(context).close();
-
-        FieldBackendService(
-          viewId: viewId,
-          fieldId: fieldInfo.id,
-        ).duplicateField();
-
+        context
+            .read<FieldActionSheetBloc>()
+            .add(const FieldActionSheetEvent.duplicateField());
         break;
       case FieldAction.delete:
         PopoverContainer.of(context).close();
-
         NavigatorAlertDialog(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
-            FieldBackendService(
-              viewId: fieldContext.viewId,
-              fieldId: fieldContext.fieldInfo.field.id,
-            ).deleteField();
+            context
+                .read<FieldActionSheetBloc>()
+                .add(const FieldActionSheetEvent.deleteField());
           },
         ).show(context);
 

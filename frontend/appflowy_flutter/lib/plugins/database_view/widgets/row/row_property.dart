@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
@@ -351,7 +352,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
           ),
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () async {
-            final result = await TypeOptionBackendService.createFieldTypeOption(
+            final result = await FieldBackendService.createField(
               viewId: widget.viewId,
             );
             result.fold(

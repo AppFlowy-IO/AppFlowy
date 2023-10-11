@@ -12,15 +12,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterList extends StatelessWidget {
+  final String viewId;
   final FilterInfo filterInfo;
   final List<String> selectedOptionIds;
   final Function(List<String>) onSelectedOptions;
   const SelectOptionFilterList({
+    required this.viewId,
     required this.filterInfo,
     required this.selectedOptionIds,
     required this.onSelectedOptions,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +31,14 @@ class SelectOptionFilterList extends StatelessWidget {
         late SelectOptionFilterListBloc bloc;
         if (filterInfo.field.fieldType == FieldType.SingleSelect) {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
+            viewId: viewId,
             fieldPB: filterInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate: SingleSelectOptionFilterDelegateImpl(filterInfo),
           );
         } else {
           bloc = SelectOptionFilterListBloc(
-            viewId: filterInfo.viewId,
+            viewId: viewId,
             fieldPB: filterInfo.field,
             selectedOptionIds: selectedOptionIds,
             delegate: MultiSelectOptionFilterDelegateImpl(filterInfo),

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,10 +50,11 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
     fields.insert(toIndex, fields.removeAt(fromIndex));
     emit(state.copyWith(fields: fields));
 
-    final result = await fieldController.fieldService.moveField(
-      fieldId,
-      fromIndex,
-      toIndex,
+    final result = await FieldBackendService.moveField(
+      viewId: viewId,
+      fieldId: fieldId,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
     );
     result.fold((l) {}, (err) => Log.error(err));
   }

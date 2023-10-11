@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -15,33 +16,35 @@ class SelectOptionCellBackendService {
     required this.rowId,
   });
 
-  // Future<Either<Unit, FlowyError>> create({
-  //   required String name,
-  //   bool isSelected = true,
-  // }) {
-  //   return TypeOptionBackendService(viewId: viewId, fieldId: fieldId)
-  //       .newOption(name: name)
-  //       .then(
-  //     (result) {
-  //       return result.fold(
-  //         (option) {
-  //           final payload = RepeatedSelectOptionPayload.create()
-  //             ..viewId = viewId
-  //             ..fieldId = fieldId
-  //             ..rowId = rowId;
+  Future<Either<Unit, FlowyError>> create({
+    required String name,
+    bool isSelected = true,
+  }) {
+    return FieldBackendService.newOption(
+      viewId: viewId,
+      fieldId: fieldId,
+      name: name,
+    ).then(
+      (result) {
+        return result.fold(
+          (option) {
+            final payload = RepeatedSelectOptionPayload.create()
+              ..viewId = viewId
+              ..fieldId = fieldId
+              ..rowId = rowId;
 
-  //           if (isSelected) {
-  //             payload.items.add(option);
-  //           } else {
-  //             payload.items.add(option);
-  //           }
-  //           return DatabaseEventInsertOrUpdateSelectOption(payload).send();
-  //         },
-  //         (r) => right(r),
-  //       );
-  //     },
-  //   );
-  // }
+            if (isSelected) {
+              payload.items.add(option);
+            } else {
+              payload.items.add(option);
+            }
+            return DatabaseEventInsertOrUpdateSelectOption(payload).send();
+          },
+          (r) => right(r),
+        );
+      },
+    );
+  }
 
   Future<Either<Unit, FlowyError>> update({
     required SelectOptionPB option,

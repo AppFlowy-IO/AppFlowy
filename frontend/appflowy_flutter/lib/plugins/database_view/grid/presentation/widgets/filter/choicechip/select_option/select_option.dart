@@ -66,7 +66,10 @@ class _SelectOptionFilterChoicechipState
             constraints: BoxConstraints.loose(const Size(240, 160)),
             direction: PopoverDirection.bottomWithCenterAligned,
             popupBuilder: (BuildContext context) {
-              return SelectOptionFilterEditor(bloc: bloc);
+              return SelectOptionFilterEditor(
+                viewId: widget.viewId,
+                bloc: bloc,
+              );
             },
             child: ChoiceChipButton(
               filterInfo: widget.filterInfo,
@@ -80,9 +83,13 @@ class _SelectOptionFilterChoicechipState
 }
 
 class SelectOptionFilterEditor extends StatefulWidget {
+  final String viewId;
   final SelectOptionFilterEditorBloc bloc;
-  const SelectOptionFilterEditor({required this.bloc, Key? key})
-      : super(key: key);
+  const SelectOptionFilterEditor({
+    required this.viewId,
+    required this.bloc,
+    super.key,
+  });
 
   @override
   State<SelectOptionFilterEditor> createState() =>
@@ -110,6 +117,7 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             slivers.add(
               SliverToBoxAdapter(
                 child: SelectOptionFilterList(
+                  viewId: widget.viewId,
                   filterInfo: state.filterInfo,
                   selectedOptionIds: state.filter.optionIds,
                   onSelectedOptions: (optionIds) {

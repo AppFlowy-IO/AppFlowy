@@ -45,8 +45,9 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
           final cells = state.fields.map((field) {
             return GridPropertyCell(
               key: ValueKey(field.id),
+              fieldController: widget.fieldController,
               viewId: widget.viewId,
-              fieldInfo: field,
+              field: field,
               popoverMutex: _popoverMutex,
             );
           }).toList();
@@ -60,7 +61,7 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
             ),
             onReorder: (from, to) => context.read<DatabasePropertyBloc>().add(
                   DatabasePropertyEvent.moveField(
-                    fieldId: cells[from].fieldInfo.id,
+                    fieldId: cells[from].field.id,
                     fromIndex: from,
                     toIndex: to,
                   ),
@@ -79,12 +80,14 @@ class GridPropertyCell extends StatefulWidget {
   final FieldPB field;
   final String viewId;
   final PopoverMutex popoverMutex;
+  final FieldController fieldController;
 
   const GridPropertyCell({
     super.key,
     required this.field,
     required this.viewId,
     required this.popoverMutex,
+    required this.fieldController,
   });
 
   @override
@@ -142,12 +145,8 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
       ),
       popupBuilder: (BuildContext context) {
         return FieldEditor(
-          viewId: widget.viewId,
-          field: widget.field,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: widget.fieldInfo.field,
-          ),
+          fieldId: widget.field.id,
+          fieldController: widget.fieldController,
         );
       },
     );

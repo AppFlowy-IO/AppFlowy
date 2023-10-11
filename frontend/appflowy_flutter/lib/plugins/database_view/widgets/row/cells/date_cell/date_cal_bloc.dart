@@ -270,7 +270,7 @@ class DateCellCalendarBloc
 
     final result = await FieldBackendService.updateFieldTypeOption(
       viewId: cellController.viewId,
-      fieldId: cellController.fieldInfo.id,
+      fieldId: cellController.field.id,
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );
 

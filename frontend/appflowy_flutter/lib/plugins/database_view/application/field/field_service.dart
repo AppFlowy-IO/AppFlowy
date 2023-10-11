@@ -11,15 +11,12 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 ///
 /// You could check out the rust-lib/flowy-database/event_map.rs for more information.
 class FieldBackendService {
-  final String viewId;
-
-  FieldBackendService({required this.viewId});
-
-  Future<Either<Unit, FlowyError>> moveField(
-    String fieldId,
-    int fromIndex,
-    int toIndex,
-  ) {
+  static Future<Either<Unit, FlowyError>> moveField({
+    required String viewId,
+    required String fieldId,
+    required int fromIndex,
+    required int toIndex,
+  }) {
     final payload = MoveFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId
@@ -29,7 +26,8 @@ class FieldBackendService {
     return DatabaseEventMoveField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateField({
+  static Future<Either<Unit, FlowyError>> updateField({
+    required String viewId,
     required String fieldId,
     String? name,
     bool? frozen,
@@ -54,7 +52,8 @@ class FieldBackendService {
     return DatabaseEventUpdateField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> switchToField({
+  static Future<Either<Unit, FlowyError>> switchToField({
+    required String viewId,
     required String fieldId,
     required FieldType newFieldType,
   }) async {
@@ -66,7 +65,8 @@ class FieldBackendService {
     return DatabaseEventUpdateFieldType(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateFieldTypeOption({
+  static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
+    required String viewId,
     required String fieldId,
     required List<int> typeOptionData,
   }) {
@@ -78,7 +78,10 @@ class FieldBackendService {
     return DatabaseEventUpdateField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteField({required String fieldId}) {
+  static Future<Either<Unit, FlowyError>> deleteField({
+    required String viewId,
+    required String fieldId,
+  }) {
     final payload = DeleteFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
@@ -86,7 +89,10 @@ class FieldBackendService {
     return DatabaseEventDeleteField(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateField({required String fieldId}) {
+  static Future<Either<Unit, FlowyError>> duplicateField({
+    required String viewId,
+    required String fieldId,
+  }) {
     final payload = DuplicateFieldPayloadPB.create()
       ..viewId = viewId
       ..fieldId = fieldId;
@@ -101,7 +107,8 @@ class FieldBackendService {
     return DatabaseEventGetPrimaryField(payload).send();
   }
 
-  Future<Either<SelectOptionPB, FlowyError>> newOption({
+  static Future<Either<SelectOptionPB, FlowyError>> newOption({
+    required String viewId,
     required String fieldId,
     required String name,
   }) {
@@ -113,7 +120,7 @@ class FieldBackendService {
     return DatabaseEventCreateSelectOption(payload).send();
   }
 
-  Future<Either<FieldPB, FlowyError>> createField({
+  static Future<Either<FieldPB, FlowyError>> createField({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
   }) {

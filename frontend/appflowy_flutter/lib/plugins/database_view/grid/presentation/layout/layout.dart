@@ -1,12 +1,12 @@
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'sizes.dart';
 
 class GridLayout {
-  static double headerWidth(List<FieldInfo> fields) {
+  static double headerWidth(List<FieldPB> fields) {
     if (fields.isEmpty) return 0;
 
     final fieldsWidth = fields
-        .map((fieldInfo) => fieldInfo.field.width.toDouble())
+        .map((field) => field.width.toDouble())
         .reduce((value, element) => value + element);
 
     return fieldsWidth +

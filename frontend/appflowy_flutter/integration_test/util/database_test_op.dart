@@ -980,8 +980,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findSort = find.byWidgetPredicate(
       (widget) =>
           widget is GridSortPropertyCell &&
-          widget.fieldInfo.fieldType == fieldType &&
-          widget.fieldInfo.name == title,
+          widget.field.fieldType == fieldType &&
+          widget.field.name == title,
     );
 
     await tapButton(findSort);
@@ -997,8 +997,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findSort = find.byWidgetPredicate(
       (widget) =>
           widget is GridSortPropertyCell &&
-          widget.fieldInfo.fieldType == fieldType &&
-          widget.fieldInfo.name == title,
+          widget.field.fieldType == fieldType &&
+          widget.field.name == title,
     );
 
     await tapButton(findSort);

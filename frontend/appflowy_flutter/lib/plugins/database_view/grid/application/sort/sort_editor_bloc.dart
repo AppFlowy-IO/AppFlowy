@@ -1,14 +1,15 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_service.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
-import 'util.dart';
 
 part 'sort_editor_bloc.freezed.dart';
 
@@ -16,22 +17,22 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
   final String viewId;
   final SortBackendService _sortBackendSvc;
   final FieldController fieldController;
-  void Function(List<FieldInfo>)? _onFieldFn;
+  void Function(List<FieldPB>)? _onFieldFn;
   SortEditorBloc({
     required this.viewId,
     required this.fieldController,
     required List<SortInfo> sortInfos,
   })  : _sortBackendSvc = SortBackendService(viewId: viewId),
-        super(SortEditorState.initial(sortInfos, fieldController.fieldInfos)) {
+        super(SortEditorState.initial(sortInfos, fieldController.fields)) {
     on<SortEditorEvent>(
       (event, emit) async {
         event.when(
           initial: () async {
             _startListening();
           },
-          didReceiveFields: (List<FieldInfo> fields) {
-            final List<FieldInfo> allFields = List.from(fields);
-            final List<FieldInfo> creatableFields = List.from(fields);
+          didReceiveFields: (List<FieldPB> fields) {
+            final List<FieldPB> allFields = List.from(fields);
+            final List<FieldPB> creatableFields = List.from(fields);
             creatableFields.retainWhere((field) => field.canCreateSort);
             emit(
               state.copyWith(
@@ -42,9 +43,9 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
           },
           setCondition: (SortInfo sortInfo, SortConditionPB condition) async {
             final result = await _sortBackendSvc.updateSort(
-              fieldId: sortInfo.fieldInfo.id,
+              fieldId: sortInfo.fieldId,
               sortId: sortInfo.sortId,
-              fieldType: sortInfo.fieldInfo.fieldType,
+              fieldType: sortInfo.field.fieldType,
               condition: condition,
             );
             result.fold((l) => {}, (err) => Log.error(err));
@@ -58,9 +59,9 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
           },
           deleteSort: (SortInfo sortInfo) async {
             final result = await _sortBackendSvc.deleteSort(
-              fieldId: sortInfo.fieldInfo.id,
+              fieldId: sortInfo.fieldId,
               sortId: sortInfo.sortId,
-              fieldType: sortInfo.fieldInfo.fieldType,
+              fieldType: sortInfo.field.fieldType,
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
@@ -96,7 +97,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
 @freezed
 class SortEditorEvent with _$SortEditorEvent {
   const factory SortEditorEvent.initial() = _Initial;
-  const factory SortEditorEvent.didReceiveFields(List<FieldInfo> fieldInfos) =
+  const factory SortEditorEvent.didReceiveFields(List<FieldPB> fieldInfos) =
       _DidReceiveFields;
   const factory SortEditorEvent.didReceiveSorts(List<SortInfo> sortInfos) =
       _DidReceiveSorts;
@@ -112,16 +113,17 @@ class SortEditorEvent with _$SortEditorEvent {
 class SortEditorState with _$SortEditorState {
   const factory SortEditorState({
     required List<SortInfo> sortInfos,
-    required List<FieldInfo> creatableFields,
-    required List<FieldInfo> allFields,
+    required List<FieldPB> creatableFields,
+    required List<FieldPB> allFields,
   }) = _SortEditorState;
 
   factory SortEditorState.initial(
     List<SortInfo> sortInfos,
-    List<FieldInfo> fields,
+    List<FieldPB> fields,
   ) {
+    fields.retainWhere((field) => field.canCreateSort);
     return SortEditorState(
-      creatableFields: getCreatableSorts(fields),
+      creatableFields: fields,
       allFields: fields,
       sortInfos: sortInfos,
     );

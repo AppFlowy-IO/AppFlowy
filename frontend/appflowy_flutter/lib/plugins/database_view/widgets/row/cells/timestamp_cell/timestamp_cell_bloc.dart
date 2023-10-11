@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -65,14 +64,11 @@ class TimestampCellState with _$TimestampCellState {
   const factory TimestampCellState({
     required TimestampCellDataPB? data,
     required String dateStr,
-    required FieldInfo fieldInfo,
   }) = _TimestampCellState;
 
   factory TimestampCellState.initial(TimestampCellController context) {
     final cellData = context.getCellData();
-
     return TimestampCellState(
-      fieldInfo: context.fieldInfo,
       data: cellData,
       dateStr: cellData?.dateTime ?? "",
     );

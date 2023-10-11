@@ -9,22 +9,22 @@ part 'field_action_sheet_bloc.freezed.dart';
 
 class FieldActionSheetBloc
     extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
+  final String viewId;
   final String fieldId;
-  final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
 
   FieldActionSheetBloc({
-    required String viewId,
+    required this.viewId,
     required FieldPB field,
   })  : fieldId = field.id,
-        fieldService = FieldBackendService(viewId: viewId),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldActionSheetState.initial(field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
           updateFieldName: (_UpdateFieldName value) async {
-            final result = await fieldService.updateField(
+            final result = await FieldBackendService.updateField(
+              viewId: viewId,
               fieldId: fieldId,
               name: value.name,
             );
@@ -54,14 +54,20 @@ class FieldActionSheetBloc
             );
           },
           deleteField: (_DeleteField value) async {
-            final result = await fieldService.deleteField(fieldId: fieldId);
+            final result = await FieldBackendService.deleteField(
+              viewId: viewId,
+              fieldId: fieldId,
+            );
             result.fold(
               (l) => null,
               (err) => Log.error(err),
             );
           },
           duplicateField: (_DuplicateField value) async {
-            final result = await fieldService.duplicateField(fieldId: fieldId);
+            final result = await FieldBackendService.duplicateField(
+              viewId: viewId,
+              fieldId: fieldId,
+            );
             result.fold(
               (l) => null,
               (err) => Log.error(err),

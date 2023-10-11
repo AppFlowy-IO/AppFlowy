@@ -2,15 +2,15 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_calendar.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -18,81 +18,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../../../grid/presentation/layout/sizes.dart';
-import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
-import '../../../../grid/presentation/widgets/header/type_option/date.dart';
 import 'date_cal_bloc.dart';
 
 class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
   final DateCellController cellController;
+  final DateTypeOptionPB typeOption;
 
-  const DateCellEditor({
-    Key? key,
+  DateCellEditor({
     required this.onDismissed,
     required this.cellController,
-  }) : super(key: key);
+    super.key,
+  }) : typeOption = cellController.getTypeOption(
+          DateTypeOptionDataParser(),
+        );
 
   @override
   State<StatefulWidget> createState() => _DateCellEditor();
 }
 
 class _DateCellEditor extends State<DateCellEditor> {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Either<dynamic, FlowyError>>(
-      future: widget.cellController.getTypeOption(
-        DateTypeOptionDataParser(),
-      ),
-      builder: (BuildContext context, snapshot) {
-        if (snapshot.hasData) {
-          return _buildWidget(snapshot);
-        }
-
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  Widget _buildWidget(AsyncSnapshot<Either<dynamic, FlowyError>> snapshot) {
-    return snapshot.data!.fold(
-      (dateTypeOptionPB) {
-        return _CellCalendarWidget(
-          cellContext: widget.cellController,
-          dateTypeOptionPB: dateTypeOptionPB,
-        );
-      },
-      (err) {
-        Log.error(err);
-        return const SizedBox.shrink();
-      },
-    );
-  }
-}
-
-class _CellCalendarWidget extends StatefulWidget {
-  final DateCellController cellContext;
-  final DateTypeOptionPB dateTypeOptionPB;
-
-  const _CellCalendarWidget({
-    required this.cellContext,
-    required this.dateTypeOptionPB,
-  });
-
-  @override
-  State<_CellCalendarWidget> createState() => _CellCalendarWidgetState();
-}
-
-class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
   final PopoverMutex popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DateCellCalendarBloc(
-        dateTypeOptionPB: widget.dateTypeOptionPB,
-        cellData: widget.cellContext.getCellData(),
-        cellController: widget.cellContext,
+        dateTypeOptionPB: widget.typeOption,
+        cellData: widget.cellController.getCellData(),
+        cellController: widget.cellController,
       )..add(const DateCellCalendarEvent.initial()),
       child: Padding(
         padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),

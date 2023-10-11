@@ -8,7 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import '../field/field_service.dart';
 import '../field/type_option/type_option_parser.dart';
 import 'cell_listener.dart';
 import 'cell_service.dart';
@@ -25,7 +24,6 @@ class CellController<T, D> extends Equatable {
   DatabaseCellContext _cellContext;
   final CellMemCache _cellCache;
   final CellCacheKey _cacheKey;
-  final FieldBackendService _fieldBackendSvc;
   final CellDataLoader<T> _cellDataLoader;
   final CellDataPersistence<D> _cellDataPersistence;
 
@@ -62,7 +60,6 @@ class CellController<T, D> extends Equatable {
         _cellDataPersistence = cellDataPersistence,
         _rowMetaListener = RowMetaListener(cellContext.rowId),
         _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
-        _fieldBackendSvc = FieldBackendService(viewId: cellContext.viewId),
         _cacheKey = CellCacheKey(
           rowId: cellContext.rowId,
           fieldId: cellContext.fieldId,
@@ -144,17 +141,10 @@ class CellController<T, D> extends Equatable {
 
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
-  Future<Either<PD, FlowyError>> getTypeOption<PD, P extends TypeOptionParser>(
+  PD getTypeOption<PD, P extends TypeOptionParser>(
     P parser,
   ) {
-    return _fieldBackendSvc
-        .getFieldTypeOptionData(fieldType: fieldType)
-        .then((result) {
-      return result.fold(
-        (data) => left(parser.fromBuffer(data.typeOptionData)),
-        (err) => right(err),
-      );
-    });
+    return parser.fromBuffer(field.typeOptionData);
   }
 
   /// Save the cell data to disk

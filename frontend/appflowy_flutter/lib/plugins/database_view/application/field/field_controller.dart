@@ -10,7 +10,6 @@ import 'package:flutter/foundation.dart';
 import 'package:protobuf/protobuf.dart';
 
 import 'field_listener.dart';
-import 'field_service.dart';
 
 class _DatabaseFieldNotifier extends ChangeNotifier {
   List<FieldPB> _fields = [];
@@ -36,7 +35,6 @@ class FieldController {
 
   // FFI services
   final DatabaseViewBackendService _databaseViewBackendSvc;
-  final FieldBackendService fieldService;
 
   bool _isDisposed = false;
 
@@ -62,8 +60,7 @@ class FieldController {
   FieldController({required this.viewId})
       : _fieldListener = FieldsListener(viewId: viewId),
         _settingListener = DatabaseSettingListener(viewId: viewId),
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: viewId),
-        fieldService = FieldBackendService(viewId: viewId) {
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: viewId) {
     _listenOnFieldChanges();
   }
 

@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -21,8 +22,8 @@ class DatabaseGroupList extends StatelessWidget {
     required this.viewId,
     required this.fieldController,
     required this.onDismissed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,17 +64,17 @@ class DatabaseGroupList extends StatelessWidget {
 
 class _GridGroupCell extends StatelessWidget {
   final VoidCallback onSelected;
-  final FieldInfo fieldInfo;
+  final FieldPB field;
   const _GridGroupCell({
-    required this.fieldInfo,
+    required this.field,
     required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     Widget? rightIcon;
-    if (fieldInfo.isGroupField) {
+    if (field.isGroupField) {
       rightIcon = const Padding(
         padding: EdgeInsets.all(2.0),
         child: FlowySvg(FlowySvgs.check_s),
@@ -85,19 +86,19 @@ class _GridGroupCell extends StatelessWidget {
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
-          fieldInfo.name,
+          field.name,
           color: AFThemeExtension.of(context).textColor,
         ),
         leftIcon: FlowySvg(
-          fieldInfo.fieldType.icon(),
+          field.fieldType.icon(),
           color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: rightIcon,
         onTap: () {
           context.read<DatabaseGroupBloc>().add(
                 DatabaseGroupEvent.setGroupByField(
-                  fieldInfo.id,
-                  fieldInfo.fieldType,
+                  field.id,
+                  field.fieldType,
                 ),
               );
           onSelected();
