@@ -12,6 +12,7 @@ use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 #[tokio::test]
 async fn supabase_document_upload_text_file_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
+    let workspace_id = test.get_current_workspace().await.workspace.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()
@@ -19,6 +20,7 @@ async fn supabase_document_upload_text_file_test() {
       .unwrap();
 
     let object = StorageObject::from_bytes(
+      &workspace_id,
       &Uuid::new_v4().to_string(),
       "hello world".as_bytes(),
       "text/plain".to_string(),
@@ -41,6 +43,7 @@ async fn supabase_document_upload_text_file_test() {
 #[tokio::test]
 async fn supabase_document_upload_zip_file_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
+    let workspace_id = test.get_current_workspace().await.workspace.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()
@@ -48,8 +51,11 @@ async fn supabase_document_upload_zip_file_test() {
       .unwrap();
 
     // Upload zip file
-    let object =
-      StorageObject::from_file(&Uuid::new_v4().to_string(), "./tests/asset/test.txt.zip");
+    let object = StorageObject::from_file(
+      &workspace_id,
+      &Uuid::new_v4().to_string(),
+      "./tests/asset/test.txt.zip",
+    );
     let url = storage_service.create_object(object).await.unwrap();
 
     // Read zip file
@@ -79,6 +85,7 @@ async fn supabase_document_upload_zip_file_test() {
 #[tokio::test]
 async fn supabase_document_upload_image_test() {
   if let Some(test) = FlowySupabaseDocumentTest::new().await {
+    let workspace_id = test.get_current_workspace().await.workspace.id;
     let storage_service = test
       .document_manager
       .get_file_storage_service()
@@ -86,7 +93,11 @@ async fn supabase_document_upload_image_test() {
       .unwrap();
 
     // Upload zip file
-    let object = StorageObject::from_file(&Uuid::new_v4().to_string(), "./tests/asset/logo.png");
+    let object = StorageObject::from_file(
+      &workspace_id,
+      &Uuid::new_v4().to_string(),
+      "./tests/asset/logo.png",
+    );
     let url = storage_service.create_object(object).await.unwrap();
 
     let image_data = storage_service

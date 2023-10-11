@@ -143,11 +143,11 @@ impl FileStorageService for DocumentTestFileStorageService {
     todo!()
   }
 
-  fn delete_object_by_url(&self, _object_url: String) -> FutureResult<(), FlowyError> {
+  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
     todo!()
   }
 
-  fn get_object_by_url(&self, _object_url: String) -> FutureResult<Bytes, FlowyError> {
+  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
     todo!()
   }
 }
