@@ -65,6 +65,14 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
+    .event(
+      UserEvent::SetNotificationSettings,
+      set_notification_settings,
+    )
+    .event(
+      UserEvent::GetNotificationSettings,
+      get_notification_settings,
+    )
 }
 
 pub struct SignUpContext {
@@ -317,4 +325,10 @@ pub enum UserEvent {
   /// Retrieve the Date/Time formats
   #[event(output = "DateTimeSettingsPB")]
   GetDateTimeSettings = 34,
+
+  #[event(input = "NotificationSettingsPB")]
+  SetNotificationSettings = 35,
+
+  #[event(output = "NotificationSettingsPB")]
+  GetNotificationSettings = 36,
 }
