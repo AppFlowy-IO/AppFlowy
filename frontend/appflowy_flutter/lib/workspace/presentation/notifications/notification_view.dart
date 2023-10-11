@@ -1,12 +1,8 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_item.dart';
+import 'package:appflowy/workspace/presentation/notifications/notifications_hub_empty.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsView extends StatelessWidget {
@@ -15,33 +11,32 @@ class NotificationsView extends StatelessWidget {
     required this.shownReminders,
     required this.reminderBloc,
     required this.views,
-    required this.mutex,
     this.isUpcoming = false,
+    this.onAction,
+    this.onDelete,
+    this.onReadChanged,
   });
 
   final List<ReminderPB> shownReminders;
   final ReminderBloc reminderBloc;
   final List<ViewPB> views;
-  final PopoverMutex mutex;
   final bool isUpcoming;
+  final Function(ReminderPB reminder)? onAction;
+  final Function(ReminderPB reminder)? onDelete;
+  final Function(ReminderPB reminder, bool isRead)? onReadChanged;
 
   @override
   Widget build(BuildContext context) {
+    if (shownReminders.isEmpty) {
+      return const Center(child: NotificationsHubEmpty());
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (shownReminders.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(
-                child: FlowyText.regular(
-                  LocaleKeys.notificationHub_empty.tr(),
-                ),
-              ),
-            )
-          else
-            ...shownReminders.map((reminder) {
+          ...shownReminders.map(
+            (reminder) {
               return NotificationItem(
                 reminderId: reminder.id,
                 key: ValueKey(reminder.id),
@@ -50,34 +45,13 @@ class NotificationsView extends StatelessWidget {
                 body: reminder.message,
                 isRead: reminder.isRead,
                 readOnly: isUpcoming,
-                onReadChanged: !isUpcoming
-                    ? (isRead) => reminderBloc.add(
-                          ReminderEvent.update(
-                            ReminderUpdate(id: reminder.id, isRead: isRead),
-                          ),
-                        )
-                    : null,
-                onDelete: !isUpcoming
-                    ? () => reminderBloc
-                        .add(ReminderEvent.remove(reminder: reminder))
-                    : null,
-                onAction: () {
-                  final view = views.firstWhereOrNull(
-                    (view) => view.id == reminder.objectId,
-                  );
-
-                  if (view == null) {
-                    return;
-                  }
-
-                  reminderBloc.add(
-                    ReminderEvent.pressReminder(reminderId: reminder.id),
-                  );
-
-                  mutex.close();
-                },
+                onReadChanged: (isRead) =>
+                    onReadChanged?.call(reminder, isRead),
+                onDelete: () => onDelete?.call(reminder),
+                onAction: () => onAction?.call(reminder),
               );
-            }),
+            },
+          ),
         ],
       ),
     );

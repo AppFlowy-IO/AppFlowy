@@ -8,19 +8,17 @@ class NotificationFilterBloc
     extends Bloc<NotificationFilterEvent, NotificationFilterState> {
   NotificationFilterBloc() : super(const NotificationFilterState()) {
     on<NotificationFilterEvent>((event, emit) async {
-      await event.when(
-        update: (showUnreadsOnly, groupByDate, sortBy) async {
-          emit(
-            state.copyWith(
-              showUnreadsOnly: showUnreadsOnly,
-              groupByDate: groupByDate,
-              sortBy: sortBy,
-            ),
-          );
-        },
-        reset: () {
-          emit(const NotificationFilterState());
-        },
+      event.when(
+        reset: () => emit(const NotificationFilterState()),
+        changeSortBy: (NotificationSortOption sortBy) => emit(
+          state.copyWith(sortBy: sortBy),
+        ),
+        toggleGroupByDate: () => emit(
+          state.copyWith(groupByDate: !state.groupByDate),
+        ),
+        toggleShowUnreadsOnly: () => emit(
+          state.copyWith(showUnreadsOnly: !state.showUnreadsOnly),
+        ),
       );
     });
   }
@@ -33,42 +31,34 @@ enum NotificationSortOption {
 
 @freezed
 class NotificationFilterEvent with _$NotificationFilterEvent {
-  const factory NotificationFilterEvent.update({
-    bool? showUnreadsOnly,
-    bool? groupByDate,
-    NotificationSortOption? sortBy,
-  }) = _Update;
+  const factory NotificationFilterEvent.toggleShowUnreadsOnly() =
+      _ToggleShowUnreadsOnly;
+
+  const factory NotificationFilterEvent.toggleGroupByDate() =
+      _ToggleGroupByDate;
+
+  const factory NotificationFilterEvent.changeSortBy(
+    NotificationSortOption sortBy,
+  ) = _ChangeSortBy;
 
   const factory NotificationFilterEvent.reset() = _Reset;
 }
 
-class NotificationFilterState extends Equatable {
-  const NotificationFilterState({
-    this.showUnreadsOnly = false,
-    this.groupByDate = false,
-    this.sortBy = NotificationSortOption.descending,
-  });
+@freezed
+class NotificationFilterState extends Equatable with _$NotificationFilterState {
+  const NotificationFilterState._();
 
-  final bool showUnreadsOnly;
-  final bool groupByDate;
-  final NotificationSortOption sortBy;
+  const factory NotificationFilterState({
+    @Default(false) bool showUnreadsOnly,
+    @Default(false) bool groupByDate,
+    @Default(NotificationSortOption.descending) NotificationSortOption sortBy,
+  }) = _NotificationFilterState;
 
   // If state is not default values, then there are custom changes
   bool get hasFilters =>
       showUnreadsOnly != false ||
       groupByDate != false ||
       sortBy != NotificationSortOption.descending;
-
-  NotificationFilterState copyWith({
-    bool? showUnreadsOnly,
-    bool? groupByDate,
-    NotificationSortOption? sortBy,
-  }) =>
-      NotificationFilterState(
-        showUnreadsOnly: showUnreadsOnly ?? this.showUnreadsOnly,
-        groupByDate: groupByDate ?? this.groupByDate,
-        sortBy: sortBy ?? this.sortBy,
-      );
 
   @override
   List<Object?> get props => [showUnreadsOnly, groupByDate, sortBy];

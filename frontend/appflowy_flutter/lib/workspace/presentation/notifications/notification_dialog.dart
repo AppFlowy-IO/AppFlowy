@@ -47,6 +47,7 @@ class _NotificationDialogState extends State<NotificationDialog>
     with SingleTickerProviderStateMixin {
   late final TabController _controller = TabController(length: 2, vsync: this);
   final PopoverMutex _mutex = PopoverMutex();
+  final ReminderBloc _reminderBloc = getIt<ReminderBloc>();
 
   @override
   void initState() {
@@ -66,11 +67,9 @@ class _NotificationDialogState extends State<NotificationDialog>
 
   @override
   Widget build(BuildContext context) {
-    final reminderBloc = getIt<ReminderBloc>();
-
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ReminderBloc>.value(value: reminderBloc),
+        BlocProvider<ReminderBloc>.value(value: _reminderBloc),
         BlocProvider<NotificationFilterBloc>(
           create: (_) => NotificationFilterBloc(),
         ),
@@ -136,6 +135,8 @@ class _NotificationDialogState extends State<NotificationDialog>
                   ],
                 ),
                 const VSpace(4),
+                // TODO(Xazin): Resolve issue with taking up
+                //  max amount of vertical space
                 Expanded(
                   child: TabBarView(
                     controller: _controller,
@@ -143,16 +144,18 @@ class _NotificationDialogState extends State<NotificationDialog>
                       if (!filterState.groupByDate) ...[
                         NotificationsView(
                           shownReminders: pastReminders,
-                          reminderBloc: reminderBloc,
+                          reminderBloc: _reminderBloc,
                           views: widget.views,
-                          mutex: widget.mutex,
+                          onDelete: _onDelete,
+                          onAction: _onAction,
+                          onReadChanged: _onReadChanged,
                         ),
                         NotificationsView(
                           shownReminders: upcomingReminders,
-                          reminderBloc: reminderBloc,
+                          reminderBloc: _reminderBloc,
                           views: widget.views,
-                          mutex: widget.mutex,
                           isUpcoming: true,
+                          onAction: _onAction,
                         ),
                       ] else ...[
                         NotificationsGroupView(
@@ -162,9 +165,11 @@ class _NotificationDialogState extends State<NotificationDialog>
                               r.scheduledAt.toInt() * 1000,
                             ).withoutTime,
                           ),
-                          reminderBloc: reminderBloc,
+                          reminderBloc: _reminderBloc,
                           views: widget.views,
-                          mutex: widget.mutex,
+                          onAction: _onAction,
+                          onDelete: _onDelete,
+                          onReadChanged: _onReadChanged,
                         ),
                         NotificationsGroupView(
                           groupedReminders: groupBy<ReminderPB, DateTime>(
@@ -173,10 +178,10 @@ class _NotificationDialogState extends State<NotificationDialog>
                               r.scheduledAt.toInt() * 1000,
                             ).withoutTime,
                           ),
-                          reminderBloc: reminderBloc,
+                          reminderBloc: _reminderBloc,
                           views: widget.views,
-                          mutex: widget.mutex,
                           isUpcoming: true,
+                          onAction: _onAction,
                         ),
                       ],
                     ],
@@ -187,6 +192,32 @@ class _NotificationDialogState extends State<NotificationDialog>
           },
         ),
       ),
+    );
+  }
+
+  void _onAction(ReminderPB reminder) {
+    final view = widget.views.firstWhereOrNull(
+      (view) => view.id == reminder.objectId,
+    );
+
+    if (view == null) {
+      return;
+    }
+
+    _reminderBloc.add(
+      ReminderEvent.pressReminder(reminderId: reminder.id),
+    );
+
+    widget.mutex.close();
+  }
+
+  void _onDelete(ReminderPB reminder) {
+    _reminderBloc.add(ReminderEvent.remove(reminder: reminder));
+  }
+
+  void _onReadChanged(ReminderPB reminder, bool isRead) {
+    _reminderBloc.add(
+      ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),
     );
   }
 }
@@ -295,11 +326,8 @@ class _ShowUnreadsToggle extends StatelessWidget {
               ),
               Toggle(
                 style: ToggleStyle.big,
-                onChanged: (value) => bloc.add(
-                  NotificationFilterEvent.update(
-                    showUnreadsOnly: !value,
-                  ),
-                ),
+                onChanged: (value) => bloc
+                    .add(const NotificationFilterEvent.toggleShowUnreadsOnly()),
                 value: state.showUnreadsOnly,
               ),
             ],
@@ -331,11 +359,8 @@ class _GroupByDateToggle extends StatelessWidget {
               ),
               Toggle(
                 style: ToggleStyle.big,
-                onChanged: (value) => bloc.add(
-                  NotificationFilterEvent.update(
-                    groupByDate: !value,
-                  ),
-                ),
+                onChanged: (value) =>
+                    bloc.add(const NotificationFilterEvent.toggleGroupByDate()),
                 value: state.groupByDate,
               ),
             ],
@@ -385,8 +410,8 @@ class _SortByOptionState extends State<_SortByOption> {
                         ? setState(() => _isHovering = isHovering)
                         : null,
                     onTap: () => widget.bloc.add(
-                      NotificationFilterEvent.update(
-                        sortBy: isSortDescending
+                      NotificationFilterEvent.changeSortBy(
+                        isSortDescending
                             ? NotificationSortOption.ascending
                             : NotificationSortOption.descending,
                       ),
