@@ -245,7 +245,7 @@ void main() {
       await tester.wait(500);
 
       // Focus on the editor
-      final textBlock = find.byType(TextBlockComponentWidget);
+      final textBlock = find.byType(ParagraphBlockComponentWidget);
       await tester.tapAt(tester.getCenter(textBlock));
       await tester.pumpAndSettle();
 
