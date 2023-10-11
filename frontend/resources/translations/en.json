@@ -705,6 +705,10 @@
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "The current version does not support this block.",
+      "blockContentHasBeenCopied": "The block content has been copied."
     }
   },
   "board": {

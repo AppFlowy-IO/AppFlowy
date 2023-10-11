@@ -36,12 +36,14 @@ enum UploadImageType {
 class UploadImageMenu extends StatefulWidget {
   const UploadImageMenu({
     super.key,
-    required this.onPickFile,
-    required this.onSubmit,
+    required this.onSelectedLocalImage,
+    required this.onSelectedAIImage,
+    required this.onSelectedNetworkImage,
   });
 
-  final void Function(String? path) onPickFile;
-  final void Function(String url) onSubmit;
+  final void Function(String? path) onSelectedLocalImage;
+  final void Function(String url) onSelectedAIImage;
+  final void Function(String url) onSelectedNetworkImage;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
@@ -127,14 +129,14 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: UploadImageFileWidget(
-            onPickFile: widget.onPickFile,
+            onPickFile: widget.onSelectedLocalImage,
           ),
         );
       case UploadImageType.url:
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: EmbedImageUrlWidget(
-            onSubmit: widget.onSubmit,
+            onSubmit: widget.onSelectedNetworkImage,
           ),
         );
       case UploadImageType.unsplash:
@@ -142,7 +144,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: UnsplashImageWidget(
-              onSelectUnsplashImage: widget.onSubmit,
+              onSelectUnsplashImage: widget.onSelectedNetworkImage,
             ),
           ),
         );
@@ -152,7 +154,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: OpenAIImageWidget(
-                    onSelectNetworkImage: widget.onSubmit,
+                    onSelectNetworkImage: widget.onSelectedAIImage,
                   ),
                 ),
               )
@@ -168,7 +170,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: StabilityAIImageWidget(
-                    onSelectImage: widget.onPickFile,
+                    onSelectImage: widget.onSelectedLocalImage,
                   ),
                 ),
               )

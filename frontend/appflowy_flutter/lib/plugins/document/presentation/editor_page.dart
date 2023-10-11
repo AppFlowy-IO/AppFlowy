@@ -151,6 +151,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     effectiveScrollController = widget.scrollController ?? ScrollController();
 
     // keep the previous font style when typing new text.
+    supportSlashMenuNodeWhiteList.addAll([
+      ToggleListBlockKeys.type,
+    ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
@@ -351,6 +354,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         configuration: configuration.copyWith(
           placeholderTextStyle: (_) =>
               styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        ),
+      ),
+      errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
         ),
       ),
     };
