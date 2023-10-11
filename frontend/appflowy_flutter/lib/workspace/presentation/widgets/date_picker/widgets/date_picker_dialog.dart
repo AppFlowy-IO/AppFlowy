@@ -3,6 +3,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Provides arguemnts for [AppFlowyCalender] when showing
 /// a [DatePickerMenu]
@@ -76,17 +77,19 @@ class DatePickerMenu extends DatePickerService {
   }) {
     dismiss();
 
-    final editorSize = editorState.renderBox!.size;
+    // Use MediaQuery, since Stack takes up all window space
+    // and not just the space of the current Editor
+    final windowSize = MediaQuery.of(context).size;
 
     double offsetX = offset.dx;
     double offsetY = offset.dy;
 
-    final showRight = (offset.dx + _datePickerWidth) < editorSize.width;
+    final showRight = (offset.dx + _datePickerWidth) < windowSize.width;
     if (!showRight) {
       offsetX = offset.dx - _datePickerWidth;
     }
 
-    final showBelow = (offset.dy + _datePickerHeight) < editorSize.height;
+    final showBelow = (offset.dy + _datePickerHeight) < windowSize.height;
     if (!showBelow) {
       offsetY = offset.dy - _datePickerHeight;
     }
@@ -96,19 +99,28 @@ class DatePickerMenu extends DatePickerService {
         return Material(
           type: MaterialType.transparency,
           child: SizedBox(
-            height: editorSize.height,
-            width: editorSize.width,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: dismiss,
-              child: Stack(
-                children: [
-                  _AnimatedDatePicker(
-                    offset: Offset(offsetX, offsetY),
-                    showBelow: showBelow,
-                    options: options,
-                  ),
-                ],
+            height: windowSize.height,
+            width: windowSize.width,
+            child: RawKeyboardListener(
+              focusNode: FocusNode()..requestFocus(),
+              onKey: (event) {
+                if (event is RawKeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.escape) {
+                  dismiss();
+                }
+              },
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: dismiss,
+                child: Stack(
+                  children: [
+                    _AnimatedDatePicker(
+                      offset: Offset(offsetX, offsetY),
+                      showBelow: showBelow,
+                      options: options,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
