@@ -156,8 +156,9 @@ class _PropertyCellState extends State<_PropertyCell> {
             child: BlockActionButton(
               onTap: () => _popoverController.show(),
               svg: FlowySvgs.drag_element_s,
-              richMessage: const TextSpan(
-                  text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip),
+              richMessage: TextSpan(
+                text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+              ),
             ),
           ),
         ),
