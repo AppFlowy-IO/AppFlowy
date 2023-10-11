@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'dart:async';
@@ -8,25 +9,28 @@ class SingleSelectAction with ISelectOptionAction {
   final String viewId;
   final String fieldId;
   final SingleSelectTypeOptionPB typeOption;
+  final TypeOptionDataCallback onTypeOptionUpdated;
 
   const SingleSelectAction({
     required this.viewId,
     required this.fieldId,
     required this.typeOption,
+    required this.onTypeOptionUpdated,
   });
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
     return (SelectOptionPB option) {
       typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
+      final newTypeOption = typeOption.rebuild((typeOption) {
         final index =
             typeOption.options.indexWhere((element) => element.id == option.id);
         if (index != -1) {
           typeOption.options.removeAt(index);
         }
       });
-      return typeOption.options;
+      onTypeOptionUpdated.call(newTypeOption.writeToBuffer());
+      return newTypeOption.options;
     };
   }
 
@@ -38,15 +42,15 @@ class SingleSelectAction with ISelectOptionAction {
         return result.fold(
           (option) {
             typeOption.freeze();
-            typeOption = typeOption.rebuild((typeOption) {
+            final newTypeOption = typeOption.rebuild((typeOption) {
               final exists = typeOption.options
                   .any((element) => element.name == option.name);
               if (!exists) {
                 typeOption.options.insert(0, option);
               }
             });
-
-            return typeOption.options;
+            onTypeOptionUpdated.call(newTypeOption.writeToBuffer());
+            return newTypeOption.options;
           },
           (err) {
             Log.error(err);
@@ -61,14 +65,15 @@ class SingleSelectAction with ISelectOptionAction {
   List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
     return (SelectOptionPB option) {
       typeOption.freeze();
-      typeOption = typeOption.rebuild((typeOption) {
+      final newTypeOption = typeOption.rebuild((typeOption) {
         final index =
             typeOption.options.indexWhere((element) => element.id == option.id);
         if (index != -1) {
           typeOption.options[index] = option;
         }
       });
-      return typeOption.options;
+      onTypeOptionUpdated.call(newTypeOption.writeToBuffer());
+      return newTypeOption.options;
     };
   }
 }

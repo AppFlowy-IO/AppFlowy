@@ -14,7 +14,7 @@ import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
 import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 
-class SelectOptionTypeOptionEditor extends StatefulWidget {
+class SelectOptionTypeOptionEditor extends StatelessWidget {
   final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
   final ISelectOptionAction typeOptionAction;
@@ -29,33 +29,36 @@ class SelectOptionTypeOptionEditor extends StatefulWidget {
   });
 
   @override
-  State<SelectOptionTypeOptionEditor> createState() =>
-      _SelectOptionTypeOptionEditorState();
-}
-
-class _SelectOptionTypeOptionEditorState
-    extends State<SelectOptionTypeOptionEditor> {
-  bool _isEditingOption = false;
-
-  @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [
-      const TypeOptionSeparator(),
-      const OptionTitle(),
-      if (state.isEditingOption)
-        CreateOptionTextField(popoverMutex: widget.popoverMutex),
-      if (state.options.isNotEmpty && state.isEditingOption) const VSpace(10),
-      if (state.options.isEmpty && !state.isEditingOption)
-        const _AddOptionButton(),
-      _OptionList(popoverMutex: widget.popoverMutex)
-    ];
+    return BlocProvider(
+      create: (context) => SelectOptionTypeOptionBloc(
+        options: options,
+        typeOptionAction: typeOptionAction,
+      ),
+      child:
+          BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
+        builder: (context, state) {
+          final List<Widget> children = [
+            const TypeOptionSeparator(),
+            const OptionTitle(),
+            if (state.isEditingOption)
+              CreateOptionTextField(popoverMutex: popoverMutex),
+            if (state.options.isNotEmpty && state.isEditingOption)
+              const VSpace(10),
+            if (state.options.isEmpty && !state.isEditingOption)
+              const _AddOptionButton(),
+            _OptionList(popoverMutex: popoverMutex)
+          ];
 
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: children.length,
-      itemBuilder: (context, index) {
-        return children[index];
-      },
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: children.length,
+            itemBuilder: (context, index) {
+              return children[index];
+            },
+          );
+        },
+      ),
     );
   }
 }

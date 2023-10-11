@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -31,17 +31,15 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             );
           },
           deleteField: (fieldId) {
-            final fieldService = FieldBackendService(
-              viewId: rowController.viewId,
-              fieldId: fieldId,
-            );
-            fieldService.deleteField();
+            final fieldService =
+                FieldBackendService(viewId: rowController.viewId);
+            fieldService.deleteField(fieldId: fieldId);
           },
           toggleFieldVisibility: (fieldId) async {
             final fieldInfo = state.allCells
                 .where((cellContext) => cellContext.fieldId == fieldId)
                 .first
-                .fieldInfo;
+                .field;
             final fieldVisibility =
                 fieldInfo.visibility == FieldVisibility.AlwaysShown
                     ? FieldVisibility.AlwaysHidden
@@ -72,7 +70,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
             final visibleCells = List<DatabaseCellContext>.from(state.allCells);
             visibleCells.retainWhere(
               (cellContext) =>
-                  !cellContext.fieldInfo.isPrimary &&
+                  !cellContext.field.isPrimary &&
                   cellContext.isVisible(showHiddenFields: showHiddenFields),
             );
             emit(
@@ -103,7 +101,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
         int numHiddenFields = 0;
         final visibleCells = <DatabaseCellContext>[];
         for (final cell in allCells) {
-          final isPrimary = cell.fieldInfo.isPrimary;
+          final isPrimary = cell.field.isPrimary;
 
           if (cell.isVisible(showHiddenFields: state.showHiddenFields) &&
               !isPrimary) {
@@ -142,11 +140,9 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
     final toIndexInAllFields =
         state.allCells.indexWhere((cell) => cell.fieldId == targetFieldId);
 
-    final fieldService = FieldBackendService(
-      viewId: rowController.viewId,
-      fieldId: reorderedFieldId,
-    );
+    final fieldService = FieldBackendService(viewId: rowController.viewId);
     final result = await fieldService.moveField(
+      reorderedFieldId,
       fromIndexInAllFields,
       toIndexInAllFields,
     );
@@ -190,7 +186,7 @@ class RowDetailState with _$RowDetailState {
     final visibleCells = <DatabaseCellContext>[];
     for (final cell in allCells) {
       final isVisible = cell.isVisible();
-      final isPrimary = cell.fieldInfo.isPrimary;
+      final isPrimary = cell.field.isPrimary;
 
       if (isVisible && !isPrimary) {
         visibleCells.add(cell);

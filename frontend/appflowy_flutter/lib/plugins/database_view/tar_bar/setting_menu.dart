@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import '../application/field/field_controller.dart';
 import '../grid/presentation/layout/sizes.dart';
 import '../grid/presentation/widgets/filter/filter_menu.dart';
 import '../grid/presentation/widgets/sort/sort_menu.dart';
@@ -33,7 +32,7 @@ class DatabaseViewSettingExtension extends StatelessWidget {
               create: (context) =>
                   DatabaseViewSettingExtensionBloc(viewId: viewId),
               child: _DatabaseViewSettingContent(
-                fieldController: databaseController.fieldController,
+                databaseController: databaseController,
               ),
             );
           } else {
@@ -46,11 +45,8 @@ class DatabaseViewSettingExtension extends StatelessWidget {
 }
 
 class _DatabaseViewSettingContent extends StatelessWidget {
-  final FieldController fieldController;
-  const _DatabaseViewSettingContent({
-    required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+  final DatabaseController databaseController;
+  const _DatabaseViewSettingContent({required this.databaseController});
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +56,15 @@ class _DatabaseViewSettingContent extends StatelessWidget {
         return _wrapPadding(
           Row(
             children: [
-              SortMenu(fieldController: fieldController),
+              SortMenu(
+                sortController: databaseController.sortController,
+                fieldController: databaseController.fieldController,
+              ),
               const HSpace(6),
-              FilterMenu(fieldController: fieldController),
+              FilterMenu(
+                filterController: databaseController.filterController,
+                fieldController: databaseController.fieldController,
+              ),
             ],
           ),
         );

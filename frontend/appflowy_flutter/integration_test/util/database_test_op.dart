@@ -23,8 +23,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell_action_sheet.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_list.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_option_editor.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_switcher.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/date.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/timestamp.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/row/row.dart';
@@ -1015,7 +1014,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> tapSortButtonByName(String name) async {
     final findSortItem = find.byWidgetPredicate(
       (widget) =>
-          widget is DatabaseSortItem && widget.sortInfo.fieldInfo.name == name,
+          widget is DatabaseSortItem && widget.sortInfo.field.name == name,
     );
     await tapButton(findSortItem);
   }
@@ -1504,8 +1503,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     String fieldName,
   ) async {
     final field = find.byWidgetPredicate(
-      (widget) =>
-          widget is GridPropertyCell && widget.fieldInfo.name == fieldName,
+      (widget) => widget is GridPropertyCell && widget.field.name == fieldName,
     );
     final toggleVisibilityButton =
         find.descendant(of: field, matching: find.byType(FlowyIconButton));

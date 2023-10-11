@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,11 +15,13 @@ import 'create_filter_list.dart';
 import 'filter_menu_item.dart';
 
 class FilterMenu extends StatelessWidget {
+  final FilterController filterController;
   final FieldController fieldController;
   const FilterMenu({
+    required this.filterController,
     required this.fieldController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +29,18 @@ class FilterMenu extends StatelessWidget {
       create: (context) => GridFilterMenuBloc(
         viewId: fieldController.viewId,
         fieldController: fieldController,
-      )..add(
-          const GridFilterMenuEvent.initial(),
-        ),
+      )..add(const GridFilterMenuEvent.initial()),
       child: BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
         builder: (context, state) {
           final List<Widget> children = [];
           children.addAll(
             state.filters
-                .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+                .map(
+                  (filterInfo) => FilterMenuItem(
+                    viewId: fieldController.viewId,
+                    filterInfo: filterInfo,
+                  ),
+                )
                 .toList(),
           );
 

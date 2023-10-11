@@ -68,7 +68,7 @@ class CardBloc extends Bloc<RowCardEvent, RowCardState> {
     return RowInfo(
       viewId: _rowBackendSvc.viewId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.fieldInfo).toList(),
+        state.cells.map((cell) => cell.field).toList(),
       ),
       rowId: rowMeta.id,
       rowMeta: rowMeta,

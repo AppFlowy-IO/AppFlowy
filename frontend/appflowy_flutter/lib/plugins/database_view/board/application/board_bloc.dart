@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:appflowy/plugins/database_view/application/defines.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
@@ -158,9 +157,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _groupItemStartEditing(GroupPB group, RowMetaPB row, bool isEdit) {
-    final fieldInfo = fieldController.getField(group.fieldId);
-    if (fieldInfo == null) {
-      Log.warn("fieldInfo should not be null");
+    final field = fieldController.getField(group.fieldId);
+    if (field == null) {
+      Log.warn("field should not be null");
       return;
     }
 
@@ -243,10 +242,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   List<AppFlowyGroupItem> _buildGroupItems(GroupPB group) {
     final items = group.rows.map((row) {
-      final fieldInfo = fieldController.getField(group.fieldId);
+      final field = fieldController.getField(group.fieldId);
       return GroupItem(
         row: row,
-        fieldInfo: fieldInfo!,
+        field: field!,
       );
     }).toList();
 
@@ -292,7 +291,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       items: _buildGroupItems(group),
       customData: GroupData(
         group: group,
-        fieldInfo: fieldController.getField(group.fieldId)!,
+        field: fieldController.getField(group.fieldId)!,
       ),
     );
   }
@@ -367,11 +366,11 @@ class GridFieldEquatable extends Equatable {
 
 class GroupItem extends AppFlowyGroupItem {
   final RowMetaPB row;
-  final FieldInfo fieldInfo;
+  final FieldPB field;
 
   GroupItem({
     required this.row,
-    required this.fieldInfo,
+    required this.field,
     bool draggable = true,
   }) {
     super.draggable = draggable;
@@ -394,22 +393,22 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void insertRow(GroupPB group, RowMetaPB row, int? index) {
-    final fieldInfo = fieldController.getField(group.fieldId);
-    if (fieldInfo == null) {
-      Log.warn("fieldInfo should not be null");
+    final field = fieldController.getField(group.fieldId);
+    if (field == null) {
+      Log.warn("field should not be null");
       return;
     }
 
     if (index != null) {
       final item = GroupItem(
         row: row,
-        fieldInfo: fieldInfo,
+        field: field,
       );
       controller.insertGroupItem(group.groupId, index, item);
     } else {
       final item = GroupItem(
         row: row,
-        fieldInfo: fieldInfo,
+        field: field,
       );
       controller.addGroupItem(group.groupId, item);
     }
@@ -422,30 +421,30 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void updateRow(GroupPB group, RowMetaPB row) {
-    final fieldInfo = fieldController.getField(group.fieldId);
-    if (fieldInfo == null) {
-      Log.warn("fieldInfo should not be null");
+    final field = fieldController.getField(group.fieldId);
+    if (field == null) {
+      Log.warn("field should not be null");
       return;
     }
     controller.updateGroupItem(
       group.groupId,
       GroupItem(
         row: row,
-        fieldInfo: fieldInfo,
+        field: field,
       ),
     );
   }
 
   @override
   void addNewRow(GroupPB group, RowMetaPB row, int? index) {
-    final fieldInfo = fieldController.getField(group.fieldId);
-    if (fieldInfo == null) {
-      Log.warn("fieldInfo should not be null");
+    final field = fieldController.getField(group.fieldId);
+    if (field == null) {
+      Log.warn("field should not be null");
       return;
     }
     final item = GroupItem(
       row: row,
-      fieldInfo: fieldInfo,
+      field: field,
       draggable: false,
     );
 
@@ -472,10 +471,10 @@ class BoardEditingRow {
 
 class GroupData {
   final GroupPB group;
-  final FieldInfo fieldInfo;
+  final FieldPB field;
   GroupData({
     required this.group,
-    required this.fieldInfo,
+    required this.field,
   });
 
   CheckboxGroup? asCheckboxGroup() {
@@ -483,7 +482,7 @@ class GroupData {
     return CheckboxGroup(group);
   }
 
-  FieldType get fieldType => fieldInfo.fieldType;
+  FieldType get fieldType => field.fieldType;
 }
 
 class CheckboxGroup {

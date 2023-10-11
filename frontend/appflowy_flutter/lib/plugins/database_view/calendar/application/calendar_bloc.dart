@@ -1,7 +1,6 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -21,7 +20,7 @@ part 'calendar_bloc.freezed.dart';
 
 class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   final DatabaseController databaseController;
-  Map<String, FieldInfo> fieldInfoByFieldId = {};
+  Map<String, FieldPB> fieldById = {};
 
   // Getters
   String get viewId => databaseController.viewId;
@@ -111,13 +110,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     );
   }
 
-  FieldInfo? _getCalendarFieldInfo(String fieldId) {
-    final fieldInfos = databaseController.fieldController.fieldInfos;
-    final index = fieldInfos.indexWhere(
-      (element) => element.field.id == fieldId,
+  FieldPB? _getCalendarField(String fieldId) {
+    final fields = databaseController.fieldController.fields;
+    final index = fields.indexWhere(
+      (field) => field.id == fieldId,
     );
     if (index != -1) {
-      return fieldInfos[index];
+      return fields[index];
     } else {
       return null;
     }
@@ -144,7 +143,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
         Log.warn('Calendar settings not found');
       },
       (settings) async {
-        final dateField = _getCalendarFieldInfo(settings.fieldId);
+        final dateField = _getCalendarField(settings.fieldId);
         if (dateField != null) {
           final newRow = await databaseController.createRow(
             withCells: (builder) {
@@ -247,7 +246,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   CalendarEventData<CalendarDayEvent>? _calendarEventDataFromEventPB(
     CalendarEventPB eventPB,
   ) {
-    final fieldInfo = fieldInfoByFieldId[eventPB.dateFieldId];
+    final fieldInfo = fieldById[eventPB.dateFieldId];
     if (fieldInfo == null) {
       return null;
     }
@@ -276,12 +275,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       onDatabaseChanged: (database) {
         if (isClosed) return;
       },
-      onFieldsChanged: (fieldInfos) {
+      onFieldsChanged: (fields) {
         if (isClosed) {
           return;
         }
-        fieldInfoByFieldId = {
-          for (var fieldInfo in fieldInfos) fieldInfo.field.id: fieldInfo
+        fieldById = {
+          for (final field in fields) field.id: field,
         };
       },
       onRowsCreated: (rowIds) async {

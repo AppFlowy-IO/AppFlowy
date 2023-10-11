@@ -24,7 +24,7 @@ class GridCreateFilterBloc
   void Function(List<FieldInfo>)? _onFieldFn;
   GridCreateFilterBloc({required this.viewId, required this.fieldController})
       : _filterBackendSvc = FilterBackendService(viewId: viewId),
-        super(GridCreateFilterState.initial(fieldController.fieldInfos)) {
+        super(GridCreateFilterState.initial(fieldController.fields)) {
     on<GridCreateFilterEvent>(
       (event, emit) async {
         event.when(

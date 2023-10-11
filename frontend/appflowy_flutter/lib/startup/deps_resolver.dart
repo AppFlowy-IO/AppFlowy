@@ -48,7 +48,7 @@ class DependencyResolver {
     _resolveHomeDeps(getIt);
     _resolveFolderDeps(getIt);
     _resolveDocDeps(getIt);
-    _resolveGridDeps(getIt);
+    // _resolveGridDeps(getIt);
     _resolveCommonService(getIt, mode);
   }
 }
@@ -219,20 +219,20 @@ void _resolveDocDeps(GetIt getIt) {
   );
 }
 
-void _resolveGridDeps(GetIt getIt) {
-  getIt.registerFactoryParam<GridHeaderBloc, String, FieldController>(
-    (viewId, fieldController) => GridHeaderBloc(
-      viewId: viewId,
-      fieldController: fieldController,
-    ),
-  );
+// void _resolveGridDeps(GetIt getIt) {
+//   getIt.registerFactoryParam<GridHeaderBloc, String, FieldController>(
+//     (viewId, fieldController) => GridHeaderBloc(
+//       viewId: viewId,
+//       fieldController: fieldController,
+//     ),
+//   );
 
-  getIt.registerFactoryParam<FieldActionSheetBloc, FieldContext, void>(
-    (data, _) => FieldActionSheetBloc(fieldCellContext: data),
-  );
+//   getIt.registerFactoryParam<FieldActionSheetBloc, FieldContext, void>(
+//     (data, _) => FieldActionSheetBloc(fieldCellContext: data),
+//   );
 
-  getIt.registerFactoryParam<DatabasePropertyBloc, String, FieldController>(
-    (viewId, cache) =>
-        DatabasePropertyBloc(viewId: viewId, fieldController: cache),
-  );
-}
+//   getIt.registerFactoryParam<DatabasePropertyBloc, String, FieldController>(
+//     (viewId, cache) =>
+//         DatabasePropertyBloc(viewId: viewId, fieldController: cache),
+//   );
+// }

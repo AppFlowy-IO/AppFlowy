@@ -239,7 +239,7 @@ class LayoutDateField extends StatelessWidget {
           )..add(const DatabasePropertyEvent.initial()),
           child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
             builder: (context, state) {
-              final items = state.fieldContexts
+              final items = state.fields
                   .where((field) => field.fieldType == FieldType.DateTime)
                   .map(
                 (fieldInfo) {

@@ -14,9 +14,13 @@ import 'option_list.dart';
 import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
+  final String viewId;
   final FilterInfo filterInfo;
-  const SelectOptionFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const SelectOptionFilterChoicechip({
+    required this.filterInfo,
+    required this.viewId,
+    super.key,
+  });
 
   @override
   State<SelectOptionFilterChoicechip> createState() =>

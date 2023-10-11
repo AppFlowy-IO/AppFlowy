@@ -11,36 +11,36 @@ import 'choicechip/text.dart';
 import 'choicechip/url.dart';
 
 class FilterMenuItem extends StatelessWidget {
+  final String viewId;
   final FilterInfo filterInfo;
-  const FilterMenuItem({required this.filterInfo, Key? key}) : super(key: key);
+  const FilterMenuItem({
+    required this.viewId,
+    required this.filterInfo,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return buildFilterChoicechip(filterInfo);
-  }
-}
-
-Widget buildFilterChoicechip(FilterInfo filterInfo) {
-  switch (filterInfo.field.fieldType) {
-    case FieldType.Checkbox:
-      return CheckboxFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.DateTime:
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      return DateFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.MultiSelect:
-      return SelectOptionFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.Number:
-      return NumberFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.RichText:
-      return TextFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.SingleSelect:
-      return SelectOptionFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.URL:
-      return URLFilterChoicechip(filterInfo: filterInfo);
-    case FieldType.Checklist:
-      return ChecklistFilterChoicechip(filterInfo: filterInfo);
-    default:
-      return const SizedBox();
+    return switch (filterInfo.field.fieldType) {
+      FieldType.Checkbox =>
+        CheckboxFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.DateTime ||
+      FieldType.LastEditedTime ||
+      FieldType.CreatedTime =>
+        DateFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.MultiSelect =>
+        SelectOptionFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.Number =>
+        NumberFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.RichText =>
+        TextFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.SingleSelect =>
+        SelectOptionFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.URL =>
+        URLFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      FieldType.Checklist =>
+        ChecklistFilterChoicechip(viewId: viewId, filterInfo: filterInfo),
+      _ => const SizedBox(),
+    };
   }
 }

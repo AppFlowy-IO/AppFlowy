@@ -29,8 +29,8 @@ class SelectOptionEditor extends StatelessWidget {
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static String get identifier => (SelectOptionEditor).toString();
 

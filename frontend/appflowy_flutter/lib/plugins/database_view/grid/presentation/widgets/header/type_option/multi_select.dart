@@ -11,7 +11,6 @@ import 'select_option.dart';
 class MultiSelectTypeOptionEditor extends StatelessWidget {
   final String viewId;
   final FieldPB field;
-  final TypeOptionDataCallback onTypeOptionUpdated;
   late final MultiSelectTypeOptionPB typeOption;
   late final MultiSelectAction selectOptionAction;
   final PopoverMutex? popoverMutex;
@@ -19,7 +18,7 @@ class MultiSelectTypeOptionEditor extends StatelessWidget {
   MultiSelectTypeOptionEditor({
     required this.viewId,
     required this.field,
-    required this.onTypeOptionUpdated,
+    required TypeOptionDataCallback onTypeOptionUpdated,
     required MultiSelectTypeOptionParser parser,
     this.popoverMutex,
     super.key,
@@ -29,6 +28,7 @@ class MultiSelectTypeOptionEditor extends StatelessWidget {
       fieldId: field.id,
       viewId: viewId,
       typeOption: typeOption,
+      onTypeOptionUpdated: onTypeOptionUpdated,
     );
   }
 

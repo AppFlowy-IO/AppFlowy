@@ -11,7 +11,6 @@ import 'select_option.dart';
 class SingleSelectTypeOptionEditor extends StatelessWidget {
   final String viewId;
   final FieldPB field;
-  final TypeOptionDataCallback onTypeOptionUpdated;
   late final SingleSelectTypeOptionPB typeOption;
   late final SingleSelectAction selectOptionAction;
   final PopoverMutex? popoverMutex;
@@ -19,7 +18,7 @@ class SingleSelectTypeOptionEditor extends StatelessWidget {
   SingleSelectTypeOptionEditor({
     required this.viewId,
     required this.field,
-    required this.onTypeOptionUpdated,
+    required TypeOptionDataCallback onTypeOptionUpdated,
     required SingleSelectTypeOptionParser parser,
     this.popoverMutex,
     super.key,
@@ -29,6 +28,7 @@ class SingleSelectTypeOptionEditor extends StatelessWidget {
       fieldId: field.id,
       viewId: viewId,
       typeOption: typeOption,
+      onTypeOptionUpdated: onTypeOptionUpdated,
     );
   }
 

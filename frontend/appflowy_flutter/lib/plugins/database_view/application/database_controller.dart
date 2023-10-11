@@ -405,20 +405,20 @@ class DatabaseController {
 class RowDataBuilder {
   final _cellDataByFieldId = <String, String>{};
 
-  void insertText(FieldInfo fieldInfo, String text) {
-    assert(fieldInfo.fieldType == FieldType.RichText);
-    _cellDataByFieldId[fieldInfo.field.id] = text;
+  void insertText(FieldPB field, String text) {
+    assert(field.fieldType == FieldType.RichText);
+    _cellDataByFieldId[field.id] = text;
   }
 
-  void insertNumber(FieldInfo fieldInfo, int num) {
-    assert(fieldInfo.fieldType == FieldType.Number);
-    _cellDataByFieldId[fieldInfo.field.id] = num.toString();
+  void insertNumber(FieldPB field, int num) {
+    assert(field.fieldType == FieldType.Number);
+    _cellDataByFieldId[field.id] = num.toString();
   }
 
-  void insertDate(FieldInfo fieldInfo, DateTime date) {
-    assert(FieldType.DateTime == fieldInfo.fieldType);
+  void insertDate(FieldPB field, DateTime date) {
+    assert(field.fieldType == FieldType.DateTime);
     final timestamp = date.millisecondsSinceEpoch ~/ 1000;
-    _cellDataByFieldId[fieldInfo.field.id] = timestamp.toString();
+    _cellDataByFieldId[field.id] = timestamp.toString();
   }
 
   Map<String, String> build() {

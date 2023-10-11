@@ -299,7 +299,7 @@ class _BoardContentState extends State<BoardContent> {
         viewId: viewId,
         rowCache: rowCache,
         cardData: groupData.group.groupId,
-        groupingFieldId: groupItem.fieldInfo.id,
+        groupingFieldId: groupItem.field.id,
         groupId: groupData.group.groupId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
@@ -352,7 +352,7 @@ class _BoardContentState extends State<BoardContent> {
   ) {
     final rowInfo = RowInfo(
       viewId: viewId,
-      fields: UnmodifiableListView(fieldController.fieldInfos),
+      fields: UnmodifiableListView(fieldController.fields),
       rowMeta: rowMetaPB,
       rowId: rowMetaPB.id,
     );

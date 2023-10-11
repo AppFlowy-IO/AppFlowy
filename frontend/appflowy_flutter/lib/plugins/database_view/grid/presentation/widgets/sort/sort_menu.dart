@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,11 +16,13 @@ import 'sort_editor.dart';
 import '../../../../application/sort/sort_info.dart';
 
 class SortMenu extends StatelessWidget {
+  final SortController sortController;
   final FieldController fieldController;
 
   const SortMenu({
-    super.key,
     required this.fieldController,
+    required this.sortController,
+    super.key,
   });
 
   @override

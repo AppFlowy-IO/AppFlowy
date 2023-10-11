@@ -36,6 +36,12 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             fieldController.fieldService
                 .updateField(fieldId: fieldId, name: name);
           },
+          updateTypeOption: (typeOptionData) {
+            fieldController.fieldService.updateFieldTypeOption(
+              fieldId: fieldId,
+              typeOptionData: typeOptionData,
+            );
+          },
           didReceiveFieldChanged: (FieldPB field) {
             emit(state.copyWith(field: field));
           },
@@ -58,6 +64,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
+  const factory FieldEditorEvent.updateTypeOption(List<int> typeOptionData) =
+      _UpdateTypeOption;
   const factory FieldEditorEvent.deleteField() = _DeleteField;
   const factory FieldEditorEvent.switchToField(FieldType fieldType) =
       _SwitchToField;

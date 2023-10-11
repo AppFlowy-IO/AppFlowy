@@ -34,14 +34,14 @@ class DatabaseGroupList extends StatelessWidget {
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
         buildWhen: (previous, current) => true,
         builder: (context, state) {
-          final cells = state.fieldInfos.map((fieldInfo) {
+          final cells = state.fields.map((field) {
             Widget cell = _GridGroupCell(
-              fieldInfo: fieldInfo,
+              field: field,
               onSelected: () => onDismissed(),
-              key: ValueKey(fieldInfo.id),
+              key: ValueKey(field.id),
             );
 
-            if (!fieldInfo.canBeGroup) {
+            if (!field.canBeGroup) {
               cell = IgnorePointer(child: Opacity(opacity: 0.3, child: cell));
             }
             return cell;

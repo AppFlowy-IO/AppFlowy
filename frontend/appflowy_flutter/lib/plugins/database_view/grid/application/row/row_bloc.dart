@@ -1,8 +1,6 @@
 import 'dart:collection';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -41,9 +39,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           didReceiveCells: (cellByFieldId, reason) async {
             cellByFieldId
                 .removeWhere((_, cellContext) => !cellContext.isVisible());
-            final cells = cellByFieldId.values
-                .map((e) => GridCellEquatable(e.fieldInfo))
-                .toList();
+            final cells = cellByFieldId.values.map((e) => (e.field)).toList();
             emit(
               state.copyWith(
                 cellByFieldId: cellByFieldId,
@@ -101,7 +97,7 @@ class RowEvent with _$RowEvent {
 class RowState with _$RowState {
   const factory RowState({
     required CellContextByFieldId cellByFieldId,
-    required UnmodifiableListView<GridCellEquatable> cells,
+    required UnmodifiableListView<FieldPB> cells,
     required RowSourece rowSource,
     ChangedReason? changeReason,
   }) = _RowState;
@@ -113,27 +109,11 @@ class RowState with _$RowState {
     return RowState(
       cellByFieldId: cellByFieldId,
       cells: UnmodifiableListView(
-        cellByFieldId.values
-            .map((e) => GridCellEquatable(e.fieldInfo))
-            .toList(),
+        cellByFieldId.values.map((e) => e.field).toList(),
       ),
       rowSource: const RowSourece.disk(),
     );
   }
-}
-
-class GridCellEquatable extends Equatable {
-  final FieldInfo _fieldInfo;
-
-  const GridCellEquatable(FieldInfo field) : _fieldInfo = field;
-
-  @override
-  List<Object?> get props => [
-        _fieldInfo.id,
-        _fieldInfo.fieldType,
-        _fieldInfo.field.visibility,
-        _fieldInfo.field.width,
-      ];
 }
 
 @freezed

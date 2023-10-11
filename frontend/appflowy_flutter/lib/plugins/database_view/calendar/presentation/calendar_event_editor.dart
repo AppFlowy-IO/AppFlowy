@@ -120,10 +120,10 @@ class EventPropertyList extends StatelessWidget {
     return BlocBuilder<CalendarEventEditorBloc, CalendarEventEditorState>(
       builder: (context, state) {
         final reorderedList = List<DatabaseCellContext>.from(state.cells)
-          ..retainWhere((cell) => !cell.fieldInfo.isPrimary);
+          ..retainWhere((cell) => !cell.field.isPrimary);
 
         final primaryCellContext =
-            state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
+            state.cells.firstWhereOrNull((cell) => cell.field.isPrimary);
         final dateFieldIndex =
             reorderedList.indexWhere((cell) => cell.fieldId == dateFieldId);
         if (primaryCellContext == null || dateFieldIndex == -1) {
@@ -209,7 +209,7 @@ class _PropertyCellState extends State<PropertyCell> {
                   ),
                   const HSpace(4.0),
                   FlowyText.regular(
-                    widget.cellContext.fieldInfo.name,
+                    widget.cellContext.field.name,
                     color: Theme.of(context).hintColor,
                     fontSize: 11,
                   ),

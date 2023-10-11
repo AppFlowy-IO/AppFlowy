@@ -14,9 +14,13 @@ import '../../disclosure_button.dart';
 import '../choicechip.dart';
 
 class ChecklistFilterChoicechip extends StatefulWidget {
+  final String viewId;
   final FilterInfo filterInfo;
-  const ChecklistFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const ChecklistFilterChoicechip({
+    required this.viewId,
+    required this.filterInfo,
+    super.key,
+  });
 
   @override
   State<ChecklistFilterChoicechip> createState() =>

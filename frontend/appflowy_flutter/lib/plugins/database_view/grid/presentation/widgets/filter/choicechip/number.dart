@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'choicechip.dart';
 
 class NumberFilterChoicechip extends StatelessWidget {
+  final String viewId;
   final FilterInfo filterInfo;
-  const NumberFilterChoicechip({required this.filterInfo, Key? key})
-      : super(key: key);
+  const NumberFilterChoicechip({
+    required this.filterInfo,
+    required this.viewId,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

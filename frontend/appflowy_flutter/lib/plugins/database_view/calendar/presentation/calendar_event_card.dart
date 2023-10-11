@@ -182,7 +182,7 @@ class _EventCardState extends State<EventCard> {
       return BlocBuilder<TextCellBloc, TextCellState>(
         builder: (context, state) {
           final isTitle =
-              context.read<TextCellBloc>().cellController.fieldInfo.isPrimary;
+              context.read<TextCellBloc>().cellController.field.isPrimary;
           final text = isTitle && cellData.isEmpty
               ? LocaleKeys.grid_row_titlePlaceholder.tr()
               : cellData;
