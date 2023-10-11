@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,14 +14,14 @@ class GridFilterMenuBloc
   final String viewId;
   final FieldController fieldController;
   void Function(List<FilterInfo>)? _onFilterFn;
-  void Function(List<FieldInfo>)? _onFieldFn;
+  void Function(List<FieldPB>)? _onFieldFn;
 
   GridFilterMenuBloc({required this.viewId, required this.fieldController})
       : super(
           GridFilterMenuState.initial(
             viewId,
             fieldController.filterInfos,
-            fieldController.fieldInfos,
+            fieldController.fields,
           ),
         ) {
     on<GridFilterMenuEvent>(
@@ -36,7 +37,7 @@ class GridFilterMenuBloc
             final isVisible = !state.isVisible;
             emit(state.copyWith(isVisible: isVisible));
           },
-          didReceiveFields: (List<FieldInfo> fields) {
+          didReceiveFields: (List<FieldPB> fields) {
             emit(
               state.copyWith(
                 fields: fields,
@@ -88,7 +89,7 @@ class GridFilterMenuEvent with _$GridFilterMenuEvent {
   const factory GridFilterMenuEvent.didReceiveFilters(
     List<FilterInfo> filters,
   ) = _DidReceiveFilters;
-  const factory GridFilterMenuEvent.didReceiveFields(List<FieldInfo> fields) =
+  const factory GridFilterMenuEvent.didReceiveFields(List<FieldPB> fields) =
       _DidReceiveFields;
   const factory GridFilterMenuEvent.toggleMenu() = _SetMenuVisibility;
 }
@@ -98,15 +99,15 @@ class GridFilterMenuState with _$GridFilterMenuState {
   const factory GridFilterMenuState({
     required String viewId,
     required List<FilterInfo> filters,
-    required List<FieldInfo> fields,
-    required List<FieldInfo> creatableFields,
+    required List<FieldPB> fields,
+    required List<FieldPB> creatableFields,
     required bool isVisible,
   }) = _GridFilterMenuState;
 
   factory GridFilterMenuState.initial(
     String viewId,
     List<FilterInfo> filterInfos,
-    List<FieldInfo> fields,
+    List<FieldPB> fields,
   ) =>
       GridFilterMenuState(
         viewId: viewId,
@@ -117,8 +118,7 @@ class GridFilterMenuState with _$GridFilterMenuState {
       );
 }
 
-List<FieldInfo> getCreatableFilter(List<FieldInfo> fieldInfos) {
-  final List<FieldInfo> creatableFields = List.from(fieldInfos);
-  creatableFields.retainWhere((element) => element.canCreateFilter);
-  return creatableFields;
+List<FieldPB> getCreatableFilter(List<FieldPB> fields) {
+  fields.retainWhere((element) => element.canCreateFilter);
+  return fields;
 }

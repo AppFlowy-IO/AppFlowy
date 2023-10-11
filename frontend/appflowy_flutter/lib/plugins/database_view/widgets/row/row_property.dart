@@ -112,6 +112,10 @@ class _PropertyCell extends StatefulWidget {
   final DatabaseCellContext cellContext;
   final GridCellBuilder cellBuilder;
   final int index;
+
+  FieldPB get field => cellContext.field;
+  String get viewId => cellContext.viewId;
+
   const _PropertyCell({
     required this.cellContext,
     required this.cellBuilder,
@@ -194,13 +198,9 @@ class _PropertyCellState extends State<_PropertyCell> {
 
   Widget buildFieldEditor() {
     return FieldEditor(
-      viewId: widget.cellContext.viewId,
-      fieldInfo: widget.cellContext.fieldInfo,
-      isGroupingField: widget.cellContext.fieldInfo.isGroupField,
-      typeOptionLoader: FieldTypeOptionLoader(
-        viewId: widget.cellContext.viewId,
-        field: widget.cellContext.fieldInfo.field,
-      ),
+      viewId: widget.viewId,
+      field: widget.field,
+      isGroupingField: widget.field.isGroupField,
       onToggleVisibility: (fieldId) {
         _popoverController.close();
         context
@@ -326,7 +326,7 @@ class CreateRowFieldButton extends StatefulWidget {
 
 class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
   late PopoverController popoverController;
-  late TypeOptionPB typeOption;
+  late FieldPB field;
 
   @override
   void initState() {
@@ -356,8 +356,8 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
               viewId: widget.viewId,
             );
             result.fold(
-              (l) {
-                typeOption = l;
+              (field) {
+                field = field;
                 popoverController.show();
               },
               (r) => Log.error("Failed to create field type option: $r"),
@@ -372,10 +372,7 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
       popupBuilder: (BuildContext popOverContext) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
+          field: field,
           onDeleted: (fieldId) {
             popoverController.close();
             NavigatorAlertDialog(

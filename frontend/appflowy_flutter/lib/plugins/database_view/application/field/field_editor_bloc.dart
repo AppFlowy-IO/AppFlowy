@@ -2,7 +2,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'field_controller.dart';
 import 'field_listener.dart';
 import 'field_service.dart';
 
@@ -10,23 +9,17 @@ part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   final String viewId;
-  final String fieldId;
-  final SingleFieldListener _fieldListener;
-  final FieldController fieldController;
+  late final SingleFieldListener _fieldListener;
 
   FieldEditorBloc({
     required this.viewId,
-    required this.fieldId,
-    required this.fieldController,
     required bool isGroupField,
-  })  : _fieldListener = SingleFieldListener(fieldId: fieldId),
-        super(
-          FieldEditorState.initial(fieldId, fieldController, isGroupField),
-        ) {
+  }) : super(FieldEditorState.initial(isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
+          initial: (field) async {
+            _fieldListener = SingleFieldListener(fieldId: field.id);
             _fieldListener.start(
               onFieldChanged: (field) {
                 if (!isClosed) {
@@ -34,18 +27,19 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
                 }
               },
             );
+            emit(state.copyWith(field: field));
           },
           updateName: (name) {
             FieldBackendService.updateField(
               viewId: viewId,
-              fieldId: fieldId,
+              fieldId: state.field!.id,
               name: name,
             );
           },
           updateTypeOption: (typeOptionData) {
             FieldBackendService.updateFieldTypeOption(
               viewId: viewId,
-              fieldId: fieldId,
+              fieldId: state.field!.id,
               typeOptionData: typeOptionData,
             );
           },
@@ -53,12 +47,15 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: field));
           },
           deleteField: () {
-            FieldBackendService.deleteField(viewId: viewId, fieldId: fieldId);
+            FieldBackendService.deleteField(
+              viewId: viewId,
+              fieldId: state.field!.id,
+            );
           },
           switchToField: (FieldType fieldType) async {
             await FieldBackendService.switchToField(
               viewId: viewId,
-              fieldId: fieldId,
+              fieldId: state.field!.id,
               newFieldType: fieldType,
             );
           },
@@ -70,7 +67,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
 @freezed
 class FieldEditorEvent with _$FieldEditorEvent {
-  const factory FieldEditorEvent.initial() = _InitialField;
+  const factory FieldEditorEvent.initial(FieldPB field) = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
   const factory FieldEditorEvent.updateTypeOption(List<int> typeOptionData) =
       _UpdateTypeOption;
@@ -84,19 +81,14 @@ class FieldEditorEvent with _$FieldEditorEvent {
 @freezed
 class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
-    required FieldPB field,
+    required FieldPB? field,
     required String errorText,
     required bool isGroupField,
   }) = _FieldEditorState;
 
-  factory FieldEditorState.initial(
-    String fieldId,
-    FieldController fieldController,
-    bool isGroupField,
-  ) {
-    final field = fieldController.getField(fieldId);
+  factory FieldEditorState.initial(bool isGroupField) {
     return FieldEditorState(
-      field: field!,
+      field: null,
       errorText: '',
       isGroupField: isGroupField,
     );

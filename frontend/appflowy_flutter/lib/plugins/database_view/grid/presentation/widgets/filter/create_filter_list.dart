@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -58,11 +58,11 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
         },
         child: BlocBuilder<GridCreateFilterBloc, GridCreateFilterState>(
           builder: (context, state) {
-            final cells = state.creatableFields.map((fieldInfo) {
+            final cells = state.creatableFields.map((field) {
               return SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: GridFilterPropertyCell(
-                  fieldInfo: fieldInfo,
+                  field: field,
                   onTap: (fieldInfo) => createFilter(fieldInfo),
                 ),
               );
@@ -105,7 +105,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
     super.dispose();
   }
 
-  void createFilter(FieldInfo field) {
+  void createFilter(FieldPB field) {
     editBloc.add(GridCreateFilterEvent.createDefaultFilter(field));
     widget.onCreateFilter?.call();
   }
@@ -149,25 +149,26 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class GridFilterPropertyCell extends StatelessWidget {
-  final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
+  final FieldPB field;
+  final Function(FieldPB) onTap;
+
   const GridFilterPropertyCell({
-    required this.fieldInfo,
+    required this.field,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       text: FlowyText.medium(
-        fieldInfo.field.name,
+        field.name,
         color: AFThemeExtension.of(context).textColor,
       ),
-      onTap: () => onTap(fieldInfo),
+      onTap: () => onTap(field),
       leftIcon: FlowySvg(
-        fieldInfo.fieldType.icon(),
+        field.fieldType.icon(),
         color: Theme.of(context).iconTheme.color,
       ),
     );

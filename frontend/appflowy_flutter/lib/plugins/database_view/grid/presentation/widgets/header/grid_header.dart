@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
@@ -94,15 +95,10 @@ class _GridHeaderState extends State<_GridHeader> {
       builder: (context, state) {
         final cells = state.fields
             .map(
-              (field) => FieldContext(
+              (field) => GridFieldCell(
+                key: _getKeyById(field.id),
                 viewId: widget.viewId,
-                fieldInfo: field,
-              ),
-            )
-            .map(
-              (ctx) => GridFieldCell(
-                key: _getKeyById(ctx.fieldInfo.id),
-                cellContext: ctx,
+                field: field,
               ),
             )
             .toList();
@@ -134,7 +130,7 @@ class _GridHeaderState extends State<_GridHeader> {
     int newIndex,
   ) {
     if (cells.length > oldIndex) {
-      final field = cells[oldIndex].cellContext.fieldInfo.field;
+      final field = cells[oldIndex].field;
       context
           .read<GridHeaderBloc>()
           .add(GridHeaderEvent.moveField(field, oldIndex, newIndex));
@@ -182,7 +178,7 @@ class CreateFieldButton extends StatefulWidget {
 
 class _CreateFieldButtonState extends State<CreateFieldButton> {
   final popoverController = PopoverController();
-  late TypeOptionPB typeOption;
+  late FieldPB field;
 
   @override
   Widget build(BuildContext context) {
@@ -198,12 +194,12 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         text: FlowyText.medium(LocaleKeys.grid_field_newProperty.tr()),
         hoverColor: AFThemeExtension.of(context).greyHover,
         onTap: () async {
-          final result = await TypeOptionBackendService.createFieldTypeOption(
+          final result = await FieldBackendService.createField(
             viewId: widget.viewId,
           );
           result.fold(
-            (l) {
-              typeOption = l;
+            (field) {
+              field = field;
               popoverController.show();
             },
             (r) => Log.error("Failed to create field type option: $r"),
@@ -214,10 +210,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
           viewId: widget.viewId,
-          typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.viewId,
-            field: typeOption.field_2,
-          ),
+          field: field,
         );
       },
     );

@@ -49,9 +49,9 @@ class SwitchFieldButton extends StatelessWidget {
     final bloc = context.read<FieldEditorBloc>();
     return FlowyButton(
       text: FlowyText.medium(
-        bloc.state.field.fieldType.title(),
+        bloc.state.field!.fieldType.title(),
       ),
-      leftIcon: FlowySvg(bloc.state.field.fieldType.icon()),
+      leftIcon: FlowySvg(bloc.state.field!.fieldType.icon()),
       rightIcon: const FlowySvg(FlowySvgs.more_s),
     );
   }

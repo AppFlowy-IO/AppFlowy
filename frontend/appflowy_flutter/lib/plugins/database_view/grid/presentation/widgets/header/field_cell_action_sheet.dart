@@ -1,7 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -57,29 +55,16 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _EditFieldButton(
-              cellContext: widget.cellContext,
-              onTap: () {
-                setState(() => _showFieldEditor = true);
-              },
-            ),
+            _editFieldButton(),
             VSpace(GridSize.typeOptionSeparatorHeight),
-            _FieldOperationList(widget.cellContext),
+            _FieldOperationList(field: widget.field),
           ],
         ),
       ),
     ).padding(all: 6.0);
   }
-}
 
-class _EditFieldButton extends StatelessWidget {
-  final FieldContext cellContext;
-  final void Function()? onTap;
-  const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _editFieldButton() {
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
@@ -90,7 +75,7 @@ class _EditFieldButton extends StatelessWidget {
               LocaleKeys.grid_field_editProperty.tr(),
               color: AFThemeExtension.of(context).textColor,
             ),
-            onTap: onTap,
+            onTap: () => setState(() => _showFieldEditor = true),
           ),
         );
       },
@@ -99,6 +84,10 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
+  final FieldPB field;
+
+  const _FieldOperationList({required this.field});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -128,7 +117,7 @@ class _FieldOperationList extends StatelessWidget {
     bool enable = true;
 
     // If the field is primary, delete and duplicate are disabled.
-    if (fieldContext.fieldInfo.isPrimary) {
+    if (field.isPrimary) {
       switch (action) {
         case FieldAction.hide:
           break;

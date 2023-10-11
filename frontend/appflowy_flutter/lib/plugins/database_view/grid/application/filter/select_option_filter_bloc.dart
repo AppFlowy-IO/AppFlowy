@@ -36,26 +36,26 @@ class SelectOptionFilterEditorBloc
           updateCondition: (SelectOptionConditionPB condition) {
             _filterBackendSvc.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.field.id,
               condition: condition,
               optionIds: state.filter.optionIds,
-              fieldType: state.filterInfo.fieldInfo.fieldType,
+              fieldType: state.filterInfo.field.fieldType,
             );
           },
           updateContent: (List<String> optionIds) {
             _filterBackendSvc.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.field.id,
               condition: state.filter.condition,
               optionIds: optionIds,
-              fieldType: state.filterInfo.fieldInfo.fieldType,
+              fieldType: state.filterInfo.field.fieldType,
             );
           },
           delete: () {
             _filterBackendSvc.deleteFilter(
-              fieldId: filterInfo.fieldInfo.id,
+              fieldId: filterInfo.field.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
+              fieldType: filterInfo.field.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {

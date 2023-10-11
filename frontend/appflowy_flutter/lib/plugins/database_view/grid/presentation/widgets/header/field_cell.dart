@@ -13,11 +13,14 @@ import 'field_cell_action_sheet.dart';
 import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
-  final FieldContext cellContext;
+  final String viewId;
+  final FieldPB field;
+
   const GridFieldCell({
-    Key? key,
-    required this.cellContext,
-  }) : super(key: key);
+    required this.viewId,
+    required this.field,
+    super.key,
+  });
 
   @override
   State<GridFieldCell> createState() => _GridFieldCellState();
@@ -35,9 +38,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        return FieldCellBloc(fieldContext: widget.cellContext);
-      },
+      create: (context) => FieldCellBloc(fieldContext: widget.cellContext),
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
           final button = AppFlowyPopover(
@@ -52,7 +53,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: FieldCellButton(
-              field: widget.cellContext.fieldInfo.field,
+              field: widget.field,
               onTap: () => popoverController.show(),
             ),
           );
