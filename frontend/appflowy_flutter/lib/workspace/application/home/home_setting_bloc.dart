@@ -20,12 +20,14 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     UserProfilePB user,
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
+    double screenWidthPx,
   )   : _listener = UserWorkspaceListener(userProfile: user),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(
             workspaceSetting,
             appearanceSettingsCubit.state,
+            screenWidthPx,
           ),
         ) {
     on<HomeSettingEvent>(
@@ -149,16 +151,18 @@ class HomeSettingState with _$HomeSettingState {
   factory HomeSettingState.initial(
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsState appearanceSettingsState,
-  ) =>
-      HomeSettingState(
-        panelContext: none(),
-        workspaceSetting: workspaceSetting,
-        unauthorized: false,
-        isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
-        isScreenSmall: appearanceSettingsState.isMenuCollapsed,
-        keepMenuCollapsed: false,
-        resizeOffset: appearanceSettingsState.menuOffset,
-        resizeStart: 0,
-        resizeType: MenuResizeType.slide,
-      );
+    double screenWidthPx,
+  ) {
+    return HomeSettingState(
+      panelContext: none(),
+      workspaceSetting: workspaceSetting,
+      unauthorized: false,
+      isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
+      isScreenSmall: screenWidthPx < PageBreaks.tabletLandscape,
+      keepMenuCollapsed: false,
+      resizeOffset: appearanceSettingsState.menuOffset,
+      resizeStart: 0,
+      resizeType: MenuResizeType.slide,
+    );
+  }
 }
