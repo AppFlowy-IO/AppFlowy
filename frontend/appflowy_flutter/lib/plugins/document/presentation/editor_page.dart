@@ -240,7 +240,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
-      ParagraphBlockKeys.type: TextBlockComponentBuilder(
+      ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
         configuration: configuration,
       ),
       TodoListBlockKeys.type: TodoListBlockComponentBuilder(

@@ -14,7 +14,7 @@ final ToolbarItem smartEditItem = ToolbarItem(
   id: 'appflowy.editor.smart_edit',
   group: 0,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState, _) => SmartEditActionList(
+  builder: (context, editorState, _, __) => SmartEditActionList(
     editorState: editorState,
   ),
 );
@@ -55,9 +55,9 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       actions: SmartEditAction.values
           .map((action) => SmartEditActionWrapper(action))
           .toList(),
-      onClosed: () => keepEditorFocusNotifier.value -= 1,
+      onClosed: () => keepEditorFocusNotifier.decrease(),
       buildChild: (controller) {
-        keepEditorFocusNotifier.value += 1;
+        keepEditorFocusNotifier.increase();
         return FlowyIconButton(
           hoverColor: Colors.transparent,
           tooltipText: isOpenAIEnabled
