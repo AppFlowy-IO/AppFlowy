@@ -11,7 +11,6 @@ const _lightShader5 = Color(0xffe0e0e0);
 const _lightShader6 = Color(0xfff2f2f2);
 const _lightDandelionYellow = Color(0xffffcb00);
 const _lightDandelionLightYellow = Color(0xffffdf66);
-const _lightDandelionGreen = Color(0xff9bc53d);
 const _lightTint9 = Color(0xffe1fbff);
 
 const _darkShader1 = Color(0xff131720);
@@ -22,8 +21,11 @@ const _darkShader6 = Color(0xffF2F2F2);
 const _darkMain1 = Color(0xffffcb00);
 const _darkInput = Color(0xff282E3A);
 
-class DandelionColorScheme extends FlowyColorScheme {
-  const DandelionColorScheme.light()
+// Derive from [DandelionColorScheme]
+// Use a light yellow color in the sidebar intead of a green color in Dandelion
+// Some field name are still included 'Dandelion' to indicate they are the same color as the one in Dandelion
+class LemonadeColorScheme extends FlowyColorScheme {
+  const LemonadeColorScheme.light()
       : super(
           surface: Colors.white,
           hover: const Color(0xFFe0f8ff),
@@ -57,8 +59,8 @@ class DandelionColorScheme extends FlowyColorScheme {
           main1: _lightDandelionYellow,
           // cursor color
           main2: _lightDandelionYellow,
-          shadow: const Color.fromRGBO(0, 0, 0, 0.15),
-          sidebarBg: _lightDandelionGreen,
+          shadow: _black,
+          sidebarBg: const Color(0xfffaf0c8),
           divider: _lightShader6,
           topbarBg: _white,
           icon: _lightShader1,
@@ -81,7 +83,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           gridRowCountColor: _black,
         );
 
-  const DandelionColorScheme.dark()
+  const LemonadeColorScheme.dark()
       : super(
           surface: const Color(0xff292929),
           hover: const Color(0xff1f1f1f),
@@ -111,8 +113,8 @@ class DandelionColorScheme extends FlowyColorScheme {
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: _darkMain1,
-          shadow: const Color(0xff0F131C),
-          sidebarBg: const Color(0xff25300e),
+          shadow: _black,
+          sidebarBg: const Color(0xff232B38),
           divider: _darkShader3,
           topbarBg: _darkShader1,
           icon: _darkShader5,
