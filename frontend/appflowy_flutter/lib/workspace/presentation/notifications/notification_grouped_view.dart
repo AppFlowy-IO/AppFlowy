@@ -1,5 +1,5 @@
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_group.dart';
 import 'package:appflowy/workspace/presentation/notifications/notifications_hub_empty.dart';
