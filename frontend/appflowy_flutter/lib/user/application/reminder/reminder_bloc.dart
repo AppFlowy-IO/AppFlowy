@@ -6,6 +6,7 @@ import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:bloc/bloc.dart';
@@ -18,11 +19,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
+  final NotificationSettingsCubit _notificationSettings;
+
   late final NotificationActionBloc actionBloc;
   late final ReminderService reminderService;
   late final Timer timer;
 
-  ReminderBloc() : super(ReminderState()) {
+  ReminderBloc({
+    required NotificationSettingsCubit notificationSettings,
+  })  : _notificationSettings = notificationSettings,
+        super(ReminderState()) {
     actionBloc = getIt<NotificationActionBloc>();
     reminderService = const ReminderService();
     timer = _periodicCheck();
@@ -124,16 +130,18 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           );
 
           if (scheduledAt.isBefore(now)) {
-            NotificationMessage(
-              identifier: reminder.id,
-              title: LocaleKeys.reminderNotification_title.tr(),
-              body: LocaleKeys.reminderNotification_message.tr(),
-              onClick: () => actionBloc.add(
-                NotificationActionEvent.performAction(
-                  action: NotificationAction(objectId: reminder.objectId),
+            if (_notificationSettings.state.isNotificationsEnabled) {
+              NotificationMessage(
+                identifier: reminder.id,
+                title: LocaleKeys.reminderNotification_title.tr(),
+                body: LocaleKeys.reminderNotification_message.tr(),
+                onClick: () => actionBloc.add(
+                  NotificationActionEvent.performAction(
+                    action: NotificationAction(objectId: reminder.objectId),
+                  ),
                 ),
-              ),
-            );
+              );
+            }
 
             add(
               ReminderEvent.update(

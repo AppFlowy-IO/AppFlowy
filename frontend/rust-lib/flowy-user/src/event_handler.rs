@@ -195,10 +195,46 @@ pub async fn get_date_time_settings(
         Ok(setting) => setting,
         Err(e) => {
           tracing::error!(
-            "Deserialize AppearanceSettings failed: {:?}, fallback to default",
+            "Deserialize DateTimeSettings failed: {:?}, fallback to default",
             e
           );
           DateTimeSettingsPB::default()
+        },
+      };
+      data_result_ok(setting)
+    },
+  }
+}
+
+const NOTIFICATION_SETTINGS_CACHE_KEY: &str = "notification_settings";
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn set_notification_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+  data: AFPluginData<NotificationSettingsPB>,
+) -> Result<(), FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  let setting = data.into_inner();
+  store_preferences.set_object(NOTIFICATION_SETTINGS_CACHE_KEY, setting)?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_notification_settings(
+  store_preferences: AFPluginState<Weak<StorePreferences>>,
+) -> DataResult<NotificationSettingsPB, FlowyError> {
+  let store_preferences = upgrade_store_preferences(store_preferences)?;
+  match store_preferences.get_str(NOTIFICATION_SETTINGS_CACHE_KEY) {
+    None => data_result_ok(NotificationSettingsPB::default()),
+    Some(s) => {
+      let setting = match serde_json::from_str(&s) {
+        Ok(setting) => setting,
+        Err(e) => {
+          tracing::error!(
+            "Deserialize NotificationSettings failed: {:?}, fallback to default",
+            e
+          );
+          NotificationSettingsPB::default()
         },
       };
       data_result_ok(setting)
