@@ -225,11 +225,9 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: children,
           );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
         }
+
+        return const Center(child: CircularProgressIndicator());
       },
       future: items,
     );
