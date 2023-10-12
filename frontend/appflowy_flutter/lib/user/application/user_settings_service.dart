@@ -41,4 +41,20 @@ class UserSettingsBackendService {
   ) async {
     return (await UserEventSetDateTimeSettings(settings).send()).swap();
   }
+
+  Future<Either<FlowyError, Unit>> setNotificationSettings(
+    NotificationSettingsPB settings,
+  ) async {
+    return (await UserEventSetNotificationSettings(settings).send()).swap();
+  }
+
+  Future<NotificationSettingsPB> getNotificationSettings() async {
+    final result = await UserEventGetNotificationSettings().send();
+
+    return result.fold(
+      (NotificationSettingsPB setting) => setting,
+      (error) =>
+          throw FlowySDKException(ExceptionType.AppearanceSettingsIsEmpty),
+    );
+  }
 }

@@ -1,0 +1,185 @@
+{
+  "blockActions": {
+    "dragTooltip": "Kéo để di chuyển"
+  },
+  "disclosureAction": {
+    "copyLink": "Sao chép đường dẫn"
+  },
+  "settings": {
+    "menu": {
+      "logout": "Đăng xuất",
+      "logoutPrompt": "Bạn chắc chắn muốn đăng xuất?",
+      "syncSetting": "Đồng bộ cài đặt",
+      "enableSync": "Bật tính năng đồng bộ",
+      "enableEncrypt": "Mã hoá dữ liệu",
+      "historicalUserList": "Lịch sử đăng nhập",
+      "openHistoricalUser": "Ấn để mở tài khoản ẩn danh"
+    },
+    "appearance": {
+      "resetSetting": "Đặt lại cài đặt",
+      "textDirection": {
+        "label": "Hướng kí tự mặc định",
+        "ltr": "Trái sang phải",
+        "rtl": "Phải sang trái"
+      },
+      "dateFormat": {
+        "label": "Định dạng ngày"
+      },
+      "timeFormat": {
+        "label": "Định dạng giờ",
+        "twentyFourHour": "Hai mươi bốn tiếng"
+      }
+    },
+    "user": {
+      "email": "Email",
+      "tooltipSelectIcon": "Chọn biểu tượng",
+      "clickToLogout": "Nhấn để đăng xuất"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Phím tắt"
+    }
+  },
+  "document": {
+    "title": {
+      "placeholder": "Trống"
+    },
+    "imageBlock": {
+      "placeholder": "Ấn để thêm ảnh",
+      "upload": {
+        "label": "Tải lên",
+        "placeholder": "Ấn để tải lên ảnh"
+      },
+      "url": {
+        "label": "Đường dẫn đến ảnh",
+        "placeholder": "Nhập đường dẫn đến ảnh"
+      },
+      "error": {
+        "invalidImage": "Ảnh không hợp lệ"
+      }
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Ngôn ngữ",
+        "placeholder": "Chọn ngôn ngữ"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Chỉnh về mặc định"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Mới"
+    },
+    "menuName": "Bảng"
+  },
+  "calendar": {
+    "menuName": "Lịch",
+    "defaultNewCalendarTitle": "Trống",
+    "navigation": {
+      "today": "Hôm nay",
+      "previousMonth": "Tháng trước",
+      "nextMonth": "Tháng sau"
+    },
+    "settings": {
+      "showWeekNumbers": "Hiện thứ tự của tuần",
+      "showWeekends": "Hiện cuối tuần",
+      "firstDayOfWeek": "Ngày bắt đầu trong tuần",
+      "noDateTitle": "Không có ngày",
+      "clickToAdd": "Ấn để thêm lịch"
+    }
+  },
+  "errorDialog": {
+    "title": "Lỗi của AppFlowy",
+    "howToFixFallback": "Chúng tôi xin lỗi vì sự cố này! Vui lòng mở sự cố trên GitHub để báo lỗi.",
+    "github": "Xem trên GitHub"
+  },
+  "search": {
+    "label": "Tìm kiếm"
+  },
+  "message": {
+    "copy": {
+      "success": "Đã sao chép!",
+      "fail": "Không thể sao chép"
+    }
+  },
+  "unSupportBlock": "Phiên bản hiện tại không hỗ trợ Block này.",
+  "views": {
+    "deleteContentTitle": "Bạn chắc chắn muốn xoá {pageType}?",
+    "deleteContentCaption": "Nếu bạn xoá {pageType}, bạn có thể phục hồi từ thùng rác."
+  },
+  "colors": {
+    "custom": "Tuỳ chỉnh",
+    "default": "Mặc định",
+    "red": "Đỏ",
+    "orange": "Cam",
+    "yellow": "Vàng",
+    "green": "Xanh lá cây",
+    "blue": "Xanh dương",
+    "purple": "Tím",
+    "pink": "Hồng",
+    "brown": "Nâu",
+    "gray": "Xám"
+  },
+  "emoji": {
+    "search": "Tìm kiếm biểu tượng",
+    "noEmojiFound": "Không tìm thấy biểu tượng",
+    "filter": "Bộ lọc",
+    "random": "Ngẫu nhiên",
+    "remove": "Loại bỏ biểu tượng",
+    "categories": {
+      "people": "Con người và cơ thể",
+      "animals": "Động vật và thiên nhiên",
+      "food": "Đồ ăn và thức uống",
+      "activities": "Hoạt động",
+      "places": "Du lịch và địa điểm",
+      "objects": "Vật thể",
+      "symbols": "Biểu tượng",
+      "flags": "Cờ",
+      "nature": "Thiên nhiên",
+      "frequentlyUsed": "Thường dùng"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Không có kết quả",
+    "date": "Ngày",
+    "reminder": {
+      "groupTitle": "Lời nhắc",
+      "shortKeyword": "nhắc nhở"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Hôm qua",
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "oneWeek": "1 tuần"
+  },
+  "notificationHub": {
+    "title": "Thông báo",
+    "empty": "Không có gì ở đây!"
+  },
+  "reminderNotification": {
+    "title": "Lời nhắc",
+    "tooltipDelete": "Xoá"
+  },
+  "findAndReplace": {
+    "find": "Tìm kiếm",
+    "previousMatch": "Kết quả phía trước",
+    "nextMatch": "Kết quả tiếp theo",
+    "close": "Đóng",
+    "replace": "Thay thế",
+    "replaceAll": "Thay thế tất cả",
+    "noResult": "Không thấy kết quả"
+  },
+  "signIn": {
+    "loginAsGuestButtonText": "Đăng nhập với chế độ khách"
+  },
+  "grid": {
+    "settings": {
+      "Properties": "Thuộc tính"
+    }
+  },
+  "button": {
+    "tryAGain": "Thử lại"
+  }
+}

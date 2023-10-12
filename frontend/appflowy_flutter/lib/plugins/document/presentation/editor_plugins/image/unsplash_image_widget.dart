@@ -50,29 +50,39 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        FlowyTextField(
-          autoFocus: true,
-          hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
-          // textAlign: TextAlign.left,
-          onChanged: (value) => query = value,
-          onEditingComplete: () => setState(() {
-            randomPhotos = client.photos
-                .random(
-                  count: 18,
-                  orientation: PhotoOrientation.landscape,
-                  query: query,
-                )
-                .goAndGet();
-          }),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: FlowyTextField(
+                autoFocus: true,
+                hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
+                onChanged: (value) => query = value,
+                onEditingComplete: _search,
+              ),
+            ),
+            const HSpace(4.0),
+            FlowyButton(
+              useIntrinsicWidth: true,
+              text: FlowyText(
+                LocaleKeys.search_label.tr(),
+              ),
+              onTap: _search,
+            ),
+          ],
         ),
-        const HSpace(12.0),
+        const VSpace(12.0),
         Expanded(
           child: FutureBuilder(
             future: randomPhotos,
             builder: (context, value) {
               final data = value.data;
-              if (!value.hasData || data == null || data.isEmpty) {
+              if (!value.hasData ||
+                  value.connectionState != ConnectionState.done ||
+                  data == null ||
+                  data.isEmpty) {
                 return const CircularProgressIndicator.adaptive();
               }
               return GridView.count(
@@ -96,6 +106,18 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
         ),
       ],
     );
+  }
+
+  void _search() {
+    setState(() {
+      randomPhotos = client.photos
+          .random(
+            count: 18,
+            orientation: PhotoOrientation.landscape,
+            query: query,
+          )
+          .goAndGet();
+    });
   }
 }
 
@@ -121,6 +143,7 @@ class _UnsplashImage extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
+          const HSpace(2.0),
           FlowyText(
             'by ${photo.name}',
             fontSize: 10.0,

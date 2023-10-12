@@ -10,6 +10,7 @@ import 'deps_resolver.dart';
 import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
+import 'tasks/appflowy_cloud_task.dart';
 import 'tasks/prelude.dart';
 
 final getIt = GetIt.instance;
@@ -71,6 +72,7 @@ class FlowyRunner {
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
           InitSupabaseTask(),
+          InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],

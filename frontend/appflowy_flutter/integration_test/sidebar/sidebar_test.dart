@@ -30,7 +30,7 @@ void main() {
         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       );
       // and with one paragraph block
-      expect(find.byType(TextBlockComponentWidget), findsOneWidget);
+      expect(find.byType(ParagraphBlockComponentWidget), findsOneWidget);
     });
 
     testWidgets('create a new document, grid, board and calendar',
@@ -55,7 +55,7 @@ void main() {
         switch (layout) {
           case ViewLayoutPB.Document:
             // and with one paragraph block
-            expect(find.byType(TextBlockComponentWidget), findsOneWidget);
+            expect(find.byType(ParagraphBlockComponentWidget), findsOneWidget);
             break;
           case ViewLayoutPB.Grid:
             expect(find.byType(GridPage), findsOneWidget);

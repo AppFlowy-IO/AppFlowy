@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
+use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
@@ -76,12 +77,16 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
     FutureResult::new(async {
       Err(anyhow::anyhow!(
         "Can't generate callback url when using offline mode"
       ))
     })
+  }
+
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async { Err(anyhow::anyhow!("Can't oauth url when using offline mode")) })
   }
 
   fn update_user(
@@ -95,7 +100,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
     FutureResult::new(async { Ok(None) })
   }
 

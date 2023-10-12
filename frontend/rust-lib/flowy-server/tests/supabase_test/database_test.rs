@@ -1,4 +1,4 @@
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use uuid::Uuid;
 
 use flowy_user_deps::entities::AuthResponse;

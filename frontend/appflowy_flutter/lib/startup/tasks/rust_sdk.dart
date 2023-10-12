@@ -38,7 +38,8 @@ AppFlowyEnv getAppFlowyEnv() {
 
   final appflowyCloudConfig = AppFlowyCloudConfiguration(
     base_url: Env.afCloudBaseUrl,
-    base_ws_url: Env.afCloudBaseWSUrl,
+    ws_base_url: Env.afCloudWSBaseUrl,
+    gotrue_url: Env.afCloudGoTrueUrl,
   );
 
   return AppFlowyEnv(

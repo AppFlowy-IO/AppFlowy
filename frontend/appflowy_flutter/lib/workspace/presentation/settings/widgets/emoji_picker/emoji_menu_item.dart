@@ -36,12 +36,12 @@ void showEmojiPickerMenu(
   final top = alignment == Alignment.topLeft ? offset.dy : null;
   final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
-  keepEditorFocusNotifier.value += 1;
+  keepEditorFocusNotifier.increase();
   final emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
-    dismissCallback: () => keepEditorFocusNotifier.value -= 1,
+    dismissCallback: () => keepEditorFocusNotifier.decrease(),
     builder: (context) => Material(
       type: MaterialType.transparency,
       child: Container(

@@ -230,7 +230,7 @@ class _RowMenuButtonState extends State<RowMenuButton> {
       onPressed: () => widget.openMenu(),
       iconPadding: const EdgeInsets.all(3),
       icon: FlowySvg(
-        FlowySvgs.details_s,
+        FlowySvgs.drag_element_s,
         color: Theme.of(context).colorScheme.tertiary,
       ),
     );

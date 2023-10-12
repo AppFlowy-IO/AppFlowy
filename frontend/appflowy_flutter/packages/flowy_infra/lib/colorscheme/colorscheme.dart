@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'default_colorscheme.dart';
 import 'dandelion.dart';
 import 'lavender.dart';
+import 'lemonade.dart';
 
 part 'colorscheme.g.dart';
 
@@ -22,6 +23,10 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
   BuiltInTheme.dandelion: [
     DandelionColorScheme.light(),
     DandelionColorScheme.dark(),
+  ],
+  BuiltInTheme.lemonade: [
+    LemonadeColorScheme.light(),
+    LemonadeColorScheme.dark(),
   ],
   BuiltInTheme.lavender: [
     LavenderColorScheme.light(),

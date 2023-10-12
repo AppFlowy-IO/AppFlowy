@@ -3,10 +3,11 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
+use client_api::collab_sync::collab_msg::MsgId;
 use collab::preclude::merge_updates_v1;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
-  MsgId, RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
+  RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };
 use parking_lot::Mutex;
 use tokio::task::spawn_blocking;

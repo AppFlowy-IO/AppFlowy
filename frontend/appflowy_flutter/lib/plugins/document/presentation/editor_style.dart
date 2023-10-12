@@ -1,11 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
-
 import 'package:appflowy/util/google_font_family_extension.dart';
-
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +60,13 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.robotoMono(
+        code: GoogleFonts.arefRuqaaInk(
           textStyle: baseTextStyle(fontFamily).copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
+            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
           ),
         ),
       ),
@@ -102,7 +100,7 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.robotoMono(
+        code: GoogleFonts.arefRuqaaInk(
           textStyle: baseTextStyle(fontFamily).copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
