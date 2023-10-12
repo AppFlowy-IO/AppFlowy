@@ -59,7 +59,7 @@ class LemonadeColorScheme extends FlowyColorScheme {
           main1: _lightDandelionYellow,
           // cursor color
           main2: _lightDandelionYellow,
-          shadow: _black,
+          shadow: const Color.fromRGBO(0, 0, 0, 0.15),
           sidebarBg: const Color(0xfffaf0c8),
           divider: _lightShader6,
           topbarBg: _white,
