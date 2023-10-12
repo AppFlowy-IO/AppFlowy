@@ -266,6 +266,7 @@ class DesktopHomeScreen extends StatelessWidget {
               duration: layout.animDuration.inMilliseconds * 0.001,
               closeX: layout.editPanelWidth,
               isClosed: !layout.showEditPanel,
+              curve: Curves.easeOutQuad,
             )
             .positioned(
               right: 0,
@@ -277,15 +278,15 @@ class DesktopHomeScreen extends StatelessWidget {
             .animatedPanelX(
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
+              curve: Curves.easeOutQuad,
+              duration: layout.animDuration.inMilliseconds * 0.001,
             )
             .positioned(
               left: 0,
               top: 0,
               width: layout.menuWidth,
               bottom: 0,
-              animate: true,
-            )
-            .animate(layout.animDuration, Curves.easeOutQuad),
+            ),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)
             .animate(layout.animDuration, Curves.easeOutQuad),

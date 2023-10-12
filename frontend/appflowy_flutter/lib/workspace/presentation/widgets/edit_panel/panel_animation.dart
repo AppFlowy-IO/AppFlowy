@@ -30,7 +30,7 @@ class AnimatedPanelState extends State<AnimatedPanel> {
     final Offset closePos = Offset(widget.closedX, widget.closedY);
     final double duration = _isHidden && widget.isClosed ? 0 : widget.duration;
     return TweenAnimationBuilder(
-      curve: widget.curve ?? Curves.easeOutQuad,
+      curve: widget.curve ?? Curves.easeOut,
       tween: Tween<Offset>(
         begin: !widget.isClosed ? Offset.zero : closePos,
         end: !widget.isClosed ? Offset.zero : closePos,
