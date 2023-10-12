@@ -153,13 +153,16 @@ class _PropertyCellState extends State<_PropertyCell> {
           child: SizedBox(
             width: 160,
             height: 30,
-            child: BlockActionButton(
-              onTap: () => _popoverController.show(),
-              svg: FlowySvgs.drag_element_s,
-              richMessage: TextSpan(
-                text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
-              ),
-            ),
+            child: _isFieldHover
+                ? BlockActionButton(
+                    onTap: () => _popoverController.show(),
+                    svg: FlowySvgs.drag_element_s,
+                    richMessage: TextSpan(
+                      text:
+                          LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+                    ),
+                  )
+                : null,
           ),
         ),
       ),
