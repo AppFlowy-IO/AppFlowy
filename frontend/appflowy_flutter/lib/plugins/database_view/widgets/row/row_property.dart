@@ -128,6 +128,7 @@ class _PropertyCell extends StatefulWidget {
 
 class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController _popoverController = PopoverController();
+  final PopoverController _fieldPopoverController = PopoverController();
 
   bool _isFieldHover = false;
 
@@ -143,28 +144,28 @@ class _PropertyCellState extends State<_PropertyCell> {
       child: SizedBox(
         width: 16,
         height: 30,
-        child: AppFlowyPopover(
-          controller: _popoverController,
-          constraints: BoxConstraints.loose(const Size(240, 600)),
-          margin: EdgeInsets.zero,
-          triggerActions: PopoverTriggerFlags.none,
-          direction: PopoverDirection.bottomWithLeftAligned,
-          popupBuilder: (popoverContext) => buildFieldEditor(),
-          child: SizedBox(
-            width: 160,
-            height: 30,
-            child: _isFieldHover
-                ? BlockActionButton(
+        child: _isFieldHover
+            ? AppFlowyPopover(
+                controller: _fieldPopoverController,
+                constraints: BoxConstraints.loose(const Size(240, 600)),
+                margin: EdgeInsets.zero,
+                triggerActions: PopoverTriggerFlags.none,
+                direction: PopoverDirection.bottomWithLeftAligned,
+                popupBuilder: (popoverContext) => buildFieldEditor(),
+                child: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: BlockActionButton(
                     onTap: () => _popoverController.show(),
                     svg: FlowySvgs.drag_element_s,
                     richMessage: TextSpan(
                       text:
                           LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
                     ),
-                  )
-                : null,
-          ),
-        ),
+                  ),
+                ),
+              )
+            : null,
       ),
     );
 
