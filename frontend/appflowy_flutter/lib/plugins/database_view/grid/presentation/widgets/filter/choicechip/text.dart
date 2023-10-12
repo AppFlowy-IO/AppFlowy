@@ -32,8 +32,10 @@ class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
 
   @override
   void initState() {
-    bloc = TextFilterEditorBloc(filterInfo: widget.filterInfo)
-      ..add(const TextFilterEditorEvent.initial());
+    bloc = TextFilterEditorBloc(
+      viewId: widget.viewId,
+      filterInfo: widget.filterInfo,
+    )..add(const TextFilterEditorEvent.initial());
     super.initState();
   }
 

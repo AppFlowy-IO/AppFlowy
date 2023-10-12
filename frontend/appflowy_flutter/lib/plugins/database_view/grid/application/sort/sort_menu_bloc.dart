@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,15 +12,19 @@ part 'sort_menu_bloc.freezed.dart';
 
 class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   final String viewId;
+  final SortController sortController;
   final FieldController fieldController;
-  void Function(List<SortInfo>)? _onSortChangeFn;
+  void Function(List<SortInfo>)? _onSortFn;
   void Function(List<FieldPB>)? _onFieldFn;
 
-  SortMenuBloc({required this.viewId, required this.fieldController})
-      : super(
+  SortMenuBloc({
+    required this.viewId,
+    required this.sortController,
+    required this.fieldController,
+  }) : super(
           SortMenuState.initial(
             viewId,
-            fieldController.sortInfos,
+            sortController.sorts,
             fieldController.fields,
           ),
         ) {
@@ -51,7 +56,7 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   }
 
   void _startListening() {
-    _onSortChangeFn = (sortInfos) {
+    _onSortFn = (sortInfos) {
       add(SortMenuEvent.didReceiveSortInfos(sortInfos));
     };
 
@@ -59,21 +64,16 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
       add(SortMenuEvent.didReceiveFields(fields));
     };
 
-    fieldController.addListener(
-      onSorts: (sortInfos) {
-        _onSortChangeFn?.call(sortInfos);
-      },
-      onReceiveFields: (fields) {
-        _onFieldFn?.call(fields);
-      },
-    );
+    sortController.addListener(onReceiveSorts: _onSortFn);
+
+    fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   @override
   Future<void> close() {
-    if (_onSortChangeFn != null) {
-      fieldController.removeListener(onSortsListener: _onSortChangeFn!);
-      _onSortChangeFn = null;
+    if (_onSortFn != null) {
+      sortController.removeListener(onSortsListener: _onSortFn!);
+      _onSortFn = null;
     }
     if (_onFieldFn != null) {
       fieldController.removeListener(onFieldsListener: _onFieldFn!);

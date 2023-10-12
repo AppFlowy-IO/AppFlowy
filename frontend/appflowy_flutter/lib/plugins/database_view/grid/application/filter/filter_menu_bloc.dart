@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/filter/filter_controller.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,15 +13,19 @@ part 'filter_menu_bloc.freezed.dart';
 class GridFilterMenuBloc
     extends Bloc<GridFilterMenuEvent, GridFilterMenuState> {
   final String viewId;
+  final FilterController filterController;
   final FieldController fieldController;
   void Function(List<FilterInfo>)? _onFilterFn;
   void Function(List<FieldPB>)? _onFieldFn;
 
-  GridFilterMenuBloc({required this.viewId, required this.fieldController})
-      : super(
+  GridFilterMenuBloc({
+    required this.viewId,
+    required this.filterController,
+    required this.fieldController,
+  }) : super(
           GridFilterMenuState.initial(
             viewId,
-            fieldController.filterInfos,
+            filterController.filters,
             fieldController.fields,
           ),
         ) {
@@ -59,10 +64,12 @@ class GridFilterMenuBloc
       add(GridFilterMenuEvent.didReceiveFields(fields));
     };
 
-    fieldController.addListener(
-      onFilters: (filters) {
+    filterController.addListener(
+      onReceiveFilters: (filters) {
         _onFilterFn?.call(filters);
       },
+    );
+    fieldController.addListener(
       onReceiveFields: (fields) {
         _onFieldFn?.call(fields);
       },
@@ -72,7 +79,7 @@ class GridFilterMenuBloc
   @override
   Future<void> close() {
     if (_onFilterFn != null) {
-      fieldController.removeListener(onFiltersListener: _onFilterFn!);
+      filterController.removeListener(onFiltersListener: _onFilterFn!);
       _onFilterFn = null;
     }
     if (_onFieldFn != null) {

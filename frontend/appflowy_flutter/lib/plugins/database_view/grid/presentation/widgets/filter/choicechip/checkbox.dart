@@ -34,8 +34,10 @@ class _CheckboxFilterChoicechipState extends State<CheckboxFilterChoicechip> {
 
   @override
   void initState() {
-    bloc = CheckboxFilterEditorBloc(filterInfo: widget.filterInfo)
-      ..add(const CheckboxFilterEditorEvent.initial());
+    bloc = CheckboxFilterEditorBloc(
+      viewId: widget.viewId,
+      filterInfo: widget.filterInfo,
+    )..add(const CheckboxFilterEditorEvent.initial());
     super.initState();
   }
 

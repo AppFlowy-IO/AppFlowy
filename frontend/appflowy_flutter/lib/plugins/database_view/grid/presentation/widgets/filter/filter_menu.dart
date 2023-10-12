@@ -28,6 +28,7 @@ class FilterMenu extends StatelessWidget {
     return BlocProvider<GridFilterMenuBloc>(
       create: (context) => GridFilterMenuBloc(
         viewId: fieldController.viewId,
+        filterController: filterController,
         fieldController: fieldController,
       )..add(const GridFilterMenuEvent.initial()),
       child: BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(

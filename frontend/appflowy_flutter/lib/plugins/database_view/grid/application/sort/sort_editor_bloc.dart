@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_service.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -16,14 +17,17 @@ part 'sort_editor_bloc.freezed.dart';
 class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
   final String viewId;
   final SortBackendService _sortBackendSvc;
+  final SortController sortController;
   final FieldController fieldController;
+  void Function(List<SortInfo>)? _onSortFn;
   void Function(List<FieldPB>)? _onFieldFn;
   SortEditorBloc({
     required this.viewId,
+    required this.sortController,
     required this.fieldController,
-    required List<SortInfo> sortInfos,
   })  : _sortBackendSvc = SortBackendService(viewId: viewId),
-        super(SortEditorState.initial(sortInfos, fieldController.fields)) {
+        super(SortEditorState.initial(
+            sortController.sorts, fieldController.fields)) {
     on<SortEditorEvent>(
       (event, emit) async {
         event.when(
@@ -71,21 +75,31 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
   }
 
   void _startListening() {
+    _onSortFn = (sorts) {
+      add(SortEditorEvent.didReceiveSorts(sorts));
+    };
+
     _onFieldFn = (fields) {
       add(SortEditorEvent.didReceiveFields(List.from(fields)));
     };
 
+    sortController.addListener(
+      listenWhen: () => !isClosed,
+      onReceiveSorts: _onSortFn,
+    );
+
     fieldController.addListener(
       listenWhen: () => !isClosed,
       onReceiveFields: _onFieldFn,
-      onSorts: (sorts) {
-        add(SortEditorEvent.didReceiveSorts(sorts));
-      },
     );
   }
 
   @override
   Future<void> close() async {
+    if (_onSortFn != null) {
+      sortController.removeListener(onSortsListener: _onSortFn!);
+      _onSortFn = null;
+    }
     if (_onFieldFn != null) {
       fieldController.removeListener(onFieldsListener: _onFieldFn);
       _onFieldFn = null;

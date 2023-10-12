@@ -3,13 +3,10 @@ import 'package:appflowy/plugins/database_view/application/filter/filter_info.da
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'select_option_loader.dart';
 
 class SelectOptionFilterList extends StatelessWidget {
   final String viewId;
@@ -28,25 +25,11 @@ class SelectOptionFilterList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        late SelectOptionFilterListBloc bloc;
-        if (filterInfo.field.fieldType == FieldType.SingleSelect) {
-          bloc = SelectOptionFilterListBloc(
-            viewId: viewId,
-            fieldPB: filterInfo.field,
-            selectedOptionIds: selectedOptionIds,
-            delegate: SingleSelectOptionFilterDelegateImpl(filterInfo),
-          );
-        } else {
-          bloc = SelectOptionFilterListBloc(
-            viewId: viewId,
-            fieldPB: filterInfo.field,
-            selectedOptionIds: selectedOptionIds,
-            delegate: MultiSelectOptionFilterDelegateImpl(filterInfo),
-          );
-        }
-
-        bloc.add(const SelectOptionFilterListEvent.initial());
-        return bloc;
+        return SelectOptionFilterListBloc(
+          viewId: viewId,
+          field: filterInfo.field,
+          selectedOptionIds: selectedOptionIds,
+        )..add(const SelectOptionFilterListEvent.initial());
       },
       child:
           BlocListener<SelectOptionFilterListBloc, SelectOptionFilterListState>(

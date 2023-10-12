@@ -26,12 +26,14 @@ class GridSettingBar extends StatelessWidget {
         BlocProvider<GridFilterMenuBloc>(
           create: (context) => GridFilterMenuBloc(
             viewId: controller.viewId,
+            filterController: controller.filterController,
             fieldController: controller.fieldController,
           )..add(const GridFilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: controller.viewId,
+            sortController: controller.sortController,
             fieldController: controller.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),

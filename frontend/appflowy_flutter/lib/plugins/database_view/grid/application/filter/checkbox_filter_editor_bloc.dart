@@ -11,14 +11,15 @@ part 'checkbox_filter_editor_bloc.freezed.dart';
 
 class CheckboxFilterEditorBloc
     extends Bloc<CheckboxFilterEditorEvent, CheckboxFilterEditorState> {
+  final String viewId;
   final FilterInfo filterInfo;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
 
-  CheckboxFilterEditorBloc({required this.filterInfo})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  CheckboxFilterEditorBloc({required this.viewId, required this.filterInfo})
+      : _filterBackendSvc = FilterBackendService(viewId: viewId),
         _listener = FilterListener(
-          viewId: filterInfo.viewId,
+          viewId: viewId,
           filterId: filterInfo.filter.id,
         ),
         super(CheckboxFilterEditorState.initial(filterInfo)) {

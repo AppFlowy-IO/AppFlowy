@@ -12,14 +12,15 @@ part 'text_filter_editor_bloc.freezed.dart';
 
 class TextFilterEditorBloc
     extends Bloc<TextFilterEditorEvent, TextFilterEditorState> {
+  final String viewId;
   final FilterInfo filterInfo;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
 
-  TextFilterEditorBloc({required this.filterInfo})
-      : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  TextFilterEditorBloc({required this.viewId, required this.filterInfo})
+      : _filterBackendSvc = FilterBackendService(viewId: viewId),
         _listener = FilterListener(
-          viewId: filterInfo.viewId,
+          viewId: viewId,
           filterId: filterInfo.filter.id,
         ),
         super(TextFilterEditorState.initial(filterInfo)) {

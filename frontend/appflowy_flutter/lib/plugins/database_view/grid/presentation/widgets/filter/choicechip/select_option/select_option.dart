@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database_view/application/filter/filter_info.da
 import 'package:appflowy/plugins/database_view/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +10,6 @@ import '../../disclosure_button.dart';
 import '../choicechip.dart';
 import 'condition_list.dart';
 import 'option_list.dart';
-import 'select_option_loader.dart';
 
 class SelectOptionFilterChoicechip extends StatefulWidget {
   final String viewId;
@@ -33,18 +31,10 @@ class _SelectOptionFilterChoicechipState
 
   @override
   void initState() {
-    if (widget.filterInfo.field.fieldType == FieldType.SingleSelect) {
-      bloc = SelectOptionFilterEditorBloc(
-        filterInfo: widget.filterInfo,
-        delegate: SingleSelectOptionFilterDelegateImpl(widget.filterInfo),
-      );
-    } else {
-      bloc = SelectOptionFilterEditorBloc(
-        filterInfo: widget.filterInfo,
-        delegate: MultiSelectOptionFilterDelegateImpl(widget.filterInfo),
-      );
-    }
-    bloc.add(const SelectOptionFilterEditorEvent.initial());
+    bloc = SelectOptionFilterEditorBloc(
+      viewId: widget.viewId,
+      filterInfo: widget.filterInfo,
+    )..add(const SelectOptionFilterEditorEvent.initial());
     super.initState();
   }
 

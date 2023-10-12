@@ -34,8 +34,10 @@ class _ChecklistFilterChoicechipState extends State<ChecklistFilterChoicechip> {
   @override
   void initState() {
     popoverMutex = PopoverMutex();
-    bloc = ChecklistFilterEditorBloc(filterInfo: widget.filterInfo);
-    bloc.add(const ChecklistFilterEditorEvent.initial());
+    bloc = ChecklistFilterEditorBloc(
+      viewId: widget.viewId,
+      filterInfo: widget.filterInfo,
+    )..add(const ChecklistFilterEditorEvent.initial());
     super.initState();
   }
 

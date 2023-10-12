@@ -1,7 +1,9 @@
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_listener.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_service.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy/plugins/database_view/application/filter/filter_info.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,17 +14,17 @@ part 'select_option_filter_bloc.freezed.dart';
 
 class SelectOptionFilterEditorBloc
     extends Bloc<SelectOptionFilterEditorEvent, SelectOptionFilterEditorState> {
+  final String viewId;
   final FilterInfo filterInfo;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
-  final SelectOptionFilterDelegate delegate;
 
   SelectOptionFilterEditorBloc({
+    required this.viewId,
     required this.filterInfo,
-    required this.delegate,
-  })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  })  : _filterBackendSvc = FilterBackendService(viewId: viewId),
         _listener = FilterListener(
-          viewId: filterInfo.viewId,
+          viewId: viewId,
           filterId: filterInfo.filter.id,
         ),
         super(SelectOptionFilterEditorState.initial(filterInfo)) {
@@ -90,17 +92,29 @@ class SelectOptionFilterEditorBloc
   }
 
   void _loadOptions() {
-    delegate.loadOptions().then((options) {
-      if (!isClosed) {
-        String filterDesc = '';
-        for (final option in options) {
-          if (state.filter.optionIds.contains(option.id)) {
-            filterDesc += "${option.name} ";
-          }
-        }
-        add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
+    if (isClosed) {
+      return;
+    }
+    final fieldType = filterInfo.field.fieldType;
+    final parser = makeTypeOptionParser(fieldType);
+
+    final options = switch (fieldType) {
+      FieldType.SingleSelect => (parser as SingleSelectTypeOptionParser)
+          .fromBuffer(filterInfo.field.typeOptionData)
+          .options,
+      FieldType.MultiSelect => (parser as MultiSelectTypeOptionDataParser)
+          .fromBuffer(filterInfo.field.typeOptionData)
+          .options,
+      _ => throw UnimplementedError(),
+    };
+
+    String filterDesc = '';
+    for (final option in options) {
+      if (state.filter.optionIds.contains(option.id)) {
+        filterDesc += "${option.name} ";
       }
-    });
+    }
+    add(SelectOptionFilterEditorEvent.updateFilterDescription(filterDesc));
   }
 
   @override

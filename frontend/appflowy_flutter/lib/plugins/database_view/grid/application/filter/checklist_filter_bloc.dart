@@ -11,15 +11,17 @@ part 'checklist_filter_bloc.freezed.dart';
 
 class ChecklistFilterEditorBloc
     extends Bloc<ChecklistFilterEditorEvent, ChecklistFilterEditorState> {
+  final String viewId;
   final FilterInfo filterInfo;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
 
   ChecklistFilterEditorBloc({
+    required this.viewId,
     required this.filterInfo,
-  })  : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
+  })  : _filterBackendSvc = FilterBackendService(viewId: viewId),
         _listener = FilterListener(
-          viewId: filterInfo.viewId,
+          viewId: viewId,
           filterId: filterInfo.filter.id,
         ),
         super(ChecklistFilterEditorState.initial(filterInfo)) {

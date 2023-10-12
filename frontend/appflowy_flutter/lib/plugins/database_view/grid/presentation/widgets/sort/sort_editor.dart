@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
 import 'package:appflowy/plugins/database_view/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
@@ -22,14 +23,14 @@ import 'sort_choice_button.dart';
 
 class SortEditor extends StatefulWidget {
   final String viewId;
-  final List<SortInfo> sortInfos;
+  final SortController sortController;
   final FieldController fieldController;
 
   const SortEditor({
     super.key,
     required this.viewId,
+    required this.sortController,
     required this.fieldController,
-    required this.sortInfos,
   });
 
   @override
@@ -44,8 +45,8 @@ class _SortEditorState extends State<SortEditor> {
     return BlocProvider(
       create: (context) => SortEditorBloc(
         viewId: widget.viewId,
+        sortController: widget.sortController,
         fieldController: widget.fieldController,
-        sortInfos: widget.sortInfos,
       )..add(const SortEditorEvent.initial()),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
         builder: (context, state) {

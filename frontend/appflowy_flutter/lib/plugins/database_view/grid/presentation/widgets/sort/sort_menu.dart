@@ -30,6 +30,7 @@ class SortMenu extends StatelessWidget {
     return BlocProvider<SortMenuBloc>(
       create: (context) => SortMenuBloc(
         viewId: fieldController.viewId,
+        sortController: sortController,
         fieldController: fieldController,
       )..add(const SortMenuEvent.initial()),
       child: BlocBuilder<SortMenuBloc, SortMenuState>(
@@ -44,9 +45,9 @@ class SortMenu extends StatelessWidget {
                 return SingleChildScrollView(
                   child: SortEditor(
                     viewId: state.viewId,
+                    sortController: sortController,
                     fieldController:
                         context.read<SortMenuBloc>().fieldController,
-                    sortInfos: state.sortInfos,
                   ),
                 );
               },

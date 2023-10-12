@@ -38,7 +38,10 @@ class _GridFieldCellState extends State<GridFieldCell> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FieldCellBloc(fieldContext: widget.cellContext),
+      create: (context) => FieldCellBloc(
+        viewId: widget.viewId,
+        field: widget.field,
+      ),
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
           final button = AppFlowyPopover(
@@ -49,7 +52,8 @@ class _GridFieldCellState extends State<GridFieldCell> {
             controller: popoverController,
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
-                cellContext: widget.cellContext,
+                viewId: widget.viewId,
+                field: widget.field,
               );
             },
             child: FieldCellButton(

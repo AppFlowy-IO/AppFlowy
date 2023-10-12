@@ -1,4 +1,5 @@
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
+import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,11 +9,11 @@ part 'select_option_filter_list_bloc.freezed.dart';
 
 class SelectOptionFilterListBloc<T>
     extends Bloc<SelectOptionFilterListEvent, SelectOptionFilterListState> {
-  final SelectOptionFilterDelegate delegate;
+  final FieldPB field;
+
   SelectOptionFilterListBloc({
     required String viewId,
-    required FieldPB fieldPB,
-    required this.delegate,
+    required this.field,
     required List<String> selectedOptionIds,
   }) : super(SelectOptionFilterListState.initial(selectedOptionIds)) {
     on<SelectOptionFilterListEvent>(
@@ -99,12 +100,32 @@ class SelectOptionFilterListBloc<T>
     }).toList();
   }
 
+  // void _loadOptions() {
+  //   delegate.loadOptions().then((options) {
+  //     if (!isClosed) {
+  //       add(SelectOptionFilterListEvent.didReceiveOptions(options));
+  //     }
+  //   });
+  // }
+
   void _loadOptions() {
-    delegate.loadOptions().then((options) {
-      if (!isClosed) {
-        add(SelectOptionFilterListEvent.didReceiveOptions(options));
-      }
-    });
+    if (isClosed) {
+      return;
+    }
+    final fieldType = field.fieldType;
+    final parser = makeTypeOptionParser(fieldType);
+
+    final options = switch (fieldType) {
+      FieldType.SingleSelect => (parser as SingleSelectTypeOptionParser)
+          .fromBuffer(field.typeOptionData)
+          .options,
+      FieldType.MultiSelect => (parser as MultiSelectTypeOptionDataParser)
+          .fromBuffer(field.typeOptionData)
+          .options,
+      _ => throw UnimplementedError(),
+    };
+
+    add(SelectOptionFilterListEvent.didReceiveOptions(options));
   }
 
   void _startListening() {}
