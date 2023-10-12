@@ -144,28 +144,23 @@ class _PropertyCellState extends State<_PropertyCell> {
       child: SizedBox(
         width: 16,
         height: 30,
-        child: _isFieldHover
-            ? AppFlowyPopover(
-                controller: _fieldPopoverController,
-                constraints: BoxConstraints.loose(const Size(240, 600)),
-                margin: EdgeInsets.zero,
-                triggerActions: PopoverTriggerFlags.none,
-                direction: PopoverDirection.bottomWithLeftAligned,
-                popupBuilder: (popoverContext) => buildFieldEditor(),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: BlockActionButton(
-                    onTap: () => _popoverController.show(),
-                    svg: FlowySvgs.drag_element_s,
-                    richMessage: TextSpan(
-                      text:
-                          LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
-                    ),
+        child: AppFlowyPopover(
+          controller: _fieldPopoverController,
+          constraints: BoxConstraints.loose(const Size(240, 600)),
+          margin: EdgeInsets.zero,
+          triggerActions: PopoverTriggerFlags.none,
+          direction: PopoverDirection.bottomWithLeftAligned,
+          popupBuilder: (popoverContext) => buildFieldEditor(),
+          child: _isFieldHover
+              ? BlockActionButton(
+                  onTap: () => _fieldPopoverController.show(),
+                  svg: FlowySvgs.drag_element_s,
+                  richMessage: TextSpan(
+                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
                   ),
-                ),
-              )
-            : null,
+                )
+              : const SizedBox.shrink(),
+        ),
       ),
     );
 
