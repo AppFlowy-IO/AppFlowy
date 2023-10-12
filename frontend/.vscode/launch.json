@@ -1,0 +1,90 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // This task builds the Rust and Dart code of AppFlowy.
+            "name": "AF-desktop: Build All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Build Appflowy Core",
+            "env": {
+                "RUST_LOG": "trace",
+                "RUST_BACKTRACE": 1
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            //  This task only builds the Dart code of AppFlowy.
+            "name": "AF-desktop: Build Dart Only",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "debug",
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            // This task builds will:
+            // - call the clean task,
+            // - rebuild all the generated Files (including freeze and language files)
+            // - rebuild the the Rust and Dart code of AppFlowy.
+            "name": "AF-desktop: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-iOS: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (iOS)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-iOS-Simulator: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-desktop: Debug Rust",
+            "request": "attach",
+            "type": "lldb",
+            "pid": "${command:pickMyProcess}"
+        },
+        {
+            // https://tauri.app/v1/guides/debugging/vs-code
+            "type": "lldb",
+            "request": "launch",
+            "name": "AF-tauri: Debug backend",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml",
+                    "--no-default-features"
+                ]
+            },
+            "preLaunchTask": "AF: Tauri UI Dev",
+            "cwd": "${workspaceRoot}/appflowy_tauri/"
+        },
+    ]
+}
