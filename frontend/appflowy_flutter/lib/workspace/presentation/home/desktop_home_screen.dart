@@ -253,7 +253,7 @@ class DesktopHomeScreen extends StatelessWidget {
               top: 0,
               animate: true,
             )
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
         bubble
             .positioned(
               right: 20,
@@ -285,10 +285,10 @@ class DesktopHomeScreen extends StatelessWidget {
               bottom: 0,
               animate: true,
             )
-            .animate(layout.animDuration, Curves.easeInCubic),
+            .animate(layout.animDuration, Curves.easeOutQuad),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
       ],
     );
   }
