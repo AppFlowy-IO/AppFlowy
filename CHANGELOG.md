@@ -7,7 +7,7 @@
 - Added Ukrainian language.
 - Support auto-hiding sidebar feature, ensuring a streamlined view even when resizing to a smaller window.
 - Support toggling the notifitcation on/off.
-- Added Lemonate theme. 
+- Added Lemonade theme. 
 
 
 ### Bug fixes
