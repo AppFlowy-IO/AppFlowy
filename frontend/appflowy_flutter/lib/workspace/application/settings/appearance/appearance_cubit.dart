@@ -16,33 +16,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-part 'appearance.freezed.dart';
+part 'appearance_cubit.freezed.dart';
 
 const _white = Color(0xFFFFFFFF);
 
 /// [AppearanceSettingsCubit] is used to modify the appearance of AppFlowy.
-/// It includes the [AppTheme], [ThemeMode], [TextStyles] and [Locale].
+/// It includes:
+/// - [AppTheme]
+/// - [ThemeMode]
+/// - [TextStyle]'s
+/// - [Locale]
+/// - [UserDateFormatPB]
+/// - [UserTimeFormatPB]
+///
 class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
-  final AppearanceSettingsPB _setting;
+  final AppearanceSettingsPB _appearanceSettings;
   final DateTimeSettingsPB _dateTimeSettings;
 
   AppearanceSettingsCubit(
-    AppearanceSettingsPB setting,
+    AppearanceSettingsPB appearanceSettings,
     DateTimeSettingsPB dateTimeSettings,
     AppTheme appTheme,
-  )   : _setting = setting,
+  )   : _appearanceSettings = appearanceSettings,
         _dateTimeSettings = dateTimeSettings,
         super(
           AppearanceSettingsState.initial(
             appTheme,
-            setting.themeMode,
-            setting.font,
-            setting.monospaceFont,
-            setting.layoutDirection,
-            setting.textDirection,
-            setting.locale,
-            setting.isMenuCollapsed,
-            setting.menuOffset,
+            appearanceSettings.themeMode,
+            appearanceSettings.font,
+            appearanceSettings.monospaceFont,
+            appearanceSettings.layoutDirection,
+            appearanceSettings.textDirection,
+            appearanceSettings.locale,
+            appearanceSettings.isMenuCollapsed,
+            appearanceSettings.menuOffset,
             dateTimeSettings.dateFormat,
             dateTimeSettings.timeFormat,
             dateTimeSettings.timezoneId,
@@ -52,7 +59,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
   Future<void> setTheme(String themeName) async {
-    _setting.theme = themeName;
+    _appearanceSettings.theme = themeName;
     _saveAppearanceSettings();
     emit(state.copyWith(appTheme: await AppTheme.fromName(themeName)));
   }
@@ -63,7 +70,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Update the theme mode in the user's settings and emit an updated state.
   void setThemeMode(ThemeMode themeMode) {
-    _setting.themeMode = _themeModeToPB(themeMode);
+    _appearanceSettings.themeMode = _themeModeToPB(themeMode);
     _saveAppearanceSettings();
     emit(state.copyWith(themeMode: themeMode));
   }
@@ -81,13 +88,13 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   void setLayoutDirection(LayoutDirection layoutDirection) {
-    _setting.layoutDirection = layoutDirection.toLayoutDirectionPB();
+    _appearanceSettings.layoutDirection = layoutDirection.toLayoutDirectionPB();
     _saveAppearanceSettings();
     emit(state.copyWith(layoutDirection: layoutDirection));
   }
 
   void setTextDirection(AppFlowyTextDirection? textDirection) {
-    _setting.textDirection =
+    _appearanceSettings.textDirection =
         textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
@@ -96,7 +103,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   /// Update selected font in the user's settings and emit an updated state
   /// with the font name.
   void setFontFamily(String fontFamilyName) {
-    _setting.font = fontFamilyName;
+    _appearanceSettings.font = fontFamilyName;
     _saveAppearanceSettings();
     emit(state.copyWith(font: fontFamilyName));
   }
@@ -118,8 +125,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     });
 
     if (state.locale != newLocale) {
-      _setting.locale.languageCode = newLocale.languageCode;
-      _setting.locale.countryCode = newLocale.countryCode ?? "";
+      _appearanceSettings.locale.languageCode = newLocale.languageCode;
+      _appearanceSettings.locale.countryCode = newLocale.countryCode ?? "";
       _saveAppearanceSettings();
       emit(state.copyWith(locale: newLocale));
     }
@@ -127,13 +134,13 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   // Saves the menus current visibility
   void saveIsMenuCollapsed(bool collapsed) {
-    _setting.isMenuCollapsed = collapsed;
+    _appearanceSettings.isMenuCollapsed = collapsed;
     _saveAppearanceSettings();
   }
 
   // Saves the current resize offset of the menu
   void saveMenuOffset(double offset) {
-    _setting.menuOffset = offset;
+    _appearanceSettings.menuOffset = offset;
     _saveAppearanceSettings();
   }
 
@@ -146,14 +153,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     }
 
     if (value == null) {
-      _setting.settingKeyValue.remove(key);
+      _appearanceSettings.settingKeyValue.remove(key);
     }
 
-    if (_setting.settingKeyValue[key] != value) {
+    if (_appearanceSettings.settingKeyValue[key] != value) {
       if (value == null) {
-        _setting.settingKeyValue.remove(key);
+        _appearanceSettings.settingKeyValue.remove(key);
       } else {
-        _setting.settingKeyValue[key] = value;
+        _appearanceSettings.settingKeyValue[key] = value;
       }
     }
     _saveAppearanceSettings();
@@ -164,14 +171,14 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
       Log.warn("The key should not be empty");
       return null;
     }
-    return _setting.settingKeyValue[key];
+    return _appearanceSettings.settingKeyValue[key];
   }
 
   /// Called when the application launches.
   /// Uses the device locale when the application is opened for the first time.
   void readLocaleWhenAppLaunch(BuildContext context) {
-    if (_setting.resetToDefault) {
-      _setting.resetToDefault = false;
+    if (_appearanceSettings.resetToDefault) {
+      _appearanceSettings.resetToDefault = false;
       _saveAppearanceSettings();
       setLocale(context, context.deviceLocale);
       return;
@@ -204,7 +211,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   }
 
   Future<void> _saveAppearanceSettings() async {
-    UserSettingsBackendService().setAppearanceSetting(_setting).then((result) {
+    UserSettingsBackendService()
+        .setAppearanceSetting(_appearanceSettings)
+        .then((result) {
       result.fold(
         (l) => null,
         (error) => Log.error(error),

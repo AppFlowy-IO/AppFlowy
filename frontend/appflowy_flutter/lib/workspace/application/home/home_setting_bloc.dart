@@ -1,5 +1,5 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
     show WorkspaceSettingPB;

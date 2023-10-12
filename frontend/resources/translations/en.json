@@ -241,6 +241,7 @@
       "language": "Language",
       "user": "User",
       "files": "Files",
+      "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
@@ -255,6 +256,12 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Enable notifications",
+        "hint": "Turn off to stop local notifications from appearing."
+      }
     },
     "appearance": {
       "resetSetting": "Reset this setting",
