@@ -762,7 +762,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1437,7 +1437,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2112,7 +2112,6 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
- "tokio",
  "tokio-postgres",
  "url",
 ]
@@ -2779,7 +2778,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2795,7 +2794,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3228,7 +3227,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -4877,7 +4876,7 @@ dependencies = [
 [[package]]
 name = "realtime-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "bytes",
  "collab",
@@ -5599,7 +5598,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=69131fc#69131fc96e24fdcdc3d4e592f4e265d0afd8b8b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=52b82e68#52b82e68f6e61e9e38606b9110d782870ee911e4"
 dependencies = [
  "anyhow",
  "database-entity",

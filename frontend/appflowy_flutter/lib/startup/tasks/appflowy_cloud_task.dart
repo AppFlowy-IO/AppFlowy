@@ -19,6 +19,7 @@ class InitAppFlowyCloudTask extends LaunchTask {
       },
       onInvalidAuth: (message) async {
         await getIt<AuthService>().signOut();
+        // TODO(nathan): Show a dialog to notify the user that the session is expired.
         if (!isLoggingOut) {
           await runAppFlowy();
         }
