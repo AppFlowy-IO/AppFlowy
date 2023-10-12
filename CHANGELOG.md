@@ -1,5 +1,20 @@
 # Release Notes
 
+## Version 0.3.6 - 10/16/2023
+
+### New Features
+- Support setting Markdown styles through keyboard shortcuts.
+- Added Ukrainian language.
+- Support auto-hiding sidebar feature, ensuring a streamlined view even when resizing to a smaller window.
+- Support toggling the notifitcation on/off.
+- Added Lemonate theme. 
+
+
+### Bug fixes
+- Improve Vietnamese translations.
+- Improve reminder feature.
+- Fix some UI issues.
+
 ## Version 0.3.5 - 10/09/2023
 
 ### New Features
