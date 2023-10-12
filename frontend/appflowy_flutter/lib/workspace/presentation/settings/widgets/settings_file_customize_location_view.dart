@@ -164,7 +164,7 @@ class _ChangeStoragePathButton extends StatefulWidget {
 class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       message: LocaleKeys.settings_files_changeLocationTooltips.tr(),
       child: SecondaryTextButton(
         LocaleKeys.settings_files_change.tr(),

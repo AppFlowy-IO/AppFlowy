@@ -23,6 +23,7 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
@@ -75,11 +76,12 @@ class DesktopHomeScreen extends StatelessWidget {
               },
             ),
             BlocProvider<HomeSettingBloc>(
-              create: (context) {
+              create: (_) {
                 return HomeSettingBloc(
                   userProfile,
                   workspaceSetting,
                   context.read<AppearanceSettingsCubit>(),
+                  context.widthPx,
                 )..add(const HomeSettingEvent.initial());
               },
             ),

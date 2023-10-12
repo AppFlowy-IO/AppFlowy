@@ -6,7 +6,7 @@ members = [
   "dart-ffi",
   "flowy-user",
   "flowy-user-deps",
-  "flowy-test",
+  "event-integration",
   "flowy-sqlite",
   "flowy-folder2",
   "flowy-folder-deps",
@@ -82,7 +82,7 @@ incremental = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "6faefb0" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "5a231fda" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

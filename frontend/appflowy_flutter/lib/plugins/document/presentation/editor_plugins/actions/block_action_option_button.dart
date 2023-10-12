@@ -47,7 +47,7 @@ class BlockOptionButton extends StatelessWidget {
               : PopoverDirection.leftWithCenterAligned,
       actions: popoverActions,
       onPopupBuilder: () {
-        keepEditorFocusNotifier.value += 1;
+        keepEditorFocusNotifier.increase();
         blockComponentState.alwaysShowActions = true;
       },
       onClosed: () {
@@ -55,7 +55,7 @@ class BlockOptionButton extends StatelessWidget {
           editorState.selectionType = null;
           editorState.selection = null;
           blockComponentState.alwaysShowActions = false;
-          keepEditorFocusNotifier.value -= 1;
+          keepEditorFocusNotifier.decrease();
         });
       },
       onSelected: (action, controller) {
