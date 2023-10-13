@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 use collab_folder::core::{
   FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
   View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
@@ -12,7 +12,7 @@ use collab_folder::core::{
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
-use tracing::{event, Level};
+use tracing::{event, info, instrument, Level};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
@@ -159,13 +159,17 @@ impl FolderManager {
         } => {
           let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
           if is_exist {
-            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            let collab = self
+              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+              .await?;
             Folder::open(collab, Some(folder_notifier))
           } else if create_if_not_exist {
             let folder_data =
               DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
                 .await;
-            let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+            let collab = self
+              .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+              .await?;
             Folder::create(collab, Some(folder_notifier), Some(folder_data))
           } else {
             return Err(FlowyError::new(
@@ -178,11 +182,15 @@ impl FolderManager {
           if raw_data.is_empty() {
             return Err(workspace_data_not_sync_error(uid, &workspace_id));
           }
-          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, raw_data)?;
+          let collab = self
+            .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
+            .await?;
           Folder::open(collab, Some(folder_notifier))
         },
         FolderInitializeDataSource::FolderData(folder_data) => {
-          let collab = self.collab_for_folder(uid, &workspace_id, collab_db, vec![])?;
+          let collab = self
+            .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+            .await?;
           Folder::create(collab, Some(folder_notifier), Some(folder_data))
         },
       };
@@ -205,21 +213,24 @@ impl FolderManager {
     Ok(())
   }
 
-  fn collab_for_folder(
+  async fn collab_for_folder(
     &self,
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<RocksCollabDB>,
     raw_data: CollabRawData,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
-    let collab = self.collab_builder.build_with_config(
-      uid,
-      workspace_id,
-      CollabType::Folder,
-      collab_db,
-      raw_data,
-      &CollabPersistenceConfig::new().enable_snapshot(true),
-    )?;
+    let collab = self
+      .collab_builder
+      .build_with_config(
+        uid,
+        workspace_id,
+        CollabType::Folder,
+        collab_db,
+        raw_data,
+        &CollabPersistenceConfig::new().enable_snapshot(true),
+      )
+      .await?;
     Ok(collab)
   }
 
@@ -236,7 +247,7 @@ impl FolderManager {
       .get_folder_updates(workspace_id, user_id)
       .await?;
 
-    tracing::info!(
+    info!(
       "Get folder updates via {}, number of updates: {}",
       self.cloud_service.service_name(),
       folder_updates.len()
@@ -254,6 +265,7 @@ impl FolderManager {
 
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
@@ -263,29 +275,41 @@ impl FolderManager {
     workspace_id: &str,
   ) -> FlowyResult<()> {
     // Create the default workspace if the user is new
-    tracing::info!("initialize_when_sign_up: is_new: {}", is_new);
+    info!("initialize_when_sign_up: is_new: {}", is_new);
     if is_new {
       self.initialize(user_id, workspace_id, data_source).await?;
     } else {
       // The folder updates should not be empty, as the folder data is stored
       // when the user signs up for the first time.
-      let folder_updates = self
+      let result = self
         .cloud_service
         .get_folder_updates(workspace_id, user_id)
-        .await?;
+        .await
+        .map_err(FlowyError::from);
 
-      tracing::info!(
-        "Get folder updates via {}, number of updates: {}",
-        self.cloud_service.service_name(),
-        folder_updates.len()
-      );
-      self
-        .initialize(
-          user_id,
-          workspace_id,
-          FolderInitializeDataSource::Cloud(folder_updates),
-        )
-        .await?;
+      match result {
+        Ok(folder_updates) => {
+          info!(
+            "Get folder updates via {}, number of updates: {}",
+            self.cloud_service.service_name(),
+            folder_updates.len()
+          );
+          self
+            .initialize(
+              user_id,
+              workspace_id,
+              FolderInitializeDataSource::Cloud(folder_updates),
+            )
+            .await?;
+        },
+        Err(err) => {
+          if err.is_record_not_found() {
+            self.initialize(user_id, workspace_id, data_source).await?;
+          } else {
+            return Err(err);
+          }
+        },
+      }
     }
     Ok(())
   }

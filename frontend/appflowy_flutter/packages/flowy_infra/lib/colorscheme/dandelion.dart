@@ -112,7 +112,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           main1: _darkMain1,
           main2: _darkMain1,
           shadow: const Color(0xff0F131C),
-          sidebarBg: const Color(0xff232B38),
+          sidebarBg: const Color(0xff25300e),
           divider: _darkShader3,
           topbarBg: _darkShader1,
           icon: _darkShader5,

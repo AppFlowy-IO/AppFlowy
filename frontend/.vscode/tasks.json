@@ -285,6 +285,14 @@
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
+    },
+    {
+      "label": "AF: Generate AppFlowyEnv",
+      "type": "shell",
+      "command": "dart run build_runner build --delete-conflicting-outputs",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter/packages/appflowy_backend"
+      }
     }
   ]
 }

@@ -1,7 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/open_ai_image_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/stability_ai_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_file_widget.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -11,7 +14,8 @@ enum UploadImageType {
   local,
   url,
   unsplash,
-  ai;
+  stabilityAI,
+  openAI;
 
   String get description {
     switch (this) {
@@ -21,8 +25,10 @@ enum UploadImageType {
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
         return 'Unsplash';
-      case UploadImageType.ai:
-        return 'Generate from AI';
+      case UploadImageType.openAI:
+        return LocaleKeys.document_imageBlock_ai_label.tr();
+      case UploadImageType.stabilityAI:
+        return LocaleKeys.document_imageBlock_stability_ai_label.tr();
     }
   }
 }
@@ -30,12 +36,14 @@ enum UploadImageType {
 class UploadImageMenu extends StatefulWidget {
   const UploadImageMenu({
     super.key,
-    required this.onPickFile,
-    required this.onSubmit,
+    required this.onSelectedLocalImage,
+    required this.onSelectedAIImage,
+    required this.onSelectedNetworkImage,
   });
 
-  final void Function(String? path) onPickFile;
-  final void Function(String url) onSubmit;
+  final void Function(String? path) onSelectedLocalImage;
+  final void Function(String url) onSelectedAIImage;
+  final void Function(String url) onSelectedNetworkImage;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
@@ -43,11 +51,39 @@ class UploadImageMenu extends StatefulWidget {
 
 class _UploadImageMenuState extends State<UploadImageMenu> {
   int currentTabIndex = 0;
+  List<UploadImageType> values = UploadImageType.values;
+  bool supportOpenAI = false;
+  bool supportStabilityAI = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    UserBackendService.getCurrentUserProfile().then(
+      (value) {
+        final supportOpenAI = value.fold(
+          (l) => false,
+          (r) => r.openaiKey.isNotEmpty,
+        );
+        final supportStabilityAI = value.fold(
+          (l) => false,
+          (r) => r.stabilityAiKey.isNotEmpty,
+        );
+        if (supportOpenAI != this.supportOpenAI ||
+            supportStabilityAI != this.supportStabilityAI) {
+          setState(() {
+            this.supportOpenAI = supportOpenAI;
+            this.supportStabilityAI = supportStabilityAI;
+          });
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // UploadImageType.values.length, // ai is not implemented yet
+      length: values.length,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -62,10 +98,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             ),
             padding: EdgeInsets.zero,
             // splashBorderRadius: BorderRadius.circular(4),
-            tabs: UploadImageType.values
-                .where(
-                  (element) => element != UploadImageType.ai,
-                ) // ai is not implemented yet
+            tabs: values
                 .map(
                   (e) => FlowyHover(
                     style: const HoverStyle(borderRadius: BorderRadius.zero),
@@ -96,14 +129,14 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: UploadImageFileWidget(
-            onPickFile: widget.onPickFile,
+            onPickFile: widget.onSelectedLocalImage,
           ),
         );
       case UploadImageType.url:
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: EmbedImageUrlWidget(
-            onSubmit: widget.onSubmit,
+            onSubmit: widget.onSelectedNetworkImage,
           ),
         );
       case UploadImageType.unsplash:
@@ -111,12 +144,43 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: UnsplashImageWidget(
-              onSelectUnsplashImage: widget.onSubmit,
+              onSelectUnsplashImage: widget.onSelectedNetworkImage,
             ),
           ),
         );
-      case UploadImageType.ai:
-        return const FlowyText.medium('ai');
+      case UploadImageType.openAI:
+        return supportOpenAI
+            ? Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: OpenAIImageWidget(
+                    onSelectNetworkImage: widget.onSelectedAIImage,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlowyText(
+                  LocaleKeys.document_imageBlock_pleaseInputYourOpenAIKey.tr(),
+                ),
+              );
+      case UploadImageType.stabilityAI:
+        return supportStabilityAI
+            ? Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StabilityAIImageWidget(
+                    onSelectImage: widget.onSelectedLocalImage,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlowyText(
+                  LocaleKeys.document_imageBlock_pleaseInputYourStabilityAIKey
+                      .tr(),
+                ),
+              );
     }
   }
 }

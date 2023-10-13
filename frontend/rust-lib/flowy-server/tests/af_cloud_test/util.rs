@@ -23,18 +23,13 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AFCloudServer> {
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
-  let http_client = reqwest::Client::new();
-  let api_client = client_api::Client::from(
-    http_client,
-    &config.base_url,
-    &config.base_ws_url,
-    &config.gotrue_url,
-  );
+  let api_client =
+    client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
 
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
   api_client
-    .generate_sign_in_callback_url(&admin_email, &admin_password, user_email)
+    .generate_sign_in_url_with_email(&admin_email, &admin_password, user_email)
     .await
     .unwrap()
 }

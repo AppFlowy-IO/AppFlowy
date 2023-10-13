@@ -9,7 +9,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
@@ -165,10 +165,18 @@ where
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
     FutureResult::new(async {
       Err(anyhow::anyhow!(
         "Can't generate callback url when using supabase"
+      ))
+    })
+  }
+
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate oauth url when using supabase"
       ))
     })
   }
@@ -207,6 +215,7 @@ where
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
+          stability_ai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),

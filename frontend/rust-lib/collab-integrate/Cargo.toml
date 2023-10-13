@@ -12,7 +12,7 @@ collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
@@ -20,9 +20,11 @@ tracing = "0.1"
 parking_lot = "0.12.1"
 futures = "0.3"
 async-trait = "0.1.73"
+tokio = {version = "1.26", features = ["sync"]}
+lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [features]
 default = []
 supabase_integrate = ["collab-plugins/postgres_storage_plugin", "collab-plugins/rocksdb_plugin"]
-appflowy_cloud_integrate = ["collab-plugins/sync_plugin", "collab-plugins/rocksdb_plugin"]
+appflowy_cloud_integrate = ["collab-plugins/rocksdb_plugin"]
 snapshot_plugin = ["collab-plugins/snapshot_plugin"]

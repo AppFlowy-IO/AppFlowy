@@ -195,7 +195,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = FlowyTooltip.delayed(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );
@@ -284,7 +284,7 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = FlowyTooltip.delayed(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );
