@@ -71,8 +71,13 @@ impl DatabaseFieldTest {
         let fields = self.editor.get_fields(&self.view_id, None);
         assert_eq!(self.field_count, fields.len());
       },
-      FieldScript::UpdateField { changeset: change } => {
-        self.editor.update_field(change).await.unwrap();
+      FieldScript::UpdateField { changeset } => {
+        let old_field = self.editor.get_field(&changeset.field_id).unwrap();
+        self
+          .editor
+          .update_field(changeset, old_field.field_type.into())
+          .await
+          .unwrap();
       },
       FieldScript::DeleteField { field } => {
         if self.editor.get_field(&field.id).is_some() {
@@ -90,7 +95,7 @@ impl DatabaseFieldTest {
         //
         self
           .editor
-          .switch_to_field_type(&field_id, &new_field_type)
+          .switch_field_type(&field_id, &new_field_type)
           .await
           .unwrap();
       },

@@ -118,8 +118,8 @@ impl TryFrom<FieldSettingsChangesetPB> for FieldSettingsChangesetParams {
     let view_id = NotEmptyStr::parse(value.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(value.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(FieldSettingsChangesetParams {
-      view_id: value.view_id,
-      field_id: value.field_id,
+      view_id: view_id.0,
+      field_id: field_id.0,
       visibility: value.visibility,
     })
   }

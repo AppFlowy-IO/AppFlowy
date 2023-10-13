@@ -487,7 +487,7 @@ impl FlowyCoreTest {
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::CreateTypeOption)
+      .event(DatabaseEvent::CreateField)
       .payload(CreateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_type,
@@ -495,8 +495,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<TypeOptionPB>()
-      .field
+      .parse::<FieldPB>()
   }
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {

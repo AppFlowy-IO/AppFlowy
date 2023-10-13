@@ -14,9 +14,9 @@ use lib_infra::future::Fut;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteGroupParams, DeleteSortParams, FieldType, FieldUpdateNotificationPB, FieldVisibility,
-  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB,
-  RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
+  DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -32,7 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
-use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };

@@ -26,8 +26,8 @@ use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, Data
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb, type_option_to_pb, SelectOptionCellChangeset, SelectOptionIds,
-  TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
+  TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -1489,5 +1489,9 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       Some(vec![field_id.to_string()]),
       new_field_settings.clone(),
     );
+
+    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
+      .payload(FieldSettingsPB::from(new_field_settings))
+      .send()
   }
 }
