@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use bytes::Bytes;
 use collab_database::database::MutexDatabase;
-use collab_database::fields::{Field, FieldUpdate, TypeOptionData};
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use futures::StreamExt;
@@ -17,6 +16,9 @@ use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
+};
+use crate::services::database::notifier::{
+  notify_did_update_field_to_single_field, notify_did_update_field_to_views,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
@@ -36,11 +38,6 @@ use crate::services::group::{
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
-
-use super::{
-  notify_did_update_field_to_single_field, notify_did_update_field_to_view,
-  notify_did_update_field_to_views,
-};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -291,11 +288,11 @@ impl DatabaseEditor {
       });
 
     let field: FieldPB = self.get_field(&params.field_id).unwrap().into();
-    let notification = FieldUpdateNotificationPB::update(vec![field.clone()]);
-    let views = self.database.lock().get_all_views_description();
+    notify_did_update_field_to_single_field(&params.field_id, field.clone());
 
-    notify_did_update_field_to_single_field(&params.field_id, field);
-    notify_did_update_field_to_views(views, notification);
+    let notification = FieldUpdateNotificationPB::update(vec![field]);
+    let view_ids = self.get_all_view_ids_in_database();
+    notify_did_update_field_to_views(view_ids, notification);
 
     Ok(())
   }
@@ -320,8 +317,8 @@ impl DatabaseEditor {
 
     let notification = FieldUpdateNotificationPB::delete(vec![FieldIdPB::from(field_id)]);
 
-    let views = self.database.lock().get_all_views_description();
-    notify_did_update_field_to_views(views, notification);
+    let view_ids = self.get_all_view_ids_in_database();
+    notify_did_update_field_to_views(view_ids, notification);
 
     Ok(())
   }
@@ -354,11 +351,11 @@ impl DatabaseEditor {
       .await?;
 
     let field: FieldPB = self.get_field(field_id).unwrap().into();
-    let notification = FieldUpdateNotificationPB::update(vec![field.clone()]);
-    let views = self.database.lock().get_all_views_description();
+    notify_did_update_field_to_single_field(&field_id, field.clone());
 
-    notify_did_update_field_to_single_field(&field_id, field);
-    notify_did_update_field_to_views(views, notification);
+    let notification = FieldUpdateNotificationPB::update(vec![field]);
+    let view_ids = self.get_all_view_ids_in_database();
+    notify_did_update_field_to_views(view_ids, notification);
 
     Ok(())
   }
@@ -400,11 +397,11 @@ impl DatabaseEditor {
         });
 
       let field: FieldPB = self.get_field(field_id).unwrap().into();
-      let notification = FieldUpdateNotificationPB::update(vec![field.clone()]);
-      let views = self.database.lock().get_all_views_description();
+      notify_did_update_field_to_single_field(field_id, field.clone());
 
-      notify_did_update_field_to_single_field(field_id, field);
-      notify_did_update_field_to_views(views, notification);
+      let notification = FieldUpdateNotificationPB::update(vec![field]);
+      let view_ids = self.get_all_view_ids_in_database();
+      notify_did_update_field_to_views(view_ids, notification);
     }
 
     Ok(())
@@ -438,57 +435,12 @@ impl DatabaseEditor {
       };
 
       let notification = FieldUpdateNotificationPB::insert(vec![IndexFieldPB::from(index_field)]);
-      let views = self.database.lock().get_all_views_description();
-      notify_did_update_field_to_views(views, notification);
+      let view_ids = self.get_all_view_ids_in_database();
+      notify_did_update_field_to_views(view_ids, notification);
     }
 
     Ok(())
   }
-
-  // pub async fn get_field_info_in_view(
-  //   &self,
-  //   view_id: &str,
-  //   fields: &Vec<Field>,
-  // ) -> FlowyResult<HashMap<String, ViewFieldInfoParams>> {
-  //   let view_editor = self.database_views.get_view_editor(view_id).await?;
-
-  //   let field_ids: Vec<String> = fields.into_iter().map(|field| field.id.clone()).collect();
-
-  //   let sorting_field_ids: Vec<String> = view_editor
-  //     .v_get_all_sorts()
-  //     .await
-  //     .into_iter()
-  //     .map(|sort| sort.field_id)
-  //     .collect();
-
-  //   let filtering_field_ids: Vec<String> = view_editor
-  //     .v_get_all_filters()
-  //     .await
-  //     .into_iter()
-  //     .map(|filter| filter.field_id.clone())
-  //     .collect();
-
-  //   let layout_type = view_editor.v_get_layout_type().await;
-  //   let field_settings = view_editor
-  //     .v_get_field_settings(layout_type, &field_ids)
-  //     .await;
-
-  //   let field_infos = field_ids
-  //     .iter()
-  //     .map(|id| {
-  //       (
-  //         id.clone(),
-  //         ViewFieldInfoParams {
-  //           has_filter: sorting_field_ids.contains(id),
-  //           has_sort: filtering_field_ids.contains(id),
-  //           visibility: field_settings.get(id).unwrap().visibility.clone(),
-  //         },
-  //       )
-  //     })
-  //     .collect();
-
-  //   Ok(field_infos)
-  // }
 
   pub async fn create_field_with_type_option(
     &self,
@@ -515,15 +467,17 @@ impl DatabaseEditor {
       default_field_settings_by_layout_map(),
     );
 
+    let field: FieldPB = field.into();
+
     let index_field = IndexFieldPB {
-      field: field.into(),
+      field: field.clone(),
       index: index as i32,
     };
 
     let notification = FieldUpdateNotificationPB::insert(vec![index_field]);
 
-    let views = self.database.lock().get_all_views_description();
-    notify_did_update_field_to_views(views, notification);
+    let view_ids = self.get_all_view_ids_in_database();
+    notify_did_update_field_to_views(view_ids, notification);
 
     field
   }
@@ -545,15 +499,15 @@ impl DatabaseEditor {
     };
 
     if let Some(field) = field {
-      let field_notification = FieldUpdateNotificationPB {
-        field_id: field.id,
-        index: Some(to),
-        ..Default::default()
+      let delete_field = FieldIdPB::from(field_id);
+      let insert_field = IndexFieldPB::from_field(field, to as usize);
+      let notification = FieldUpdateNotificationPB {
+        inserted_fields: vec![insert_field],
+        deleted_fields: vec![delete_field],
+        updated_fields: vec![],
       };
 
-      send_notification(view_id, DatabaseNotification::DidUpdateFields)
-        .payload(field_notification.clone())
-        .send();
+      notify_did_update_field_to_views(vec![view_id.to_string()], notification);
     }
     Ok(())
   }
@@ -1148,6 +1102,62 @@ impl DatabaseEditor {
     Ok(csv)
   }
 
+  pub async fn get_field_settings(
+    &self,
+    view_id: &str,
+    layout_ty: DatabaseLayout,
+    field_ids: Vec<String>,
+  ) -> FlowyResult<Vec<FieldSettings>> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+
+    let found_field_settings = view.v_get_field_settings(&field_ids).await;
+
+    let field_settings = field_ids
+      .into_iter()
+      .map(|field_id| {
+        if let Some(field_settings) = found_field_settings.get(&field_id) {
+          field_settings.to_owned()
+        } else {
+          FieldSettings::try_from_anymap(field_id, default_field_settings.clone()).unwrap()
+        }
+      })
+      .collect();
+
+    Ok(field_settings)
+  }
+
+  pub async fn get_all_field_settings(
+    &self,
+    view_id: &str,
+    layout_ty: DatabaseLayout,
+  ) -> FlowyResult<Vec<FieldSettings>> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+    let fields = self.get_fields(view_id, None);
+
+    let found_field_settings = view.v_get_all_field_settings().await;
+
+    let field_settings = fields
+      .into_iter()
+      .map(|field| {
+        if let Some(field_settings) = found_field_settings.get(&field.id) {
+          field_settings.to_owned()
+        } else {
+          FieldSettings::try_from_anymap(field.id, default_field_settings.clone()).unwrap()
+        }
+      })
+      .collect();
+
+    Ok(field_settings)
+  }
+
   pub async fn update_field_settings_with_changeset(
     &self,
     params: FieldSettingsChangesetParams,
@@ -1168,6 +1178,16 @@ impl DatabaseEditor {
       .into_iter()
       .filter(|f| FieldType::from(f.field_type).is_auto_update())
       .collect::<Vec<Field>>()
+  }
+
+  fn get_all_view_ids_in_database(&self) -> Vec<String> {
+    self
+      .database
+      .lock()
+      .get_all_views_description()
+      .into_iter()
+      .map(|view| view.id)
+      .collect()
   }
 
   /// Only expose this method for testing
@@ -1397,6 +1417,22 @@ impl DatabaseViewData for DatabaseViewDataImpl {
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
     TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
       .get_type_option_cell_data_handler(field_type)
+  }
+
+  fn get_all_field_settings(&self, view_id: &str) -> HashMap<String, FieldSettings> {
+    let field_settings_map = self.database.lock().get_field_settings(view_id, None);
+
+    field_settings_map
+      .into_iter()
+      .filter_map(|(field_id, field_settings)| {
+        let field_settings = FieldSettings::try_from_anymap(field_id.clone(), field_settings);
+        if let Ok(settings) = field_settings {
+          Some((field_id, settings))
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 
   fn get_field_settings(

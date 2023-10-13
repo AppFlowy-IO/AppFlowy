@@ -1,5 +1,3 @@
-use collab_database::views::ViewDescription;
-
 use crate::{
   entities::{FieldPB, FieldUpdateNotificationPB},
   notification::{send_notification, DatabaseNotification},
@@ -12,11 +10,11 @@ pub fn notify_did_update_field_to_single_field(field_id: &str, notification: Fie
 }
 
 pub fn notify_did_update_field_to_views(
-  views: Vec<ViewDescription>,
+  views: Vec<String>,
   notification: FieldUpdateNotificationPB,
 ) {
-  for view in views {
-    send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+  for view_id in views {
+    send_notification(&view_id, DatabaseNotification::DidUpdateFields)
       .payload(notification.clone())
       .send();
   }
