@@ -241,7 +241,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
-        configuration: configuration,
+        configuration: configuration.copyWith(
+          placeholderText: (_) => 'start typing',
+          placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
+        ),
       ),
       TodoListBlockKeys.type: TodoListBlockComponentBuilder(
         configuration: configuration.copyWith(
