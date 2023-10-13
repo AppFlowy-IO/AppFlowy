@@ -270,8 +270,7 @@ impl DatabaseEditor {
     let type_option = params
       .type_option
       .clone()
-      .map(|type_option_data| type_option_data_from_pb(type_option_data, &field_type).ok())
-      .flatten();
+      .and_then(|type_option_data| type_option_data_from_pb(type_option_data, &field_type).ok());
 
     self
       .database
@@ -347,11 +346,11 @@ impl DatabaseEditor {
 
     self
       .database_views
-      .did_update_field_type_option(view_id, field_id.clone(), &old_field)
+      .did_update_field_type_option(view_id, field_id, &old_field)
       .await?;
 
     let field: FieldPB = self.get_field(field_id).unwrap().into();
-    notify_did_update_field_to_single_field(&field_id, field.clone());
+    notify_did_update_field_to_single_field(field_id, field.clone());
 
     let notification = FieldUpdateNotificationPB::update(vec![field]);
     let view_ids = self.get_all_view_ids_in_database();
@@ -434,7 +433,7 @@ impl DatabaseEditor {
         index: index as i32,
       };
 
-      let notification = FieldUpdateNotificationPB::insert(vec![IndexFieldPB::from(index_field)]);
+      let notification = FieldUpdateNotificationPB::insert(vec![index_field]);
       let view_ids = self.get_all_view_ids_in_database();
       notify_did_update_field_to_views(view_ids, notification);
     }
@@ -451,8 +450,7 @@ impl DatabaseEditor {
     let name = field_type.default_name();
 
     let type_option_data = type_option_data
-      .map(|data| type_option_data_from_pb(data, field_type).ok())
-      .flatten()
+      .and_then(|data| type_option_data_from_pb(data, field_type).ok())
       .unwrap_or(default_type_option_data_from_type(field_type));
 
     let (index, field) = self.database.lock().create_field_with_mut(
@@ -494,8 +492,7 @@ impl DatabaseEditor {
       database.views.update_database_view(view_id, |view_update| {
         view_update.move_field_order(from as u32, to as u32);
       });
-      let field = database.fields.get_field(field_id);
-      field
+      database.fields.get_field(field_id)
     };
 
     if let Some(field) = field {

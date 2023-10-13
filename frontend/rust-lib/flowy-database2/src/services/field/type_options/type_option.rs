@@ -172,7 +172,7 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
   field_type: &FieldType,
 ) -> Result<TypeOptionData, ProtobufError> {
   let bytes = bytes.into();
-  let result = match field_type {
+  match field_type {
     FieldType::RichText => {
       RichTextTypeOptionPB::try_from(bytes).map(|pb| RichTextTypeOption::from(pb).into())
     },
@@ -198,9 +198,7 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Checklist => {
       ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
     },
-  };
-
-  result
+  }
 }
 
 pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) -> Bytes {
