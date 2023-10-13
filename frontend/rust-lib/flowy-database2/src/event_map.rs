@@ -74,6 +74,8 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::ExportCSV, export_csv_handler)
         .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
         // Field settings
+        .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
+        .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
 }
 
@@ -159,10 +161,10 @@ pub enum DatabaseEvent {
   /// FieldTypeOptionData if provided. If not, the default one for the field
   /// will be used.
   #[event(input = "CreateFieldPayloadPB", output = "FieldPB")]
-  CreateField = 24,
+  CreateField = 23,
 
   #[event(input = "DatabaseViewIdPB", output = "FieldPB")]
-  GetPrimaryField = 25,
+  GetPrimaryField = 24,
 
   /// [CreateSelectOption] event is used to create a new select option. Returns a [SelectOptionPB] if
   /// there are no errors.
@@ -296,6 +298,13 @@ pub enum DatabaseEvent {
   /// Returns all the snapshots of the database view.
   #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseSnapshotPB")]
   GetDatabaseSnapshots = 150,
+
+  /// Returns the field settings for the provided fields in the given view
+  #[event(input = "FieldIdsPB", output = "RepeatedFieldSettingsPB")]
+  GetFieldSettings = 160,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedFieldSettingsPB")]
+  GetAllFieldSettings = 161,
 
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]

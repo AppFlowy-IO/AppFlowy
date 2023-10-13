@@ -594,21 +594,21 @@ pub struct FieldUpdateNotificationPB {
 }
 
 impl FieldUpdateNotificationPB {
-  pub fn insert(database_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
+  pub fn insert(inserted_fields: Vec<IndexFieldPB>) -> Self {
     Self {
       inserted_fields,
       ..Default::default()
     }
   }
 
-  pub fn delete(database_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
+  pub fn delete(deleted_fields: Vec<FieldIdPB>) -> Self {
     Self {
       deleted_fields,
       ..Default::default()
     }
   }
 
-  pub fn update(database_id: &str, updated_fields: Vec<FieldPB>) -> Self {
+  pub fn update(updated_fields: Vec<FieldPB>) -> Self {
     Self {
       updated_fields,
       ..Default::default()
