@@ -1,5 +1,5 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
     show WorkspaceSettingPB;
@@ -20,12 +20,14 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
     UserProfilePB user,
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsCubit appearanceSettingsCubit,
+    double screenWidthPx,
   )   : _listener = UserWorkspaceListener(userProfile: user),
         _appearanceSettingsCubit = appearanceSettingsCubit,
         super(
           HomeSettingState.initial(
             workspaceSetting,
             appearanceSettingsCubit.state,
+            screenWidthPx,
           ),
         ) {
     on<HomeSettingEvent>(
@@ -149,16 +151,18 @@ class HomeSettingState with _$HomeSettingState {
   factory HomeSettingState.initial(
     WorkspaceSettingPB workspaceSetting,
     AppearanceSettingsState appearanceSettingsState,
-  ) =>
-      HomeSettingState(
-        panelContext: none(),
-        workspaceSetting: workspaceSetting,
-        unauthorized: false,
-        isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
-        isScreenSmall: appearanceSettingsState.isMenuCollapsed,
-        keepMenuCollapsed: false,
-        resizeOffset: appearanceSettingsState.menuOffset,
-        resizeStart: 0,
-        resizeType: MenuResizeType.slide,
-      );
+    double screenWidthPx,
+  ) {
+    return HomeSettingState(
+      panelContext: none(),
+      workspaceSetting: workspaceSetting,
+      unauthorized: false,
+      isMenuCollapsed: appearanceSettingsState.isMenuCollapsed,
+      isScreenSmall: screenWidthPx < PageBreaks.tabletLandscape,
+      keepMenuCollapsed: false,
+      resizeOffset: appearanceSettingsState.menuOffset,
+      resizeStart: 0,
+      resizeType: MenuResizeType.slide,
+    );
+  }
 }

@@ -146,7 +146,12 @@ impl UserManager {
                   }
                 }
               },
-              UserTokenState::Invalid => {},
+              UserTokenState::Invalid => {
+                send_auth_state_notification(AuthStateChangedPB {
+                  state: AuthStatePB::InvalidAuth,
+                })
+                .send();
+              },
             }
           }
         });
@@ -629,7 +634,6 @@ impl UserManager {
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
-
       if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
@@ -681,7 +685,7 @@ fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &s
   let is_valid = user_profile.encryption_type.sign() == encryption_sign;
   if !is_valid {
     send_auth_state_notification(AuthStateChangedPB {
-      state: AuthStatePB::AuthStateForceSignOut,
+      state: AuthStatePB::InvalidAuth,
     })
     .send();
   }

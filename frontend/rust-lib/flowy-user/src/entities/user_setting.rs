@@ -237,3 +237,17 @@ impl std::default::Default for DateTimeSettingsPB {
     }
   }
 }
+
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationSettingsPB {
+  #[pb(index = 1)]
+  pub notifications_enabled: bool,
+}
+
+impl std::default::Default for NotificationSettingsPB {
+  fn default() -> Self {
+    NotificationSettingsPB {
+      notifications_enabled: true,
+    }
+  }
+}
