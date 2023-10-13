@@ -109,7 +109,7 @@ class _RowEditorState extends State<RowEditor> {
                       constraints: const BoxConstraints(minHeight: 300),
                       child: AppFlowyEditorPage(
                         shrinkWrap: true,
-                        autoFocus: false,
+                        autoFocus: true,
                         editorState: editorState,
                         scrollController: widget.scrollController,
                         styleCustomizer: EditorStyleCustomizer(
