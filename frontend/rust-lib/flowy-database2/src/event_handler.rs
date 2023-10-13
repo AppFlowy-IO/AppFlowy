@@ -156,29 +156,10 @@ pub(crate) async fn get_fields_handler(
   let params: GetFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  let fields = database_editor.get_fields(&params.view_id, params.field_ids);
-  let type_options = database_editor.get_field_type_options(&fields).await;
-  let field_info_in_view = database_editor
-    .get_field_info_in_view(&params.view_id, &fields)
-    .await?;
-
-  let fields = fields
+  let fields = database_editor
+    .get_fields(&params.view_id, params.field_ids)
     .into_iter()
-    .map(|field| {
-      let field_info = field_info_in_view.get(&field.id).unwrap();
-      let type_option = type_options.get(&field.id).unwrap();
-      FieldPB {
-        id: field.id,
-        name: field.name,
-        field_type: field.field_type.into(),
-        is_primary: field.is_primary,
-        width: field.width as i32,
-        type_option_data: type_option.to_vec(),
-        has_sort: field_info.has_sort,
-        has_filter: field_info.has_filter,
-        visibility: field_info.visibility.clone(),
-      }
-    })
+    .map(FieldPB::from)
     .collect::<Vec<FieldPB>>()
     .into();
 
@@ -205,27 +186,7 @@ pub(crate) async fn get_primary_field_handler(
     return Err(FlowyError::record_not_found());
   }
 
-  let primary_field = fields.pop().unwrap();
-  let field_infos = database_editor
-    .get_field_info_in_view(&view_id, &vec![primary_field.clone()])
-    .await?;
-  let field_info = field_infos.get(&primary_field.id).unwrap();
-  let type_option_datas = database_editor
-    .get_field_type_options(&vec![primary_field.clone()])
-    .await;
-  let type_option_data = type_option_datas.get(&primary_field.id).unwrap();
-
-  let primary_field = FieldPB {
-    id: primary_field.id,
-    name: primary_field.name,
-    field_type: primary_field.field_type.into(),
-    is_primary: primary_field.is_primary,
-    width: primary_field.width as i32,
-    type_option_data: type_option_data.to_vec(),
-    has_sort: field_info.has_sort,
-    has_filter: field_info.has_filter,
-    visibility: field_info.visibility.clone(),
-  };
+  let primary_field = fields.pop().unwrap().into();
 
   data_result_ok(primary_field)
 }
@@ -859,6 +820,52 @@ pub(crate) async fn get_snapshots_handler(
   let view_id = data.into_inner().value;
   let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_field_settings_handler(
+  data: AFPluginData<FieldIdsPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let (view_id, field_ids) = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_field_settings(&view_id, layout_ty, field_ids.clone())
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect();
+
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_field_settings_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
+
+  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
+
+  let field_settings = database_editor
+    .get_all_field_settings(view_id.as_ref(), layout_ty)
+    .await?
+    .into_iter()
+    .map(FieldSettingsPB::from)
+    .collect();
+
+  data_result_ok(RepeatedFieldSettingsPB {
+    items: field_settings,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

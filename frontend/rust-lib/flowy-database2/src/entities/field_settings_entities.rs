@@ -1,9 +1,10 @@
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use std::ops::Deref;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldVisibility, RepeatedFieldIdPB};
+use crate::entities::RepeatedFieldIdPB;
+use crate::impl_into_field_visibility;
 use crate::services::field_settings::{FieldSettings, FieldSettingsChangesetParams};
 
 /// Defines the field settings for a field in a view.
@@ -22,6 +23,24 @@ impl From<FieldSettings> for FieldSettingsPB {
       field_id: value.field_id,
       visibility: value.visibility,
     }
+  }
+}
+
+#[repr(u8)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq)]
+pub enum FieldVisibility {
+  #[default]
+  AlwaysShown = 0,
+  HideWhenEmpty = 1,
+  AlwaysHidden = 2,
+}
+
+impl_into_field_visibility!(i64);
+impl_into_field_visibility!(u8);
+
+impl From<FieldVisibility> for i64 {
+  fn from(value: FieldVisibility) -> Self {
+    (value as u8) as i64
   }
 }
 
@@ -96,6 +115,8 @@ impl TryFrom<FieldSettingsChangesetPB> for FieldSettingsChangesetParams {
   type Error = ErrorCode;
 
   fn try_from(value: FieldSettingsChangesetPB) -> Result<Self, Self::Error> {
+    let view_id = NotEmptyStr::parse(value.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let field_id = NotEmptyStr::parse(value.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
     Ok(FieldSettingsChangesetParams {
       view_id: value.view_id,
       field_id: value.field_id,

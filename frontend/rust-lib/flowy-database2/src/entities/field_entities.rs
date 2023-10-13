@@ -12,7 +12,8 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::{impl_into_field_type, impl_into_field_visibility};
+use crate::impl_into_field_type;
+use crate::services::field::{default_type_option_data_from_type, type_option_to_pb};
 
 /// [FieldPB] defines a [Field]'s attributes such as the name, id, field_type,
 /// as well as its properties in the current view: has_sort, has_filter, etc.
@@ -35,15 +36,23 @@ pub struct FieldPB {
 
   #[pb(index = 6)]
   pub type_option_data: Vec<u8>,
+}
 
-  #[pb(index = 7)]
-  pub has_sort: bool,
-
-  #[pb(index = 8)]
-  pub has_filter: bool,
-
-  #[pb(index = 9)]
-  pub visibility: FieldVisibility,
+impl std::convert::From<Field> for FieldPB {
+  fn from(field: Field) -> Self {
+    let field_type = FieldType::from(field.field_type);
+    let type_option = field
+      .get_any_type_option(field_type.clone())
+      .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
+    Self {
+      id: field.id,
+      name: field.name,
+      field_type: field_type.clone(),
+      width: field.width as i32,
+      is_primary: field.is_primary,
+      type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
+    }
+  }
 }
 
 /// [FieldIdPB] id of the [Field]
@@ -90,6 +99,15 @@ pub struct IndexFieldPB {
 
   #[pb(index = 2)]
   pub index: i32,
+}
+
+impl IndexFieldPB {
+  pub fn from_field(field: Field, index: usize) -> Self {
+    Self {
+      field: FieldPB::from(field),
+      index: index as i32,
+    }
+  }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -159,47 +177,6 @@ impl TryInto<EditFieldParams> for UpdateFieldTypePayloadPB {
     })
   }
 }
-
-// #[derive(Debug, Default, ProtoBuf)]
-// pub struct TypeOptionPathPB {
-//   #[pb(index = 1)]
-//   pub view_id: String,
-
-//   #[pb(index = 2)]
-//   pub field_id: String,
-
-//   #[pb(index = 3)]
-//   pub field_type: FieldType,
-// }
-
-// pub struct TypeOptionPathParams {
-//   pub view_id: String,
-//   pub field_id: String,
-//   pub field_type: FieldType,
-// }
-
-// impl TryInto<TypeOptionPathParams> for TypeOptionPathPB {
-//   type Error = ErrorCode;
-
-//   fn try_into(self) -> Result<TypeOptionPathParams, Self::Error> {
-//     let database_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
-//     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-//     Ok(TypeOptionPathParams {
-//       view_id: database_id.0,
-//       field_id: field_id.0,
-//       field_type: self.field_type,
-//     })
-//   }
-// }
-
-// #[derive(Debug, Default, ProtoBuf)]
-// pub struct TypeOptionPB {
-//   #[pb(index = 1)]
-//   pub view_id: String,
-
-//   #[pb(index = 2)]
-//   pub type_option_data: Vec<u8>,
-// }
 
 /// Collection of the [FieldPB]
 #[derive(Debug, Default, ProtoBuf)]
@@ -402,36 +379,6 @@ pub struct FieldChangesetParams {
   pub type_option: Option<Vec<u8>>,
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldUpdateNotificationPB {
-  #[pb(index = 1)]
-  pub field_id: String,
-
-  #[pb(index = 2, one_of)]
-  pub name: Option<String>,
-
-  #[pb(index = 3, one_of)]
-  pub field_type: Option<FieldType>,
-
-  #[pb(index = 4, one_of)]
-  pub width: Option<i32>,
-
-  #[pb(index = 5, one_of)]
-  pub type_option: Option<Vec<u8>>,
-
-  #[pb(index = 6, one_of)]
-  pub has_sort: Option<bool>,
-
-  #[pb(index = 7, one_of)]
-  pub has_filter: Option<bool>,
-
-  #[pb(index = 8, one_of)]
-  pub visibility: Option<FieldVisibility>,
-
-  #[pb(index = 9, one_of)]
-  pub index: Option<i32>,
-}
-
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization
 /// of the FieldTypeOption class.
@@ -593,15 +540,6 @@ pub struct DuplicateFieldPayloadPB {
   pub view_id: String,
 }
 
-// #[derive(Debug, Clone, Default, ProtoBuf)]
-// pub struct GridFieldIdentifierPayloadPB {
-//   #[pb(index = 1)]
-//   pub field_id: String,
-//
-//   #[pb(index = 2)]
-//   pub view_id: String,
-// }
-
 impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
   type Error = ErrorCode;
 
@@ -637,31 +575,43 @@ impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
   }
 }
 
+/// Used when duplicating or deleting a field to identify the field.
 pub struct FieldIdParams {
   pub field_id: String,
   pub view_id: String,
 }
 
-pub struct ViewFieldInfoParams {
-  pub has_sort: bool,
-  pub has_filter: bool,
-  pub visibility: FieldVisibility,
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct FieldUpdateNotificationPB {
+  #[pb(index = 1)]
+  pub inserted_fields: Vec<IndexFieldPB>,
+
+  #[pb(index = 2)]
+  pub deleted_fields: Vec<FieldIdPB>,
+
+  #[pb(index = 3)]
+  pub updated_fields: Vec<FieldPB>,
 }
 
-#[repr(u8)]
-#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq)]
-pub enum FieldVisibility {
-  #[default]
-  AlwaysShown = 0,
-  HideWhenEmpty = 1,
-  AlwaysHidden = 2,
-}
+impl FieldUpdateNotificationPB {
+  pub fn insert(database_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
+    Self {
+      inserted_fields,
+      ..Default::default()
+    }
+  }
 
-impl_into_field_visibility!(i64);
-impl_into_field_visibility!(u8);
+  pub fn delete(database_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
+    Self {
+      deleted_fields,
+      ..Default::default()
+    }
+  }
 
-impl From<FieldVisibility> for i64 {
-  fn from(value: FieldVisibility) -> Self {
-    (value as u8) as i64
+  pub fn update(database_id: &str, updated_fields: Vec<FieldPB>) -> Self {
+    Self {
+      updated_fields,
+      ..Default::default()
+    }
   }
 }
