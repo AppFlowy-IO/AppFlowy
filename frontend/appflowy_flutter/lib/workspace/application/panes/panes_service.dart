@@ -164,4 +164,11 @@ class PanesService {
 
     return node.copyWith(children: newChildren);
   }
+
+  PaneNode findFirstLeaf({required PaneNode node}) {
+    if (node.children.isEmpty) {
+      return node;
+    }
+    return node.children[0];
+  }
 }

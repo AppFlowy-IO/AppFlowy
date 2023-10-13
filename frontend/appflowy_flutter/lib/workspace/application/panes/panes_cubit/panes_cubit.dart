@@ -1,11 +1,9 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:nanoid/nanoid.dart';
 
 import '../panes.dart';
 
@@ -50,23 +48,31 @@ class PanesCubit extends Cubit<PanesState> {
       axis: axis,
     );
 
+    final firstLeafNode = panesService.findFirstLeaf(node: state.root);
+
     emit(
       state.copyWith(
         root: root,
         count: state.count + 1,
+        firstLeafNode: firstLeafNode,
       ),
     );
     setActivePane(state.root.children.last);
   }
 
   void closePane({required String paneId, bool closingToMove = false}) {
+    final root = panesService.closePaneHandler(
+      node: state.root,
+      targetPaneId: paneId,
+      closingToMove: closingToMove,
+    );
+
+    final firstLeafNode = panesService.findFirstLeaf(node: state.root);
+
     emit(
       state.copyWith(
-        root: panesService.closePaneHandler(
-          node: state.root,
-          targetPaneId: paneId,
-          closingToMove: closingToMove,
-        ),
+        root: root,
+        firstLeafNode: firstLeafNode,
         count: state.count - 1,
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:nanoid/nanoid.dart';
 
 class PaneNode extends Equatable {
   final List<PaneNode> children;
@@ -35,6 +36,14 @@ class PaneNode extends Equatable {
     );
   }
 
+  factory PaneNode.initial() {
+    return PaneNode(
+      tabs: TabsController(),
+      children: const [],
+      paneId: nanoid(),
+      axis: null,
+    );
+  }
   @override
   List<Object?> get props => [paneId, axis, children.length, parent, tabs];
 }

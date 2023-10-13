@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -29,7 +31,11 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({Key? key}) : super(key: key);
+  final String currentPaneId;
+  const FlowyNavigation({
+    Key? key,
+    required this.currentPaneId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +69,9 @@ class FlowyNavigation extends StatelessWidget {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
+        final currentActivePane = getIt<PanesCubit>().state.firstLeafNode;
+        if (state.isMenuCollapsed &&
+            currentPaneId == currentActivePane.paneId) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: FlowyTooltip.delayed(

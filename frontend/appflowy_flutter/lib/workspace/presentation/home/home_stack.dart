@@ -279,7 +279,7 @@ class HomeTopBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HSpace(layout.menuSpacing),
-            const FlowyNavigation(),
+            FlowyNavigation(currentPaneId: paneId),
             const HSpace(16),
             ChangeNotifierProvider.value(
               value: Provider.of<PageNotifier>(context, listen: false),

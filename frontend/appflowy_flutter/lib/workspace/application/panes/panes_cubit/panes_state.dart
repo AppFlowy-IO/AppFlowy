@@ -4,6 +4,7 @@ class PanesState extends Equatable {
   final PaneNode root;
   final int count;
   final PaneNode activePane;
+  final PaneNode firstLeafNode;
   final bool allowPaneDrag;
 
   const PanesState({
@@ -11,20 +12,17 @@ class PanesState extends Equatable {
     required this.root,
     required this.count,
     required this.allowPaneDrag,
+    required this.firstLeafNode,
   });
 
   factory PanesState.initial() {
-    final pane = PaneNode(
-      tabs: TabsController(),
-      children: const [],
-      paneId: nanoid(),
-      axis: null,
-    );
+    final pane = PaneNode.initial();
     return PanesState(
       activePane: pane,
       root: pane,
       count: 1,
       allowPaneDrag: false,
+      firstLeafNode: pane,
     );
   }
 
@@ -33,15 +31,18 @@ class PanesState extends Equatable {
     bool? allowPaneDrag,
     PaneNode? root,
     int? count,
+    PaneNode? firstLeafNode,
   }) {
     return PanesState(
       root: root ?? this.root,
       activePane: activePane ?? this.activePane,
       count: count ?? this.count,
       allowPaneDrag: allowPaneDrag ?? this.allowPaneDrag,
+      firstLeafNode: firstLeafNode ?? this.firstLeafNode,
     );
   }
 
   @override
-  List<Object?> get props => [root, count, activePane, allowPaneDrag];
+  List<Object?> get props =>
+      [root, count, activePane, allowPaneDrag, firstLeafNode];
 }
