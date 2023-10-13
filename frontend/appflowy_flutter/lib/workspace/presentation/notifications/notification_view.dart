@@ -1,3 +1,4 @@
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/notification_item.dart';
 import 'package:appflowy/workspace/presentation/notifications/notifications_hub_empty.dart';
@@ -36,7 +37,7 @@ class NotificationsView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...shownReminders.map(
-            (reminder) {
+            (ReminderPB reminder) {
               return NotificationItem(
                 reminderId: reminder.id,
                 key: ValueKey(reminder.id),
@@ -44,6 +45,7 @@ class NotificationsView extends StatelessWidget {
                 scheduled: reminder.scheduledAt,
                 body: reminder.message,
                 isRead: reminder.isRead,
+                includeTime: reminder.includeTime ?? false,
                 readOnly: isUpcoming,
                 onReadChanged: (isRead) =>
                     onReadChanged?.call(reminder, isRead),

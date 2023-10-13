@@ -18,6 +18,7 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
+    this.includeTime = false,
     this.readOnly = false,
     this.onAction,
     this.onDelete,
@@ -28,8 +29,9 @@ class NotificationItem extends StatefulWidget {
   final String title;
   final Int64 scheduled;
   final String body;
-  final bool isRead;
+  final bool includeTime;
   final bool readOnly;
+  final bool isRead;
 
   final VoidCallback? onAction;
   final VoidCallback? onDelete;
@@ -99,7 +101,10 @@ class _NotificationItemState extends State<NotificationItem> {
                               ),
                               const HSpace(8),
                               FlowyText.regular(
-                                _scheduledString(widget.scheduled),
+                                _scheduledString(
+                                  widget.scheduled,
+                                  widget.includeTime,
+                                ),
                                 fontSize: 10,
                               ),
                             ],
@@ -129,14 +134,14 @@ class _NotificationItemState extends State<NotificationItem> {
     );
   }
 
-  String _scheduledString(Int64 secondsSinceEpoch) => context
-      .read<AppearanceSettingsCubit>()
-      .state
-      .dateFormat
-      .formatDate(
-        DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
-        true,
-      );
+  String _scheduledString(Int64 secondsSinceEpoch, bool includeTime) {
+    final appearance = context.read<AppearanceSettingsCubit>().state;
+    return appearance.dateFormat.formatDate(
+      DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
+      includeTime,
+      appearance.timeFormat,
+    );
+  }
 
   void _onHover(bool isHovering) => setState(() => _isHovering = isHovering);
 }

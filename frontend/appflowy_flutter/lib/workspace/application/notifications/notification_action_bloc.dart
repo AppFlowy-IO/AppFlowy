@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

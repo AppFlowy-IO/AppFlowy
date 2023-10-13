@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -181,18 +182,25 @@ class ReminderUpdate {
   final bool? isAck;
   final bool? isRead;
   final DateTime? scheduledAt;
+  final bool? includeTime;
 
   ReminderUpdate({
     required this.id,
     this.isAck,
     this.isRead,
     this.scheduledAt,
+    this.includeTime,
   });
 
   ReminderPB merge({required ReminderPB a}) {
     final isAcknowledged = isAck == null && scheduledAt != null
         ? scheduledAt!.isBefore(DateTime.now())
         : a.isAck;
+
+    final meta = a.meta;
+    if (includeTime != a.includeTime) {
+      meta[ReminderMetaKeys.includeTime.name] = includeTime.toString();
+    }
 
     return ReminderPB(
       id: a.id,
@@ -204,7 +212,7 @@ class ReminderUpdate {
       isRead: isRead ?? a.isRead,
       title: a.title,
       message: a.message,
-      meta: a.meta,
+      meta: meta,
     );
   }
 }
