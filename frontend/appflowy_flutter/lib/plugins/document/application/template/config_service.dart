@@ -77,6 +77,11 @@ class ConfigService {
     final document = json.decode(jsonData);
     final List<dynamic> children = document["document"]["children"];
 
+    final dir = Directory(path.join(directory.path, 'template'));
+    if (!dir.existsSync()) {
+      await dir.create(recursive: true);
+    }
+
     for (int i = 0; i < children.length; i++) {
       // Export images first, so that names can be determined
       if (children[i]["type"] == ImageBlockKeys.type) {
@@ -84,11 +89,6 @@ class ConfigService {
 
         final image = File.fromUri(Uri.parse(url));
         final bytes = await image.readAsBytes();
-
-        final dir = Directory(path.join(directory.path, 'template'));
-        if (!dir.existsSync()) {
-          await dir.create(recursive: true);
-        }
 
         final extension = url.substring(url.lastIndexOf(".") + 1, url.length);
 
@@ -106,7 +106,7 @@ class ConfigService {
     final directory = await getApplicationDocumentsDirectory();
 
     final dir = Directory(path.join(directory.path, 'template'));
-    if (!(await dir.exists())) {
+    if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
 

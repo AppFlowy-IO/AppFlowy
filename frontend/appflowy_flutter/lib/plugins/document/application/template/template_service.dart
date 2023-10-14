@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/document/application/template/config_service.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
+import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 
-import 'package:archive/archive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -28,15 +28,47 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 
 class TemplateService {
   Future<bool> saveTemplate(ViewPB view) async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    // Delete the template folder, after c  reating zip
+    final tempDir = Directory(path.join(directory.path, 'template'));
+    if (await tempDir.exists()) {
+      await tempDir.delete(recursive: true);
+    }
+
     final configService = ConfigService();
     await configService.initConfig(view);
     final template = await configService.saveConfig();
 
     // Export parent view first and then continue with subviews
     await _exportDocumentAsJSON(view, template.documents);
-    _exportTemplate(view, template.documents.childViews);
+    await _exportTemplate(view, template.documents.childViews);
+
+    // Zip all the files exported
+    await archieveTemplateFiles();
 
     return true;
+  }
+
+  Future<void> archieveTemplateFiles() async {
+    final encoder = ZipFileEncoder();
+
+    final directory = await getApplicationDocumentsDirectory();
+    encoder.create(path.join(directory.path, 'template.zip'));
+
+    final dir = Directory(path.join(directory.path, 'template'));
+    final files = dir.listSync(recursive: true);
+
+    for (final file in files) {
+      if (file is File) {
+        final filePath = file.path;
+        final fileName = path.basename(filePath);
+        final fileContent = await file.readAsBytes();
+        encoder.addArchiveFile(
+            ArchiveFile(fileName, fileContent.length, fileContent));
+      }
+    }
+    encoder.close();
   }
 
   // Exports all the child views
@@ -134,7 +166,7 @@ class TemplateService {
     );
 
     // User cancelled the picker
-    if (result == null) return null;
+    if (result == null || result.files.isEmpty) return null;
 
     // Extract the contents of the ZIP file
     final file = File(result.files.single.path!);
@@ -152,7 +184,6 @@ class TemplateService {
     if (archive == null) return;
 
     final directory = await getTemporaryDirectory();
-    print(directory.absolute.path);
 
     for (final file in archive) {
       final filename = '${directory.path}/${file.name}';
