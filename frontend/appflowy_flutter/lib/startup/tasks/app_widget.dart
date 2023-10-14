@@ -1,19 +1,23 @@
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
-import 'package:appflowy/startup/tasks/prelude.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+
+import 'prelude.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../user/application/user_settings_service.dart';
-import '../../workspace/application/appearance.dart';
-import '../startup.dart';
+import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/startup/startup.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
@@ -68,6 +72,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('tr', 'TR'),
           Locale('uk', 'UA'),
           Locale('ur'),
+          Locale('vi', 'VN'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
           Locale('fa'),
@@ -94,8 +99,8 @@ class ApplicationWidget extends StatefulWidget {
   });
 
   final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
   final AppTheme appTheme;
+  final AppearanceSettingsPB appearanceSetting;
   final DateTimeSettingsPB dateTimeSettings;
 
   @override
@@ -123,6 +128,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
             widget.dateTimeSettings,
             widget.appTheme,
           )..readLocaleWhenAppLaunch(context),
+        ),
+        BlocProvider<NotificationSettingsCubit>(
+          create: (_) => getIt<NotificationSettingsCubit>(),
         ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),

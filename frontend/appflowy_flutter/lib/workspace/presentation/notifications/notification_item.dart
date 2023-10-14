@@ -1,13 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-
-DateFormat _dateFormat(BuildContext context) => DateFormat('MMM d, y');
+import 'package:provider/provider.dart';
 
 class NotificationItem extends StatefulWidget {
   const NotificationItem({
@@ -17,6 +18,7 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
+    this.readOnly = false,
     this.onAction,
     this.onDelete,
     this.onReadChanged,
@@ -27,6 +29,7 @@ class NotificationItem extends StatefulWidget {
   final Int64 scheduled;
   final String body;
   final bool isRead;
+  final bool readOnly;
 
   final VoidCallback? onAction;
   final VoidCallback? onDelete;
@@ -53,7 +56,7 @@ class _NotificationItemState extends State<NotificationItem> {
           GestureDetector(
             onTap: widget.onAction,
             child: Opacity(
-              opacity: widget.isRead ? 0.5 : 1,
+              opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -68,7 +71,7 @@ class _NotificationItemState extends State<NotificationItem> {
                     Stack(
                       children: [
                         const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
-                        if (!widget.isRead)
+                        if (!widget.isRead && !widget.readOnly)
                           Positioned(
                             bottom: 1,
                             right: 1,
@@ -89,11 +92,12 @@ class _NotificationItemState extends State<NotificationItem> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
-                                child: FlowyText.semibold(widget.title),
+                              FlowyText.semibold(
+                                widget.title,
+                                fontSize: 14,
                               ),
+                              const HSpace(8),
                               FlowyText.regular(
                                 _scheduledString(widget.scheduled),
                                 fontSize: 10,
@@ -110,7 +114,7 @@ class _NotificationItemState extends State<NotificationItem> {
               ),
             ),
           ),
-          if (_isHovering)
+          if (_isHovering && !widget.readOnly)
             Positioned(
               right: 4,
               top: 4,
@@ -125,9 +129,13 @@ class _NotificationItemState extends State<NotificationItem> {
     );
   }
 
-  String _scheduledString(Int64 secondsSinceEpoch) =>
-      _dateFormat(context).format(
+  String _scheduledString(Int64 secondsSinceEpoch) => context
+      .read<AppearanceSettingsCubit>()
+      .state
+      .dateFormat
+      .formatDate(
         DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
+        true,
       );
 
   void _onHover(bool isHovering) => setState(() => _isHovering = isHovering);

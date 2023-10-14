@@ -25,6 +25,7 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -171,14 +172,22 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
-  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
+  getIt.registerSingleton<NotificationSettingsCubit>(
+    NotificationSettingsCubit(),
+  );
+
+  getIt.registerSingleton<ReminderBloc>(
+    ReminderBloc(notificationSettings: getIt<NotificationSettingsCubit>()),
+  );
 }
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-    (user, workspaceId) =>
-        WorkspaceListener(user: user, workspaceId: workspaceId),
+    (user, workspaceId) => WorkspaceListener(
+      user: user,
+      workspaceId: workspaceId,
+    ),
   );
 
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(

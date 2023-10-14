@@ -29,7 +29,7 @@ class DocumentMoreButton extends StatelessWidget {
           ),
         ];
       },
-      child: FlowyTooltip.delayed(
+      child: FlowyTooltip(
         message: LocaleKeys.moreAction_moreOptions.tr(),
         child: FlowySvg(
           FlowySvgs.details_s,
