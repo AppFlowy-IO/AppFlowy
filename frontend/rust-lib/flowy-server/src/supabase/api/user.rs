@@ -17,6 +17,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
+use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
@@ -197,7 +198,7 @@ where
   fn get_user_profile(
     &self,
     credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let uid = credential
       .uid
