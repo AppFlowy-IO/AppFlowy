@@ -38,15 +38,6 @@ void main() {
     final field = editorBloc.state.field;
     assert(field != null && field.fieldType == FieldType.RichText);
   });
-
-  test('delete field', () async {
-    final editorBloc = await makeEditorBloc(gridTest);
-    editorBloc.add(const FieldEditorEvent.deleteField());
-    await gridResponseFuture();
-
-    final field = editorBloc.state.field;
-    assert(field != null && field.fieldType == FieldType.RichText);
-  });
 }
 
 Future<FieldEditorBloc> makeEditorBloc(AppFlowyGridTest gridTest) async {

@@ -5,6 +5,7 @@ use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
+use futures::future::join_all;
 use futures::StreamExt;
 use tokio::sync::{broadcast, RwLock};
 
@@ -288,15 +289,19 @@ impl DatabaseEditor {
       .v_get_field_settings(layout_type, &field_ids)
       .await;
 
-    let field_infos = field_ids
+    let field_infos: Vec<_> = field_ids
       .iter()
-      .map(|field_id| FieldInfoParams {
-        has_sort: sort_field_ids.contains(field_id),
-        has_filter: filter_field_ids.contains(field_id),
-        is_group_field: false,
-        visibility: field_settings.get(field_id).unwrap().clone().visibility,
+      .map(|field_id| async {
+        FieldInfoParams {
+          has_sort: sort_field_ids.contains(field_id),
+          has_filter: filter_field_ids.contains(field_id),
+          is_group_field: view_editor.is_grouping_field(field_id).await,
+          visibility: field_settings.get(field_id).unwrap().clone().visibility,
+        }
       })
       .collect();
+
+    let field_infos = join_all(field_infos).await;
 
     Ok(field_infos)
   }
@@ -417,7 +422,7 @@ impl DatabaseEditor {
       let old_type_option = field.get_any_type_option(old_field_type.clone());
       let new_type_option = field
         .get_any_type_option(new_field_type)
-        .unwrap_or(default_type_option_data_from_type(new_field_type));
+        .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
       let transformed_type_option = transform_type_option(
         &new_type_option,
@@ -1191,6 +1196,13 @@ impl DatabaseEditor {
     view
       .v_update_field_settings(&params.view_id, &params.field_id, params.visibility)
       .await?;
+
+    self
+      .notify_did_update_field_to_single_field(&params.field_id)
+      .await?;
+    self
+      .notify_did_update_field_to_views(None, vec![params.field_id])
+      .await;
 
     Ok(())
   }

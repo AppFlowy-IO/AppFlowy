@@ -38,9 +38,7 @@ void main() {
       build: () => BoardBloc(
         view: context.gridView,
         databaseController: DatabaseController(view: context.gridView),
-      )..add(
-          const BoardEvent.initial(),
-        ),
+      )..add(const BoardEvent.initial()),
       wait: boardResponseDuration(),
       verify: (bloc) {
         assert(
