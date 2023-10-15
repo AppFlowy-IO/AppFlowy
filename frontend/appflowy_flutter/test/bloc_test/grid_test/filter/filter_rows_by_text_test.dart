@@ -24,8 +24,8 @@ void main() {
     );
     await gridResponseFuture();
     assert(
-      context.fieldController.filterInfos.length == 1,
-      "expect 1 but receive ${context.fieldController.filterInfos.length}",
+      context.filterController.filters.length == 1,
+      "expect 1 but receive ${context.filterController.filters.length}",
     );
     assert(
       context.rowInfos.length == 1,
@@ -33,7 +33,7 @@ void main() {
     );
 
     // delete the filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.filterController.filters.first;
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
@@ -61,7 +61,7 @@ void main() {
     );
 
     // delete the filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.filterController.filters.first;
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
@@ -84,8 +84,8 @@ void main() {
     );
     await gridResponseFuture();
     assert(
-      context.fieldController.filterInfos.length == 1,
-      "expect 1 but receive ${context.fieldController.filterInfos.length}",
+      context.filterController.filters.length == 1,
+      "expect 1 but receive ${context.filterController.filters.length}",
     );
     assert(
       context.rowInfos.length == 1,
@@ -93,7 +93,7 @@ void main() {
     );
 
     // Update the existing filter
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.filterController.filters.first;
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
@@ -131,7 +131,7 @@ void main() {
     );
 
     // Update the existing filter's content from 'A' to 'B'
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.filterController.filters.first;
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,

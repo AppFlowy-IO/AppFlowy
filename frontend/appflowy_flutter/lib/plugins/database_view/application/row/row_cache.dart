@@ -56,9 +56,9 @@ class RowCache {
         _fieldDelegate = fieldsDelegate {
     // Listen on the changed of the fields. If the fields changed, we need to
     // clear the cell cache with the given field id.
-    fieldsDelegate.onFieldsChanged((fieldInfos) {
-      for (final fieldInfo in fieldInfos) {
-        _cellMemCache.removeCellWithFieldId(fieldInfo.id);
+    fieldsDelegate.onFieldsChanged((fields) {
+      for (final field in fields) {
+        _cellMemCache.removeCellWithFieldId(field.id);
       }
       _changedNotifier.receive(const ChangedReason.fieldDidChange());
     });

@@ -16,6 +16,7 @@ void main() {
     final menuBloc = GridFilterMenuBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
+      filterController: context.filterController,
     )..add(const GridFilterMenuEvent.initial());
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 3);
@@ -36,6 +37,7 @@ void main() {
     final menuBloc = GridFilterMenuBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
+      filterController: context.filterController,
     )..add(const GridFilterMenuEvent.initial());
     await gridResponseFuture();
 
@@ -50,7 +52,7 @@ void main() {
     );
     await gridResponseFuture();
 
-    final textFilter = context.fieldController.filterInfos.first;
+    final textFilter = context.filterController.filters.first;
     // Update the existing filter
     await service.insertTextFilter(
       fieldId: textField.id,

@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -46,9 +47,9 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       );
     }
     return BlocProvider(
-      create: (context) => getIt<FieldActionSheetBloc>(
-        param1: widget.viewId,
-        param2: widget.field,
+      create: (context) => FieldActionSheetBloc(
+        viewId: widget.viewId,
+        field: widget.field,
       ),
       child: IntrinsicWidth(
         child: Column(
@@ -57,7 +58,7 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
           children: [
             _editFieldButton(),
             VSpace(GridSize.typeOptionSeparatorHeight),
-            _FieldOperationList(field: widget.field),
+            _FieldOperationList(viewId: widget.viewId, field: widget.field),
           ],
         ),
       ),
@@ -84,9 +85,13 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 }
 
 class _FieldOperationList extends StatelessWidget {
+  final String viewId;
   final FieldPB field;
 
-  const _FieldOperationList({required this.field});
+  const _FieldOperationList({
+    required this.field,
+    required this.viewId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,19 +138,28 @@ class _FieldOperationList extends StatelessWidget {
     return Flexible(
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: FieldActionCell(action: action, enable: enable),
+        child: FieldActionCell(
+          viewId: viewId,
+          fieldId: field.id,
+          action: action,
+          enable: enable,
+        ),
       ),
     );
   }
 }
 
 class FieldActionCell extends StatelessWidget {
+  final String viewId;
+  final String fieldId;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
     required this.action,
     required this.enable,
+    required this.viewId,
+    required this.fieldId,
     super.key,
   });
 
@@ -160,7 +174,7 @@ class FieldActionCell extends StatelessWidget {
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () => action.run(context),
+      onTap: () => action.run(context, viewId, fieldId),
       leftIcon: FlowySvg(
         action.icon(),
         color: enable
@@ -200,31 +214,40 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context) {
+  void run(BuildContext context, String viewId, String fieldId) async {
     switch (this) {
       case FieldAction.hide:
         PopoverContainer.of(context).close();
-        context
-            .read<FieldActionSheetBloc>()
-            .add(const FieldActionSheetEvent.hideField());
+        final result = await FieldSettingsBackendService.updateFieldSettings(
+          viewId: viewId,
+          fieldId: fieldId,
+          fieldVisibility: FieldVisibility.AlwaysHidden,
+        );
+        result.fold((l) => null, (err) => Log.error(err));
         break;
       case FieldAction.duplicate:
         PopoverContainer.of(context).close();
-        context
-            .read<FieldActionSheetBloc>()
-            .add(const FieldActionSheetEvent.duplicateField());
+        final result = await FieldBackendService.duplicateField(
+          viewId: viewId,
+          fieldId: fieldId,
+        );
+        result.fold(
+          (l) => null,
+          (err) => Log.error(err),
+        );
         break;
       case FieldAction.delete:
         PopoverContainer.of(context).close();
         NavigatorAlertDialog(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<FieldActionSheetBloc>()
-                .add(const FieldActionSheetEvent.deleteField());
+          confirm: () async {
+            final result = await FieldBackendService.deleteField(
+              viewId: viewId,
+              fieldId: fieldId,
+            );
+            result.fold((l) => null, (err) => Log.error(err));
           },
         ).show(context);
-
         break;
     }
   }

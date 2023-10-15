@@ -64,7 +64,7 @@ impl DatabaseFieldTest {
     match script {
       FieldScript::CreateField { params } => {
         self.field_count += 1;
-        self
+        let _ = self
           .editor
           .create_field_with_type_option(&self.view_id, &params.field_type, params.type_option_data)
           .await;

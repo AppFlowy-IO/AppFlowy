@@ -11,7 +11,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 
 import '../../../layout/sizes.dart';
 import '../../../../../widgets/row/cells/select_option_cell/extension.dart';
-import '../../common/type_option_separator.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionEditor extends StatelessWidget {
@@ -39,7 +38,6 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {
           final List<Widget> children = [
-            const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
               CreateOptionTextField(popoverMutex: popoverMutex),

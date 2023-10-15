@@ -956,8 +956,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final findFilter = find.byWidgetPredicate(
       (widget) =>
           widget is GridFilterPropertyCell &&
-          widget.fieldInfo.fieldType == fieldType &&
-          widget.fieldInfo.name == title,
+          widget.field.fieldType == fieldType &&
+          widget.field.name == title,
     );
 
     await tapButton(findFilter);

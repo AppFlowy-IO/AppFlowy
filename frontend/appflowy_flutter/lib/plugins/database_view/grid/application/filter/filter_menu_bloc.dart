@@ -42,11 +42,12 @@ class GridFilterMenuBloc
             final isVisible = !state.isVisible;
             emit(state.copyWith(isVisible: isVisible));
           },
-          didReceiveFields: (List<FieldPB> fields) {
+          didReceiveFields: (fields) {
+            final newFields = List<FieldPB>.from(fields);
             emit(
               state.copyWith(
                 fields: fields,
-                creatableFields: getCreatableFilter(fields),
+                creatableFields: getCreatableFilter(newFields),
               ),
             );
           },

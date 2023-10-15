@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,17 +32,12 @@ void main() {
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
-    final fieldInfo = context.singleSelectFieldContext();
-    final loader = FieldTypeOptionLoader(
-      viewId: context.gridView.id,
-      field: fieldInfo.field,
-    );
+    final field = context.singleSelectFieldContext();
 
     final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
-      loader: loader,
-      field: fieldInfo.field,
-    )..add(const FieldEditorEvent.initial());
+      isGroupField: field.isGroupField,
+      viewId: context.gridView.id,
+    )..add(FieldEditorEvent.initial(field));
     await boardResponseFuture();
 
     editorBloc.add(const FieldEditorEvent.updateName('Hello world'));
@@ -71,7 +65,7 @@ void main() {
 
     await context.createField(FieldType.Checkbox);
     await boardResponseFuture();
-    final checkboxField = context.fieldContexts.last.field;
+    final checkboxField = context.fieldContexts.last;
     assert(checkboxField.fieldType == FieldType.Checkbox);
 
     assert(

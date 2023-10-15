@@ -293,7 +293,7 @@ impl DatabaseEditor {
       .map(|field_id| FieldInfoParams {
         has_sort: sort_field_ids.contains(field_id),
         has_filter: filter_field_ids.contains(field_id),
-        is_layout_field: false,
+        is_group_field: false,
         visibility: field_settings.get(field_id).unwrap().clone().visibility,
       })
       .collect();

@@ -44,7 +44,7 @@ pub struct FieldPB {
   pub has_filter: bool,
 
   #[pb(index = 9)]
-  pub is_layout_field: bool,
+  pub is_group_field: bool,
 
   #[pb(index = 10)]
   pub visibility: FieldVisibility,
@@ -65,7 +65,7 @@ impl FieldPB {
       type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
       has_sort: field_info.has_sort,
       has_filter: field_info.has_filter,
-      is_layout_field: field_info.is_layout_field,
+      is_group_field: field_info.is_group_field,
       visibility: field_info.visibility,
     }
   }
@@ -654,6 +654,6 @@ impl From<FieldVisibility> for i64 {
 pub struct FieldInfoParams {
   pub has_sort: bool,
   pub has_filter: bool,
-  pub is_layout_field: bool,
+  pub is_group_field: bool,
   pub visibility: FieldVisibility,
 }

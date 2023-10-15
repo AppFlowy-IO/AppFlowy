@@ -27,10 +27,11 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
             );
           },
           didReceiveFieldUpdate: (fields) {
-            fields.retainWhere(
+            final newFields = List<FieldPB>.from(fields);
+            newFields.retainWhere(
               (field) => field.visibility != FieldVisibility.AlwaysHidden,
             );
-            emit(GridHeaderState(fields: fields));
+            emit(GridHeaderState(fields: newFields));
           },
           moveField: (FieldPB field, int fromIndex, int toIndex) async {
             await _moveField(field.id, fromIndex, toIndex, emit);

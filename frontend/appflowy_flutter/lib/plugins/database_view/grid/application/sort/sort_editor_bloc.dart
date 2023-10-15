@@ -26,8 +26,9 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
     required this.sortController,
     required this.fieldController,
   })  : _sortBackendSvc = SortBackendService(viewId: viewId),
-        super(SortEditorState.initial(
-            sortController.sorts, fieldController.fields)) {
+        super(
+          SortEditorState.initial(sortController.sorts, fieldController.fields),
+        ) {
     on<SortEditorEvent>(
       (event, emit) async {
         event.when(
@@ -85,7 +86,7 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
 
     sortController.addListener(
       listenWhen: () => !isClosed,
-      onReceiveSorts: _onSortFn,
+      onReceiveSorts: _onSortFn!,
     );
 
     fieldController.addListener(

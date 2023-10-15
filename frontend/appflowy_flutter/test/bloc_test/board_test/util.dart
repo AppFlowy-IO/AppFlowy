@@ -2,9 +2,6 @@ import 'package:appflowy/plugins/database_view/application/cell/cell_controller.
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_extension.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_parser.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/board.dart';
@@ -72,26 +69,21 @@ class BoardTestContext {
     return _boardDataController.rowCache.rowInfos;
   }
 
-  List<FieldInfo> get fieldContexts => fieldController.fieldInfos;
+  List<FieldPB> get fieldContexts => fieldController.fields;
 
   FieldController get fieldController {
     return _boardDataController.fieldController;
   }
 
-  FieldEditorBloc makeFieldEditor({
-    required FieldInfo fieldInfo,
-  }) {
-    final loader = FieldTypeOptionLoader(
-      viewId: gridView.id,
-      field: fieldInfo.field,
-    );
+  String get viewId => _boardDataController.viewId;
 
-    final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
-      loader: loader,
-      field: fieldInfo.field,
-    );
-    return editorBloc;
+  FieldEditorBloc makeFieldEditor({
+    required FieldPB field,
+  }) {
+    return FieldEditorBloc(
+      isGroupField: field.isGroupField,
+      viewId: viewId,
+    )..add(FieldEditorEvent.initial(field));
   }
 
   Future<CellController> makeCellController(String fieldId) async {
@@ -125,34 +117,28 @@ class BoardTestContext {
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = await createFieldEditor(viewId: gridView.id)
-      ..add(const FieldEditorEvent.initial());
+    final editorBloc = await createFieldEditor(viewId: gridView.id);
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchToField(fieldType));
     await gridResponseFuture();
     return Future(() => editorBloc);
   }
 
-  FieldInfo singleSelectFieldContext() {
-    final fieldInfo = fieldContexts
+  FieldPB singleSelectFieldContext() {
+    final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
-    return fieldInfo;
+    return field;
   }
 
-  FieldContext singleSelectFieldCellContext() {
-    final fieldInfo = singleSelectFieldContext();
-    return FieldContext(viewId: gridView.id, fieldInfo: fieldInfo);
-  }
-
-  FieldInfo textFieldContext() {
-    final fieldInfo = fieldContexts
+  FieldPB textFieldContext() {
+    final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.RichText);
-    return fieldInfo;
+    return field;
   }
 
-  FieldInfo checkboxFieldContext() {
-    final fieldInfo = fieldContexts
+  FieldPB checkboxFieldContext() {
+    final field = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.Checkbox);
-    return fieldInfo;
+    return field;
   }
 }

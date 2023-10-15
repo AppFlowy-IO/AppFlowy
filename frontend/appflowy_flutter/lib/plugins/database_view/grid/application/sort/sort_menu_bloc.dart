@@ -41,12 +41,13 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
             final isVisible = !state.isVisible;
             emit(state.copyWith(isVisible: isVisible));
           },
-          didReceiveFields: (List<FieldPB> fields) {
-            fields.retainWhere((field) => field.canCreateSort);
+          didReceiveFields: (fields) {
+            final newFields = List<FieldPB>.from(fields);
+            newFields.retainWhere((field) => field.canCreateSort);
             emit(
               state.copyWith(
                 fields: fields,
-                creatableFields: fields,
+                creatableFields: newFields,
               ),
             );
           },
@@ -64,7 +65,7 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
       add(SortMenuEvent.didReceiveFields(fields));
     };
 
-    sortController.addListener(onReceiveSorts: _onSortFn);
+    sortController.addListener(onReceiveSorts: _onSortFn!);
 
     fieldController.addListener(onReceiveFields: _onFieldFn);
   }

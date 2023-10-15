@@ -18,7 +18,8 @@ void main() {
     setUp(() async {
       context = await gridTest.createTestGrid();
       actionSheetBloc = FieldActionSheetBloc(
-        fieldCellContext: context.singleSelectFieldCellContext(),
+        viewId: context.gridView.id,
+        field: context.singleSelectFieldContext(),
       );
     });
 
@@ -117,7 +118,7 @@ void main() {
       wait: gridResponseDuration(),
       verify: (bloc) {
         final field = bloc.state.fields.firstWhere(
-          (element) => element.id == actionSheetBloc.fieldService.fieldId,
+          (element) => element.id == actionSheetBloc.fieldId,
         );
 
         expect(field.name, "Hello world");

@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_extension.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,7 +16,7 @@ part 'unschedule_event_bloc.freezed.dart';
 class UnscheduleEventsBloc
     extends Bloc<UnscheduleEventsEvent, UnscheduleEventsState> {
   final DatabaseController databaseController;
-  Map<String, FieldInfo> fieldInfoByFieldId = {};
+  Map<String, FieldPB> fieldByFieldId = {};
 
   // Getters
   String get viewId => databaseController.viewId;

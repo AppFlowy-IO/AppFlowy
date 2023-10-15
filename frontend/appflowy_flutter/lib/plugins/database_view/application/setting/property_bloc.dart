@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_service.d
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -29,10 +28,9 @@ class DatabasePropertyBloc
             _startListening();
           },
           setFieldVisibility: (fieldId, visibility) async {
-            final fieldSettingsSvc = FieldSettingsBackendService(
+            final result =
+                await FieldSettingsBackendService.updateFieldSettings(
               viewId: viewId,
-            );
-            final result = await fieldSettingsSvc.updateFieldSettings(
               fieldId: fieldId,
               fieldVisibility: visibility,
             );

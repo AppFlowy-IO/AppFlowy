@@ -22,7 +22,7 @@ void main() {
     await context.createField(FieldType.MultiSelect);
     await boardResponseFuture();
     assert(context.fieldContexts.length == 3);
-    final multiSelectField = context.fieldContexts.last.field;
+    final multiSelectField = context.fieldContexts.last;
 
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
@@ -64,7 +64,7 @@ void main() {
     await context.createField(FieldType.MultiSelect);
     await boardResponseFuture();
     assert(context.fieldContexts.length == 3);
-    final multiSelectField = context.fieldContexts.last.field;
+    final multiSelectField = context.fieldContexts.last;
 
     // Create options
     final cellController = await context.makeCellController(multiSelectField.id)

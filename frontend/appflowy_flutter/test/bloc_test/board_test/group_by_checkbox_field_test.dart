@@ -32,7 +32,7 @@ void main() {
     assert(context.fieldContexts.length == 3);
 
     // set group by checkbox
-    final checkboxField = context.fieldContexts.last.field;
+    final checkboxField = context.fieldContexts.last;
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
