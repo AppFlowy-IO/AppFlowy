@@ -10,7 +10,7 @@ use collab_database::user::{
   WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
-use collab_define::CollabType;
+use collab_entity::CollabType;
 use futures::executor::block_on;
 use tokio::sync::RwLock;
 use tracing::{instrument, trace};

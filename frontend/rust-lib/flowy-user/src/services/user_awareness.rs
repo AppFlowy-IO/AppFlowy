@@ -2,8 +2,8 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Context;
 use collab::core::collab::{CollabRawData, MutexCollab};
-use collab_define::reminder::Reminder;
-use collab_define::CollabType;
+use collab_entity::reminder::Reminder;
+use collab_entity::CollabType;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, trace};
 

@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use collab_plugins::cloud_storage::RemoteCollabSnapshot;
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;

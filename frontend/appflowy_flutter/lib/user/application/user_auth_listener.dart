@@ -11,16 +11,16 @@ import 'package:appflowy_backend/protobuf/flowy-user/notification.pb.dart'
 import 'package:appflowy_backend/rust_stream.dart';
 
 class UserAuthStateListener {
-  void Function(String)? _onForceLogout;
+  void Function(String)? _onInvalidAuth;
   void Function()? _didSignIn;
   StreamSubscription<SubscribeObject>? _subscription;
   UserNotificationParser? _userParser;
 
   void start({
-    void Function(String)? onForceLogout,
+    void Function(String)? onInvalidAuth,
     void Function()? didSignIn,
   }) {
-    _onForceLogout = onForceLogout;
+    _onInvalidAuth = onInvalidAuth;
     _didSignIn = didSignIn;
 
     _userParser = UserNotificationParser(
@@ -35,7 +35,7 @@ class UserAuthStateListener {
   Future<void> stop() async {
     _userParser = null;
     await _subscription?.cancel();
-    _onForceLogout = null;
+    _onInvalidAuth = null;
   }
 
   void _userNotificationCallback(
@@ -51,8 +51,8 @@ class UserAuthStateListener {
               case AuthStatePB.AuthStateSignIn:
                 _didSignIn?.call();
                 break;
-              case AuthStatePB.AuthStateForceSignOut:
-                _onForceLogout?.call("");
+              case AuthStatePB.InvalidAuth:
+                _onInvalidAuth?.call("");
                 break;
               default:
                 break;

@@ -1,5 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/sync_setting_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
@@ -101,6 +102,8 @@ class SettingsDialog extends StatelessWidget {
           didLogout: didLogout,
           didOpenUser: didOpenUser,
         );
+      case SettingsPage.notifications:
+        return const SettingsNotificationsView();
       case SettingsPage.syncSetting:
         return SyncSettingView(userId: user.id.toString());
       case SettingsPage.shortcuts:

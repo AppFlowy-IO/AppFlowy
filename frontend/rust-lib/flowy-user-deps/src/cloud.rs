@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -92,7 +92,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   fn get_user_profile(
     &self,
     credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error>;
+  ) -> FutureResult<Option<UserProfile>, FlowyError>;
 
   /// Return the all the workspaces of the user  
   fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
@@ -145,4 +145,11 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
+}
+
+pub type UserTokenStateReceiver = tokio::sync::broadcast::Receiver<UserTokenState>;
+#[derive(Debug, Clone)]
+pub enum UserTokenState {
+  Refresh,
+  Invalid,
 }

@@ -6,6 +6,8 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use strum::EnumCount;
 
+use event_integration::folder_event::ViewTest;
+use event_integration::FlowyCoreTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB, SelectOptionPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
@@ -18,8 +20,6 @@ use flowy_database2::services::field::{
 };
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
-use flowy_test::folder_event::ViewTest;
-use flowy_test::FlowyCoreTest;
 
 use crate::database::mock_data::{
   make_no_date_test_grid, make_test_board, make_test_calendar, make_test_grid,

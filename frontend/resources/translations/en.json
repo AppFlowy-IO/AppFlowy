@@ -241,6 +241,7 @@
       "language": "Language",
       "user": "User",
       "files": "Files",
+      "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
@@ -255,6 +256,12 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Enable notifications",
+        "hint": "Turn off to stop local notifications from appearing."
+      }
     },
     "appearance": {
       "resetSetting": "Reset this setting",
@@ -353,6 +360,7 @@
       "tooltipSelectIcon": "Select icon",
       "selectAnIcon": "Select an icon",
       "pleaseInputYourOpenAIKey": "please input your OpenAI key",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key",
       "clickToLogout": "Click to logout the current user"
     },
     "shortcuts": {
@@ -468,6 +476,7 @@
     },
     "rowPage": {
       "newField": "Add a new field",
+      "fieldDragEelementTooltip": "Click to open menu",
       "showHiddenFields": {
         "one": "Show {} hidden field",
         "many": "Show {} hidden fields",
@@ -652,6 +661,14 @@
         "label": "Image URL",
         "placeholder": "Enter image URL"
       },
+      "ai": {
+        "label": "Generate image from OpenAI",
+        "placeholder": "Please input the prompt for OpenAI to generate image"
+      },
+      "stability_ai": {
+        "label": "Generate image from Stability AI",
+        "placeholder": "Please input the prompt for Stability AI to generate image"
+      },
       "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Invalid image",
@@ -663,7 +680,9 @@
         "label": "Embed link",
         "placeholder": "Paste or type an image link"
       },
-      "searchForAnImage": "Search for an image"
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page"
     },
     "codeBlock": {
       "language": {
@@ -694,6 +713,10 @@
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "The current version does not support this block.",
+      "blockContentHasBeenCopied": "The block content has been copied."
     }
   },
   "board": {
@@ -799,7 +822,18 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!"
+    "empty": "Nothing to see here!",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Upcoming"
+    },
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Group by date",
+      "showUnreadsOnly": "Show unreads only",
+      "resetToDefault": "Reset to default"
+    }
   },
   "reminderNotification": {
     "title": "Reminder",

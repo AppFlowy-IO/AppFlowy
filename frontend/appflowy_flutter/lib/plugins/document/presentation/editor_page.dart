@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.d
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -151,6 +151,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     effectiveScrollController = widget.scrollController ?? ScrollController();
 
     // keep the previous font style when typing new text.
+    supportSlashMenuNodeWhiteList.addAll([
+      ToggleListBlockKeys.type,
+    ]);
+    toolbarItemWhiteList.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+      TableBlockKeys.type,
+    ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
@@ -237,7 +245,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     final customBlockComponentBuilderMap = {
       PageBlockKeys.type: PageBlockComponentBuilder(),
-      ParagraphBlockKeys.type: TextBlockComponentBuilder(
+      ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
         configuration: configuration,
       ),
       TodoListBlockKeys.type: TodoListBlockComponentBuilder(
@@ -351,6 +359,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         configuration: configuration.copyWith(
           placeholderTextStyle: (_) =>
               styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        ),
+      ),
+      errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
+        configuration: configuration.copyWith(
+          padding: (_) => const EdgeInsets.symmetric(vertical: 10),
         ),
       ),
     };

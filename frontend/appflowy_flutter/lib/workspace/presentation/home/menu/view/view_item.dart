@@ -339,7 +339,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
@@ -379,7 +379,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // ··· more action button
   Widget _buildViewMoreActionButton(BuildContext context) {
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,

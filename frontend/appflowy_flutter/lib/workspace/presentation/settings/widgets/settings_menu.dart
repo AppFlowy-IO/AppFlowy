@@ -61,6 +61,13 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
+        SettingsMenuElement(
+          page: SettingsPage.notifications,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_menu_notifications.tr(),
+          icon: Icons.notifications_outlined,
+          changeSelectedPage: changeSelectedPage,
+        ),
         if (showSyncSetting)
           const SizedBox(
             height: 10,

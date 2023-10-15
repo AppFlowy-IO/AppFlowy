@@ -6,7 +6,7 @@ use client_api::entity::dto::UserUpdateParams;
 use client_api::entity::{
   AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
 };
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_user_deps::cloud::UserCloudService;
@@ -104,7 +104,7 @@ where
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
@@ -113,9 +113,10 @@ where
       Ok(Some(UserProfile {
         email: profile.email.unwrap_or("".to_string()),
         name: profile.name.unwrap_or("".to_string()),
-        token: token_from_client(client).await.unwrap_or("".to_string()),
+        token: client.get_token()?,
         icon_url: "".to_owned(),
         openai_key: "".to_owned(),
+        stability_ai_key: "".to_owned(),
         workspace_id: match profile.latest_workspace_id {
           Some(w) => w.to_string(),
           None => "".to_string(),
@@ -140,7 +141,6 @@ where
     FutureResult::new(async move {
       // from params
       let token = credential.token.ok_or(anyhow!("expecting token"))?;
-      let uuid = credential.uuid.ok_or(anyhow!("expecting uuid"))?;
       let uid = credential.uid.ok_or(anyhow!("expecting uid"))?;
 
       // from cloud
@@ -149,9 +149,6 @@ where
       let client_token = client.access_token()?;
 
       // compare and check
-      if uuid != profile.uuid.ok_or(anyhow!("expecting uuid"))?.to_string() {
-        return Err(anyhow!("uuid mismatch"));
-      }
       if uid != profile.uid.ok_or(anyhow!("expecting uid"))? {
         return Err(anyhow!("uid mismatch"));
       }
@@ -251,15 +248,11 @@ pub async fn user_sign_in_with_url(
     latest_workspace,
     user_workspaces,
     email: profile.email,
-    token: token_from_client(client.clone()).await,
+    token: Some(client.get_token()?),
     device_id: params.device_id,
     encryption_type,
     is_new_user,
   })
-}
-
-async fn token_from_client(client: Arc<AFCloudClient>) -> Option<String> {
-  client.access_token().ok()
 }
 
 fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {

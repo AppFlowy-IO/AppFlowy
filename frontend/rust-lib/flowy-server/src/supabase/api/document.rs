@@ -1,8 +1,8 @@
 use anyhow::Error;
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};

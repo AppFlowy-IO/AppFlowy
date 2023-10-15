@@ -9,7 +9,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
@@ -17,6 +17,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
+use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
@@ -197,7 +198,7 @@ where
   fn get_user_profile(
     &self,
     credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let uid = credential
       .uid
@@ -215,6 +216,7 @@ where
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
+          stability_ai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),

@@ -8,6 +8,8 @@ use crate::entities::AuthTypePB;
 use crate::errors::ErrorCode;
 use crate::services::entities::HistoricalUser;
 
+use super::parser::UserStabilityAIKey;
+
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
   #[pb(index = 1)]
@@ -51,6 +53,9 @@ pub struct UserProfilePB {
 
   #[pb(index = 10)]
   pub workspace_id: String,
+
+  #[pb(index = 11)]
+  pub stability_ai_key: String,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -82,6 +87,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       encryption_sign,
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,
+      stability_ai_key: user_profile.stability_ai_key,
     }
   }
 }
@@ -105,6 +111,9 @@ pub struct UpdateUserProfilePayloadPB {
 
   #[pb(index = 6, one_of)]
   pub openai_key: Option<String>,
+
+  #[pb(index = 7, one_of)]
+  pub stability_ai_key: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -139,6 +148,11 @@ impl UpdateUserProfilePayloadPB {
     self.openai_key = Some(openai_key.to_owned());
     self
   }
+
+  pub fn stability_ai_key(mut self, stability_ai_key: &str) -> Self {
+    self.stability_ai_key = Some(stability_ai_key.to_owned());
+    self
+  }
 }
 
 impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
@@ -170,6 +184,11 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       Some(openai_key) => Some(UserOpenaiKey::parse(openai_key)?.0),
     };
 
+    let stability_ai_key = match self.stability_ai_key {
+      None => None,
+      Some(stability_ai_key) => Some(UserStabilityAIKey::parse(stability_ai_key)?.0),
+    };
+
     Ok(UpdateUserProfileParams {
       uid: self.id,
       name,
@@ -178,6 +197,8 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
       icon_url,
       openai_key,
       encryption_sign: None,
+      token: None,
+      stability_ai_key,
     })
   }
 }

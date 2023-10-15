@@ -248,7 +248,7 @@ pub enum AuthStatePB {
   AuthStateUnknown = 0,
   AuthStateSignIn = 1,
   AuthStateSignOut = 2,
-  AuthStateForceSignOut = 3,
+  InvalidAuth = 3,
 }
 
 impl Default for AuthStatePB {

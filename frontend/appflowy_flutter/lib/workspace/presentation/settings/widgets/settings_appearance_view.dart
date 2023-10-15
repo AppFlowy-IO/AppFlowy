@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/create_file_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/date_format_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/time_format_setting.dart';

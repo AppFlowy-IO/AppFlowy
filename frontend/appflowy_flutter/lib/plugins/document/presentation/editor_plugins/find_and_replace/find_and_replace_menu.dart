@@ -24,7 +24,7 @@ class FindAndReplaceMenuWidget extends StatefulWidget {
 class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
   bool showReplaceMenu = false;
 
-  late SearchServiceV2 searchService = SearchServiceV2(
+  late SearchServiceV3 searchService = SearchServiceV3(
     editorState: widget.editorState,
   );
 
@@ -72,7 +72,7 @@ class FindMenu extends StatefulWidget {
 
   final EditorState editorState;
   final VoidCallback onDismiss;
-  final SearchServiceV2 searchService;
+  final SearchServiceV3 searchService;
   final void Function(bool value) onShowReplace;
 
   @override
@@ -93,7 +93,7 @@ class _FindMenuState extends State<FindMenu> {
   void initState() {
     super.initState();
 
-    widget.searchService.matchedPositions.addListener(_setState);
+    widget.searchService.matchWrappers.addListener(_setState);
     widget.searchService.currentSelectedIndex.addListener(_setState);
 
     findTextEditingController.addListener(_searchPattern);
@@ -105,7 +105,7 @@ class _FindMenuState extends State<FindMenu> {
 
   @override
   void dispose() {
-    widget.searchService.matchedPositions.removeListener(_setState);
+    widget.searchService.matchWrappers.removeListener(_setState);
     widget.searchService.currentSelectedIndex.removeListener(_setState);
     widget.searchService.dispose();
     findTextEditingController.removeListener(_searchPattern);
@@ -117,7 +117,7 @@ class _FindMenuState extends State<FindMenu> {
   Widget build(BuildContext context) {
     // the selectedIndex from searchService is 0-based
     final selectedIndex = widget.searchService.selectedIndex + 1;
-    final matches = widget.searchService.matchedPositions.value;
+    final matches = widget.searchService.matchWrappers.value;
     return Row(
       children: [
         const HSpace(4.0),
@@ -232,7 +232,7 @@ class ReplaceMenu extends StatefulWidget {
   /// The localizations of the find and replace menu
   final FindReplaceLocalizations? localizations;
 
-  final SearchServiceV2 searchService;
+  final SearchServiceV3 searchService;
 
   @override
   State<ReplaceMenu> createState() => _ReplaceMenuState();
