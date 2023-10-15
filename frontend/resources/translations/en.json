@@ -813,6 +813,9 @@
       "shortKeyword": "remind"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings"
+  },
   "relativeDates": {
     "yesterday": "Yesterday",
     "today": "Today",
