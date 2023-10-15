@@ -116,6 +116,9 @@ class CheckboxCellUncheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FlowySvg(FlowySvgs.uncheck_s);
+    return const FlowySvg(
+      FlowySvgs.uncheck_s,
+      blendMode: BlendMode.dst,
+    );
   }
 }

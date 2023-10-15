@@ -3,6 +3,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+const kImagePlaceholderKey = 'imagePlaceholderKey';
+
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
   CustomImageBlockComponentState state,
@@ -93,8 +95,10 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         MediaQuery.of(context).size.width;
     final height = attributes[ImageBlockKeys.height]?.toDouble();
 
+    final imagePlaceholderKey = node.extraInfos?[kImagePlaceholderKey];
     Widget child = src.isEmpty
         ? ImagePlaceholder(
+            key: imagePlaceholderKey is GlobalKey ? imagePlaceholderKey : null,
             node: node,
           )
         : ResizableImage(
