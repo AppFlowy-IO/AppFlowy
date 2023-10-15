@@ -104,6 +104,7 @@ class DatabaseShareActionListState extends State<DatabaseShareActionList> {
       buildChild: (controller) {
         return RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
+          textColor: Theme.of(context).colorScheme.onSurface,
           onPressed: () => controller.show(),
         );
       },

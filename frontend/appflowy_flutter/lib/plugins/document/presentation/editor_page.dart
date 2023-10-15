@@ -154,6 +154,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     supportSlashMenuNodeWhiteList.addAll([
       ToggleListBlockKeys.type,
     ]);
+    toolbarItemWhiteList.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+      TableBlockKeys.type,
+    ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
   }
 
