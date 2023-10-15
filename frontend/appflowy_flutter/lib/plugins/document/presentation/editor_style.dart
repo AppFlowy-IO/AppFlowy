@@ -150,8 +150,8 @@ class EditorStyleCustomizer {
     );
   }
 
-  SelectionMenuStyle selectionMenuStyleBuilder() {
-    final theme = Theme.of(context);
+  SelectionMenuStyle selectionMenuStyleBuilder(ctx) {
+    final theme = Theme.of(ctx);
     return SelectionMenuStyle(
       selectionMenuBackgroundColor: theme.cardColor,
       selectionMenuItemTextColor: theme.colorScheme.onBackground,

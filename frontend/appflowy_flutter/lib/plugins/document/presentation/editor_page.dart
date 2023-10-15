@@ -114,7 +114,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         // customize the slash menu command
         customSlashCommand(
           slashMenuItems,
-          style: styleCustomizer.selectionMenuStyleBuilder(),
+          style: styleCustomizer.selectionMenuStyleBuilder(context),
         ),
 
         ...standardCharacterShortcutEvents
@@ -131,14 +131,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ];
 
-  late final showSlashMenu = customSlashCommand(
-    slashMenuItems,
-    shouldInsertSlash: false,
-    style: styleCustomizer.selectionMenuStyleBuilder(),
-  ).handler;
-
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  Future<bool> showSlashMenu(editorState) async {
+    final result = await customSlashCommand(
+      slashMenuItems,
+      shouldInsertSlash: false,
+      style: styleCustomizer.selectionMenuStyleBuilder(context),
+    ).handler(editorState);
+    return result;
+  }
 
   @override
   void initState() {
