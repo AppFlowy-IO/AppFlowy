@@ -156,14 +156,19 @@ pub(crate) async fn get_fields_handler(
   let params: GetFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  let fields = database_editor
-    .get_fields(&params.view_id, params.field_ids)
+  let fields = database_editor.get_fields(&params.view_id, params.field_ids);
+  let field_infos = database_editor
+    .get_field_info(&params.view_id, &fields)
+    .await?;
+
+  let field_payloads = fields
     .into_iter()
-    .map(FieldPB::from)
+    .zip(field_infos.into_iter())
+    .map(|(field, field_info)| FieldPB::new(field, field_info))
     .collect::<Vec<FieldPB>>()
     .into();
 
-  data_result_ok(fields)
+  data_result_ok(field_payloads)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -186,9 +191,16 @@ pub(crate) async fn get_primary_field_handler(
     return Err(FlowyError::record_not_found());
   }
 
-  let primary_field = fields.pop().unwrap().into();
+  let primary_field = fields.pop().unwrap();
+  let field_info = database_editor
+    .get_field_info(&view_id, &[primary_field.clone()])
+    .await?
+    .pop()
+    .unwrap();
 
-  data_result_ok(primary_field)
+  let field_payload = FieldPB::new(primary_field, field_info);
+
+  data_result_ok(field_payload)
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -258,7 +270,7 @@ pub(crate) async fn create_field_with_type_option_data_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let field = database_editor
     .create_field_with_type_option(&params.view_id, &params.field_type, params.type_option_data)
-    .await;
+    .await?;
 
   data_result_ok(field)
 }
@@ -820,52 +832,6 @@ pub(crate) async fn get_snapshots_handler(
   let view_id = data.into_inner().value;
   let snapshots = manager.get_database_snapshots(&view_id, 10).await?;
   data_result_ok(RepeatedDatabaseSnapshotPB { items: snapshots })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_field_settings_handler(
-  data: AFPluginData<FieldIdsPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let (view_id, field_ids) = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&view_id).await?;
-
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
-  let field_settings = database_editor
-    .get_field_settings(&view_id, layout_ty, field_ids.clone())
-    .await?
-    .into_iter()
-    .map(FieldSettingsPB::from)
-    .collect();
-
-  data_result_ok(RepeatedFieldSettingsPB {
-    items: field_settings,
-  })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_all_field_settings_handler(
-  data: AFPluginData<DatabaseViewIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<RepeatedFieldSettingsPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let view_id = data.into_inner();
-  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-
-  let layout_ty = database_editor.get_layout_type(view_id.as_ref()).await;
-
-  let field_settings = database_editor
-    .get_all_field_settings(view_id.as_ref(), layout_ty)
-    .await?
-    .into_iter()
-    .map(FieldSettingsPB::from)
-    .collect();
-
-  data_result_ok(RepeatedFieldSettingsPB {
-    items: field_settings,
-  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

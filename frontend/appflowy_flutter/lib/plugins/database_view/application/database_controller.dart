@@ -17,7 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'database_view_service.dart';
 import 'defines.dart';
 import 'field/field_controller.dart';
-import 'field/field_info.dart';
+import 'field_settings/field_settings_controller.dart';
 import 'group/group_listener.dart';
 import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
@@ -83,6 +83,7 @@ class DatabaseController {
   final FieldController fieldController;
   late final SortController sortController;
   late final FilterController filterController;
+  late final FieldSettingsController fieldSettingsController;
   late final DatabaseViewCache _viewCache;
   DatabaseLayoutPB databaseLayout;
   DatabaseLayoutSettingPB? databaseLayoutSetting;
@@ -110,6 +111,8 @@ class DatabaseController {
         _layoutListener = DatabaseLayoutSettingListener(view.id) {
     sortController = SortController(fieldController: fieldController);
     filterController = FilterController(fieldController: fieldController);
+    fieldSettingsController =
+        FieldSettingsController(fieldController: fieldController);
     _viewCache = DatabaseViewCache(
       viewId: viewId,
       fieldController: fieldController,
@@ -164,6 +167,7 @@ class DatabaseController {
                 callback.onDatabaseChanged?.call(database);
               }
               _viewCache.rowCache.setInitialRows(database.rows);
+
               return Future(() async {
                 await _loadGroups();
                 await _loadLayoutSetting();

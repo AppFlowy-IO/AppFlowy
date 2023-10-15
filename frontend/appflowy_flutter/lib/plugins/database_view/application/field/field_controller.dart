@@ -7,7 +7,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
-import 'package:protobuf/protobuf.dart';
 
 import 'field_listener.dart';
 
@@ -66,118 +65,66 @@ class FieldController {
 
   /// Listen for field changes in the backend.
   void _listenOnFieldChanges() {
-    void insertFields(List<IndexFieldPB> insertedFields) {
+    void insertFields(List<IndexFieldPB> insertedFields, List<FieldPB> fields) {
       if (insertedFields.isEmpty) {
         return;
       }
-      final newFields = fields;
       for (final indexField in insertedFields) {
-        if (indexField.index < newFields.length) {
-          newFields.insert(indexField.index, indexField.field_1);
+        if (indexField.index < fields.length) {
+          fields.insert(indexField.index, indexField.field_1);
         } else {
-          newFields.add(indexField.field_1);
+          fields.add(indexField.field_1);
         }
       }
-
-      _fieldNotifier.fields = newFields;
     }
 
-    List<FieldPB> updateFields(List<FieldUpdateNotificationPB> fieldUpdates) {
+    void updateFields(
+      List<FieldPB> fieldUpdates,
+      List<FieldPB> updatedFields,
+      List<FieldPB> fields,
+    ) {
       if (fieldUpdates.isEmpty) {
-        return [];
+        return;
       }
 
-      final newFields = fields;
-      final updatedFields = <FieldPB>[];
       for (final fieldUpdate in fieldUpdates) {
         final fieldIndex =
-            newFields.indexWhere((field) => field.id == fieldUpdate.fieldId);
+            fields.indexWhere((field) => field.id == fieldUpdate.id);
         if (fieldIndex == -1) {
           continue;
         }
-        newFields[fieldIndex].freeze();
-        final newField = newFields[fieldIndex].rebuild((field) {
-          if (fieldUpdate.hasName()) {
-            field.name = fieldUpdate.name;
-          }
-          if (fieldUpdate.hasFieldType()) {
-            field.fieldType = fieldUpdate.fieldType;
-          }
-          if (fieldUpdate.hasWidth()) {
-            field.width = fieldUpdate.width;
-          }
-          if (fieldUpdate.hasTypeOption()) {
-            field.typeOptionData = fieldUpdate.typeOption;
-          }
-          if (fieldUpdate.hasHasSort()) {
-            field.hasSort = fieldUpdate.hasSort;
-          }
-          if (fieldUpdate.hasHasFilter()) {
-            field.hasFilter = fieldUpdate.hasFilter;
-          }
-          if (fieldUpdate.hasVisibility()) {
-            field.visibility = fieldUpdate.visibility;
-          }
-        });
-        final newIndex =
-            fieldUpdate.hasIndex() ? fieldUpdate.index : fieldIndex;
-        newFields.removeAt(fieldIndex);
-        newFields.insert(newIndex, newField);
-
-        updatedFields.add(newField);
+        fields.removeAt(fieldIndex);
+        fields.insert(fieldIndex, fieldUpdate);
+        updatedFields.add(fieldUpdate);
       }
-
-      _fieldNotifier.fields = newFields;
-      return updatedFields;
     }
 
-    void deleteFields(List<FieldIdPB> deletedFields) {
+    void deleteFields(List<FieldIdPB> deletedFields, List<FieldPB> fields) {
       if (deletedFields.isEmpty) {
         return;
       }
-      final List<FieldPB> newFields = fields;
-      final Map<String, FieldIdPB> deletedFieldMap = {
-        for (final field in deletedFields) field.fieldId: field
-      };
-
-      newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
-      _fieldNotifier.fields = newFields;
+      final deletedFieldIds = deletedFields.map((e) => e.fieldId);
+      fields.retainWhere((field) => !deletedFieldIds.contains(field.id));
     }
 
     // Listen on field's changes
     _fieldListener.start(
-      onFieldsInserted: (result) async {
-        result.fold(
-          (changeset) async {
-            if (_isDisposed) {
-              return;
-            }
-            insertFields(changeset);
-          },
-          (err) => Log.error(err),
-        );
-      },
       onFieldsUpdated: (result) async {
         result.fold(
           (changeset) async {
             if (_isDisposed) {
               return;
             }
-            final updatedFields = updateFields(changeset);
+            final List<FieldPB> updatedFields = [];
+            final List<FieldPB> newFields = fields;
+            deleteFields(changeset.deletedFields, newFields);
+            insertFields(changeset.insertedFields, newFields);
+            updateFields(changeset.updatedFields, updatedFields, newFields);
+
             for (final listener in _updatedFieldCallbacks.values) {
               listener(updatedFields);
             }
-          },
-          (err) => Log.error(err),
-        );
-      },
-      onFieldsDeleted: (result) async {
-        result.fold(
-          (changeset) async {
-            if (_isDisposed) {
-              return;
-            }
-            deleteFields(changeset.items);
+            _fieldNotifier.fields = newFields;
           },
           (err) => Log.error(err),
         );

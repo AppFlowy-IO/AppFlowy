@@ -32,7 +32,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field::TypeOptionCellDataHandler;
-use crate::services::field_settings::FieldSettings;
+use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
@@ -911,36 +911,30 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  // pub async fn v_get_field_settings(
-  //   &self,
-  //   layout_ty: DatabaseLayout,
-  //   field_ids: &[String],
-  // ) -> HashMap<String, FieldSettings> {
-  //   let default_field_settings = default_field_settings_by_layout_map()
-  //     .get(&layout_ty)
-  //     .unwrap()
-  //     .to_owned();
-  //   let found_field_settings = self.delegate.get_field_settings(&self.view_id, field_ids);
-  //   let field_settings = field_ids
-  //     .into_iter()
-  //     .map(|field_id| {
-  //       if let Some(field_settings) = found_field_settings.get(field_id) {
-  //         (field_id.clone(), field_settings.to_owned())
-  //       } else {
-  //         (
-  //           field_id.clone(),
-  //           FieldSettings::try_from_anymap(field_id.clone(), default_field_settings.clone())
-  //             .unwrap(),
-  //         )
-  //       }
-  //     })
-  //     .collect();
-
-  //   field_settings
-  // }
-
-  pub async fn v_get_field_settings(&self, field_ids: &[String]) -> HashMap<String, FieldSettings> {
-    self.delegate.get_field_settings(&self.view_id, field_ids)
+  pub async fn v_get_field_settings(
+    &self,
+    layout_ty: DatabaseLayout,
+    field_ids: &[String],
+  ) -> HashMap<String, FieldSettings> {
+    let default_field_settings = default_field_settings_by_layout_map()
+      .get(&layout_ty)
+      .unwrap()
+      .to_owned();
+    let found_field_settings = self.delegate.get_field_settings(&self.view_id, field_ids);
+    field_ids
+      .iter()
+      .map(|field_id| {
+        if let Some(field_settings) = found_field_settings.get(field_id) {
+          (field_id.clone(), field_settings.to_owned())
+        } else {
+          (
+            field_id.clone(),
+            FieldSettings::try_from_anymap(field_id.clone(), default_field_settings.clone())
+              .unwrap(),
+          )
+        }
+      })
+      .collect()
   }
 
   pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {

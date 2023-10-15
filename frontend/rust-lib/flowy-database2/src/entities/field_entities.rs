@@ -12,8 +12,8 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::impl_into_field_type;
 use crate::services::field::{default_type_option_data_from_type, type_option_to_pb};
+use crate::{impl_into_field_type, impl_into_field_visibility};
 
 /// [FieldPB] defines a [Field]'s attributes such as the name, id, field_type,
 /// as well as its properties in the current view: has_sort, has_filter, etc.
@@ -36,10 +36,22 @@ pub struct FieldPB {
 
   #[pb(index = 6)]
   pub type_option_data: Vec<u8>,
+
+  #[pb(index = 7)]
+  pub has_sort: bool,
+
+  #[pb(index = 8)]
+  pub has_filter: bool,
+
+  #[pb(index = 9)]
+  pub is_layout_field: bool,
+
+  #[pb(index = 10)]
+  pub visibility: FieldVisibility,
 }
 
-impl std::convert::From<Field> for FieldPB {
-  fn from(field: Field) -> Self {
+impl FieldPB {
+  pub fn new(field: Field, field_info: FieldInfoParams) -> Self {
     let field_type = FieldType::from(field.field_type);
     let type_option = field
       .get_any_type_option(field_type.clone())
@@ -51,6 +63,10 @@ impl std::convert::From<Field> for FieldPB {
       width: field.width as i32,
       is_primary: field.is_primary,
       type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
+      has_sort: field_info.has_sort,
+      has_filter: field_info.has_filter,
+      is_layout_field: field_info.is_layout_field,
+      visibility: field_info.visibility,
     }
   }
 }
@@ -101,11 +117,11 @@ pub struct IndexFieldPB {
   pub index: i32,
 }
 
-impl IndexFieldPB {
-  pub fn from_field(field: Field, index: usize) -> Self {
-    Self {
-      field: FieldPB::from(field),
-      index: index as i32,
+impl From<(FieldPB, i32)> for IndexFieldPB {
+  fn from(value: (FieldPB, i32)) -> Self {
+    IndexFieldPB {
+      field: value.0,
+      index: value.1,
     }
   }
 }
@@ -614,4 +630,30 @@ impl FieldUpdateNotificationPB {
       ..Default::default()
     }
   }
+}
+
+#[repr(u8)]
+#[derive(Debug, Default, Clone, ProtoBuf_Enum, Eq, PartialEq)]
+pub enum FieldVisibility {
+  #[default]
+  AlwaysShown = 0,
+  HideWhenEmpty = 1,
+  AlwaysHidden = 2,
+}
+
+impl_into_field_visibility!(i64);
+impl_into_field_visibility!(u8);
+
+impl From<FieldVisibility> for i64 {
+  fn from(value: FieldVisibility) -> Self {
+    (value as u8) as i64
+  }
+}
+
+#[derive(Debug, Clone)]
+pub struct FieldInfoParams {
+  pub has_sort: bool,
+  pub has_filter: bool,
+  pub is_layout_field: bool,
+  pub visibility: FieldVisibility,
 }

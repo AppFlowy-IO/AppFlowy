@@ -74,8 +74,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::ExportCSV, export_csv_handler)
         .event(DatabaseEvent::GetDatabaseSnapshots, get_snapshots_handler)
         // Field settings
-        .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
-        .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
 }
 
@@ -299,14 +297,7 @@ pub enum DatabaseEvent {
   #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseSnapshotPB")]
   GetDatabaseSnapshots = 150,
 
-  /// Returns the field settings for the provided fields in the given view
-  #[event(input = "FieldIdsPB", output = "RepeatedFieldSettingsPB")]
-  GetFieldSettings = 160,
-
-  #[event(input = "DatabaseViewIdPB", output = "RepeatedFieldSettingsPB")]
-  GetAllFieldSettings = 161,
-
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]
-  UpdateFieldSettings = 162,
+  UpdateFieldSettings = 160,
 }

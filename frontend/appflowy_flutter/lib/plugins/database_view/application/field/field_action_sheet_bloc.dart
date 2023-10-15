@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field_settings/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'field_service.dart';
@@ -11,13 +12,11 @@ class FieldActionSheetBloc
     extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final String viewId;
   final String fieldId;
-  final FieldSettingsBackendService fieldSettingsService;
 
   FieldActionSheetBloc({
     required this.viewId,
     required FieldPB field,
   })  : fieldId = field.id,
-        fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldActionSheetState.initial(field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
@@ -34,7 +33,9 @@ class FieldActionSheetBloc
             );
           },
           hideField: (_HideField value) async {
-            final result = await fieldSettingsService.updateFieldSettings(
+            final result =
+                await FieldSettingsBackendService.updateFieldSettings(
+              viewId: viewId,
               fieldId: fieldId,
               fieldVisibility: FieldVisibility.AlwaysHidden,
             );
@@ -44,7 +45,9 @@ class FieldActionSheetBloc
             );
           },
           showField: (_ShowField value) async {
-            final result = await fieldSettingsService.updateFieldSettings(
+            final result =
+                await FieldSettingsBackendService.updateFieldSettings(
+              viewId: viewId,
               fieldId: fieldId,
               fieldVisibility: FieldVisibility.AlwaysShown,
             );

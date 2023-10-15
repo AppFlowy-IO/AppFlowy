@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';

@@ -152,20 +152,18 @@ class SortController {
   }
 
   void addListener({
-    OnReceiveSorts? onReceiveSorts,
+    required OnReceiveSorts onReceiveSorts,
     bool Function()? listenWhen,
   }) {
-    if (onReceiveSorts != null) {
-      callback() {
-        if (listenWhen != null && listenWhen() == false) {
-          return;
-        }
-        onReceiveSorts(sorts);
+    callback() {
+      if (listenWhen != null && listenWhen() == false) {
+        return;
       }
-
-      _sortCallbacks[onReceiveSorts] = callback;
-      _sortNotifier?.addListener(callback);
+      onReceiveSorts(sorts);
     }
+
+    _sortCallbacks[onReceiveSorts] = callback;
+    _sortNotifier?.addListener(callback);
   }
 
   void removeListener({required OnReceiveSorts onSortsListener}) {
