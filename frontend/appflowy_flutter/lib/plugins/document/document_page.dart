@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/banner.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -118,7 +118,7 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _buildBanner(BuildContext context) {
-    return DocumentBanner(
+    return OnDeleteBanner(
       onRestore: () => documentBloc.add(const DocumentEvent.restorePage()),
       onDelete: () => documentBloc.add(const DocumentEvent.deletePermanently()),
     );

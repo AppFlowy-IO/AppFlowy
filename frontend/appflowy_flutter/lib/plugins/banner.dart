@@ -6,10 +6,10 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
-class DatabaseViewBanner extends StatelessWidget {
+class OnDeleteBanner extends StatelessWidget {
   final void Function() onRestore;
   final void Function() onDelete;
-  const DatabaseViewBanner({
+  const OnDeleteBanner({
     required this.onRestore,
     required this.onDelete,
     Key? key,
