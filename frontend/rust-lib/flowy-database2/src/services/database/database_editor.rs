@@ -440,6 +440,13 @@ impl DatabaseEditor {
             .set_type_option(new_field_type.into(), Some(transformed_type_option.clone()));
         });
 
+      for view_id in self.get_all_view_ids_in_database() {
+        self
+          .database_views
+          .did_update_field_type_option(&view_id, field_id, &field)
+          .await?;
+      }
+
       self
         .notify_did_update_field_to_single_field(field_id)
         .await?;

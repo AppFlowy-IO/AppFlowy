@@ -326,7 +326,7 @@ class CreateRowFieldButton extends StatefulWidget {
 
 class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
   late PopoverController popoverController;
-  late FieldPB field;
+  FieldPB? field;
 
   @override
   void initState() {
@@ -356,8 +356,8 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
               viewId: widget.viewId,
             );
             result.fold(
-              (field) {
-                field = field;
+              (newField) {
+                field = newField;
                 popoverController.show();
               },
               (r) => Log.error("Failed to create field type option: $r"),
@@ -370,9 +370,12 @@ class _CreateRowFieldButtonState extends State<CreateRowFieldButton> {
         ),
       ),
       popupBuilder: (BuildContext popOverContext) {
+        if (field == null) {
+          return const SizedBox.shrink();
+        }
         return FieldEditor(
           viewId: widget.viewId,
-          field: field,
+          field: field!,
           onDeleted: (fieldId) {
             popoverController.close();
             NavigatorAlertDialog(

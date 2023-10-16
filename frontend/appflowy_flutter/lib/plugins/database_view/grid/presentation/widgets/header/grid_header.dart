@@ -177,7 +177,7 @@ class CreateFieldButton extends StatefulWidget {
 
 class _CreateFieldButtonState extends State<CreateFieldButton> {
   final popoverController = PopoverController();
-  late FieldPB field;
+  FieldPB? field;
 
   @override
   Widget build(BuildContext context) {
@@ -197,8 +197,8 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
             viewId: widget.viewId,
           );
           result.fold(
-            (field) {
-              field = field;
+            (newField) {
+              field = newField;
               popoverController.show();
             },
             (r) => Log.error("Failed to create field type option: $r"),
@@ -207,9 +207,12 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
         leftIcon: const FlowySvg(FlowySvgs.add_s),
       ),
       popupBuilder: (BuildContext popover) {
+        if (field == null) {
+          return const SizedBox.shrink();
+        }
         return FieldEditor(
           viewId: widget.viewId,
-          field: field,
+          field: field!,
         );
       },
     );
