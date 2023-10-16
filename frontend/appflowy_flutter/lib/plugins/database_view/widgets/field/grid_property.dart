@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/setting/property_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
@@ -36,9 +35,9 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DatabasePropertyBloc>(
-        param1: widget.viewId,
-        param2: widget.fieldController,
+      create: (context) => DatabasePropertyBloc(
+        viewId: widget.viewId,
+        fieldController: widget.fieldController,
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
