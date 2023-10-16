@@ -381,14 +381,10 @@ Widget? _buildHeaderIcon(GroupData customData) {
   switch (customData.fieldType) {
     case FieldType.Checkbox:
       final group = customData.asCheckboxGroup()!;
-      if (group.isCheck) {
-        widget = const FlowySvg(
-          FlowySvgs.check_filled_s,
-          blendMode: BlendMode.dst,
-        );
-      } else {
-        widget = const FlowySvg(FlowySvgs.uncheck_s);
-      }
+      widget = FlowySvg(
+        group.isCheck ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+        blendMode: BlendMode.dst,
+      );
       break;
     case FieldType.DateTime:
     case FieldType.LastEditedTime:

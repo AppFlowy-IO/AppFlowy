@@ -85,7 +85,7 @@ class DandelionColorScheme extends FlowyColorScheme {
       : super(
           surface: const Color(0xff292929),
           hover: const Color(0xff1f1f1f),
-          selector: const Color(0xff333333),
+          selector: _darkShader2,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
