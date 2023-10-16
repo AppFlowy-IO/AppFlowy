@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/divider_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/math_equation_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/document_markdown_parsers.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,7 +33,7 @@ void main() {
       );
       expect(result, r'$$E = MC^2$$');
     });
-    // Changes
+
     test('code block', () {
       const text = '''
 {
@@ -63,6 +61,7 @@ void main() {
       );
       expect(result, '```\nSome Code\n```');
     });
+
     test('divider', () {
       const text = '''
 {
@@ -86,6 +85,74 @@ void main() {
         ],
       );
       expect(result, '---\n');
+    });
+
+    test('callout', () {
+      const text = '''
+{
+    "document":{
+        "type":"page",
+        "children":[
+            {
+                "type":"callout",
+                "data":{
+                    "icon": "😁",
+                    "delta": [
+                        {
+                            "insert": "Callout"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+''';
+      final document = Document.fromJson(
+        Map<String, Object>.from(json.decode(text)),
+      );
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const CalloutNodeParser(),
+        ],
+      );
+      expect(result, '''> 😁
+> Callout
+
+''');
+    });
+
+    test('toggle list', () {
+      const text = '''
+{
+    "document":{
+        "type":"page",
+        "children":[
+            {
+                "type":"toggle_list",
+                "data":{
+                    "delta": [
+                        {
+                            "insert": "Toggle list"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+''';
+      final document = Document.fromJson(
+        Map<String, Object>.from(json.decode(text)),
+      );
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const ToggleListNodeParser(),
+        ],
+      );
+      expect(result, '- Toggle list\n');
     });
   });
 }
