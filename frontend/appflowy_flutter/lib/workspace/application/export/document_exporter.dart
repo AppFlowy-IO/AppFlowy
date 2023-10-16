@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/markdown_parsers.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/document_markdown_parsers.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -16,6 +16,7 @@ const List<NodeParser> _customParsers = [
   CodeBlockNodeParser(),
   CalloutNodeParser(),
   ToggleListNodeParser(),
+  CustomImageNodeParser(),
 ];
 
 enum DocumentExportType {
