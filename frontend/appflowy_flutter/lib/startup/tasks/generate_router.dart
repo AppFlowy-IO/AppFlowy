@@ -83,6 +83,14 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
             builder: (BuildContext context, GoRouterState state) {
               return const MobileHomeScreen();
             },
+            routes: <RouteBase>[
+              GoRoute(
+                path: MobileHomeSettingPage.routeName,
+                builder: (BuildContext context, GoRouterState state) {
+                  return const MobileHomeSettingPage();
+                },
+              ),
+            ],
           ),
         ],
       ),

@@ -5,6 +5,9 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'mobile_home_setting_page.dart';
 
 // TODO(yijing): This is just a placeholder for now.
 class MobileHomeScreen extends StatelessWidget {
@@ -45,7 +48,9 @@ class MobileHomeScreen extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  // TODO(yijing): Navigate to setting page
+                  context.push(
+                    '${MobileHomeScreen.routeName}/${MobileHomeSettingPage.routeName}',
+                  );
                 },
                 icon: const FlowySvg(
                   FlowySvgs.m_setting_m,
