@@ -93,7 +93,8 @@ class ShortcutsListView extends StatelessWidget {
               },
             ),
           ],
-        )
+        ),
+        const VSpace(10),
       ],
     );
   }
