@@ -41,9 +41,13 @@ void main() {
         "type":"page",
         "children":[
             {
-                "type":"code_block",
+                "type":"code",
                 "data":{
-                    "code_block":"Some Code"
+                      "delta": [
+                        {
+                            "insert": "Some Code"
+                        }
+                    ]
                 }
             }
         ]
@@ -153,6 +157,39 @@ void main() {
         ],
       );
       expect(result, '- Toggle list\n');
+    });
+
+    test('custom image', () {
+      const image =
+          'https://images.unsplash.com/photo-1694984121999-36d30b67f391?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwzfHx8ZW58MHx8fHx8&auto=format&fit=crop&w=800&q=60';
+      const text = '''
+{
+    "document":{
+        "type":"page",
+        "children":[
+            {
+                "type":"image",
+                "data":{
+                    "url": "$image"
+                }
+            }
+        ]
+    }
+}
+''';
+      final document = Document.fromJson(
+        Map<String, Object>.from(json.decode(text)),
+      );
+      final result = documentToMarkdown(
+        document,
+        customParsers: [
+          const CustomImageNodeParser(),
+        ],
+      );
+      expect(
+        result,
+        '![]($image)\n',
+      );
     });
   });
 }
