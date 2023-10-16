@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -157,7 +158,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     supportSlashMenuNodeWhiteList.addAll([
       ToggleListBlockKeys.type,
     ]);
+    toolbarItemWhiteList.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+      TableBlockKeys.type,
+    ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
+
+    // customize the dynamic theme color
+    _customizeBlockComponentBackgroundColorDecorator();
   }
 
   @override
@@ -538,5 +547,34 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         },
       ),
     );
+  }
+
+  void _customizeBlockComponentBackgroundColorDecorator() {
+    blockComponentBackgroundColorDecorator = (Node node, String colorString) {
+      // the color string is from FlowyTint.
+      final tintColor = FlowyTint.values.firstWhereOrNull(
+        (e) => e.id == colorString,
+      );
+      if (tintColor != null) {
+        return tintColor.color(context);
+      }
+      final themeColor = themeBackgroundColors[colorString];
+      if (themeColor != null) {
+        return themeColor.color(context);
+      }
+
+      if (colorString == optionActionColorDefaultColor) {
+        final defaultColor = node.type == CalloutBlockKeys.type
+            ? AFThemeExtension.of(context).calloutBGColor
+            : Colors.transparent;
+        return defaultColor;
+      }
+
+      if (colorString == tableCellDefaultColor) {
+        return AFThemeExtension.of(context).tableCellBGColor;
+      }
+
+      return null;
+    };
   }
 }

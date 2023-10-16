@@ -54,8 +54,7 @@
     "medium": "средний",
     "large": "большой",
     "fontSize": "Размер шрифта",
-    "import": "Импортировать",
-    "moreOptions": ""
+    "import": "Импортировать"
   },
   "importPanel": {
     "textAndMarkdown": "Текст и Markdown",

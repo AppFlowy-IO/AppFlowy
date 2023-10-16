@@ -193,7 +193,6 @@
     {
       "type": "callout",
       "data": {
-        "bgColor": "#F0F0F0",
         "delta": [
           { "insert": "\nLike AppFlowy? Follow us:\n" },
           {

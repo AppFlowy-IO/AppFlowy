@@ -76,6 +76,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
           Locale('fa'),
+          Locale('hin'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),

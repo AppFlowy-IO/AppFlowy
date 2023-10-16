@@ -3,14 +3,21 @@ import 'dart:convert';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/code_block_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/divider_node_parser.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/math_equation_node_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/document_markdown_parsers.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
+
+const List<NodeParser> _customParsers = [
+  DividerNodeParser(),
+  MathEquationNodeParser(),
+  CodeBlockNodeParser(),
+  CalloutNodeParser(),
+  ToggleListNodeParser(),
+  CustomImageNodeParser(),
+];
 
 enum DocumentExportType {
   json,
@@ -43,11 +50,7 @@ class DocumentExporter {
         case DocumentExportType.markdown:
           final markdown = documentToMarkdown(
             document,
-            customParsers: [
-              const DividerNodeParser(),
-              const MathEquationNodeParser(),
-              const CodeBlockNodeParser(),
-            ],
+            customParsers: _customParsers,
           );
           return right(markdown);
         case DocumentExportType.text:
