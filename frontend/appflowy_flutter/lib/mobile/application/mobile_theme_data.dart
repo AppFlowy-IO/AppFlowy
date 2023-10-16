@@ -1,10 +1,14 @@
 // ThemeData in mobile
 import 'package:flutter/material.dart';
 
+const _primaryColor = Color(0xFF2DA2F6); //primary 100
+const _onBackgroundColor = Color(0xff2F3030); // text/title color
+const _onSurfaceColor = Color(0xff676666); // text/body color
+
 ThemeData getMobileThemeData() {
   const mobileColorTheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF2DA2F6), //primary 100
+    primary: _primaryColor,
     onPrimary: Colors.white,
     // TODO(yijing): add color later
     secondary: Colors.white,
@@ -12,11 +16,11 @@ ThemeData getMobileThemeData() {
     error: Color(0xffFB006D),
     onError: Color(0xffFB006D),
     background: Colors.white,
-    onBackground: Color(0xff2F3030), // title text
+    onBackground: _onBackgroundColor,
     outline: Color(0xffBDC0C5), //caption
     //Snack bar
     surface: Colors.white,
-    onSurface: Color(0xff2F3030), // title text
+    onSurface: _onSurfaceColor, // text/body color
   );
   return ThemeData(
     // color
@@ -29,9 +33,8 @@ ThemeData getMobileThemeData() {
       backgroundColor: mobileColorTheme.background,
       elevation: 80,
       centerTitle: false,
-      titleTextStyle: TextStyle(
-        fontFamily: 'Poppins',
-        color: mobileColorTheme.onBackground,
+      titleTextStyle: const TextStyle(
+        color: _onBackgroundColor,
         fontSize: 18,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.05,
@@ -91,7 +94,7 @@ ThemeData getMobileThemeData() {
         letterSpacing: 0.16,
       ),
       displayMedium: TextStyle(
-        color: Color(0xff2F3030),
+        color: _onBackgroundColor,
         fontSize: 32,
         fontWeight: FontWeight.w600,
         height: 1.20,
@@ -99,7 +102,7 @@ ThemeData getMobileThemeData() {
       ),
       // H1 Semi 26
       displaySmall: TextStyle(
-        color: Color(0xFF2F3030),
+        color: _onBackgroundColor,
         fontSize: 26,
         fontWeight: FontWeight.w600,
         height: 1.10,
@@ -113,19 +116,25 @@ ThemeData getMobileThemeData() {
         height: 1.20,
         letterSpacing: 0.07,
       ),
-      // blue text button
+      // setting item title
       labelMedium: TextStyle(
-        color: Color(0xFF2DA2F6),
-        fontSize: 14,
+        color: _onSurfaceColor,
+        fontSize: 18,
         fontWeight: FontWeight.w500,
-        height: 1.20,
+      ),
+      // setting group title
+      labelSmall: TextStyle(
+        color: _onBackgroundColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.05,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(
           width: 2,
-          color: Color(0xFF2DA2F6), //primary 100
+          color: _primaryColor,
         ),
         borderRadius: BorderRadius.all(Radius.circular(6)),
       ),
