@@ -252,11 +252,17 @@ class _ToggleUnreadsButtonState extends State<_ToggleUnreadsButton> {
       segments: [
         ButtonSegment<bool>(
           value: false,
-          label: Text(LocaleKeys.notificationHub_actions_showAll.tr()),
+          label: Text(
+            LocaleKeys.notificationHub_actions_showAll.tr(),
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
         ButtonSegment<bool>(
           value: true,
-          label: Text(LocaleKeys.notificationHub_actions_showUnreads.tr()),
+          label: Text(
+            LocaleKeys.notificationHub_actions_showUnreads.tr(),
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ],
       selected: <bool>{showUnreadsOnly},
