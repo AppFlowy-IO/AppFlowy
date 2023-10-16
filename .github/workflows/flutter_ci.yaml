@@ -49,6 +49,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      # the following step is required to avoid running out of space
+      - name: Maximize build space
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Checkout source code
         uses: actions/checkout@v2
 
