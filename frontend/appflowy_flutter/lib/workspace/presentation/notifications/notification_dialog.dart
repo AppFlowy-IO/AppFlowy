@@ -3,30 +3,24 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/notifications/notification_grouped_view.dart';
-import 'package:appflowy/workspace/presentation/notifications/notification_view.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
-import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_hub_title.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 extension _ReminderSort on Iterable<ReminderPB> {
-  List<ReminderPB> sortByScheduledAt({
-    bool isDescending = true,
-  }) =>
-      sorted(
-        (a, b) => isDescending
-            ? b.scheduledAt.compareTo(a.scheduledAt)
-            : a.scheduledAt.compareTo(b.scheduledAt),
-      );
+  List<ReminderPB> sortByScheduledAt() =>
+      sorted((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
 }
 
 class NotificationDialog extends StatefulWidget {
@@ -78,112 +72,44 @@ class _NotificationDialogState extends State<NotificationDialog>
         builder: (context, filterState) =>
             BlocBuilder<ReminderBloc, ReminderState>(
           builder: (context, state) {
-            final sortDescending =
-                filterState.sortBy == NotificationSortOption.descending;
-
             final List<ReminderPB> pastReminders = state.pastReminders
                 .where((r) => filterState.showUnreadsOnly ? !r.isRead : true)
-                .sortByScheduledAt(isDescending: sortDescending);
+                .sortByScheduledAt();
 
-            final List<ReminderPB> upcomingReminders = state.upcomingReminders
-                .sortByScheduledAt(isDescending: sortDescending);
+            final List<ReminderPB> upcomingReminders =
+                state.upcomingReminders.sortByScheduledAt();
 
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                          ),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: 215,
-                        child: TabBar(
-                          controller: _controller,
-                          indicator: UnderlineTabIndicator(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          tabs: [
-                            Tab(
-                              height: 26,
-                              child: FlowyText.regular(
-                                LocaleKeys.notificationHub_tabs_inbox.tr(),
-                              ),
-                            ),
-                            Tab(
-                              height: 26,
-                              child: FlowyText.regular(
-                                LocaleKeys.notificationHub_tabs_upcoming.tr(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    NotificationViewFilters(),
-                  ],
-                ),
-                const VSpace(4),
+                const NotificationHubTitle(),
+                NotificationTabBar(tabController: _controller),
                 // TODO(Xazin): Resolve issue with taking up
                 //  max amount of vertical space
                 Expanded(
                   child: TabBarView(
                     controller: _controller,
                     children: [
-                      if (!filterState.groupByDate) ...[
-                        NotificationsView(
-                          shownReminders: pastReminders,
-                          reminderBloc: _reminderBloc,
-                          views: widget.views,
-                          onDelete: _onDelete,
-                          onAction: _onAction,
-                          onReadChanged: _onReadChanged,
+                      NotificationsView(
+                        shownReminders: pastReminders,
+                        reminderBloc: _reminderBloc,
+                        views: widget.views,
+                        onDelete: _onDelete,
+                        onAction: _onAction,
+                        onReadChanged: _onReadChanged,
+                        actionBar: _InboxActionBar(
+                          hasUnreads: state.hasUnreads,
+                          showUnreadsOnly: filterState.showUnreadsOnly,
                         ),
-                        NotificationsView(
-                          shownReminders: upcomingReminders,
-                          reminderBloc: _reminderBloc,
-                          views: widget.views,
-                          isUpcoming: true,
-                          onAction: _onAction,
-                        ),
-                      ] else ...[
-                        NotificationsGroupView(
-                          groupedReminders: groupBy<ReminderPB, DateTime>(
-                            pastReminders,
-                            (r) => DateTime.fromMillisecondsSinceEpoch(
-                              r.scheduledAt.toInt() * 1000,
-                            ).withoutTime,
-                          ),
-                          reminderBloc: _reminderBloc,
-                          views: widget.views,
-                          onAction: _onAction,
-                          onDelete: _onDelete,
-                          onReadChanged: _onReadChanged,
-                        ),
-                        NotificationsGroupView(
-                          groupedReminders: groupBy<ReminderPB, DateTime>(
-                            upcomingReminders,
-                            (r) => DateTime.fromMillisecondsSinceEpoch(
-                              r.scheduledAt.toInt() * 1000,
-                            ).withoutTime,
-                          ),
-                          reminderBloc: _reminderBloc,
-                          views: widget.views,
-                          isUpcoming: true,
-                          onAction: _onAction,
-                        ),
-                      ],
+                      ),
+                      NotificationsView(
+                        shownReminders: upcomingReminders,
+                        reminderBloc: _reminderBloc,
+                        views: widget.views,
+                        isUpcoming: true,
+                        onAction: _onAction,
+                      ),
                     ],
                   ),
                 ),
@@ -222,222 +148,157 @@ class _NotificationDialogState extends State<NotificationDialog>
   }
 }
 
-class NotificationViewFilters extends StatelessWidget {
-  NotificationViewFilters({super.key});
-  final PopoverMutex _mutex = PopoverMutex();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<NotificationFilterBloc>.value(
-      value: context.read<NotificationFilterBloc>(),
-      child: BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
-        builder: (context, state) {
-          return AppFlowyPopover(
-            mutex: _mutex,
-            offset: const Offset(0, 5),
-            constraints: BoxConstraints.loose(const Size(225, 200)),
-            direction: PopoverDirection.bottomWithLeftAligned,
-            popupBuilder: (popoverContext) {
-              // TODO(Xazin): This is a workaround until we have resolved
-              //  the issues with closing popovers on leave/outside-clicks
-              return MouseRegion(
-                onExit: (_) => _mutex.close(),
-                child: NotificationFilterPopover(
-                  bloc: context.read<NotificationFilterBloc>(),
-                ),
-              );
-            },
-            child: FlowyIconButton(
-              isSelected: state.hasFilters,
-              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-              icon: const FlowySvg(FlowySvgs.filter_s),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class NotificationFilterPopover extends StatelessWidget {
-  const NotificationFilterPopover({
-    super.key,
-    required this.bloc,
+class _InboxActionBar extends StatelessWidget {
+  const _InboxActionBar({
+    required this.hasUnreads,
+    required this.showUnreadsOnly,
   });
 
-  final NotificationFilterBloc bloc;
+  final bool hasUnreads;
+  final bool showUnreadsOnly;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _SortByOption(bloc: bloc),
-        _ShowUnreadsToggle(bloc: bloc),
-        _GroupByDateToggle(bloc: bloc),
-        BlocProvider<NotificationFilterBloc>.value(
-          value: bloc,
-          child: BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
-            builder: (context, state) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    width: 115,
-                    child: FlowyButton(
-                      disable: !state.hasFilters,
-                      onTap: state.hasFilters
-                          ? () =>
-                              bloc.add(const NotificationFilterEvent.reset())
-                          : null,
-                      text: FlowyText(
-                        LocaleKeys.notificationHub_filters_resetToDefault.tr(),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
           ),
         ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _MarkAsReadButton(
+              onMarkAllRead: !hasUnreads
+                  ? null
+                  : () => context
+                      .read<ReminderBloc>()
+                      .add(const ReminderEvent.markAllRead()),
+            ),
+            _ToggleUnreadsButton(
+              showUnreadsOnly: showUnreadsOnly,
+              onToggled: (showUnreadsOnly) => context
+                  .read<NotificationFilterBloc>()
+                  .add(const NotificationFilterEvent.toggleShowUnreadsOnly()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleUnreadsButton extends StatefulWidget {
+  const _ToggleUnreadsButton({
+    required this.onToggled,
+    this.showUnreadsOnly = false,
+  });
+
+  final Function(bool) onToggled;
+  final bool showUnreadsOnly;
+
+  @override
+  State<_ToggleUnreadsButton> createState() => _ToggleUnreadsButtonState();
+}
+
+class _ToggleUnreadsButtonState extends State<_ToggleUnreadsButton> {
+  late bool showUnreadsOnly = widget.showUnreadsOnly;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<bool>(
+      onSelectionChanged: (Set<bool> newSelection) {
+        setState(() => showUnreadsOnly = newSelection.first);
+        widget.onToggled(showUnreadsOnly);
+      },
+      showSelectedIcon: false,
+      style: ButtonStyle(
+        side: MaterialStatePropertyAll(
+          BorderSide(color: Theme.of(context).dividerColor),
+        ),
+        shape: const MaterialStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: Corners.s6Border),
+        ),
+        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+          (state) {
+            if (state.contains(MaterialState.hovered) ||
+                state.contains(MaterialState.selected) ||
+                state.contains(MaterialState.pressed)) {
+              return Theme.of(context).colorScheme.onSurface;
+            }
+
+            return AFThemeExtension.of(context).textColor;
+          },
+        ),
+        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+          (state) {
+            if (state.contains(MaterialState.hovered) ||
+                state.contains(MaterialState.selected) ||
+                state.contains(MaterialState.pressed)) {
+              return Theme.of(context).colorScheme.primary;
+            }
+
+            return Theme.of(context).colorScheme.secondaryContainer;
+          },
+        ),
+      ),
+      segments: [
+        ButtonSegment<bool>(
+          value: false,
+          label: Text(LocaleKeys.notificationHub_actions_showAll.tr()),
+        ),
+        ButtonSegment<bool>(
+          value: true,
+          label: Text(LocaleKeys.notificationHub_actions_showUnreads.tr()),
+        ),
       ],
+      selected: <bool>{showUnreadsOnly},
     );
   }
 }
 
-class _ShowUnreadsToggle extends StatelessWidget {
-  const _ShowUnreadsToggle({required this.bloc});
+class _MarkAsReadButton extends StatefulWidget {
+  final VoidCallback? onMarkAllRead;
 
-  final NotificationFilterBloc bloc;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<NotificationFilterBloc>.value(
-      value: bloc,
-      child: BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
-        builder: (context, state) {
-          return Row(
-            children: [
-              const HSpace(4),
-              Expanded(
-                child: FlowyText(
-                  LocaleKeys.notificationHub_filters_showUnreadsOnly.tr(),
-                ),
-              ),
-              Toggle(
-                style: ToggleStyle.big,
-                onChanged: (value) => bloc
-                    .add(const NotificationFilterEvent.toggleShowUnreadsOnly()),
-                value: state.showUnreadsOnly,
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _GroupByDateToggle extends StatelessWidget {
-  const _GroupByDateToggle({required this.bloc});
-
-  final NotificationFilterBloc bloc;
+  const _MarkAsReadButton({this.onMarkAllRead});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<NotificationFilterBloc>.value(
-      value: bloc,
-      child: BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
-        builder: (context, state) {
-          return Row(
-            children: [
-              const HSpace(4),
-              Expanded(
-                child: FlowyText(
-                  LocaleKeys.notificationHub_filters_groupByDate.tr(),
-                ),
-              ),
-              Toggle(
-                style: ToggleStyle.big,
-                onChanged: (value) =>
-                    bloc.add(const NotificationFilterEvent.toggleGroupByDate()),
-                value: state.groupByDate,
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+  State<_MarkAsReadButton> createState() => _MarkAsReadButtonState();
 }
 
-class _SortByOption extends StatefulWidget {
-  const _SortByOption({required this.bloc});
-
-  final NotificationFilterBloc bloc;
-
-  @override
-  State<_SortByOption> createState() => _SortByOptionState();
-}
-
-class _SortByOptionState extends State<_SortByOption> {
+class _MarkAsReadButtonState extends State<_MarkAsReadButton> {
   bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NotificationFilterBloc>.value(
-      value: widget.bloc,
-      child: BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
-        builder: (context, state) {
-          final isSortDescending =
-              state.sortBy == NotificationSortOption.descending;
-
-          return Row(
-            children: [
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 4.0),
-                  child: FlowyText('Sort'),
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: 115,
-                child: FlowyHover(
-                  resetHoverOnRebuild: false,
-                  child: FlowyButton(
-                    onHover: (isHovering) => isHovering != _isHovering
-                        ? setState(() => _isHovering = isHovering)
-                        : null,
-                    onTap: () => widget.bloc.add(
-                      NotificationFilterEvent.changeSortBy(
-                        isSortDescending
-                            ? NotificationSortOption.ascending
-                            : NotificationSortOption.descending,
-                      ),
-                    ),
-                    leftIcon: FlowySvg(
-                      isSortDescending
-                          ? FlowySvgs.sort_descending_s
-                          : FlowySvgs.sort_ascending_s,
-                      color: _isHovering
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).iconTheme.color,
-                    ),
-                    text: FlowyText.regular(
-                      isSortDescending
-                          ? LocaleKeys.notificationHub_filters_descending.tr()
-                          : LocaleKeys.notificationHub_filters_ascending.tr(),
-                      color: _isHovering
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+    return Opacity(
+      opacity: widget.onMarkAllRead != null ? 1 : 0.5,
+      child: FlowyHover(
+        onHover: (isHovering) => setState(() => _isHovering = isHovering),
+        resetHoverOnRebuild: false,
+        child: FlowyTextButton(
+          LocaleKeys.notificationHub_actions_markAllRead.tr(),
+          fontColor: widget.onMarkAllRead != null && _isHovering
+              ? Theme.of(context).colorScheme.onSurface
+              : AFThemeExtension.of(context).textColor,
+          heading: FlowySvg(
+            FlowySvgs.checklist_s,
+            color: widget.onMarkAllRead != null && _isHovering
+                ? Theme.of(context).colorScheme.onSurface
+                : AFThemeExtension.of(context).textColor,
+          ),
+          hoverColor: widget.onMarkAllRead != null && _isHovering
+              ? Theme.of(context).colorScheme.primary
+              : null,
+          onPressed: widget.onMarkAllRead,
+        ),
       ),
     );
   }

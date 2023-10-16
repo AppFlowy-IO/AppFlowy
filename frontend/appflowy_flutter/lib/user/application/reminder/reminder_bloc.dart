@@ -36,6 +36,24 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
     on<ReminderEvent>((event, emit) async {
       await event.when(
+        markAllRead: () async {
+          final unreadReminders =
+              state.pastReminders.where((reminder) => !reminder.isRead);
+
+          final reminders = [...state.reminders];
+          final updatedReminders = <ReminderPB>[];
+          for (final reminder in unreadReminders) {
+            reminders.remove(reminder);
+
+            reminder.isRead = true;
+            await reminderService.updateReminder(reminder: reminder);
+
+            updatedReminders.add(reminder);
+          }
+
+          reminders.addAll(updatedReminders);
+          emit(state.copyWith(reminders: reminders));
+        },
         started: () async {
           final remindersOrFailure = await reminderService.fetchReminders();
 
@@ -169,6 +187,9 @@ class ReminderEvent with _$ReminderEvent {
 
   // Update a reminder (eg. isAck, isRead, etc.)
   const factory ReminderEvent.update(ReminderUpdate update) = _Update;
+
+  // Mark all unread reminders as read
+  const factory ReminderEvent.markAllRead() = _MarkAllRead;
 
   const factory ReminderEvent.pressReminder({required String reminderId}) =
       _PressReminder;

@@ -824,10 +824,16 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!",
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {
       "inbox": "Inbox",
       "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unreads"
     },
     "filters": {
       "ascending": "Ascending",

@@ -31,7 +31,9 @@ class NotificationButton extends StatelessWidget {
             child: AppFlowyPopover(
               mutex: mutex,
               direction: PopoverDirection.bottomWithLeftAligned,
-              constraints: const BoxConstraints(maxHeight: 250, maxWidth: 350),
+              constraints: const BoxConstraints(maxHeight: 250, maxWidth: 400),
+              windowPadding: EdgeInsets.zero,
+              margin: EdgeInsets.zero,
               popupBuilder: (_) =>
                   NotificationDialog(views: views, mutex: mutex),
               child: _buildNotificationIcon(context, state.hasUnreads),

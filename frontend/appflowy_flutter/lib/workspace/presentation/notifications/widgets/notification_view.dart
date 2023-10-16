@@ -1,7 +1,7 @@
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/presentation/notifications/notification_item.dart';
-import 'package:appflowy/workspace/presentation/notifications/notifications_hub_empty.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notifications_hub_empty.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +16,7 @@ class NotificationsView extends StatelessWidget {
     this.onAction,
     this.onDelete,
     this.onReadChanged,
+    this.actionBar,
   });
 
   final List<ReminderPB> shownReminders;
@@ -25,17 +26,25 @@ class NotificationsView extends StatelessWidget {
   final Function(ReminderPB reminder)? onAction;
   final Function(ReminderPB reminder)? onDelete;
   final Function(ReminderPB reminder, bool isRead)? onReadChanged;
+  final Widget? actionBar;
 
   @override
   Widget build(BuildContext context) {
     if (shownReminders.isEmpty) {
-      return const Center(child: NotificationsHubEmpty());
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          if (actionBar != null) actionBar!,
+          const Expanded(child: NotificationsHubEmpty()),
+        ],
+      );
     }
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (actionBar != null) actionBar!,
           ...shownReminders.map(
             (ReminderPB reminder) {
               return NotificationItem(
