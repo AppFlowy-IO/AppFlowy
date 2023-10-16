@@ -57,6 +57,7 @@ class MobileHomeScreen extends StatelessWidget {
                 ),
               )
             ],
+            elevation: 0,
           ),
           body: Center(
             child: Column(

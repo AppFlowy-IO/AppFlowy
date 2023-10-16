@@ -27,7 +27,7 @@ ThemeData getMobileThemeData() {
     appBarTheme: AppBarTheme(
       foregroundColor: mobileColorTheme.onBackground,
       backgroundColor: mobileColorTheme.background,
-      elevation: 0,
+      elevation: 80,
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontFamily: 'Poppins',
@@ -36,6 +36,7 @@ ThemeData getMobileThemeData() {
         fontWeight: FontWeight.w600,
         letterSpacing: 0.05,
       ),
+      shadowColor: const Color(0xffCBD5E0).withOpacity(0.24),
     ),
     // button
     elevatedButtonTheme: ElevatedButtonThemeData(
