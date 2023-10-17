@@ -814,6 +814,9 @@
       "shortKeyword": "remind"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings"
+  },
   "relativeDates": {
     "yesterday": "Yesterday",
     "today": "Today",
@@ -822,10 +825,16 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!",
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {
       "inbox": "Inbox",
       "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unread"
     },
     "filters": {
       "ascending": "Ascending",
