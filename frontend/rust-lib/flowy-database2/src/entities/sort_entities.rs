@@ -141,7 +141,7 @@ impl TryInto<UpdateSortParams> for UpdateSortPayloadPB {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UpdateSortParams {
   pub view_id: String,
   pub field_id: String,

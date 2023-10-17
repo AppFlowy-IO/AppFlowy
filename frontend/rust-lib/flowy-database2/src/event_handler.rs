@@ -143,7 +143,7 @@ pub(crate) async fn delete_all_sorts_handler(
   let manager = upgrade_manager(manager)?;
   let view_id: DatabaseViewIdPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
-  database_editor.delete_all_sorts(view_id.as_ref()).await;
+  database_editor.delete_all_sorts(view_id.as_ref()).await?;
   Ok(())
 }
 

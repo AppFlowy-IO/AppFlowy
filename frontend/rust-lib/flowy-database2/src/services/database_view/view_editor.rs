@@ -479,6 +479,10 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_get_sort(&self, sort_id: &str) -> Option<Sort> {
+    self.delegate.get_sort(&self.view_id, sort_id)
+  }
+
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
     self.delegate.get_all_sorts(&self.view_id)
   }
@@ -529,15 +533,16 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_delete_all_sorts(&self) -> FlowyResult<()> {
+  pub async fn v_delete_all_sorts(&self) -> FlowyResult<Vec<String>> {
     let all_sorts = self.v_get_all_sorts().await;
     self.sort_controller.write().await.delete_all_sorts().await;
 
     self.delegate.remove_all_sorts(&self.view_id);
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
-    notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
+    notification.delete_sorts = all_sorts.iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
-    Ok(())
+    let field_ids = all_sorts.into_iter().map(|sort| sort.field_id).collect();
+    Ok(field_ids)
   }
 
   pub async fn v_get_all_filters(&self) -> Vec<Arc<Filter>> {

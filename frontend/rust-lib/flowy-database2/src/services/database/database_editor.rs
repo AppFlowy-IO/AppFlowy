@@ -191,26 +191,44 @@ impl DatabaseEditor {
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn create_or_update_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_insert_filter(params).await?;
+    view_editor.v_insert_filter(params.clone()).await?;
+    self
+      .notify_did_update_field_to_views(Some(vec![params.view_id]), vec![params.field_id])
+      .await;
     Ok(())
   }
 
   pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_filter(params).await?;
+    let filter = view_editor.v_get_filter(&params.filter_id).await;
+    if let Some(filter) = filter {
+      view_editor.v_delete_filter(params.clone()).await?;
+      self
+        .notify_did_update_field_to_views(Some(vec![params.view_id]), vec![filter.field_id])
+        .await;
+    }
 
     Ok(())
   }
 
   pub async fn create_or_update_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    let sort = view_editor.v_insert_sort(params).await?;
+    let sort = view_editor.v_insert_sort(params.clone()).await?;
+    self
+      .notify_did_update_field_to_views(Some(vec![params.view_id]), vec![params.field_id])
+      .await;
     Ok(sort)
   }
 
   pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_sort(params).await?;
+    let sort = view_editor.v_get_sort(&params.sort_id).await;
+    if let Some(sort) = sort {
+      view_editor.v_delete_sort(params.clone()).await?;
+      self
+        .notify_did_update_field_to_views(Some(vec![params.view_id]), vec![sort.field_id])
+        .await;
+    }
 
     Ok(())
   }
@@ -239,10 +257,14 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn delete_all_sorts(&self, view_id: &str) {
-    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
-      let _ = view_editor.v_delete_all_sorts().await;
-    }
+  pub async fn delete_all_sorts(&self, view_id: &str) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    let previous_sorting_fields = view_editor.v_delete_all_sorts().await?;
+    self
+      .notify_did_update_field_to_views(Some(vec![view_id.to_string()]), previous_sorting_fields)
+      .await;
+
+    Ok(())
   }
 
   /// Returns a list of fields of the view.

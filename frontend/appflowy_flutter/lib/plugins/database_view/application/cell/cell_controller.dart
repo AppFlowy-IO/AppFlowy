@@ -139,8 +139,7 @@ class CellController<T, D> extends Equatable {
     return data;
   }
 
-  /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
-  /// [PD] is the type that the parser return.
+  /// Parses the type option data to the [PD] type using the [parser].
   PD getTypeOption<PD, P extends TypeOptionParser>(
     P parser,
   ) {

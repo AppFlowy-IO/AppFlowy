@@ -117,7 +117,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DeleteFilterParams {
   pub view_id: String,
   pub filter_id: String,
@@ -228,7 +228,7 @@ impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UpdateFilterParams {
   pub view_id: String,
   pub field_id: String,

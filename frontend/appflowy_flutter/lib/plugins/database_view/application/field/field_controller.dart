@@ -132,37 +132,6 @@ class FieldController {
     );
   }
 
-  // /// Updates sort, filter, group and field info from `DatabaseViewSettingPB`
-  // void _updateSetting(DatabaseViewSettingPB setting) {
-  //   _groupConfigurationByFieldId.clear();
-  //   for (final configuration in setting.groupSettings.items) {
-  //     _groupConfigurationByFieldId[configuration.fieldId] = configuration;
-  //   }
-
-  //   _filterNotifier?.filters = _filterInfoListFromPBs(setting.filters.items);
-
-  //   _sortNotifier?.sorts = _sortInfoListFromPBs(setting.sorts.items);
-
-  //   _fieldSettings.clear();
-  //   _fieldSettings.addAll(setting.fieldSettings.items);
-
-  //   _updateFieldInfos();
-  // }
-
-  /// Attach sort, filter, group information and field settings to `FieldPB`
-  // void _updateFieldInfos() {
-  //   final List<FieldPB> newFieldInfos = [];
-  //   for (final field in _fieldNotifier.fields) {
-  //     newFieldInfos.add(
-  //       field.copyWith(
-  //         isGroupField: _groupConfigurationByFieldId[field.id] != null,
-  //       ),
-  //     );
-  //   }
-
-  //   _fieldNotifier.fields = newFieldInfos;
-  // }
-
   /// Load all the fields. This is required when opening the database
   Future<Either<Unit, FlowyError>> loadFields({
     required List<FieldIdPB> fieldIds,
