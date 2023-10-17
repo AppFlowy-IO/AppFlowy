@@ -35,7 +35,6 @@ void main() {
     final field = context.singleSelectFieldContext();
 
     final editorBloc = FieldEditorBloc(
-      isGroupField: field.isGroupField,
       viewId: context.gridView.id,
     )..add(FieldEditorEvent.initial(field));
     await boardResponseFuture();

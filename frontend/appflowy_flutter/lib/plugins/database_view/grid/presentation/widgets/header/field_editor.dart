@@ -21,14 +21,12 @@ class FieldEditor extends StatefulWidget {
   final String viewId;
   final FieldPB field;
 
-  final bool isGroupingField;
   final Function(String)? onDeleted;
   final Function(String)? onToggleVisibility;
 
   const FieldEditor({
     required this.viewId,
     required this.field,
-    this.isGroupingField = false,
     this.onDeleted,
     this.onToggleVisibility,
     super.key,
@@ -59,7 +57,6 @@ class _FieldEditorState extends State<FieldEditor> {
       create: (context) {
         return FieldEditorBloc(
           viewId: widget.viewId,
-          isGroupField: widget.isGroupingField,
         )..add(FieldEditorEvent.initial(widget.field));
       },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
@@ -209,18 +206,15 @@ class DeleteFieldButton extends StatelessWidget {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
-        final enable = state.field != null &&
-            !state.field!.isPrimary &&
-            !state.isGroupField;
         final Widget button = FlowyButton(
-          disable: !enable,
+          disable: !state.canDelete,
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
-            color: enable ? null : Theme.of(context).disabledColor,
+            color: state.canDelete ? null : Theme.of(context).disabledColor,
           ),
           leftIcon: const FlowySvg(FlowySvgs.delete_s),
           onTap: () {
-            if (enable) onDeleted?.call();
+            if (state.canDelete) onDeleted?.call();
           },
           onHover: (_) => popoverMutex.close(),
         );

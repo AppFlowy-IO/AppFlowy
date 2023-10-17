@@ -220,7 +220,6 @@ class _PropertyCellState extends State<_PropertyCell> {
     return FieldEditor(
       viewId: widget.viewId,
       field: widget.field,
-      isGroupingField: widget.field.isGroupField,
       onToggleVisibility: (fieldId) {
         _popoverController.close();
         context

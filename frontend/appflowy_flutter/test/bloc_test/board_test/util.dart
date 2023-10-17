@@ -81,7 +81,6 @@ class BoardTestContext {
     required FieldPB field,
   }) {
     return FieldEditorBloc(
-      isGroupField: field.isGroupField,
       viewId: viewId,
     )..add(FieldEditorEvent.initial(field));
   }

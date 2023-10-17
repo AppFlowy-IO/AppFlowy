@@ -13,8 +13,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
   FieldEditorBloc({
     required this.viewId,
-    required bool isGroupField,
-  }) : super(FieldEditorState.initial(isGroupField)) {
+  }) : super(FieldEditorState.initial()) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -44,7 +43,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             );
           },
           didReceiveFieldChanged: (FieldPB field) {
-            emit(state.copyWith(field: field));
+            emit(
+              state.copyWith(
+                field: field,
+                canDelete: state.field != null &&
+                    !field.isPrimary &&
+                    !field.isGroupField,
+              ),
+            );
           },
           deleteField: () {
             FieldBackendService.deleteField(
@@ -52,8 +58,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
               fieldId: state.field!.id,
             );
           },
-          switchToField: (FieldType fieldType) async {
-            await FieldBackendService.switchToField(
+          switchToField: (FieldType fieldType) {
+            FieldBackendService.switchToField(
               viewId: viewId,
               fieldId: state.field!.id,
               newFieldType: fieldType,
@@ -83,14 +89,14 @@ class FieldEditorState with _$FieldEditorState {
   const factory FieldEditorState({
     required FieldPB? field,
     required String errorText,
-    required bool isGroupField,
+    required bool canDelete,
   }) = _FieldEditorState;
 
-  factory FieldEditorState.initial(bool isGroupField) {
-    return FieldEditorState(
+  factory FieldEditorState.initial() {
+    return const FieldEditorState(
       field: null,
       errorText: '',
-      isGroupField: isGroupField,
+      canDelete: true,
     );
   }
 }

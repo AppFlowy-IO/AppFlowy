@@ -8,7 +8,6 @@ Future<FieldEditorBloc> createEditorBloc(AppFlowyGridTest gridTest) async {
   final field = context.singleSelectFieldContext();
 
   return FieldEditorBloc(
-    isGroupField: field.isGroupField,
     viewId: context.gridView.id,
   )..add(FieldEditorEvent.initial(field));
 }
@@ -45,7 +44,6 @@ Future<FieldEditorBloc> makeEditorBloc(AppFlowyGridTest gridTest) async {
   final field = context.singleSelectFieldContext();
 
   final editorBloc = FieldEditorBloc(
-    isGroupField: field.isGroupField,
     viewId: context.gridView.id,
   )..add(FieldEditorEvent.initial(field));
 
