@@ -1,16 +1,15 @@
 import { Divider, Menu, MenuItem, MenuProps, OutlinedInput } from '@mui/material';
 import { ChangeEventHandler, FC, useCallback, useState } from 'react';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { Database } from '$app/interfaces/database';
-import * as service from '$app/components/database/database_bd_svc';
-import { useViewId } from '../../database.hooks';
+import { useViewId } from '$app/hooks';
+import { Field, fieldService } from '../../application';
 import { FieldTypeSvg } from './FieldTypeSvg';
 import { FieldTypeText } from './FieldTypeText';
 import { GridFieldMenuActions } from './GridFieldMenuActions';
 
 
 export interface GridFieldMenuProps {
-  field: Database.Field;
+  field: Field;
   anchorEl: MenuProps['anchorEl'];
   open: boolean;
   onClose: MenuProps['onClose'];
@@ -32,7 +31,7 @@ export const GridFieldMenu: FC<GridFieldMenuProps> = ({
   const handleBlur = useCallback(async () => {
     if (inputtingName !== field.name) {
       try {
-        await service.updateField(viewId, field.id, {
+        await fieldService.updateField(viewId, field.id, {
           name: inputtingName,
         });
       } catch (e) {

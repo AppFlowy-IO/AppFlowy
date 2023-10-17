@@ -1,41 +1,42 @@
-import { useEffect, useRef, useState } from 'react';
-import { proxy } from 'valtio';
-import { subscribeKey } from 'valtio/utils';
-import { DatabaseLayoutPB } from '@/services/backend';
-import { DndContext, DndContextDescriptor } from './_shared';
-import { VerticalScrollElementRefContext, DatabaseContext } from './database.context';
-import { useViewId, useConnectDatabase } from './database.hooks';
-import { DatabaseHeader } from './DatabaseHeader';
-import { Grid } from './grid';
+import { useEffect, useMemo, useState } from 'react';
+import { useViewId } from '$app/hooks';
+import { DatabaseView as DatabaseViewType, databaseViewService } from './application';
+import { DatabaseTabBar } from './components';
+import { useSelectDatabaseView } from './Database.hooks';
+import { DatabaseLoader } from './DatabaseLoader';
+import { DatabaseView } from './DatabaseView';
+import { DatabaseSettings } from './components/database_settings';
 
 export const Database = () => {
   const viewId = useViewId();
-  const verticalScrollElementRef = useRef<HTMLDivElement>(null);
-  const database = useConnectDatabase(viewId);
-  const [ layoutType, setLayoutType ] = useState(database.layoutType);
-  const dndContext = useRef(proxy<DndContextDescriptor>({
-    dragging: null,
-  }));
+  const [ views, setViews ] = useState<DatabaseViewType[]>([]);
+  const [ selectedViewId, selectViewId ] = useSelectDatabaseView();
+  const activeView = useMemo(() => views?.find(view => view.id === selectedViewId), [views, selectedViewId]);
 
   useEffect(() => {
-    return subscribeKey(database, 'layoutType', (value) => {
-      setLayoutType(value);
+    setViews([]);
+    void databaseViewService.getDatabaseViews(viewId).then(value => {
+      setViews(value);
     });
-  }, [database]);
+  }, [viewId]);
 
-  return (
-    <div
-      ref={verticalScrollElementRef}
-      className="h-full overflow-y-auto"
-    >
-      <DatabaseHeader />
-      <VerticalScrollElementRefContext.Provider value={verticalScrollElementRef}>
-        <DndContext.Provider value={dndContext.current}>
-          <DatabaseContext.Provider value={database}>
-            {layoutType === DatabaseLayoutPB.Grid ? <Grid /> : null}
-          </DatabaseContext.Provider>
-        </DndContext.Provider >
-      </VerticalScrollElementRefContext.Provider>
-    </div>
+  useEffect(() => {
+    if (!activeView) {
+      const firstViewId = views?.[0]?.id;
+
+      if (firstViewId) {
+        selectViewId(firstViewId);
+      }
+    }
+  }, [views, activeView, selectViewId]);
+
+  return activeView && (
+    <DatabaseLoader viewId={viewId}>
+      <div className="px-16">
+        <DatabaseTabBar views={views} />
+        <DatabaseSettings />
+      </div>
+      <DatabaseView />
+    </DatabaseLoader>
   );
 };
