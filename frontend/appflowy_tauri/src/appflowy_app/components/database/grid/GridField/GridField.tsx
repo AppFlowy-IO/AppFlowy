@@ -1,15 +1,15 @@
 import { Button, Tooltip } from '@mui/material';
 import { DragEventHandler, FC, useCallback, useMemo, useState } from 'react';
-import { Database } from '$app/interfaces/database';
 import { throttle } from '$app/utils/tool';
+import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
-import * as service from '../../database_bd_svc';
-import { useDatabase, useViewId } from '../../database.hooks';
+import { fieldService, Field } from '../../application';
+import { useDatabase } from '../../Database.hooks';
 import { FieldTypeSvg } from './FieldTypeSvg';
 import { GridFieldMenu } from './GridFieldMenu';
 
 export interface GridFieldProps {
-  field: Database.Field;
+  field: Field;
 }
 
 export const GridField: FC<GridFieldProps> = ({ field }) => {
@@ -69,7 +69,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
   }, [previewRef]);
 
   const onDrop = useCallback(({ data }: DragItem) => {
-    const dragField = data.field as Database.Field;
+    const dragField = data.field as Field;
     const fromIndex = fields.findIndex(item => item.id === dragField.id);
     const dropIndex = fields.findIndex(item => item.id === field.id);
     const toIndex = dropIndex + dropPosition + (fromIndex < dropIndex ? -1 : 0);
@@ -78,7 +78,7 @@ export const GridField: FC<GridFieldProps> = ({ field }) => {
       return;
     }
 
-    void service.moveField(viewId, dragField.id, fromIndex, toIndex);
+    void fieldService.moveField(viewId, dragField.id, fromIndex, toIndex);
   }, [viewId, field, fields, dropPosition]);
 
   const {

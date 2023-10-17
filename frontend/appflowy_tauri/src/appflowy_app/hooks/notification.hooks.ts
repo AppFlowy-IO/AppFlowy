@@ -1,9 +1,7 @@
 /* eslint-disable no-redeclare */
 import { useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { Ok, Err, Result } from 'ts-results';
 import { SubscribeObject } from '@/services/backend/models/flowy-notification';
-import { FlowyError } from '@/services/backend/models/flowy-error';
 import {
   DatabaseFieldChangesetPB,
   DatabaseNotification,
@@ -14,6 +12,7 @@ import {
   ReorderSingleRowPB,
   RowsChangePB,
   RowsVisibilityChangePB,
+  SortChangesetNotificationPB,
 } from '@/services/backend';
 
 const NotificationPBMap = {
@@ -27,6 +26,7 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateGroupRow]: GroupRowsNotificationPB,
   [DatabaseNotification.DidUpdateField]: FieldPB,
   [DatabaseNotification.DidUpdateCell]: null,
+  [DatabaseNotification.DidUpdateSort]: SortChangesetNotificationPB,
 };
 
 type NotificationMap = typeof NotificationPBMap;
@@ -35,12 +35,12 @@ type NotificationEnum = keyof NotificationMap;
 
 type NullableInstanceType<K extends ((abstract new (...args: any) => any) | null)> = K extends (abstract new (...args: any) => any) ? InstanceType<K> : void;
 
-type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableInstanceType<NotificationMap[K]>, FlowyError>) => void;
+type NotificationHandler<K extends NotificationEnum> = (result: NullableInstanceType<NotificationMap[K]>) => void;
 
 /**
  * Subscribes to a set of notifications.
- * 
- * This function subscribes to notifications defined by the `NotificationEnum` and 
+ *
+ * This function subscribes to notifications defined by the `NotificationEnum` and
  * calls the appropriate `NotificationHandler` when each type of notification is received.
  *
  * @param {Object} callbacks - An object containing handlers for various notification types.
@@ -48,9 +48,9 @@ type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableI
  *
  * @param {Object} [options] - Optional settings for the subscription.
  * @param {string} [options.id] - An optional ID. If provided, only notifications with a matching ID will be processed.
- * 
+ *
  * @returns {Promise<() => void>} A Promise that resolves to an unsubscribe function.
- * 
+ *
  * @example
  * subscribeNotifications({
  *   [DatabaseNotification.DidUpdateField]: (result) => {
@@ -75,7 +75,7 @@ type NotificationHandler<K extends NotificationEnum> = (result: Result<NullableI
  *   // ...
  *   // To unsubscribe, call `unsubscribe()`
  * });
- * 
+ *
  * @throws {Error} Throws an error if unable to subscribe.
  */
 export function subscribeNotifications(
@@ -101,13 +101,12 @@ export function subscribeNotifications(
     }
 
     if (subject.has_error) {
-      const error = FlowyError.deserializeBinary(subject.error);
-
-      callback(Err(error));
+      // const error = FlowyError.deserialize(subject.error);
+      return;
     } else {
       const { payload } = subject;
 
-      callback(pb ? Ok(pb.deserializeBinary(payload)) : Ok.EMPTY);
+      pb ? callback(pb.deserialize(payload)) : callback();
     }
   });
 }
