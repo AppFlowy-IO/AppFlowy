@@ -49,8 +49,8 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo "cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}""
-    cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}"
+    echo "cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}""
+    cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
