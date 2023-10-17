@@ -81,7 +81,7 @@ class LavenderColorScheme extends FlowyColorScheme {
       : super(
           surface: const Color(0xFF1B1A1D),
           hover: _darkMain1,
-          selector: const Color(0xff333333),
+          selector: _darkShader2,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
