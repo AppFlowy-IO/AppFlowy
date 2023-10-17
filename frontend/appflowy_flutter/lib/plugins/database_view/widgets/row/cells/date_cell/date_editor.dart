@@ -320,6 +320,9 @@ class EndTimeButton extends StatelessWidget {
   }
 }
 
+const _maxLengthTwelveHour = 8;
+const _maxLengthTwentyFourHour = 5;
+
 class _TimeTextField extends StatefulWidget {
   final bool isEndTime;
   final String? timeStr;
@@ -387,6 +390,11 @@ class _TimeTextFieldState extends State<_TimeTextField> {
             errorText: widget.isEndTime
                 ? state.parseEndTimeError
                 : state.parseTimeError,
+            maxLength:
+                state.dateTypeOptionPB.timeFormat == TimeFormatPB.TwelveHour
+                    ? _maxLengthTwelveHour
+                    : _maxLengthTwentyFourHour,
+            showCounter: false,
             onSubmitted: (timeStr) {
               if (widget.isEndTime) {
                 context

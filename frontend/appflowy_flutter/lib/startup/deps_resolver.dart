@@ -18,7 +18,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
