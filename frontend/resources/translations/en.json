@@ -833,7 +833,7 @@
     "actions": {
       "markAllRead": "Mark all as read",
       "showAll": "All",
-      "showUnreads": "Unreads"
+      "showUnreads": "Unread"
     },
     "filters": {
       "ascending": "Ascending",

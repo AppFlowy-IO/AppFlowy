@@ -245,7 +245,7 @@ class _ToggleUnreadsButtonState extends State<_ToggleUnreadsButton> {
               return Theme.of(context).colorScheme.primary;
             }
 
-            return Theme.of(context).colorScheme.secondaryContainer;
+            return Theme.of(context).cardColor;
           },
         ),
       ),
