@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
+
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -78,7 +79,7 @@ void main() {
   });
 }
 
-const expectedMarkdown = r'''
+const expectedMarkdown = '''
 # Welcome to AppFlowy!
 ## Here are the basics
 - [ ] Click anywhere and just start typing.
@@ -104,6 +105,15 @@ fn main() {
 
 ## Have a question❓
 > Click `?` at the bottom right for help and support.
+
+> 🥰
+> 
+> Like AppFlowy? Follow us:
+> [GitHub](https://github.com/AppFlowy-IO/AppFlowy)
+> [Twitter](https://twitter.com/appflowy): @appflowy
+> [Newsletter](https://blog-appflowy.ghost.io/)
+> 
+
 
 
 

@@ -8,7 +8,7 @@ class MathEquationNodeParser extends NodeParser {
   String get id => MathEquationBlockKeys.type;
 
   @override
-  String transform(Node node) {
+  String transform(Node node, DocumentMarkdownEncoder? encoder) {
     return '\$\$${node.attributes[id]}\$\$';
   }
 }
