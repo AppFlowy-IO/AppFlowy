@@ -78,6 +78,10 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
                 }
                 return null;
               },
+              onEditingComplete: () {
+                // show error promts if enter text is empty
+                _formKey.currentState!.validate();
+              },
             ),
           ),
           const SizedBox(
