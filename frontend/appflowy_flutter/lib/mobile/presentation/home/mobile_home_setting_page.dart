@@ -1,5 +1,6 @@
 import 'package:appflowy/env/env.dart';
-import 'package:appflowy/mobile/presentation/setting/widgets/edit_username_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -157,7 +158,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                           Icons.chevron_right,
                         ),
                         onTap: () {
-                          // TODO:navigate to Privacy Policy page
+                          context.push(PrivacyPolicyPage.routeName);
                         },
                       ),
                       MobileSettingItemWidget(
@@ -166,7 +167,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                           Icons.chevron_right,
                         ),
                         onTap: () {
-                          // TODO:navigate to User Agreement page
+                          context.push(UserAgreementPage.routeName);
                         },
                       ),
                     ],

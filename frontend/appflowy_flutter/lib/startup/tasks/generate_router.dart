@@ -29,6 +29,8 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeScreenWithNavigationBarRoute(),
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
         _mobileHomeSettingPageRoute(),
+        _mobileSettingPrivacyPolicyPageRoute(),
+        _mobileSettingUserAgreementPageRoute(),
       ],
 
       // Unused routes for now, it may need to be used in the future.
@@ -173,6 +175,26 @@ GoRoute _mobileHomeSettingPageRoute() {
     path: MobileHomeSettingPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: MobileHomeSettingPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingPrivacyPolicyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: PrivacyPolicyPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: PrivacyPolicyPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingUserAgreementPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: UserAgreementPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: UserAgreementPage());
     },
   );
 }
