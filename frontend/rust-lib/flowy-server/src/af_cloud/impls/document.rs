@@ -1,10 +1,11 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
 use collab_document::document::Document;
+use collab_entity::CollabType;
 
 use flowy_document_deps::cloud::*;
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -23,7 +24,10 @@ where
         object_id: document_id.to_string(),
         collab_type: CollabType::Document,
       };
-      let data = try_get_client?.get_collab(params).await?;
+      let data = try_get_client?
+        .get_collab(params)
+        .await
+        .map_err(FlowyError::from)?;
       Ok(vec![data])
     })
   }
@@ -44,7 +48,10 @@ where
         object_id: document_id.clone(),
         collab_type: CollabType::Document,
       };
-      let updates = vec![try_get_client?.get_collab(params).await?];
+      let updates = vec![try_get_client?
+        .get_collab(params)
+        .await
+        .map_err(FlowyError::from)?];
       let document = Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
       Ok(document.get_document_data().ok())
     })

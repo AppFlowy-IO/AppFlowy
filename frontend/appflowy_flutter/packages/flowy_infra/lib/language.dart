@@ -57,8 +57,13 @@ String languageFromLocale(Locale locale) {
       return "Türkçe";
     case "fa":
       return "فارسی";
+    case "uk":
+      return "українська";
     case "ur":
       return "اردو";
+    case "hin":
+      return "हिन्दी";
+
 
     // If not found then the language code will be displayed
     default:

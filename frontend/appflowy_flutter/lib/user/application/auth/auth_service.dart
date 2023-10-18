@@ -9,6 +9,7 @@ class AuthServiceMapKeys {
   static const String uuid = 'uuid';
   static const String email = 'email';
   static const String deviceId = 'device_id';
+  static const String signInURL = 'sign_in_url';
 }
 
 /// `AuthService` is an abstract class that defines methods related to user authentication.

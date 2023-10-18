@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/op
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 
@@ -109,32 +108,6 @@ class OptionActionList extends StatelessWidget {
         throw UnimplementedError();
     }
     editorState.apply(transaction);
-  }
-}
-
-class BlockComponentActionButton extends StatelessWidget {
-  const BlockComponentActionButton({
-    super.key,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final bool isHovering = false;
-  final Widget icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.grab,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        onTapDown: (details) {},
-        onTapUp: (details) {},
-        child: icon,
-      ),
-    );
   }
 }
 

@@ -10,8 +10,10 @@ use collab_database::user::{
   WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
-use collab_define::CollabType;
+use collab_entity::CollabType;
+use futures::executor::block_on;
 use tokio::sync::RwLock;
+use tracing::{instrument, trace};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -87,7 +89,7 @@ impl DatabaseManager {
 
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
-      tracing::trace!("workspace database not exist, try to fetch from remote");
+      trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
         .get_collab_update(&database_views_aggregate_id, CollabType::WorkspaceDatabase)
@@ -106,7 +108,7 @@ impl DatabaseManager {
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &database_views_aggregate_id);
+    trace!("open workspace database: {}", &database_views_aggregate_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_views_aggregate_id,
@@ -125,6 +127,7 @@ impl DatabaseManager {
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
@@ -170,7 +173,7 @@ impl DatabaseManager {
   }
 
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    tracing::trace!("create new editor for database {}", database_id);
+    trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
 
     let wdb = self.get_workspace_database().await?;
@@ -353,7 +356,7 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
       match event {
         BlockEvent::DidFetchRow(row_details) => {
           for row_detail in row_details {
-            tracing::trace!("Did fetch row: {:?}", row_detail.row.id);
+            trace!("Did fetch row: {:?}", row_detail.row.id);
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
             send_notification(&row_id, DatabaseNotification::DidFetchRow)
@@ -426,16 +429,14 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_raw_data: CollabRawData,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self
-      .collab_builder
-      .build_with_config(
-        uid,
-        object_id,
-        object_type,
-        collab_db,
-        collab_raw_data,
-        config,
-      )
-      .unwrap()
+    block_on(self.collab_builder.build_with_config(
+      uid,
+      object_id,
+      object_type,
+      collab_db,
+      collab_raw_data,
+      config,
+    ))
+    .unwrap()
   }
 }

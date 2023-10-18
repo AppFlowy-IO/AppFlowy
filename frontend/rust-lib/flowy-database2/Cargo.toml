@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-database-deps = { workspace = true }
 
@@ -32,7 +32,7 @@ rusty-money = {version = "0.4.1", features = ["iso"]}
 lazy_static = "1.4.0"
 indexmap = {version = "1.9.2", features = ["serde"]}
 url = { version = "2"}
-fancy-regex = "0.10.0"
+fancy-regex = "0.11.0"
 futures = "0.3.26"
 dashmap = "5"
 anyhow = "1.0"
@@ -47,7 +47,7 @@ strum = "0.25"
 strum_macros = "0.25"
 
 [dev-dependencies]
-flowy-test = { path = "../flowy-test", default-features = false }
+event-integration = { path = "../event-integration", default-features = false }
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

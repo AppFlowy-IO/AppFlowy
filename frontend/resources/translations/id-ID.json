@@ -12,7 +12,8 @@
     "addBelowTooltip": "Klik untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Opsi+klik",
-    "addAboveTooltip": "untuk menambahkan di atas"
+    "addAboveTooltip": "untuk menambahkan di atas",
+    "openMenuTooltip": "Klik untuk membuka menu"
   },
   "signUp": {
     "buttonText": "Daftar",
@@ -24,11 +25,14 @@
     "alreadyHaveAnAccount": "Sudah punya akun?",
     "emailHint": "Email",
     "passwordHint": "Sandi",
-    "repeatPasswordHint": "Sandi ulang"
+    "repeatPasswordHint": "Sandi ulang",
+    "signUpWith": "Daftar menggunakan:"
   },
   "signIn": {
     "loginTitle": "Masuk ke @:appName",
     "loginButtonText": "Masuk",
+    "loginStartWithAnonymous": "Mulai dengan sesi anonim",
+    "continueAnonymousUser": "Lanjutkan dengan sesi anonim",
     "buttonText": "Masuk",
     "forgotPassword": "Lupa Sandi?",
     "emailHint": "Email",
@@ -36,6 +40,10 @@
     "dontHaveAnAccount": "Belum punya akun?",
     "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
     "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
+    "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Jangan tutup halaman ini",
+    "or": "ATAU",
+    "LogInWithGoogle": "Masuk dengan Google",
+    "LogInWithGithub": "Masuk dengan Github",
     "LogInWithDiscord": "Masuk dengan Discord",
     "signInWith": "Masuk dengan:",
     "loginAsGuestButtonText": "Memulai"
@@ -46,7 +54,12 @@
     "reset": "Mengulang workspace",
     "resetWorkspacePrompt": "Mengulang workspace akan menghapus semua page dan data di dalamnya. Apakah anda yakin ingin mengulang workspace? Selain itu, anda bisa menghubungi tim support untuk mengembalikan workspace",
     "hint": "workspace",
-    "notFoundError": "Workspace tidak ditemukan"
+    "notFoundError": "Workspace tidak ditemukan",
+    "failedToLoad": "Ada yang tidak beres! Gagal memuat ruang kerja. Coba tutup semua contoh AppFlowy yang terbuka dan coba lagi.",
+    "errorActions": {
+      "reportIssue": "Laporkan isu",
+      "reachOut": "Hubungi di Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Bagikan",
@@ -228,6 +241,7 @@
       "language": "Bahasa",
       "user": "Pengguna",
       "files": "File",
+      "notifications": "Notifikasi",
       "open": "Buka Pengaturan",
       "logout": "Keluar",
       "logoutPrompt": "Apakah anda yakin untuk keluar?",
@@ -240,9 +254,18 @@
       "clickToCopySecret": "Klik untuk mengcopy rahasia",
       "inputTextFieldHint": "Rahasia anda",
       "historicalUserList": "History masuk user",
+      "historicalUserListTooltip": "Daftar ini menampilkan akun anonim Anda. Anda dapat mengeklik salah satu akun untuk melihat detailnya. Akun anonim dibuat dengan mengeklik tombol 'Memulai'",
+      "openHistoricalUser": "Klik untuk membuka akun anonim",
       "supabaseSetting": "Pengaturan Supabase"
     },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Mengaktifkan notifikasi",
+        "hint": "Matikan untuk menghentikan munculnya notifikasi lokal."
+      }
+    },
     "appearance": {
+      "resetSetting": "Mengatur ulang pengaturan ini",
       "fontFamily": {
         "label": "Keluarga Fon",
         "search": "Mencari"
@@ -253,8 +276,23 @@
         "dark": "Mode Gelap",
         "system": "Adapt to System"
       },
+      "layoutDirection": {
+        "label": "Arah Layout",
+        "hint": "Mengontrol aliran konten pada layar Anda, dari kiri ke kanan atau kanan ke kiri.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Arah teks default",
+        "hint": "Menentukan apakah teks harus dimulai dari kiri atau kanan sebagai default.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO",
+        "fallback": "Sama seperti arah layout"
+      },
       "themeUpload": {
         "button": "Mengunggah",
+        "uploadTheme": "Unggah tema",
         "description": "Unggah tema AppFlowy Anda sendiri menggunakan tombol di bawah ini.",
         "failure": "Tema yang diunggah memiliki format yang tidak valid.",
         "loading": "Harap tunggu sementara kami memvalidasi dan mengunggah tema Anda...",
@@ -265,7 +303,21 @@
       },
       "theme": "Tema",
       "builtInsLabel": "Tema Bawaan",
-      "pluginsLabel": "Plugin"
+      "pluginsLabel": "Plugin",
+      "dateFormat": {
+        "label": "Format tanggal",
+        "local": "Lokal",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Format Waktu",
+        "twelveHour": "Dua belas jam",
+        "twentyFourHour": "Dua puluh empat jam"
+      },
+      "showNamingDialogWhenCreatingPage": "Menampilkan dialog penamaan saat membuat halaman"
     },
     "files": {
       "copy": "Menyalin",
@@ -305,13 +357,31 @@
     },
     "user": {
       "name": "Nama",
+      "email": "Surel",
+      "tooltipSelectIcon": "Pilih ikon",
       "selectAnIcon": "Pilih ikon",
-      "pleaseInputYourOpenAIKey": "silakan masukkan kunci OpenAI Anda"
+      "pleaseInputYourOpenAIKey": "silakan masukkan kunci OpenAI Anda",
+      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
+      "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Pintasan",
+      "command": "Perintah",
+      "keyBinding": "Keybindin",
+      "addNewCommand": "Tambah Perintah Baru",
+      "updateShortcutStep": "Tekan kombinasi tombol yang diinginkan dan tekan ENTER",
+      "shortcutIsAlreadyUsed": "Pintasan ini sudah digunakan untuk: {conflict}",
+      "resetToDefault": "Mengatur ulang ke keybinding default",
+      "couldNotLoadErrorMsg": "Tidak dapat memuat pintasan, Coba lagi",
+      "couldNotSaveErrorMsg": "Tidak dapat menyimpan pintasan, Coba lagi"
     }
   },
   "grid": {
     "deleteView": "Yakin ingin menghapus tampilan ini?",
     "createView": "Baru",
+    "title": {
+      "placeholder": "Tanpa judul"
+    },
     "settings": {
       "filter": "Filter",
       "sort": "Menyortir",
@@ -369,6 +439,7 @@
     },
     "field": {
       "hide": "Sembunyikan",
+      "show": "Tampilkan",
       "insertLeft": "Sisipkan Kiri",
       "insertRight": "Sisipkan Kanan",
       "duplicate": "Duplikasi",
@@ -386,6 +457,7 @@
       "numberFormat": "Format angka",
       "dateFormat": "Format tanggal",
       "includeTime": "Sertakan waktu",
+      "isRange": "Tanggal akhir",
       "dateFormatFriendly": "Bulan Hari, Tahun",
       "dateFormatISO": "Tahun-Bulan-Hari",
       "dateFormatLocal": "Bulan/Hari/Tahun",
@@ -395,27 +467,47 @@
       "invalidTimeFormat": "Format yang tidak valid",
       "timeFormatTwelveHour": "12 jam",
       "timeFormatTwentyFourHour": "24 jam",
+      "clearDate": "Hapus tanggal",
       "addSelectOption": "Tambahkan opsi",
       "optionTitle": "Opsi",
       "addOption": "Tambahkan opsi",
       "editProperty": "Ubah properti",
       "newProperty": "Properti baru",
-      "deleteFieldPromptMessage": "Apa kamu yakin? Properti ini akan dihapus"
+      "deleteFieldPromptMessage": "Apa kamu yakin? Properti ini akan dihapus",
+      "newColumn": "Kolom baru"
+    },
+    "rowPage": {
+      "newField": "Tambah bidang baru",
+      "fieldDragEelementTooltip": "Klik untuk membuka menu",
+      "showHiddenFields": {
+        "one": "Tampilkan {} bidang tersembunyi",
+        "many": "Tampilkan {} bidang tersembunyi",
+        "other": "Tampilkan {} bidang tersembunyi"
+      },
+      "hideHiddenFields": {
+        "one": "Sembunyikan {} bidang tersembunyi",
+        "many": "Sembunyikan {} bidang tersembunyi",
+        "other": "Sembunyikan {} bidang tersembunyi"
+      }
     },
     "sort": {
       "ascending": "Naik",
       "descending": "Menurun",
+      "deleteAllSorts": "Hapus semua sortir",
       "addSort": "Tambahkan semacam",
       "deleteSort": "Hapus urutan"
     },
     "row": {
       "duplicate": "Duplikasi",
       "delete": "Hapus",
+      "titlePlaceholder": "Tanpa judul",
       "textPlaceholder": "Kosong",
       "copyProperty": "Salin properti ke papan klip",
       "count": "Menghitung",
       "newRow": "Baris baru",
-      "action": "Tindakan"
+      "action": "Tindakan",
+      "add": "Klik tambah ke bawah",
+      "drag": "Seret untuk pindah"
     },
     "selectOption": {
       "create": "Buat",
@@ -431,10 +523,15 @@
       "deleteTag": "Hapus tag",
       "colorPanelTitle": "Warna",
       "panelTitle": "Pilih opsi atau buat baru",
-      "searchOption": "Cari opsi"
+      "searchOption": "Cari opsi",
+      "searchOrCreateOption": "Cari atau buat opsi",
+      "createNew": "Buat baru",
+      "orSelectOne": "atau pilih opsi"
     },
     "checklist": {
-      "addNew": "Tambahkan item"
+      "taskHint": "Deskripsi tugas",
+      "addNew": "Tambahkan item",
+      "submitNewTask": "Buat"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "Pemandangan dari"
@@ -460,7 +557,8 @@
       }
     },
     "selectionMenu": {
-      "outline": "Garis besar"
+      "outline": "Garis besar",
+      "codeBlock": "Blok Kode"
     },
     "plugins": {
       "referencedBoard": "Papan Referensi",
@@ -530,10 +628,24 @@
         "defaultColor": "Bawaan"
       },
       "image": {
-        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip"
+        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip",
+        "addAnImage": "Tambah gambar"
       },
       "outline": {
         "addHeadingToCreateOutline": "Tambahkan judul untuk membuat daftar isi."
+      },
+      "table": {
+        "addAfter": "Tambahkan setelah",
+        "addBefore": "Tambahkan sebelum",
+        "delete": "Hapus",
+        "clear": "Hapus konten",
+        "duplicate": "Duplikat",
+        "bgColor": "Warna latar belakang"
+      },
+      "contextMenu": {
+        "copy": "Salin",
+        "cut": "Potong",
+        "paste": "Tempel"
       }
     },
     "textBlock": {
@@ -552,13 +664,28 @@
         "label": "URL gambar",
         "placeholder": "Masukkan URL gambar"
       },
+      "ai": {
+        "label": "Buat gambar dari OpenAI",
+        "placeholder": "Masukkan perintah agar OpenAI menghasilkan gambar"
+      },
+      "stability_ai": {
+        "label": "Buat gambar dari Stability AI",
+        "placeholder": "Masukkan perintah agar Stability AI menghasilkan gambar"
+      },
       "support": "Batas ukuran gambar adalah 5 MB. Format yang didukung: JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Gambar tidak valid",
         "invalidImageSize": "Ukuran gambar harus kurang dari 5MB",
         "invalidImageFormat": "Format gambar tidak didukung. Format yang didukung: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL gambar tidak valid"
-      }
+      },
+      "embedLink": {
+        "label": "Sematkan tautan",
+        "placeholder": "Tempel atau ketik tautan gambar"
+      },
+      "searchForAnImage": "Mencari gambar",
+      "pleaseInputYourOpenAIKey": "masukkan kunci OpenAI Anda di halaman Pengaturan",
+      "pleaseInputYourStabilityAIKey": "masukkan kunci AI Stabilitas Anda di halaman Pengaturan"
     },
     "codeBlock": {
       "language": {
@@ -568,6 +695,9 @@
     },
     "inlineLink": {
       "placeholder": "Tempel atau ketik tautan",
+      "openInNewTab": "Buka di tab baru",
+      "copyLink": "Salin tautan",
+      "removeLink": "Hapus tautan",
       "url": {
         "label": "URL tautan",
         "placeholder": "Masukkan URL tautan"
@@ -576,6 +706,20 @@
         "label": "Judul Tautan",
         "placeholder": "Masukkan judul tautan"
       }
+    },
+    "mention": {
+      "placeholder": "Menyebutkan seseorang atau halaman atau tanggal...",
+      "page": {
+        "label": "Tautan ke halaman",
+        "tooltip": "Klik untuk membuka halaman"
+      }
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Mengatur ulang ke default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "Versi saat ini tidak mendukung blok ini.",
+      "blockContentHasBeenCopied": "Konten blok telah disalin."
     }
   },
   "board": {
@@ -588,6 +732,7 @@
   "calendar": {
     "menuName": "Kalender",
     "defaultNewCalendarTitle": "Tanpa judul",
+    "newEventButtonTooltip": "Menambahkan acara baru",
     "navigation": {
       "today": "Hari ini",
       "jumpToday": "Lompat ke Hari Ini",
@@ -627,5 +772,87 @@
   "views": {
     "deleteContentTitle": "Anda yakin ingin menghapus {pageType}?",
     "deleteContentCaption": "jika Anda menghapus {pageType} ini, Anda dapat memulihkannya dari sampah."
+  },
+  "colors": {
+    "custom": "Kustom",
+    "default": "Default",
+    "red": "Merah",
+    "orange": "Oranye",
+    "yellow": "Kuning",
+    "green": "Hijau",
+    "blue": "Biru",
+    "purple": "Ungu",
+    "pink": "Merah Muda",
+    "brown": "Coklat",
+    "gray": "Abu-abu"
+  },
+  "emoji": {
+    "search": "Cari emoji",
+    "noRecent": "Tidak ada emoji terbaru",
+    "noEmojiFound": "Emoji tidak ditemukan",
+    "filter": "Saring",
+    "random": "Acak",
+    "selectSkinTone": "Pilih warna kulit",
+    "remove": "Hapus emoji",
+    "categories": {
+      "smileys": "Senyum & Emosi",
+      "people": "Orang & Tubuh",
+      "animals": "Hewan & Alam",
+      "food": "Makanan & Minuman",
+      "activities": "Aktivitas",
+      "places": "Travel & Tempat",
+      "objects": "Objek",
+      "symbols": "Simbol",
+      "flags": "Bendera",
+      "nature": "Alam",
+      "frequentlyUsed": "Sering Digunakan"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Tidak ada hasil",
+    "pageReference": "Referensi halaman",
+    "date": "Tanggal",
+    "reminder": {
+      "groupTitle": "Pengingat",
+      "shortKeyword": "mengingatkan"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Kemarin",
+    "today": "Hari ini",
+    "tomorrow": "Besok",
+    "oneWeek": "1 minggu"
+  },
+  "notificationHub": {
+    "title": "Notifikasi",
+    "empty": "Tidak ada yang dilihat disini!",
+    "tabs": {
+      "inbox": "Kotak masuk",
+      "upcoming": "Mendatang"
+    },
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Kelompokkan berdasarkan tanggal",
+      "showUnreadsOnly": "Tampilkan yang belum dibaca saja",
+      "resetToDefault": "Mengatur ulang ke default"
+    }
+  },
+  "reminderNotification": {
+    "title": "Pengingat",
+    "message": "Ingatlah untuk memeriksa ini sebelum Anda lupa!",
+    "tooltipDelete": "Hapus",
+    "tooltipMarkRead": "Tandai telah dibaca",
+    "tooltipMarkUnread": "Tandai belum dibaca"
+  },
+  "findAndReplace": {
+    "find": "Cari",
+    "previousMatch": "Pencarian sebelumnya",
+    "nextMatch": "Pencarian setelahnya",
+    "close": "Tutup",
+    "replace": "Timpa",
+    "replaceAll": "Timpa semua",
+    "noResult": "Tidak ada hasil",
+    "caseSensitive": "Case sensitive"
   }
 }

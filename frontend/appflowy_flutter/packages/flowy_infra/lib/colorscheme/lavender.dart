@@ -81,7 +81,7 @@ class LavenderColorScheme extends FlowyColorScheme {
       : super(
           surface: const Color(0xFF1B1A1D),
           hover: _darkMain1,
-          selector: const Color(0xff333333),
+          selector: _darkShader2,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
@@ -107,7 +107,7 @@ class LavenderColorScheme extends FlowyColorScheme {
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: _darkMain1,
-          shadow: _black,
+          shadow: const Color(0xff0F131C),
           sidebarBg: const Color(0xff2D223B),
           divider: _darkShader3,
           topbarBg: _darkShader1,

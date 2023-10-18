@@ -1,8 +1,9 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
+use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};
 use lib_infra::future::FutureResult;
 
@@ -26,7 +27,10 @@ where
         object_id: workspace_id.clone(),
         collab_type: CollabType::Folder,
       };
-      let updates = vec![try_get_client?.get_collab(params).await?];
+      let updates = vec![try_get_client?
+        .get_collab(params)
+        .await
+        .map_err(FlowyError::from)?];
       let folder =
         Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
@@ -49,8 +53,11 @@ where
         object_id: workspace_id,
         collab_type: CollabType::Folder,
       };
-      let updates = vec![try_get_client?.get_collab(params).await?];
-      Ok(updates)
+      let update = try_get_client?
+        .get_collab(params)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(vec![update])
     })
   }
 

@@ -3,9 +3,9 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
 
 part 'settings_user_bloc.freezed.dart';
 
@@ -54,6 +54,16 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
         },
         updateUserOpenAIKey: (openAIKey) {
           _userService.updateUserProfile(openAIKey: openAIKey).then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
+        },
+        updateUserStabilityAIKey: (stabilityAIKey) {
+          _userService
+              .updateUserProfile(stabilityAiKey: stabilityAIKey)
+              .then((result) {
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -119,6 +129,9 @@ class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.removeUserIcon() = _RemoveUserIcon;
   const factory SettingsUserEvent.updateUserOpenAIKey(String openAIKey) =
       _UpdateUserOpenaiKey;
+  const factory SettingsUserEvent.updateUserStabilityAIKey(
+    String stabilityAIKey,
+  ) = _UpdateUserStabilityAIKey;
   const factory SettingsUserEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;

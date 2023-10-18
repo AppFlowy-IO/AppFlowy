@@ -9,7 +9,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy/workspace/presentation/widgets/flowy_tooltip.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -17,6 +16,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -60,6 +60,8 @@ class SettingsUserView extends StatelessWidget {
               ],
               const VSpace(12),
               _renderCurrentOpenaiKey(context),
+              const VSpace(12),
+              _renderCurrentStabilityAIKey(context),
               const VSpace(12),
               _renderLoginOrLogoutButton(context, state),
               const VSpace(12),
@@ -207,9 +209,29 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderCurrentOpenaiKey(BuildContext context) {
-    final String openAIKey =
+    final String accessKey =
         context.read<SettingsUserViewBloc>().state.userProfile.openaiKey;
-    return _OpenaiKeyInput(openAIKey);
+    return _AIAccessKeyInput(
+      accessKey: accessKey,
+      title: 'OpenAI Key',
+      hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
+      callback: (key) => context
+          .read<SettingsUserViewBloc>()
+          .add(SettingsUserEvent.updateUserOpenAIKey(key)),
+    );
+  }
+
+  Widget _renderCurrentStabilityAIKey(BuildContext context) {
+    final String accessKey =
+        context.read<SettingsUserViewBloc>().state.userProfile.stabilityAiKey;
+    return _AIAccessKeyInput(
+      accessKey: accessKey,
+      title: 'Stability AI Key',
+      hintText: LocaleKeys.settings_user_pleaseInputYourStabilityAIKey.tr(),
+      callback: (key) => context
+          .read<SettingsUserViewBloc>()
+          .add(SettingsUserEvent.updateUserStabilityAIKey(key)),
+    );
   }
 
   Widget _avatarOverlay({
@@ -217,7 +239,7 @@ class SettingsUserView extends StatelessWidget {
     required bool hasIcon,
     required Widget child,
   }) =>
-      FlowyTooltip.delayedTooltip(
+      FlowyTooltip(
         message: LocaleKeys.settings_user_tooltipSelectIcon.tr(),
         child: Stack(
           children: [
@@ -379,18 +401,24 @@ class UserEmailInputState extends State<UserEmailInput> {
   }
 }
 
-class _OpenaiKeyInput extends StatefulWidget {
-  final String openAIKey;
-  const _OpenaiKeyInput(
-    this.openAIKey, {
-    Key? key,
-  }) : super(key: key);
+class _AIAccessKeyInput extends StatefulWidget {
+  const _AIAccessKeyInput({
+    required this.accessKey,
+    required this.title,
+    required this.hintText,
+    required this.callback,
+  });
+
+  final String accessKey;
+  final String title;
+  final String hintText;
+  final void Function(String key) callback;
 
   @override
-  State<_OpenaiKeyInput> createState() => _OpenaiKeyInputState();
+  State<_AIAccessKeyInput> createState() => _AIAccessKeyInputState();
 }
 
-class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
+class _AIAccessKeyInputState extends State<_AIAccessKeyInput> {
   bool visible = false;
   final textEditingController = TextEditingController();
   final debounce = Debounce();
@@ -399,7 +427,7 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
   void initState() {
     super.initState();
 
-    textEditingController.text = widget.openAIKey;
+    textEditingController.text = widget.accessKey;
   }
 
   @override
@@ -415,12 +443,12 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
-        labelText: 'OpenAI Key',
+        labelText: widget.title,
         labelStyle: Theme.of(context)
             .textTheme
             .titleMedium!
             .copyWith(fontWeight: FontWeight.w500),
-        hintText: LocaleKeys.settings_user_pleaseInputYourOpenAIKey.tr(),
+        hintText: widget.hintText,
         suffixIcon: FlowyIconButton(
           width: 40,
           height: 40,
@@ -437,9 +465,7 @@ class _OpenaiKeyInputState extends State<_OpenaiKeyInput> {
       ),
       onChanged: (value) {
         debounce.call(() {
-          context
-              .read<SettingsUserViewBloc>()
-              .add(SettingsUserEvent.updateUserOpenAIKey(value));
+          widget.callback(value);
         });
       },
     );

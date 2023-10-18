@@ -1,4 +1,4 @@
-use collab_define::reminder::Reminder;
+use collab_entity::reminder::Reminder;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

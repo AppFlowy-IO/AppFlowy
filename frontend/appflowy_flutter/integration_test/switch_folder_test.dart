@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/prelude.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
+
 import 'util/mock/mock_file_picker.dart';
 import 'util/util.dart';
 
@@ -11,6 +14,10 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('customize the folder path', () {
+    if (Platform.isWindows) {
+      return;
+    }
+
     testWidgets('switch to B from A, then switch to A again', (tester) async {
       const userA = 'UserA';
       const userB = 'UserB';

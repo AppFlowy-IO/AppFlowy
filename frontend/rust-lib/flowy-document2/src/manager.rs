@@ -2,12 +2,13 @@ use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use collab::core::collab::MutexCollab;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
+use collab_entity::CollabType;
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -55,6 +56,7 @@ impl DocumentManager {
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all, err)]
   pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
     self.initialize(uid, workspace_id).await?;
     Ok(())
@@ -175,8 +177,22 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)
+      .await?;
     Ok(collab)
+
+    // let doc_id = doc_id.to_string();
+    // let (tx, rx) = oneshot::channel();
+    // let collab_builder = self.collab_builder.clone();
+    // tokio::spawn(async move {
+    //   let collab = collab_builder
+    //     .build(uid, &doc_id, CollabType::Document, updates, db)
+    //     .await
+    //     .unwrap();
+    //   let _ = tx.send(collab);
+    // });
+    //
+    // Ok(rx.await.unwrap())
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {

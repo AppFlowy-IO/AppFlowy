@@ -24,7 +24,7 @@ void main() {
         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       );
       // and with one paragraph block
-      expect(find.byType(TextBlockComponentWidget), findsOneWidget);
+      expect(find.byType(ParagraphBlockComponentWidget), findsOneWidget);
     });
 
     testWidgets('delete the readme page and restore it', (tester) async {

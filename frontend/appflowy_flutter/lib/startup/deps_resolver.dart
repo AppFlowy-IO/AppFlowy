@@ -9,12 +9,13 @@ import 'package:appflowy/plugins/database_view/grid/application/grid_header_bloc
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/supabase_auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -22,7 +23,8 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
@@ -79,6 +81,23 @@ void _resolveCommonService(
           return HttpOpenAIRepository(
             client: http.Client(),
             apiKey: r.openaiKey,
+          );
+        },
+      );
+    },
+  );
+
+  getIt.registerFactoryAsync<StabilityAIRepository>(
+    () async {
+      final result = await UserBackendService.getCurrentUserProfile();
+      return result.fold(
+        (l) {
+          throw Exception('Failed to get user profile: ${l.msg}');
+        },
+        (r) {
+          return HttpStabilityAIRepository(
+            client: http.Client(),
+            apiKey: r.stabilityAiKey,
           );
         },
       );
@@ -150,14 +169,22 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
 
-  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
+  getIt.registerSingleton<NotificationSettingsCubit>(
+    NotificationSettingsCubit(),
+  );
+
+  getIt.registerSingleton<ReminderBloc>(
+    ReminderBloc(notificationSettings: getIt<NotificationSettingsCubit>()),
+  );
 }
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-    (user, workspaceId) =>
-        WorkspaceListener(user: user, workspaceId: workspaceId),
+    (user, workspaceId) => WorkspaceListener(
+      user: user,
+      workspaceId: workspaceId,
+    ),
   );
 
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(

@@ -83,7 +83,7 @@ class _FlowyHoverState extends State<FlowyHover> {
   }
 
   Widget renderWidget() {
-    var showHover = _onHover;
+    bool showHover = _onHover;
     if (!showHover && widget.isSelected != null) {
       showHover = widget.isSelected!();
     }

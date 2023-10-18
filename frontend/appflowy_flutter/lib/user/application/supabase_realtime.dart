@@ -35,7 +35,7 @@ class SupbaseRealtimeService {
         _subscribeTablesChanges();
         isLoggingOut = false;
       },
-      onForceLogout: (message) async {
+      onInvalidAuth: (message) async {
         await getIt<AuthService>().signOut();
         channel?.unsubscribe();
         channel = null;

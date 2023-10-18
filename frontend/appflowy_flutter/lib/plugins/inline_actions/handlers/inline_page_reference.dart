@@ -9,11 +9,12 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class InlinePageReferenceService {
-  InlinePageReferenceService() {
+  InlinePageReferenceService({required this.currentViewId}) {
     init();
   }
 
   final Completer _initCompleter = Completer<void>();
+  final String currentViewId;
 
   late final ViewBackendService service;
   List<InlineActionsMenuItem> _items = [];
@@ -22,7 +23,7 @@ class InlinePageReferenceService {
   Future<void> init() async {
     service = ViewBackendService();
 
-    _generatePageItems().then((value) {
+    _generatePageItems(currentViewId).then((value) {
       _items = value;
       _filtered = value;
       _initCompleter.complete();
@@ -59,7 +60,9 @@ class InlinePageReferenceService {
     );
   }
 
-  Future<List<InlineActionsMenuItem>> _generatePageItems() async {
+  Future<List<InlineActionsMenuItem>> _generatePageItems(
+    String currentViewId,
+  ) async {
     final views = await service.fetchViews();
     if (views.isEmpty) {
       return [];
@@ -69,6 +72,10 @@ class InlinePageReferenceService {
     views.sort(((a, b) => b.createTime.compareTo(a.createTime)));
 
     for (final view in views) {
+      if (view.id == currentViewId) {
+        continue;
+      }
+
       final pageSelectionMenuItem = InlineActionsMenuItem(
         keywords: [view.name.toLowerCase()],
         label: view.name,

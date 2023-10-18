@@ -21,7 +21,7 @@ collab-folder = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
-collab-define = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
 flowy-user-deps = { workspace = true }
 anyhow = "1.0.75"
 
@@ -46,6 +46,7 @@ fancy-regex = "0.11.0"
 uuid = { version = "1.3.3", features = [ "v4"] }
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 base64 = "^0.21"
+tokio-stream = "0.1.14"
 
 [dev-dependencies]
 nanoid = "0.4.0"

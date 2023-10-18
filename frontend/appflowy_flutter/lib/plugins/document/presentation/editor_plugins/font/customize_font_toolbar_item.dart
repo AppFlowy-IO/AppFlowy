@@ -9,7 +9,7 @@ final customizeFontToolbarItem = ToolbarItem(
   id: 'editor.font',
   group: 4,
   isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor) {
+  builder: (context, editorState, highlightColor, _) {
     final selection = editorState.selection!;
     final popoverController = PopoverController();
     return MouseRegion(
@@ -18,11 +18,11 @@ final customizeFontToolbarItem = ToolbarItem(
         currentFontFamily: '',
         offset: const Offset(0, 12),
         popoverController: popoverController,
-        onOpen: () => keepEditorFocusNotifier.value += 1,
-        onClose: () => keepEditorFocusNotifier.value -= 1,
+        onOpen: () => keepEditorFocusNotifier.increase(),
+        onClose: () => keepEditorFocusNotifier.decrease(),
         showResetButton: true,
         onFontFamilyChanged: (fontFamily) async {
-          await popoverController.close();
+          popoverController.close();
           try {
             await editorState.formatDelta(selection, {
               AppFlowyRichTextKeys.fontFamily: fontFamily,

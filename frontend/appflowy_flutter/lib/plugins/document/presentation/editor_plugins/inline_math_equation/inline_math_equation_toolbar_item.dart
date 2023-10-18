@@ -3,14 +3,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flutter/material.dart';
 
 final ToolbarItem inlineMathEquationItem = ToolbarItem(
   id: 'editor.inline_math_equation',
   group: 2,
   isActive: onlyShowInSingleSelectionAndTextType,
-  builder: (context, editorState, highlightColor) {
+  builder: (context, editorState, highlightColor, _) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
     final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {

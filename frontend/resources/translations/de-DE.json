@@ -24,11 +24,14 @@
     "alreadyHaveAnAccount": "Bereits registriert?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
-    "repeatPasswordHint": "Wiederhole Passwort"
+    "repeatPasswordHint": "Wiederhole Passwort",
+    "signUpWith": "Anmelden mit:"
   },
   "signIn": {
     "loginTitle": "Bei @:appName einloggen",
     "loginButtonText": "Anmelden",
+    "loginStartWithAnonymous": "Anonyme Sitzung starten",
+    "continueAnonymousUser": "in anonymer Sitzung fortfahren",
     "buttonText": "Anmelden",
     "forgotPassword": "Passwort vergessen?",
     "emailHint": "E-Mail",
@@ -36,17 +39,32 @@
     "dontHaveAnAccount": "Du besitzt noch kein Konto?",
     "repeatPasswordEmptyError": "Passwortwiederholung darf nicht leer sein",
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
+    "syncPromptMessage": "Die Synchronisation kann ein paar Minuten dauern. Bitte diese Seite nicht schließen",
+    "or": "ODER",
+    "LogInWithGoogle": "Mit Google-Account anmelden",
+    "LogInWithGithub": "Mit GitHub-Account anmelden",
+    "LogInWithDiscord": "Mit Discord-Account anmelden",
+    "signInWith": "Anmeldeoptionen:",
     "loginAsGuestButtonText": "Loslegen"
   },
   "workspace": {
+    "chooseWorkspace": "Arbeitsbereich wählen",
     "create": "Arbeitsbereich erstellen",
+    "reset": "Arbeitsbereich zurücksetzen",
+    "resetWorkspacePrompt": "Das zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Sind sie sicher dass sie den Arbeitsbereich zurücksetzen wollen? ",
     "hint": "Arbeitsbereich",
-    "notFoundError": "Arbeitsbereich nicht gefunden"
+    "notFoundError": "Arbeitsbereich nicht gefunden",
+    "failedToLoad": "Etwas ist schief gelaufen! Der Arbeitsbereich konnte nicht geladen werden. Versuchen Sie, alle AppFlowy Instanzen zu schließen, und versuchen Sie es erneut.",
+    "errorActions": {
+      "reportIssue": "Problem melden",
+      "reachOut": "Kontaktieren Sie uns auf Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Teilen",
     "workInProgress": "Demnächst verfügbar",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Link kopieren"
   },
   "moreAction": {
@@ -68,10 +86,18 @@
     "rename": "Umbenennen",
     "delete": "Löschen",
     "duplicate": "Duplizieren",
-    "openNewTab": "In einem neuen Tab öffnen"
+    "unfavorite": "Aus Favoriten entfernen",
+    "favorite": "Zu Favoriten hinzufügen",
+    "openNewTab": "In einem neuen Tab öffnen",
+    "moveTo": "Verschieben nach",
+    "addToFavorites": "Zu Favoriten hinzufügen",
+    "copyLink": "Link kopieren"
   },
   "blankPageTitle": "Leere Seite",
   "newPageText": "Neue Seite",
+  "newDocumentText": "Neues Dokument",
+  "newCalendarText": "Neuer Kalender",
+  "newBoardText": "Neues Board",
   "trash": {
     "text": "Papierkorb",
     "restoreAll": "Alles wiederherstellen",
@@ -109,6 +135,7 @@
     "feedback": "Rückmeldung"
   },
   "menuAppHeader": {
+    "moreButtonToolTip": "Entfernen, verschieben und mehr...",
     "addPageTooltip": "Schnell eine Seite innerhalb hinzufügen",
     "defaultNewPageName": "Unbenannt",
     "renameDialog": "Umbenennen"
@@ -144,7 +171,10 @@
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar"
+    "openSidebar": "Open sidebar",
+    "favorites": "Favoriten",
+    "clickToHideFavorites": "Klicken um Favoriten zu verbergen",
+    "addAPage": "Seite hinzufügen"
   },
   "notifications": {
     "export": {
@@ -207,10 +237,15 @@
       "language": "Sprache",
       "user": "Benutzer",
       "files": "Dateien",
+      "notifications": "Benachrichtigungen",
       "open": "Einstellungen öffnen",
+      "logout": "Abmelden",
+      "logoutPrompt": "Wollen sie sich wirklich Abmelden?",
+      "enableEncrypt": "Daten verschlüsseln",
       "supabaseSetting": "Supabase-Einstellung"
     },
     "appearance": {
+      "resetSetting": "Einstellung zurücksetzen",
       "fontFamily": {
         "label": "Schriftfamilie",
         "search": "Suchen"
@@ -260,7 +295,7 @@
       "locationDesc": "Wählen Sie einen Namen für Ihren AppFlowy-Datenordner",
       "browser": "Durchsuche",
       "create": "Erstellen",
-      "set": "Satz",
+      "set": "Festlegen",
       "folderPath": "Pfad zum Speichern Ihres Ordners",
       "locationCannotBeEmpty": "Der Pfad darf nicht leer sein",
       "pathCopiedSnackbar": "Dateispeicherpfad in Zwischenablage kopiert!",
@@ -275,6 +310,7 @@
     },
     "user": {
       "name": "Name",
+      "email": "E-Mail",
       "selectAnIcon": "Wählen Sie ein Symbol aus",
       "pleaseInputYourOpenAIKey": "Bitte geben Sie Ihren OpenAI-Schlüssel ein"
     },

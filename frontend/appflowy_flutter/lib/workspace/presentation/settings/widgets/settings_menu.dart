@@ -19,6 +19,9 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool showSyncSetting = isCloudEnabled &&
+        context.read<SettingsDialogBloc>().state.userProfile.authType !=
+            AuthTypePB.Local;
     return Column(
       children: [
         SettingsMenuElement(
@@ -28,9 +31,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.brightness_4,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         SettingsMenuElement(
           page: SettingsPage.language,
           selectedPage: currentPage,
@@ -38,9 +39,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.translate,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         SettingsMenuElement(
           page: SettingsPage.files,
           selectedPage: currentPage,
@@ -48,9 +47,7 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.file_present_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         SettingsMenuElement(
           page: SettingsPage.user,
           selectedPage: currentPage,
@@ -58,11 +55,17 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.account_box_outlined,
           changeSelectedPage: changeSelectedPage,
         ),
-
+        const SizedBox(height: 10),
+        SettingsMenuElement(
+          page: SettingsPage.notifications,
+          selectedPage: currentPage,
+          label: LocaleKeys.settings_menu_notifications.tr(),
+          icon: Icons.notifications_outlined,
+          changeSelectedPage: changeSelectedPage,
+        ),
         // Only show supabase setting if supabase is enabled and the current auth type is not local
-        if (isCloudEnabled &&
-            context.read<SettingsDialogBloc>().state.userProfile.authType !=
-                AuthTypePB.Local)
+        if (showSyncSetting) ...[
+          const SizedBox(height: 10),
           SettingsMenuElement(
             page: SettingsPage.syncSetting,
             selectedPage: currentPage,
@@ -70,9 +73,8 @@ class SettingsMenu extends StatelessWidget {
             icon: Icons.sync,
             changeSelectedPage: changeSelectedPage,
           ),
-        const SizedBox(
-          height: 10,
-        ),
+        ],
+        const SizedBox(height: 10),
         SettingsMenuElement(
           page: SettingsPage.shortcuts,
           selectedPage: currentPage,
