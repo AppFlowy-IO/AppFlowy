@@ -25,7 +25,11 @@ GoRouter generateRouter(Widget child) {
       // Desktop only
       if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
-      if (PlatformExtension.isMobile) _mobileHomeScreenWithNavigationBarRoute(),
+      if (PlatformExtension.isMobile) ...[
+        _mobileHomeScreenWithNavigationBarRoute(),
+        // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
+        _mobileHomeSettingPageRoute(),
+      ],
 
       // Unused routes for now, it may need to be used in the future.
       // TODO(yijing): extract route method like other routes when it comes to be used.
@@ -83,14 +87,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
             builder: (BuildContext context, GoRouterState state) {
               return const MobileHomeScreen();
             },
-            routes: <RouteBase>[
-              GoRoute(
-                path: MobileHomeSettingPage.routeName,
-                builder: (BuildContext context, GoRouterState state) {
-                  return const MobileHomeSettingPage();
-                },
-              ),
-            ],
           ),
         ],
       ),
@@ -125,31 +121,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
         ],
       ),
 
-      // The route branch for the third tab of the bottom navigation bar.
-      StatefulShellBranch(
-        routes: <RouteBase>[
-          GoRoute(
-            // The screen to display as the root in the third tab of the
-            // bottom navigation bar.
-            path: '/c',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Add Document',
-              detailsPath: '/c/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    DetailsPlaceholderScreen(
-                  label: 'Add Document details',
-                  extra: state.extra,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
@@ -193,6 +164,16 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
         ],
       ),
     ],
+  );
+}
+
+GoRoute _mobileHomeSettingPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeSettingPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeSettingPage());
+    },
   );
 }
 

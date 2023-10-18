@@ -44,6 +44,7 @@ ThemeData getMobileThemeData() {
     // button
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
+        fixedSize: MaterialStateProperty.all(const Size.fromHeight(48)),
         elevation: MaterialStateProperty.all(0),
         shadowColor: MaterialStateProperty.all(null),
         backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -131,6 +132,7 @@ ThemeData getMobileThemeData() {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
+      contentPadding: const EdgeInsets.all(8),
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(
           width: 2,

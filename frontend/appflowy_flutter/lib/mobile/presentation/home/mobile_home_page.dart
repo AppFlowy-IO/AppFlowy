@@ -48,9 +48,7 @@ class MobileHomeScreen extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  context.push(
-                    '${MobileHomeScreen.routeName}/${MobileHomeSettingPage.routeName}',
-                  );
+                  context.push(MobileHomeSettingPage.routeName);
                 },
                 icon: const FlowySvg(
                   FlowySvgs.m_setting_m,

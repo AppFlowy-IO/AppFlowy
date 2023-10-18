@@ -1,10 +1,18 @@
+import 'package:appflowy/env/env.dart';
+import 'package:appflowy/mobile/presentation/setting/widgets/edit_username_bottom_sheet.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileHomeSettingPage extends StatefulWidget {
-  const MobileHomeSettingPage({super.key});
+  const MobileHomeSettingPage({
+    super.key,
+  });
 
-  // sub-route path may not start or end with '/'
-  static const routeName = 'MobileHomeSettingPage';
+  static const routeName = '/MobileHomeSettingPage';
 
   @override
   State<MobileHomeSettingPage> createState() => _MobileHomeSettingPageState();
@@ -13,163 +21,163 @@ class MobileHomeSettingPage extends StatefulWidget {
 class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
   // TODO(yijing):get value from backend
   bool isPushNotificationOn = false;
-  bool isEmailNotificationOn = false;
   bool isAutoDarkModeOn = false;
   bool isDarkModeOn = false;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              MobileSettingGroupWidget(
-                groupTitle: 'Personal Information',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Name',
-                    trailing: Text(
-                      'username',
-                      style: theme.textTheme.labelMedium,
-                    ),
-                  ),
-                  MobileSettingItem(
-                    name: 'Email',
-                    trailing: Text(
-                      'email@gmail.com',
-                      style: theme.textTheme.labelMedium,
-                    ),
-                  )
-                ],
-              ),
-              MobileSettingGroupWidget(
-                groupTitle: 'Password',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Change Password',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                    ),
-                    onTap: () {
-                      // TODO:navigate to change password page
-                    },
-                  ),
-                ],
-              ),
-              MobileSettingGroupWidget(
-                groupTitle: 'Notifications',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Push Notifications',
-                    trailing: Switch.adaptive(
-                      activeColor: theme.colorScheme.primary,
-                      value: isPushNotificationOn,
-                      onChanged: (bool value) {
-                        setState(() {
-                          isPushNotificationOn = value;
-                        });
-                      },
-                    ),
-                  ),
-                  MobileSettingItem(
-                    name: 'Email Notifications',
-                    trailing: Switch.adaptive(
-                      activeColor: theme.colorScheme.primary,
-                      value: isEmailNotificationOn,
-                      onChanged: (bool value) {
-                        setState(() {
-                          isEmailNotificationOn = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              MobileSettingGroupWidget(
-                groupTitle: 'Apperance',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Auto Dark Mode',
-                    trailing: Switch.adaptive(
-                      activeColor: theme.colorScheme.primary,
-                      value: isAutoDarkModeOn,
-                      onChanged: (bool value) {
-                        setState(() {
-                          isAutoDarkModeOn = value;
-                        });
-                      },
-                    ),
-                  ),
-                  MobileSettingItem(
-                    name: 'Dark Mode',
-                    trailing: Switch.adaptive(
-                      activeColor: theme.colorScheme.primary,
-                      value: isDarkModeOn,
-                      onChanged: (bool value) {
-                        setState(() {
-                          isDarkModeOn = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              MobileSettingGroupWidget(
-                groupTitle: 'Support',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Help Center',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                    ),
-                    onTap: () {
-                      // TODO:navigate to Help Center page
-                    },
-                  ),
-                  MobileSettingItem(
-                    name: 'Report an issue',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                    ),
-                    onTap: () {
-                      // TODO:navigate to Report an issue page
-                    },
-                  ),
-                ],
-              ),
-              MobileSettingGroupWidget(
-                groupTitle: 'About',
-                settingItems: [
-                  MobileSettingItem(
-                    name: 'Privacy Policy',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                    ),
-                    onTap: () {
-                      // TODO:navigate to Privacy Policy page
-                    },
-                  ),
-                  MobileSettingItem(
-                    name: 'User Agreement',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                    ),
-                    onTap: () {
-                      // TODO:navigate to User Agreement page
-                    },
-                  ),
-                ],
-                showDivider: false,
-              ),
-            ],
+    return FutureBuilder(
+      future: getIt<AuthService>().getUser(),
+      builder: ((context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
+        final userProfile = snapshot.data?.fold((error) => null, (userProfile) {
+          return userProfile;
+        });
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Settings'),
           ),
-        ),
-      ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  //Personal Information
+                  BlocProvider<SettingsUserViewBloc>(
+                    create: (context) => getIt<SettingsUserViewBloc>(
+                      param1: userProfile,
+                    )..add(const SettingsUserEvent.initial()),
+                    child: BlocSelector<SettingsUserViewBloc, SettingsUserState,
+                        String>(
+                      selector: (state) => state.userProfile.name,
+                      builder: (context, userName) {
+                        return MobileSettingGroupWidget(
+                          groupTitle: 'Personal Information',
+                          settingItemWidgets: [
+                            MobileSettingItemWidget(
+                              name: userName,
+                              subtitle: isCloudEnabled && userProfile != null
+                                  ? Text(userProfile.email)
+                                  : null,
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  context: context,
+                                  // avoid bottom sheet overflow from resizing when keyboard appears
+                                  isScrollControlled: true,
+                                  builder: (_) {
+                                    return EditUsernameBottomSheet(
+                                      context,
+                                      userName: userName,
+                                      onSubmitted: (value) {
+                                        context
+                                            .read<SettingsUserViewBloc>()
+                                            .add(
+                                              SettingsUserEvent.updateUserName(
+                                                value,
+                                              ),
+                                            );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            )
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  // TODO(yijing): implement this along with Notification Page
+                  MobileSettingGroupWidget(
+                    groupTitle: 'Notifications',
+                    settingItemWidgets: [
+                      MobileSettingItemWidget(
+                        name: 'Push Notifications',
+                        trailing: Switch.adaptive(
+                          activeColor: theme.colorScheme.primary,
+                          value: isPushNotificationOn,
+                          onChanged: (bool value) {
+                            setState(() {
+                              isPushNotificationOn = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  MobileSettingGroupWidget(
+                    groupTitle: 'Apperance',
+                    settingItemWidgets: [
+                      MobileSettingItemWidget(
+                        name: 'Theme Mode',
+                        trailing: Switch.adaptive(
+                          activeColor: theme.colorScheme.primary,
+                          value: isAutoDarkModeOn,
+                          onChanged: (bool value) {
+                            setState(() {
+                              isAutoDarkModeOn = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  MobileSettingGroupWidget(
+                    groupTitle: 'Support',
+                    settingItemWidgets: [
+                      MobileSettingItemWidget(
+                        name: 'Help Center',
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                        ),
+                        onTap: () {
+                          // TODO:navigate to Help Center page
+                        },
+                      ),
+                      MobileSettingItemWidget(
+                        name: 'Report an issue',
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                        ),
+                        onTap: () {
+                          // TODO:navigate to Report an issue page
+                        },
+                      ),
+                    ],
+                  ),
+                  MobileSettingGroupWidget(
+                    groupTitle: 'About',
+                    settingItemWidgets: [
+                      MobileSettingItemWidget(
+                        name: 'Privacy Policy',
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                        ),
+                        onTap: () {
+                          // TODO:navigate to Privacy Policy page
+                        },
+                      ),
+                      MobileSettingItemWidget(
+                        name: 'User Agreement',
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                        ),
+                        onTap: () {
+                          // TODO:navigate to User Agreement page
+                        },
+                      ),
+                    ],
+                    showDivider: false,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
     );
   }
 }
@@ -177,12 +185,12 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
 class MobileSettingGroupWidget extends StatelessWidget {
   const MobileSettingGroupWidget({
     required this.groupTitle,
-    required this.settingItems,
+    required this.settingItemWidgets,
     this.showDivider = true,
     super.key,
   });
   final String groupTitle;
-  final List<MobileSettingItem> settingItems;
+  final List<MobileSettingItemWidget> settingItemWidgets;
   final bool showDivider;
 
   @override
@@ -201,43 +209,48 @@ class MobileSettingGroupWidget extends StatelessWidget {
         const SizedBox(
           height: 12,
         ),
-        ...settingItems
-            .map(
-              (settingItem) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(
-                    settingItem.name,
-                    style: theme.textTheme.labelMedium,
-                  ),
-                  trailing: settingItem.trailing,
-                  onTap: settingItem.onTap,
-                  visualDensity: VisualDensity.compact,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: theme.colorScheme.outline,
-                      width: 0.5,
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
+        ...settingItemWidgets,
         showDivider ? const Divider() : const SizedBox.shrink(),
       ],
     );
   }
 }
 
-class MobileSettingItem {
-  final String name;
-  final Widget trailing;
-  final VoidCallback? onTap;
-
-  MobileSettingItem({
+class MobileSettingItemWidget extends StatelessWidget {
+  const MobileSettingItemWidget({
+    super.key,
     required this.name,
+    this.subtitle,
     required this.trailing,
     this.onTap,
   });
+  final String name;
+  final Widget? subtitle;
+  final Widget trailing;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        title: Text(
+          name,
+          style: theme.textTheme.labelMedium,
+        ),
+        subtitle: subtitle,
+        trailing: trailing,
+        onTap: onTap,
+        visualDensity: VisualDensity.compact,
+        // shape: RoundedRectangleBorder(
+        //   side: BorderSide(
+        //     color: theme.colorScheme.outline,
+        //     width: 0.5,
+        //   ),
+        //   borderRadius: BorderRadius.circular(6),
+        // ),
+      ),
+    );
+  }
 }
