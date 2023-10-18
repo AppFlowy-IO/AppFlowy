@@ -106,7 +106,7 @@ ThemeData getMobileThemeData() {
       ),
       // body2 14 Regular
       bodyMedium: TextStyle(
-        color: Color(0xFFC5C7CB),
+        color: Colors.black,
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.20,

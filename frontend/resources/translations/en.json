@@ -142,6 +142,7 @@
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
   },
+  "noPagesInside": "No pages inside",
   "toolbar": {
     "undo": "Undo",
     "redo": "Redo",

@@ -25,7 +25,10 @@ GoRouter generateRouter(Widget child) {
       // Desktop only
       if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
-      if (PlatformExtension.isMobile) _mobileHomeScreenWithNavigationBarRoute(),
+      if (PlatformExtension.isMobile) ...[
+        _mobileEditorScreenRoute(),
+        _mobileHomeScreenWithNavigationBarRoute(),
+      ],
 
       // Unused routes for now, it may need to be used in the future.
       // TODO(yijing): extract route method like other routes when it comes to be used.
@@ -256,6 +259,20 @@ GoRoute _signInScreenRoute() {
         child: const SignInScreen(),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _mobileEditorScreenRoute() {
+  return GoRoute(
+    path: MobileEditorScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
+      return MaterialPage(
+        child: MobileEditorScreen(
+          id: id,
+        ),
       );
     },
   );
