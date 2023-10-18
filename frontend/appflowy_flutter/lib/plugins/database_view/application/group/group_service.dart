@@ -20,10 +20,12 @@ class GroupBackendService {
 
   Future<Either<Unit, FlowyError>> updateGroup({
     required String groupId,
+    required String fieldId,
     String? name,
     bool? visible,
   }) {
     final payload = UpdateGroupPB.create()
+      ..fieldId = fieldId
       ..viewId = viewId
       ..groupId = groupId;
 

@@ -18,6 +18,7 @@ pub struct GroupSettingChangeset {
   pub update_groups: Vec<GroupChangeset>,
 }
 
+#[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,
   pub field_id: String,

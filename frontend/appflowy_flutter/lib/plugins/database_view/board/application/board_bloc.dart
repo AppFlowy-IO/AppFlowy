@@ -152,6 +152,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           endEditingHeader: (String groupId, String groupName) async {
             final resultOrFailure = await groupBackendSvc.updateGroup(
+              fieldId: groupControllers.values.first.group.fieldId,
               groupId: groupId,
               name: groupName,
             );
