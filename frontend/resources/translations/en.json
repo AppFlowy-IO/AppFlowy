@@ -528,7 +528,9 @@
     "checklist": {
       "taskHint": "Task description",
       "addNew": "Add a new task",
-      "submitNewTask": "Create"
+      "submitNewTask": "Create",
+      "hideComplete": "Hide completed tasks",
+      "showComplete": "Show all tasks"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of"

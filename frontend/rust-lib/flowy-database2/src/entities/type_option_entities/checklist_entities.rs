@@ -5,7 +5,6 @@ use flowy_error::{ErrorCode, FlowyError};
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::SelectOptionPB;
-use crate::services::field::checklist_type_option::ChecklistCellData;
 use crate::services::field::SelectOption;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -18,25 +17,6 @@ pub struct ChecklistCellDataPB {
 
   #[pb(index = 3)]
   pub percentage: f64,
-}
-
-impl From<ChecklistCellData> for ChecklistCellDataPB {
-  fn from(cell_data: ChecklistCellData) -> Self {
-    let selected_options = cell_data.selected_options();
-    let percentage = cell_data.percentage_complete();
-    Self {
-      options: cell_data
-        .options
-        .into_iter()
-        .map(|option| option.into())
-        .collect(),
-      selected_options: selected_options
-        .into_iter()
-        .map(|option| option.into())
-        .collect(),
-      percentage,
-    }
-  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
