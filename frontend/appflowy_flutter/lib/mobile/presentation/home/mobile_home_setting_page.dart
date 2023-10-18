@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -129,14 +132,14 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                   MobileSettingGroupWidget(
                     groupTitle: 'Support',
                     settingItemWidgets: [
+                      // 'Help Center'
                       MobileSettingItemWidget(
-                        name: 'Help Center',
+                        name: 'Join us in Discord',
                         trailing: const Icon(
                           Icons.chevron_right,
                         ),
-                        onTap: () {
-                          // TODO:navigate to Help Center page
-                        },
+                        onTap: () =>
+                            safeLaunchUrl('https://discord.gg/JucBXeU2FE'),
                       ),
                       MobileSettingItemWidget(
                         name: 'Report an issue',
@@ -144,7 +147,12 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                           Icons.chevron_right,
                         ),
                         onTap: () {
-                          // TODO:navigate to Report an issue page
+                          // TODO(yijing): get app version before release
+                          const String version = 'Beta';
+                          final String os = Platform.operatingSystem;
+                          safeLaunchUrl(
+                            'https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&projects=&template=bug_report.yaml&title=[Bug]%20Mobile:%20&version=$version&os=$os',
+                          );
                         },
                       ),
                     ],
