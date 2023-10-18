@@ -115,7 +115,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         // customize the slash menu command
         customSlashCommand(
           slashMenuItems,
-          style: styleCustomizer.selectionMenuStyleBuilder(context),
+          style: styleCustomizer.selectionMenuStyleBuilder(),
         ),
 
         ...standardCharacterShortcutEvents
@@ -139,7 +139,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final result = await customSlashCommand(
       slashMenuItems,
       shouldInsertSlash: false,
-      style: styleCustomizer.selectionMenuStyleBuilder(context),
+      style: styleCustomizer.selectionMenuStyleBuilder(),
     ).handler(editorState);
     return result;
   }
