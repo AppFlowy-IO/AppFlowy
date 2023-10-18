@@ -13,9 +13,10 @@ function PageInline({ pageId }: { pageId: string }) {
   const { t } = useTranslation();
   const page = useAppSelector((state) => state.pages.pageMap[pageId]);
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState<Page | null>(null);
+  const [currentPage, setCurrentPage] = useState<Page | null>(page);
   const loadPage = useCallback(async (id: string) => {
     const controller = new PageController(id);
+
     const page = await controller.getPage();
     setCurrentPage(page);
   }, []);
@@ -29,12 +30,14 @@ function PageInline({ pageId }: { pageId: string }) {
   );
 
   useEffect(() => {
-    if (page) {
+    if (!page) {
+      loadPage(pageId);
+    } else {
       setCurrentPage(page);
-      return;
     }
-    void loadPage(pageId);
+
   }, [page, loadPage, pageId]);
+
 
   return currentPage ? (
     <Tooltip arrow title={t('document.mention.page.tooltip')} placement={'top'}>
