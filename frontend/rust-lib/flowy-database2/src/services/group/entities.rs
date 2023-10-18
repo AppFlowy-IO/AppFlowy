@@ -20,6 +20,7 @@ pub struct GroupSettingChangeset {
 
 pub struct GroupChangeset {
   pub group_id: String,
+  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }

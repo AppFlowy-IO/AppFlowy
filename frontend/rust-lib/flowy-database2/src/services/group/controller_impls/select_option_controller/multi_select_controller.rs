@@ -1,12 +1,14 @@
 use std::sync::Arc;
 
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
+use crate::services::field::{
+  MultiSelectTypeOption, SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction,
+};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{
   BaseGroupController, GroupController, GroupsBuilder, MoveGroupRowContext,
@@ -103,6 +105,29 @@ impl GroupController for MultiSelectGroupController {
   fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
     if let Some(group) = self.context.get_mut_group(group_id) {
       group.add_row(row_detail.clone())
+    }
+  }
+
+  fn update_group_name(&mut self, group_id: &str, group_name: &str) -> Option<TypeOptionData> {
+    match &self.type_option {
+      Some(type_option) => {
+        let select_option = type_option
+          .options
+          .iter()
+          .find(|option| option.id == group_id)
+          .unwrap();
+
+        let new_select_option = SelectOption {
+          name: group_name.to_owned(),
+          ..select_option.to_owned()
+        };
+
+        let mut new_type_option = type_option.clone();
+        new_type_option.insert_option(new_select_option);
+
+        Some(new_type_option.to_type_option_data())
+      },
+      None => None,
     }
   }
 }
