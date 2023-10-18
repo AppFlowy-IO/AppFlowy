@@ -212,7 +212,7 @@ class _BoardContentState extends State<BoardContent> {
         ),
       ),
       title: FlowyText.medium(
-        LocaleKeys.board_column_create_new_card.tr(),
+        LocaleKeys.board_column_createNewCard.tr(),
         fontSize: 14,
       ),
       height: 50,

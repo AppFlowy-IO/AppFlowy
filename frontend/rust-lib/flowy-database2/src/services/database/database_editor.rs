@@ -194,7 +194,7 @@ impl DatabaseEditor {
     group_changeset: GroupChangeset,
   ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    let type_option = view_editor.update_group(group_changeset).await?;
+    let type_option = view_editor.update_group(group_changeset.clone()).await?;
 
     if let Some(type_option_data) = type_option {
       let field = self.get_field(&group_changeset.field_id);

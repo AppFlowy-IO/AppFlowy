@@ -24,7 +24,6 @@ import 'group_controller.dart';
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  // late final FieldBackendService fieldBackendService;
   late final GroupBackendService groupBackendSvc;
   final DatabaseController databaseController;
   late final AppFlowyBoardController boardController;
@@ -151,14 +150,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           endEditingHeader: (String groupId, String groupName) async {
-            final resultOrFailure = await groupBackendSvc.updateGroup(
+            await groupBackendSvc.updateGroup(
+              fieldId: groupControllers.values.first.group.fieldId,
               groupId: groupId,
               name: groupName,
-            );
-
-            resultOrFailure.fold(
-              (l) => debugPrint("SUCCEEDED!!!!"),
-              (r) => debugPrint(r.msg),
             );
 
             emit(state.copyWith(isEditingHeader: false));

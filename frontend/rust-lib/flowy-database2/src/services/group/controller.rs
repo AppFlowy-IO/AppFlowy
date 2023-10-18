@@ -41,7 +41,7 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
   fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str);
 
   /// Update group name handler
-  fn update_group_name(&mut self, group_id: &str, group_name: &str) -> Option<TypeOptionData> {
+  fn update_group_name(&mut self, _group_id: &str, _group_name: &str) -> Option<TypeOptionData> {
     None
   }
 }

@@ -721,7 +721,8 @@
   },
   "board": {
     "column": {
-      "create_new_card": "New"
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group"
     },
     "menuName": "Board",
     "referencedBoardPrefix": "View of"

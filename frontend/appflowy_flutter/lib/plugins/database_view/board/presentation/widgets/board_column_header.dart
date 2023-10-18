@@ -1,10 +1,17 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/define.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardColumnHeader extends StatefulWidget {
@@ -59,24 +66,52 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
       value: context.read<BoardBloc>(),
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
-          Widget title = Flexible(
-            fit: FlexFit.tight,
-            child: GestureDetector(
-              onTap: () => context
-                  .read<BoardBloc>()
-                  .add(BoardEvent.startEditingHeader(widget.groupData.id)),
-              child: FlowyText.medium(
-                widget.groupData.headerData.groupName,
-                fontSize: 14,
-                overflow: TextOverflow.clip,
-              ),
+          if (state.isEditingHeader) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _focusNode.requestFocus();
+            });
+          }
+
+          Widget title = Expanded(
+            child: FlowyText.medium(
+              widget.groupData.headerData.groupName,
+              fontSize: 14,
+              overflow: TextOverflow.clip,
             ),
           );
+
+          if (!boardCustomData.group.isDefault &&
+              boardCustomData.fieldType.canEditHeader) {
+            title = Flexible(
+              fit: FlexFit.tight,
+              child: FlowyTooltip(
+                message: LocaleKeys.board_column_renameGroupTooltip.tr(),
+                child: FlowyHover(
+                  style: HoverStyle(
+                    hoverColor: Colors.transparent,
+                    foregroundColorOnHover:
+                        AFThemeExtension.of(context).textColor,
+                  ),
+                  child: GestureDetector(
+                    onTap: context.read<BoardBloc>().add(
+                          BoardEvent.startEditingHeader(
+                            widget.groupData.id,
+                          ),
+                        ),
+                    child: FlowyText.medium(
+                      widget.groupData.headerData.groupName,
+                      fontSize: 14,
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
 
           if (state.isEditingHeader &&
               state.editingHeaderId == widget.groupData.id) {
             title = _buildTextField(context);
-            // _focusNode.requestFocus();
           }
 
           return AppFlowyGroupHeader(
@@ -103,20 +138,47 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
   Widget _buildTextField(BuildContext context) {
     return Expanded(
-      child: TextField(
-        controller: _controller,
-        focusNode: _focusNode,
-        // onChanged: (value) => focusChanged(),
-        onEditingComplete: _saveEdit,
-        maxLines: null,
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
-        decoration: InputDecoration(
-          // Magic number 4 makes the textField take up the same space as FlowyText
-          contentPadding: EdgeInsets.symmetric(
-            vertical: CardSizes.cardCellVPadding + 4,
+      child: RawKeyboardListener(
+        focusNode: FocusNode(),
+        onKey: (event) {
+          if (event is RawKeyDownEvent &&
+              [LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
+                  .contains(event.logicalKey)) {
+            _saveEdit();
+          }
+        },
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          onEditingComplete: _saveEdit,
+          maxLines: null,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            hoverColor: Colors.transparent,
+            // Magic number 4 makes the textField take up the same space as FlowyText
+            contentPadding: EdgeInsets.symmetric(
+              vertical: CardSizes.cardCellVPadding + 4,
+              horizontal: 8,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            isDense: true,
           ),
-          border: InputBorder.none,
-          isDense: true,
         ),
       ),
     );

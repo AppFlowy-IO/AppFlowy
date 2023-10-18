@@ -15,7 +15,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
-use crate::services::group::{GroupChangeset, GroupSettingChangeset};
+use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
 
 fn upgrade_manager(
