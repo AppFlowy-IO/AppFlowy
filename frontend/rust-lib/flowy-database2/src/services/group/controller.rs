@@ -39,6 +39,11 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
 
   /// Called after the row was created.
   fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str);
+
+  /// Update group name handler
+  fn update_group_name(&mut self, group_id: &str, group_name: &str) -> Option<TypeOptionData> {
+    None
+  }
 }
 
 /// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]

@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 
 class GroupBackendService {
   final String viewId;
+
   GroupBackendService(this.viewId);
 
   Future<Either<Unit, FlowyError>> groupByField({
@@ -22,7 +23,10 @@ class GroupBackendService {
     String? name,
     bool? visible,
   }) {
-    final payload = UpdateGroupPB.create()..groupId = groupId;
+    final payload = UpdateGroupPB.create()
+      ..viewId = viewId
+      ..groupId = groupId;
+
     if (name != null) {
       payload.name = name;
     }

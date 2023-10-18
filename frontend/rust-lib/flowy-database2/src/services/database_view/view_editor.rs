@@ -37,7 +37,8 @@ use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext, RowChangeset,
+  GroupChangeset, GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext,
+  RowChangeset,
 };
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
@@ -477,6 +478,27 @@ impl DatabaseViewEditor {
       })
       .await;
     Ok(())
+  }
+
+  pub async fn update_group(
+    &self,
+    changeset: GroupChangeset,
+  ) -> FlowyResult<Option<TypeOptionData>> {
+    match changeset.name {
+      Some(group_name) => {
+        let result = self
+          .mut_group_controller(|controller, _| {
+            Ok(controller.update_group_name(&changeset.group_id, &group_name))
+          })
+          .await;
+
+        match result {
+          Some(r) => Ok(r),
+          None => Ok(None),
+        }
+      },
+      None => Ok(None),
+    }
   }
 
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
