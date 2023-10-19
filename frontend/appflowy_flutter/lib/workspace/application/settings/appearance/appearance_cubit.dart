@@ -405,7 +405,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     if (PlatformExtension.isMobile) {
       // Mobile version has only one theme(light mode) for now.
       // The desktop theme and the mobile theme are independent.
-      final mobileThemeData = getMobileThemeData();
+      final mobileThemeData = getMobileThemeData(brightness);
       return mobileThemeData;
     }
 

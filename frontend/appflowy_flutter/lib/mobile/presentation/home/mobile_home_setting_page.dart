@@ -23,10 +23,9 @@ class MobileHomeSettingPage extends StatefulWidget {
 }
 
 class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
-  // TODO(yijing):get value from backend
+  // TODO(yijing):remove this after notification page is implemented
   bool isPushNotificationOn = false;
-  bool isAutoDarkModeOn = false;
-  bool isDarkModeOn = false;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,7 +62,13 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                             MobileSettingItemWidget(
                               name: userName,
                               subtitle: isCloudEnabled && userProfile != null
-                                  ? Text(userProfile.email)
+                                  ? Text(
+                                      userProfile.email,
+                                      style:
+                                          theme.textTheme.bodyMedium?.copyWith(
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    )
                                   : null,
                               trailing: const Icon(Icons.chevron_right),
                               onTap: () {
@@ -112,23 +117,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                       ),
                     ],
                   ),
-                  MobileSettingGroupWidget(
-                    groupTitle: 'Apperance',
-                    settingItemWidgets: [
-                      MobileSettingItemWidget(
-                        name: 'Theme Mode',
-                        trailing: Switch.adaptive(
-                          activeColor: theme.colorScheme.primary,
-                          value: isAutoDarkModeOn,
-                          onChanged: (bool value) {
-                            setState(() {
-                              isAutoDarkModeOn = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SettingAppearanceWidget(),
                   MobileSettingGroupWidget(
                     groupTitle: 'Support',
                     settingItemWidgets: [
@@ -187,79 +176,6 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
           ),
         );
       }),
-    );
-  }
-}
-
-class MobileSettingGroupWidget extends StatelessWidget {
-  const MobileSettingGroupWidget({
-    required this.groupTitle,
-    required this.settingItemWidgets,
-    this.showDivider = true,
-    super.key,
-  });
-  final String groupTitle;
-  final List<MobileSettingItemWidget> settingItemWidgets;
-  final bool showDivider;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 8,
-        ),
-        Text(
-          groupTitle,
-          style: theme.textTheme.labelSmall,
-        ),
-        const SizedBox(
-          height: 12,
-        ),
-        ...settingItemWidgets,
-        showDivider ? const Divider() : const SizedBox.shrink(),
-      ],
-    );
-  }
-}
-
-class MobileSettingItemWidget extends StatelessWidget {
-  const MobileSettingItemWidget({
-    super.key,
-    required this.name,
-    this.subtitle,
-    required this.trailing,
-    this.onTap,
-  });
-  final String name;
-  final Widget? subtitle;
-  final Widget trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Text(
-          name,
-          style: theme.textTheme.labelMedium,
-        ),
-        subtitle: subtitle,
-        trailing: trailing,
-        onTap: onTap,
-        visualDensity: VisualDensity.compact,
-        // shape: RoundedRectangleBorder(
-        //   side: BorderSide(
-        //     color: theme.colorScheme.outline,
-        //     width: 0.5,
-        //   ),
-        //   borderRadius: BorderRadius.circular(6),
-        // ),
-      ),
     );
   }
 }

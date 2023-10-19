@@ -41,7 +41,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
         top: 16,
         right: 16,
         left: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
