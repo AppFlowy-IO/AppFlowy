@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
@@ -84,7 +85,34 @@ class MobilePersonalFolder extends StatelessWidget {
                           svg: FlowySvgs.three_dots_vertical_s,
                           size: 28.0,
                           onPressed: (context) {
-                            // TODO: implement
+                            final viewBloc = context.read<ViewBloc>();
+                            final favoriteBloc = context.read<FavoriteBloc>();
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              enableDrag: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(8.0),
+                                  topRight: Radius.circular(8.0),
+                                ),
+                              ),
+                              builder: (context) {
+                                return MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(value: viewBloc),
+                                    BlocProvider.value(value: favoriteBloc),
+                                  ],
+                                  child: BlocBuilder<ViewBloc, ViewState>(
+                                    builder: (context, state) {
+                                      return MobileViewItemBottomSheet(
+                                        view: view,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            );
                           },
                         )
                       ],

@@ -213,7 +213,11 @@
     "delete": "Delete",
     "duplicate": "Duplicate",
     "done": "Done",
-    "putback": "Put Back"
+    "putback": "Put Back",
+    "share": "Share",
+    "removeFromFavorites": "Remove from favorites",
+    "addToFavorites": "Add to favorites",
+    "rename": "Rename"
   },
   "label": {
     "welcome": "Welcome!",

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/favourite_folder/mobile_home_favorite_folder_header.dart';
+import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
