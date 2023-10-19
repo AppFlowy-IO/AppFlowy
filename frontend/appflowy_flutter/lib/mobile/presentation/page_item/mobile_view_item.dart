@@ -2,15 +2,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/turn_box.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -387,44 +382,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                 ViewLayoutPB.Document,
               ),
             );
-      },
-    );
-  }
-
-  // ··· more action button
-  Widget _buildViewMoreActionButton(BuildContext context) {
-    return ViewMoreActionButton(
-      view: widget.view,
-      onEditing: (value) =>
-          context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
-      onAction: (action) {
-        switch (action) {
-          case ViewMoreActionType.favorite:
-          case ViewMoreActionType.unFavorite:
-            context.read<FavoriteBloc>().add(FavoriteEvent.toggle(widget.view));
-            break;
-          case ViewMoreActionType.rename:
-            NavigatorTextFieldDialog(
-              title: LocaleKeys.disclosureAction_rename.tr(),
-              autoSelectAllText: true,
-              value: widget.view.name,
-              confirm: (newValue) {
-                context.read<ViewBloc>().add(ViewEvent.rename(newValue));
-              },
-            ).show(context);
-            break;
-          case ViewMoreActionType.delete:
-            context.read<ViewBloc>().add(const ViewEvent.delete());
-            break;
-          case ViewMoreActionType.duplicate:
-            context.read<ViewBloc>().add(const ViewEvent.duplicate());
-            break;
-          case ViewMoreActionType.openInNewTab:
-            context.read<TabsBloc>().openTab(widget.view);
-            break;
-          default:
-            throw UnsupportedError('$action is not supported');
-        }
       },
     );
   }
