@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MobilePersonalFolder extends StatelessWidget {
   const MobilePersonalFolder({
@@ -35,9 +36,9 @@ class MobilePersonalFolder extends StatelessWidget {
                 onPressed: () => context
                     .read<FolderBloc>()
                     .add(const FolderEvent.expandOrUnExpand()),
-                onAdded: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand(isExpanded: true)),
+                onAdded: () => context.read<FolderBloc>().add(
+                      const FolderEvent.expandOrUnExpand(isExpanded: true),
+                    ),
               ),
               const VSpace(8.0),
               const Divider(
@@ -59,31 +60,35 @@ class MobilePersonalFolder extends StatelessWidget {
                     onSelected: (view) async {
                       await context.pushView(view);
                     },
-                    slideActions: [
-                      MobileSlideActionButton(
-                        backgroundColor: Colors.red,
-                        svg: FlowySvgs.delete_s,
-                        size: 26.0,
-                        onPressed: (context) => context
-                            .read<ViewBloc>()
-                            .add(const ViewEvent.delete()),
-                      ),
-                      MobileSlideActionButton(
-                        backgroundColor: Colors.orange,
-                        svg: FlowySvgs.unfavorite_s,
-                        onPressed: (context) => context
-                            .read<FavoriteBloc>()
-                            .add(FavoriteEvent.toggle(view)),
-                      ),
-                      MobileSlideActionButton(
-                        backgroundColor: Colors.grey,
-                        svg: FlowySvgs.three_dots_vertical_s,
-                        size: 26.0,
-                        onPressed: (context) {
-                          // TODO: implement
-                        },
-                      )
-                    ],
+                    endActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      children: [
+                        MobileSlideActionButton(
+                          backgroundColor: Colors.red,
+                          svg: FlowySvgs.delete_s,
+                          size: 30.0,
+                          onPressed: (context) => context
+                              .read<ViewBloc>()
+                              .add(const ViewEvent.delete()),
+                        ),
+                        MobileSlideActionButton(
+                          backgroundColor: Colors.orange,
+                          svg: FlowySvgs.m_favorite_unselected_lg,
+                          size: 36.0,
+                          onPressed: (context) => context
+                              .read<FavoriteBloc>()
+                              .add(FavoriteEvent.toggle(view)),
+                        ),
+                        MobileSlideActionButton(
+                          backgroundColor: Colors.grey,
+                          svg: FlowySvgs.three_dots_vertical_s,
+                          size: 28.0,
+                          onPressed: (context) {
+                            // TODO: implement
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 )
             ],

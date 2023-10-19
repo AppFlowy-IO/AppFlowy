@@ -1,5 +1,5 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/favourite_folder/mobile_home_favorite_folder.dart';
+import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder.dart';
 import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -13,6 +13,7 @@ import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MobileFolders extends StatelessWidget {
   const MobileFolders({
@@ -73,19 +74,22 @@ class MobileFolders extends StatelessWidget {
           builder: (context) {
             final menuState = context.watch<MenuBloc>().state;
             final favoriteState = context.watch<FavoriteBloc>().state;
-            return Column(
-              children: [
-                if (favoriteState.views.isNotEmpty) ...[
-                  MobileFavoriteFolder(
-                    views: favoriteState.views,
+            return SlidableAutoCloseBehavior(
+              child: Column(
+                children: [
+                  // TODO: Uncomment this when we have favorite folder in home page
+                  if (favoriteState.views.isNotEmpty) ...[
+                    MobileFavoriteFolder(
+                      views: favoriteState.views,
+                    ),
+                    const VSpace(18.0),
+                  ],
+                  MobilePersonalFolder(
+                    views: menuState.views,
                   ),
-                  const VSpace(18.0),
+                  const VSpace(8.0),
                 ],
-                MobilePersonalFolder(
-                  views: menuState.views,
-                ),
-                const VSpace(8.0),
-              ],
+              ),
             );
           },
         ),

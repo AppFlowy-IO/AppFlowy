@@ -8,7 +8,9 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MobileFavoriteFolder extends StatelessWidget {
   const MobileFavoriteFolder({
@@ -61,15 +63,26 @@ class MobileFavoriteFolder extends StatelessWidget {
                     onSelected: (view) async {
                       await context.pushView(view);
                     },
-                    slideActions: [
-                      MobileSlideActionButton(
-                        backgroundColor: Colors.red,
-                        svg: FlowySvgs.unfavorite_s,
-                        onPressed: (context) => context
-                            .read<FavoriteBloc>()
-                            .add(FavoriteEvent.toggle(view)),
-                      )
-                    ],
+                    endActionPane: ActionPane(
+                      motion: const ScrollMotion(),
+                      dismissible: DismissiblePane(
+                        onDismissed: () {
+                          HapticFeedback.mediumImpact();
+                          context
+                              .read<FavoriteBloc>()
+                              .add(FavoriteEvent.toggle(view));
+                        },
+                      ),
+                      children: [
+                        MobileSlideActionButton(
+                          backgroundColor: Colors.red,
+                          svg: FlowySvgs.unfavorite_s,
+                          onPressed: (context) => context
+                              .read<FavoriteBloc>()
+                              .add(FavoriteEvent.toggle(view)),
+                        ),
+                      ],
+                    ),
                   ),
                 )
             ],

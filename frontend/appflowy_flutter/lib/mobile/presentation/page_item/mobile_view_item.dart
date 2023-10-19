@@ -34,7 +34,8 @@ class MobileViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
-    this.slideActions = const [],
+    this.startActionPane,
+    this.endActionPane,
   });
 
   final ViewPB view;
@@ -64,7 +65,8 @@ class MobileViewItem extends StatelessWidget {
   final bool isFeedback;
 
   // the actions of the view item, such as favorite, rename, delete, etc.
-  final List<Widget> slideActions;
+  final ActionPane? startActionPane;
+  final ActionPane? endActionPane;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +95,8 @@ class MobileViewItem extends StatelessWidget {
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
-            slideActions: slideActions,
+            startActionPane: startActionPane,
+            endActionPane: endActionPane,
           );
         },
       ),
@@ -116,7 +119,8 @@ class InnerMobileViewItem extends StatelessWidget {
     required this.onSelected,
     this.isFirstChild = false,
     required this.isFeedback,
-    this.slideActions = const [],
+    this.startActionPane,
+    this.endActionPane,
   });
 
   final ViewPB view;
@@ -136,7 +140,8 @@ class InnerMobileViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
 
-  final List<Widget> slideActions;
+  final ActionPane? startActionPane;
+  final ActionPane? endActionPane;
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +156,8 @@ class InnerMobileViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
-      slideActions: slideActions,
+      startActionPane: startActionPane,
+      endActionPane: endActionPane,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -169,7 +175,8 @@ class InnerMobileViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             leftPadding: leftPadding,
             isFeedback: isFeedback,
-            slideActions: slideActions,
+            startActionPane: startActionPane,
+            endActionPane: endActionPane,
           );
         }).toList();
 
@@ -237,7 +244,8 @@ class InnerMobileViewItem extends StatelessWidget {
             isDraggable: false,
             leftPadding: leftPadding,
             isFeedback: true,
-            slideActions: slideActions,
+            startActionPane: startActionPane,
+            endActionPane: endActionPane,
           );
         },
       );
@@ -260,7 +268,8 @@ class SingleMobileInnerViewItem extends StatefulWidget {
     required this.showActions,
     required this.onSelected,
     required this.isFeedback,
-    this.slideActions = const [],
+    this.startActionPane,
+    this.endActionPane,
   });
 
   final ViewPB view;
@@ -276,7 +285,8 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final FolderCategoryType categoryType;
-  final List<Widget> slideActions;
+  final ActionPane? startActionPane;
+  final ActionPane? endActionPane;
 
   @override
   State<SingleMobileInnerViewItem> createState() =>
@@ -330,13 +340,12 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       ),
     );
 
-    if (widget.slideActions.isNotEmpty) {
+    if (widget.startActionPane != null || widget.endActionPane != null) {
       child = Slidable(
-        // The end action pane is the one at the right or the bottom side.
-        endActionPane: ActionPane(
-          motion: const ScrollMotion(),
-          children: widget.slideActions,
-        ),
+        // Specify a key if the Slidable is dismissible.
+        key: ValueKey(widget.view.id),
+        startActionPane: widget.startActionPane,
+        endActionPane: widget.endActionPane,
         child: child,
       );
     }
@@ -418,20 +427,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
         }
       },
     );
-  }
-
-  String _convertLayoutToHintText(ViewLayoutPB layout) {
-    switch (layout) {
-      case ViewLayoutPB.Document:
-        return LocaleKeys.newDocumentText.tr();
-      case ViewLayoutPB.Grid:
-        return LocaleKeys.newGridText.tr();
-      case ViewLayoutPB.Board:
-        return LocaleKeys.newBoardText.tr();
-      case ViewLayoutPB.Calendar:
-        return LocaleKeys.newCalendarText.tr();
-    }
-    return LocaleKeys.newPageText.tr();
   }
 }
 
