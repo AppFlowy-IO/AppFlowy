@@ -90,13 +90,6 @@ ActionPane buildEndActionPane(
   return ActionPane(
     motion: const ScrollMotion(),
     extentRatio: actions.length / 5,
-    // Uncomment this to enable dismissible
-    // dismissible: DismissiblePane(
-    //   onDismissed: () {
-    //     HapticFeedback.mediumImpact();
-    //     context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-    //   },
-    // ),
     children: actions
         .map(
           (action) => action.actionButton(context, view),
