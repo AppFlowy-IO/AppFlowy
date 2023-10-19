@@ -25,13 +25,12 @@ class FilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GridFilterMenuBloc>(
-      create: (context) => GridFilterMenuBloc(
+    return BlocProvider<FilterMenuBloc>(
+      create: (context) => FilterMenuBloc(
         viewId: fieldController.viewId,
         filterController: filterController,
-        fieldController: fieldController,
-      )..add(const GridFilterMenuEvent.initial()),
-      child: BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
+      )..add(const FilterMenuEvent.initial()),
+      child: BlocBuilder<FilterMenuBloc, FilterMenuState>(
         builder: (context, state) {
           final List<Widget> children = [];
           children.addAll(
@@ -115,7 +114,7 @@ class _AddFilterButtonState extends State<AddFilterButton> {
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {
-        final bloc = buildContext.read<GridFilterMenuBloc>();
+        final bloc = buildContext.read<FilterMenuBloc>();
         return GridCreateFilterList(
           viewId: widget.viewId,
           fieldController: bloc.fieldController,

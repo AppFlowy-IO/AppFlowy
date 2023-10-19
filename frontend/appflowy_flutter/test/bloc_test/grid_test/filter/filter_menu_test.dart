@@ -13,11 +13,10 @@ void main() {
 
   test('test filter menu after create a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = GridFilterMenuBloc(
+    final menuBloc = FilterMenuBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
       filterController: context.filterController,
-    )..add(const GridFilterMenuEvent.initial());
+    )..add(const FilterMenuEvent.initial());
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 3);
 
@@ -34,11 +33,10 @@ void main() {
 
   test('test filter menu after update existing text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = GridFilterMenuBloc(
+    final menuBloc = FilterMenuBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
       filterController: context.filterController,
-    )..add(const GridFilterMenuEvent.initial());
+    )..add(const FilterMenuEvent.initial());
     await gridResponseFuture();
 
     final service = FilterBackendService(viewId: context.gridView.id);

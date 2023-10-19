@@ -39,7 +39,6 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     bool shrinkWrap,
   ) {
     return BoardPage(
-      key: _makeValueKey(controller),
       view: view,
       databaseController: controller,
     );
@@ -71,7 +70,6 @@ class BoardPage extends StatelessWidget {
   BoardPage({
     required this.view,
     required this.databaseController,
-    Key? key,
     this.onEditStateChanged,
   }) : super(key: ValueKey(view.id));
 
@@ -127,10 +125,6 @@ class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
   final renderHook = RowCardRenderHook<String>();
 
-  final config = const AppFlowyBoardConfig(
-    groupBackgroundColor: Color(0xffF7F8FC),
-  );
-
   @override
   void initState() {
     scrollManager = AppFlowyBoardScrollController();
@@ -167,21 +161,23 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildBoard(BuildContext context) {
+    final config = AppFlowyBoardConfig(
+      groupBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+    );
     return AppFlowyBoard(
       boardScrollController: scrollManager,
       scrollController: ScrollController(),
       controller: context.read<BoardBloc>().boardController,
-      headerBuilder: _buildHeader,
-      footerBuilder: _buildFooter,
-      cardBuilder: (_, column, columnItem) => _buildCard(
-        context,
-        column,
-        columnItem,
+      headerBuilder: (context, column) => _buildHeader(context, column, config),
+      footerBuilder: (context, column) => _buildFooter(context, column, config),
+      cardBuilder: (_, column, columnItem) => AppFlowyBoardCard(
+        afGroupData: column,
+        afGroupItem: columnItem,
+        config: config,
+        renderHook: renderHook,
       ),
       groupConstraints: const BoxConstraints.tightFor(width: 300),
-      config: AppFlowyBoardConfig(
-        groupBackgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-      ),
+      config: config,
     );
   }
 
@@ -199,14 +195,10 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Widget _buildHeader(
     BuildContext context,
     AppFlowyGroupData groupData,
+    AppFlowyBoardConfig config,
   ) {
     final boardCustomData = groupData.customData as GroupData;
     return AppFlowyGroupHeader(
@@ -237,10 +229,11 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    // final boardCustomData = columnData.customData as BoardCustomData;
-    // final group = boardCustomData.group;
-
+  Widget _buildFooter(
+    BuildContext context,
+    AppFlowyGroupData columnData,
+    AppFlowyBoardConfig config,
+  ) {
     return AppFlowyGroupFooter(
       icon: SizedBox(
         height: 20,
@@ -264,21 +257,69 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildCard(
-    BuildContext context,
-    AppFlowyGroupData afGroupData,
-    AppFlowyGroupItem afGroupItem,
-  ) {
-    final groupItem = afGroupItem as GroupItem;
-    final groupData = afGroupData.customData as GroupData;
+  Widget? _buildHeaderIcon(GroupData customData) {
+    Widget? widget;
+    switch (customData.fieldType) {
+      case FieldType.Checkbox:
+        final group = customData.asCheckboxGroup()!;
+        widget = FlowySvg(
+          group.isCheck ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+          blendMode: BlendMode.dst,
+        );
+        break;
+      case FieldType.DateTime:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+        break;
+      case FieldType.MultiSelect:
+        break;
+      case FieldType.Number:
+        break;
+      case FieldType.RichText:
+        break;
+      case FieldType.SingleSelect:
+        break;
+      case FieldType.URL:
+        break;
+      case FieldType.Checklist:
+        break;
+    }
+
+    if (widget != null) {
+      widget = SizedBox(
+        width: 20,
+        height: 20,
+        child: widget,
+      );
+    }
+    return widget;
+  }
+}
+
+class AppFlowyBoardCard extends StatelessWidget {
+  final GroupData groupData;
+  final GroupItem groupItem;
+  final AppFlowyBoardConfig config;
+  final RowCardRenderHook<String> renderHook;
+
+  AppFlowyBoardCard({
+    super.key,
+    required AppFlowyGroupData afGroupData,
+    required AppFlowyGroupItem afGroupItem,
+    required this.config,
+    required this.renderHook,
+  })  : groupData = afGroupData.customData as GroupData,
+        groupItem = afGroupItem as GroupItem;
+
+  @override
+  Widget build(BuildContext context) {
+    /// Return placeholder widget if the rowCache is null.
     final rowMeta = groupItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache();
-
-    /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
+
     final cellCache = rowCache.cellCache;
-    final fieldController = context.read<BoardBloc>().fieldController;
-    final viewId = context.read<BoardBloc>().viewId;
+    final databaseController = context.read<BoardBloc>().databaseController;
 
     final cellBuilder = CardCellBuilder<String>(cellCache);
     bool isEditing = false;
@@ -296,7 +337,7 @@ class _BoardContentState extends State<BoardContent> {
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
         rowMeta: rowMeta,
-        viewId: viewId,
+        viewId: databaseController.viewId,
         rowCache: rowCache,
         cardData: groupData.group.groupId,
         groupingFieldId: groupItem.field.id,
@@ -305,9 +346,9 @@ class _BoardContentState extends State<BoardContent> {
         cellBuilder: cellBuilder,
         renderHook: renderHook,
         openCard: (context) => _openCard(
-          viewId,
+          databaseController.viewId,
           groupData.group.groupId,
-          fieldController,
+          databaseController.fieldController,
           rowMeta,
           rowCache,
           context,
@@ -374,42 +415,4 @@ class _BoardContentState extends State<BoardContent> {
       },
     );
   }
-}
-
-Widget? _buildHeaderIcon(GroupData customData) {
-  Widget? widget;
-  switch (customData.fieldType) {
-    case FieldType.Checkbox:
-      final group = customData.asCheckboxGroup()!;
-      widget = FlowySvg(
-        group.isCheck ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
-        blendMode: BlendMode.dst,
-      );
-      break;
-    case FieldType.DateTime:
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      break;
-    case FieldType.MultiSelect:
-      break;
-    case FieldType.Number:
-      break;
-    case FieldType.RichText:
-      break;
-    case FieldType.SingleSelect:
-      break;
-    case FieldType.URL:
-      break;
-    case FieldType.Checklist:
-      break;
-  }
-
-  if (widget != null) {
-    widget = SizedBox(
-      width: 20,
-      height: 20,
-      child: widget,
-    );
-  }
-  return widget;
 }

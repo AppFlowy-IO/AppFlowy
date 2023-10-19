@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_extension.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
@@ -13,19 +12,17 @@ part 'sort_menu_bloc.freezed.dart';
 class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   final String viewId;
   final SortController sortController;
-  final FieldController fieldController;
   void Function(List<SortInfo>)? _onSortFn;
   void Function(List<FieldPB>)? _onFieldFn;
 
   SortMenuBloc({
     required this.viewId,
     required this.sortController,
-    required this.fieldController,
   }) : super(
           SortMenuState.initial(
             viewId,
             sortController.sorts,
-            fieldController.fields,
+            sortController.fieldController.fields,
           ),
         ) {
     on<SortMenuEvent>(
@@ -67,7 +64,7 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
 
     sortController.addListener(onReceiveSorts: _onSortFn!);
 
-    fieldController.addListener(onReceiveFields: _onFieldFn);
+    sortController.fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
   @override
@@ -77,7 +74,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
       _onSortFn = null;
     }
     if (_onFieldFn != null) {
-      fieldController.removeListener(onFieldsListener: _onFieldFn!);
+      sortController.fieldController
+          .removeListener(onFieldsListener: _onFieldFn!);
       _onFieldFn = null;
     }
     return super.close();

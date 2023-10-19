@@ -23,24 +23,22 @@ class GridSettingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GridFilterMenuBloc>(
-          create: (context) => GridFilterMenuBloc(
+        BlocProvider<FilterMenuBloc>(
+          create: (context) => FilterMenuBloc(
             viewId: controller.viewId,
             filterController: controller.filterController,
-            fieldController: controller.fieldController,
-          )..add(const GridFilterMenuEvent.initial()),
+          )..add(const FilterMenuEvent.initial()),
         ),
         BlocProvider<SortMenuBloc>(
           create: (context) => SortMenuBloc(
             viewId: controller.viewId,
             sortController: controller.sortController,
-            fieldController: controller.fieldController,
           )..add(const SortMenuEvent.initial()),
         ),
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
+          BlocListener<FilterMenuBloc, FilterMenuState>(
             listenWhen: (p, c) => p.isVisible != c.isVisible,
             listener: (context, state) => toggleExtension.toggle(),
           ),
