@@ -72,32 +72,6 @@ script = [
 ]
 script_runner = "@shell"
 
-[tasks.sdk-dev-build-android]
-private = true
-script = [
-  """
-    cd rust-lib/
-    rustup show
-    rustup target add aarch64-linux-android \
-      armv7-linux-androideabi \
-      i686-linux-android \
-      x86_64-linux-android
-    DEST=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/android/app/src/main/jniLibs
-    rm -rf $DEST/arm64-v8a \
-      $DEST/armeabi-v7a \
-      $DEST/x86 \
-      $DEST/x86_64
-    cargo ndk \
-      -t arm64-v8a \
-      -t armeabi-v7a \
-      -t x86 \
-      -t x86_64 \
-      -o $DEST build
-    cd ../
-  """,
-]
-script_runner = "@shell"
-
 [tasks.sdk-dev-build.windows]
 private = true
 script = [
@@ -192,4 +166,3 @@ script = [
   """,
 ]
 script_runner = "@duckscript"
-

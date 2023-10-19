@@ -33,6 +33,29 @@ script = [
 ]
 script_runner = "@shell"
 
+[tasks.appflowy-core-dev-android]
+category = "Build"
+dependencies = ["env_check"]
+run_task = { name = [
+  "setup-crate-type",
+  "sdk-build-android",
+  "post-mobile-android",
+  "restore-crate-type",
+] }
+
+[tasks.sdk-build-android]
+private = true
+script = [
+  """
+    cd rust-lib/
+    rustup show
+    echo "cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}""
+    cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
 [tasks.post-mobile-ios]
 private = true
 script = [
@@ -45,6 +68,26 @@ script = [
     rm -f ${dart_ffi_dir}/${lib}
     cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/target/${RUST_COMPILE_TARGET}/${BUILD_FLAG}/${lib} \
     ${dart_ffi_dir}/${lib}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
+    rm -f ${dart_ffi_dir}/Classes/binding.h
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h \
+    ${dart_ffi_dir}/Classes/binding.h
+  """,
+]
+script_runner = "@duckscript"
+
+[tasks.post-mobile-android]
+script = [
+  """
+    echo "🚀 🚀 🚀  AppFlowy-Core for Android platform build success"
+    dart_ffi_dir= set ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/android/app/src/main
+    lib = set lib${LIB_NAME}.${LIB_EXT}
+
+    echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ to ${dart_ffi_dir}/"
+    rm -r ${dart_ffi_dir}/jniLibs/
+    cp ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/jniLibs/ \
+    ${dart_ffi_dir}/
 
     echo "💻 💻 💻  Copying ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/binding.h to ${dart_ffi_dir}/Classes/binding.h"
     rm -f ${dart_ffi_dir}/Classes/binding.h
