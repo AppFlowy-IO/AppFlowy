@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_extension.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_controller.dart';
 import 'package:appflowy/plugins/database_view/application/sort/sort_info.dart';
@@ -14,6 +15,8 @@ class SortMenuBloc extends Bloc<SortMenuEvent, SortMenuState> {
   final SortController sortController;
   void Function(List<SortInfo>)? _onSortFn;
   void Function(List<FieldPB>)? _onFieldFn;
+
+  FieldController get fieldController => sortController.fieldController;
 
   SortMenuBloc({
     required this.viewId,
