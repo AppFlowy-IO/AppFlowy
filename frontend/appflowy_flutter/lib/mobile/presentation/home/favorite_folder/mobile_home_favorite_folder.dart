@@ -16,8 +16,12 @@ class MobileFavoriteFolder extends StatelessWidget {
   const MobileFavoriteFolder({
     super.key,
     required this.views,
+    this.showHeader = true,
+    this.forceExpanded = false,
   });
 
+  final bool showHeader;
+  final bool forceExpanded;
   final List<ViewPB> views;
 
   @override
@@ -35,20 +39,22 @@ class MobileFavoriteFolder extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
-              MobileFavoriteFolderHeader(
-                isExpanded: context.read<FolderBloc>().state.isExpanded,
-                onPressed: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand()),
-                onAdded: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand(isExpanded: true)),
-              ),
-              const VSpace(8.0),
-              const Divider(
-                height: 1,
-              ),
-              if (state.isExpanded)
+              if (showHeader) ...[
+                MobileFavoriteFolderHeader(
+                  isExpanded: context.read<FolderBloc>().state.isExpanded,
+                  onPressed: () => context
+                      .read<FolderBloc>()
+                      .add(const FolderEvent.expandOrUnExpand()),
+                  onAdded: () => context.read<FolderBloc>().add(
+                        const FolderEvent.expandOrUnExpand(isExpanded: true),
+                      ),
+                ),
+                const VSpace(8.0),
+                const Divider(
+                  height: 1,
+                ),
+              ],
+              if (forceExpanded || state.isExpanded)
                 ...views.map(
                   (view) => MobileViewItem(
                     key: ValueKey(
@@ -65,6 +71,7 @@ class MobileFavoriteFolder extends StatelessWidget {
                     },
                     endActionPane: ActionPane(
                       motion: const ScrollMotion(),
+                      extentRatio: 1 / 5,
                       dismissible: DismissiblePane(
                         onDismissed: () {
                           HapticFeedback.mediumImpact();
@@ -76,7 +83,7 @@ class MobileFavoriteFolder extends StatelessWidget {
                       children: [
                         MobileSlideActionButton(
                           backgroundColor: Colors.red,
-                          svg: FlowySvgs.unfavorite_s,
+                          svg: FlowySvgs.favorite_s,
                           onPressed: (context) => context
                               .read<FavoriteBloc>()
                               .add(FavoriteEvent.toggle(view)),

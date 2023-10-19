@@ -9,7 +9,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
 
-// TODO(yijing): This is just a placeholder for now.
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
 
@@ -97,6 +96,7 @@ class MobileHomePage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: MobileFolders(
+                        showFavorite: false,
                         user: userProfile,
                         workspaceSetting: workspaceSetting,
                       ),

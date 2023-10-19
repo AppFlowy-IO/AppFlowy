@@ -1,6 +1,5 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder.dart';
-import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -10,17 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class MobileFolders extends StatelessWidget {
-  const MobileFolders({
+class MobileFavoritePageFolder extends StatelessWidget {
+  const MobileFavoritePageFolder({
     super.key,
-    required this.user,
+    required this.userProfile,
     required this.workspaceSetting,
-    required this.showFavorite,
   });
 
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
   final WorkspaceSettingPB workspaceSetting;
-  final bool showFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +25,7 @@ class MobileFolders extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => MenuBloc(
-            user: user,
+            user: userProfile,
             workspace: workspaceSetting.workspace,
           )..add(const MenuEvent.initial()),
         ),
@@ -47,22 +44,22 @@ class MobileFolders extends StatelessWidget {
         ],
         child: Builder(
           builder: (context) {
-            final menuState = context.watch<MenuBloc>().state;
             final favoriteState = context.watch<FavoriteBloc>().state;
+            if (favoriteState.views.isEmpty) {
+              return const Center(
+                // todo: i18n
+                child: FlowyText('No favorite pages'),
+              );
+            }
             return SlidableAutoCloseBehavior(
               child: Column(
                 children: [
-                  // TODO: Uncomment this when we have favorite folder in home page
-                  if (showFavorite && favoriteState.views.isNotEmpty) ...[
-                    MobileFavoriteFolder(
-                      views: favoriteState.views,
-                    ),
-                    const VSpace(18.0),
-                  ],
-                  MobilePersonalFolder(
-                    views: menuState.views,
+                  MobileFavoriteFolder(
+                    showHeader: false,
+                    forceExpanded: true,
+                    views: favoriteState.views,
                   ),
-                  const VSpace(8.0),
+                  const VSpace(100.0),
                 ],
               ),
             );

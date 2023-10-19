@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -30,8 +31,6 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeScreenWithNavigationBarRoute(),
       ],
 
-      // Unused routes for now, it may need to be used in the future.
-      // TODO(yijing): extract route method like other routes when it comes to be used.
       // Desktop and Mobile
       GoRoute(
         path: WorkspaceStartScreen.routeName,
@@ -80,8 +79,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            // The screen to display as the root in the first tab of the
-            // bottom navigation bar.
             path: MobileHomeScreen.routeName,
             builder: (BuildContext context, GoRouterState state) {
               return const MobileHomeScreen();
@@ -89,33 +86,14 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
           ),
         ],
       ),
-      // TODO(yijing): implement other tabs later
-      // The following code comes from the example of StatefulShellRoute.indexedStack. I left there just for placeholder purpose. They will be updated in the future.
-      // The route branch for the second tab of the bottom navigation bar.
+
       StatefulShellBranch(
-        // It's not necessary to provide a navigatorKey if it isn't also
-        // needed elsewhere. If not provided, a default key will be used.
         routes: <RouteBase>[
           GoRoute(
-            // The screen to display as the root in the second tab of the
-            // bottom navigation bar.
-            path: '/b',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Favorite',
-              detailsPath: '/b/details/1',
-              secondDetailsPath: '/b/details/2',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details/:param',
-                builder: (BuildContext context, GoRouterState state) =>
-                    DetailsPlaceholderScreen(
-                  label: 'Favorite details',
-                  param: state.pathParameters['param'],
-                ),
-              ),
-            ],
+            path: MobileFavoriteScreen.routeName,
+            builder: (BuildContext context, GoRouterState state) {
+              return const MobileFavoriteScreen();
+            },
           ),
         ],
       ),

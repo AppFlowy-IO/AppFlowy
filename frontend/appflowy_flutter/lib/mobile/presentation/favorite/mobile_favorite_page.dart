@@ -1,79 +1,100 @@
-import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart' hide State;
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_folder.dart';
+import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-class MobileFavoriteScreen extends StatefulWidget {
-  static const routeName = '/favorite';
-
+class MobileFavoriteScreen extends StatelessWidget {
   const MobileFavoriteScreen({
     super.key,
-    required this.id,
   });
 
-  /// view id
-  final String id;
-
-  @override
-  State<MobileFavoriteScreen> createState() => _MobileFavoriteScreenState();
-}
-
-class _MobileFavoriteScreenState extends State<MobileFavoriteScreen> {
-  late final Future<Either<ViewPB, FlowyError>> future;
-
-  @override
-  void initState() {
-    super.initState();
-
-    future = ViewBackendService.getView(widget.id);
-  }
+  static const routeName = '/favorite';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: FutureBuilder(
-          future: future,
-          builder: (context, state) {
-            if (state.connectionState != ConnectionState.done) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (!state.hasData) {
-              // FIXME: handle the error
-              return const Center(
-                child: FlowyText('No data'),
-              );
-            }
-            return state.data!.fold((view) {
-              final widget =
-                  view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
-              return Scaffold(
-                appBar: AppBar(
-                  titleSpacing: 0,
-                  title: FlowyText(
-                    view.name,
-                    fontSize: 14.0,
-                  ),
-                  leading: BackButton(
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-                body: widget,
-              );
-            }, (error) {
-              return Center(
-                child: FlowyText(error.toString()),
-              );
-            });
+    return FutureBuilder(
+      future: Future.wait([
+        FolderEventGetCurrentWorkspace().send(),
+        getIt<AuthService>().getUser(),
+      ]),
+      builder: (context, snapshots) {
+        if (!snapshots.hasData) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
+
+        final workspaceSetting = snapshots.data?[0].fold(
+          (workspaceSettingPB) {
+            return workspaceSettingPB as WorkspaceSettingPB?;
           },
+          (error) => null,
+        );
+        final userProfile =
+            snapshots.data?[1].fold((error) => null, (userProfilePB) {
+          return userProfilePB as UserProfilePB?;
+        });
+
+        // In the unlikely case either of the above is null, eg.
+        // when a workspace is already open this can happen.
+        if (workspaceSetting == null || userProfile == null) {
+          return const WorkspaceFailedScreen();
+        }
+
+        return Scaffold(
+          body: SafeArea(
+            child: MobileFavoritePage(
+              userProfile: userProfile,
+              workspaceSetting: workspaceSetting,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class MobileFavoritePage extends StatelessWidget {
+  const MobileFavoritePage({
+    super.key,
+    required this.userProfile,
+    required this.workspaceSetting,
+  });
+
+  final UserProfilePB userProfile;
+  final WorkspaceSettingPB workspaceSetting;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: MobileHomePageHeader(
+            userProfile: userProfile,
+          ),
         ),
-      ),
+        const Divider(),
+
+        // Folder
+        Expanded(
+          child: Scrollbar(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: MobileFavoritePageFolder(
+                  userProfile: userProfile,
+                  workspaceSetting: workspaceSetting,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
