@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'widgets/widgets.dart';
@@ -13,18 +15,18 @@ class SupportSettingGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MobileSettingGroup(
-      groupTitle: 'Support',
+      groupTitle: LocaleKeys.settings_mobile_support.tr(),
       settingItemList: [
         // 'Help Center'
         MobileSettingItem(
-          name: 'Join us in Discord',
+          name: LocaleKeys.settings_mobile_joinDiscord.tr(),
           trailing: const Icon(
             Icons.chevron_right,
           ),
           onTap: () => safeLaunchUrl('https://discord.gg/JucBXeU2FE'),
         ),
         MobileSettingItem(
-          name: 'Report an issue',
+          name: LocaleKeys.workspace_errorActions_reportIssue.tr(),
           trailing: const Icon(
             Icons.chevron_right,
           ),

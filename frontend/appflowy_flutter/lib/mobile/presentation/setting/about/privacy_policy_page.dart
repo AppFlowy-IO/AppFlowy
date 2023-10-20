@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
@@ -10,7 +12,7 @@ class PrivacyPolicyPage extends StatelessWidget {
     // TODO(yijing): implement page
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy Policy'),
+        title: Text(LocaleKeys.settings_mobile_privacyPolicy.tr()),
       ),
       body: const Center(
         child: Text('🪜 Under construction'),

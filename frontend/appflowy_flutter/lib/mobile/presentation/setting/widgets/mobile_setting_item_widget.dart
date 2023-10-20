@@ -27,13 +27,6 @@ class MobileSettingItem extends StatelessWidget {
         trailing: trailing,
         onTap: onTap,
         visualDensity: VisualDensity.compact,
-        // shape: RoundedRectangleBorder(
-        //   side: BorderSide(
-        //     color: theme.colorScheme.outline,
-        //     width: 0.5,
-        //   ),
-        //   borderRadius: BorderRadius.circular(6),
-        // ),
       ),
     );
   }

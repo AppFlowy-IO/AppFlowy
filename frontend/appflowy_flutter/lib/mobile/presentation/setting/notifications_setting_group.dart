@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'widgets/widgets.dart';
@@ -20,10 +22,10 @@ class _NotificationsSettingGroupState extends State<NotificationsSettingGroup> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return MobileSettingGroup(
-      groupTitle: 'Notifications',
+      groupTitle: LocaleKeys.notificationHub_title.tr(),
       settingItemList: [
         MobileSettingItem(
-          name: 'Push Notifications',
+          name: LocaleKeys.settings_mobile_pushNotifications.tr(),
           trailing: Switch.adaptive(
             activeColor: theme.colorScheme.primary,
             value: isPushNotificationOn,

@@ -57,7 +57,7 @@
     "notFoundError": "Workspace not found",
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
-      "reportIssue": "Report issue",
+      "reportIssue": "Report an issue",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -212,7 +212,8 @@
     "delete": "Delete",
     "duplicate": "Duplicate",
     "done": "Done",
-    "putback": "Put Back"
+    "putback": "Put Back",
+    "update": "Update"
   },
   "label": {
     "welcome": "Welcome!",
@@ -373,7 +374,18 @@
       "resetToDefault": "Reset to default keybindings",
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
-    }
+    },
+    "mobile": {
+      "personalInfo": "Personal Information",
+      "username": "Username",
+      "usernameEmptyError": "Username cannot be empty",
+      "about": "About",
+      "pushNotifications": "Push Notifications",
+      "support": "Support",
+      "joinDiscord": "Join us in Discord",
+      "privacyPolicy": "Privacy Policy",
+      "userAgreement": "User Agreement"
+      }
   },
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",

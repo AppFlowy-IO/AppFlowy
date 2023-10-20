@@ -29,10 +29,10 @@ class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
       },
       builder: (context, themeMode) {
         return MobileSettingGroup(
-          groupTitle: 'Apperance',
+          groupTitle: LocaleKeys.settings_menu_appearance.tr(),
           settingItemList: [
             MobileSettingItem(
-              name: 'Theme Mode',
+              name: LocaleKeys.settings_appearance_themeMode_label.tr(),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -61,7 +61,8 @@ class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Theme Mode',
+                                LocaleKeys.settings_appearance_themeMode_label
+                                    .tr(),
                                 style: theme.textTheme.labelSmall,
                               ),
                               IconButton(

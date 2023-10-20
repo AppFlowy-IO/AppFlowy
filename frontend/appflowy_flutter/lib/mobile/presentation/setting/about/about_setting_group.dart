@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,10 +14,10 @@ class AboutSettingGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MobileSettingGroup(
-      groupTitle: 'About',
+      groupTitle: LocaleKeys.settings_mobile_about.tr(),
       settingItemList: [
         MobileSettingItem(
-          name: 'Privacy Policy',
+          name: LocaleKeys.settings_mobile_privacyPolicy.tr(),
           trailing: const Icon(
             Icons.chevron_right,
           ),
@@ -24,7 +26,7 @@ class AboutSettingGroup extends StatelessWidget {
           },
         ),
         MobileSettingItem(
-          name: 'User Agreement',
+          name: LocaleKeys.settings_mobile_userAgreement.tr(),
           trailing: const Icon(
             Icons.chevron_right,
           ),

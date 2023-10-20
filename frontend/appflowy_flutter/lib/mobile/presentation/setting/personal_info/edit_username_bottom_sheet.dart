@@ -1,3 +1,5 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -50,7 +52,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Username',
+                LocaleKeys.settings_mobile_username.tr(),
                 style: theme.textTheme.labelSmall,
               ),
               IconButton(
@@ -74,7 +76,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
               keyboardType: TextInputType.text,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Username cannot be empty';
+                  return LocaleKeys.settings_mobile_usernameEmptyError.tr();
                 }
                 return null;
               },
@@ -90,7 +92,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              child: const Text('Update'),
+              child: Text(LocaleKeys.button_update.tr()),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   final value = _textFieldController.text;
