@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'mobile_setting_item_widget.dart';
 
-class MobileSettingGroupWidget extends StatelessWidget {
-  const MobileSettingGroupWidget({
+class MobileSettingGroup extends StatelessWidget {
+  const MobileSettingGroup({
     required this.groupTitle,
-    required this.settingItemWidgets,
+    required this.settingItemList,
     this.showDivider = true,
     super.key,
   });
   final String groupTitle;
-  final List<MobileSettingItemWidget> settingItemWidgets;
+  final List<MobileSettingItem> settingItemList;
   final bool showDivider;
 
   @override
@@ -29,7 +29,7 @@ class MobileSettingGroupWidget extends StatelessWidget {
         const SizedBox(
           height: 12,
         ),
-        ...settingItemWidgets,
+        ...settingItemList,
         showDivider ? const Divider() : const SizedBox.shrink(),
       ],
     );

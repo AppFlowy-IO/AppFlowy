@@ -2,28 +2,27 @@ import 'package:flutter/material.dart';
 
 import 'widgets/widgets.dart';
 
-class SettingNotificationsWidget extends StatefulWidget {
-  const SettingNotificationsWidget({
+class NotificationsSettingGroup extends StatefulWidget {
+  const NotificationsSettingGroup({
     super.key,
   });
 
   @override
-  State<SettingNotificationsWidget> createState() =>
-      _SettingNotificationsWidgetState();
+  State<NotificationsSettingGroup> createState() =>
+      _NotificationsSettingGroupState();
 }
 
-class _SettingNotificationsWidgetState
-    extends State<SettingNotificationsWidget> {
+class _NotificationsSettingGroupState extends State<NotificationsSettingGroup> {
   // TODO(yijing):remove this after notification page is implemented
   bool isPushNotificationOn = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return MobileSettingGroupWidget(
+    return MobileSettingGroup(
       groupTitle: 'Notifications',
-      settingItemWidgets: [
-        MobileSettingItemWidget(
+      settingItemList: [
+        MobileSettingItem(
           name: 'Push Notifications',
           trailing: Switch.adaptive(
             activeColor: theme.colorScheme.primary,

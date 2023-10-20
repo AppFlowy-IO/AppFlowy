@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/widgets.dart';
 import 'personal_info.dart';
 
-class SettingPersonalInfoWidget extends StatelessWidget {
-  const SettingPersonalInfoWidget({
+class PersonalInfoSettingGroup extends StatelessWidget {
+  const PersonalInfoSettingGroup({
     super.key,
     required this.userProfile,
   });
@@ -26,10 +26,10 @@ class SettingPersonalInfoWidget extends StatelessWidget {
       child: BlocSelector<SettingsUserViewBloc, SettingsUserState, String>(
         selector: (state) => state.userProfile.name,
         builder: (context, userName) {
-          return MobileSettingGroupWidget(
+          return MobileSettingGroup(
             groupTitle: 'Personal Information',
-            settingItemWidgets: [
-              MobileSettingItemWidget(
+            settingItemList: [
+              MobileSettingItem(
                 name: userName,
                 subtitle: isCloudEnabled && userProfile != null
                     ? Text(

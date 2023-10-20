@@ -1,6 +1,6 @@
 export 'personal_info/personal_info.dart';
-export 'setting_notifications_widget.dart';
-export 'setting_appearance_widget.dart';
-export 'setting_support_widget.dart';
+export 'notifications_setting_group.dart';
+export 'appearance_setting_group.dart';
+export 'support_setting_group.dart';
 export 'about/about.dart';
 export 'widgets/widgets.dart';

@@ -8,17 +8,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'setting.dart';
 
-class SettingAppearanceWidget extends StatefulWidget {
-  const SettingAppearanceWidget({
+class AppearanceSettingGroup extends StatefulWidget {
+  const AppearanceSettingGroup({
     super.key,
   });
 
   @override
-  State<SettingAppearanceWidget> createState() =>
-      _SettingAppearanceWidgetState();
+  State<AppearanceSettingGroup> createState() => _AppearanceSettingGroupState();
 }
 
-class _SettingAppearanceWidgetState extends State<SettingAppearanceWidget> {
+class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -29,10 +28,10 @@ class _SettingAppearanceWidgetState extends State<SettingAppearanceWidget> {
         return state.themeMode;
       },
       builder: (context, themeMode) {
-        return MobileSettingGroupWidget(
+        return MobileSettingGroup(
           groupTitle: 'Apperance',
-          settingItemWidgets: [
-            MobileSettingItemWidget(
+          settingItemList: [
+            MobileSettingItem(
               name: 'Theme Mode',
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

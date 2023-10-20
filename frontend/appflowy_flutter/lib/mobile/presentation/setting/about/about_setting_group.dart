@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import '../widgets/widgets.dart';
 import 'about.dart';
 
-class SettingAboutWidget extends StatelessWidget {
-  const SettingAboutWidget({
+class AboutSettingGroup extends StatelessWidget {
+  const AboutSettingGroup({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MobileSettingGroupWidget(
+    return MobileSettingGroup(
       groupTitle: 'About',
-      settingItemWidgets: [
-        MobileSettingItemWidget(
+      settingItemList: [
+        MobileSettingItem(
           name: 'Privacy Policy',
           trailing: const Icon(
             Icons.chevron_right,
@@ -23,7 +23,7 @@ class SettingAboutWidget extends StatelessWidget {
             context.push(PrivacyPolicyPage.routeName);
           },
         ),
-        MobileSettingItemWidget(
+        MobileSettingItem(
           name: 'User Agreement',
           trailing: const Icon(
             Icons.chevron_right,

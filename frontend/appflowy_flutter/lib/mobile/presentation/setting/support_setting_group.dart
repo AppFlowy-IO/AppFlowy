@@ -5,25 +5,25 @@ import 'package:flutter/material.dart';
 
 import 'widgets/widgets.dart';
 
-class SettingSupportWidget extends StatelessWidget {
-  const SettingSupportWidget({
+class SupportSettingGroup extends StatelessWidget {
+  const SupportSettingGroup({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MobileSettingGroupWidget(
+    return MobileSettingGroup(
       groupTitle: 'Support',
-      settingItemWidgets: [
+      settingItemList: [
         // 'Help Center'
-        MobileSettingItemWidget(
+        MobileSettingItem(
           name: 'Join us in Discord',
           trailing: const Icon(
             Icons.chevron_right,
           ),
           onTap: () => safeLaunchUrl('https://discord.gg/JucBXeU2FE'),
         ),
-        MobileSettingItemWidget(
+        MobileSettingItem(
           name: 'Report an issue',
           trailing: const Icon(
             Icons.chevron_right,

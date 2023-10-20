@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class MobileSettingItemWidget extends StatelessWidget {
-  const MobileSettingItemWidget({
+class MobileSettingItem extends StatelessWidget {
+  const MobileSettingItem({
     super.key,
     required this.name,
     this.subtitle,

@@ -16,12 +16,8 @@ class MobileHomeSettingPage extends StatefulWidget {
 }
 
 class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
-  // TODO(yijing):remove this after notification page is implemented
-  bool isPushNotificationOn = false;
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return FutureBuilder(
       future: getIt<AuthService>().getUser(),
       builder: ((context, snapshot) {
@@ -40,15 +36,14 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  //Personal Information
-                  SettingPersonalInfoWidget(
+                  PersonalInfoSettingGroup(
                     userProfile: userProfile,
                   ),
                   // TODO(yijing): implement this along with Notification Page
-                  const SettingNotificationsWidget(),
-                  const SettingAppearanceWidget(),
-                  const SettingSupportWidget(),
-                  const SettingAboutWidget(),
+                  const NotificationsSettingGroup(),
+                  const AppearanceSettingGroup(),
+                  const SupportSettingGroup(),
+                  const AboutSettingGroup(),
                 ],
               ),
             ),
