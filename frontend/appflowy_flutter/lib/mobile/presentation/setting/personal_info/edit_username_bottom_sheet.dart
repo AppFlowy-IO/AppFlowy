@@ -38,6 +38,14 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    void submitUserName() {
+      if (_formKey.currentState!.validate()) {
+        final value = _textFieldController.text;
+        widget.onSubmitted.call(value);
+        widget.context.pop();
+      }
+    }
+
     return Padding(
       padding: EdgeInsets.only(
         top: 16,
@@ -80,10 +88,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
                 }
                 return null;
               },
-              onEditingComplete: () {
-                // show error promts if enter text is empty
-                _formKey.currentState!.validate();
-              },
+              onEditingComplete: submitUserName,
             ),
           ),
           const SizedBox(
@@ -92,14 +97,8 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
+              onPressed: submitUserName,
               child: Text(LocaleKeys.button_update.tr()),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final value = _textFieldController.text;
-                  widget.onSubmitted.call(value);
-                  widget.context.pop();
-                }
-              },
             ),
           ),
         ],
