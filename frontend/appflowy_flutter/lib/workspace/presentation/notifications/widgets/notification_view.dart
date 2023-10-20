@@ -1,9 +1,13 @@
+import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notifications_hub_empty.dart';
+import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsView extends StatelessWidget {
@@ -47,12 +51,20 @@ class NotificationsView extends StatelessWidget {
           if (actionBar != null) actionBar!,
           ...shownReminders.map(
             (ReminderPB reminder) {
+              final blockId = reminder.meta[ReminderMetaKeys.blockId.name];
+
+              Future<Node?>? nodeBuilder;
+              if (blockId != null) {
+                nodeBuilder = _getNodeFromBlockId(reminder.objectId, blockId);
+              }
+
               return NotificationItem(
                 reminderId: reminder.id,
                 key: ValueKey(reminder.id),
                 title: reminder.title,
                 scheduled: reminder.scheduledAt,
                 body: reminder.message,
+                block: nodeBuilder,
                 isRead: reminder.isRead,
                 includeTime: reminder.includeTime ?? false,
                 readOnly: isUpcoming,
@@ -65,6 +77,18 @@ class NotificationsView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<Node?> _getNodeFromBlockId(String viewId, String blockId) async {
+    final blockOrFailure = await DocumentService().getBlockFromDocument(
+      viewId: viewId,
+      blockId: blockId,
+    );
+
+    return blockOrFailure.fold(
+      (_) => null,
+      (block) => block.toNode(meta: MetaPB()),
     );
   }
 }

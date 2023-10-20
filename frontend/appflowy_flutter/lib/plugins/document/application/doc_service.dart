@@ -1,4 +1,5 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -9,7 +10,7 @@ class DocumentService {
   Future<Either<FlowyError, Unit>> createDocument({
     required ViewPB view,
   }) async {
-    final canOpen = await openDocument(view: view);
+    final canOpen = await openDocument(viewId: view.id);
     if (canOpen.isRight()) {
       return const Right(unit);
     }
@@ -19,11 +20,32 @@ class DocumentService {
   }
 
   Future<Either<FlowyError, DocumentDataPB>> openDocument({
-    required ViewPB view,
+    required String viewId,
   }) async {
-    final payload = OpenDocumentPayloadPB()..documentId = view.id;
+    final payload = OpenDocumentPayloadPB()..documentId = viewId;
     final result = await DocumentEventOpenDocument(payload).send();
     return result.swap();
+  }
+
+  Future<Either<FlowyError, BlockPB>> getBlockFromDocument({
+    required String viewId,
+    required String blockId,
+  }) async {
+    final documentOrFailure = await openDocument(viewId: viewId);
+
+    final block = documentOrFailure.fold(
+      (error) {
+        Log.error(error.msg);
+        return null;
+      },
+      (document) => document.blocks[blockId],
+    );
+
+    if (block != null) {
+      return right(block);
+    }
+
+    return left(FlowyError(msg: 'Cannot find block with id($blockId)'));
   }
 
   Future<Either<FlowyError, Unit>> closeDocument({

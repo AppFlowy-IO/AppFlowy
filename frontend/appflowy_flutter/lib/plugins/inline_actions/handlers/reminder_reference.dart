@@ -137,9 +137,7 @@ class ReminderReferenceService {
     }
 
     final viewId = context.read<DocumentBloc>().view.id;
-    final reminder = _reminderFromDate(date, viewId);
-
-    context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+    final reminder = _reminderFromDate(date, viewId, node);
 
     final transaction = editorState.transaction
       ..replaceText(
@@ -157,6 +155,10 @@ class ReminderReferenceService {
       );
 
     await editorState.apply(transaction);
+
+    if (context.mounted) {
+      context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+    }
   }
 
   void _setOptions() {
@@ -204,7 +206,7 @@ class ReminderReferenceService {
     );
   }
 
-  ReminderPB _reminderFromDate(DateTime date, String viewId) {
+  ReminderPB _reminderFromDate(DateTime date, String viewId, Node node) {
     return ReminderPB(
       id: nanoid(),
       objectId: viewId,
@@ -212,6 +214,7 @@ class ReminderReferenceService {
       message: LocaleKeys.reminderNotification_message.tr(),
       meta: {
         ReminderMetaKeys.includeTime.name: false.toString(),
+        ReminderMetaKeys.blockId.name: node.id,
       },
       scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
       isAck: date.isBefore(DateTime.now()),
