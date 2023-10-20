@@ -103,10 +103,12 @@ class ChecklistCellState with _$ChecklistCellState {
   }) = _ChecklistCellState;
 
   factory ChecklistCellState.initial(ChecklistCellController cellController) {
-    return const ChecklistCellState(
-      allOptions: [],
-      selectedOptions: [],
-      percent: 0,
+    final cellData = cellController.getCellData(loadIfNotExist: true);
+
+    return ChecklistCellState(
+      allOptions: cellData == null ? [] : cellData.options,
+      selectedOptions: cellData == null ? [] : cellData.options,
+      percent: cellData == null ? 0.0 : cellData.percentage,
     );
   }
 }
