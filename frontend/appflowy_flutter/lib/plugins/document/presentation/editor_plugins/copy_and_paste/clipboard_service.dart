@@ -7,7 +7,7 @@ import 'package:super_clipboard/super_clipboard.dart';
 
 /// Used for in-app copy and paste without losing the format.
 ///
-/// It's a Json string representing the copied editor nodes.
+/// It's a JSON string representing the copied editor nodes.
 final inAppJsonFormat = CustomValueFormat<String>(
   applicationId: 'io.appflowy.InAppJsonType',
   onDecode: (value, platformType) async {
