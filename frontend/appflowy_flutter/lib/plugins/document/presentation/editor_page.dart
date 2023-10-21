@@ -18,12 +18,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-final List<CommandShortcutEvent> commandShortcutEvents = [
+final List<CommandShortcutEvent> customizableShortcutEvents = [
   toggleToggleListCommand,
   ...codeBlockCommands,
-  customCopyCommand,
-  customPasteCommand,
-  customCutCommand,
+  ...customCopyAndPasteCommands,
   ...standardCommandShortcutEvents
     ..removeWhere(
       (e) => e == copyCommand || e == cutCommand || e == pasteCommand,
@@ -31,7 +29,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
-  ...commandShortcutEvents.map((e) => e.copyWith()).toList(),
+  ...customizableShortcutEvents.map((e) => e.copyWith()).toList(),
 ];
 
 /// Wrapper for the appflowy editor.
@@ -72,12 +70,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   );
 
   late final List<CommandShortcutEvent> commandShortcutEvents = [
-    toggleToggleListCommand,
-    ...codeBlockCommands,
-    customCopyCommand,
-    customPasteCommand,
-    customCutCommand,
-    ...standardCommandShortcutEvents,
+    ...customizableShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
 

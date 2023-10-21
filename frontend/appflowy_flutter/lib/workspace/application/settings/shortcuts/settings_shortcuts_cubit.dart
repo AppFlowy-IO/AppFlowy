@@ -36,17 +36,17 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     try {
       final customizeShortcuts = await service.getCustomizeShortcuts();
       await service.updateCommandShortcuts(
-        commandShortcutEvents,
+        customizableShortcutEvents,
         customizeShortcuts,
       );
       //sort the shortcuts
-      commandShortcutEvents
+      customizableShortcutEvents
           .sort((a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()));
 
       emit(
         state.copyWith(
           status: ShortcutsStatus.success,
-          commandShortcutEvents: commandShortcutEvents,
+          commandShortcutEvents: customizableShortcutEvents,
           error: '',
         ),
       );

@@ -73,7 +73,7 @@ void main() {
               .having(
                 (w) => w.commandShortcutEvents,
                 'shortcuts',
-                commandShortcutEvents,
+                customizableShortcutEvents,
               ),
         ],
       );
@@ -155,7 +155,7 @@ void main() {
               .having(
                 (w) => w.commandShortcutEvents,
                 'shortcuts',
-                commandShortcutEvents,
+                customizableShortcutEvents,
               ),
         ],
       );
