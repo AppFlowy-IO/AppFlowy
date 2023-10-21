@@ -126,9 +126,11 @@ class EventPropertyList extends StatelessWidget {
             state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
         final dateFieldIndex =
             reorderedList.indexWhere((cell) => cell.fieldId == dateFieldId);
+
         if (primaryCellContext == null || dateFieldIndex == -1) {
           return const SizedBox.shrink();
         }
+
         reorderedList.insert(0, reorderedList.removeAt(dateFieldIndex));
 
         final children = <Widget>[
