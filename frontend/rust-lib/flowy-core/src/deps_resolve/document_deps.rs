@@ -38,6 +38,14 @@ impl DocumentUser for DocumentUserImpl {
       .user_id()
   }
 
+  fn workspace_id(&self) -> Result<String, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
+      .workspace_id()
+  }
+
   fn token(&self) -> Result<Option<String>, FlowyError> {
     self
       .0

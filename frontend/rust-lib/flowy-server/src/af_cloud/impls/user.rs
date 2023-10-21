@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::dto::UserUpdateParams;
+use client_api::entity::dto::auth_dto::UpdateUsernameParams;
+use client_api::entity::dto::workspace_dto::CreateWorkspaceMember;
 use client_api::entity::{
-  AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
+  AFRole, AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
 };
 use collab_entity::CollabObject;
 
@@ -91,7 +92,7 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       client
-        .update(UserUpdateParams {
+        .update_user(UpdateUsernameParams {
           name: params.name,
           email: params.email,
           password: params.password,
@@ -108,7 +109,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let profile = client.profile().await?;
+      let profile = client.get_profile().await?;
       let encryption_type = encryption_type_from_profile(&profile);
       Ok(Some(UserProfile {
         email: profile.email.unwrap_or("".to_string()),
@@ -131,7 +132,7 @@ where
   fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
-      let workspaces = try_get_client?.workspaces().await?;
+      let workspaces = try_get_client?.get_workspaces().await?;
       Ok(to_user_workspaces(workspaces)?)
     })
   }
@@ -145,7 +146,7 @@ where
 
       // from cloud
       let client = try_get_client?;
-      let profile = client.profile().await?;
+      let profile = client.get_profile().await?;
       let client_token = client.access_token()?;
 
       // compare and check
@@ -167,7 +168,13 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       try_get_client?
-        .add_workspace_members(workspace_id.parse()?, vec![user_email])
+        .add_workspace_members(
+          workspace_id,
+          vec![CreateWorkspaceMember {
+            email: user_email,
+            role: AFRole::Member,
+          }],
+        )
         .await?;
       Ok(())
     })
@@ -181,7 +188,7 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       try_get_client?
-        .remove_workspace_members(workspace_id.parse()?, vec![user_email])
+        .remove_workspace_members(workspace_id, vec![user_email])
         .await?;
       Ok(())
     })
@@ -230,7 +237,7 @@ pub async fn user_sign_in_with_url(
   params: AFCloudOAuthParams,
 ) -> Result<AuthResponse, FlowyError> {
   let is_new_user = client.sign_in_with_url(&params.sign_in_url).await?;
-  let (profile, af_workspaces) = tokio::try_join!(client.profile(), client.workspaces())?;
+  let (profile, af_workspaces) = tokio::try_join!(client.get_profile(), client.get_workspaces())?;
 
   let latest_workspace = to_user_workspace(
     af_workspaces

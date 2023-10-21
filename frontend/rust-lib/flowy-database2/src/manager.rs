@@ -76,11 +76,12 @@ impl DatabaseManager {
   pub async fn initialize(
     &self,
     uid: i64,
-    _workspace_id: String,
+    workspace_id: String,
     database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
+      workspace_id: workspace_id.clone(),
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
@@ -92,7 +93,11 @@ impl DatabaseManager {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&database_views_aggregate_id, CollabType::WorkspaceDatabase)
+        .get_collab_update(
+          &database_views_aggregate_id,
+          CollabType::WorkspaceDatabase,
+          &workspace_id,
+        )
         .await
       {
         Ok(updates) => {
@@ -370,6 +375,7 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
 }
 
 struct UserDatabaseCollabServiceImpl {
+  workspace_id: String,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -380,6 +386,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdate, DatabaseError>> {
+    let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
@@ -390,7 +397,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_update(&object_id, object_ty)
+            .get_collab_update(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -403,6 +410,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_ids: Vec<String>,
     object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdateByOid, DatabaseError>> {
+    let workspace_id = self.workspace_id.clone();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
       match weak_cloud_service.upgrade() {
@@ -412,7 +420,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_updates(object_ids, object_ty)
+            .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
