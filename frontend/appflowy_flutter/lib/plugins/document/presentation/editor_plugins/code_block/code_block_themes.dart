@@ -64,7 +64,7 @@ const lightThemeInCodeblock = {
   'link_label': TextStyle(color: Color(0xff8f3f71)),
 };
 
-const builtInCodeBlockTheme = {
+const darkThemeInCodeBlock = {
   'root': TextStyle(
     backgroundColor: Color(0xff000000),
     color: Color(0xfff8f8f8),

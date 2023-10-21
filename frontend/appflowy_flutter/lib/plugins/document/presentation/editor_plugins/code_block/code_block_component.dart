@@ -331,7 +331,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     final List<List<TextSpan>> stack = [];
 
     final codeblockTheme =
-        isLightMode ? lightThemeInCodeblock : builtInCodeBlockTheme;
+        isLightMode ? lightThemeInCodeblock : darkThemeInCodeBlock;
 
     void traverse(highlight.Node node) {
       if (node.value != null) {
