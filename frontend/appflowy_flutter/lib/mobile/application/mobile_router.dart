@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/database/mobile_database_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ extension on ViewPB {
     switch (layout) {
       case ViewLayoutPB.Document:
         return MobileEditorScreen.routeName;
+      case ViewLayoutPB.Grid:
+        return MobileGridScreen.routeName;
       default:
         throw UnimplementedError('routeName for $this is not implemented');
     }
@@ -29,6 +32,10 @@ extension on ViewPB {
       case ViewLayoutPB.Document:
         return {
           MobileEditorScreen.viewId: id,
+        };
+      case ViewLayoutPB.Grid:
+        return {
+          MobileGridScreen.viewId: id,
         };
       default:
         throw UnimplementedError(

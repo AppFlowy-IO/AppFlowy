@@ -38,7 +38,7 @@ enum MobilePaneActionType {
         return MobileSlideActionButton(
           backgroundColor: Colors.orange,
           svg: FlowySvgs.m_favorite_unselected_lg,
-          size: 36.0,
+          size: 34.0,
           onPressed: (context) =>
               context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
         );

@@ -1,7 +1,9 @@
 // ThemeData in mobile
 import 'package:flutter/material.dart';
 
-ThemeData getMobileThemeData() {
+ThemeData getMobileThemeData(
+  Theme theme,
+) {
   const mobileColorTheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF2DA2F6), //primary 100

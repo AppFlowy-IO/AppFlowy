@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/database/mobile_database_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -28,6 +29,7 @@ GoRouter generateRouter(Widget child) {
       // Mobile only
       if (PlatformExtension.isMobile) ...[
         _mobileEditorScreenRoute(),
+        _mobileGridScreenRoute(),
         _mobileHomeScreenWithNavigationBarRoute(),
       ],
 
@@ -249,6 +251,20 @@ GoRoute _mobileEditorScreenRoute() {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       return MaterialPage(
         child: MobileEditorScreen(
+          id: id,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileGridScreenRoute() {
+  return GoRoute(
+    path: MobileGridScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
+      return MaterialPage(
+        child: MobileGridScreen(
           id: id,
         ),
       );
