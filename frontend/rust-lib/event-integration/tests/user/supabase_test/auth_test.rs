@@ -273,12 +273,13 @@ async fn migrate_anon_document_on_cloud_signup() {
 
     let _ = test.supabase_party_sign_up().await;
 
+    let workspace_id = test.user_manager.workspace_id().unwrap();
     // After sign up, the documents should be migrated to the cloud
     // So, we can get the document data from the cloud
     let data: DocumentData = test
       .document_manager
       .get_cloud_service()
-      .get_document_data(&view.id)
+      .get_document_data(&view.id, &workspace_id)
       .await
       .unwrap()
       .unwrap();
@@ -372,6 +373,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       let rows = editor.get_rows(&database_view.id).await.unwrap();
       assert_eq!(rows.len(), 3);
 
+      let workspace_id = test.user_manager.workspace_id().unwrap();
       if i == 0 {
         let first_row = rows.first().unwrap().as_ref();
         let icon_url = first_row.meta.icon_url.clone().unwrap();
@@ -381,7 +383,7 @@ async fn migrate_anon_data_on_cloud_signup() {
         let document_data: DocumentData = test
           .document_manager
           .get_cloud_service()
-          .get_document_data(&document_id)
+          .get_document_data(&document_id, &workspace_id)
           .await
           .unwrap()
           .unwrap();
@@ -407,7 +409,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       }
 
       assert!(cloud_service
-        .get_collab_update(&database_id, CollabType::Database,)
+        .get_collab_update(&database_id, CollabType::Database, &workspace_id)
         .await
         .is_ok());
     }
