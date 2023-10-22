@@ -96,6 +96,7 @@ where
           name: params.name,
           email: params.email,
           password: params.password,
+          metadata: None,
         })
         .await?;
       Ok(())

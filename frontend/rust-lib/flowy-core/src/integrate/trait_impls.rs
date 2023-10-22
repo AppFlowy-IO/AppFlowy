@@ -214,7 +214,7 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids, object_ty, &&workspace_id)
+        .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
         .await
     })
   }
@@ -244,7 +244,6 @@ impl DocumentCloudService for ServerProvider {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
     let server = self.get_server(&self.get_server_type());
-    let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
