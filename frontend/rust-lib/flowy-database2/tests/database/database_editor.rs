@@ -60,7 +60,7 @@ impl DatabaseEditorTest {
     let _ = sdk.init_user().await;
 
     let params = make_test_board();
-    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    let view_test = ViewTest::new_board_view(&sdk, params.to_json_bytes().unwrap()).await;
     Self::new(sdk, view_test).await
   }
 

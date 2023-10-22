@@ -37,7 +37,8 @@ use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext, RowChangeset,
+  GroupChangesets, GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext,
+  RowChangeset,
 };
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
@@ -406,6 +407,7 @@ impl DatabaseViewEditor {
       }
     }
   }
+
   /// Only call once after database view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
   pub async fn v_load_groups(&self) -> Option<Vec<GroupPB>> {
@@ -470,13 +472,30 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn update_group_setting(&self, changeset: GroupSettingChangeset) -> FlowyResult<()> {
+  pub async fn v_update_group_configuration_setting(
+    &self,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<()> {
+    self
+      .mut_group_controller(|group_controller, _| {
+        group_controller.apply_group_configuration_setting_changeset(changeset)
+      })
+      .await;
+
+    Ok(())
+  }
+
+  pub async fn v_update_group_setting(&self, changeset: GroupChangesets) -> FlowyResult<()> {
     self
       .mut_group_controller(|group_controller, _| {
         group_controller.apply_group_setting_changeset(changeset)
       })
       .await;
     Ok(())
+  }
+
+  pub async fn v_get_group_configuration_settings(&self) -> Vec<GroupSetting> {
+    self.delegate.get_group_setting(&self.view_id)
   }
 
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {

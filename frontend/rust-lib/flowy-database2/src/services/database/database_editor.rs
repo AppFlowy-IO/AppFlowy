@@ -32,7 +32,7 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
+  default_group_setting, GroupChangesets, GroupSetting, GroupSettingChangeset, RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -179,11 +179,11 @@ impl DatabaseEditor {
   pub async fn update_group_setting(
     &self,
     view_id: &str,
-    group_setting_changeset: GroupSettingChangeset,
+    group_setting_changeset: GroupChangesets,
   ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     view_editor
-      .update_group_setting(group_setting_changeset)
+      .v_update_group_setting(group_setting_changeset)
       .await?;
     Ok(())
   }
@@ -888,6 +888,36 @@ impl DatabaseEditor {
     self
       .update_cell_with_changeset(view_id, row_id, field_id, changeset)
       .await?;
+    Ok(())
+  }
+
+  pub async fn get_group_configuration_settings(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<Vec<GroupSettingPB>> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+
+    let group_settings = view
+      .v_get_group_configuration_settings()
+      .await
+      .into_iter()
+      .flat_map(|value| match GroupSetting::try_from(value) {
+        Ok(setting) => Some(GroupSettingPB::from(&setting)),
+        Err(_) => None,
+      })
+      .collect::<Vec<GroupSettingPB>>();
+
+    Ok(group_settings)
+  }
+
+  pub async fn update_group_configuration_setting(
+    &self,
+    view_id: &str,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    view.v_update_group_configuration_setting(changeset).await?;
+
     Ok(())
   }
 

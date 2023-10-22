@@ -29,6 +29,23 @@ async fn group_init_test() {
 }
 
 #[tokio::test]
+async fn group_configuration_setting_test() {
+  let mut test = DatabaseGroupTest::new().await;
+  let scripts = vec![
+    AssertGroupConfiguration {
+      hide_ungrouped: false,
+    },
+    UpdateGroupConfiguration {
+      hide_ungrouped: Some(true),
+    },
+    AssertGroupConfiguration {
+      hide_ungrouped: true,
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn group_move_row_test() {
   let mut test = DatabaseGroupTest::new().await;
   let group = test.group_at_index(1).await;
