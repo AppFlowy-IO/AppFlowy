@@ -26,7 +26,12 @@ class CalendarEventEditorBloc
           final cells = rowController
               .loadData()
               .values
-              .where((cellContext) => cellContext.isVisible())
+              .where(
+                (cellContext) =>
+                    cellContext.isVisible() ||
+                    cellContext.fieldId == layoutSettings.fieldId ||
+                    cellContext.fieldInfo.isPrimary,
+              )
               .toList();
           if (!isClosed) {
             add(
@@ -50,7 +55,12 @@ class CalendarEventEditorBloc
       onRowChanged: (cells, reason) {
         if (!isClosed) {
           final cellData = cells.values
-              .where((cellContext) => cellContext.isVisible())
+              .where(
+                (cellContext) =>
+                    cellContext.isVisible() ||
+                    cellContext.fieldId == layoutSettings.fieldId ||
+                    cellContext.fieldInfo.isPrimary,
+              )
               .toList();
           add(
             CalendarEventEditorEvent.didReceiveCellDatas(cellData),

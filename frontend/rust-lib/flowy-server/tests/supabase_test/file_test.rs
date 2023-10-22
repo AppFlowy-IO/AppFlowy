@@ -13,7 +13,7 @@ async fn supabase_get_object_test() {
 
   let service = file_storage_service();
   let file_name = format!("test-{}.txt", Uuid::new_v4());
-  let object = StorageObject::from_file(&file_name, "tests/test.txt");
+  let object = StorageObject::from_file("1", &file_name, "tests/test.txt");
 
   // Upload a file
   let url = service
@@ -42,7 +42,7 @@ async fn supabase_upload_image_test() {
 
   let service = file_storage_service();
   let file_name = format!("image-{}.png", Uuid::new_v4());
-  let object = StorageObject::from_file(&file_name, "tests/logo.png");
+  let object = StorageObject::from_file("1", &file_name, "tests/logo.png");
 
   // Upload a file
   let url = service
@@ -65,7 +65,7 @@ async fn supabase_delete_object_test() {
 
   let service = file_storage_service();
   let file_name = format!("test-{}.txt", Uuid::new_v4());
-  let object = StorageObject::from_file(&file_name, "tests/test.txt");
+  let object = StorageObject::from_file("1", &file_name, "tests/test.txt");
   let url = service.create_object(object).await.unwrap();
 
   let result = service.get_object_by_url(url.clone()).await;

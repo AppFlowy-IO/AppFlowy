@@ -4,8 +4,8 @@ use std::sync::{Arc, Weak};
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
-use tracing::{debug, info};
-use uuid::Uuid;
+use tokio_stream::StreamExt;
+use tracing::{debug, error, info, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -112,18 +112,51 @@ impl UserManager {
     Arc::downgrade(&self.store_preferences)
   }
 
-  /// Initializes the user session, including data migrations and user awareness configuration.
+  /// Initializes the user session, including data migrations and user awareness configuration. This function
+  /// will be invoked each time the user opens the application.
   ///
-  /// This asynchronous function starts by retrieving the current session. If the session is successfully obtained,
-  /// it will attempt a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
+  /// Starts by retrieving the current session. If the session is successfully obtained, it will attempt
+  /// a local data migration for the user. After ensuring the user's data is migrated and up-to-date,
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
   pub async fn init<C: UserStatusCallback + 'static, I: CollabInteract>(
     &self,
     user_status_callback: C,
     collab_interact: I,
-  ) {
+  ) -> Result<(), FlowyError> {
     if let Ok(session) = self.get_session() {
+      let user = self.get_user_profile(session.user_id).await?;
+      if let Err(err) = self.cloud_services.set_token(&user.token) {
+        error!("Set token failed: {}", err);
+      }
+
+      // Subscribe the token state
+      let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
+      if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
+        tokio::spawn(async move {
+          while let Some(token_state) = token_state_rx.next().await {
+            match token_state {
+              UserTokenState::Refresh { token } => {
+                if token != user.token {
+                  if let Some(pool) = weak_pool.upgrade() {
+                    // Save the new token
+                    if let Err(err) = save_user_token(user.uid, pool, token) {
+                      error!("Save user token failed: {}", err);
+                    }
+                  }
+                }
+              },
+              UserTokenState::Invalid => {
+                send_auth_state_notification(AuthStateChangedPB {
+                  state: AuthStatePB::InvalidAuth,
+                })
+                .send();
+              },
+            }
+          }
+        });
+      }
+
       // Do the user data migration if needed
       match (
         self.database.get_collab_db(session.user_id),
@@ -164,6 +197,7 @@ impl UserManager {
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
     *self.collab_interact.write().await = Arc::new(collab_interact);
+    Ok(())
   }
 
   pub fn db_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
@@ -396,14 +430,8 @@ impl UserManager {
 
   pub async fn check_user(&self) -> Result<(), FlowyError> {
     let user_id = self.get_session()?.user_id;
-    let credential = UserCredentials::from_uid(user_id);
-    let auth_service = self.cloud_services.get_user_service()?;
-    auth_service.check_user(credential).await?;
-    Ok(())
-  }
-
-  pub async fn check_user_with_uuid(&self, uuid: &Uuid) -> Result<(), FlowyError> {
-    let credential = UserCredentials::from_uuid(uuid.to_string());
+    let user = self.get_user_profile(user_id).await?;
+    let credential = UserCredentials::new(Some(user.token), Some(user_id), None);
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service.check_user(credential).await?;
     Ok(())
@@ -606,7 +634,6 @@ impl UserManager {
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
-
       if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
@@ -658,7 +685,7 @@ fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &s
   let is_valid = user_profile.encryption_type.sign() == encryption_sign;
   if !is_valid {
     send_auth_state_notification(AuthStateChangedPB {
-      state: AuthStatePB::AuthStateForceSignOut,
+      state: AuthStatePB::InvalidAuth,
     })
     .send();
   }
@@ -680,4 +707,11 @@ fn save_user_profile_change(
     .payload(UserProfilePB::from(user))
     .send();
   Ok(())
+}
+
+#[instrument(level = "info", skip_all, err)]
+fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyResult<()> {
+  let params = UpdateUserProfileParams::new(uid).with_token(token);
+  let changeset = UserTableChangeset::new(params);
+  save_user_profile_change(uid, pool, changeset)
 }

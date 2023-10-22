@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 
+use flowy_error::FlowyError;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
@@ -99,7 +100,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  ) -> FutureResult<Option<UserProfile>, FlowyError> {
     FutureResult::new(async { Ok(None) })
   }
 

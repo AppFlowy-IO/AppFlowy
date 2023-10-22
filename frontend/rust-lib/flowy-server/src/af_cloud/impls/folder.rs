@@ -1,7 +1,7 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabParams;
 use collab::core::origin::CollabOrigin;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace};

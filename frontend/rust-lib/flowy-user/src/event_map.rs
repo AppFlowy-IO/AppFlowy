@@ -1,5 +1,6 @@
 use std::sync::{Arc, Weak};
 
+use collab_database::database::WatchStream;
 use collab_folder::core::FolderData;
 use strum_macros::Display;
 
@@ -64,6 +65,14 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
+    .event(
+      UserEvent::SetNotificationSettings,
+      set_notification_settings,
+    )
+    .event(
+      UserEvent::GetNotificationSettings,
+      get_notification_settings,
+    )
 }
 
 pub struct SignUpContext {
@@ -111,6 +120,11 @@ pub trait UserStatusCallback: Send + Sync + 'static {
 /// The user cloud service provider.
 /// The provider can be supabase, firebase, aws, or any other cloud service.
 pub trait UserCloudServiceProvider: Send + Sync + 'static {
+  fn set_token(&self, token: &str) -> Result<(), FlowyError>;
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
+    None
+  }
+
   fn set_enable_sync(&self, uid: i64, enable_sync: bool);
   fn set_encrypt_secret(&self, secret: String);
   fn set_auth_type(&self, auth_type: AuthType);
@@ -123,6 +137,10 @@ impl<T> UserCloudServiceProvider for Arc<T>
 where
   T: UserCloudServiceProvider,
 {
+  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
+    (**self).set_token(token)
+  }
+
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     (**self).set_enable_sync(uid, enable_sync)
   }
@@ -307,4 +325,10 @@ pub enum UserEvent {
   /// Retrieve the Date/Time formats
   #[event(output = "DateTimeSettingsPB")]
   GetDateTimeSettings = 34,
+
+  #[event(input = "NotificationSettingsPB")]
+  SetNotificationSettings = 35,
+
+  #[event(output = "NotificationSettingsPB")]
+  GetNotificationSettings = 36,
 }

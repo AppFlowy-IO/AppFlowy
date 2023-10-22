@@ -73,6 +73,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
             height: GridSize.popoverItemHeight,
             alignment: Alignment.centerLeft,
             child: FlowyText.medium(
+              color: Theme.of(context).colorScheme.outline,
               LocaleKeys.grid_field_numberFormat.tr(),
             ),
           );

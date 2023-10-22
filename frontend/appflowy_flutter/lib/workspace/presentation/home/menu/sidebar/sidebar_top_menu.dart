@@ -70,7 +70,7 @@ class SidebarTopMenu extends StatelessWidget {
         ),
       ],
     );
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       richMessage: textSpan,
       child: FlowyIconButton(
         width: 28,

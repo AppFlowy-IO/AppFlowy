@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:flutter/material.dart';

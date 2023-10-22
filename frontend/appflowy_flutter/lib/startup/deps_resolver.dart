@@ -24,7 +24,8 @@ import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dar
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
@@ -168,14 +169,22 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
 
-  getIt.registerSingleton<ReminderBloc>(ReminderBloc());
+  getIt.registerSingleton<NotificationSettingsCubit>(
+    NotificationSettingsCubit(),
+  );
+
+  getIt.registerSingleton<ReminderBloc>(
+    ReminderBloc(notificationSettings: getIt<NotificationSettingsCubit>()),
+  );
 }
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-    (user, workspaceId) =>
-        WorkspaceListener(user: user, workspaceId: workspaceId),
+    (user, workspaceId) => WorkspaceListener(
+      user: user,
+      workspaceId: workspaceId,
+    ),
   );
 
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(

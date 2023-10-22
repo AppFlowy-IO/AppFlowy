@@ -11,7 +11,7 @@ final alignToolbarItem = ToolbarItem(
   id: 'editor.align',
   group: 4,
   isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor) {
+  builder: (context, editorState, highlightColor, _) {
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
 
@@ -89,11 +89,11 @@ class _AlignmentButtonsState extends State<_AlignmentButtons> {
         borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
       popupBuilder: (_) {
-        keepEditorFocusNotifier.value += 1;
+        keepEditorFocusNotifier.increase();
         return _AlignButtons(onAlignChanged: widget.onAlignChanged);
       },
       onClose: () {
-        keepEditorFocusNotifier.value -= 1;
+        keepEditorFocusNotifier.decrease();
       },
       child: widget.child,
     );
@@ -156,7 +156,7 @@ class _AlignButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
-        child: FlowyTooltip.delayed(
+        child: FlowyTooltip(
           message: tooltips,
           child: FlowySvg(
             icon,

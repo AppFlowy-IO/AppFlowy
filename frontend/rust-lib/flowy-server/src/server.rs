@@ -1,15 +1,18 @@
 use std::sync::Arc;
 
+use anyhow::Error;
 use client_api::ws::{WSConnectStateReceiver, WebSocketChannel};
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use parking_lot::RwLock;
+use tokio_stream::wrappers::WatchStream;
 
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_document_deps::cloud::DocumentCloudService;
 use flowy_folder_deps::cloud::FolderCloudService;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
+use flowy_user_deps::entities::UserTokenState;
 use lib_infra::future::FutureResult;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
@@ -34,6 +37,13 @@ where
 /// and functionalities in AppFlowy. The methods provided ensure efficient, asynchronous operations
 /// for managing and accessing user data, folders, collaborative objects, and documents in a cloud environment.
 pub trait AppFlowyServer: Send + Sync + 'static {
+  fn set_token(&self, _token: &str) -> Result<(), Error> {
+    Ok(())
+  }
+
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
+    None
+  }
   /// Enables or disables server sync.
   ///
   /// # Arguments

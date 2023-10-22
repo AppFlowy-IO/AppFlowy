@@ -1,7 +1,7 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';

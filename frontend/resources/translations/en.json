@@ -246,6 +246,7 @@
       "language": "Language",
       "user": "User",
       "files": "Files",
+      "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
       "logoutPrompt": "Are you sure to logout?",
@@ -260,6 +261,12 @@
       "historicalUserList": "User login history",
       "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
       "openHistoricalUser": "Click to open the anonymous account"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Enable notifications",
+        "hint": "Turn off to stop local notifications from appearing."
+      }
     },
     "appearance": {
       "resetSetting": "Reset this setting",
@@ -474,6 +481,7 @@
     },
     "rowPage": {
       "newField": "Add a new field",
+      "fieldDragEelementTooltip": "Click to open menu",
       "showHiddenFields": {
         "one": "Show {} hidden field",
         "many": "Show {} hidden fields",
@@ -710,6 +718,10 @@
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "The current version does not support this block.",
+      "blockContentHasBeenCopied": "The block content has been copied."
     }
   },
   "board": {
@@ -807,6 +819,9 @@
       "shortKeyword": "remind"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings"
+  },
   "relativeDates": {
     "yesterday": "Yesterday",
     "today": "Today",
@@ -815,7 +830,24 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!"
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unread"
+    },
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Group by date",
+      "showUnreadsOnly": "Show unreads only",
+      "resetToDefault": "Reset to default"
+    }
   },
   "reminderNotification": {
     "title": "Reminder",
