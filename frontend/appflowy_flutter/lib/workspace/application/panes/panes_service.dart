@@ -169,6 +169,6 @@ class PanesService {
     if (node.children.isEmpty) {
       return node;
     }
-    return node.children[0];
+    return findFirstLeaf(node: node.children[0]);
   }
 }
