@@ -16,11 +16,17 @@ impl<T> DocumentCloudService for AFCloudDocumentCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
+  fn get_document_updates(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       let params = QueryCollabParams {
+        workspace_id,
         object_id: document_id.to_string(),
         collab_type: CollabType::Document,
       };
@@ -36,15 +42,22 @@ where
     &self,
     _document_id: &str,
     _limit: usize,
+    _workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+  fn get_document_data(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Option<DocumentData>, Error> {
     let try_get_client = self.0.try_get_client();
     let document_id = document_id.to_string();
+    let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let params = QueryCollabParams {
+        workspace_id,
         object_id: document_id.clone(),
         collab_type: CollabType::Document,
       };

@@ -33,12 +33,6 @@ export function useBlockSlash() {
     setAnchorPosition(undefined);
   }, [blockId, visible]);
 
-  useEffect(() => {
-    if (!slashText) {
-      dispatch(slashCommandActions.closeSlashCommand(docId));
-    }
-  }, [dispatch, docId, slashText]);
-
   const searchText = useMemo(() => {
     if (!slashText) return '';
     if (slashText[0] !== '/') return slashText;
@@ -66,7 +60,7 @@ export function useSubscribeSlash() {
   const slashCommandState = useSubscribeSlashState();
   const visible = slashCommandState.isSlashCommand;
   const blockId = slashCommandState.blockId;
-  const { searchText } = useSubscribePanelSearchText({ blockId: '', open: visible });
+  const { searchText } = useSubscribePanelSearchText({ blockId: blockId || '', open: visible });
 
   return {
     visible,
