@@ -23,6 +23,7 @@ void main() {
         onHover: () async {
           final moreOption = find.byType(CardMoreOption);
           await tester.tapButton(moreOption);
+          await tester.tapButton(moreOption);
         },
       );
       await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
@@ -40,6 +41,7 @@ void main() {
         card1,
         onHover: () async {
           final moreOption = find.byType(CardMoreOption);
+          await tester.tapButton(moreOption);
           await tester.tapButton(moreOption);
         },
       );
