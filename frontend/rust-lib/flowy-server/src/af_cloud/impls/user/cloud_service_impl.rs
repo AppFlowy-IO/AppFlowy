@@ -2,11 +2,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::dto::auth_dto::UpdateUsernameParams;
-use client_api::entity::dto::workspace_dto::CreateWorkspaceMember;
-use client_api::entity::{
-  AFRole, AFUserProfileView, AFWorkspace, AFWorkspaces, InsertCollabParams, OAuthProvider,
-};
+use client_api::entity::workspace_dto::CreateWorkspaceMember;
+use client_api::entity::{AFRole, AFWorkspace, InsertCollabParams, OAuthProvider};
 use collab_entity::CollabObject;
 
 use flowy_error::{ErrorCode, FlowyError};
@@ -15,6 +12,10 @@ use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::impls::user::dto::{
+  af_update_from_update_params, user_profile_from_af_profile,
+};
+use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
 use crate::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
 
@@ -92,12 +93,7 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       client
-        .update_user(UpdateUsernameParams {
-          name: params.name,
-          email: params.email,
-          password: params.password,
-          metadata: None,
-        })
+        .update_user(af_update_from_update_params(params))
         .await?;
       Ok(())
     })
@@ -111,30 +107,18 @@ where
     FutureResult::new(async move {
       let client = try_get_client?;
       let profile = client.get_profile().await?;
-      let encryption_type = encryption_type_from_profile(&profile);
-      Ok(Some(UserProfile {
-        email: profile.email.unwrap_or("".to_string()),
-        name: profile.name.unwrap_or("".to_string()),
-        token: client.get_token()?,
-        icon_url: "".to_owned(),
-        openai_key: "".to_owned(),
-        stability_ai_key: "".to_owned(),
-        workspace_id: match profile.latest_workspace_id {
-          Some(w) => w.to_string(),
-          None => "".to_string(),
-        },
-        auth_type: AuthType::AFCloud,
-        encryption_type,
-        uid: profile.uid.ok_or(anyhow!("no uid found"))?,
-      }))
+      let token = client.get_token()?;
+      let profile = user_profile_from_af_profile(token, profile)?;
+
+      Ok(Some(profile))
     })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
-      Ok(to_user_workspaces(workspaces)?)
+      Ok(to_user_workspaces(workspaces.0)?)
     })
   }
 
@@ -151,7 +135,7 @@ where
       let client_token = client.access_token()?;
 
       // compare and check
-      if uid != profile.uid.ok_or(anyhow!("expecting uid"))? {
+      if uid != profile.uid {
         return Err(anyhow!("uid mismatch"));
       }
       if token != client_token {
@@ -238,59 +222,41 @@ pub async fn user_sign_in_with_url(
   params: AFCloudOAuthParams,
 ) -> Result<AuthResponse, FlowyError> {
   let is_new_user = client.sign_in_with_url(&params.sign_in_url).await?;
-  let (profile, af_workspaces) = tokio::try_join!(client.get_profile(), client.get_workspaces())?;
 
-  let latest_workspace = to_user_workspace(
-    af_workspaces
-      .get_latest(&profile)
-      .or(af_workspaces.first().cloned())
-      .ok_or(anyhow!("no workspace found"))?,
-  )?;
+  let workspace_profile = client.get_user_workspace_info().await?;
+  let user_profile = workspace_profile.user_profile;
 
-  let user_workspaces = to_user_workspaces(af_workspaces)?;
-  let encryption_type = encryption_type_from_profile(&profile);
+  let latest_workspace = to_user_workspace(workspace_profile.visiting_workspace);
+  let user_workspaces = to_user_workspaces(workspace_profile.workspaces)?;
+  let encryption_type = encryption_type_from_profile(&user_profile);
 
   Ok(AuthResponse {
-    user_id: profile.uid.ok_or(anyhow!("no uid found"))?,
-    name: profile.name.ok_or(anyhow!("no name found"))?,
+    user_id: user_profile.uid,
+    name: user_profile.name.unwrap_or_default(),
     latest_workspace,
     user_workspaces,
-    email: profile.email,
+    email: user_profile.email,
     token: Some(client.get_token()?),
     device_id: params.device_id,
     encryption_type,
     is_new_user,
+    metadata: user_profile.metadata,
   })
 }
 
-fn encryption_type_from_profile(profile: &AFUserProfileView) -> EncryptionType {
-  match &profile.encryption_sign {
-    Some(e) => EncryptionType::SelfEncryption(e.to_string()),
-    None => EncryptionType::NoEncryption,
+fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
+  UserWorkspace {
+    id: af_workspace.workspace_id.to_string(),
+    name: af_workspace.workspace_name,
+    created_at: af_workspace.created_at,
+    database_views_aggregate_id: af_workspace.database_storage_id.to_string(),
   }
 }
 
-fn to_user_workspace(af_workspace: AFWorkspace) -> Result<UserWorkspace, FlowyError> {
-  Ok(UserWorkspace {
-    id: af_workspace.workspace_id.to_string(),
-    name: af_workspace
-      .workspace_name
-      .ok_or(anyhow!("no workspace_name found"))?,
-    created_at: af_workspace
-      .created_at
-      .ok_or(anyhow!("no created_at found"))?,
-    database_views_aggregate_id: af_workspace
-      .database_storage_id
-      .ok_or(anyhow!("no database_views_aggregate_id found"))?
-      .to_string(),
-  })
-}
-
-fn to_user_workspaces(af_workspaces: AFWorkspaces) -> Result<Vec<UserWorkspace>, FlowyError> {
-  let mut result = Vec::with_capacity(af_workspaces.len());
-  for item in af_workspaces.0.into_iter() {
-    let user_workspace = to_user_workspace(item)?;
-    result.push(user_workspace);
+fn to_user_workspaces(workspaces: Vec<AFWorkspace>) -> Result<Vec<UserWorkspace>, FlowyError> {
+  let mut result = Vec::with_capacity(workspaces.len());
+  for item in workspaces.into_iter() {
+    result.push(to_user_workspace(item));
   }
   Ok(result)
 }

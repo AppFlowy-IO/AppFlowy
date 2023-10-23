@@ -2,8 +2,13 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_repr::*;
 use uuid::Uuid;
+
+pub const USER_METADATA_OPEN_AI_KEY: &str = "openai_key";
+pub const USER_METADATA_STABILITY_AI_KEY: &str = "stability_ai_key";
+pub const USER_METADATA_ICON_URL: &str = "icon_url";
 
 pub trait UserAuthResponse {
   fn user_id(&self) -> i64;
@@ -14,6 +19,8 @@ pub trait UserAuthResponse {
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
   fn encryption_type(&self) -> EncryptionType;
+
+  fn metadata(&self) -> &Option<serde_json::Value>;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -26,6 +33,7 @@ pub struct SignInResponse {
   pub token: Option<String>,
   pub device_id: String,
   pub encryption_type: EncryptionType,
+  pub metadata: Option<serde_json::Value>,
 }
 
 impl UserAuthResponse for SignInResponse {
@@ -60,6 +68,10 @@ impl UserAuthResponse for SignInResponse {
   fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
   }
+
+  fn metadata(&self) -> &Option<Value> {
+    &self.metadata
+  }
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -91,6 +103,7 @@ pub struct AuthResponse {
   pub token: Option<String>,
   pub device_id: String,
   pub encryption_type: EncryptionType,
+  pub metadata: Option<serde_json::Value>,
 }
 
 impl UserAuthResponse for AuthResponse {
@@ -124,6 +137,10 @@ impl UserAuthResponse for AuthResponse {
 
   fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
+  }
+
+  fn metadata(&self) -> &Option<Value> {
+    &self.metadata
   }
 }
 
@@ -243,17 +260,36 @@ where
 {
   fn from(params: (&T, &AuthType)) -> Self {
     let (value, auth_type) = params;
+    let (icon_url, openai_key, stability_ai_key) = {
+      value
+        .metadata()
+        .as_ref()
+        .map(|m| {
+          (
+            m.get(USER_METADATA_ICON_URL)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_OPEN_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_STABILITY_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+          )
+        })
+        .unwrap_or_default()
+    };
     Self {
       uid: value.user_id(),
       email: value.user_email().unwrap_or_default(),
       name: value.user_name().to_owned(),
       token: value.user_token().unwrap_or_default(),
-      icon_url: "".to_owned(),
-      openai_key: "".to_owned(),
+      icon_url,
+      openai_key,
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
-      stability_ai_key: "".to_owned(),
+      stability_ai_key,
     }
   }
 }

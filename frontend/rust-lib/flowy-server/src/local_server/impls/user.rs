@@ -46,6 +46,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        metadata: None,
       })
     })
   }
@@ -69,6 +70,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        metadata: None,
       })
     })
   }
@@ -104,7 +106,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(None) })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }
 

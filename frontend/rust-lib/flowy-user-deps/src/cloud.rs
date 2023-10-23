@@ -95,7 +95,7 @@ pub trait UserCloudService: Send + Sync + 'static {
   ) -> FutureResult<Option<UserProfile>, FlowyError>;
 
   /// Return the all the workspaces of the user  
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
+  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
 
   fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error>;
 

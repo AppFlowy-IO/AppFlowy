@@ -129,6 +129,7 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&user_profile.encryption_sign),
+        metadata: None,
       })
     })
   }
@@ -158,6 +159,7 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&response.encryption_sign),
+        metadata: None,
       })
     })
   }
@@ -225,7 +227,7 @@ where
     })
   }
 
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
