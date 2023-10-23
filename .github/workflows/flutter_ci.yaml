@@ -259,7 +259,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-make@0.36.0
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
 
       - name: Install prerequisites
         working-directory: frontend
@@ -290,6 +290,12 @@ jobs:
 
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
+
+      - name: Run code generation
+        if: matrix.os == 'windows-latest'
+        working-directory: frontend
+        run: |
+          cargo make code_generation
 
       - name: Run Flutter integration tests
         working-directory: frontend/appflowy_flutter
@@ -362,7 +368,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-make@0.36.0
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
 
       - name: Install prerequisites
         working-directory: frontend
@@ -393,6 +399,12 @@ jobs:
 
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
+
+      - name: Run code generation
+        if: matrix.os == 'windows-latest'
+        working-directory: frontend
+        run: |
+          cargo make code_generation
 
       - name: Build flutter product
         working-directory: frontend
