@@ -1,9 +1,10 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -56,10 +57,11 @@ class HomeSideBar extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-            listener: (context, state) => context
-                .read<TabsBloc>()
-                .add(TabsEvent.openPlugin(plugin: state.plugin)),
+            listenWhen: (p, c) =>
+                p.lastCreatedView?.id != c.lastCreatedView?.id,
+            listener: (context, state) => context.read<TabsBloc>().add(
+                  TabsEvent.openPlugin(plugin: state.lastCreatedView!.plugin()),
+                ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
             listener: (context, state) {

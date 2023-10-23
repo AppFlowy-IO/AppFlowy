@@ -116,6 +116,7 @@ dependencies:
   # to gather notification handling for all platforms
   local_notifier: ^0.1.5
   app_links: ^3.4.1
+  flutter_slidable: ^3.0.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1

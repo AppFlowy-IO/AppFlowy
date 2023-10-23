@@ -62,24 +62,16 @@ export const formatMention = createAsyncThunk(
     const caret = rangeState.caret;
 
     if (!caret) return;
-    const index = caret.index - searchTextLength;
+    const charLength = searchTextLength + 1;
+    const index = caret.index - charLength;
 
-    const deltaOperator = new BlockDeltaOperator(documentState);
+    const deltaOperator = new BlockDeltaOperator(documentState, controller);
 
     const nodeDelta = deltaOperator.getDeltaWithBlockId(blockId);
 
     if (!nodeDelta) return;
-    const diffDelta = new Delta()
-      .retain(index)
-      .delete(searchTextLength)
-      .insert(`@`, {
-        mention: {
-          type,
-          [type]: value,
-        },
-      });
+    const diffDelta = new Delta().retain(index).delete(charLength).insert('@',{ mention: { type, [type]: value } });
     const applyTextDeltaAction = deltaOperator.getApplyDeltaAction(blockId, diffDelta);
-
     if (!applyTextDeltaAction) return;
     await controller.applyActions([applyTextDeltaAction]);
     dispatch(

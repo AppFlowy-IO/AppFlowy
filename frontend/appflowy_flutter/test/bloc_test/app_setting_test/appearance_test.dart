@@ -35,7 +35,6 @@ void main() {
         AppTheme.fallback,
       ),
       verify: (bloc) {
-        // expect(bloc.state.appTheme.info.name, "light");
         expect(bloc.state.font, 'Poppins');
         expect(bloc.state.monospaceFont, 'SF Mono');
         expect(bloc.state.themeMode, ThemeMode.system);

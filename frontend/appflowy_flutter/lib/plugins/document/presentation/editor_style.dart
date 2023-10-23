@@ -75,40 +75,9 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
-    final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-
-    return EditorStyle.desktop(
+    return EditorStyle.mobile(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
-      textStyleConfiguration: TextStyleConfiguration(
-        text: baseTextStyle(fontFamily).copyWith(
-          fontSize: fontSize,
-          color: theme.colorScheme.onBackground,
-          height: 1.5,
-        ),
-        bold: baseTextStyle(fontFamily).copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
-        underline: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.underline),
-        strikethrough: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.lineThrough),
-        href: baseTextStyle(fontFamily).copyWith(
-          color: theme.colorScheme.primary,
-          decoration: TextDecoration.underline,
-        ),
-        code: GoogleFonts.arefRuqaaInk(
-          textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
-            fontWeight: FontWeight.normal,
-            color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
-          ),
-        ),
-      ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 

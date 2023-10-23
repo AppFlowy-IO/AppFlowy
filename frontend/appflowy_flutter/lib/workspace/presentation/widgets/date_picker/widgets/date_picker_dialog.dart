@@ -77,21 +77,25 @@ class DatePickerMenu extends DatePickerService {
   }) {
     dismiss();
 
-    // Use MediaQuery, since Stack takes up all window space
-    // and not just the space of the current Editor
-    final windowSize = MediaQuery.of(context).size;
+    final editorSize = editorState.renderBox!.size;
 
     double offsetX = offset.dx;
     double offsetY = offset.dy;
 
-    final showRight = (offset.dx + _datePickerWidth) < windowSize.width;
+    final showRight = (offset.dx + _datePickerWidth) < editorSize.width;
     if (!showRight) {
       offsetX = offset.dx - _datePickerWidth;
     }
 
-    final showBelow = (offset.dy + _datePickerHeight) < windowSize.height;
+    final showBelow = (offset.dy + _datePickerHeight) < editorSize.height;
     if (!showBelow) {
-      offsetY = offset.dy - _datePickerHeight;
+      if ((offset.dy - _datePickerHeight) < 0) {
+        // Show dialog in the middle
+        offsetY = offset.dy - (_datePickerHeight / 3);
+      } else {
+        // Show above
+        offsetY = offset.dy - _datePickerHeight;
+      }
     }
 
     _menuEntry = OverlayEntry(
@@ -99,8 +103,8 @@ class DatePickerMenu extends DatePickerService {
         return Material(
           type: MaterialType.transparency,
           child: SizedBox(
-            height: windowSize.height,
-            width: windowSize.width,
+            height: editorSize.height,
+            width: editorSize.width,
             child: RawKeyboardListener(
               focusNode: FocusNode()..requestFocus(),
               onKey: (event) {

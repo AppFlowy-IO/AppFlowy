@@ -1,4 +1,8 @@
 // ThemeData in mobile
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:flowy_infra/colorscheme/colorscheme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 const _primaryColor = Color(0xFF2DA2F6); //primary 100
@@ -7,7 +11,12 @@ const _onSurfaceColor = Color(0xff676666); // text/body color
 const _onSecondaryColor = Color(0xFFC5C7CB); // text/body2 color
 
 // TODO(yijing): improve theme color before release
-ThemeData getMobileThemeData(Brightness brightness) {
+ThemeData getMobileThemeData(
+  Brightness brightness,
+  FlowyColorScheme theme,
+  String fontFamily,
+  String monospaceFontFamily,
+) {
   final mobileColorTheme = (brightness == Brightness.light)
       ? ColorScheme(
           brightness: brightness,
@@ -187,5 +196,46 @@ ThemeData getMobileThemeData(Brightness brightness) {
       ),
     ),
     colorScheme: mobileColorTheme,
+    extensions: [
+      AFThemeExtension(
+        warning: theme.yellow,
+        success: theme.green,
+        tint1: theme.tint1,
+        tint2: theme.tint2,
+        tint3: theme.tint3,
+        tint4: theme.tint4,
+        tint5: theme.tint5,
+        tint6: theme.tint6,
+        tint7: theme.tint7,
+        tint8: theme.tint8,
+        tint9: theme.tint9,
+        textColor: theme.text,
+        greyHover: theme.hoverBG1,
+        greySelect: theme.bg3,
+        lightGreyHover: theme.hoverBG3,
+        toggleOffFill: theme.shader5,
+        progressBarBGColor: theme.progressBarBGColor,
+        toggleButtonBGColor: theme.toggleButtonBGColor,
+        calendarWeekendBGColor: theme.calendarWeekendBGColor,
+        gridRowCountColor: theme.gridRowCountColor,
+        code: getFontStyle(
+          fontFamily: monospaceFontFamily,
+          fontColor: theme.shader3,
+        ),
+        callout: getFontStyle(
+          fontFamily: fontFamily,
+          fontSize: FontSizes.s11,
+          fontColor: theme.shader3,
+        ),
+        calloutBGColor: theme.hoverBG3,
+        tableCellBGColor: theme.surface,
+        caption: getFontStyle(
+          fontFamily: fontFamily,
+          fontSize: FontSizes.s11,
+          fontWeight: FontWeight.w400,
+          fontColor: theme.hint,
+        ),
+      ),
+    ],
   );
 }

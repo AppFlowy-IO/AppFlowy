@@ -21,8 +21,10 @@ class FlowyTextField extends StatefulWidget {
   final Duration? debounceDuration;
   final String? errorText;
   final int maxLines;
+  final bool showCounter;
 
   const FlowyTextField({
+    super.key,
     this.hintText = "",
     this.text,
     this.textStyle,
@@ -39,8 +41,8 @@ class FlowyTextField extends StatefulWidget {
     this.debounceDuration,
     this.errorText,
     this.maxLines = 1,
-    Key? key,
-  }) : super(key: key);
+    this.showCounter = true,
+  });
 
   @override
   State<FlowyTextField> createState() => FlowyTextFieldState();
@@ -133,7 +135,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             .textTheme
             .bodySmall!
             .copyWith(color: Theme.of(context).hintColor),
-        suffixText: _suffixText(),
+        suffixText: widget.showCounter ? _suffixText() : "",
         counterText: "",
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
