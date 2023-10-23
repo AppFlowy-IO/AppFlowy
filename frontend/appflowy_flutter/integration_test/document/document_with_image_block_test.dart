@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/uplo
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,8 +42,13 @@ void main() {
       await tester.editor.tapSlashMenuItemWithName('Image');
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
-
-      await tester.tapButton(find.byType(ImagePlaceholder));
+      expect(
+        find.descendant(
+          of: find.byType(ImagePlaceholder),
+          matching: find.byType(AppFlowyPopover),
+        ),
+        findsOneWidget,
+      );
       expect(find.byType(UploadImageMenu), findsOneWidget);
 
       final image = await rootBundle.load('assets/test/images/sample.jpeg');
@@ -84,8 +90,13 @@ void main() {
       await tester.editor.tapSlashMenuItemWithName('Image');
       expect(find.byType(CustomImageBlockComponent), findsOneWidget);
       expect(find.byType(ImagePlaceholder), findsOneWidget);
-
-      await tester.tapButton(find.byType(ImagePlaceholder));
+      expect(
+        find.descendant(
+          of: find.byType(ImagePlaceholder),
+          matching: find.byType(AppFlowyPopover),
+        ),
+        findsOneWidget,
+      );
       expect(find.byType(UploadImageMenu), findsOneWidget);
 
       await tester.tapButtonWithName(
@@ -133,8 +144,13 @@ void main() {
         await tester.editor.tapSlashMenuItemWithName('Image');
         expect(find.byType(CustomImageBlockComponent), findsOneWidget);
         expect(find.byType(ImagePlaceholder), findsOneWidget);
-
-        await tester.tapButton(find.byType(ImagePlaceholder));
+        expect(
+          find.descendant(
+            of: find.byType(ImagePlaceholder),
+            matching: find.byType(AppFlowyPopover),
+          ),
+          findsOneWidget,
+        );
         expect(find.byType(UploadImageMenu), findsOneWidget);
 
         await tester.tapButtonWithName(

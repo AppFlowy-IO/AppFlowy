@@ -25,6 +25,7 @@ env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.10.1"
   RUST_TOOLCHAIN: "1.70"
+  CARGO_MAKE_VERSION: "0.36.6"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -50,6 +51,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      # the following step is required to avoid running out of space
+      - name: Maximize build space
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Checkout source code
         uses: actions/checkout@v2
 
@@ -79,7 +89,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-make@0.36.0,duckscript_cli
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
       - name: Install prerequisites
         working-directory: frontend
@@ -106,6 +116,11 @@ jobs:
         working-directory: frontend
         run: |
           cargo make code_generation
+
+      - name: Flutter Analyzer
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter analyze .
 
       - name: Compress appflowy_flutter
         run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
@@ -164,7 +179,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-make@0.36.0,duckscript_cli
+          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}, duckscript_cli
 
       - name: Install prerequisites
         working-directory: frontend
@@ -180,11 +195,6 @@ jobs:
 
       - name: Uncompress appflowy_flutter
         run: tar -xf appflowy_flutter.tar.gz
-
-      - name: Flutter Analyzer
-        working-directory: frontend/appflowy_flutter
-        run: |
-          flutter analyze .
 
       - name: Run Flutter unit tests
         working-directory: frontend

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -18,6 +18,7 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
+    this.includeTime = false,
     this.readOnly = false,
     this.onAction,
     this.onDelete,
@@ -28,8 +29,9 @@ class NotificationItem extends StatefulWidget {
   final String title;
   final Int64 scheduled;
   final String body;
-  final bool isRead;
+  final bool includeTime;
   final bool readOnly;
+  final bool isRead;
 
   final VoidCallback? onAction;
   final VoidCallback? onDelete;
@@ -57,59 +59,59 @@ class _NotificationItemState extends State<NotificationItem> {
             onTap: widget.onAction,
             child: Opacity(
               opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
-              child: Container(
-                padding: const EdgeInsets.all(10),
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
                   color: _isHovering && widget.onAction != null
                       ? AFThemeExtension.of(context).lightGreyHover
                       : Colors.transparent,
+                  border: widget.isRead || widget.readOnly
+                      ? null
+                      : Border(
+                          left: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: [
-                        const FlowySvg(FlowySvgs.time_s, size: Size.square(20)),
-                        if (!widget.isRead && !widget.readOnly)
-                          Positioned(
-                            bottom: 1,
-                            right: 1,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AFThemeExtension.of(context).warning,
-                              ),
-                              child: const SizedBox(height: 8, width: 8),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const HSpace(10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              FlowyText.semibold(
-                                widget.title,
-                                fontSize: 14,
-                              ),
-                              const HSpace(8),
-                              FlowyText.regular(
-                                _scheduledString(widget.scheduled),
-                                fontSize: 10,
-                              ),
-                            ],
-                          ),
-                          const VSpace(5),
-                          FlowyText.regular(widget.body, maxLines: 4),
-                        ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FlowySvg(
+                        FlowySvgs.time_s,
+                        size: const Size.square(20),
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
-                    ),
-                  ],
+                      const HSpace(16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FlowyText.semibold(
+                              widget.title,
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                            // TODO(Xazin): Relative time + View Name
+                            FlowyText.regular(
+                              _scheduledString(
+                                widget.scheduled,
+                                widget.includeTime,
+                              ),
+                              fontSize: 10,
+                            ),
+                            const VSpace(5),
+                            FlowyText.regular(widget.body, maxLines: 4),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -129,14 +131,14 @@ class _NotificationItemState extends State<NotificationItem> {
     );
   }
 
-  String _scheduledString(Int64 secondsSinceEpoch) => context
-      .read<AppearanceSettingsCubit>()
-      .state
-      .dateFormat
-      .formatDate(
-        DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
-        true,
-      );
+  String _scheduledString(Int64 secondsSinceEpoch, bool includeTime) {
+    final appearance = context.read<AppearanceSettingsCubit>().state;
+    return appearance.dateFormat.formatDate(
+      DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch.toInt() * 1000),
+      includeTime,
+      appearance.timeFormat,
+    );
+  }
 
   void _onHover(bool isHovering) => setState(() => _isHovering = isHovering);
 }

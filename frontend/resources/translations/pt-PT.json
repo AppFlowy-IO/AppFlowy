@@ -32,6 +32,7 @@
   "signIn": {
     "loginTitle": "Entre no @:appName",
     "loginButtonText": "Login",
+    "loginStartWithAnonymous": "Começar com uma sessão anónima",
     "continueAnonymousUser": "Continuar com uma sessão anónima",
     "buttonText": "Entre",
     "forgotPassword": "Esqueceste-te da tua palavra-passe?",
@@ -41,15 +42,25 @@
     "repeatPasswordEmptyError": "Confirmar a palavra-passe não pode estar em branco.",
     "unmatchedPasswordError": "As palavras-passes não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
+    "or": "OU",
+    "LogInWithGoogle": "Iniciar sessão com o Google",
+    "LogInWithGithub": "Iniciar sessão com o Github",
+    "LogInWithDiscord": "Iniciar sessão com o Discord",
     "signInWith": "Entrar com:",
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
+    "chooseWorkspace": "Escolha o seu espaço de trabalho",
     "create": "Cria um ambiente de trabalho",
     "reset": "Reiniciar o ambiente de trabalho",
     "resetWorkspacePrompt": "Reinciar do espaço de trabalho excluirá todas as páginas e dados contidos. Tem certeza de que deseja reiniciar o espaço de trabalho? Alternativamente, podes entrar em contato com a equipe de suporte para restaurar o espaço de trabalho",
     "hint": "ambiente de trabalho",
-    "notFoundError": "Ambiente de trabalho não encontrada"
+    "notFoundError": "Ambiente de trabalho não encontrada",
+    "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do AppFlowy e tente novamente.",
+    "errorActions": {
+      "reportIssue": "Relatar problema",
+      "reachOut": "Entre em contacto no Discord"
+    }
   },
   "shareAction": {
     "buttonText": "Partilhar",
@@ -231,6 +242,7 @@
       "language": "Idioma",
       "user": "Do utilizador",
       "files": "arquivos",
+      "notifications": "Notificações",
       "open": "Abrir as Definições",
       "logout": "Sair",
       "logoutPrompt": "Tem certeza de que deseja sair?",
@@ -246,6 +258,11 @@
       "historicalUserListTooltip": "Esta lista mostrs suas contas anónimas. Pode clicar numa conta para ver os detalhes. Contas anónimas são criadas clicando no botão ‘Começar’",
       "openHistoricalUser": "Clique para abrir a conta anónima",
       "supabaseSetting": "Configuração de Supabase"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Ativar notificações"
+      }
     },
     "appearance": {
       "resetSetting": "Reiniciar esta configuração",

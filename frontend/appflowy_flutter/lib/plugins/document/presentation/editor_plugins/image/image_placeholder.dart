@@ -28,10 +28,10 @@ class ImagePlaceholder extends StatefulWidget {
   final Node node;
 
   @override
-  State<ImagePlaceholder> createState() => _ImagePlaceholderState();
+  State<ImagePlaceholder> createState() => ImagePlaceholderState();
 }
 
-class _ImagePlaceholderState extends State<ImagePlaceholder> {
+class ImagePlaceholderState extends State<ImagePlaceholder> {
   final controller = PopoverController();
   late final editorState = context.read<EditorState>();
 

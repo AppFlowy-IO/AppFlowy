@@ -82,11 +82,13 @@ class MentionDateBlock extends StatelessWidget {
                 _updateBlock(parsedDate!.withoutTime, includeTime);
 
                 // We can remove time from the date/reminder
-                //  block when toggled off.
-                if (!includeTime && isReminder) {
+                // block when toggled off.
+                if (isReminder) {
                   _updateScheduledAt(
                     reminderId: reminderId!,
-                    selectedDay: parsedDate!.withoutTime,
+                    selectedDay:
+                        includeTime ? parsedDate! : parsedDate!.withoutTime,
+                    includeTime: includeTime,
                   );
                 }
               },
@@ -99,6 +101,7 @@ class MentionDateBlock extends StatelessWidget {
                   _updateScheduledAt(
                     reminderId: reminderId!,
                     selectedDay: selectedDay,
+                    includeTime: includeTime,
                   );
                 }
               },
@@ -171,10 +174,15 @@ class MentionDateBlock extends StatelessWidget {
   void _updateScheduledAt({
     required String reminderId,
     required DateTime selectedDay,
+    bool? includeTime,
   }) {
     editorContext.read<ReminderBloc>().add(
           ReminderEvent.update(
-            ReminderUpdate(id: reminderId, scheduledAt: selectedDay),
+            ReminderUpdate(
+              id: reminderId,
+              scheduledAt: selectedDay,
+              includeTime: includeTime,
+            ),
           ),
         );
   }

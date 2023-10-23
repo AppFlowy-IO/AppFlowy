@@ -88,8 +88,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   bool validate(Node node) =>
       node.delta != null &&
       node.children.isEmpty &&
-      node.attributes[CalloutBlockKeys.icon] is String &&
-      node.attributes[CalloutBlockKeys.backgroundColor] is String;
+      node.attributes[CalloutBlockKeys.icon] is String;
 }
 
 // the main widget for rendering the callout block
@@ -117,7 +116,8 @@ class _CalloutBlockComponentWidgetState
         DefaultSelectableMixin,
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
-        BlockComponentAlignMixin {
+        BlockComponentAlignMixin,
+        BlockComponentBackgroundColorMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -137,11 +137,13 @@ class _CalloutBlockComponentWidgetState
   @override
   Node get node => widget.node;
 
-  // get the background color of the note block from the node's attributes
+  @override
   Color get backgroundColor {
-    final colorString =
-        node.attributes[CalloutBlockKeys.backgroundColor] as String;
-    return colorString.tryToColor() ?? Colors.transparent;
+    final color = super.backgroundColor;
+    if (color == Colors.transparent) {
+      return AFThemeExtension.of(context).calloutBGColor;
+    }
+    return color;
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
