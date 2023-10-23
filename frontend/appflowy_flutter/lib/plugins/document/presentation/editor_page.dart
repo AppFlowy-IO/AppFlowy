@@ -251,7 +251,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       PageBlockKeys.type: PageBlockComponentBuilder(),
       ParagraphBlockKeys.type: ParagraphBlockComponentBuilder(
         configuration: configuration.copyWith(
-          placeholderText: (_) => 'start typing',
+          placeholderText: (_) => 'Start Typing',
           placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         ),
       ),
