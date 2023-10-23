@@ -187,7 +187,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
     };
 
     return AppFlowyPopover(
-      triggerActions: PopoverTriggerFlags.hover,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       direction: PopoverDirection.leftWithTopAligned,
       mutex: popoverMutex,
       margin: EdgeInsets.zero,
