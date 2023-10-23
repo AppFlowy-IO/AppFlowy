@@ -36,27 +36,29 @@ class _TabsManagerState extends State<TabsManager>
       initialIndex: widget.tabs.currentIndex,
       length: widget.tabs.pages,
     );
-    widget.tabs.addListener(() {
-      if (_controller.length != widget.tabs.pages) {
-        _controller.dispose();
-        _controller = TabController(
-          vsync: this,
-          initialIndex: widget.tabs.currentIndex,
-          length: widget.tabs.pages,
-        );
-      }
+    widget.tabs.addListener(navigateToPage);
+  }
 
-      if (widget.tabs.currentIndex != widget.pageController.page) {
-        // Unfocus editor to hide selection toolbar
-        FocusScope.of(context).unfocus();
+  void navigateToPage() {
+    if (_controller.length != widget.tabs.pages) {
+      _controller.dispose();
+      _controller = TabController(
+        vsync: this,
+        initialIndex: widget.tabs.currentIndex,
+        length: widget.tabs.pages,
+      );
+    }
 
-        widget.pageController.animateToPage(
-          widget.tabs.currentIndex,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
+    if (widget.tabs.currentIndex != widget.pageController.page) {
+      // Unfocus editor to hide selection toolbar
+      FocusScope.of(context).unfocus();
+
+      widget.pageController.animateToPage(
+        widget.tabs.currentIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -108,6 +110,7 @@ class _TabsManagerState extends State<TabsManager>
   @override
   void dispose() {
     _controller.dispose();
+    widget.tabs.removeListener(navigateToPage);
     super.dispose();
   }
 }
