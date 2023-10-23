@@ -26,8 +26,13 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    if [ "${BUILD_FLAG}" == "debug" ]; then
+      echo "🚀 🚀 🚀  Building for debug"
+      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    else
+      echo "🚀 🚀 🚀  Building for release"
+      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --release
+    fi
     cd ../
   """,
 ]

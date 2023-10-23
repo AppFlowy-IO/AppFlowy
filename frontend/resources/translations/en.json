@@ -142,6 +142,7 @@
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
   },
+  "noPagesInside": "No pages inside",
   "toolbar": {
     "undo": "Undo",
     "redo": "Redo",
@@ -212,7 +213,11 @@
     "delete": "Delete",
     "duplicate": "Duplicate",
     "done": "Done",
-    "putback": "Put Back"
+    "putback": "Put Back",
+    "share": "Share",
+    "removeFromFavorites": "Remove from favorites",
+    "addToFavorites": "Add to favorites",
+    "rename": "Rename"
   },
   "label": {
     "welcome": "Welcome!",
@@ -860,5 +865,9 @@
     "replaceAll": "Replace all",
     "noResult": "No results",
     "caseSensitive": "Case sensitive"
+  },
+  "error": {
+    "weAreSorry": "We're sorry",
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
   }
 }

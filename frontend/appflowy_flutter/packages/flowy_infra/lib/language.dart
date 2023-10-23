@@ -64,7 +64,6 @@ String languageFromLocale(Locale locale) {
     case "hin":
       return "हिन्दी";
 
-
     // If not found then the language code will be displayed
     default:
       return locale.languageCode;

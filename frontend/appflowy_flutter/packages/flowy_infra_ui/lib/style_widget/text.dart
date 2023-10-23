@@ -89,6 +89,10 @@ class FlowyText extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
+        textHeightBehavior: const TextHeightBehavior(
+          applyHeightToFirstAscent: false,
+          applyHeightToLastDescent: false,
+        ),
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,
