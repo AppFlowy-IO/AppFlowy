@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
@@ -23,18 +25,21 @@ import 'row/row_cache.dart';
 import 'group/group_listener.dart';
 import 'row/row_service.dart';
 
+typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
 typedef OnUpdateGroup = void Function(List<GroupPB>);
 typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
   final OnGroupByField? onGroupByField;
   final OnUpdateGroup? onUpdateGroup;
   final OnDeleteGroup? onDeleteGroup;
   final OnInsertGroup? onInsertGroup;
 
   GroupCallbacks({
+    this.onGroupConfigurationChanged,
     this.onGroupByField,
     this.onUpdateGroup,
     this.onDeleteGroup,
@@ -325,6 +330,14 @@ class DatabaseController {
 
   void _listenOnGroupChanged() {
     _groupListener.start(
+      onGroupConfigurationChanged: (result) {
+        result.fold(
+          (configurations) {
+            print("asdfasdf $configurations");
+          },
+          (r) => Log.error(r),
+        );
+      },
       onNumOfGroupsChanged: (result) {
         result.fold(
           (changeset) {

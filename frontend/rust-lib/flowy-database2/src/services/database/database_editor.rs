@@ -917,6 +917,11 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
     view.v_update_group_configuration_setting(changeset).await?;
+    let payload: RepeatedGroupSettingPB =
+      self.get_group_configuration_settings(view_id).await?.into();
+    send_notification(view_id, DatabaseNotification::DidUpdateGroupConfiguration)
+      .payload(payload)
+      .send();
 
     Ok(())
   }
