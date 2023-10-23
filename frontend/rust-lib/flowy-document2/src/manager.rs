@@ -22,6 +22,9 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+
+  fn workspace_id(&self) -> Result<String, FlowyError>;
+
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
@@ -101,7 +104,10 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      updates = self.cloud_service.get_document_updates(doc_id).await?;
+      updates = self
+        .cloud_service
+        .get_document_updates(&self.user.workspace_id()?, doc_id)
+        .await?;
     }
 
     let uid = self.user.user_id()?;
@@ -120,7 +126,10 @@ impl DocumentManager {
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      updates = self.cloud_service.get_document_updates(doc_id).await?;
+      updates = self
+        .cloud_service
+        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .await?;
     }
     let uid = self.user.user_id()?;
     let collab = self.collab_for_document(uid, doc_id, updates).await?;
@@ -152,9 +161,10 @@ impl DocumentManager {
     document_id: &str,
     limit: usize,
   ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
+    let workspace_id = self.user.workspace_id()?;
     let snapshots = self
       .cloud_service
-      .get_document_snapshots(document_id, limit)
+      .get_document_snapshots(document_id, limit, &workspace_id)
       .await?
       .into_iter()
       .map(|snapshot| DocumentSnapshotPB {

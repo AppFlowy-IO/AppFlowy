@@ -71,9 +71,10 @@ impl FlowySupabaseDatabaseTest {
   }
 
   pub async fn get_database_collab_update(&self, database_id: &str) -> Vec<u8> {
+    let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.database_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_collab_update(database_id, CollabType::Database)
+      .get_collab_update(database_id, CollabType::Database, &workspace_id)
       .await
       .unwrap();
 
