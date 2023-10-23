@@ -8,6 +8,7 @@ import { updatePageName } from '$app_reducers/pages/async_actions';
 import { getDeltaText } from '$app/utils/document/delta';
 import { BlockDeltaOperator } from '$app/utils/document/block_delta';
 import { openMention, closeMention } from '$app_reducers/document/async-actions/mention';
+import {slashCommandActions} from "$app_reducers/document/slice";
 
 const updateNodeDeltaAfterThunk = createAsyncThunk(
   'document/updateNodeDeltaAfter',
@@ -16,7 +17,7 @@ const updateNodeDeltaAfterThunk = createAsyncThunk(
     thunkAPI
   ) => {
     const { dispatch } = thunkAPI;
-    const { docId, ops, oldDelta, newDelta } = payload;
+    const { docId, ops, oldDelta, newDelta, id } = payload;
     const insertOps = ops.filter((op) => op.insert !== undefined);
 
     const deleteOps = ops.filter((op) => op.delete !== undefined);
@@ -24,13 +25,32 @@ const updateNodeDeltaAfterThunk = createAsyncThunk(
     const newText = getDeltaText(newDelta);
     const deleteText = oldText.slice(newText.length);
 
-    if (insertOps.length === 1 && insertOps[0].insert === '@') {
-      dispatch(openMention({ docId }));
+    if (insertOps.length === 1) {
+      const char = insertOps[0].insert;
+      if (char === '@' && (oldText.endsWith(' ') || oldText === '')) {
+        dispatch(openMention({ docId }));
+      }
+      if (char === '/') {
+        dispatch(
+          slashCommandActions.openSlashCommand({
+            blockId: id,
+            docId,
+          })
+        );
+      }
     }
 
-    if (deleteOps.length === 1 && deleteText === '@') {
-      dispatch(closeMention({ docId }));
+    if (deleteOps.length === 1) {
+      if (deleteText === '@') {
+        dispatch(closeMention({ docId }));
+      }
+      if (deleteText === '/') {
+        dispatch(
+          slashCommandActions.closeSlashCommand(docId)
+        );
+      }
     }
+
   }
 );
 
@@ -44,13 +64,6 @@ export const updateNodeDeltaThunk = createAsyncThunk(
     const docState = state[DOCUMENT_NAME][docId];
     const node = docState.nodes[id];
 
-    const deltaOperator = new BlockDeltaOperator(docState, controller);
-    const oldDelta = deltaOperator.getDeltaWithBlockId(id);
-
-    if (!oldDelta) return;
-    const diff = oldDelta?.diff(newDelta);
-
-    if (ops.length === 0 || diff?.ops.length === 0) return;
     // If the node is the root node, update the page name
     if (!node.parent) {
       await dispatch(
@@ -62,7 +75,13 @@ export const updateNodeDeltaThunk = createAsyncThunk(
       return;
     }
 
-    if (!node.externalId) return;
+    const deltaOperator = new BlockDeltaOperator(docState, controller);
+    const oldDelta = deltaOperator.getDeltaWithBlockId(id);
+
+    if (!oldDelta) return;
+    const diff = oldDelta?.diff(newDelta);
+
+    if (ops.length === 0 || diff?.ops.length === 0 || !node.externalId) return;
 
     await controller.applyTextDelta(node.externalId, JSON.stringify(ops));
     await dispatch(updateNodeDeltaAfterThunk({ docId, id, ops, newDelta, oldDelta, controller }));
