@@ -1302,7 +1302,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await doubleTapAt(location);
   }
 
-  Future<void> openCalendarEvent({required index, DateTime? date}) async {
+  Future<void> openCalendarEvent({required int index, DateTime? date}) async {
     final findDayCell = find.byWidgetPredicate(
       (widget) =>
           widget is CalendarDayCard &&
