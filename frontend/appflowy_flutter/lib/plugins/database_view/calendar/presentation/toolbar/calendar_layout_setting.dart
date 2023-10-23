@@ -228,6 +228,7 @@ class LayoutDateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       constraints: BoxConstraints.loose(const Size(300, 400)),
       mutex: popoverMutex,
       offset: const Offset(-16, 0),
@@ -346,6 +347,7 @@ class FirstDayOfWeek extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(300, 400)),
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       mutex: popoverMutex,
       offset: const Offset(-16, 0),
       popupBuilder: (context) {

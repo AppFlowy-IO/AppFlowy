@@ -25,6 +25,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         object_id: workspace_id.clone(),
+        workspace_id: workspace_id.clone(),
         collab_type: CollabType::Folder,
       };
       let updates = vec![try_get_client?
@@ -50,7 +51,8 @@ where
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let params = QueryCollabParams {
-        object_id: workspace_id,
+        object_id: workspace_id.clone(),
+        workspace_id,
         collab_type: CollabType::Folder,
       };
       let update = try_get_client?

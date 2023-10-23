@@ -16,12 +16,14 @@ pub trait DatabaseCloudService: Send + Sync {
     &self,
     object_id: &str,
     collab_type: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error>;
 
   fn batch_get_collab_updates(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error>;
 
   fn get_collab_snapshots(

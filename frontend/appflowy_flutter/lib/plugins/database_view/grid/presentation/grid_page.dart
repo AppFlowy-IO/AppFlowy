@@ -389,6 +389,7 @@ class _WrapScrollView extends StatelessWidget {
       barSize: GridSize.scrollBarSize,
       autoHideScrollbar: false,
       child: StyledSingleChildScrollView(
+        autoHideScrollbar: false,
         controller: scrollController.horizontalController,
         axis: Axis.horizontal,
         child: SizedBox(
