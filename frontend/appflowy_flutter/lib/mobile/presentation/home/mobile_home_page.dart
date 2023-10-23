@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_folders.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_recent_files.dart';
@@ -8,6 +9,9 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'home.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -87,6 +91,7 @@ class MobileHomePage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Recent files
                     const MobileHomePageRecentFilesWidget(),
@@ -101,14 +106,28 @@ class MobileHomePage extends StatelessWidget {
                         workspaceSetting: workspaceSetting,
                       ),
                     ),
+                    // trash
+                    const SizedBox(height: 8),
+                    // TODO(yijing): improve style UI later
+                    TextButton.icon(
+                      onPressed: () {
+                        context.push(MobileHomeTrashPage.routeName);
+                      },
+                      icon: FlowySvg(
+                        FlowySvgs.m_delete_m,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      label: Text(
+                        'Trash',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ),
-
-        // TODO: Trash
       ],
     );
   }

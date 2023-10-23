@@ -157,6 +157,13 @@ ThemeData getMobileThemeData(
         height: 1.20,
         letterSpacing: 0.07,
       ),
+      // Trash empty title
+      labelLarge: TextStyle(
+        color: mobileColorTheme.onBackground,
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.3,
+      ),
       // setting item title
       labelMedium: TextStyle(
         color: mobileColorTheme.onSurface,

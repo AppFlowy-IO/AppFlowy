@@ -44,6 +44,9 @@ GoRouter generateRouter(Widget child) {
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
         _mobileHomeScreenWithNavigationBarRoute(),
+
+        // trash
+        _mobileHomeTrashPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -183,6 +186,16 @@ GoRoute _mobileSettingUserAgreementPageRoute() {
     path: UserAgreementPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialPage(child: UserAgreementPage());
+    },
+  );
+}
+
+GoRoute _mobileHomeTrashPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeTrashPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeTrashPage());
     },
   );
 }

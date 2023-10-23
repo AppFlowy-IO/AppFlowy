@@ -1,11 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/mobile_bottom_sheet_title.dart';
 import 'package:appflowy/util/theme_mode_extension.dart';
 
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'setting.dart';
 
 class AppearanceSettingGroup extends StatefulWidget {
@@ -57,24 +57,8 @@ class _AppearanceSettingGroupState extends State<AppearanceSettingGroup> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                LocaleKeys.settings_appearance_themeMode_label
-                                    .tr(),
-                                style: theme.textTheme.labelSmall,
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.close,
-                                  color: theme.hintColor,
-                                ),
-                                onPressed: () {
-                                  context.pop();
-                                },
-                              )
-                            ],
+                          MobileBottomSheetTitle(
+                            LocaleKeys.settings_appearance_themeMode_label.tr(),
                           ),
                           const SizedBox(
                             height: 16,
