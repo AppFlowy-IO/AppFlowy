@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
     (LocaleKeys.moreAction_medium.tr(), 18.0, true),
     (LocaleKeys.moreAction_large.tr(), 22.0, false),
   ];
+  Set<(String, double, bool)> _selection = <(String, double, bool)>{};
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,11 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
     final foregroundColor = Theme.of(context).colorScheme.onBackground;
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
+        _selection = _fontSizes
+            .map((e) => e.$2 == state.fontSize ? e : null)
+            .toSet()
+            .whereNotNull()
+            .toSet();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -39,34 +46,36 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             const SizedBox(
               height: 5,
             ),
-            ToggleButtons(
-              isSelected:
-                  _fontSizes.map((e) => e.$2 == state.fontSize).toList(),
-              onPressed: (int index) {
-                _updateSelectedFontSize(_fontSizes[index].$2);
-              },
-              color: foregroundColor,
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-              borderColor: foregroundColor,
-              borderWidth: 0.5,
-              // when selected
-              selectedColor: foregroundColor,
-              selectedBorderColor: foregroundColor,
-              fillColor: selectedBgColor,
-              // when hover
-              hoverColor: selectedBgColor.withOpacity(0.3),
-              constraints: const BoxConstraints(
-                minHeight: 40.0,
-                minWidth: 80.0,
+            SegmentedButton<(String, double, bool)>(
+              showSelectedIcon: false,
+              style: TextButton.styleFrom(
+                foregroundColor: foregroundColor,
+                shadowColor: selectedBgColor.withOpacity(0.3),
+                padding: const EdgeInsets.all(16),
+                side: BorderSide(
+                  width: 0.5,
+                  color: foregroundColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
               ),
-              children: _fontSizes
+              segments: _fontSizes
                   .map(
-                    (e) => Text(
-                      e.$1,
-                      style: TextStyle(fontSize: e.$2),
+                    (e) => ButtonSegment(
+                      value: e,
+                      label: Text(
+                        e.$1,
+                        style: TextStyle(fontSize: e.$2),
+                      ),
                     ),
                   )
                   .toList(),
+              selected: _selection,
+              onSelectionChanged: (Set<(String, double, bool)> newSelection) {
+                _selection = newSelection;
+                _updateSelectedFontSize(newSelection.first.$2);
+              },
             ),
           ],
         );
