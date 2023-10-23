@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
@@ -7,12 +9,12 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:collection/collection.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:reorderables/reorderables.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
@@ -44,29 +46,43 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
         builder: (context, state) {
-          final cells = state.fieldContexts.map((field) {
-            return GridPropertyCell(
+          final cells = state.fieldContexts.mapIndexed((index, field) {
+            return DatabasePropertyCell(
               key: ValueKey(field.id),
               viewId: widget.viewId,
               fieldInfo: field,
               popoverMutex: _popoverMutex,
+              index: index,
             );
           }).toList();
 
-          return ReorderableColumn(
-            needsLongPressDraggable: false,
-            buildDraggableFeedback: (context, constraints, child) =>
-                ConstrainedBox(
-              constraints: constraints,
-              child: Material(color: Colors.transparent, child: child),
-            ),
-            onReorder: (from, to) => context.read<DatabasePropertyBloc>().add(
-                  DatabasePropertyEvent.moveField(
-                    fieldId: cells[from].fieldInfo.id,
-                    fromIndex: from,
-                    toIndex: to,
+          return ReorderableListView(
+            proxyDecorator: (child, index, _) => Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  child,
+                  MouseRegion(
+                    cursor: Platform.isWindows
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.grabbing,
+                    child: const SizedBox.expand(),
                   ),
-                ),
+                ],
+              ),
+            ),
+            buildDefaultDragHandles: false,
+            shrinkWrap: true,
+            onReorder: (from, to) {
+              context.read<DatabasePropertyBloc>().add(
+                    DatabasePropertyEvent.moveField(
+                      fieldId: cells[from].fieldInfo.id,
+                      fromIndex: from,
+                      toIndex: to,
+                    ),
+                  );
+            },
+            onReorderStart: (_) => _popoverMutex.close(),
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             children: cells,
           );
@@ -77,23 +93,25 @@ class _DatabasePropertyListState extends State<DatabasePropertyList> {
 }
 
 @visibleForTesting
-class GridPropertyCell extends StatefulWidget {
+class DatabasePropertyCell extends StatefulWidget {
   final FieldInfo fieldInfo;
   final String viewId;
   final PopoverMutex popoverMutex;
+  final int index;
 
-  const GridPropertyCell({
+  const DatabasePropertyCell({
     super.key,
     required this.fieldInfo,
     required this.viewId,
     required this.popoverMutex,
+    required this.index,
   });
 
   @override
-  State<GridPropertyCell> createState() => _GridPropertyCellState();
+  State<DatabasePropertyCell> createState() => _DatabasePropertyCellState();
 }
 
-class _GridPropertyCellState extends State<GridPropertyCell> {
+class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
   final PopoverController _popoverController = PopoverController();
 
   @override
@@ -109,7 +127,7 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
     return AppFlowyPopover(
       mutex: widget.popoverMutex,
       controller: _popoverController,
-      offset: const Offset(8, 0),
+      offset: const Offset(-8, 0),
       direction: PopoverDirection.leftWithTopAligned,
       constraints: BoxConstraints.loose(const Size(240, 400)),
       triggerActions: PopoverTriggerFlags.none,
@@ -122,9 +140,31 @@ class _GridPropertyCellState extends State<GridPropertyCell> {
             widget.fieldInfo.name,
             color: AFThemeExtension.of(context).textColor,
           ),
-          leftIcon: FlowySvg(
-            widget.fieldInfo.fieldType.icon(),
-            color: Theme.of(context).iconTheme.color,
+          leftIconSize: const Size(36, 18),
+          leftIcon: Row(
+            children: [
+              ReorderableDragStartListener(
+                index: widget.index,
+                child: MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grab,
+                  child: SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: FlowySvg(
+                      FlowySvgs.drag_element_s,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                  ),
+                ),
+              ),
+              const HSpace(6.0),
+              FlowySvg(
+                widget.fieldInfo.fieldType.icon(),
+                color: Theme.of(context).iconTheme.color,
+              ),
+            ],
           ),
           rightIcon: FlowyIconButton(
             hoverColor: Colors.transparent,
