@@ -241,6 +241,7 @@ impl std::default::Default for DateTimeSettingsPB {
 #[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
 pub struct NotificationSettingsPB {
   #[pb(index = 1)]
+  #[serde(default)]
   pub notifications_enabled: bool,
 }
 
