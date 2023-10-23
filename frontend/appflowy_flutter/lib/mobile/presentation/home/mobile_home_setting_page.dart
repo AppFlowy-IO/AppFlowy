@@ -1,7 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class MobileHomeSettingPage extends StatefulWidget {
@@ -29,7 +31,7 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
         });
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Settings'),
+            title: Text(LocaleKeys.settings_title.tr()),
           ),
           body: SingleChildScrollView(
             child: Padding(
