@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/turn_box.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -14,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
+typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
 
 const _itemHeight = 48.0;
 
@@ -60,8 +60,8 @@ class MobileViewItem extends StatelessWidget {
   final bool isFeedback;
 
   // the actions of the view item, such as favorite, rename, delete, etc.
-  final ActionPane? startActionPane;
-  final ActionPane? endActionPane;
+  final ActionPaneBuilder? startActionPane;
+  final ActionPaneBuilder? endActionPane;
 
   @override
   Widget build(BuildContext context) {
@@ -135,12 +135,13 @@ class InnerMobileViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
 
-  final ActionPane? startActionPane;
-  final ActionPane? endActionPane;
+  final ActionPaneBuilder? startActionPane;
+  final ActionPaneBuilder? endActionPane;
 
   @override
   Widget build(BuildContext context) {
     Widget child = SingleMobileInnerViewItem(
+      key: ValueKey('${categoryType.name} ${view.id} $isExpanded'),
       view: view,
       parentView: parentView,
       level: level,
@@ -280,8 +281,8 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final FolderCategoryType categoryType;
-  final ActionPane? startActionPane;
-  final ActionPane? endActionPane;
+  final ActionPaneBuilder? startActionPane;
+  final ActionPaneBuilder? endActionPane;
 
   @override
   State<SingleMobileInnerViewItem> createState() =>
@@ -339,8 +340,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       child = Slidable(
         // Specify a key if the Slidable is dismissible.
         key: ValueKey(widget.view.id),
-        startActionPane: widget.startActionPane,
-        endActionPane: widget.endActionPane,
+        startActionPane: widget.startActionPane?.call(context),
+        endActionPane: widget.endActionPane?.call(context),
         child: child,
       );
     }
@@ -357,7 +358,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     }
 
     return GestureDetector(
-      child: TurnBox(
+      child: AnimatedRotation(
+        duration: const Duration(milliseconds: 200),
         turns: widget.isExpanded ? 0 : -0.25,
         child: const Icon(
           Icons.keyboard_arrow_down_rounded,

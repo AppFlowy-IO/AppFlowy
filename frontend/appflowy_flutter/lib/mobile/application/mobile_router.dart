@@ -1,4 +1,6 @@
-import 'package:appflowy/mobile/presentation/database/mobile_database_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,10 @@ extension on ViewPB {
         return MobileEditorScreen.routeName;
       case ViewLayoutPB.Grid:
         return MobileGridScreen.routeName;
+      case ViewLayoutPB.Calendar:
+        return MobileCalendarScreen.routeName;
+      case ViewLayoutPB.Board:
+        return MobileBoardScreen.routeName;
       default:
         throw UnimplementedError('routeName for $this is not implemented');
     }
@@ -32,10 +38,22 @@ extension on ViewPB {
       case ViewLayoutPB.Document:
         return {
           MobileEditorScreen.viewId: id,
+          MobileEditorScreen.viewTitle: name,
         };
       case ViewLayoutPB.Grid:
         return {
           MobileGridScreen.viewId: id,
+          MobileGridScreen.viewTitle: name,
+        };
+      case ViewLayoutPB.Calendar:
+        return {
+          MobileCalendarScreen.viewId: id,
+          MobileCalendarScreen.viewTitle: name,
+        };
+      case ViewLayoutPB.Board:
+        return {
+          MobileBoardScreen.viewId: id,
+          MobileBoardScreen.viewTitle: name,
         };
       default:
         throw UnimplementedError(

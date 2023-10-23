@@ -865,5 +865,9 @@
     "replaceAll": "Replace all",
     "noResult": "No results",
     "caseSensitive": "Case sensitive"
+  },
+  "error": {
+    "weAreSorry": "We're sorry",
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
   }
 }

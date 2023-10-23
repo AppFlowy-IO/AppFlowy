@@ -2,12 +2,12 @@ import 'package:appflowy/mobile/presentation/base/mobile_view_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 
-class MobileEditorScreen extends StatelessWidget {
-  static const routeName = '/docs';
+class MobileGridScreen extends StatelessWidget {
+  static const routeName = '/grid';
   static const viewId = 'id';
   static const viewTitle = 'title';
 
-  const MobileEditorScreen({
+  const MobileGridScreen({
     super.key,
     required this.id,
     this.title,

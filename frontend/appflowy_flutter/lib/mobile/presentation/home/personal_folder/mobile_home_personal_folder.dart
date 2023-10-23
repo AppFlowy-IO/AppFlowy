@@ -56,7 +56,7 @@ class MobilePersonalFolder extends StatelessWidget {
                     onSelected: (view) async {
                       await context.pushView(view);
                     },
-                    endActionPane: buildEndActionPane(context, view, [
+                    endActionPane: (context) => buildEndActionPane(context, [
                       MobilePaneActionType.delete,
                       MobilePaneActionType.addToFavorites,
                       MobilePaneActionType.more,

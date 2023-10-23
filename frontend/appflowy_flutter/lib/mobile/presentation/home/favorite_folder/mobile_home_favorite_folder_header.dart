@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/home/turn_box.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,8 @@ class _MobileFavoriteFolderHeaderState
             margin: const EdgeInsets.symmetric(vertical: 8),
             expandText: false,
             mainAxisAlignment: MainAxisAlignment.start,
-            rightIcon: TurnBox(
+            rightIcon: AnimatedRotation(
+              duration: const Duration(milliseconds: 200),
               turns: _turns,
               child: const Icon(
                 Icons.keyboard_arrow_down_rounded,

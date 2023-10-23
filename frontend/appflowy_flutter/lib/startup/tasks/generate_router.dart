@@ -1,4 +1,6 @@
-import 'package:appflowy/mobile/presentation/database/mobile_database_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -30,6 +32,8 @@ GoRouter generateRouter(Widget child) {
       if (PlatformExtension.isMobile) ...[
         _mobileEditorScreenRoute(),
         _mobileGridScreenRoute(),
+        _mobileBoardScreenRoute(),
+        _mobileCalendarScreenRoute(),
         _mobileHomeScreenWithNavigationBarRoute(),
       ],
 
@@ -249,9 +253,11 @@ GoRoute _mobileEditorScreenRoute() {
     path: MobileEditorScreen.routeName,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
       return MaterialPage(
         child: MobileEditorScreen(
           id: id,
+          title: title,
         ),
       );
     },
@@ -263,9 +269,43 @@ GoRoute _mobileGridScreenRoute() {
     path: MobileGridScreen.routeName,
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
       return MaterialPage(
         child: MobileGridScreen(
           id: id,
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileBoardScreenRoute() {
+  return GoRoute(
+    path: MobileBoardScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
+      return MaterialPage(
+        child: MobileBoardScreen(
+          id: id,
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCalendarScreenRoute() {
+  return GoRoute(
+    path: MobileCalendarScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
+      return MaterialPage(
+        child: MobileCalendarScreen(
+          id: id,
+          title: title,
         ),
       );
     },

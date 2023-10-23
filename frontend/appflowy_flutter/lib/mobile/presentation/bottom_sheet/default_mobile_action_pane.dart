@@ -3,7 +3,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet.da
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -16,7 +15,6 @@ enum MobilePaneActionType {
 
   MobileSlideActionButton actionButton(
     BuildContext context,
-    ViewPB view,
   ) {
     switch (this) {
       case MobilePaneActionType.delete:
@@ -31,16 +29,18 @@ enum MobilePaneActionType {
         return MobileSlideActionButton(
           backgroundColor: Colors.red,
           svg: FlowySvgs.favorite_s,
-          onPressed: (context) =>
-              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
+          onPressed: (context) => context
+              .read<FavoriteBloc>()
+              .add(FavoriteEvent.toggle(context.read<ViewBloc>().view)),
         );
       case MobilePaneActionType.addToFavorites:
         return MobileSlideActionButton(
           backgroundColor: Colors.orange,
           svg: FlowySvgs.m_favorite_unselected_lg,
           size: 34.0,
-          onPressed: (context) =>
-              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
+          onPressed: (context) => context
+              .read<FavoriteBloc>()
+              .add(FavoriteEvent.toggle(context.read<ViewBloc>().view)),
         );
       case MobilePaneActionType.more:
         return MobileSlideActionButton(
@@ -69,7 +69,7 @@ enum MobilePaneActionType {
                   child: BlocBuilder<ViewBloc, ViewState>(
                     builder: (context, state) {
                       return MobileViewItemBottomSheet(
-                        view: view,
+                        view: viewBloc.view,
                       );
                     },
                   ),
@@ -84,7 +84,6 @@ enum MobilePaneActionType {
 
 ActionPane buildEndActionPane(
   BuildContext context,
-  ViewPB view,
   List<MobilePaneActionType> actions,
 ) {
   return ActionPane(
@@ -92,7 +91,7 @@ ActionPane buildEndActionPane(
     extentRatio: actions.length / 5,
     children: actions
         .map(
-          (action) => action.actionButton(context, view),
+          (action) => action.actionButton(context),
         )
         .toList(),
   );
