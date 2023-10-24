@@ -36,7 +36,9 @@ class MobileHomeTrashPage extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const MobileBottomSheetTitle('Trash Actions'),
+                            MobileBottomSheetTitle(
+                              LocaleKeys.trash_mobile_actions.tr(),
+                            ),
                             const SizedBox(
                               height: 16,
                             ),
@@ -45,7 +47,7 @@ class MobileHomeTrashPage extends StatelessWidget {
                                 Expanded(
                                   child: BottomSheetActionWidget(
                                     svg: FlowySvgs.m_restore_m,
-                                    text: 'Restore all',
+                                    text: LocaleKeys.trash_restoreAll.tr(),
                                     onTap: () {
                                       context
                                         ..read<TrashBloc>()
@@ -57,7 +59,7 @@ class MobileHomeTrashPage extends StatelessWidget {
                                 Expanded(
                                   child: BottomSheetActionWidget(
                                     svg: FlowySvgs.m_delete_m,
-                                    text: 'Delete all',
+                                    text: LocaleKeys.trash_deleteAll.tr(),
                                     onTap: () {
                                       context
                                         ..read<TrashBloc>()
@@ -178,12 +180,12 @@ class _TrashEmptyPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Trash Bin is Empty',
+            LocaleKeys.trash_mobile_empty.tr(),
             style: theme.textTheme.labelLarge,
           ),
           const SizedBox(height: 4),
           Text(
-            'You don\'t have any deleted file',
+            LocaleKeys.trash_mobile_emptyDescription.tr(),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.hintColor,
             ),

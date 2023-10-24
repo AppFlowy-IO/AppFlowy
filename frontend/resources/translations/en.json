@@ -116,6 +116,11 @@
     "confirmRestoreAll": {
       "title": "Are you sure to restore all pages in Trash?",
       "caption": "This action cannot be undone."
+    },
+    "mobile": {
+      "actions": "Trash Actions",
+      "empty": "Trash Bin is Empty",
+      "emptyDescription": "You don't have any deleted file"
     }
   },
   "deletePagePrompt": {
@@ -390,7 +395,7 @@
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement"
-      }
+    }
   },
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
