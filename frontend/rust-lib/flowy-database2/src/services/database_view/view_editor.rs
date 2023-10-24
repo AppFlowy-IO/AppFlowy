@@ -475,14 +475,14 @@ impl DatabaseViewEditor {
   pub async fn v_update_group_configuration_setting(
     &self,
     changeset: GroupSettingChangeset,
-  ) -> FlowyResult<()> {
-    self
+  ) -> FlowyResult<Option<GroupSetting>> {
+    let result = self
       .mut_group_controller(|group_controller, _| {
         group_controller.apply_group_configuration_setting_changeset(changeset)
       })
       .await;
 
-    Ok(())
+    Ok(result.flatten())
   }
 
   pub async fn v_update_group_setting(&self, changeset: GroupChangesets) -> FlowyResult<()> {

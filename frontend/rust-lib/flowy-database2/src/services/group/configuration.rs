@@ -378,7 +378,7 @@ where
   pub(crate) fn update_configuration(
     &mut self,
     changeset: GroupSettingChangeset,
-  ) -> FlowyResult<()> {
+  ) -> FlowyResult<Option<GroupSetting>> {
     self.mut_configuration(|configuration| match changeset.hide_ungrouped {
       Some(value) if value != configuration.hide_ungrouped => {
         configuration.hide_ungrouped = value;
@@ -386,7 +386,7 @@ where
       },
       _ => false,
     })?;
-    Ok(())
+    Ok(Some(GroupSetting::clone(&self.setting)))
   }
 
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
