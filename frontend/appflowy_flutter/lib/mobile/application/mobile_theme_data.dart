@@ -87,6 +87,12 @@ ThemeData getMobileThemeData(
       style: ButtonStyle(
         fixedSize: MaterialStateProperty.all(const Size.fromHeight(48)),
         elevation: MaterialStateProperty.all(0),
+        textStyle: MaterialStateProperty.all(
+          const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         shadowColor: MaterialStateProperty.all(null),
         backgroundColor: MaterialStateProperty.resolveWith<Color>(
           (Set<MaterialState> states) {
@@ -122,6 +128,15 @@ ThemeData getMobileThemeData(
         // splash color
         overlayColor: MaterialStateProperty.all(
           Colors.grey[100],
+        ),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        textStyle: MaterialStateProperty.all(
+          const TextStyle(
+            fontFamily: 'Poppins',
+          ),
         ),
       ),
     ),
