@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 
+import '../setting/setting_service.dart';
 import 'field_info.dart';
 import 'field_listener.dart';
 
@@ -363,6 +364,12 @@ class FieldController {
         );
       },
     );
+    SettingBackendService(viewId: viewId).getSetting().then(
+          (result) => result.fold(
+            (setting) => _updateSetting(setting),
+            (err) => Log.error(err),
+          ),
+        );
   }
 
   /// Listen for field changes in the backend.

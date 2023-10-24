@@ -40,8 +40,10 @@ class DatabaseGroupList extends StatelessWidget {
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
         builder: (context, state) {
           final showHideUngroupedToggle = state.fieldInfos.any(
-            (element) =>
-                element.isGroupField && element.fieldType != FieldType.Checkbox,
+            (field) =>
+                field.canBeGroup &&
+                field.isGroupField &&
+                field.fieldType != FieldType.Checkbox,
           );
           final children = [
             if (showHideUngroupedToggle)
