@@ -1,14 +1,16 @@
-use crate::user::local_test::helper::*;
-use event_integration::{event_builder::EventBuilder, FlowyCoreTest};
+use nanoid::nanoid;
+
+use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_user::entities::{UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
-use nanoid::nanoid;
+
+use crate::user::local_test::helper::*;
 
 // use serial_test::*;
 
 #[tokio::test]
 async fn user_profile_get_failed() {
-  let sdk = FlowyCoreTest::new();
+  let sdk = EventIntegrationTest::new();
   let result = EventBuilder::new(sdk)
     .event(GetUserProfile)
     .async_send()
@@ -19,7 +21,7 @@ async fn user_profile_get_failed() {
 
 #[tokio::test]
 async fn user_profile_get() {
-  let test = FlowyCoreTest::new();
+  let test = EventIntegrationTest::new();
   let user_profile = test.init_user().await;
   let user = EventBuilder::new(test.clone())
     .event(GetUserProfile)
@@ -30,7 +32,7 @@ async fn user_profile_get() {
 
 #[tokio::test]
 async fn user_update_with_name() {
-  let sdk = FlowyCoreTest::new();
+  let sdk = EventIntegrationTest::new();
   let user = sdk.init_user().await;
   let new_name = "hello_world".to_owned();
   let request = UpdateUserProfilePayloadPB::new(user.id).name(&new_name);
@@ -49,7 +51,7 @@ async fn user_update_with_name() {
 
 #[tokio::test]
 async fn user_update_with_ai_key() {
-  let sdk = FlowyCoreTest::new();
+  let sdk = EventIntegrationTest::new();
   let user = sdk.init_user().await;
   let openai_key = "openai_key".to_owned();
   let stability_ai_key = "stability_ai_key".to_owned();
@@ -72,7 +74,7 @@ async fn user_update_with_ai_key() {
 
 #[tokio::test]
 async fn user_update_with_email() {
-  let sdk = FlowyCoreTest::new();
+  let sdk = EventIntegrationTest::new();
   let user = sdk.init_user().await;
   let new_email = format!("{}@gmail.com", nanoid!(6));
   let request = UpdateUserProfilePayloadPB::new(user.id).email(&new_email);
@@ -90,7 +92,7 @@ async fn user_update_with_email() {
 
 #[tokio::test]
 async fn user_update_with_invalid_email() {
-  let test = FlowyCoreTest::new();
+  let test = EventIntegrationTest::new();
   let user = test.init_user().await;
   for email in invalid_email_test_case() {
     let request = UpdateUserProfilePayloadPB::new(user.id).email(&email);
@@ -109,7 +111,7 @@ async fn user_update_with_invalid_email() {
 
 #[tokio::test]
 async fn user_update_with_invalid_password() {
-  let test = FlowyCoreTest::new();
+  let test = EventIntegrationTest::new();
   let user = test.init_user().await;
   for password in invalid_password_test_case() {
     let request = UpdateUserProfilePayloadPB::new(user.id).password(&password);
@@ -126,7 +128,7 @@ async fn user_update_with_invalid_password() {
 
 #[tokio::test]
 async fn user_update_with_invalid_name() {
-  let test = FlowyCoreTest::new();
+  let test = EventIntegrationTest::new();
   let user = test.init_user().await;
   let request = UpdateUserProfilePayloadPB::new(user.id).name("");
   assert!(EventBuilder::new(test.clone())

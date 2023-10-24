@@ -59,7 +59,12 @@ impl DocumentManager {
     Ok(())
   }
 
-  #[instrument(level = "debug", skip_all, err)]
+  #[instrument(
+    name = "document_initialize_with_new_user",
+    level = "debug",
+    skip_all,
+    err
+  )]
   pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
     self.initialize(uid, workspace_id).await?;
     Ok(())

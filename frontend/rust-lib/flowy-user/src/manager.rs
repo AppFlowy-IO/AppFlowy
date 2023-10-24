@@ -149,6 +149,7 @@ impl UserManager {
               UserTokenState::Invalid => {
                 send_auth_state_notification(AuthStateChangedPB {
                   state: AuthStatePB::InvalidAuth,
+                  message: "Token is invalid".to_string(),
                 })
                 .send();
               },
@@ -256,6 +257,7 @@ impl UserManager {
     }
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
+      message: "Sign in success".to_string(),
     })
     .send();
     Ok(user_profile)
@@ -387,6 +389,7 @@ impl UserManager {
 
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
+      message: "Sign up success".to_string(),
     })
     .send();
     Ok(())
@@ -402,7 +405,7 @@ impl UserManager {
     tokio::spawn(async move {
       match server.sign_out(None).await {
         Ok(_) => {},
-        Err(e) => tracing::error!("Sign out failed: {:?}", e),
+        Err(e) => event!(tracing::Level::ERROR, "{:?}", e),
       }
     });
     Ok(())
@@ -421,8 +424,12 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params.clone());
     let session = self.get_session()?;
-    save_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
-    self.update_user(session.user_id, None, params).await?;
+    upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
+
+    let profile = self.get_user_profile(session.user_id).await?;
+    self
+      .update_user(session.user_id, profile.token, params)
+      .await?;
     Ok(())
   }
 
@@ -462,15 +469,14 @@ impl UserManager {
       .await?
       .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
 
-    if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign()) {
-      return Err(FlowyError::new(
-        ErrorCode::InvalidEncryptSecret,
-        "Invalid encryption sign",
-      ));
+    if new_user_profile.updated_at > old_user_profile.updated_at {
+      check_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
+
+      // Save the new user profile
+      let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
+      let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     }
 
-    let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
-    let _ = save_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     Ok(new_user_profile)
   }
 
@@ -501,13 +507,12 @@ impl UserManager {
   async fn update_user(
     &self,
     uid: i64,
-    token: Option<String>,
+    token: String,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    let token = token.to_owned();
     tokio::spawn(async move {
-      let credentials = UserCredentials::new(token, Some(uid), None);
+      let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })
     .await
@@ -613,6 +618,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let user_profile = UserProfile::from((response, auth_type));
     let uid = user_profile.uid;
+    event!(tracing::Level::DEBUG, "Save new history user: {:?}", uid);
     self.add_historical_user(
       uid,
       response.device_id(),
@@ -620,7 +626,9 @@ impl UserManager {
       auth_type,
       self.user_dir(uid),
     );
+    event!(tracing::Level::DEBUG, "Save new history user workspace");
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
+    event!(tracing::Level::INFO, "Save new user profile to disk");
     self
       .save_user(uid, (user_profile, auth_type.clone()).into())
       .await?;
@@ -640,12 +648,12 @@ impl UserManager {
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
-      if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
+      if !check_encryption_sign(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
 
       // Save the user profile change
-      save_user_profile_change(
+      upsert_user_profile_change(
         user_update.uid,
         self.db_pool(user_update.uid)?,
         UserTableChangeset::from(user_update),
@@ -685,24 +693,30 @@ impl UserManager {
   }
 }
 
-fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+fn check_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
   // If the local user profile's encryption sign is not equal to the user update's encryption sign,
   // which means the user enable encryption in another device, we should logout the current user.
   let is_valid = user_profile.encryption_type.sign() == encryption_sign;
   if !is_valid {
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::InvalidAuth,
+      message: "Encryption configuration was changed".to_string(),
     })
     .send();
   }
   is_valid
 }
 
-fn save_user_profile_change(
+fn upsert_user_profile_change(
   uid: i64,
   pool: Arc<ConnectionPool>,
   changeset: UserTableChangeset,
 ) -> FlowyResult<()> {
+  event!(
+    tracing::Level::DEBUG,
+    "Update user profile with changeset: {:?}",
+    changeset
+  );
   let conn = pool.get()?;
   diesel_update_table!(user_table, changeset, &*conn);
   let user: UserProfile = user_table::dsl::user_table
@@ -719,5 +733,5 @@ fn save_user_profile_change(
 fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyResult<()> {
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
-  save_user_profile_change(uid, pool, changeset)
+  upsert_user_profile_change(uid, pool, changeset)
 }

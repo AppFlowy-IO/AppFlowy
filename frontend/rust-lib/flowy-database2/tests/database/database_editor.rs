@@ -6,8 +6,8 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use strum::EnumCount;
 
-use event_integration::folder_event::ViewTest;
-use event_integration::FlowyCoreTest;
+use event_integration::test_folder::ViewTest;
+use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
@@ -26,8 +26,7 @@ use crate::database::mock_data::{
 };
 
 pub struct DatabaseEditorTest {
-  pub sdk: FlowyCoreTest,
-  pub app_id: String,
+  pub sdk: EventIntegrationTest,
   pub view_id: String,
   pub editor: Arc<DatabaseEditor>,
   pub fields: Vec<Arc<Field>>,
@@ -38,7 +37,7 @@ pub struct DatabaseEditorTest {
 
 impl DatabaseEditorTest {
   pub async fn new_grid() -> Self {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let _ = sdk.init_user().await;
 
     let params = make_test_grid();
@@ -47,7 +46,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new_no_date_grid() -> Self {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let _ = sdk.init_user().await;
 
     let params = make_no_date_test_grid();
@@ -56,7 +55,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new_board() -> Self {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let _ = sdk.init_user().await;
 
     let params = make_test_board();
@@ -65,7 +64,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn new_calendar() -> Self {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let _ = sdk.init_user().await;
 
     let params = make_test_calendar();
@@ -73,7 +72,7 @@ impl DatabaseEditorTest {
     Self::new(sdk, view_test).await
   }
 
-  pub async fn new(sdk: FlowyCoreTest, test: ViewTest) -> Self {
+  pub async fn new(sdk: EventIntegrationTest, test: ViewTest) -> Self {
     let editor = sdk
       .database_manager
       .get_database_with_view_id(&test.child_view.id)
@@ -92,10 +91,8 @@ impl DatabaseEditorTest {
       .collect();
 
     let view_id = test.child_view.id;
-    let app_id = test.parent_view.id;
     Self {
       sdk,
-      app_id,
       view_id,
       editor,
       fields,
