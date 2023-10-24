@@ -82,29 +82,28 @@ pub async fn init_user_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn check_user_handler(
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.check_user().await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(manager), err)]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
+
+  // Refresh the user profile in the background
   tokio::spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
+
+  // When the user is logged in with a local account, the email field is a placeholder and should
+  // not be exposed to the client. So we set the email field to an empty string.
+  if user_profile.auth_type == AuthType::Local {
+    user_profile.email = "".to_string();
+  }
 
   event!(
     tracing::Level::DEBUG,

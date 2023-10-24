@@ -54,6 +54,12 @@ class InitSupabaseTask extends LaunchTask {
       registerProtocolHandler(appflowyDeepLinkSchema);
     }
   }
+
+  @override
+  Future<void> dispose() async {
+    await realtimeService?.dispose();
+    supabase?.dispose();
+  }
 }
 
 /// customize the supabase auth storage
