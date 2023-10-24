@@ -107,6 +107,12 @@ ThemeData getMobileThemeData(
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
+        textStyle: MaterialStateProperty.all(
+          const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         foregroundColor: MaterialStateProperty.all(
           mobileColorTheme.onBackground,
         ),
