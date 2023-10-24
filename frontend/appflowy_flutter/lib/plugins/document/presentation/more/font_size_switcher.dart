@@ -1,10 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
+
+typedef _FontSizeSelection = (String, double, bool);
 
 class FontSizeSwitcher extends StatefulWidget {
   const FontSizeSwitcher({
@@ -16,11 +19,20 @@ class FontSizeSwitcher extends StatefulWidget {
 }
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
-  final List<(String, double, bool)> _fontSizes = [
+  final List<_FontSizeSelection> _fontSizes = [
     (LocaleKeys.moreAction_small.tr(), 14.0, false),
     (LocaleKeys.moreAction_medium.tr(), 18.0, true),
     (LocaleKeys.moreAction_large.tr(), 22.0, false),
   ];
+
+  _FontSizeSelection? _selection;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _selection = _fontSizes.firstWhereOrNull((element) => element.$3);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,34 +51,38 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             const SizedBox(
               height: 5,
             ),
-            ToggleButtons(
-              isSelected:
-                  _fontSizes.map((e) => e.$2 == state.fontSize).toList(),
-              onPressed: (int index) {
-                _updateSelectedFontSize(_fontSizes[index].$2);
-              },
-              color: foregroundColor,
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-              borderColor: foregroundColor,
-              borderWidth: 0.5,
-              // when selected
-              selectedColor: foregroundColor,
-              selectedBorderColor: foregroundColor,
-              fillColor: selectedBgColor,
-              // when hover
-              hoverColor: selectedBgColor.withOpacity(0.3),
-              constraints: const BoxConstraints(
-                minHeight: 40.0,
-                minWidth: 80.0,
+            SegmentedButton<_FontSizeSelection>(
+              showSelectedIcon: false,
+              style: TextButton.styleFrom(
+                foregroundColor: foregroundColor,
+                shadowColor: selectedBgColor.withOpacity(0.3),
+                padding: const EdgeInsets.all(16),
+                side: BorderSide(
+                  width: 0.5,
+                  color: foregroundColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
               ),
-              children: _fontSizes
+              segments: _fontSizes
                   .map(
-                    (e) => Text(
-                      e.$1,
-                      style: TextStyle(fontSize: e.$2),
+                    (e) => ButtonSegment(
+                      value: e,
+                      label: FlowyText(
+                        e.$1,
+                        fontSize: e.$2,
+                      ),
                     ),
                   )
                   .toList(),
+              selected: {
+                _selection ?? _fontSizes.first,
+              },
+              onSelectionChanged: (Set<(String, double, bool)> newSelection) {
+                _selection = newSelection.firstOrNull;
+                _updateSelectedFontSize(newSelection.first.$2);
+              },
             ),
           ],
         );

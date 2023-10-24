@@ -529,7 +529,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     final widget = this.widget<ChecklistItem>(task);
     assert(
-      widget.option.data.name == name && widget.option.isSelected == isChecked,
+      widget.task.data.name == name && widget.task.isSelected == isChecked,
     );
   }
 
