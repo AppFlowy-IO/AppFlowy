@@ -53,7 +53,7 @@ class UserAuthStateListener {
                 _didSignIn?.call();
                 break;
               case AuthStatePB.InvalidAuth:
-                _onInvalidAuth?.call("");
+                _onInvalidAuth?.call(pb.message);
                 break;
               default:
                 break;

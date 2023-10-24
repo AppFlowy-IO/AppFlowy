@@ -320,16 +320,8 @@ impl EventIntegrationTest {
     field_id: &str,
     row_id: &str,
   ) -> ChecklistCellDataPB {
-    EventBuilder::new(self.clone())
-      .event(DatabaseEvent::GetChecklistCellData)
-      .payload(CellIdPB {
-        view_id: view_id.to_string(),
-        row_id: row_id.to_string(),
-        field_id: field_id.to_string(),
-      })
-      .async_send()
-      .await
-      .parse::<ChecklistCellDataPB>()
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    ChecklistCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
   }
 
   pub async fn update_checklist_cell(

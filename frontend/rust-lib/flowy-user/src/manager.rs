@@ -149,6 +149,7 @@ impl UserManager {
               UserTokenState::Invalid => {
                 send_auth_state_notification(AuthStateChangedPB {
                   state: AuthStatePB::InvalidAuth,
+                  message: "Token is invalid".to_string(),
                 })
                 .send();
               },
@@ -256,6 +257,7 @@ impl UserManager {
     }
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
+      message: "Sign in success".to_string(),
     })
     .send();
     Ok(user_profile)
@@ -387,6 +389,7 @@ impl UserManager {
 
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
+      message: "Sign up success".to_string(),
     })
     .send();
     Ok(())
@@ -467,14 +470,9 @@ impl UserManager {
       .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
 
     if new_user_profile.updated_at > old_user_profile.updated_at {
-      if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign())
-      {
-        return Err(FlowyError::new(
-          ErrorCode::InvalidEncryptSecret,
-          "Invalid encryption sign",
-        ));
-      }
+      check_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
 
+      // Save the new user profile
       let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
       let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     }
@@ -650,7 +648,7 @@ impl UserManager {
     if session.user_id == user_update.uid {
       debug!("Receive user update: {:?}", user_update);
       let user_profile = self.get_user_profile(user_update.uid).await?;
-      if !is_user_encryption_sign_valid(&user_profile, &user_update.encryption_sign) {
+      if !check_encryption_sign(&user_profile, &user_update.encryption_sign) {
         return Ok(());
       }
 
@@ -695,13 +693,14 @@ impl UserManager {
   }
 }
 
-fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &str) -> bool {
+fn check_encryption_sign(user_profile: &UserProfile, encryption_sign: &str) -> bool {
   // If the local user profile's encryption sign is not equal to the user update's encryption sign,
   // which means the user enable encryption in another device, we should logout the current user.
   let is_valid = user_profile.encryption_type.sign() == encryption_sign;
   if !is_valid {
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::InvalidAuth,
+      message: "Encryption configuration was changed".to_string(),
     })
     .send();
   }

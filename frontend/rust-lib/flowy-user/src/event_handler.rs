@@ -337,7 +337,7 @@ pub async fn set_encrypt_secret_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn check_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let profile = manager.get_user_profile(uid).await?;
@@ -353,7 +353,9 @@ pub async fn check_encrypt_secret_handler(
     },
   };
 
-  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
+  data_result_ok(UserEncryptionConfigurationPB {
+    require_secret: is_need_secret,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
