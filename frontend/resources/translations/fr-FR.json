@@ -12,7 +12,9 @@
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Option+clic",
-    "addAboveTooltip": "à ajouter au dessus"
+    "addAboveTooltip": "à ajouter au dessus",
+    "dragTooltip": "Glisser pour déplacer",
+    "openMenuTooltip": "Cliquez pour ouvrir le menu"
   },
   "signUp": {
     "buttonText": "S'inscrire",
@@ -24,11 +26,14 @@
     "alreadyHaveAnAccount": "Avez-vous déjà un compte ?",
     "emailHint": "Email",
     "passwordHint": "Mot de passe",
-    "repeatPasswordHint": "Ressaisir votre mot de passe"
+    "repeatPasswordHint": "Ressaisir votre mot de passe",
+    "signUpWith": "Se connecter avec:"
   },
   "signIn": {
     "loginTitle": "Connexion à @:appName",
     "loginButtonText": "Connexion",
+    "loginStartWithAnonymous": "Lancer avec une session anonyme",
+    "continueAnonymousUser": "Continuer avec une session anonyme",
     "buttonText": "Se connecter",
     "forgotPassword": "Mot de passe oublié ?",
     "emailHint": "Email",
@@ -36,17 +41,26 @@
     "dontHaveAnAccount": "Vous n'avez pas encore créé votre compte ?",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
+    "or": "OU",
+    "LogInWithGoogle": "Se connecter avec Google",
+    "LogInWithGithub": "Se connecter avec Github",
+    "LogInWithDiscord": "Se connecter avec Discord",
+    "signInWith": "Se connecter avec:",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
     "create": "Créer un espace de travail",
     "hint": "Espace de travail",
-    "notFoundError": "Espace de travail introuvable"
+    "notFoundError": "Espace de travail introuvable",
+    "errorActions": {
+      "reportIssue": "Signaler un problème"
+    }
   },
   "shareAction": {
     "buttonText": "Partager",
     "workInProgress": "Bientôt disponible",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copier le lien"
   },
   "moreAction": {
@@ -68,10 +82,17 @@
     "rename": "Renommer",
     "delete": "Supprimer",
     "duplicate": "Dupliquer",
-    "openNewTab": "Ouvrir dans un nouvel onglet"
+    "unfavorite": "Retirer des favoris",
+    "favorite": "Ajouter aux favoris",
+    "openNewTab": "Ouvrir dans un nouvel onglet",
+    "addToFavorites": "Ajouter aux Favoris",
+    "copyLink": "Copier le lien"
   },
   "blankPageTitle": "Page vierge",
   "newPageText": "Nouvelle page",
+  "newDocumentText": "Nouveau document",
+  "newCalendarText": "Nouveau calendrier",
+  "newBoardText": "Nouveau tableau",
   "trash": {
     "text": "Corbeille",
     "restoreAll": "Restaurer tout",
@@ -113,6 +134,7 @@
     "defaultNewPageName": "Sans-titre",
     "renameDialog": "Renommer"
   },
+  "noPagesInside": "Aucune page à l'intérieur",
   "toolbar": {
     "undo": "Annuler",
     "redo": "Rétablir",
@@ -144,7 +166,9 @@
   },
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
-    "openSidebar": "Ouvrir le menu latéral"
+    "openSidebar": "Ouvrir le menu latéral",
+    "personal": "Personnel",
+    "favorites": "Favoris"
   },
   "notifications": {
     "export": {
