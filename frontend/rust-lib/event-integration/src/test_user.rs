@@ -107,7 +107,7 @@ impl EventIntegrationTest {
     *self.auth_type.write() = auth_type;
   }
 
-  pub async fn init_user(&self) -> UserProfilePB {
+  pub async fn init_anon_user(&self) -> UserProfilePB {
     self.sign_up_as_guest().await.user_profile
   }
 

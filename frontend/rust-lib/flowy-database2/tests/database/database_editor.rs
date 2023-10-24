@@ -38,7 +38,7 @@ pub struct DatabaseEditorTest {
 impl DatabaseEditorTest {
   pub async fn new_grid() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_grid();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
@@ -47,7 +47,7 @@ impl DatabaseEditorTest {
 
   pub async fn new_no_date_grid() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_no_date_test_grid();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
@@ -56,7 +56,7 @@ impl DatabaseEditorTest {
 
   pub async fn new_board() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_board();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
@@ -65,7 +65,7 @@ impl DatabaseEditorTest {
 
   pub async fn new_calendar() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_calendar();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
