@@ -1,6 +1,6 @@
 import 'package:markdown/markdown.dart' as md;
 
-import '../../../../../../../../plugins/document/presentation/editor_plugins/inline_page/inline_page_reference.dart';
+import '../../../../../../../../plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 
 class SubPageInlineSyntax extends md.InlineSyntax {
   SubPageInlineSyntax() : super(r'{{AppFlowy-Subpage}}\{(.*?)\}\{(.*?)\}');
