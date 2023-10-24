@@ -303,13 +303,19 @@ class AppFlowyBoardCard extends StatelessWidget {
   final RowCardRenderHook<String> renderHook;
 
   AppFlowyBoardCard({
-    super.key,
+    Key? key,
     required AppFlowyGroupData afGroupData,
     required AppFlowyGroupItem afGroupItem,
     required this.config,
     required this.renderHook,
   })  : groupData = afGroupData.customData as GroupData,
-        groupItem = afGroupItem as GroupItem;
+        groupItem = afGroupItem as GroupItem,
+        super(
+          key: ValueKey(
+            afGroupItem.row.id +
+                (afGroupData.customData as GroupData).group.groupId,
+          ),
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -330,9 +336,7 @@ class AppFlowyBoardCard extends StatelessWidget {
       },
     );
 
-    final groupItemId = groupItem.row.id + groupData.group.groupId;
     return AppFlowyGroupCard(
-      key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: RowCard<String>(
