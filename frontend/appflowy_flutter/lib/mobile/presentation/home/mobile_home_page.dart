@@ -128,17 +128,21 @@ class _TrashButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO(yijing): improve style UI later
-    return TextButton.icon(
-      onPressed: () {
-        context.push(MobileHomeTrashPage.routeName);
-      },
-      icon: FlowySvg(
-        FlowySvgs.m_delete_m,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-      label: Text(
-        LocaleKeys.trash_text.tr(),
-        style: Theme.of(context).textTheme.labelMedium,
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton.icon(
+        onPressed: () {
+          context.push(MobileHomeTrashPage.routeName);
+        },
+        icon: FlowySvg(
+          FlowySvgs.m_delete_m,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+        label: Text(
+          LocaleKeys.trash_text.tr(),
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
+        style: const ButtonStyle(alignment: Alignment.centerLeft),
       ),
     );
   }
