@@ -12,6 +12,7 @@ import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dar
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/panes/flowy_pane_group.dart';
+import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -49,13 +50,20 @@ class HomeStack extends StatelessWidget {
       builder: (context, state) {
         return BlocBuilder<HomeSettingBloc, HomeSettingState>(
           builder: (context, homeState) {
-            return FlowyPaneGroup(
-              groupHeight: layout.homePageHeight,
-              groupWidth: layout.homePageWidth,
-              node: state.root,
-              layout: layout,
-              delegate: delegate,
-              allowPaneDrag: state.allowPaneDrag,
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return FlowyPaneGroup(
+                  node: state.root,
+                  layout: layout,
+                  delegate: delegate,
+                  allowPaneDrag: state.allowPaneDrag,
+                  paneLayout: PaneLayout.initial(
+                    homeLayout: layout,
+                    parentConstraints: constraints,
+                    root: state.root,
+                  ),
+                );
+              },
             );
           },
         );
@@ -344,6 +352,9 @@ class _HomeBodyState extends State<HomeBody> {
         builder: (_, value, __) => Stack(
           children: [
             GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {},
+              onTapDown: (d) {},
               child: Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerPanZoomUpdate: (event) {
@@ -374,12 +385,9 @@ class _HomeBodyState extends State<HomeBody> {
                     });
                   }
                 },
-                child: IgnorePointer(
-                  ignoring: value,
-                  child: Opacity(
-                    opacity: 0.5,
-                    child: _buildWidgetStack(onDeleted: widget.onDeleted),
-                  ),
+                child: Opacity(
+                  opacity: 0.5,
+                  child: _buildWidgetStack(onDeleted: widget.onDeleted),
                 ),
               ),
             ),

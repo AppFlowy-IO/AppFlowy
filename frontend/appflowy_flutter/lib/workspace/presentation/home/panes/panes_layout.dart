@@ -1,4 +1,6 @@
+import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
+import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +15,8 @@ class PaneLayout {
   late double? resizerPosition;
   late double resizerWidth;
   late double resizerHeight;
+  late double homePageWidth;
+  late double homePageHeight;
   late SystemMouseCursor resizeCursorType;
   final (int, PaneNode) childPane;
   final PaneNode parentPane;
@@ -20,6 +24,7 @@ class PaneLayout {
 
   PaneLayout({
     required BoxConstraints parentPaneConstraints,
+    required HomeLayout homeLayout,
     required this.flex,
     required this.childPane,
     required this.parentPane,
@@ -32,6 +37,17 @@ class PaneLayout {
         ? parentPaneConstraints.maxHeight * flex[childPane.$1]
         : parentPaneConstraints.maxHeight;
 
+    final bool adaptiveContent = adaptivePlugins.contains(
+      childPane.$2.tabs.currentPageManager.notifier.plugin.pluginType,
+    );
+
+    if (adaptiveContent) {
+      homePageHeight = childPaneHeight;
+      homePageWidth = childPaneWidth;
+    } else {
+      homePageHeight = homeLayout.homePageHeight;
+      homePageWidth = homeLayout.homePageWidth;
+    }
     double accumulatedWidth = 0;
     double accumulatedHeight = 0;
     for (int i = 0; i < childPane.$1; i++) {
@@ -57,4 +73,20 @@ class PaneLayout {
         ? SystemMouseCursors.resizeLeftRight
         : SystemMouseCursors.resizeUpDown;
   }
+
+  factory PaneLayout.initial(
+          {required BoxConstraints parentConstraints,
+          required PaneNode root,
+          required HomeLayout homeLayout}) =>
+      PaneLayout(
+        homeLayout: homeLayout,
+        parentPaneConstraints: parentConstraints,
+        flex: [],
+        childPane: (0, root),
+        parentPane: PaneNode.initial(),
+      );
+
+  ///PluginType added here will adapt to size of pane
+  ///rather than being stacked over
+  final List<PluginType> adaptivePlugins = [];
 }

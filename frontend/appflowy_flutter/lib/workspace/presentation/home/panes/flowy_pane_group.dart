@@ -14,8 +14,7 @@ import 'flowy_pane.dart';
 
 class FlowyPaneGroup extends StatelessWidget {
   final PaneNode node;
-  final double groupWidth;
-  final double groupHeight;
+  final PaneLayout paneLayout;
   final HomeLayout layout;
   final HomeStackDelegate delegate;
   final bool allowPaneDrag;
@@ -23,8 +22,7 @@ class FlowyPaneGroup extends StatelessWidget {
   const FlowyPaneGroup({
     super.key,
     required this.node,
-    required this.groupWidth,
-    required this.groupHeight,
+    required this.paneLayout,
     required this.layout,
     required this.delegate,
     required this.allowPaneDrag,
@@ -43,7 +41,7 @@ class FlowyPaneGroup extends StatelessWidget {
           delegate: delegate,
           layout: layout,
           paneContext: context,
-          size: Size(groupWidth, groupHeight),
+          paneLayout: paneLayout,
         ),
       );
     }
@@ -52,7 +50,9 @@ class FlowyPaneGroup extends StatelessWidget {
       key: ValueKey(node.paneId),
       create: (context) => PaneNodeCubit(
         node.children.length,
-        node.axis == Axis.horizontal ? groupHeight : groupWidth,
+        node.axis == Axis.horizontal
+            ? paneLayout.childPaneHeight
+            : paneLayout.childPaneWidth,
       ),
       child: BlocBuilder<PaneNodeCubit, PaneNodeState>(
         builder: (context, state) {
@@ -63,6 +63,7 @@ class FlowyPaneGroup extends StatelessWidget {
                   children: [
                     ...node.children.indexed.map((indexNode) {
                       final paneLayout = PaneLayout(
+                        homeLayout: layout,
                         childPane: indexNode,
                         parentPane: node,
                         flex: state.flex,
@@ -103,14 +104,18 @@ class FlowyPaneGroup extends StatelessWidget {
       child: GestureDetector(
         dragStartBehavior: DragStartBehavior.down,
         onHorizontalDragUpdate: (details) {
-          context
-              .read<PaneNodeCubit>()
-              .paneResized(indexNode.$1, details.delta.dx, groupWidth);
+          context.read<PaneNodeCubit>().paneResized(
+                indexNode.$1,
+                details.delta.dx,
+                paneLayout.childPaneWidth,
+              );
         },
         onVerticalDragUpdate: (details) {
-          context
-              .read<PaneNodeCubit>()
-              .paneResized(indexNode.$1, details.delta.dy, groupHeight);
+          context.read<PaneNodeCubit>().paneResized(
+                indexNode.$1,
+                details.delta.dy,
+                paneLayout.childPaneHeight,
+              );
         },
         onHorizontalDragStart: (_) =>
             context.read<PaneNodeCubit>().resizeStart(),
@@ -142,8 +147,7 @@ class FlowyPaneGroup extends StatelessWidget {
       top: paneLayout.childPaneTPosition,
       child: FlowyPaneGroup(
         node: indexNode.$2,
-        groupWidth: paneLayout.childPaneWidth,
-        groupHeight: paneLayout.childPaneHeight,
+        paneLayout: paneLayout,
         delegate: delegate,
         layout: layout,
         allowPaneDrag: allowPaneDrag,
