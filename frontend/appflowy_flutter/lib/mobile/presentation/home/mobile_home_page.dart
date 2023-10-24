@@ -94,6 +94,7 @@ class MobileHomePage extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Recent files
                     const MobileHomePageRecentFilesWidget(),
