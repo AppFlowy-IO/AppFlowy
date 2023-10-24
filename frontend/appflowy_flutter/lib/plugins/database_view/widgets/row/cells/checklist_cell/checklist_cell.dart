@@ -94,7 +94,10 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Flexible(
-                            child: ChecklistProgressBar(percent: state.percent),
+                            child: ChecklistProgressBar(
+                              tasks: state.tasks,
+                              percent: state.percent,
+                            ),
                           ),
                           const HSpace(6.0),
                           FlowyIconButton(
@@ -154,7 +157,10 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                         widget.cellStyle.placeholder,
                         color: Theme.of(context).hintColor,
                       )
-                    : ChecklistProgressBar(percent: state.percent),
+                    : ChecklistProgressBar(
+                        tasks: state.tasks,
+                        percent: state.percent,
+                      ),
               ),
             ),
           );
