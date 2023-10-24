@@ -168,7 +168,8 @@
     "closeSidebar": "Fermer le menu latéral",
     "openSidebar": "Ouvrir le menu latéral",
     "personal": "Personnel",
-    "favorites": "Favoris"
+    "favorites": "Favoris",
+    "addAPage": "Ajouter une page"
   },
   "notifications": {
     "export": {
@@ -202,7 +203,11 @@
     "delete": "Supprimer",
     "duplicate": "Dupliquer",
     "done": "Fait",
-    "putback": "Remettre"
+    "putback": "Remettre",
+    "share": "Partager",
+    "removeFromFavorites": "Retirer des favoris",
+    "addToFavorites": "Ajouter aux favoris",
+    "rename": "Renommer"
   },
   "label": {
     "welcome": "Bienvenue !",
@@ -231,10 +236,16 @@
       "language": "Langue",
       "user": "Utilisateur",
       "files": "Des dossiers",
+      "notifications": "Notifications",
       "open": "Ouvrir les paramètres",
+      "logout": "Se déconnecter",
+      "logoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "enableSync": "Activer la synchronisation",
+      "enableEncrypt": "Chiffrer les données",
       "supabaseSetting": "Paramètre Supbase"
     },
     "appearance": {
+      "resetSetting": "Réinitialiser ce paramètre",
       "fontFamily": {
         "label": "Famille de polices",
         "search": "Recherche"
@@ -297,6 +308,7 @@
     },
     "user": {
       "name": "Nom",
+      "email": "E-mail",
       "selectAnIcon": "Sélectionnez une icône",
       "pleaseInputYourOpenAIKey": "veuillez entrer votre clé OpenAI"
     }
@@ -304,6 +316,9 @@
   "grid": {
     "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
     "createView": "Nouveau",
+    "title": {
+      "placeholder": "Sans titre"
+    },
     "settings": {
       "filter": "Filtrer",
       "sort": "Trier",
@@ -407,7 +422,8 @@
       "copyProperty": "Copie de la propriété dans le presse-papiers",
       "count": "Nombre",
       "newRow": "Nouvelle ligne",
-      "action": "Action"
+      "action": "Action",
+      "drag": "Glisser pour déplacer"
     },
     "selectOption": {
       "create": "Créer",
@@ -426,7 +442,9 @@
       "searchOption": "Rechercher une option"
     },
     "checklist": {
-      "addNew": "Ajouter un élément"
+      "taskHint": "Description de la tâche",
+      "addNew": "Ajouter un élément",
+      "submitNewTask": "Créer"
     },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue"
@@ -526,6 +544,15 @@
       },
       "outline": {
         "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières."
+      },
+      "table": {
+        "delete": "Supprimer",
+        "duplicate": "Dupliquer"
+      },
+      "contextMenu": {
+        "copy": "Copier",
+        "cut": "Couper",
+        "paste": "Coller"
       }
     },
     "textBlock": {
@@ -543,6 +570,9 @@
       "url": {
         "label": "URL de l'image",
         "placeholder": "Entrez l'URL de l'image"
+      },
+      "ai": {
+        "label": "Générer une image à partir d'OpenAI"
       },
       "support": "La limite de taille d'image est de 5 Mo. Formats pris en charge : JPEG, PNG, GIF, SVG",
       "error": {
