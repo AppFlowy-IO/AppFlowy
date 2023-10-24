@@ -352,9 +352,6 @@ class _HomeBodyState extends State<HomeBody> {
         builder: (_, value, __) => Stack(
           children: [
             GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {},
-              onTapDown: (d) {},
               child: Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerPanZoomUpdate: (event) {
@@ -385,9 +382,12 @@ class _HomeBodyState extends State<HomeBody> {
                     });
                   }
                 },
-                child: Opacity(
-                  opacity: 0.5,
-                  child: _buildWidgetStack(onDeleted: widget.onDeleted),
+                child: IgnorePointer(
+                  ignoring: value,
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: _buildWidgetStack(onDeleted: widget.onDeleted),
+                  ),
                 ),
               ),
             ),
