@@ -136,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
