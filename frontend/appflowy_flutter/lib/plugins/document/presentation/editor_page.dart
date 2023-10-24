@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -145,6 +146,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
+    _initEditorL10n();
     _initializeShortcuts();
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
@@ -489,7 +491,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   List<SelectionMenuItem> _customSlashMenuItems() {
     final items = [...standardSelectionMenuItems];
     final imageItem = items.firstWhereOrNull(
-      (element) => element.name == AppFlowyEditorLocalizations.current.image,
+      (element) => element.name == AppFlowyEditorL10n.current.image,
     );
     if (imageItem != null) {
       final imageItemIndex = items.indexOf(imageItem);
@@ -619,5 +621,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       return null;
     };
+  }
+
+  void _initEditorL10n() {
+    AppFlowyEditorL10n.current = EditorI18n();
   }
 }
