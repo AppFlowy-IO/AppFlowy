@@ -86,7 +86,7 @@ impl AppFlowyServer for AFCloudServer {
   fn set_token(&self, token: &str) -> Result<(), Error> {
     self
       .client
-      .set_token(token)
+      .restore_token(token)
       .map_err(|err| Error::new(FlowyError::unauthorized().with_context(err)))
   }
 

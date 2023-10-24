@@ -195,17 +195,6 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
 }
 
 #[tokio::test]
-async fn check_not_exist_user_test() {
-  if let Some(test) = FlowySupabaseTest::new() {
-    let err = test
-      .check_user_with_uuid(&uuid::Uuid::new_v4().to_string())
-      .await
-      .unwrap_err();
-    assert_eq!(err.code, ErrorCode::RecordNotFound);
-  }
-}
-
-#[tokio::test]
 async fn get_user_profile_test() {
   if let Some(test) = FlowySupabaseTest::new() {
     let uuid = uuid::Uuid::new_v4().to_string();

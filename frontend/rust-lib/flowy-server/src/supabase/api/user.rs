@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
-use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
@@ -199,10 +198,7 @@ where
     })
   }
 
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let uid = credential
       .uid
@@ -212,8 +208,8 @@ where
       let postgrest = try_get_postgrest?;
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
       match user_profile_resp {
-        None => Ok(None),
-        Some(response) => Ok(Some(UserProfile {
+        None => Err(FlowyError::record_not_found()),
+        Some(response) => Ok(UserProfile {
           uid: response.uid,
           email: response.email,
           name: response.name,
@@ -225,7 +221,7 @@ where
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
           updated_at: response.updated_at.timestamp(),
-        })),
+        }),
       }
     })
   }
@@ -238,18 +234,6 @@ where
       Ok(user_workspaces)
     })
   }
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
-    let try_get_postgrest = self.server.try_get_postgrest();
-    let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let uid = credential.uid;
-    FutureResult::new(async move {
-      let postgrest = try_get_postgrest?;
-      check_user(postgrest, uid, uuid).await?;
-      Ok(())
-    })
-  }
-
   fn add_workspace_member(
     &self,
     _user_email: String,
@@ -512,6 +496,7 @@ async fn update_user_profile(
   Ok(())
 }
 
+#[allow(dead_code)]
 async fn check_user(
   postgrest: Arc<PostgresWrapper>,
   uid: Option<i64>,

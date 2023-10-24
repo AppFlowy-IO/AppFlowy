@@ -25,4 +25,7 @@ class PluginLoadTask extends LaunchTask {
       config: CalendarPluginConfig(),
     );
   }
+
+  @override
+  Future<void> dispose() async {}
 }
