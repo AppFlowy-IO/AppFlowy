@@ -57,7 +57,9 @@ class PanesService {
                 oldChildNode,
               ],
       );
-      return ret;
+      return ret.copyWith(
+        children: ret.children.map((e) => e.copyWith(parent: ret)).toList(),
+      );
     }
 
     /// if we haven't found our target node there is a possibility that our
@@ -94,9 +96,12 @@ class PanesService {
           ///reconstructed tabscontroller to trigger build of consecutive
           ///widget else it won't reflect on ui.
 
-          return node.copyWith(
+          final parent = node.copyWith(
             paneId: nanoid(),
             children: list.map((e) => e.copyWith()).toList(),
+          );
+          return parent.copyWith(
+            children: list.map((e) => e.copyWith(parent: parent)).toList(),
           );
         }
       }
@@ -141,15 +146,18 @@ class PanesService {
 
         if (node.children.length == 1) {
           final ret = node.children.first.copyWith(
-            paneId: nanoid(),
+            paneId: closingToMove ? node.children.first.paneId : nanoid(),
             parent: node.parent,
           );
           return ret;
         }
 
-        return node.copyWith(
-          paneId: nanoid(),
+        final parent = node.copyWith(
+          paneId: closingToMove ? node.paneId : nanoid(),
           children: list.map((e) => e.copyWith()).toList(),
+        );
+        return parent.copyWith(
+          children: list.map((e) => e.copyWith(parent: parent)).toList(),
         );
       }
     }
@@ -162,7 +170,32 @@ class PanesService {
       );
     }).toList();
 
-    return node.copyWith(children: newChildren);
+    return node.copyWith(
+      paneId: closingToMove ? node.paneId : nanoid(),
+      children: newChildren,
+    );
+  }
+
+  PaneNode movePaneHandler({
+    required PaneNode root,
+    required Direction direction,
+    required Axis axis,
+    required PaneNode fromNode,
+    required PaneNode toNode,
+  }) {
+    final response = splitHandler(
+      node: closePaneHandler(
+        node: root,
+        targetPaneId: fromNode.paneId,
+        closingToMove: true,
+      ),
+      targetPaneId: toNode.paneId,
+      direction: direction,
+      axis: axis,
+      fromNode: fromNode,
+    );
+
+    return response.copyWith(paneId: nanoid());
   }
 
   PaneNode findFirstLeaf({required PaneNode node}) {

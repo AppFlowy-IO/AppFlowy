@@ -48,7 +48,7 @@ class PanesCubit extends Cubit<PanesState> {
       axis: axis,
     );
 
-    final firstLeafNode = panesService.findFirstLeaf(node: state.root);
+    final firstLeafNode = panesService.findFirstLeaf(node: root);
 
     emit(
       state.copyWith(
@@ -57,17 +57,19 @@ class PanesCubit extends Cubit<PanesState> {
         firstLeafNode: firstLeafNode,
       ),
     );
-    setActivePane(state.root.children.last);
+    setActivePane(root.children.last);
   }
 
-  void closePane({required String paneId, bool closingToMove = false}) {
+  void closePane({
+    required String paneId,
+  }) {
     final root = panesService.closePaneHandler(
       node: state.root,
       targetPaneId: paneId,
-      closingToMove: closingToMove,
+      closingToMove: false,
     );
 
-    final firstLeafNode = panesService.findFirstLeaf(node: state.root);
+    final firstLeafNode = panesService.findFirstLeaf(node: root);
 
     emit(
       state.copyWith(
@@ -77,8 +79,8 @@ class PanesCubit extends Cubit<PanesState> {
       ),
     );
 
-    final children = state.root.children;
-    setActivePane(children.isEmpty ? state.root : children.last);
+    final children = root.children;
+    setActivePane(children.isEmpty ? root : children.last);
   }
 
   void openTab({required Plugin plugin}) {
@@ -111,30 +113,36 @@ class PanesCubit extends Cubit<PanesState> {
   ) {
     final direction = [
       FlowyDraggableHoverPosition.top,
-      FlowyDraggableHoverPosition.left
+      FlowyDraggableHoverPosition.left,
     ].contains(position)
         ? Direction.back
         : Direction.front;
 
     final axis = [
       FlowyDraggableHoverPosition.left,
-      FlowyDraggableHoverPosition.right
+      FlowyDraggableHoverPosition.right,
     ].contains(position)
         ? Axis.vertical
         : Axis.horizontal;
 
+    final root = panesService.movePaneHandler(
+      toNode: to,
+      direction: direction,
+      axis: axis,
+      root: state.root,
+      fromNode: from,
+    );
+
+    final firstLeafNode = panesService.findFirstLeaf(node: root);
+
     emit(
       state.copyWith(
-        root: panesService.splitHandler(
-          node: state.root,
-          targetPaneId: to.paneId,
-          direction: direction,
-          axis: axis,
-          fromNode: from,
-        ),
-        count: state.count + 1,
+        root: root,
+        firstLeafNode: firstLeafNode,
       ),
     );
-    closePane(paneId: from.paneId, closingToMove: true);
+
+    final children = state.root.children;
+    setActivePane(children.isEmpty ? state.root : children.last);
   }
 }
