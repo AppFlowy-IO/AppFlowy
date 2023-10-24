@@ -129,7 +129,8 @@
     "database": "Database",
     "fromMarkdownZip":"From Markdown Zip",
     "importFromNotionMarkdownZip": "Import from Notion Markdown Zip",
-    "uploadZipFile": "Upload zip file"
+    "uploadZipFile": "Upload zip file",
+    "importFromNotionMarkdownZipTooltip":"1. Navigate to the desired page for export.\n2. Click on the three dots(···) located in the top right corner.\n3. Choose \"Export\" from the menu options.\n4. Select \"Markdown & CSV\" as the export format.\n5. Click the \"Export\" button once again.\n6. Select the file you just downloaded."
   },
   "disclosureAction": {
     "rename": "Rename",

@@ -47,7 +47,7 @@ class ImportFromNotionWidget extends StatelessWidget {
           fontSize: 15,
           overflow: TextOverflow.ellipsis,
         ),
-        onTap: () async {
+        onTap: ()  {
           popoverController.show();
         },
       ),
