@@ -11,12 +11,10 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
 import '../../grid/presentation/widgets/toolbar/grid_layout.dart';
-import '../field/grid_property.dart';
-import 'database_setting.dart';
+import 'setting_property_list.dart';
 
 class SettingButton extends StatefulWidget {
   final DatabaseController databaseController;
@@ -39,7 +37,6 @@ class _SettingButtonState extends State<SettingButton> {
       constraints: BoxConstraints.loose(const Size(200, 400)),
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
-      margin: EdgeInsets.zero,
       triggerActions: PopoverTriggerFlags.none,
       child: FlowyTextButton(
         LocaleKeys.settings_title.tr(),
@@ -53,7 +50,7 @@ class _SettingButtonState extends State<SettingButton> {
         onPressed: () => _popoverController.show(),
       ),
       popupBuilder: (BuildContext context) {
-        return _DatabaseSettingListPopover(
+        return DatabaseSettingListPopover(
           databaseController: widget.databaseController,
         );
       },
@@ -61,10 +58,10 @@ class _SettingButtonState extends State<SettingButton> {
   }
 }
 
-class _DatabaseSettingListPopover extends StatefulWidget {
+class DatabaseSettingListPopover extends StatefulWidget {
   final DatabaseController databaseController;
 
-  const _DatabaseSettingListPopover({
+  const DatabaseSettingListPopover({
     required this.databaseController,
     Key? key,
   }) : super(key: key);
@@ -74,59 +71,40 @@ class _DatabaseSettingListPopover extends StatefulWidget {
 }
 
 class _DatabaseSettingListPopoverState
-    extends State<_DatabaseSettingListPopover> {
-  DatabaseSettingAction? _action;
+    extends State<DatabaseSettingListPopover> {
+  late final PopoverMutex popoverMutex;
+
+  @override
+  void initState() {
+    super.initState();
+    popoverMutex = PopoverMutex();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_action == null) {
-      return DatabaseSettingList(
-        databaseContoller: widget.databaseController,
-        onAction: (action, settingContext) {
-          setState(() {
-            _action = action;
-          });
-        },
-      ).padding(all: 6.0);
-    } else {
-      switch (_action!) {
-        case DatabaseSettingAction.showLayout:
-          return DatabaseLayoutList(
-            viewId: widget.databaseController.viewId,
-            currentLayout: widget.databaseController.databaseLayout,
-          );
-        case DatabaseSettingAction.showGroup:
-          return DatabaseGroupList(
-            viewId: widget.databaseController.viewId,
-            fieldController: widget.databaseController.fieldController,
-            onDismissed: () {
-              // widget.popoverController.close();
-            },
-          );
-        case DatabaseSettingAction.showProperties:
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DatabasePropertyList(
-                viewId: widget.databaseController.viewId,
-                fieldController: widget.databaseController.fieldController,
+    final cells =
+        actionsForDatabaseLayout(widget.databaseController.databaseLayout)
+            .map(
+              (action) => action.build(
+                context,
+                widget.databaseController,
+                popoverMutex,
               ),
-              FlowyText.regular(
-                LocaleKeys.grid_settings_reorderPropertiesTooltip.tr(),
-              ),
-              const VSpace(8),
-            ],
-          );
-        case DatabaseSettingAction.showCalendarLayout:
-          return CalendarLayoutSetting(
-            viewId: widget.databaseController.viewId,
-            fieldController: widget.databaseController.fieldController,
-            calendarSettingController: ICalendarSettingImpl(
-              widget.databaseController,
-            ),
-          );
-      }
-    }
+            )
+            .toList();
+
+    return ListView.separated(
+      shrinkWrap: true,
+      controller: ScrollController(),
+      itemCount: cells.length,
+      separatorBuilder: (context, index) {
+        return VSpace(GridSize.typeOptionSeparatorHeight);
+      },
+      physics: StyledScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return cells[index];
+      },
+    );
   }
 }
 
@@ -178,6 +156,58 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
       case DatabaseSettingAction.showCalendarLayout:
         return LocaleKeys.calendar_settings_name.tr();
     }
+  }
+
+  Widget build(
+    BuildContext context,
+    DatabaseController databaseController,
+    PopoverMutex popoverMutex,
+  ) {
+    final popover = switch (this) {
+      DatabaseSettingAction.showLayout => DatabaseLayoutList(
+          viewId: databaseController.viewId,
+          currentLayout: databaseController.databaseLayout,
+        ),
+      DatabaseSettingAction.showGroup => DatabaseGroupList(
+          viewId: databaseController.viewId,
+          fieldController: databaseController.fieldController,
+          onDismissed: () {},
+        ),
+      DatabaseSettingAction.showProperties => DatabasePropertyList(
+          viewId: databaseController.viewId,
+          fieldController: databaseController.fieldController,
+        ),
+      DatabaseSettingAction.showCalendarLayout => CalendarLayoutSetting(
+          viewId: databaseController.viewId,
+          fieldController: databaseController.fieldController,
+          calendarSettingController: ICalendarSettingImpl(
+            databaseController,
+          ),
+        ),
+    };
+
+    return AppFlowyPopover(
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+      direction: PopoverDirection.leftWithTopAligned,
+      mutex: popoverMutex,
+      margin: EdgeInsets.zero,
+      offset: const Offset(-16, 0),
+      child: SizedBox(
+        height: GridSize.popoverItemHeight,
+        child: FlowyButton(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          text: FlowyText.medium(
+            title(),
+            color: AFThemeExtension.of(context).textColor,
+          ),
+          leftIcon: FlowySvg(
+            iconData(),
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
+      ),
+      popupBuilder: (context) => popover,
+    );
   }
 }
 

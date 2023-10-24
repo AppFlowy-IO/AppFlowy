@@ -1,8 +1,8 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
@@ -54,50 +54,48 @@ class HomeSideBar extends StatelessWidget {
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
         )
       ],
-      child: BlocListener<MenuBloc, MenuState>(
-        listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-        listener: (context, state) =>
-            context.read<PanesCubit>().openPlugin(plugin: state.plugin),
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<MenuBloc, MenuState>(
-              listenWhen: (p, c) => p.plugin.id != c.plugin.id,
-              listener: (context, state) =>
-                  context.read<PanesCubit>().openPlugin(plugin: state.plugin),
-            ),
-            BlocListener<NotificationActionBloc, NotificationActionState>(
-              listener: (context, state) {
-                final action = state.action;
-                if (action != null) {
-                  switch (action.type) {
-                    case ActionType.openView:
-                      final view =
-                          context.read<MenuBloc>().state.views.firstWhereOrNull(
-                                (view) => action.objectId == view.id,
-                              );
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<MenuBloc, MenuState>(
+            listenWhen: (p, c) =>
+                p.lastCreatedView?.id != c.lastCreatedView?.id,
+            listener: (context, state) => context.read<PanesCubit>().openPlugin(
+                  plugin: state.lastCreatedView!.plugin(),
+                ),
+          ),
+          BlocListener<NotificationActionBloc, NotificationActionState>(
+            listener: (context, state) {
+              final action = state.action;
+              if (action != null) {
+                switch (action.type) {
+                  case ActionType.openView:
+                    final view = context
+                        .read<MenuBloc>()
+                        .state
+                        .views
+                        .firstWhereOrNull((view) => action.objectId == view.id);
 
-                      if (view != null) {
-                        context
-                            .read<PanesCubit>()
-                            .openPlugin(plugin: view.plugin());
-                      }
-                  }
+                    if (view != null) {
+                      context
+                          .read<PanesCubit>()
+                          .openPlugin(plugin: view.plugin());
+                    }
                 }
-              },
-            ),
-          ],
-          child: Builder(
-            builder: (context) {
-              final menuState = context.watch<MenuBloc>().state;
-              final favoriteState = context.watch<FavoriteBloc>().state;
-
-              return _buildSidebar(
-                context,
-                menuState.views,
-                favoriteState.views,
-              );
+              }
             },
           ),
+        ],
+        child: Builder(
+          builder: (context) {
+            final menuState = context.watch<MenuBloc>().state;
+            final favoriteState = context.watch<FavoriteBloc>().state;
+
+            return _buildSidebar(
+              context,
+              menuState.views,
+              favoriteState.views,
+            );
+          },
         ),
       ),
     );

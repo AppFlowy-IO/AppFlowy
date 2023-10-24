@@ -2,8 +2,14 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_repr::*;
 use uuid::Uuid;
+
+pub const USER_METADATA_OPEN_AI_KEY: &str = "openai_key";
+pub const USER_METADATA_STABILITY_AI_KEY: &str = "stability_ai_key";
+pub const USER_METADATA_ICON_URL: &str = "icon_url";
+pub const USER_METADATA_UPDATE_AT: &str = "updated_at";
 
 pub trait UserAuthResponse {
   fn user_id(&self) -> i64;
@@ -14,52 +20,8 @@ pub trait UserAuthResponse {
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
   fn encryption_type(&self) -> EncryptionType;
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SignInResponse {
-  pub user_id: i64,
-  pub name: String,
-  pub latest_workspace: UserWorkspace,
-  pub user_workspaces: Vec<UserWorkspace>,
-  pub email: Option<String>,
-  pub token: Option<String>,
-  pub device_id: String,
-  pub encryption_type: EncryptionType,
-}
-
-impl UserAuthResponse for SignInResponse {
-  fn user_id(&self) -> i64 {
-    self.user_id
-  }
-
-  fn user_name(&self) -> &str {
-    &self.name
-  }
-
-  fn latest_workspace(&self) -> &UserWorkspace {
-    &self.latest_workspace
-  }
-
-  fn user_workspaces(&self) -> &[UserWorkspace] {
-    &self.user_workspaces
-  }
-
-  fn device_id(&self) -> &str {
-    &self.device_id
-  }
-
-  fn user_token(&self) -> Option<String> {
-    self.token.clone()
-  }
-
-  fn user_email(&self) -> Option<String> {
-    self.email.clone()
-  }
-
-  fn encryption_type(&self) -> EncryptionType {
-    self.encryption_type.clone()
-  }
+  fn metadata(&self) -> &Option<serde_json::Value>;
+  fn updated_at(&self) -> i64;
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -91,6 +53,8 @@ pub struct AuthResponse {
   pub token: Option<String>,
   pub device_id: String,
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
+  pub metadata: Option<serde_json::Value>,
 }
 
 impl UserAuthResponse for AuthResponse {
@@ -124,6 +88,14 @@ impl UserAuthResponse for AuthResponse {
 
   fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
+  }
+
+  fn metadata(&self) -> &Option<Value> {
+    &self.metadata
+  }
+
+  fn updated_at(&self) -> i64 {
+    self.updated_at
   }
 }
 
@@ -196,6 +168,7 @@ pub struct UserProfile {
   pub auth_type: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
@@ -243,17 +216,37 @@ where
 {
   fn from(params: (&T, &AuthType)) -> Self {
     let (value, auth_type) = params;
+    let (icon_url, openai_key, stability_ai_key) = {
+      value
+        .metadata()
+        .as_ref()
+        .map(|m| {
+          (
+            m.get(USER_METADATA_ICON_URL)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_OPEN_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_STABILITY_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+          )
+        })
+        .unwrap_or_default()
+    };
     Self {
       uid: value.user_id(),
       email: value.user_email().unwrap_or_default(),
       name: value.user_name().to_owned(),
       token: value.user_token().unwrap_or_default(),
-      icon_url: "".to_owned(),
-      openai_key: "".to_owned(),
+      icon_url,
+      openai_key,
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
-      stability_ai_key: "".to_owned(),
+      stability_ai_key,
+      updated_at: value.updated_at(),
     }
   }
 }

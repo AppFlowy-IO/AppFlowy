@@ -174,25 +174,23 @@ void main() {
       await tester.openCalendarEvent(index: 0, date: sameDayNextWeek);
       await tester.deleteEventFromEventEditor();
 
-      // Create a new event in today's calendar cell
-      await tester.scrollToToday();
-      await tester.doubleClickCalendarCell(today);
+      // Create another event on the 5th of this month
+      final fifthOfThisMonth = DateTime(today.year, today.month, 5);
+      await tester.doubleClickCalendarCell(fifthOfThisMonth);
       await tester.dismissEventEditor();
 
-      // Make sure that the event is today
-      tester.assertNumberOfEventsOnSpecificDay(1, today);
+      // Make sure that the event is on the 4t
+      tester.assertNumberOfEventsOnSpecificDay(1, fifthOfThisMonth);
 
       // Click on the event
-      await tester.openCalendarEvent(index: 0);
+      await tester.openCalendarEvent(index: 0, date: fifthOfThisMonth);
 
       // Open the date editor of the event
       await tester.tapDateCellInRowDetailPage();
       await tester.findDateEditor(findsOneWidget);
 
-      // Edit the event's date. To avoid selecting a day outside of the current month, the new date will be one day closer to the middle of the month.
-      final newDate = today.day < 15
-          ? today.add(const Duration(days: 1))
-          : today.subtract(const Duration(days: 1));
+      // Edit the event's date
+      final newDate = fifthOfThisMonth.add(const Duration(days: 1));
       await tester.selectDay(content: newDate.day);
       await tester.dismissCellEditor();
 

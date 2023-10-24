@@ -129,6 +129,8 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&user_profile.encryption_sign),
+        updated_at: user_profile.updated_at.timestamp(),
+        metadata: None,
       })
     })
   }
@@ -158,6 +160,8 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&response.encryption_sign),
+        updated_at: response.updated_at.timestamp(),
+        metadata: None,
       })
     })
   }
@@ -220,12 +224,13 @@ where
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
+          updated_at: response.updated_at.timestamp(),
         })),
       }
     })
   }
 
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -419,7 +424,7 @@ async fn get_user_profile(
 ) -> Result<Option<UserProfileResponse>, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
-    .select("uid, email, name, encryption_sign, latest_workspace_id");
+    .select("uid, email, name, encryption_sign, latest_workspace_id, updated_at");
 
   match params {
     GetUserProfileParams::Uid(uid) => builder = builder.eq("uid", uid.to_string()),

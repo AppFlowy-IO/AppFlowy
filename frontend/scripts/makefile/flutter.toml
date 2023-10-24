@@ -94,6 +94,14 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-make-product-dev]
+run_task = { name = [
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+
+
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"
@@ -227,8 +235,9 @@ script = [
   cd appflowy_flutter
   flutter clean
   flutter pub get
+  flutter packages pub get 
   cd ../
-  sh scripts/code_generation/generate.sh
+  sh scripts/code_generation/generate.sh -s
   """
 ]
 
@@ -239,6 +248,7 @@ script = [
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
+  exec cmd.exe /c flutter packages pub get
   cd ../
   exec scripts/code_generation/generate.cmd
   """,

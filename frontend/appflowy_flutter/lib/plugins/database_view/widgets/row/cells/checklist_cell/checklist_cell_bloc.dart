@@ -8,13 +8,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 part 'checklist_cell_bloc.freezed.dart';
 
+class ChecklistSelectOption {
+  final bool isSelected;
+  final SelectOptionPB data;
+
+  ChecklistSelectOption(this.isSelected, this.data);
+}
+
 class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellController cellController;
-  final ChecklistCellBackendService _checklistCellSvc;
+  final ChecklistCellBackendService _checklistCellService;
   void Function()? _onCellChangedFn;
   ChecklistCellBloc({
     required this.cellController,
-  })  : _checklistCellSvc = ChecklistCellBackendService(
+  })  : _checklistCellService = ChecklistCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
@@ -23,28 +30,43 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     on<ChecklistCellEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
+          initial: () {
             _startListening();
-            _loadOptions();
           },
           didReceiveOptions: (data) {
             if (data == null) {
               emit(
                 const ChecklistCellState(
-                  allOptions: [],
-                  selectedOptions: [],
+                  tasks: [],
                   percent: 0,
+                  newTask: false,
                 ),
               );
-            } else {
-              emit(
-                state.copyWith(
-                  allOptions: data.options,
-                  selectedOptions: data.selectedOptions,
-                  percent: data.percentage,
-                ),
-              );
+              return;
             }
+
+            emit(
+              state.copyWith(
+                tasks: _makeChecklistSelectOptions(data),
+                percent: data.percentage,
+              ),
+            );
+          },
+          updateTaskName: (option, name) {
+            _updateOption(option, name);
+          },
+          selectTask: (option) async {
+            await _checklistCellService.select(optionId: option.id);
+          },
+          createNewTask: (name) async {
+            final result = await _checklistCellService.create(name: name);
+            result.fold(
+              (l) => emit(state.copyWith(newTask: true)),
+              (err) => Log.error(err),
+            );
+          },
+          deleteTask: (option) async {
+            await _deleteOption([option]);
           },
         );
       },
@@ -63,9 +85,6 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
 
   void _startListening() {
     _onCellChangedFn = cellController.startListening(
-      onCellFieldChanged: () {
-        _loadOptions();
-      },
       onCellChanged: (data) {
         if (!isClosed) {
           add(ChecklistCellEvent.didReceiveOptions(data));
@@ -74,15 +93,18 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     );
   }
 
-  void _loadOptions() {
-    _checklistCellSvc.getCellData().then((result) {
-      if (isClosed) return;
+  void _updateOption(SelectOptionPB option, String name) async {
+    final result =
+        await _checklistCellService.updateName(option: option, name: name);
 
-      return result.fold(
-        (data) => add(ChecklistCellEvent.didReceiveOptions(data)),
-        (err) => Log.error(err),
-      );
-    });
+    result.fold((l) => null, (err) => Log.error(err));
+  }
+
+  Future<void> _deleteOption(List<SelectOptionPB> options) async {
+    final result = await _checklistCellService.delete(
+      optionIds: options.map((e) => e.id).toList(),
+    );
+    result.fold((l) => null, (err) => Log.error(err));
   }
 }
 
@@ -92,21 +114,53 @@ class ChecklistCellEvent with _$ChecklistCellEvent {
   const factory ChecklistCellEvent.didReceiveOptions(
     ChecklistCellDataPB? data,
   ) = _DidReceiveCellUpdate;
+  const factory ChecklistCellEvent.updateTaskName(
+    SelectOptionPB option,
+    String name,
+  ) = _UpdateTaskName;
+  const factory ChecklistCellEvent.selectTask(SelectOptionPB task) =
+      _SelectTask;
+  const factory ChecklistCellEvent.createNewTask(String description) =
+      _CreateNewTask;
+  const factory ChecklistCellEvent.deleteTask(SelectOptionPB option) =
+      _DeleteTask;
 }
 
 @freezed
 class ChecklistCellState with _$ChecklistCellState {
   const factory ChecklistCellState({
-    required List<SelectOptionPB> allOptions,
-    required List<SelectOptionPB> selectedOptions,
+    required List<ChecklistSelectOption> tasks,
     required double percent,
+    required bool newTask,
   }) = _ChecklistCellState;
 
   factory ChecklistCellState.initial(ChecklistCellController cellController) {
-    return const ChecklistCellState(
-      allOptions: [],
-      selectedOptions: [],
-      percent: 0,
+    final cellData = cellController.getCellData(loadIfNotExist: true);
+
+    return ChecklistCellState(
+      tasks: _makeChecklistSelectOptions(cellData),
+      percent: cellData?.percentage ?? 0,
+      newTask: false,
     );
   }
+}
+
+List<ChecklistSelectOption> _makeChecklistSelectOptions(
+  ChecklistCellDataPB? data,
+) {
+  if (data == null) {
+    return [];
+  }
+
+  final List<ChecklistSelectOption> options = [];
+  final List<SelectOptionPB> allOptions = List.from(data.options);
+  final selectedOptionIds = data.selectedOptions.map((e) => e.id).toList();
+
+  for (final option in allOptions) {
+    options.add(
+      ChecklistSelectOption(selectedOptionIds.contains(option.id), option),
+    );
+  }
+
+  return options;
 }

@@ -240,6 +240,9 @@ pub struct UserStatePB {
 pub struct AuthStateChangedPB {
   #[pb(index = 1)]
   pub state: AuthStatePB,
+
+  #[pb(index = 2)]
+  pub message: String,
 }
 
 #[derive(ProtoBuf_Enum, Debug, Clone)]

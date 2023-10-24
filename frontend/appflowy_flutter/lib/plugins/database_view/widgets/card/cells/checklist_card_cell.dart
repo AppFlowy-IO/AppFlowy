@@ -33,10 +33,9 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
       value: _cellBloc,
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {
-          if (state.allOptions.isEmpty) {
+          if (state.tasks.isEmpty) {
             return const SizedBox.shrink();
           }
-
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: ChecklistProgressBar(percent: state.percent),
