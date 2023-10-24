@@ -1,23 +1,20 @@
-import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
-
-import 'prelude.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/user/application/user_settings_service.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import 'prelude.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
@@ -144,8 +141,10 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           theme: state.lightTheme,
           darkTheme: state.darkTheme,
           themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
+          localizationsDelegates: [
+            ...context.localizationDelegates,
+            AppFlowyEditorLocalizations.delegate
+          ],
           supportedLocales: context.supportedLocales,
           locale: state.locale,
           routerConfig: routerConfig,
