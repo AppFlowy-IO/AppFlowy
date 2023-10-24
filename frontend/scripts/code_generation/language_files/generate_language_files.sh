@@ -1,5 +1,13 @@
 #!/bin/bash
 
+no_pub_get=false
+
+while getopts 's' flag; do
+  case "${flag}" in
+    s) no_pub_get=true ;;
+  esac
+done
+
 echo "Generating language files"
 
 # Store the current working directory
@@ -16,7 +24,9 @@ rm -rf assets/translations/
 mkdir -p assets/translations/
 cp -f ../resources/translations/*.json assets/translations/
 
-flutter packages pub get
+if [ "$no_pub_get" = false ]; then
+  flutter packages pub get
+fi
 
 echo "Specifying source directory for AppFlowy Localizations."
 dart run easy_localization:generate -S assets/translations/
