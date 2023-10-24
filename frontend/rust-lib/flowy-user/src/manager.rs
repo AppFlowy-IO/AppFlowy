@@ -422,7 +422,11 @@ impl UserManager {
     let changeset = UserTableChangeset::new(params.clone());
     let session = self.get_session()?;
     upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
-    self.update_user(session.user_id, None, params).await?;
+
+    let profile = self.get_user_profile(session.user_id).await?;
+    self
+      .update_user(session.user_id, profile.token, params)
+      .await?;
     Ok(())
   }
 
@@ -462,15 +466,19 @@ impl UserManager {
       .await?
       .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
 
-    if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign()) {
-      return Err(FlowyError::new(
-        ErrorCode::InvalidEncryptSecret,
-        "Invalid encryption sign",
-      ));
+    if new_user_profile.updated_at > old_user_profile.updated_at {
+      if !is_user_encryption_sign_valid(old_user_profile, &new_user_profile.encryption_type.sign())
+      {
+        return Err(FlowyError::new(
+          ErrorCode::InvalidEncryptSecret,
+          "Invalid encryption sign",
+        ));
+      }
+
+      let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
+      let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     }
 
-    let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
-    let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     Ok(new_user_profile)
   }
 
@@ -501,13 +509,12 @@ impl UserManager {
   async fn update_user(
     &self,
     uid: i64,
-    token: Option<String>,
+    token: String,
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    let token = token.to_owned();
     tokio::spawn(async move {
-      let credentials = UserCredentials::new(token, Some(uid), None);
+      let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })
     .await
@@ -706,6 +713,11 @@ fn upsert_user_profile_change(
   pool: Arc<ConnectionPool>,
   changeset: UserTableChangeset,
 ) -> FlowyResult<()> {
+  event!(
+    tracing::Level::DEBUG,
+    "Update user profile with changeset: {:?}",
+    changeset
+  );
   let conn = pool.get()?;
   diesel_update_table!(user_table, changeset, &*conn);
   let user: UserProfile = user_table::dsl::user_table

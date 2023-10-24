@@ -23,7 +23,7 @@ bytes = { version = "1.5", features = ["serde"] }
 tokio-retry = "0.3"
 anyhow = "1.0"
 uuid = { version = "1.3.3", features = ["v4"] }
-chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.31", default-features = false, features = ["clock", "serde"] }
 collab = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0"}
 collab-document = { version = "0.1.0" }

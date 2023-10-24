@@ -240,6 +240,7 @@ pub async fn user_sign_in_with_url(
     device_id: params.device_id,
     encryption_type,
     is_new_user,
+    updated_at: user_profile.updated_at,
     metadata: user_profile.metadata,
   })
 }

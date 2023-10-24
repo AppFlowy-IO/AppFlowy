@@ -60,5 +60,6 @@ pub fn user_profile_from_af_profile(
     auth_type: AuthType::AFCloud,
     encryption_type,
     uid: profile.uid,
+    updated_at: profile.updated_at,
   })
 }

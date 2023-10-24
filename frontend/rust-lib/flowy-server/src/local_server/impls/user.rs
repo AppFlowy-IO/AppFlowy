@@ -11,6 +11,7 @@ use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
 
 use crate::local_server::uid::UserIDGenerator;
 use crate::local_server::LocalServerDB;
@@ -46,6 +47,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
         metadata: None,
       })
     })
@@ -70,6 +72,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
         metadata: None,
       })
     })
