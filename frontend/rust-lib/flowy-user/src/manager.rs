@@ -402,7 +402,7 @@ impl UserManager {
     tokio::spawn(async move {
       match server.sign_out(None).await {
         Ok(_) => {},
-        Err(e) => tracing::error!("Sign out failed: {:?}", e),
+        Err(e) => event!(tracing::Level::ERROR, "{:?}", e),
       }
     });
     Ok(())
