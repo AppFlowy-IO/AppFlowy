@@ -15,7 +15,7 @@ REM   the appflowy_flutter/assets/translation directory
 echo Copying resources/translations to appflowy_flutter/assets/translations
 xcopy /E /Y /I ..\resources\translations assets\translations
 
-call flutter packages pub get
+REM call flutter packages pub get
 
 echo Specifying source directory for AppFlowy Localizations.
 call dart run easy_localization:generate -S assets/translations/

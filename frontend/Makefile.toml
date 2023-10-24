@@ -186,6 +186,14 @@ RUST_COMPILE_TARGET = "aarch64-apple-ios"
 BUILD_ARCHS = "arm64"
 CRATE_TYPE = "staticlib"
 
+[env.production-ios-arm64]
+BUILD_FLAG = "release"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Release"
+RUST_COMPILE_TARGET = "aarch64-apple-ios"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
 [env.development-android]
 BUILD_FLAG = "debug"
 TARGET_OS = "android"

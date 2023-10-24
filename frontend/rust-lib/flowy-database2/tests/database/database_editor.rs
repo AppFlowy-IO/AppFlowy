@@ -8,7 +8,7 @@ use strum::EnumCount;
 
 use event_integration::test_folder::ViewTest;
 use event_integration::EventIntegrationTest;
-use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB, SelectOptionPB};
+use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
@@ -218,7 +218,7 @@ impl DatabaseEditorTest {
   pub(crate) async fn set_checklist_cell(
     &mut self,
     row_id: RowId,
-    f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>>,
+    selected_options: Vec<String>,
   ) -> FlowyResult<()> {
     let field = self
       .editor
@@ -230,13 +230,8 @@ impl DatabaseEditorTest {
       })
       .unwrap()
       .clone();
-    let options = self
-      .editor
-      .get_checklist_option(row_id.clone(), &field.id)
-      .await
-      .options;
     let cell_changeset = ChecklistCellChangeset {
-      selected_option_ids: f(options),
+      selected_option_ids: selected_options,
       ..Default::default()
     };
     self

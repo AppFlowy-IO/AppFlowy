@@ -1,7 +1,9 @@
 // ThemeData in mobile
 import 'package:flutter/material.dart';
 
-ThemeData getMobileThemeData() {
+ThemeData getMobileThemeData(
+  Theme theme,
+) {
   const mobileColorTheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF2DA2F6), //primary 100
@@ -106,7 +108,7 @@ ThemeData getMobileThemeData() {
       ),
       // body2 14 Regular
       bodyMedium: TextStyle(
-        color: Color(0xFFC5C7CB),
+        color: Colors.black,
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.20,
