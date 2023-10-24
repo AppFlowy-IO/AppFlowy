@@ -421,7 +421,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params.clone());
     let session = self.get_session()?;
-    save_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
+    upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
     self.update_user(session.user_id, None, params).await?;
     Ok(())
   }
@@ -470,7 +470,7 @@ impl UserManager {
     }
 
     let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
-    let _ = save_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
+    let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
     Ok(new_user_profile)
   }
 
@@ -613,6 +613,7 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let user_profile = UserProfile::from((response, auth_type));
     let uid = user_profile.uid;
+    event!(tracing::Level::DEBUG, "Save new history user: {:?}", uid);
     self.add_historical_user(
       uid,
       response.device_id(),
@@ -620,7 +621,9 @@ impl UserManager {
       auth_type,
       self.user_dir(uid),
     );
+    event!(tracing::Level::DEBUG, "Save new history user workspace");
     save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
+    event!(tracing::Level::INFO, "Save new user profile to disk");
     self
       .save_user(uid, (user_profile, auth_type.clone()).into())
       .await?;
@@ -645,7 +648,7 @@ impl UserManager {
       }
 
       // Save the user profile change
-      save_user_profile_change(
+      upsert_user_profile_change(
         user_update.uid,
         self.db_pool(user_update.uid)?,
         UserTableChangeset::from(user_update),
@@ -698,7 +701,7 @@ fn is_user_encryption_sign_valid(user_profile: &UserProfile, encryption_sign: &s
   is_valid
 }
 
-fn save_user_profile_change(
+fn upsert_user_profile_change(
   uid: i64,
   pool: Arc<ConnectionPool>,
   changeset: UserTableChangeset,
@@ -719,5 +722,5 @@ fn save_user_profile_change(
 fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyResult<()> {
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
-  save_user_profile_change(uid, pool, changeset)
+  upsert_user_profile_change(uid, pool, changeset)
 }

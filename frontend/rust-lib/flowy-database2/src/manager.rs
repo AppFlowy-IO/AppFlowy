@@ -132,7 +132,12 @@ impl DatabaseManager {
     Ok(())
   }
 
-  #[instrument(level = "debug", skip_all, err)]
+  #[instrument(
+    name = "database_initialize_with_new_user",
+    level = "debug",
+    skip_all,
+    err
+  )]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,

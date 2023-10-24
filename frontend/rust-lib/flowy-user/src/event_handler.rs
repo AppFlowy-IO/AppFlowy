@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -89,7 +90,7 @@ pub async fn check_user_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(manager))]
+#[tracing::instrument(level = "debug", skip(manager), err)]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
@@ -104,6 +105,12 @@ pub async fn get_user_profile_handler(
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
+
+  event!(
+    tracing::Level::DEBUG,
+    "Get user profile: {:?}",
+    user_profile
+  );
 
   data_result_ok(user_profile.into())
 }

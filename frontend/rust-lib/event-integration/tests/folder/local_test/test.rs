@@ -1,12 +1,12 @@
 use event_integration::event_builder::EventBuilder;
-use event_integration::FlowyCoreTest;
+use event_integration::EventIntegrationTest;
 use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
 use flowy_folder2::entities::*;
 use flowy_user::errors::ErrorCode;
 
 #[tokio::test]
 async fn create_workspace_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let request = CreateWorkspacePayloadPB {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
@@ -22,7 +22,7 @@ async fn create_workspace_event_test() {
 
 #[tokio::test]
 async fn open_workspace_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let payload = CreateWorkspacePayloadPB {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
@@ -52,7 +52,7 @@ async fn open_workspace_event_test() {
 
 #[tokio::test]
 async fn create_view_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -64,7 +64,7 @@ async fn create_view_event_test() {
 
 #[tokio::test]
 async fn update_view_event_with_name_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -85,7 +85,7 @@ async fn update_view_event_with_name_test() {
 
 #[tokio::test]
 async fn update_view_icon_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -109,7 +109,7 @@ async fn update_view_icon_event_test() {
 
 #[tokio::test]
 async fn delete_view_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -132,7 +132,7 @@ async fn delete_view_event_test() {
 
 #[tokio::test]
 async fn put_back_trash_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -175,7 +175,7 @@ async fn put_back_trash_event_test() {
 
 #[tokio::test]
 async fn delete_view_permanently_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let view = test
     .create_view(&current_workspace.id, "My first view".to_string())
@@ -224,7 +224,7 @@ async fn delete_view_permanently_event_test() {
 
 #[tokio::test]
 async fn delete_all_trash_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
 
   for i in 0..3 {
@@ -268,7 +268,7 @@ async fn delete_all_trash_test() {
 
 #[tokio::test]
 async fn multiple_hierarchy_view_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..4 {
     let parent = test
@@ -344,7 +344,7 @@ async fn multiple_hierarchy_view_test() {
 
 #[tokio::test]
 async fn move_view_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..4 {
     let parent = test
@@ -382,7 +382,7 @@ async fn move_view_event_test() {
 
 #[tokio::test]
 async fn move_view_event_after_delete_view_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   for i in 1..6 {
     let _ = test
@@ -424,7 +424,7 @@ async fn move_view_event_after_delete_view_test() {
 
 #[tokio::test]
 async fn move_view_event_after_delete_view_test2() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let parent = test
     .create_view(&current_workspace.id, "My view".to_string())
@@ -466,7 +466,7 @@ async fn move_view_event_after_delete_view_test2() {
 #[tokio::test]
 async fn create_parent_view_with_invalid_name() {
   for (name, code) in invalid_workspace_name_test_case() {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let request = CreateWorkspacePayloadPB {
       name,
       desc: "".to_owned(),
@@ -494,7 +494,7 @@ fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
 
 #[tokio::test]
 async fn move_view_across_parent_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let parent_1 = test
     .create_view(&current_workspace.id, "My view 1".to_string())
@@ -539,7 +539,7 @@ async fn move_view_across_parent_test() {
 }
 
 async fn move_folder_nested_view(
-  sdk: FlowyCoreTest,
+  sdk: EventIntegrationTest,
   view_id: String,
   new_parent_id: String,
   prev_view_id: Option<String>,
