@@ -901,10 +901,7 @@ impl DatabaseEditor {
       .v_get_group_configuration_settings()
       .await
       .into_iter()
-      .flat_map(|value| match GroupSetting::try_from(value) {
-        Ok(setting) => Some(GroupSettingPB::from(&setting)),
-        Err(_) => None,
-      })
+      .map(|value| GroupSettingPB::from(&value))
       .collect::<Vec<GroupSettingPB>>();
 
     Ok(group_settings)

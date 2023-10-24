@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
@@ -242,6 +241,15 @@ class DatabaseController {
     });
   }
 
+  void updateGroupConfiguration(bool hideUngrouped) async {
+    final payload = GroupSettingChangesetPB(
+      viewId: viewId,
+      groupConfigurationId: "",
+      hideUngrouped: hideUngrouped,
+    );
+    DatabaseEventUpdateGroupConfiguration(payload).send();
+  }
+
   Future<void> dispose() async {
     await _databaseViewBackendSvc.closeView();
     await fieldController.dispose();
@@ -253,16 +261,24 @@ class DatabaseController {
   }
 
   Future<void> _loadGroups() async {
-    final result = await _databaseViewBackendSvc.loadGroups();
-    return Future(
-      () => result.fold(
-        (groups) {
-          for (final callback in _groupCallbacks) {
-            callback.onGroupByField?.call(groups.items);
-          }
-        },
-        (err) => Log.error(err),
-      ),
+    final configResult = await loadGroupConfiguration(viewId: viewId);
+    configResult.fold(
+      (configurations) {
+        for (final callback in _groupCallbacks) {
+          callback.onGroupConfigurationChanged?.call(configurations);
+        }
+      },
+      (err) => Log.error(err),
+    );
+
+    final groupsResult = await _databaseViewBackendSvc.loadGroups();
+    groupsResult.fold(
+      (groups) {
+        for (final callback in _groupCallbacks) {
+          callback.onGroupByField?.call(groups.items);
+        }
+      },
+      (err) => Log.error(err),
     );
   }
 
@@ -333,7 +349,9 @@ class DatabaseController {
       onGroupConfigurationChanged: (result) {
         result.fold(
           (configurations) {
-            print("asdfasdf $configurations");
+            for (final callback in _groupCallbacks) {
+              callback.onGroupConfigurationChanged?.call(configurations);
+            }
           },
           (r) => Log.error(r),
         );
@@ -391,6 +409,16 @@ class DatabaseController {
         );
       },
     );
+  }
+
+  Future<Either<List<GroupSettingPB>, FlowyError>> loadGroupConfiguration({
+    required String viewId,
+  }) {
+    final payload = DatabaseViewIdPB(value: viewId);
+
+    return DatabaseEventGetGroupConfigurations(payload).send().then((result) {
+      return result.fold((l) => left(l.items), (r) => right(r));
+    });
   }
 }
 

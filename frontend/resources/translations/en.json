@@ -729,6 +729,8 @@
       "create_new_card": "New"
     },
     "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },
   "calendar": {

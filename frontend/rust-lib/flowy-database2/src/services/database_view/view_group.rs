@@ -154,7 +154,6 @@ struct GroupSettingWriterImpl(Arc<dyn DatabaseViewData>);
 impl GroupSettingWriter for GroupSettingWriterImpl {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
     self.0.insert_group_setting(view_id, group_setting);
-    tracing::trace!("asdfasdfasedfasdf");
     to_fut(async move { Ok(()) })
   }
 }

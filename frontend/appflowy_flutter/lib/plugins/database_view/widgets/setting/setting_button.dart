@@ -170,7 +170,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
         ),
       DatabaseSettingAction.showGroup => DatabaseGroupList(
           viewId: databaseController.viewId,
-          fieldController: databaseController.fieldController,
+          databaseController: databaseController,
           onDismissed: () {},
         ),
       DatabaseSettingAction.showProperties => DatabasePropertyList(
@@ -191,7 +191,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
       direction: PopoverDirection.leftWithTopAligned,
       mutex: popoverMutex,
       margin: EdgeInsets.zero,
-      offset: const Offset(-16, 0),
+      offset: const Offset(-14, 0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(

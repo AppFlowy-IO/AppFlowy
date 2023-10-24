@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:appflowy_backend/log.dart';
@@ -26,6 +27,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   late final AppFlowyBoardController boardController;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
+  GroupPB? _ungroupedGroup;
 
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
@@ -152,6 +154,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               ),
             );
           },
+          didUpdateHideUngrouped: (bool hideUngrouped) {
+            emit(state.copyWith(hideUngrouped: hideUngrouped));
+          },
         );
       },
     );
@@ -182,6 +187,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     groupControllers.clear();
     boardController.clear();
 
+    final ungroupedGroupIndex =
+        groups.indexWhere((group) => group.groupId == group.fieldId);
+
+    if (ungroupedGroupIndex != -1) {
+      _ungroupedGroup = groups[ungroupedGroupIndex];
+      groups.add(groups.removeAt(ungroupedGroupIndex));
+    }
+
     boardController.addGroups(
       groups
           .where((group) => fieldController.getField(group.fieldId) != null)
@@ -208,8 +221,22 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
     final onGroupChanged = GroupCallbacks(
+      onGroupConfigurationChanged: (configurations) {
+        if (isClosed) return;
+        final config = configurations.first;
+        if (config.hideUngrouped) {
+          boardController.removeGroup(config.fieldId);
+        } else if (_ungroupedGroup != null) {
+          final newGroup = initializeGroupData(_ungroupedGroup!);
+          final controller = initializeGroupController(_ungroupedGroup!);
+          groupControllers[controller.group.groupId] = (controller);
+          boardController.addGroup(newGroup);
+        }
+        add(BoardEvent.didUpdateHideUngrouped(config.hideUngrouped));
+      },
       onGroupByField: (groups) {
         if (isClosed) return;
+        _ungroupedGroup = null;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },
@@ -319,6 +346,8 @@ class BoardEvent with _$BoardEvent {
   ) = _DidReceiveGridUpdate;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroups;
+  const factory BoardEvent.didUpdateHideUngrouped(bool hideUngrouped) =
+      _DidUpdateHideUngrouped;
 }
 
 @freezed
@@ -330,6 +359,7 @@ class BoardState with _$BoardState {
     required Option<BoardEditingRow> editingRow,
     required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
+    required bool hideUngrouped,
   }) = _BoardState;
 
   factory BoardState.initial(String viewId) => BoardState(
@@ -339,6 +369,7 @@ class BoardState with _$BoardState {
         editingRow: none(),
         noneOrError: none(),
         loadingState: const LoadingState.loading(),
+        hideUngrouped: false,
       );
 }
 
