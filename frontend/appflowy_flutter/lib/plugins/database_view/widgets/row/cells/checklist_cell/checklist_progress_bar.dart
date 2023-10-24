@@ -27,7 +27,8 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
         Expanded(
           child: Row(
             children: [
-              if (widget.tasks.length <= widget.segmentLimit) ...[
+              if (widget.tasks.isNotEmpty &&
+                  widget.tasks.length <= widget.segmentLimit) ...[
                 for (int i = 0,
                         j = widget.tasks.where((e) => e.isSelected).length;
                     i < widget.tasks.length;
