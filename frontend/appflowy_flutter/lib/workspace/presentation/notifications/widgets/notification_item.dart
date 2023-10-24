@@ -22,6 +22,7 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
+    this.path,
     this.block,
     this.includeTime = false,
     this.readOnly = false,
@@ -34,6 +35,8 @@ class NotificationItem extends StatefulWidget {
   final String title;
   final Int64 scheduled;
   final String body;
+  final bool isRead;
+  final Future<int?>? path;
 
   /// If [block] is provided, then [body] will be shown only if
   /// [block] fails to fetch.
@@ -44,9 +47,8 @@ class NotificationItem extends StatefulWidget {
 
   final bool includeTime;
   final bool readOnly;
-  final bool isRead;
 
-  final VoidCallback? onAction;
+  final void Function(int? path)? onAction;
   final VoidCallback? onDelete;
   final void Function(bool isRead)? onReadChanged;
 
@@ -57,6 +59,13 @@ class NotificationItem extends StatefulWidget {
 class _NotificationItemState extends State<NotificationItem> {
   final PopoverMutex mutex = PopoverMutex();
   bool _isHovering = false;
+  int? path;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.path?.then((p) => path = p);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +78,7 @@ class _NotificationItemState extends State<NotificationItem> {
       child: Stack(
         children: [
           GestureDetector(
-            onTap: widget.onAction,
+            onTap: () => widget.onAction?.call(path),
             child: AbsorbPointer(
               child: Opacity(
                 opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
@@ -154,14 +163,15 @@ class _NotificationItemState extends State<NotificationItem> {
                                       child: AppFlowyEditor(
                                         editorState: editorState,
                                         editorStyle: styleCustomizer.style(),
+                                        editable: false,
+                                        shrinkWrap: true,
                                         blockComponentBuilders:
-                                            getAppFlowyBuilderMap(
+                                            getEditorBuilderMap(
                                           context: context,
                                           editorState: editorState,
                                           styleCustomizer: styleCustomizer,
+                                          editable: false,
                                         ),
-                                        editable: false,
-                                        shrinkWrap: true,
                                       ),
                                     );
                                   },

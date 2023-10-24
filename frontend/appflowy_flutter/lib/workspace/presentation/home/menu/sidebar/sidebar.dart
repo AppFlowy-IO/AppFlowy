@@ -14,7 +14,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,23 +63,7 @@ class HomeSideBar extends StatelessWidget {
                 ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
-            listener: (context, state) {
-              final action = state.action;
-              if (action != null) {
-                switch (action.type) {
-                  case ActionType.openView:
-                    final view = context
-                        .read<MenuBloc>()
-                        .state
-                        .views
-                        .firstWhereOrNull((view) => action.objectId == view.id);
-
-                    if (view != null) {
-                      context.read<TabsBloc>().openPlugin(view);
-                    }
-                }
-              }
-            },
+            listener: _onNotificationAction,
           ),
         ],
         child: Builder(
@@ -144,5 +127,32 @@ class HomeSideBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onNotificationAction(
+    BuildContext context,
+    NotificationActionState state,
+  ) {
+    final action = state.action;
+    if (action != null) {
+      if (action.type == ActionType.openView) {
+        final view =
+            context.read<MenuBloc>().state.views.findView(action.objectId);
+
+        if (view != null) {
+          context.read<TabsBloc>().openPlugin(view);
+
+          final nodePath =
+              action.arguments?[ActionArgumentKeys.nodePath.name] as int?;
+          if (nodePath != null) {
+            context.read<NotificationActionBloc>().add(
+                  NotificationActionEvent.performAction(
+                    action: action.copyWith(type: ActionType.jumpToBlock),
+                  ),
+                );
+          }
+        }
+      }
+    }
   }
 }

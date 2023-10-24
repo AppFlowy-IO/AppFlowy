@@ -8,6 +8,9 @@ import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.d
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
@@ -102,7 +105,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final List<SelectionMenuItem> slashMenuItems;
 
   late final Map<String, BlockComponentBuilder> blockComponentBuilders =
-      getAppFlowyBuilderMap(
+      getEditorBuilderMap(
     context: context,
     editorState: widget.editorState,
     styleCustomizer: widget.styleCustomizer,
@@ -225,6 +228,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
 
     final editorState = widget.editorState;
+    _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
       return Column(
@@ -276,6 +280,21 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         child: editor,
       ),
     );
+  }
+
+  void _setInitialSelection(EditorScrollController scrollController) {
+    final action = getIt<NotificationActionBloc>().state.action;
+    final viewId = action?.objectId;
+    final nodePath =
+        action?.arguments?[ActionArgumentKeys.nodePath.name] as int?;
+
+    if (viewId != null && viewId == documentBloc.view.id && nodePath != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController.itemScrollController.jumpTo(index: nodePath);
+        widget.editorState.selection =
+            Selection.collapsed(Position(path: [nodePath]));
+      });
+    }
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {

@@ -5,7 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 
-Map<String, BlockComponentBuilder> getAppFlowyBuilderMap({
+Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
   required EditorState editorState,
   required EditorStyleCustomizer styleCustomizer,

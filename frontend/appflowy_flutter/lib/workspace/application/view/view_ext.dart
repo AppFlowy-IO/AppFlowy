@@ -135,3 +135,22 @@ extension ViewLayoutExtension on ViewLayoutPB {
     }
   }
 }
+
+extension ViewFinder on List<ViewPB> {
+  ViewPB? findView(String id) {
+    for (final view in this) {
+      if (view.id == id) {
+        return view;
+      }
+
+      if (view.childViews.isNotEmpty) {
+        final v = view.childViews.findView(id);
+        if (v != null) {
+          return v;
+        }
+      }
+    }
+
+    return null;
+  }
+}
