@@ -50,7 +50,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Checklist
-        .event(DatabaseEvent::GetChecklistCellData, get_checklist_cell_data_handler)
         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
         // Date
         .event(DatabaseEvent::UpdateDateCell, update_date_cell_handler)
@@ -256,11 +255,8 @@ pub enum DatabaseEvent {
   #[event(input = "SelectOptionCellChangesetPB")]
   UpdateSelectOptionCell = 72,
 
-  #[event(input = "CellIdPB", output = "ChecklistCellDataPB")]
-  GetChecklistCellData = 73,
-
   #[event(input = "ChecklistCellDataChangesetPB")]
-  UpdateChecklistCell = 74,
+  UpdateChecklistCell = 73,
 
   /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that

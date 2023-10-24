@@ -30,7 +30,7 @@ pub enum FilterScript {
     },
     UpdateChecklistCell{
         row_id: RowId,
-        f: Box<dyn FnOnce(Vec<SelectOptionPB>) -> Vec<String>> ,
+        selected_option_ids: Vec<String>,
     },
     UpdateSingleSelectCell {
         row_id: RowId,
@@ -138,8 +138,8 @@ impl DatabaseFilterTest {
                 self.assert_future_changed(changed).await;
                 self.update_text_cell(row_id, &text).await.unwrap();
             }
-            FilterScript::UpdateChecklistCell { row_id, f } => {
-                self.set_checklist_cell( row_id, f).await.unwrap();
+            FilterScript::UpdateChecklistCell { row_id, selected_option_ids } => {
+                self.set_checklist_cell( row_id, selected_option_ids).await.unwrap();
             }
             FilterScript::UpdateSingleSelectCell { row_id, option_id, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());

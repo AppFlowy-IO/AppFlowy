@@ -16,6 +16,8 @@ String languageFromLocale(Locale locale) {
       }
 
     // Then in alphabetical order
+    case "am":
+      return "አማርኛ";
     case "ar":
       return "العربية";
     case "ca":
@@ -63,7 +65,6 @@ String languageFromLocale(Locale locale) {
       return "اردو";
     case "hin":
       return "हिन्दी";
-
 
     // If not found then the language code will be displayed
     default:

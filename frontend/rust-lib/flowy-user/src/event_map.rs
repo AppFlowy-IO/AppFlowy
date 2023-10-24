@@ -272,7 +272,7 @@ pub enum UserEvent {
   #[event(input = "UserSecretPB")]
   SetEncryptionSecret = 15,
 
-  #[event(output = "UserEncryptionSecretCheckPB")]
+  #[event(output = "UserEncryptionConfigurationPB")]
   CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user

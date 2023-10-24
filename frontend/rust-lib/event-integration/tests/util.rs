@@ -16,7 +16,7 @@ use zip::ZipArchive;
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::Cleaner;
-use event_integration::FlowyCoreTest;
+use event_integration::EventIntegrationTest;
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_folder_deps::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
@@ -36,13 +36,13 @@ pub fn get_supabase_config() -> Option<SupabaseConfiguration> {
 }
 
 pub struct FlowySupabaseTest {
-  inner: FlowyCoreTest,
+  inner: EventIntegrationTest,
 }
 
 impl FlowySupabaseTest {
   pub fn new() -> Option<Self> {
     let _ = get_supabase_config()?;
-    let test = FlowyCoreTest::new();
+    let test = EventIntegrationTest::new();
     test.set_auth_type(AuthTypePB::Supabase);
     test.server_provider.set_auth_type(AuthType::Supabase);
 
@@ -76,7 +76,7 @@ impl FlowySupabaseTest {
 }
 
 impl Deref for FlowySupabaseTest {
-  type Target = FlowyCoreTest;
+  type Target = EventIntegrationTest;
 
   fn deref(&self) -> &Self::Target {
     &self.inner
@@ -215,13 +215,13 @@ pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(
 }
 
 pub struct AFCloudTest {
-  inner: FlowyCoreTest,
+  inner: EventIntegrationTest,
 }
 
 impl AFCloudTest {
   pub fn new() -> Option<Self> {
     let _ = get_af_cloud_config()?;
-    let test = FlowyCoreTest::new();
+    let test = EventIntegrationTest::new();
     test.set_auth_type(AuthTypePB::AFCloud);
     test.server_provider.set_auth_type(AuthType::AFCloud);
 
@@ -230,7 +230,7 @@ impl AFCloudTest {
 }
 
 impl Deref for AFCloudTest {
-  type Target = FlowyCoreTest;
+  type Target = EventIntegrationTest;
 
   fn deref(&self) -> &Self::Target {
     &self.inner

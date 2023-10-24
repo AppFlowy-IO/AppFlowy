@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -89,7 +90,7 @@ pub async fn check_user_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip(manager))]
+#[tracing::instrument(level = "debug", skip(manager), err)]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
@@ -104,6 +105,12 @@ pub async fn get_user_profile_handler(
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
+
+  event!(
+    tracing::Level::DEBUG,
+    "Get user profile: {:?}",
+    user_profile
+  );
 
   data_result_ok(user_profile.into())
 }
@@ -330,7 +337,7 @@ pub async fn set_encrypt_secret_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn check_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let profile = manager.get_user_profile(uid).await?;
@@ -346,7 +353,9 @@ pub async fn check_encrypt_secret_handler(
     },
   };
 
-  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
+  data_result_ok(UserEncryptionConfigurationPB {
+    require_secret: is_need_secret,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

@@ -284,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .map(
           (t) => ColorOption(
             colorHex: t.color(context).toHex(),
-            name: t.tintName(AppFlowyEditorLocalizations.current),
+            name: t.tintName(AppFlowyEditorL10n.current),
           ),
         )
         .toList();

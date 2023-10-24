@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -132,19 +133,23 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ];
 
-  late final showSlashMenu = customSlashCommand(
-    slashMenuItems,
-    shouldInsertSlash: false,
-    style: styleCustomizer.selectionMenuStyleBuilder(),
-  ).handler;
-
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  Future<bool> showSlashMenu(editorState) async {
+    final result = await customSlashCommand(
+      slashMenuItems,
+      shouldInsertSlash: false,
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ).handler(editorState);
+    return result;
+  }
 
   @override
   void initState() {
     super.initState();
 
+    _initEditorL10n();
     _initializeShortcuts();
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
@@ -196,38 +201,80 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       scrollController: effectiveScrollController,
     );
 
-    final editor = AppFlowyEditor(
-      editorState: widget.editorState,
-      editable: true,
-      editorScrollController: editorScrollController,
-      // setup the auto focus parameters
-      autoFocus: widget.autoFocus ?? autoFocus,
-      focusedSelection: selection,
-      // setup the theme
-      editorStyle: styleCustomizer.style(),
-      // customize the block builders
-      blockComponentBuilders: blockComponentBuilders,
-      // customize the shortcuts
-      characterShortcutEvents: characterShortcutEvents,
-      commandShortcutEvents: commandShortcutEvents,
-      // customize the context menu items
-      contextMenuItems: customContextMenuItems,
-      // customize the header and footer.
-      header: widget.header,
-      footer: const VSpace(200),
+    final editor = Directionality(
+      textDirection: textDirection,
+      child: AppFlowyEditor(
+        editorState: widget.editorState,
+        editable: true,
+        editorScrollController: editorScrollController,
+        // setup the auto focus parameters
+        autoFocus: widget.autoFocus ?? autoFocus,
+        focusedSelection: selection,
+        // setup the theme
+        editorStyle: styleCustomizer.style(),
+        // customize the block builders
+        blockComponentBuilders: blockComponentBuilders,
+        // customize the shortcuts
+        characterShortcutEvents: characterShortcutEvents,
+        commandShortcutEvents: commandShortcutEvents,
+        // customize the context menu items
+        contextMenuItems: customContextMenuItems,
+        // customize the header and footer.
+        header: widget.header,
+        footer: const VSpace(200),
+      ),
     );
+
+    final editorState = widget.editorState;
+
+    if (PlatformExtension.isMobile) {
+      return Column(
+        children: [
+          Expanded(
+            child: MobileFloatingToolbar(
+              editorState: editorState,
+              editorScrollController: editorScrollController,
+              toolbarBuilder: (context, anchor) {
+                return AdaptiveTextSelectionToolbar.editable(
+                  clipboardStatus: ClipboardStatus.pasteable,
+                  onCopy: () => copyCommand.execute(editorState),
+                  onCut: () => cutCommand.execute(editorState),
+                  onPaste: () => pasteCommand.execute(editorState),
+                  onSelectAll: () => selectAllCommand.execute(editorState),
+                  anchors: TextSelectionToolbarAnchors(
+                    primaryAnchor: anchor,
+                  ),
+                );
+              },
+              child: editor,
+            ),
+          ),
+          MobileToolbar(
+            editorState: editorState,
+            toolbarItems: [
+              textDecorationMobileToolbarItem,
+              buildTextAndBackgroundColorMobileToolbarItem(),
+              headingMobileToolbarItem,
+              todoListMobileToolbarItem,
+              listMobileToolbarItem,
+              linkMobileToolbarItem,
+              quoteMobileToolbarItem,
+              dividerMobileToolbarItem,
+              codeMobileToolbarItem,
+            ],
+          ),
+        ],
+      );
+    }
 
     return Center(
       child: FloatingToolbar(
         style: styleCustomizer.floatingToolbarStyleBuilder(),
         items: toolbarItems,
-        editorState: widget.editorState,
+        editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
-        child: Directionality(
-          textDirection: textDirection,
-          child: editor,
-        ),
+        child: editor,
       ),
     );
   }
@@ -241,7 +288,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       // OptionAction.moveDown,
     ];
 
-    final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
+    const calloutBGColor = Colors.black;
+    // AFThemeExtension.of(context).calloutBGColor;
 
     final configuration = BlockComponentConfiguration(
       padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
@@ -417,24 +465,27 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
       ];
 
-      builder.showActions =
-          (node) => node.parent?.type != TableCellBlockKeys.type;
-      builder.actionBuilder = (context, state) {
-        final top = builder.configuration.padding(context.node).top;
-        final padding = context.node.type == HeadingBlockKeys.type
-            ? EdgeInsets.only(top: top + 8.0)
-            : EdgeInsets.only(top: top + 2.0);
-        return Padding(
-          padding: padding,
-          child: BlockActionList(
-            blockComponentContext: context,
-            blockComponentState: state,
-            editorState: widget.editorState,
-            actions: actions,
-            showSlashMenu: () => showSlashMenu(widget.editorState),
-          ),
-        );
-      };
+      // only show the ... and + button on the desktop platform.
+      if (PlatformExtension.isDesktop) {
+        builder.showActions =
+            (node) => node.parent?.type != TableCellBlockKeys.type;
+        builder.actionBuilder = (context, state) {
+          final top = builder.configuration.padding(context.node).top;
+          final padding = context.node.type == HeadingBlockKeys.type
+              ? EdgeInsets.only(top: top + 8.0)
+              : EdgeInsets.only(top: top + 2.0);
+          return Padding(
+            padding: padding,
+            child: BlockActionList(
+              blockComponentContext: context,
+              blockComponentState: state,
+              editorState: widget.editorState,
+              actions: actions,
+              showSlashMenu: () => showSlashMenu(widget.editorState),
+            ),
+          );
+        };
+      }
     }
 
     return builders;
@@ -443,7 +494,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   List<SelectionMenuItem> _customSlashMenuItems() {
     final items = [...standardSelectionMenuItems];
     final imageItem = items.firstWhereOrNull(
-      (element) => element.name == AppFlowyEditorLocalizations.current.image,
+      (element) => element.name == AppFlowyEditorL10n.current.image,
     );
     if (imageItem != null) {
       final imageItemIndex = items.indexOf(imageItem);
@@ -573,5 +624,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       return null;
     };
+  }
+
+  void _initEditorL10n() {
+    AppFlowyEditorL10n.current = EditorI18n();
   }
 }
