@@ -102,15 +102,14 @@ where
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<UserProfile, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let profile = client.get_profile().await?;
       let token = client.get_token()?;
       let profile = user_profile_from_af_profile(token, profile)?;
-
-      Ok(Some(profile))
+      Ok(profile)
     })
   }
 
@@ -119,29 +118,6 @@ where
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
       Ok(to_user_workspaces(workspaces.0)?)
-    })
-  }
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move {
-      // from params
-      let token = credential.token.ok_or(anyhow!("expecting token"))?;
-      let uid = credential.uid.ok_or(anyhow!("expecting uid"))?;
-
-      // from cloud
-      let client = try_get_client?;
-      let profile = client.get_profile().await?;
-      let client_token = client.access_token()?;
-
-      // compare and check
-      if uid != profile.uid {
-        return Err(anyhow!("uid mismatch"));
-      }
-      if token != client_token {
-        return Err(anyhow!("token mismatch"));
-      }
-      Ok(())
     })
   }
 

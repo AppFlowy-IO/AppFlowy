@@ -23,7 +23,7 @@ use flowy_server::supabase::api::*;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
 use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB, UserCredentialsPB};
+use flowy_user::entities::{AuthTypePB, UpdateUserProfilePayloadPB};
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::event_map::UserEvent::*;
@@ -47,19 +47,6 @@ impl FlowySupabaseTest {
     test.server_provider.set_auth_type(AuthType::Supabase);
 
     Some(Self { inner: test })
-  }
-
-  pub async fn check_user_with_uuid(&self, uuid: &str) -> Result<(), FlowyError> {
-    match EventBuilder::new(self.inner.clone())
-      .event(CheckUser)
-      .payload(UserCredentialsPB::from_uuid(uuid))
-      .async_send()
-      .await
-      .error()
-    {
-      None => Ok(()),
-      Some(error) => Err(error),
-    }
   }
 
   pub async fn update_user_profile(

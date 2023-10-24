@@ -27,6 +27,9 @@ class InitRustSDKTask extends LaunchTask {
     context.getIt<FlowySDK>().setEnv(env);
     await context.getIt<FlowySDK>().init(dir);
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 AppFlowyEnv getAppFlowyEnv() {

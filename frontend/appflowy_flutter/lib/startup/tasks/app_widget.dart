@@ -86,6 +86,9 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
