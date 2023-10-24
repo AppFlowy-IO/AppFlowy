@@ -109,14 +109,7 @@ enum ImportFromNotionType {
   String get tooltips {
     switch (this) {
       case ImportFromNotionType.markdownZip:
-        return '''
-        1. Navigate to the desired page for export.
-        2. Click on the three dots(···) located in the top right corner.
-        3. Choose "Export" from the menu options.
-        4. Select "Markdown & CSV" as the export format.
-        5. Click the "Export" button once again.
-        6. Select the file you just downloaded.
-        ''';
+        return LocaleKeys.importPanel_importFromNotionMarkdownZipTooltip.tr();
     }
   }
 }
