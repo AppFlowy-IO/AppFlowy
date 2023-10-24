@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.0)
 
-project(appflowy_flutter)
+project(AppFlowy)
 
 # arm64-v8a
 file(COPY

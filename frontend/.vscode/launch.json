@@ -67,11 +67,11 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
-            "name": "AF-Android-Simlator: Clean + Rebuild All",
+            "name": "AF-Android: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
-            "preLaunchTask": "AF: Clean + Rebuild All (Android Simulator)",
+            "preLaunchTask": "AF: Clean + Rebuild All (Android)",
             "env": {
                 "RUST_LOG": "trace"
             },
