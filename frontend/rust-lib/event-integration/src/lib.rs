@@ -87,9 +87,10 @@ impl FlowyCoreTest {
   }
 
   pub async fn get_document_update(&self, document_id: &str) -> Vec<u8> {
+    let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.document_manager.get_cloud_service().clone();
     let remote_updates = cloud_service
-      .get_document_updates(document_id)
+      .get_document_updates(document_id, &workspace_id)
       .await
       .unwrap();
 
@@ -212,7 +213,7 @@ impl FlowyCoreTest {
 
     let mut map = HashMap::new();
     map.insert(USER_SIGN_IN_URL.to_string(), sign_in_url);
-    map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
+    map.insert(USER_DEVICE_ID.to_string(), Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::AFCloud,
@@ -261,7 +262,7 @@ impl FlowyCoreTest {
       .event(FolderEvent::GetCurrentWorkspace)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::WorkspaceSettingPB>()
+      .parse::<WorkspaceSettingPB>()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
@@ -269,7 +270,7 @@ impl FlowyCoreTest {
       .event(FolderEvent::ReadWorkspaceViews)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::RepeatedViewPB>()
+      .parse::<RepeatedViewPB>()
       .items
   }
 
@@ -281,7 +282,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 
   pub async fn delete_view(&self, view_id: &str) {
@@ -333,7 +334,7 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 
   pub async fn create_document(
@@ -391,7 +392,7 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 
   pub async fn open_database(&self, view_id: &str) {
@@ -434,7 +435,7 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 
   pub async fn create_calendar(
@@ -459,7 +460,7 @@ impl FlowyCoreTest {
       .payload(payload)
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 
   pub async fn get_database(&self, view_id: &str) -> DatabasePB {
@@ -470,7 +471,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<flowy_database2::entities::DatabasePB>()
+      .parse::<DatabasePB>()
   }
 
   pub async fn get_all_database_fields(&self, view_id: &str) -> RepeatedFieldPB {
@@ -694,16 +695,8 @@ impl FlowyCoreTest {
     field_id: &str,
     row_id: &str,
   ) -> ChecklistCellDataPB {
-    EventBuilder::new(self.clone())
-      .event(DatabaseEvent::GetChecklistCellData)
-      .payload(CellIdPB {
-        view_id: view_id.to_string(),
-        row_id: row_id.to_string(),
-        field_id: field_id.to_string(),
-      })
-      .async_send()
-      .await
-      .parse::<ChecklistCellDataPB>()
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    ChecklistCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
   }
 
   pub async fn update_checklist_cell(
@@ -835,7 +828,7 @@ impl FlowyCoreTest {
       })
       .async_send()
       .await
-      .parse::<flowy_folder2::entities::ViewPB>()
+      .parse::<ViewPB>()
   }
 }
 

@@ -40,6 +40,16 @@ class DatabasePropertyBloc
             emit(state.copyWith(fields: fields));
           },
           moveField: (fieldId, fromIndex, toIndex) async {
+            if (fromIndex < toIndex) {
+              toIndex--;
+            }
+            final fields = List<FieldPB>.from(state.fields);
+            fields.insert(
+              toIndex,
+              fields.removeAt(fromIndex),
+            );
+            emit(state.copyWith(fields: fields));
+
             final result = await FieldBackendService.moveField(
               viewId: viewId,
               fieldId: fieldId,

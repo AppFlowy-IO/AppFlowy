@@ -5,7 +5,7 @@ use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -347,16 +347,18 @@ impl UserManager {
       UserAwarenessDataSource::Remote
     };
 
-    debug!("Sign up response: {:?}", response);
+    event!(tracing::Level::DEBUG, "Sign up response: {:?}", response);
     if response.is_new_user {
       if let Some(old_user) = migration_user {
         let new_user = MigrationUser {
           user_profile: user_profile.clone(),
           session: new_session.clone(),
         };
-        info!(
+        event!(
+          tracing::Level::INFO,
           "Migrate old user data from {:?} to {:?}",
-          old_user.user_profile.uid, new_user.user_profile.uid
+          old_user.user_profile.uid,
+          new_user.user_profile.uid
         );
         self
           .migrate_local_user_to_cloud(&old_user, &new_user)
@@ -486,6 +488,10 @@ impl UserManager {
 
   pub fn user_id(&self) -> Result<i64, FlowyError> {
     Ok(self.get_session()?.user_id)
+  }
+
+  pub fn workspace_id(&self) -> Result<String, FlowyError> {
+    Ok(self.get_session()?.user_workspace.id)
   }
 
   pub fn token(&self) -> Result<Option<String>, FlowyError> {

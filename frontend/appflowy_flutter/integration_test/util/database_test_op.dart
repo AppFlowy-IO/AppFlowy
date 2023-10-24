@@ -37,7 +37,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/toolbar
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_header.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tar_bar_add_button.dart';
 import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
-import 'package:appflowy/plugins/database_view/widgets/field/grid_property.dart';
+import 'package:appflowy/plugins/database_view/widgets/setting/setting_property_list.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
@@ -51,7 +51,6 @@ import 'package:appflowy/plugins/database_view/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_document.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_property.dart';
-import 'package:appflowy/plugins/database_view/widgets/setting/database_setting.dart';
 import 'package:appflowy/plugins/database_view/widgets/setting/setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -529,7 +528,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
     final widget = this.widget<ChecklistItem>(task);
     assert(
-      widget.option.data.name == name && widget.option.isSelected == isChecked,
+      widget.task.data.name == name && widget.task.isSelected == isChecked,
     );
   }
 
@@ -1131,7 +1130,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapViewPropertiesButton() async {
-    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findSettingItem = find.byType(DatabaseSettingListPopover);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1148,7 +1147,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Should call [tapDatabaseSettingButton] first.
   Future<void> tapDatabaseLayoutButton() async {
-    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findSettingItem = find.byType(DatabaseSettingListPopover);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1164,7 +1163,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapCalendarLayoutSettingButton() async {
-    final findSettingItem = find.byType(DatabaseSettingItem);
+    final findSettingItem = find.byType(DatabaseSettingListPopover);
     final findLayoutButton = find.byWidgetPredicate(
       (widget) =>
           widget is FlowyText &&
@@ -1301,7 +1300,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await doubleTapAt(location);
   }
 
-  Future<void> openCalendarEvent({required index, DateTime? date}) async {
+  Future<void> openCalendarEvent({required int index, DateTime? date}) async {
     final findDayCell = find.byWidgetPredicate(
       (widget) =>
           widget is CalendarDayCard &&
@@ -1503,7 +1502,8 @@ extension AppFlowyDatabaseTest on WidgetTester {
     String fieldName,
   ) async {
     final field = find.byWidgetPredicate(
-      (widget) => widget is GridPropertyCell && widget.field.name == fieldName,
+      (widget) =>
+          widget is DatabasePropertyCell && widget.field.name == fieldName,
     );
     final toggleVisibilityButton =
         find.descendant(of: field, matching: find.byType(FlowyIconButton));
