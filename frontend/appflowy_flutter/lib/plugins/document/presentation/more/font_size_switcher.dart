@@ -1,11 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
+
+typedef _FontSizeSelection = (String, double, bool);
 
 class FontSizeSwitcher extends StatefulWidget {
   const FontSizeSwitcher({
@@ -17,12 +19,20 @@ class FontSizeSwitcher extends StatefulWidget {
 }
 
 class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
-  final List<(String, double, bool)> _fontSizes = [
+  final List<_FontSizeSelection> _fontSizes = [
     (LocaleKeys.moreAction_small.tr(), 14.0, false),
     (LocaleKeys.moreAction_medium.tr(), 18.0, true),
     (LocaleKeys.moreAction_large.tr(), 22.0, false),
   ];
-  Set<(String, double, bool)> _selection = <(String, double, bool)>{};
+
+  _FontSizeSelection? _selection;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _selection = _fontSizes.firstWhereOrNull((element) => element.$3);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +40,6 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
     final foregroundColor = Theme.of(context).colorScheme.onBackground;
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
-        _selection = _fontSizes
-            .map((e) => e.$2 == state.fontSize ? e : null)
-            .toSet()
-            .whereNotNull()
-            .toSet();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -46,7 +51,7 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
             const SizedBox(
               height: 5,
             ),
-            SegmentedButton<(String, double, bool)>(
+            SegmentedButton<_FontSizeSelection>(
               showSelectedIcon: false,
               style: TextButton.styleFrom(
                 foregroundColor: foregroundColor,
@@ -64,16 +69,18 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
                   .map(
                     (e) => ButtonSegment(
                       value: e,
-                      label: Text(
+                      label: FlowyText(
                         e.$1,
-                        style: TextStyle(fontSize: e.$2),
+                        fontSize: e.$2,
                       ),
                     ),
                   )
                   .toList(),
-              selected: _selection,
+              selected: {
+                _selection ?? _fontSizes.first,
+              },
               onSelectionChanged: (Set<(String, double, bool)> newSelection) {
-                _selection = newSelection;
+                _selection = newSelection.firstOrNull;
                 _updateSelectedFontSize(newSelection.first.$2);
               },
             ),
