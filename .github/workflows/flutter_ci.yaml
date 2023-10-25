@@ -135,11 +135,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest]
         include:
-          - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            flutter_profile: development-mac-x86_64
+            target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -191,7 +191,11 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          cargo make dart_unit_test
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            cargo make dart_unit_test
+          else
+            cargo make dart_unit_test_no_build
+          fi
         shell: bash
 
       - name: Upload coverage to Codecov
