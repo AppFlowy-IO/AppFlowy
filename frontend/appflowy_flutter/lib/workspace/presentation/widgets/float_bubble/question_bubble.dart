@@ -86,7 +86,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              _launchURL("https://www.appflowy.io/whatsnew");
+              _launchURL("https://www.appflowy.io/what-is-new");
               break;
             case BubbleAction.help:
               _launchURL("https://discord.gg/9Q2xaN37tV");
