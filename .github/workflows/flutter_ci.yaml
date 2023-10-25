@@ -249,7 +249,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: taiki-e/install-action@v2
         with:
