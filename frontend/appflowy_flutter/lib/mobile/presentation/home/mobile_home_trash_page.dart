@@ -182,6 +182,11 @@ class _DeletedFilesListView extends StatelessWidget {
                     context
                         .read<TrashBloc>()
                         .add(TrashEvent.putback(object.id));
+                    Fluttertoast.showToast(
+                      msg:
+                          '${object.name} ${LocaleKeys.trash_mobile_isRestored.tr()}',
+                      gravity: ToastGravity.BOTTOM,
+                    );
                   },
                 ),
                 IconButton(
@@ -193,6 +198,11 @@ class _DeletedFilesListView extends StatelessWidget {
                   ),
                   onPressed: () {
                     context.read<TrashBloc>().add(TrashEvent.delete(object));
+                    Fluttertoast.showToast(
+                      msg:
+                          '${object.name} ${LocaleKeys.trash_mobile_isDeleted.tr()}',
+                      gravity: ToastGravity.BOTTOM,
+                    );
                   },
                 )
               ],
