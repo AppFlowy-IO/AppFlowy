@@ -312,7 +312,7 @@ class HomeTopBar extends StatelessWidget {
                   ),
                 );
               },
-            )
+            ),
           ],
         ),
       ).bottomBorder(color: Theme.of(context).dividerColor),
@@ -391,7 +391,7 @@ class _HomeBodyState extends State<HomeBody> {
                 ),
               ),
             ),
-            Positioned(child: _buildReadOnlyBanner(context))
+            Positioned(child: _buildReadOnlyBanner(context)),
           ],
         ),
       );
