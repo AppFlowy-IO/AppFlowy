@@ -93,7 +93,7 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                         AFThemeExtension.of(context).textColor,
                   ),
                   child: GestureDetector(
-                    onTap: context.read<BoardBloc>().add(
+                    onTap: () => context.read<BoardBloc>().add(
                           BoardEvent.startEditingHeader(
                             widget.groupData.id,
                           ),
