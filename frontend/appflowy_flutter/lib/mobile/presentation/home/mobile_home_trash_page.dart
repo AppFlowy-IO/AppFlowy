@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -93,63 +93,32 @@ class _TrashActionAllButton extends StatelessWidget {
           final trashList = trashBloc.state.objects;
           if (trashList.isNotEmpty) {
             context.pop();
-            showDialog(
-              context: context,
-              builder: (dialogContext) {
-                return AlertDialog(
-                  title: Text(
-                    isDeleteAll
-                        ? LocaleKeys.trash_confirmDeleteAll_title.tr()
-                        : LocaleKeys.trash_restoreAll.tr(),
-                  ),
-                  content: Text(
-                    isDeleteAll
-                        ? LocaleKeys.trash_confirmDeleteAll_caption.tr()
-                        : LocaleKeys.trash_confirmRestoreAll_caption.tr(),
-                  ),
-                  actions: [
-                    TextButton(
-                      child: Text(
-                        isDeleteAll
-                            ? LocaleKeys.trash_deleteAll.tr()
-                            : LocaleKeys.trash_restoreAll.tr(),
-                        style: TextStyle(
-                          color: isDeleteAll
-                              ? theme.colorScheme.error
-                              : theme.colorScheme.primary,
-                        ),
-                      ),
-                      onPressed: () {
-                        if (isDeleteAll) {
-                          trashBloc.add(
-                            const TrashEvent.deleteAll(),
-                          );
-                        } else {
-                          trashBloc.add(
-                            const TrashEvent.restoreAll(),
-                          );
-                        }
-
-                        // we cannot use dialogContext.pop() here because this is no GoRouter in dialogContext. Use Navigator instead to close the dialog.
-                        Navigator.of(
-                          dialogContext,
-                        ).pop();
-                      },
-                    ),
-                    TextButton(
-                      child: Text(
-                        LocaleKeys.button_cancel.tr(),
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(
-                        dialogContext,
-                      ).pop(),
-                    ),
-                  ],
-                );
+            showFlowyMobileConfirmDialog(
+              context,
+              title: isDeleteAll
+                  ? LocaleKeys.trash_confirmDeleteAll_title.tr()
+                  : LocaleKeys.trash_restoreAll.tr(),
+              content: isDeleteAll
+                  ? LocaleKeys.trash_confirmDeleteAll_caption.tr()
+                  : LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+              actionButtonTitle: isDeleteAll
+                  ? LocaleKeys.trash_deleteAll.tr()
+                  : LocaleKeys.trash_restoreAll.tr(),
+              actionButtonColor: isDeleteAll
+                  ? theme.colorScheme.error
+                  : theme.colorScheme.primary,
+              onActionButtonPressed: () {
+                if (isDeleteAll) {
+                  trashBloc.add(
+                    const TrashEvent.deleteAll(),
+                  );
+                } else {
+                  trashBloc.add(
+                    const TrashEvent.restoreAll(),
+                  );
+                }
               },
+              cancelButtonTitle: LocaleKeys.button_cancel.tr(),
             );
           } else {
             // when there is no deleted files
