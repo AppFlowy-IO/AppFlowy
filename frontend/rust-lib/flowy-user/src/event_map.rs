@@ -15,6 +15,7 @@ use crate::errors::FlowyError;
 use crate::event_handler::*;
 use crate::manager::UserManager;
 
+#[rustfmt::skip]
 pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
   let store_preferences = user_session
     .upgrade()
@@ -39,20 +40,9 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
     .event(UserEvent::OauthSignIn, oauth_handler)
     .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
-    .event(
-      UserEvent::GetOauthURLWithProvider,
-      sign_in_with_provider_handler,
-    )
-    .event(
-      UserEvent::GetAllUserWorkspaces,
-      get_all_user_workspace_handler,
-    )
+    .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
+    .event(UserEvent::GetAllUserWorkspaces, get_all_user_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
-    .event(UserEvent::AddUserToWorkspace, add_user_to_workspace_handler)
-    .event(
-      UserEvent::RemoveUserToWorkspace,
-      remove_user_from_workspace_handler,
-    )
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
     .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
@@ -64,14 +54,12 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::ResetWorkspace, reset_workspace_handler)
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
-    .event(
-      UserEvent::SetNotificationSettings,
-      set_notification_settings,
-    )
-    .event(
-      UserEvent::GetNotificationSettings,
-      get_notification_settings,
-    )
+    .event(UserEvent::SetNotificationSettings, set_notification_settings)
+    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+      // Workspace member
+    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
+    .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
+    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler,)
 }
 
 pub struct SignUpContext {
@@ -278,12 +266,6 @@ pub enum UserEvent {
   #[event(input = "UserWorkspacePB")]
   OpenWorkspace = 21,
 
-  #[event(input = "AddWorkspaceUserPB")]
-  AddUserToWorkspace = 22,
-
-  #[event(input = "RemoveWorkspaceUserPB")]
-  RemoveUserToWorkspace = 23,
-
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
 
@@ -327,4 +309,13 @@ pub enum UserEvent {
 
   #[event(output = "NotificationSettingsPB")]
   GetNotificationSettings = 36,
+
+  #[event(output = "AddWorkspaceMemberPB")]
+  AddWorkspaceMember = 37,
+
+  #[event(output = "RemoveWorkspaceMemberPB")]
+  RemoveWorkspaceMember = 38,
+
+  #[event(output = "UpdateWorkspaceMemberPB")]
+  UpdateWorkspaceMember = 39,
 }

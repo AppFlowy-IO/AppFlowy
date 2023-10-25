@@ -8,7 +8,7 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
 use flowy_user_deps::entities::UserWorkspace;
 
-use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
+use crate::entities::{AFRolePB, RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
@@ -30,7 +30,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn add_user_to_workspace(
+  pub async fn add_workspace_member(
     &self,
     user_email: String,
     to_workspace_id: String,
@@ -43,7 +43,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn remove_user_to_workspace(
+  pub async fn remove_workspace_member(
     &self,
     user_email: String,
     from_workspace_id: String,
@@ -52,6 +52,20 @@ impl UserManager {
       .cloud_services
       .get_user_service()?
       .remove_workspace_member(user_email, from_workspace_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: AFRolePB,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_workspace_member(user_email, workspace_id, role.into())
       .await?;
     Ok(())
   }

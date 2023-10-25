@@ -446,32 +446,6 @@ pub async fn open_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn add_user_to_workspace_handler(
-  data: AFPluginData<AddWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .add_user_to_workspace(params.email, params.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn remove_user_from_workspace_handler(
-  data: AFPluginData<RemoveWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .remove_user_to_workspace(params.email, params.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn update_network_state_handler(
   data: AFPluginData<NetworkStatePB>,
   manager: AFPluginState<Weak<UserManager>>,
@@ -589,5 +563,40 @@ pub async fn update_reminder_event_handler(
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   manager.update_reminder(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn add_workspace_member_handler(
+  data: AFPluginData<AddWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .add_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_member_handler(
+  data: AFPluginData<RemoveWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .remove_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_workspace_member_handler(
+  data: AFPluginData<UpdateWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
   Ok(())
 }
