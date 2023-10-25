@@ -76,8 +76,7 @@ pub struct UpdateWorkspaceMemberPB {
   pub role: AFRolePB,
 }
 
-#[derive(ProtoBuf_Enum, Clone)]
-#[derive(Default)]
+#[derive(ProtoBuf_Enum, Clone, Default)]
 pub enum AFRolePB {
   Owner = 0,
   Member = 1,
@@ -104,5 +103,3 @@ impl From<Role> for AFRolePB {
     }
   }
 }
-
-
