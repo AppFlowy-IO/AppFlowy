@@ -52,7 +52,16 @@ dependencies = ["appflowy-core-dev-ios"]
 run_task = { name = [
   "code_generation",
   "set-app-version",
-  "flutter-build",
+  "flutter-build-ios",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android-dev]
+dependencies = ["appflowy-core-dev-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
 ] }
 script_runner = "@shell"
 
@@ -84,6 +93,14 @@ run_task = { name = [
   "copy-to-product",
 ] }
 script_runner = "@shell"
+
+[tasks.appflowy-make-product-dev]
+run_task = { name = [
+  "set-app-version",
+  "flutter-build",
+  "copy-to-product",
+] }
+
 
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
@@ -187,6 +204,22 @@ script = ["""
   """]
 script_runner = "@shell"
 
+[tasks.flutter-build-ios]
+script = ["""
+  cd appflowy_flutter/
+  flutter pub get
+  flutter build ipa --verbose
+  """]
+script_runner = "@shell"
+
+[tasks.flutter-build-android]
+script = ["""
+  cd appflowy_flutter/
+  flutter pub get
+  flutter build apk --split-per-abi --verbose
+  """]
+script_runner = "@shell"
+
 [tasks.flutter-build.windows]
 script = ["""
   cd appflowy_flutter
@@ -202,8 +235,9 @@ script = [
   cd appflowy_flutter
   flutter clean
   flutter pub get
+  flutter packages pub get 
   cd ../
-  sh scripts/code_generation/generate.sh
+  sh scripts/code_generation/generate.sh -s
   """
 ]
 
@@ -214,6 +248,7 @@ script = [
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
+  exec cmd.exe /c flutter packages pub get
   cd ../
   exec scripts/code_generation/generate.cmd
   """,

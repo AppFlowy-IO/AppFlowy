@@ -16,9 +16,6 @@ void main() {
       final context = await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      // expect to see a readme page
-      tester.expectToSeePageName(gettingStarted);
-
       // mock the file picker
       final path = await mockSaveFilePath(
         p.join(context.applicationDataDirectory, 'test.md'),

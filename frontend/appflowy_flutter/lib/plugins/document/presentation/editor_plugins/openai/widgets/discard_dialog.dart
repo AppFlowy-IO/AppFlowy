@@ -20,7 +20,7 @@ class DiscardDialog extends StatelessWidget {
     return NavigatorOkCancelDialog(
       message: LocaleKeys.document_plugins_discardResponse.tr(),
       okTitle: LocaleKeys.button_discard.tr(),
-      cancelTitle: LocaleKeys.button_Cancel.tr(),
+      cancelTitle: LocaleKeys.button_cancel.tr(),
       onOkPressed: onConfirm,
       onCancelPressed: onCancel,
     );

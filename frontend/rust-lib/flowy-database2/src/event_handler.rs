@@ -597,20 +597,6 @@ pub(crate) async fn update_select_option_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn get_checklist_cell_data_handler(
-  data: AFPluginData<CellIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<ChecklistCellDataPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: CellIdParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let data = database_editor
-    .get_checklist_option(params.row_id, &params.field_id)
-    .await;
-  data_result_ok(data)
-}
-
-#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_checklist_cell_handler(
   data: AFPluginData<ChecklistCellDataChangesetPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
@@ -625,7 +611,7 @@ pub(crate) async fn update_checklist_cell_handler(
     update_options: params.update_options,
   };
   database_editor
-    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .update_cell_with_changeset(&params.view_id, params.row_id, &params.field_id, changeset)
     .await?;
   Ok(())
 }

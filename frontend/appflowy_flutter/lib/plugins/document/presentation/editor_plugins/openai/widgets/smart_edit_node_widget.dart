@@ -326,7 +326,7 @@ class _SmartEditInputWidgetState extends State<SmartEditInputWidget> {
           TextSpan(
             children: [
               TextSpan(
-                text: LocaleKeys.button_Cancel.tr(),
+                text: LocaleKeys.button_cancel.tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

@@ -19,6 +19,7 @@ pub struct UserTable {
   pub(crate) auth_type: i32,
   pub(crate) encryption_type: String,
   pub(crate) stability_ai_key: String,
+  pub(crate) updated_at: i64,
 }
 
 impl UserTable {
@@ -43,6 +44,7 @@ impl From<(UserProfile, AuthType)> for UserTable {
       auth_type: auth_type as i32,
       encryption_type,
       stability_ai_key: user_profile.stability_ai_key,
+      updated_at: user_profile.updated_at,
     }
   }
 }
@@ -60,6 +62,7 @@ impl From<UserTable> for UserProfile {
       auth_type: AuthType::from(table.auth_type),
       encryption_type: EncryptionType::from_str(&table.encryption_type).unwrap_or_default(),
       stability_ai_key: table.stability_ai_key,
+      updated_at: table.updated_at,
     }
   }
 }
