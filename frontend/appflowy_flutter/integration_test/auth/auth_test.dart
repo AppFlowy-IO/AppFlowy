@@ -25,8 +25,8 @@ void main() {
       await tester.openSettingsPage(SettingsPage.user);
       await tester.tapButton(find.byType(SettingLogoutButton));
 
-      tester.expectToSeeText(LocaleKeys.button_OK.tr());
-      await tester.tapButtonWithName(LocaleKeys.button_OK.tr());
+      tester.expectToSeeText(LocaleKeys.button_ok.tr());
+      await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
 
       // Go to the sign in page again
       await tester.pumpAndSettle(const Duration(seconds: 1));

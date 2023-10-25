@@ -199,9 +199,9 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Done",
-    "Cancel": "Cancel",
+    "ok": "OK",
+    "done": "Done",
+    "cancel": "Cancel",
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
@@ -217,7 +217,6 @@
     "edit": "Edit",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "done": "Done",
     "putback": "Put Back",
     "update": "Update",
     "share": "Share",
