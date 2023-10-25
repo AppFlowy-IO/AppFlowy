@@ -34,14 +34,16 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
                     i < widget.tasks.length;
                     i++, j--)
                   Expanded(
-                    child: LinearPercentIndicator(
-                      lineHeight: 4.0,
-                      percent: j > 0 ? 1.0 : 0.0,
-                      padding: const EdgeInsets.symmetric(horizontal: 1),
-                      progressColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor:
-                          AFThemeExtension.of(context).progressBarBGColor,
-                      barRadius: const Radius.circular(5),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5)),
+                        color: j > 0
+                            ? Theme.of(context).colorScheme.primary
+                            : AFThemeExtension.of(context).progressBarBGColor,
+                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 1),
+                      height: 4.0,
                     ),
                   ),
               ] else ...[
