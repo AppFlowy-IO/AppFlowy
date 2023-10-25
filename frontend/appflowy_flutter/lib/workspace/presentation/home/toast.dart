@@ -52,7 +52,7 @@ void showSnackBarMessage(
       action: !showCancel
           ? null
           : SnackBarAction(
-              label: LocaleKeys.button_Cancel.tr(),
+              label: LocaleKeys.button_cancel.tr(),
               textColor: Theme.of(context).colorScheme.onSurface,
               onPressed: () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();

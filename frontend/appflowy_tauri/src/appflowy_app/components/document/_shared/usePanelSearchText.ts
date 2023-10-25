@@ -6,7 +6,7 @@ import { getDeltaText } from '$app/utils/document/delta';
 export function useSubscribePanelSearchText({ blockId, open }: { blockId: string; open: boolean }) {
   const [searchText, setSearchText] = useState<string>('');
   const beforeOpenDeltaRef = useRef<Op[]>([]);
-  const { delta } = useSubscribeNode(blockId);
+  const { delta: deltaStr } = useSubscribeNode(blockId);
   const handleSearch = useCallback((newDelta: Delta) => {
     const diff = new Delta(beforeOpenDeltaRef.current).diff(newDelta);
     const text = getDeltaText(diff);
@@ -15,20 +15,22 @@ export function useSubscribePanelSearchText({ blockId, open }: { blockId: string
   }, []);
 
   useEffect(() => {
-    if (!open || !delta) return;
-    handleSearch(new Delta(JSON.parse(delta)));
-  }, [handleSearch, delta, open]);
+    if (!open || !deltaStr) return;
+
+    handleSearch(new Delta(JSON.parse(deltaStr)));
+  }, [handleSearch, deltaStr, open]);
 
   useEffect(() => {
     if (!open) {
       beforeOpenDeltaRef.current = [];
       return;
     }
+    if (beforeOpenDeltaRef.current.length > 0) return;
 
-    beforeOpenDeltaRef.current = new Delta(JSON.parse(delta)).ops;
-    handleSearch(new Delta(JSON.parse(delta)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+    const delta = new Delta(JSON.parse(deltaStr || "{}"));
+    beforeOpenDeltaRef.current = delta.ops;
+    handleSearch(delta);
+  }, [deltaStr, handleSearch, open]);
 
   return {
     searchText,

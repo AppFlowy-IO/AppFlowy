@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -81,29 +82,34 @@ pub async fn init_user_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn check_user_handler(
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.check_user().await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(manager))]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
+
+  // Refresh the user profile in the background
   tokio::spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
+
+  // When the user is logged in with a local account, the email field is a placeholder and should
+  // not be exposed to the client. So we set the email field to an empty string.
+  if user_profile.auth_type == AuthType::Local {
+    user_profile.email = "".to_string();
+  }
+
+  event!(
+    tracing::Level::DEBUG,
+    "Get user profile: {:?}",
+    user_profile
+  );
 
   data_result_ok(user_profile.into())
 }
@@ -330,7 +336,7 @@ pub async fn set_encrypt_secret_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn check_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let profile = manager.get_user_profile(uid).await?;
@@ -346,7 +352,9 @@ pub async fn check_encrypt_secret_handler(
     },
   };
 
-  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
+  data_result_ok(UserEncryptionConfigurationPB {
+    require_secret: is_need_secret,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -434,32 +442,6 @@ pub async fn open_workspace_handler(
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   manager.open_workspace(&params.id).await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn add_user_to_workspace_handler(
-  data: AFPluginData<AddWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .add_user_to_workspace(params.email, params.workspace_id)
-    .await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub async fn remove_user_from_workspace_handler(
-  data: AFPluginData<RemoveWorkspaceUserPB>,
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager
-    .remove_user_to_workspace(params.email, params.workspace_id)
-    .await?;
   Ok(())
 }
 
@@ -581,5 +563,60 @@ pub async fn update_reminder_event_handler(
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   manager.update_reminder(params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn add_workspace_member_handler(
+  data: AFPluginData<AddWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .add_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_member_handler(
+  data: AFPluginData<RemoveWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .remove_workspace_member(data.email, data.workspace_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_member_handler(
+  data: AFPluginData<QueryWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceMemberPB, FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  let members = manager
+    .get_workspace_members(data.workspace_id)
+    .await?
+    .into_iter()
+    .map(WorkspaceMemberPB::from)
+    .collect();
+  data_result_ok(RepeatedWorkspaceMemberPB { items: members })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn update_workspace_member_handler(
+  data: AFPluginData<UpdateWorkspaceMemberPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .update_workspace_member(data.email, data.workspace_id, data.role.into())
+    .await?;
   Ok(())
 }

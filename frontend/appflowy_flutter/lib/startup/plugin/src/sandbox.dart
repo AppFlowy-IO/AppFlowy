@@ -42,10 +42,7 @@ class PluginSandbox {
     PluginConfig? config,
   }) {
     if (_pluginBuilders.containsKey(pluginType)) {
-      throw PlatformException(
-        code: '-1',
-        message: "$pluginType was registered before",
-      );
+      return;
     }
     _pluginBuilders[pluginType] = builder;
 

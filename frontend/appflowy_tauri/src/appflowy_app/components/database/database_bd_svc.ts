@@ -86,7 +86,6 @@ import {
   DatabaseEventUpdateCell,
   DatabaseEventGetSelectOptionCellData,
   DatabaseEventUpdateSelectOptionCell,
-  DatabaseEventGetChecklistCellData,
   DatabaseEventUpdateChecklistCell,
   DatabaseEventUpdateDateCell,
   DatabaseEventExportCSV,
@@ -619,18 +618,6 @@ export async function updateSelectOptionCell(
   });
 
   const result = await DatabaseEventUpdateSelectOptionCell(payload);
-
-  return result.unwrap();
-}
-
-export async function getChecklistCell(viewId: string, rowId: string, fieldId: string): Promise<ChecklistCellDataPB> {
-  const payload = CellIdPB.fromObject({
-    view_id: viewId,
-    row_id: rowId,
-    field_id: fieldId,
-  });
-
-  const result = await DatabaseEventGetChecklistCellData(payload);
 
   return result.unwrap();
 }

@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:appflowy/mobile/application/mobile_theme_data.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
-import 'package:appflowy/mobile/application/mobile_theme_data.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
@@ -405,7 +405,12 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     if (PlatformExtension.isMobile) {
       // Mobile version has only one theme(light mode) for now.
       // The desktop theme and the mobile theme are independent.
-      final mobileThemeData = getMobileThemeData();
+      final mobileThemeData = getMobileThemeData(
+        brightness,
+        theme,
+        fontFamily,
+        monospaceFontFamily,
+      );
       return mobileThemeData;
     }
 
@@ -413,14 +418,14 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     final desktopThemeData = ThemeData(
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
-      textTheme: _getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
+      textTheme: getTextTheme(fontFamily: fontFamily, fontColor: theme.text),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: theme.main2,
         selectionHandleColor: theme.main2,
       ),
       iconTheme: IconThemeData(color: theme.icon),
       tooltipTheme: TooltipThemeData(
-        textStyle: _getFontStyle(
+        textStyle: getFontStyle(
           fontFamily: fontFamily,
           fontSize: FontSizes.s11,
           fontWeight: FontWeight.w400,
@@ -483,18 +488,18 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
           toggleButtonBGColor: theme.toggleButtonBGColor,
           calendarWeekendBGColor: theme.calendarWeekendBGColor,
           gridRowCountColor: theme.gridRowCountColor,
-          code: _getFontStyle(
+          code: getFontStyle(
             fontFamily: monospaceFontFamily,
             fontColor: theme.shader3,
           ),
-          callout: _getFontStyle(
+          callout: getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontColor: theme.shader3,
           ),
           calloutBGColor: theme.hoverBG3,
           tableCellBGColor: theme.surface,
-          caption: _getFontStyle(
+          caption: getFontStyle(
             fontFamily: fontFamily,
             fontSize: FontSizes.s11,
             fontWeight: FontWeight.w400,
@@ -505,90 +510,90 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     );
     return desktopThemeData;
   }
+}
 
-  TextStyle _getFontStyle({
-    required String fontFamily,
-    double? fontSize,
-    FontWeight? fontWeight,
-    Color? fontColor,
-    double? letterSpacing,
-    double? lineHeight,
-  }) {
-    try {
-      return GoogleFonts.getFont(
-        fontFamily,
-        fontSize: fontSize ?? FontSizes.s12,
-        color: fontColor,
-        fontWeight: fontWeight ?? FontWeight.w500,
-        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
-        height: lineHeight,
-      );
-    } catch (e) {
-      return TextStyle(
-        fontFamily: fontFamily,
-        fontSize: fontSize ?? FontSizes.s12,
-        color: fontColor,
-        fontWeight: fontWeight ?? FontWeight.w500,
-        fontFamilyFallback: const ["Noto Color Emoji"],
-        letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
-        height: lineHeight,
-      );
-    }
-  }
-
-  TextTheme _getTextTheme({
-    required String fontFamily,
-    required Color fontColor,
-  }) {
-    return TextTheme(
-      displayLarge: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s32,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-        lineHeight: 42.0,
-      ), // h2
-      displayMedium: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s24,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-        lineHeight: 34.0,
-      ), // h3
-      displaySmall: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s20,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-        lineHeight: 28.0,
-      ), // h4
-      titleLarge: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s18,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-      ), // title
-      titleMedium: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s16,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-      ), // heading
-      titleSmall: _getFontStyle(
-        fontFamily: fontFamily,
-        fontSize: FontSizes.s14,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w600,
-      ), // subheading
-      bodyMedium: _getFontStyle(
-        fontFamily: fontFamily,
-        fontColor: fontColor,
-      ), // body-regular
-      bodySmall: _getFontStyle(
-        fontFamily: fontFamily,
-        fontColor: fontColor,
-        fontWeight: FontWeight.w400,
-      ), // body-thin
+TextStyle getFontStyle({
+  required String fontFamily,
+  double? fontSize,
+  FontWeight? fontWeight,
+  Color? fontColor,
+  double? letterSpacing,
+  double? lineHeight,
+}) {
+  try {
+    return GoogleFonts.getFont(
+      fontFamily,
+      fontSize: fontSize ?? FontSizes.s12,
+      color: fontColor,
+      fontWeight: fontWeight ?? FontWeight.w500,
+      letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+      height: lineHeight,
+    );
+  } catch (e) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize ?? FontSizes.s12,
+      color: fontColor,
+      fontWeight: fontWeight ?? FontWeight.w500,
+      fontFamilyFallback: const ["Noto Color Emoji"],
+      letterSpacing: (fontSize ?? FontSizes.s12) * (letterSpacing ?? 0.005),
+      height: lineHeight,
     );
   }
+}
+
+TextTheme getTextTheme({
+  required String fontFamily,
+  required Color fontColor,
+}) {
+  return TextTheme(
+    displayLarge: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s32,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 42.0,
+    ), // h2
+    displayMedium: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s24,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 34.0,
+    ), // h3
+    displaySmall: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s20,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+      lineHeight: 28.0,
+    ), // h4
+    titleLarge: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s18,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // title
+    titleMedium: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s16,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // heading
+    titleSmall: getFontStyle(
+      fontFamily: fontFamily,
+      fontSize: FontSizes.s14,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w600,
+    ), // subheading
+    bodyMedium: getFontStyle(
+      fontFamily: fontFamily,
+      fontColor: fontColor,
+    ), // body-regular
+    bodySmall: getFontStyle(
+      fontFamily: fontFamily,
+      fontColor: fontColor,
+      fontWeight: FontWeight.w400,
+    ), // body-thin
+  );
 }

@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use event_integration::assert_document_data_equal;
+use event_integration::document_event::assert_document_data_equal;
 use flowy_document2::entities::DocumentSyncStatePB;
 
 use crate::document::af_cloud_test::util::AFCloudDocumentTest;

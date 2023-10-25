@@ -21,7 +21,7 @@ use crate::services::cell::{
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
-use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
@@ -856,15 +856,6 @@ impl DatabaseEditor {
         }
       },
     }
-  }
-
-  pub async fn get_checklist_option(&self, row_id: RowId, field_id: &str) -> ChecklistCellDataPB {
-    let row_cell = self.database.lock().get_cell(field_id, &row_id);
-    let cell_data = match row_cell.cell {
-      None => ChecklistCellData::default(),
-      Some(cell) => ChecklistCellData::from(&cell),
-    };
-    ChecklistCellDataPB::from(cell_data)
   }
 
   pub async fn set_checklist_options(
