@@ -123,7 +123,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             ReminderEvent.update(
               ReminderUpdate(
                 id: reminderId,
-                isRead: true,
+                isRead: state.pastReminders.contains(reminder),
               ),
             ),
           );
