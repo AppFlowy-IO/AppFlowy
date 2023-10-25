@@ -604,6 +604,7 @@
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "toggleList": "Toggle List",
+      "fonts": "Fonts",
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
