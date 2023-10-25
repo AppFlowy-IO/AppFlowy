@@ -192,7 +192,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
     if (ungroupedGroupIndex != -1) {
       _ungroupedGroup = groups[ungroupedGroupIndex];
-      groups.add(groups.removeAt(ungroupedGroupIndex));
+      final ungroupedGroup = groups.removeAt(ungroupedGroupIndex);
+      if (!state.hideUngrouped) {
+        groups.add(ungroupedGroup);
+      }
     }
 
     boardController.addGroups(

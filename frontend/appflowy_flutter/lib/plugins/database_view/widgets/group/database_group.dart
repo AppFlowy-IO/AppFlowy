@@ -60,9 +60,9 @@ class DatabaseGroupList extends StatelessWidget {
                         ),
                       ),
                       Toggle(
-                        value: state.hideUngrouped,
+                        value: !state.hideUngrouped,
                         onChanged: (value) =>
-                            databaseController.updateGroupConfiguration(!value),
+                            databaseController.updateGroupConfiguration(value),
                         style: ToggleStyle.big,
                         padding: EdgeInsets.zero,
                       ),

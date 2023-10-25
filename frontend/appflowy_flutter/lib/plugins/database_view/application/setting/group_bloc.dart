@@ -31,6 +31,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
       (event, emit) async {
         event.when(
           initial: () {
+            _loadGroupConfigurations();
             _startListening();
           },
           didReceiveFieldUpdate: (fieldInfos) {
@@ -83,6 +84,21 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
       },
     );
     _databaseController.addListener(onGroupChanged: _groupCallbacks);
+  }
+
+  void _loadGroupConfigurations() async {
+    final configResult = await _databaseController.loadGroupConfiguration(
+      viewId: _databaseController.viewId,
+    );
+    configResult.fold(
+      (configurations) {
+        final hideUngrouped = configurations.first.hideUngrouped;
+        if (hideUngrouped) {
+          add(DatabaseGroupEvent.didUpdateHideUngrouped(hideUngrouped));
+        }
+      },
+      (err) => Log.error(err),
+    );
   }
 }
 
