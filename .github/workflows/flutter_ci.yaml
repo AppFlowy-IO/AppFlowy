@@ -78,7 +78,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -162,7 +161,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -193,11 +191,7 @@ jobs:
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            cargo make dart_unit_test
-          else
-            cargo make dart_unit_test_no_build
-          fi
+          cargo make dart_unit_test
         shell: bash
 
       - name: Upload coverage to Codecov
@@ -285,7 +279,6 @@ jobs:
         run: tar -xf appflowy_flutter.tar.gz
 
       - name: Run code generation
-        if: matrix.os == 'windows-latest'
         working-directory: frontend
         run: |
           cargo make code_generation
@@ -357,7 +350,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: taiki-e/install-action@v2
         with:
