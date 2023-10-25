@@ -748,8 +748,8 @@ async fn rename_group_event_test() {
   let error = test
     .update_group(
       &board_view.id,
-      &groups[0].group_id,
-      &groups[0].field_id,
+      &groups[1].group_id,
+      &groups[1].field_id,
       Some("new name".to_owned()),
       None,
     )
@@ -757,7 +757,7 @@ async fn rename_group_event_test() {
   assert!(error.is_none());
 
   let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[0].group_name, "new name".to_owned());
+  assert_eq!(groups[1].group_name, "new name".to_owned());
 }
 
 #[tokio::test]
