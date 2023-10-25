@@ -110,7 +110,10 @@ class MobileHomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const _TrashButton(),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: _TrashButton(),
+                    ),
                   ],
                 ),
               ),
@@ -142,7 +145,10 @@ class _TrashButton extends StatelessWidget {
           LocaleKeys.trash_text.tr(),
           style: Theme.of(context).textTheme.labelMedium,
         ),
-        style: const ButtonStyle(alignment: Alignment.centerLeft),
+        style: const ButtonStyle(
+          alignment: Alignment.centerLeft,
+          splashFactory: NoSplash.splashFactory,
+        ),
       ),
     );
   }
