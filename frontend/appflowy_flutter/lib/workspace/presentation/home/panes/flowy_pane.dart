@@ -50,6 +50,10 @@ class _FlowyPaneState extends State<FlowyPane> {
       create: (context) => widget.node.tabs,
       child: Consumer<TabsController>(
         builder: (_, value, __) {
+          final topHeight = value.pages == 1
+              ? HomeSizes.topBarHeight
+              : HomeSizes.topBarHeight + HomeSizes.tabBarHeight;
+
           return DraggablePaneTarget(
             size: Size(
               widget.paneLayout.childPaneWidth,
@@ -66,9 +70,7 @@ class _FlowyPaneState extends State<FlowyPane> {
                   SliverPersistentHeader(
                     pinned: true,
                     delegate: _StickyHeaderDelegate(
-                      height: value.pages == 1
-                          ? HomeSizes.topBarHeight
-                          : HomeSizes.topBarHeight + HomeSizes.tabBarHeight,
+                      height: topHeight,
                       child: DraggablePaneItem(
                         allowPaneDrag: widget.allowPaneDrag,
                         size: Size(
@@ -129,7 +131,8 @@ class _FlowyPaneState extends State<FlowyPane> {
                             ],
                           ).constrained(
                             width: widget.paneLayout.homePageWidth,
-                            height: widget.paneLayout.homePageHeight,
+                            height:
+                                widget.paneLayout.homePageHeight - topHeight,
                           ),
                         ),
                       ),
