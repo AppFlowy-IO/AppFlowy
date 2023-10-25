@@ -27,7 +27,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   late final AppFlowyBoardController boardController;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
-  GroupPB? _ungroupedGroup;
+  GroupPB? ungroupedGroup;
 
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
@@ -191,10 +191,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         groups.indexWhere((group) => group.groupId == group.fieldId);
 
     if (ungroupedGroupIndex != -1) {
-      _ungroupedGroup = groups[ungroupedGroupIndex];
-      final ungroupedGroup = groups.removeAt(ungroupedGroupIndex);
+      ungroupedGroup = groups[ungroupedGroupIndex];
+      final group = groups.removeAt(ungroupedGroupIndex);
       if (!state.hideUngrouped) {
-        groups.add(ungroupedGroup);
+        groups.add(group);
       }
     }
 
@@ -229,9 +229,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final config = configurations.first;
         if (config.hideUngrouped) {
           boardController.removeGroup(config.fieldId);
-        } else if (_ungroupedGroup != null) {
-          final newGroup = initializeGroupData(_ungroupedGroup!);
-          final controller = initializeGroupController(_ungroupedGroup!);
+        } else if (ungroupedGroup != null) {
+          final newGroup = initializeGroupData(ungroupedGroup!);
+          final controller = initializeGroupController(ungroupedGroup!);
           groupControllers[controller.group.groupId] = (controller);
           boardController.addGroup(newGroup);
         }
@@ -239,7 +239,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
       onGroupByField: (groups) {
         if (isClosed) return;
-        _ungroupedGroup = null;
+        ungroupedGroup = null;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },

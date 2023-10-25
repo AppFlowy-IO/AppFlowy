@@ -730,6 +730,7 @@
     },
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },

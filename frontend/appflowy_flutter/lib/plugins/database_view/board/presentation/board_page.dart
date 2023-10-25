@@ -29,6 +29,7 @@ import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
+import 'ungrouped_items_button.dart';
 
 class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
@@ -159,9 +160,29 @@ class _BoardContentState extends State<BoardContent> {
         builder: (context, state) {
           return Padding(
             padding: GridSize.contentInsets,
-            child: _buildBoard(context),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildBoardHeader(context),
+                Expanded(child: _buildBoard(context)),
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBoardHeader(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(top: 12.0),
+      child: SizedBox(
+        height: 24,
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: UngroupedItemsButton(),
+        ),
       ),
     );
   }
