@@ -60,82 +60,83 @@ class _FlowyPaneState extends State<FlowyPane> {
             child: ScrollConfiguration(
               behavior: const ScrollBehavior().copyWith(scrollbars: false),
               child: CustomScrollView(
-                  controller: verticalController,
-                  scrollDirection: Axis.vertical,
-                  slivers: [
-                    SliverPersistentHeader(
-                        pinned: true,
-                        delegate: _StickyHeaderDelegate(
-                          height: value.pages == 1
-                              ? HomeSizes.topBarHeight
-                              : HomeSizes.topBarHeight + HomeSizes.tabBarHeight,
-                          child: DraggablePaneItem(
-                            allowPaneDrag: widget.allowPaneDrag,
-                            size: Size(
-                              widget.paneLayout.childPaneWidth,
-                              widget.paneLayout.childPaneHeight,
+                controller: verticalController,
+                scrollDirection: Axis.vertical,
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickyHeaderDelegate(
+                      height: value.pages == 1
+                          ? HomeSizes.topBarHeight
+                          : HomeSizes.topBarHeight + HomeSizes.tabBarHeight,
+                      child: DraggablePaneItem(
+                        allowPaneDrag: widget.allowPaneDrag,
+                        size: Size(
+                          widget.paneLayout.childPaneWidth,
+                          widget.paneLayout.childPaneHeight,
+                        ),
+                        paneContext: widget.paneContext,
+                        pane: CrossDraggablesEntity(draggable: widget.node),
+                        feedback: (context) =>
+                            _buildPaneDraggableFeedback(context),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: widget.layout.menuSpacing,
+                              ),
+                              child: TabsManager(
+                                pane: widget.node,
+                                pageController: pageController,
+                                tabs: value,
+                              ),
                             ),
-                            paneContext: widget.paneContext,
-                            pane: CrossDraggablesEntity(draggable: widget.node),
-                            feedback: (context) =>
-                                _buildPaneDraggableFeedback(context),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    left: widget.layout.menuSpacing,
-                                  ),
-                                  child: TabsManager(
-                                    pane: widget.node,
-                                    pageController: pageController,
-                                    tabs: value,
-                                  ),
-                                ),
-                                value.currentPageManager.stackTopBar(
-                                  layout: widget.layout,
-                                  paneId: widget.node.paneId,
-                                ),
-                              ],
+                            value.currentPageManager.stackTopBar(
+                              layout: widget.layout,
+                              paneId: widget.node.paneId,
                             ),
-                          ),
-                        )),
-                    SliverToBoxAdapter(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: _proportionalScroll,
-                        child: ScrollConfiguration(
-                          behavior:
-                              const ScrollBehavior().copyWith(scrollbars: true),
-                          child: SingleChildScrollView(
-                            controller: horizontalController,
-                            scrollDirection: Axis.horizontal,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: PageView(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    controller: pageController,
-                                    children: value.pageManagers
-                                        .map(
-                                          (pm) => PageStack(
-                                            pageManager: pm,
-                                            delegate: widget.delegate,
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: _proportionalScroll,
+                      child: ScrollConfiguration(
+                        behavior:
+                            const ScrollBehavior().copyWith(scrollbars: true),
+                        child: SingleChildScrollView(
+                          controller: horizontalController,
+                          scrollDirection: Axis.horizontal,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: PageView(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  controller: pageController,
+                                  children: value.pageManagers
+                                      .map(
+                                        (pm) => PageStack(
+                                          pageManager: pm,
+                                          delegate: widget.delegate,
+                                        ),
+                                      )
+                                      .toList(),
                                 ),
-                              ],
-                            ).constrained(
-                              width: widget.paneLayout.homePageWidth,
-                              height: widget.paneLayout.homePageHeight,
-                            ),
+                              ),
+                            ],
+                          ).constrained(
+                            width: widget.paneLayout.homePageWidth,
+                            height: widget.paneLayout.homePageHeight,
                           ),
                         ),
                       ),
                     ),
-                  ]),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -197,7 +198,10 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox(
       height: height,
       child: child,

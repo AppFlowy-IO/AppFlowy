@@ -74,10 +74,11 @@ class PaneLayout {
         : SystemMouseCursors.resizeUpDown;
   }
 
-  factory PaneLayout.initial(
-          {required BoxConstraints parentConstraints,
-          required PaneNode root,
-          required HomeLayout homeLayout}) =>
+  factory PaneLayout.initial({
+    required BoxConstraints parentConstraints,
+    required PaneNode root,
+    required HomeLayout homeLayout,
+  }) =>
       PaneLayout(
         homeLayout: homeLayout,
         parentPaneConstraints: parentConstraints,
