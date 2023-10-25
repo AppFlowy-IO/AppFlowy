@@ -13,7 +13,8 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -57,6 +58,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
+#[allow(unused_variables)]
 pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
@@ -98,13 +100,33 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
 
   fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceMember>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
+  }
 
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 

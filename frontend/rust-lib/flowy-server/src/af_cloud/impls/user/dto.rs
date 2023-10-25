@@ -1,9 +1,9 @@
 use anyhow::Error;
 use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
-use client_api::entity::AFUserProfile;
+use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceMember};
 
 use flowy_user_deps::entities::{
-  AuthType, UpdateUserProfileParams, UserProfile, USER_METADATA_ICON_URL,
+  AuthType, Role, UpdateUserProfileParams, UserProfile, WorkspaceMember, USER_METADATA_ICON_URL,
   USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
 };
 
@@ -62,4 +62,28 @@ pub fn user_profile_from_af_profile(
     uid: profile.uid,
     updated_at: profile.updated_at,
   })
+}
+
+pub fn to_af_role(role: Role) -> AFRole {
+  match role {
+    Role::Owner => AFRole::Owner,
+    Role::Member => AFRole::Member,
+    Role::Guest => AFRole::Guest,
+  }
+}
+
+pub fn from_af_role(role: AFRole) -> Role {
+  match role {
+    AFRole::Owner => Role::Owner,
+    AFRole::Member => Role::Member,
+    AFRole::Guest => Role::Guest,
+  }
+}
+
+pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
+  WorkspaceMember {
+    email: member.email,
+    role: from_af_role(member.role),
+    name: member.name,
+  }
 }

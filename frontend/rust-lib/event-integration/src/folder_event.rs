@@ -2,13 +2,51 @@ use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
 use flowy_folder2::event_map::FolderEvent;
 use flowy_folder2::event_map::FolderEvent::*;
+use flowy_user::entities::{
+  AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
+  WorkspaceMemberPB,
+};
 use flowy_user::errors::FlowyError;
+use flowy_user::event_map::UserEvent;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
-  // Must sign up/ sign in first
+  pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::AddWorkspaceMember)
+      .payload(AddWorkspaceMemberPB {
+        workspace_id: workspace_id.to_string(),
+        email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::RemoveWorkspaceMember)
+      .payload(RemoveWorkspaceMemberPB {
+        workspace_id: workspace_id.to_string(),
+        email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::GetWorkspaceMember)
+      .payload(QueryWorkspacePB {
+        workspace_id: workspace_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedWorkspaceMemberPB>()
+      .items
+  }
+
   pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
     EventBuilder::new(self.clone())
       .event(FolderEvent::GetCurrentWorkspace)
