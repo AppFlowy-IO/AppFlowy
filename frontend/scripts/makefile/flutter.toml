@@ -115,12 +115,7 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-make-product-dev]
-run_task = { name = [
-  "set-app-version",
-  "flutter-build",
-  "copy-to-product",
-] }
-
+run_task = { name = ["set-app-version", "flutter-build", "copy-to-product"] }
 
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
@@ -237,6 +232,7 @@ script = [
 script = ["""
   cd appflowy_flutter/
   flutter pub get
+  flutter packages pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
@@ -258,38 +254,36 @@ script = ["""
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
-script = ["""
+script = [
+  """
   cd appflowy_flutter
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
-  """]
+  """,
+]
 script_runner = "@duckscript"
 
 [tasks.code_generation]
 script_runner = "@shell"
-script = [
-  """
+script = ["""
   cd appflowy_flutter
   flutter clean
   flutter pub get
   flutter packages pub get
   cd ../
   sh scripts/code_generation/generate.sh
-  """
-]
+  """]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
-script = [
-  """
+script = ["""
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter packages pub get
   cd ../
   exec scripts/code_generation/generate.cmd
-  """,
-]
+  """]
 
 [tasks.dry_code_generation]
 script_runner = "@shell"
