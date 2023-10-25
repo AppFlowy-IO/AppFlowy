@@ -408,6 +408,7 @@ impl EventIntegrationTest {
     &self,
     view_id: &str,
     group_id: &str,
+    field_id: &str,
     name: Option<String>,
     visible: Option<bool>,
   ) -> Option<FlowyError> {
@@ -416,6 +417,7 @@ impl EventIntegrationTest {
       .payload(UpdateGroupPB {
         view_id: view_id.to_string(),
         group_id: group_id.to_string(),
+        field_id: field_id.to_string(),
         name,
         visible,
       })
