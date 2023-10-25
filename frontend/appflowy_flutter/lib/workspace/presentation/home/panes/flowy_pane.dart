@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dar
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
+import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_item.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
@@ -58,20 +59,17 @@ class _FlowyPaneState extends State<FlowyPane> {
             pane: CrossDraggablesEntity(draggable: widget.node),
             child: ScrollConfiguration(
               behavior: const ScrollBehavior().copyWith(scrollbars: false),
-              child: SingleChildScrollView(
-                controller: verticalController,
-                scrollDirection: Axis.vertical,
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: _proportionalScroll,
-                  child: ScrollConfiguration(
-                    behavior: const ScrollBehavior().copyWith(scrollbars: true),
-                    child: SingleChildScrollView(
-                      controller: horizontalController,
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          DraggablePaneItem(
+              child: CustomScrollView(
+                  controller: verticalController,
+                  scrollDirection: Axis.vertical,
+                  slivers: [
+                    SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _StickyHeaderDelegate(
+                          height: value.pages == 1
+                              ? HomeSizes.topBarHeight
+                              : HomeSizes.topBarHeight + HomeSizes.tabBarHeight,
+                          child: DraggablePaneItem(
                             allowPaneDrag: widget.allowPaneDrag,
                             size: Size(
                               widget.paneLayout.childPaneWidth,
@@ -100,29 +98,44 @@ class _FlowyPaneState extends State<FlowyPane> {
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: PageView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              controller: pageController,
-                              children: value.pageManagers
-                                  .map(
-                                    (pm) => PageStack(
-                                      pageManager: pm,
-                                      delegate: widget.delegate,
-                                    ),
-                                  )
-                                  .toList(),
+                        )),
+                    SliverToBoxAdapter(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: _proportionalScroll,
+                        child: ScrollConfiguration(
+                          behavior:
+                              const ScrollBehavior().copyWith(scrollbars: true),
+                          child: SingleChildScrollView(
+                            controller: horizontalController,
+                            scrollDirection: Axis.horizontal,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: PageView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    controller: pageController,
+                                    children: value.pageManagers
+                                        .map(
+                                          (pm) => PageStack(
+                                            pageManager: pm,
+                                            delegate: widget.delegate,
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ],
+                            ).constrained(
+                              width: widget.paneLayout.homePageWidth,
+                              height: widget.paneLayout.homePageHeight,
                             ),
                           ),
-                        ],
-                      ).constrained(
-                        width: widget.paneLayout.homePageWidth,
-                        height: widget.paneLayout.homePageHeight,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
+                  ]),
             ),
           );
         },
@@ -170,5 +183,35 @@ class _FlowyPaneState extends State<FlowyPane> {
       FocusScope.of(context).unfocus();
     }
     super.didChangeDependencies();
+  }
+}
+
+class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final Widget child;
+
+  _StickyHeaderDelegate({
+    required this.height,
+    required this.child,
+  });
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox(
+      height: height,
+      child: child,
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(_StickyHeaderDelegate oldDelegate) {
+    return height != oldDelegate.height || child != oldDelegate.child;
   }
 }

@@ -376,7 +376,7 @@ class _HomeBodyState extends State<HomeBody> {
 
                     _timer?.cancel();
 
-                    _timer = Timer(const Duration(milliseconds: 300), () {
+                    _timer = Timer(const Duration(milliseconds: 600), () {
                       absorbTapsNotifier.value = true;
                       _timer?.cancel();
                     });
