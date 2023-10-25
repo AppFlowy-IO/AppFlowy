@@ -593,10 +593,30 @@ pub async fn delete_workspace_member_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_member_handler(
+  data: AFPluginData<QueryWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceMemberPB, FlowyError> {
+  let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  let members = manager
+    .get_workspace_members(data.workspace_id)
+    .await?
+    .into_iter()
+    .map(WorkspaceMemberPB::from)
+    .collect();
+  data_result_ok(RepeatedWorkspaceMemberPB { items: members })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn update_workspace_member_handler(
   data: AFPluginData<UpdateWorkspaceMemberPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let data = data.validate()?.into_inner();
+  let manager = upgrade_manager(manager)?;
+  manager
+    .update_workspace_member(data.email, data.workspace_id, data.role.into())
+    .await?;
   Ok(())
 }

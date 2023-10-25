@@ -1,9 +1,37 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::Role;
+use flowy_user_deps::entities::{Role, WorkspaceMember};
 
 use crate::entities::required_not_empty_str;
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct WorkspaceMemberPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub role: AFRolePB,
+}
+
+impl From<WorkspaceMember> for WorkspaceMemberPB {
+  fn from(value: WorkspaceMember) -> Self {
+    Self {
+      email: value.email,
+      name: value.name,
+      role: value.role.into(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Clone)]
+pub struct RepeatedWorkspaceMemberPB {
+  #[pb(index = 1)]
+  pub items: Vec<WorkspaceMemberPB>,
+}
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
 pub struct AddWorkspaceMemberPB {
@@ -14,6 +42,13 @@ pub struct AddWorkspaceMemberPB {
   #[pb(index = 2)]
   #[validate(email)]
   pub email: String,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct QueryWorkspacePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -34,16 +69,19 @@ pub struct UpdateWorkspaceMemberPB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  pub uid: i64,
+  #[validate(email)]
+  pub email: String,
 
   #[pb(index = 3)]
   pub role: AFRolePB,
 }
 
 #[derive(ProtoBuf_Enum, Clone)]
+#[derive(Default)]
 pub enum AFRolePB {
   Owner = 0,
   Member = 1,
+  #[default]
   Guest = 2,
 }
 
@@ -57,8 +95,14 @@ impl From<AFRolePB> for Role {
   }
 }
 
-impl Default for AFRolePB {
-  fn default() -> Self {
-    AFRolePB::Guest
+impl From<Role> for AFRolePB {
+  fn from(value: Role) -> Self {
+    match value {
+      Role::Owner => AFRolePB::Owner,
+      Role::Member => AFRolePB::Member,
+      Role::Guest => AFRolePB::Guest,
+    }
   }
 }
+
+

@@ -59,7 +59,137 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
+    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler,)
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
+#[event_err = "FlowyError"]
+pub enum UserEvent {
+  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Logging into an account using a register email and password
+  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
+  SignIn = 0,
+
+  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Creating a new account
+  #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
+  SignUp = 1,
+
+  /// Logging out fo an account
+  #[event()]
+  SignOut = 2,
+
+  /// Update the user information
+  #[event(input = "UpdateUserProfilePayloadPB")]
+  UpdateUserProfile = 3,
+
+  /// Get the user information
+  #[event(output = "UserProfilePB")]
+  GetUserProfile = 4,
+
+  /// Initialize resources for the current user after launching the application
+  ///
+  #[event()]
+  InitUser = 6,
+
+  /// Change the visual elements of the interface, such as theme, font and more
+  #[event(input = "AppearanceSettingsPB")]
+  SetAppearanceSetting = 7,
+
+  /// Get the appearance setting
+  #[event(output = "AppearanceSettingsPB")]
+  GetAppearanceSetting = 8,
+
+  /// Get the settings of the user, such as the user storage folder
+  #[event(output = "UserSettingPB")]
+  GetUserSetting = 9,
+
+  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
+  OauthSignIn = 10,
+
+  /// Get the OAuth callback url
+  /// Only use when the [AuthType] is AFCloud
+  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
+  GetSignInURL = 11,
+
+  #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
+  GetOauthURLWithProvider = 12,
+
+  #[event(input = "UpdateCloudConfigPB")]
+  SetCloudConfig = 13,
+
+  #[event(output = "UserCloudConfigPB")]
+  GetCloudConfig = 14,
+
+  #[event(input = "UserSecretPB")]
+  SetEncryptionSecret = 15,
+
+  #[event(output = "UserEncryptionConfigurationPB")]
+  CheckEncryptionSign = 16,
+
+  /// Return the all the workspaces of the user
+  #[event()]
+  GetAllUserWorkspaces = 20,
+
+  #[event(input = "UserWorkspacePB")]
+  OpenWorkspace = 21,
+
+  #[event(input = "NetworkStatePB")]
+  UpdateNetworkState = 24,
+
+  #[event(output = "RepeatedHistoricalUserPB")]
+  GetHistoricalUsers = 25,
+
+  #[event(input = "HistoricalUserPB")]
+  OpenHistoricalUser = 26,
+
+  /// Push a realtime event to the user. Currently, the realtime event
+  /// is only used when the auth type is: [AuthType::Supabase].
+  ///
+  #[event(input = "RealtimePayloadPB")]
+  PushRealtimeEvent = 27,
+
+  #[event(input = "ReminderPB")]
+  CreateReminder = 28,
+
+  #[event(output = "RepeatedReminderPB")]
+  GetAllReminders = 29,
+
+  #[event(input = "ReminderIdentifierPB")]
+  RemoveReminder = 30,
+
+  #[event(input = "ReminderPB")]
+  UpdateReminder = 31,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 32,
+
+  /// Change the Date/Time formats globally
+  #[event(input = "DateTimeSettingsPB")]
+  SetDateTimeSettings = 33,
+
+  /// Retrieve the Date/Time formats
+  #[event(output = "DateTimeSettingsPB")]
+  GetDateTimeSettings = 34,
+
+  #[event(input = "NotificationSettingsPB")]
+  SetNotificationSettings = 35,
+
+  #[event(output = "NotificationSettingsPB")]
+  GetNotificationSettings = 36,
+
+  #[event(output = "AddWorkspaceMemberPB")]
+  AddWorkspaceMember = 37,
+
+  #[event(output = "RemoveWorkspaceMemberPB")]
+  RemoveWorkspaceMember = 38,
+
+  #[event(output = "UpdateWorkspaceMemberPB")]
+  UpdateWorkspaceMember = 39,
+
+  #[event(output = "QueryWorkspacePB")]
+  GetWorkspaceMember = 40,
 }
 
 pub struct SignUpContext {
@@ -192,130 +322,4 @@ impl UserStatusCallback for DefaultUserStatusCallback {
   fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     to_fut(async { Ok(()) })
   }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
-#[event_err = "FlowyError"]
-pub enum UserEvent {
-  /// Only use when the [AuthType] is Local or SelfHosted
-  /// Logging into an account using a register email and password
-  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
-
-  /// Only use when the [AuthType] is Local or SelfHosted
-  /// Creating a new account
-  #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
-  SignUp = 1,
-
-  /// Logging out fo an account
-  #[event()]
-  SignOut = 2,
-
-  /// Update the user information
-  #[event(input = "UpdateUserProfilePayloadPB")]
-  UpdateUserProfile = 3,
-
-  /// Get the user information
-  #[event(output = "UserProfilePB")]
-  GetUserProfile = 4,
-
-  /// Initialize resources for the current user after launching the application
-  ///
-  #[event()]
-  InitUser = 6,
-
-  /// Change the visual elements of the interface, such as theme, font and more
-  #[event(input = "AppearanceSettingsPB")]
-  SetAppearanceSetting = 7,
-
-  /// Get the appearance setting
-  #[event(output = "AppearanceSettingsPB")]
-  GetAppearanceSetting = 8,
-
-  /// Get the settings of the user, such as the user storage folder
-  #[event(output = "UserSettingPB")]
-  GetUserSetting = 9,
-
-  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
-  OauthSignIn = 10,
-
-  /// Get the OAuth callback url
-  /// Only use when the [AuthType] is AFCloud
-  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GetSignInURL = 11,
-
-  #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
-  GetOauthURLWithProvider = 12,
-
-  #[event(input = "UpdateCloudConfigPB")]
-  SetCloudConfig = 13,
-
-  #[event(output = "UserCloudConfigPB")]
-  GetCloudConfig = 14,
-
-  #[event(input = "UserSecretPB")]
-  SetEncryptionSecret = 15,
-
-  #[event(output = "UserEncryptionConfigurationPB")]
-  CheckEncryptionSign = 16,
-
-  /// Return the all the workspaces of the user
-  #[event()]
-  GetAllUserWorkspaces = 20,
-
-  #[event(input = "UserWorkspacePB")]
-  OpenWorkspace = 21,
-
-  #[event(input = "NetworkStatePB")]
-  UpdateNetworkState = 24,
-
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
-
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
-
-  /// Push a realtime event to the user. Currently, the realtime event
-  /// is only used when the auth type is: [AuthType::Supabase].
-  ///
-  #[event(input = "RealtimePayloadPB")]
-  PushRealtimeEvent = 27,
-
-  #[event(input = "ReminderPB")]
-  CreateReminder = 28,
-
-  #[event(output = "RepeatedReminderPB")]
-  GetAllReminders = 29,
-
-  #[event(input = "ReminderIdentifierPB")]
-  RemoveReminder = 30,
-
-  #[event(input = "ReminderPB")]
-  UpdateReminder = 31,
-
-  #[event(input = "ResetWorkspacePB")]
-  ResetWorkspace = 32,
-
-  /// Change the Date/Time formats globally
-  #[event(input = "DateTimeSettingsPB")]
-  SetDateTimeSettings = 33,
-
-  /// Retrieve the Date/Time formats
-  #[event(output = "DateTimeSettingsPB")]
-  GetDateTimeSettings = 34,
-
-  #[event(input = "NotificationSettingsPB")]
-  SetNotificationSettings = 35,
-
-  #[event(output = "NotificationSettingsPB")]
-  GetNotificationSettings = 36,
-
-  #[event(output = "AddWorkspaceMemberPB")]
-  AddWorkspaceMember = 37,
-
-  #[event(output = "RemoveWorkspaceMemberPB")]
-  RemoveWorkspaceMember = 38,
-
-  #[event(output = "UpdateWorkspaceMemberPB")]
-  UpdateWorkspaceMember = 39,
 }

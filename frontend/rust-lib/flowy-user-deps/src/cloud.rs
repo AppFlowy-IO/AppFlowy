@@ -58,6 +58,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
+#[allow(unused_variables)]
 pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
