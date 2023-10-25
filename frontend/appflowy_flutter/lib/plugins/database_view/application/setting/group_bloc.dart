@@ -93,9 +93,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
     configResult.fold(
       (configurations) {
         final hideUngrouped = configurations.first.hideUngrouped;
-        if (hideUngrouped) {
-          add(DatabaseGroupEvent.didUpdateHideUngrouped(hideUngrouped));
-        }
+        add(DatabaseGroupEvent.didUpdateHideUngrouped(hideUngrouped));
       },
       (err) => Log.error(err),
     );
@@ -131,6 +129,6 @@ class DatabaseGroupState with _$DatabaseGroupState {
       DatabaseGroupState(
         viewId: viewId,
         fieldInfos: fieldInfos,
-        hideUngrouped: false,
+        hideUngrouped: true,
       );
 }

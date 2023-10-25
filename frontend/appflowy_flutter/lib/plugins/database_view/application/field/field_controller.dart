@@ -364,12 +364,6 @@ class FieldController {
         );
       },
     );
-    SettingBackendService(viewId: viewId).getSetting().then(
-          (result) => result.fold(
-            (setting) => _updateSetting(setting),
-            (err) => Log.error(err),
-          ),
-        );
   }
 
   /// Listen for field changes in the backend.
@@ -565,6 +559,7 @@ class FieldController {
             _loadFilters(),
             _loadSorts(),
             _loadAllFieldSettings(),
+            _loadSettings(),
           ]);
           _updateFieldInfos();
 
@@ -613,6 +608,22 @@ class FieldController {
         (err) => right(err),
       );
     });
+  }
+
+  Future<Either<Unit, FlowyError>> _loadSettings() async {
+    return SettingBackendService(viewId: viewId).getSetting().then(
+          (result) => result.fold(
+            (setting) {
+              _groupConfigurationByFieldId.clear();
+              for (final configuration in setting.groupSettings.items) {
+                _groupConfigurationByFieldId[configuration.fieldId] =
+                    configuration;
+              }
+              return left(unit);
+            },
+            (err) => right(err),
+          ),
+        );
   }
 
   /// Attach corresponding `FieldInfo`s to the `FilterPB`s
