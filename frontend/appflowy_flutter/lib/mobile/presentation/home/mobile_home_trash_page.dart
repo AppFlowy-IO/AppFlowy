@@ -7,6 +7,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileHomeTrashPage extends StatelessWidget {
@@ -29,33 +30,21 @@ class MobileHomeTrashPage extends StatelessWidget {
                   splashRadius: 20,
                   icon: const Icon(Icons.more_horiz),
                   onPressed: () {
+                    final trashBloc = context.read<TrashBloc>();
                     showFlowyMobileBottomSheet(
                       context,
                       title: LocaleKeys.trash_mobile_actions.tr(),
                       builder: (_) => Row(
                         children: [
                           Expanded(
-                            child: BottomSheetActionWidget(
-                              svg: FlowySvgs.m_restore_m,
-                              text: LocaleKeys.trash_restoreAll.tr(),
-                              onTap: () {
-                                context
-                                  ..read<TrashBloc>()
-                                      .add(const TrashEvent.restoreAll())
-                                  ..pop();
-                              },
+                            child: _TrashActionAllButton(
+                              trashBloc: trashBloc,
                             ),
                           ),
                           Expanded(
-                            child: BottomSheetActionWidget(
-                              svg: FlowySvgs.m_delete_m,
-                              text: LocaleKeys.trash_deleteAll.tr(),
-                              onTap: () {
-                                context
-                                  ..read<TrashBloc>()
-                                      .add(const TrashEvent.deleteAll())
-                                  ..pop();
-                              },
+                            child: _TrashActionAllButton(
+                              trashBloc: trashBloc,
+                              isDeleteAll: true,
                             ),
                           )
                         ],
@@ -74,6 +63,102 @@ class MobileHomeTrashPage extends StatelessWidget {
               },
             ),
           );
+        },
+      ),
+    );
+  }
+}
+
+class _TrashActionAllButton extends StatelessWidget {
+  /// Switch between 'delete all' and 'restore all' feature
+  const _TrashActionAllButton({
+    this.isDeleteAll = false,
+    required this.trashBloc,
+  });
+
+  final bool isDeleteAll;
+  final TrashBloc trashBloc;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return BlocProvider.value(
+      value: trashBloc,
+      child: BottomSheetActionWidget(
+        svg: isDeleteAll ? FlowySvgs.m_delete_m : FlowySvgs.m_restore_m,
+        text: isDeleteAll
+            ? LocaleKeys.trash_deleteAll.tr()
+            : LocaleKeys.trash_restoreAll.tr(),
+        onTap: () {
+          final trashList = trashBloc.state.objects;
+          if (trashList.isNotEmpty) {
+            context.pop();
+            showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  title: Text(
+                    isDeleteAll
+                        ? LocaleKeys.trash_confirmDeleteAll_title.tr()
+                        : LocaleKeys.trash_restoreAll.tr(),
+                  ),
+                  content: Text(
+                    isDeleteAll
+                        ? LocaleKeys.trash_confirmDeleteAll_caption.tr()
+                        : LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+                  ),
+                  actions: [
+                    TextButton(
+                      child: Text(
+                        isDeleteAll
+                            ? LocaleKeys.trash_deleteAll.tr()
+                            : LocaleKeys.trash_restoreAll.tr(),
+                        style: TextStyle(
+                          color: isDeleteAll
+                              ? theme.colorScheme.error
+                              : theme.colorScheme.primary,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (isDeleteAll) {
+                          trashBloc.add(
+                            const TrashEvent.deleteAll(),
+                          );
+                        } else {
+                          trashBloc.add(
+                            const TrashEvent.restoreAll(),
+                          );
+                        }
+
+                        // we cannot use dialogContext.pop() here because this is no GoRouter in dialogContext. Use Navigator instead to close the dialog.
+                        Navigator.of(
+                          dialogContext,
+                        ).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text(
+                        LocaleKeys.button_cancel.tr(),
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(
+                        dialogContext,
+                      ).pop(),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            // when there is no deleted files
+            // show toast
+            Fluttertoast.showToast(
+              msg: LocaleKeys.trash_mobile_empty.tr(),
+              gravity: ToastGravity.CENTER,
+            );
+          }
         },
       ),
     );
