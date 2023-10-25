@@ -1,18 +1,19 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_action_widget.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
+
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class MobileHomeTrashPage extends StatelessWidget {
-  static const routeName = '/trash';
+  const MobileHomeTrashPage({super.key});
 
-  const MobileHomeTrashPage({
-    super.key,
-  });
+  static const routeName = "/MobileHomeTrashPage";
 
   @override
   Widget build(BuildContext context) {
@@ -29,18 +30,36 @@ class MobileHomeTrashPage extends StatelessWidget {
                   splashRadius: 20,
                   icon: const Icon(Icons.more_horiz),
                   onPressed: () {
-                    final trashBloc = context.read<TrashBloc>();
-                    showMobileBottomSheet(
-                      context: context,
-                      builder: (_) => BlocProvider<TrashBloc>.value(
-                        value: trashBloc,
-                        child: BlocBuilder<TrashBloc, TrashState>(
-                          builder: (context, state) {
-                            return const MobileViewItemBottomSheet(
-                              defaultType: MobileBottomSheetType.trash,
-                            );
-                          },
-                        ),
+                    showFlowyMobileBottomSheet(
+                      context,
+                      title: LocaleKeys.trash_mobile_actions.tr(),
+                      builder: (_) => Row(
+                        children: [
+                          Expanded(
+                            child: BottomSheetActionWidget(
+                              svg: FlowySvgs.m_restore_m,
+                              text: LocaleKeys.trash_restoreAll.tr(),
+                              onTap: () {
+                                context
+                                  ..read<TrashBloc>()
+                                      .add(const TrashEvent.restoreAll())
+                                  ..pop();
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: BottomSheetActionWidget(
+                              svg: FlowySvgs.m_delete_m,
+                              text: LocaleKeys.trash_deleteAll.tr(),
+                              onTap: () {
+                                context
+                                  ..read<TrashBloc>()
+                                      .add(const TrashEvent.deleteAll())
+                                  ..pop();
+                              },
+                            ),
+                          )
+                        ],
                       ),
                     );
                   },

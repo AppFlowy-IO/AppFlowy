@@ -1,13 +1,9 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_body.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_rename_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_trash_widget.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_view_item_header.dart';
-import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +31,6 @@ Future<void> showMobileBottomSheet({
 enum MobileBottomSheetType {
   view,
   rename,
-  trash,
 }
 
 class MobileViewItemBottomSheet extends StatefulWidget {
@@ -112,13 +107,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
             });
           },
         );
-
-      case MobileBottomSheetType.trash:
-        // header
-        return FlowyText.regular(
-          LocaleKeys.trash_mobile_actions.tr(),
-          fontSize: 16.0,
-        );
     }
   }
 
@@ -162,20 +150,6 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
           onRename: (name) {
             if (name != widget.view!.name) {
               context.read<ViewBloc>().add(ViewEvent.rename(name));
-            }
-            context.pop();
-          },
-        );
-      case MobileBottomSheetType.trash:
-        return MobileTrashBottomSheetBody(
-          onAction: (action) {
-            switch (action) {
-              case MobileTrashBottomSheetBodyAction.deleteAll:
-                context.read<TrashBloc>().add(const TrashEvent.deleteAll());
-                break;
-              case MobileTrashBottomSheetBodyAction.restoreAll:
-                context.read<TrashBloc>().add(const TrashEvent.restoreAll());
-                break;
             }
             context.pop();
           },
