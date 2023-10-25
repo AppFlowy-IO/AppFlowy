@@ -235,9 +235,9 @@ script = [
   cd appflowy_flutter
   flutter clean
   flutter pub get
-  flutter packages pub get 
+  flutter packages pub get
   cd ../
-  sh scripts/code_generation/generate.sh -s
+  sh scripts/code_generation/generate.sh
   """
 ]
 
