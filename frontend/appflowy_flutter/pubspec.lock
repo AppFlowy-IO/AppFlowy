@@ -54,11 +54,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "6d163b8"
-      resolved-ref: "6d163b88976f6481c4eea5e91c0ed4d68378e56f"
+      ref: a573847
+      resolved-ref: a573847a24ad25441b176f783f1e09bc5a9e08ad
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "1.4.4"
+    version: "1.5.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -749,10 +749,10 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: "559d4f156ba4d9a33c48185a1d7d5e887083bb601b0b130180d0aae3c1449338"
+      sha256: f66a1af95756d5fece5034d357853d0127e09b9e4ef58be1f022ca47e11c6f7e
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0-dev.2"
+    version: "0.4.0"
   irondash_message_channel:
     dependency: transitive
     description:
@@ -1430,6 +1430,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -1507,18 +1515,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "80f7f42e9778101d77e930dcd9206cf72a1d8b696b3cbc1e3f9cbeb71ac4cde7"
+      sha256: "67496ce89d45e63960541b4907557e7138ee80d1c68a59d87e4d67310eeadbb6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0-dev.5"
+    version: "0.7.1"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: e3903ee807e82a930288811cf1b31a0dee30378bb544f30e3ea58d0ed2f884f2
+      sha256: e9ff692aa13c3d489220c9be3c85653fb8b1c7e39ba5fe4c8dcee7f97c0e4337
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0-dev.5"
+    version: "0.7.1"
   sync_http:
     dependency: transitive
     description:
@@ -1721,13 +1729,13 @@ packages:
     source: git
     version: "1.0.0"
   uuid:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: uuid
-      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      sha256: b715b8d3858b6fa9f68f87d20d98830283628014750c2b09b6f516c1da4af2a7
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.7"
+    version: "4.1.0"
   vector_graphics:
     dependency: transitive
     description:

@@ -28,18 +28,14 @@ class _FontSizeSwitcherState extends State<FontSizeSwitcher> {
   _FontSizeSelection? _selection;
 
   @override
-  void initState() {
-    super.initState();
-
-    _selection = _fontSizes.firstWhereOrNull((element) => element.$3);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final selectedBgColor = AFThemeExtension.of(context).toggleButtonBGColor;
     final foregroundColor = Theme.of(context).colorScheme.onBackground;
     return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
       builder: (context, state) {
+        _selection = _fontSizes.firstWhereOrNull(
+          (element) => element.$2 == state.fontSize,
+        );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

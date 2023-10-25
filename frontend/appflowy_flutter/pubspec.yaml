@@ -47,7 +47,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "6d163b8"
+      ref: "a573847"
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -106,7 +106,7 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: ^0.7.0-dev.4
+  super_clipboard: ^0.7.1
   go_router: ^10.1.2
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
@@ -137,6 +137,7 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
+  uuid: ^4.1.0
 
   supabase_flutter:
     git:
