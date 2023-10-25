@@ -2,6 +2,7 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
+use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -81,29 +82,34 @@ pub async fn init_user_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn check_user_handler(
-  manager: AFPluginState<Weak<UserManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.check_user().await?;
-  Ok(())
-}
-
-#[tracing::instrument(level = "debug", skip(manager))]
 pub async fn get_user_profile_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_profile = manager.get_user_profile(uid).await?;
+  let mut user_profile = manager.get_user_profile(uid).await?;
 
   let weak_manager = Arc::downgrade(&manager);
   let cloned_user_profile = user_profile.clone();
+
+  // Refresh the user profile in the background
   tokio::spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }
   });
+
+  // When the user is logged in with a local account, the email field is a placeholder and should
+  // not be exposed to the client. So we set the email field to an empty string.
+  if user_profile.auth_type == AuthType::Local {
+    user_profile.email = "".to_string();
+  }
+
+  event!(
+    tracing::Level::DEBUG,
+    "Get user profile: {:?}",
+    user_profile
+  );
 
   data_result_ok(user_profile.into())
 }
@@ -330,7 +336,7 @@ pub async fn set_encrypt_secret_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn check_encrypt_secret_handler(
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserEncryptionSecretCheckPB, FlowyError> {
+) -> DataResult<UserEncryptionConfigurationPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
   let profile = manager.get_user_profile(uid).await?;
@@ -346,7 +352,9 @@ pub async fn check_encrypt_secret_handler(
     },
   };
 
-  data_result_ok(UserEncryptionSecretCheckPB { is_need_secret })
+  data_result_ok(UserEncryptionConfigurationPB {
+    require_secret: is_need_secret,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

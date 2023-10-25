@@ -30,7 +30,6 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
     .event(UserEvent::SignOut, sign_out)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
-    .event(UserEvent::CheckUser, check_user_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
@@ -232,11 +231,8 @@ pub enum UserEvent {
   #[event(output = "UserProfilePB")]
   GetUserProfile = 4,
 
-  /// Check the user current session is valid or not
-  #[event(output = "UserProfilePB")]
-  CheckUser = 5,
-
   /// Initialize resources for the current user after launching the application
+  ///
   #[event()]
   InitUser = 6,
 
@@ -272,7 +268,7 @@ pub enum UserEvent {
   #[event(input = "UserSecretPB")]
   SetEncryptionSecret = 15,
 
-  #[event(output = "UserEncryptionSecretCheckPB")]
+  #[event(output = "UserEncryptionConfigurationPB")]
   CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user

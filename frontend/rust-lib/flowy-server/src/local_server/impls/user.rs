@@ -11,6 +11,7 @@ use flowy_user_deps::entities::*;
 use flowy_user_deps::DEFAULT_USER_NAME;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use lib_infra::util::timestamp;
 
 use crate::local_server::uid::UserIDGenerator;
 use crate::local_server::LocalServerDB;
@@ -46,6 +47,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
+        metadata: None,
       })
     })
   }
@@ -69,6 +72,8 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::NoEncryption,
+        updated_at: timestamp(),
+        metadata: None,
       })
     })
   }
@@ -97,19 +102,22 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    FutureResult::new(async { Ok(None) })
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError> {
+    let result = match credential.uid {
+      None => Err(FlowyError::record_not_found()),
+      Some(uid) => {
+        self.db.get_user_profile(uid).map(|mut profile| {
+          // We don't want to expose the email in the local server
+          profile.email = "".to_string();
+          profile
+        })
+      },
+    };
+    FutureResult::new(async { result })
   }
 
-  fn get_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
-  }
-
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
   }
 
   fn add_workspace_member(
