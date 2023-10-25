@@ -50,16 +50,8 @@ enum MobilePaneActionType {
           onPressed: (context) {
             final viewBloc = context.read<ViewBloc>();
             final favoriteBloc = context.read<FavoriteBloc>();
-            showModalBottomSheet(
+            showMobileBottomSheet(
               context: context,
-              isScrollControlled: true,
-              enableDrag: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8.0),
-                  topRight: Radius.circular(8.0),
-                ),
-              ),
               builder: (context) {
                 return MultiBlocProvider(
                   providers: [
