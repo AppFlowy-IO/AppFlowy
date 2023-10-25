@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/database_view/application/field/field_info.dart
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database_view/board/application/ungrouped_items_bloc.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
@@ -38,53 +39,67 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
+      builder: (context, boardState) {
         final ungroupedGroup = context.watch<BoardBloc>().ungroupedGroup;
         final databaseController = context.read<BoardBloc>().databaseController;
         final primaryField = databaseController.fieldController.fieldInfos
             .firstWhereOrNull((element) => element.isPrimary)!;
 
-        if (!state.hideUngrouped || ungroupedGroup == null) {
+        if (!boardState.hideUngrouped || ungroupedGroup == null) {
           return const SizedBox.shrink();
         }
 
-        return AppFlowyPopover(
-          direction: PopoverDirection.bottomWithCenterAligned,
-          triggerActions: PopoverTriggerFlags.none,
-          controller: _popoverController,
-          offset: const Offset(0, 8),
-          constraints: const BoxConstraints(maxWidth: 282, maxHeight: 600),
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 1,
+        return BlocProvider<UngroupedItemsBloc>(
+          create: (_) => UngroupedItemsBloc(group: ungroupedGroup)
+            ..add(const UngroupedItemsEvent.initial()),
+          child: BlocBuilder<UngroupedItemsBloc, UngroupedItemsState>(
+            builder: (context, state) {
+              final group = state.ungroupedItemsGroup;
+              return AppFlowyPopover(
+                direction: PopoverDirection.bottomWithCenterAligned,
+                triggerActions: PopoverTriggerFlags.none,
+                controller: _popoverController,
+                offset: const Offset(0, 8),
+                constraints:
+                    const BoxConstraints(maxWidth: 282, maxHeight: 600),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 1,
+                      ),
+                      borderRadius: Corners.s6Border,
+                    ),
+                    side: BorderSide(
+                      color: Theme.of(context).dividerColor,
+                      width: 1,
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () {
+                    if (group!.rows.isNotEmpty) {
+                      _popoverController.show();
+                    }
+                  },
+                  child: FlowyText.regular(
+                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.ungroupedItemsGroup!.rows.length})",
+                    fontSize: 10,
+                  ),
                 ),
-                borderRadius: Corners.s6Border,
-              ),
-              side: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              visualDensity: VisualDensity.compact,
-            ),
-            onPressed: () {
-              if (ungroupedGroup.rows.isNotEmpty) {
-                _popoverController.show();
-              }
+                popupBuilder: (context) {
+                  return UngroupedItemList(
+                    viewId: databaseController.viewId,
+                    primaryField: primaryField,
+                    rowCache: databaseController.rowCache,
+                    ungroupedItems: ungroupedGroup.rows,
+                  );
+                },
+              );
             },
-            child: FlowyText.regular(
-              "${LocaleKeys.board_ungroupedButtonText.tr()} (${ungroupedGroup.rows.length})",
-              fontSize: 10,
-            ),
           ),
-          popupBuilder: (context) {
-            return UngroupedItemList(
-              viewId: databaseController.viewId,
-              primaryField: primaryField,
-              rowCache: databaseController.rowCache,
-              ungroupedItems: ungroupedGroup.rows,
-            );
-          },
         );
       },
     );
