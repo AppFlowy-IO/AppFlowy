@@ -12,7 +12,7 @@ class UngroupedItemsBloc
   UngroupedItemsListener? listener;
 
   UngroupedItemsBloc({required GroupPB group})
-      : super(UngroupedItemsState(ungroupedItemsGroup: group)) {
+      : super(UngroupedItemsState(group)) {
     on<UngroupedItemsEvent>(
       (event, emit) {
         event.when(
@@ -21,13 +21,11 @@ class UngroupedItemsBloc
               group: group,
               onGroupChanged: (group) {
                 if (isClosed) return;
-                add(UngroupedItemsEvent.updateGroup(group));
+                add(UngroupedItemsEvent.updateGroup(group: group));
               },
             )..startListening();
           },
-          updateGroup: (group) {
-            emit(state.copyWith(ungroupedItemsGroup: group));
-          },
+          updateGroup: (group) => emit(UngroupedItemsState(group)),
         );
       },
     );
@@ -37,13 +35,14 @@ class UngroupedItemsBloc
 @freezed
 class UngroupedItemsEvent with _$UngroupedItemsEvent {
   const factory UngroupedItemsEvent.initial() = _Initial;
-  const factory UngroupedItemsEvent.updateGroup(GroupPB group) = _UpdateGroup;
+  const factory UngroupedItemsEvent.updateGroup({required GroupPB group}) =
+      _UpdateGroup;
 }
 
-@freezed
-class UngroupedItemsState with _$UngroupedItemsState {
-  const factory UngroupedItemsState({required GroupPB ungroupedItemsGroup}) =
-      _UngroupedItemsState;
+class UngroupedItemsState {
+  final GroupPB group;
+
+  UngroupedItemsState(this.group);
 }
 
 class UngroupedItemsListener {

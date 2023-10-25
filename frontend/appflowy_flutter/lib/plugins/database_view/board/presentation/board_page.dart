@@ -20,6 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -156,7 +157,6 @@ class _BoardContentState extends State<BoardContent> {
         widget.onEditStateChanged?.call();
       },
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           return Padding(
             padding: GridSize.contentInsets,
@@ -164,7 +164,8 @@ class _BoardContentState extends State<BoardContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildBoardHeader(context),
+                const VSpace(8.0),
+                if (state.hideUngrouped) _buildBoardHeader(context),
                 Expanded(child: _buildBoard(context)),
               ],
             ),
@@ -176,7 +177,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildBoardHeader(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(top: 12.0),
+      padding: EdgeInsets.only(bottom: 8.0),
       child: SizedBox(
         height: 24,
         child: Align(

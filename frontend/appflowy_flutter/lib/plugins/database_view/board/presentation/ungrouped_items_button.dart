@@ -45,7 +45,7 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
         final primaryField = databaseController.fieldController.fieldInfos
             .firstWhereOrNull((element) => element.isPrimary)!;
 
-        if (!boardState.hideUngrouped || ungroupedGroup == null) {
+        if (ungroupedGroup == null) {
           return const SizedBox.shrink();
         }
 
@@ -54,7 +54,7 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
             ..add(const UngroupedItemsEvent.initial()),
           child: BlocBuilder<UngroupedItemsBloc, UngroupedItemsState>(
             builder: (context, state) {
-              final group = state.ungroupedItemsGroup;
+              final group = state.group;
               return AppFlowyPopover(
                 direction: PopoverDirection.bottomWithCenterAligned,
                 triggerActions: PopoverTriggerFlags.none,
@@ -80,12 +80,12 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
                     visualDensity: VisualDensity.compact,
                   ),
                   onPressed: () {
-                    if (group!.rows.isNotEmpty) {
+                    if (group.rows.isNotEmpty) {
                       _popoverController.show();
                     }
                   },
                   child: FlowyText.regular(
-                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.ungroupedItemsGroup!.rows.length})",
+                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.group.rows.length})",
                     fontSize: 10,
                   ),
                 ),
