@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -86,6 +85,9 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
@@ -142,10 +144,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           theme: state.lightTheme,
           darkTheme: state.darkTheme,
           themeMode: state.themeMode,
-          localizationsDelegates: [
-            ...context.localizationDelegates,
-            AppFlowyEditorLocalizations.delegate
-          ],
+          localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: state.locale,
           routerConfig: routerConfig,

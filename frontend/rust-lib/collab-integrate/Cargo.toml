@@ -25,6 +25,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 
 [features]
 default = []
-supabase_integrate = ["collab-plugins/postgres_storage_plugin", "collab-plugins/rocksdb_plugin"]
-appflowy_cloud_integrate = ["collab-plugins/rocksdb_plugin"]
+supabase_integrate = ["collab-plugins/postgres_storage_plugin", "rocksdb_plugin"]
+appflowy_cloud_integrate = ["rocksdb_plugin"]
 snapshot_plugin = ["collab-plugins/snapshot_plugin"]
+rocksdb_plugin = ["collab-plugins/rocksdb_plugin"]

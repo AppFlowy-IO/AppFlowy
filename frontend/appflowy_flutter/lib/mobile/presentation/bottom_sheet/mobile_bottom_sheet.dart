@@ -1,12 +1,32 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_body.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_header.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_rename_widget.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet_view_item_header.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+Future<void> showMobileBottomSheet({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) async {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    enableDrag: true,
+    useSafeArea: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(8.0),
+        topRight: Radius.circular(8.0),
+      ),
+    ),
+    builder: builder,
+  );
+}
 
 enum MobileBottomSheetType {
   view,
@@ -16,10 +36,12 @@ enum MobileBottomSheetType {
 class MobileViewItemBottomSheet extends StatefulWidget {
   const MobileViewItemBottomSheet({
     super.key,
-    required this.view,
+    this.view,
+    this.defaultType = MobileBottomSheetType.view,
   });
 
-  final ViewPB view;
+  final ViewPB? view;
+  final MobileBottomSheetType defaultType;
 
   @override
   State<MobileViewItemBottomSheet> createState() =>
@@ -28,6 +50,18 @@ class MobileViewItemBottomSheet extends StatefulWidget {
 
 class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
   MobileBottomSheetType type = MobileBottomSheetType.view;
+
+  @override
+  initState() {
+    super.initState();
+
+    type = widget.defaultType;
+
+    if ([MobileBottomSheetType.view, MobileBottomSheetType.rename]
+        .contains(type)) {
+      assert(widget.view != null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,30 +82,39 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
         ),
 
         // header
-        MobileBottomSheetHeader(
-          showBackButton: type != MobileBottomSheetType.view,
-          view: widget.view,
-          onBack: () {
-            setState(() {
-              type = MobileBottomSheetType.view;
-            });
-          },
-        ),
+        _buildHeader(),
         const VSpace(8.0),
         const Divider(),
 
         // body
         _buildBody(),
-        const VSpace(12.0),
+        const VSpace(24.0),
       ],
     );
+  }
+
+  Widget _buildHeader() {
+    switch (type) {
+      case MobileBottomSheetType.view:
+      case MobileBottomSheetType.rename:
+        // header
+        return MobileViewItemBottomSheetHeader(
+          showBackButton: type != MobileBottomSheetType.view,
+          view: widget.view!,
+          onBack: () {
+            setState(() {
+              type = MobileBottomSheetType.view;
+            });
+          },
+        );
+    }
   }
 
   Widget _buildBody() {
     switch (type) {
       case MobileBottomSheetType.view:
         return MobileViewItemBottomSheetBody(
-          isFavorite: widget.view.isFavorite,
+          isFavorite: widget.view!.isFavorite,
           onAction: (action) {
             switch (action) {
               case MobileViewItemBottomSheetBodyAction.rename:
@@ -81,34 +124,34 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 break;
               case MobileViewItemBottomSheetBodyAction.duplicate:
                 context.read<ViewBloc>().add(const ViewEvent.duplicate());
-                Navigator.pop(context);
+                context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
-                Navigator.pop(context);
+                context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.delete:
                 context.read<ViewBloc>().add(const ViewEvent.delete());
-                Navigator.pop(context);
+                context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.addToFavorites:
               case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
                 context
                     .read<FavoriteBloc>()
-                    .add(FavoriteEvent.toggle(widget.view));
-                Navigator.pop(context);
+                    .add(FavoriteEvent.toggle(widget.view!));
+                context.pop();
                 break;
             }
           },
         );
       case MobileBottomSheetType.rename:
         return MobileBottomSheetRenameWidget(
-          name: widget.view.name,
+          name: widget.view!.name,
           onRename: (name) {
-            if (name != widget.view.name) {
+            if (name != widget.view!.name) {
               context.read<ViewBloc>().add(ViewEvent.rename(name));
             }
-            Navigator.pop(context);
+            context.pop();
           },
         );
     }

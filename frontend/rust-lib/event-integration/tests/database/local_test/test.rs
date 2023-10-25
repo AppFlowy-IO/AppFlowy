@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 use bytes::Bytes;
 
 use event_integration::event_builder::EventBuilder;
-use event_integration::FlowyCoreTest;
+use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, SelectOptionCellDataPB,
@@ -13,7 +13,7 @@ use lib_infra::util::timestamp;
 
 #[tokio::test]
 async fn get_database_id_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -35,7 +35,7 @@ async fn get_database_id_event_test() {
 
 #[tokio::test]
 async fn get_database_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -49,7 +49,7 @@ async fn get_database_event_test() {
 
 #[tokio::test]
 async fn get_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -64,7 +64,7 @@ async fn get_field_event_test() {
 
 #[tokio::test]
 async fn create_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -78,7 +78,7 @@ async fn create_field_event_test() {
 
 #[tokio::test]
 async fn delete_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -99,7 +99,7 @@ async fn delete_field_event_test() {
 // The primary field is not allowed to be deleted.
 #[tokio::test]
 async fn delete_primary_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -114,7 +114,7 @@ async fn delete_primary_field_event_test() {
 
 #[tokio::test]
 async fn update_field_type_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -132,7 +132,7 @@ async fn update_field_type_event_test() {
 
 #[tokio::test]
 async fn update_primary_field_type_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -151,7 +151,7 @@ async fn update_primary_field_type_event_test() {
 
 #[tokio::test]
 async fn duplicate_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -169,7 +169,7 @@ async fn duplicate_field_event_test() {
 // The primary field is not allowed to be duplicated. So this test should return an error.
 #[tokio::test]
 async fn duplicate_primary_field_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -183,7 +183,7 @@ async fn duplicate_primary_field_test() {
 
 #[tokio::test]
 async fn get_primary_field_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -196,7 +196,7 @@ async fn get_primary_field_event_test() {
 
 #[tokio::test]
 async fn create_row_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -209,7 +209,7 @@ async fn create_row_event_test() {
 
 #[tokio::test]
 async fn delete_row_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -232,7 +232,7 @@ async fn delete_row_event_test() {
 
 #[tokio::test]
 async fn get_row_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -248,7 +248,7 @@ async fn get_row_event_test() {
 
 #[tokio::test]
 async fn update_row_meta_event_with_url_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -276,7 +276,7 @@ async fn update_row_meta_event_with_url_test() {
 
 #[tokio::test]
 async fn update_row_meta_event_with_cover_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -304,7 +304,7 @@ async fn update_row_meta_event_with_cover_test() {
 
 #[tokio::test]
 async fn delete_row_event_with_invalid_row_id_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -317,7 +317,7 @@ async fn delete_row_event_with_invalid_row_id_test() {
 
 #[tokio::test]
 async fn duplicate_row_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -334,7 +334,7 @@ async fn duplicate_row_event_test() {
 
 #[tokio::test]
 async fn duplicate_row_event_with_invalid_row_id_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -351,7 +351,7 @@ async fn duplicate_row_event_with_invalid_row_id_test() {
 
 #[tokio::test]
 async fn move_row_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -371,7 +371,7 @@ async fn move_row_event_test() {
 
 #[tokio::test]
 async fn move_row_event_test2() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -391,7 +391,7 @@ async fn move_row_event_test2() {
 
 #[tokio::test]
 async fn move_row_event_with_invalid_row_id_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -418,7 +418,7 @@ async fn move_row_event_with_invalid_row_id_test() {
 
 #[tokio::test]
 async fn update_text_cell_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -448,7 +448,7 @@ async fn update_text_cell_event_test() {
 
 #[tokio::test]
 async fn update_checkbox_cell_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -479,7 +479,7 @@ async fn update_checkbox_cell_event_test() {
 
 #[tokio::test]
 async fn update_single_select_cell_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -506,7 +506,7 @@ async fn update_single_select_cell_event_test() {
 
 #[tokio::test]
 async fn update_date_cell_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -543,7 +543,7 @@ async fn update_date_cell_event_test() {
 
 #[tokio::test]
 async fn update_date_cell_event_with_empty_time_str_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -579,7 +579,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
 
 #[tokio::test]
 async fn create_checklist_field_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -600,7 +600,7 @@ async fn create_checklist_field_test() {
 
 #[tokio::test]
 async fn update_checklist_cell_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -657,7 +657,7 @@ async fn update_checklist_cell_test() {
 // The number of groups should be 0 if there is no group by field in grid
 #[tokio::test]
 async fn get_groups_event_with_grid_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -669,7 +669,7 @@ async fn get_groups_event_with_grid_test() {
 
 #[tokio::test]
 async fn get_groups_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -681,7 +681,7 @@ async fn get_groups_event_test() {
 
 #[tokio::test]
 async fn move_group_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -715,7 +715,7 @@ async fn move_group_event_test() {
 
 #[tokio::test]
 async fn move_group_event_with_invalid_id_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -737,7 +737,7 @@ async fn move_group_event_with_invalid_id_test() {
 
 #[tokio::test]
 async fn rename_group_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -761,7 +761,7 @@ async fn rename_group_event_test() {
 
 #[tokio::test]
 async fn hide_group_event_test2() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -783,7 +783,7 @@ async fn hide_group_event_test2() {
 // Update the database layout type from grid to board
 #[tokio::test]
 async fn update_database_layout_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -805,7 +805,7 @@ async fn update_database_layout_event_test() {
 // Update the database layout type from grid to board. Set the checkbox field as the grouping field
 #[tokio::test]
 async fn update_database_layout_event_test2() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let grid_view = test
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
@@ -837,7 +837,7 @@ async fn update_database_layout_event_test2() {
 // Create a checkbox field in the default board and then set it as the grouping field.
 #[tokio::test]
 async fn set_group_by_checkbox_field_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -854,7 +854,7 @@ async fn set_group_by_checkbox_field_test() {
 
 #[tokio::test]
 async fn get_all_calendar_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let calendar_view = test
     .create_calendar(&current_workspace.id, "my calendar view".to_owned(), vec![])
@@ -867,7 +867,7 @@ async fn get_all_calendar_event_test() {
 
 #[tokio::test]
 async fn create_calendar_event_test() {
-  let test = FlowyCoreTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let calendar_view = test
     .create_calendar(&current_workspace.id, "my calendar view".to_owned(), vec![])

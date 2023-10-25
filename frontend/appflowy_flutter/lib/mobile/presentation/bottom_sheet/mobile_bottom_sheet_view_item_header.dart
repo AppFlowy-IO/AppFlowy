@@ -2,8 +2,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-class MobileBottomSheetHeader extends StatelessWidget {
-  const MobileBottomSheetHeader({
+class MobileViewItemBottomSheetHeader extends StatelessWidget {
+  const MobileViewItemBottomSheetHeader({
     super.key,
     required this.view,
     required this.showBackButton,

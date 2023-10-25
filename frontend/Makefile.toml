@@ -202,6 +202,13 @@ FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
+[env.production-android]
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+LIB_EXT = "so"
+
 [tasks.echo_env]
 script = ['''
     echo "-------- Env Parameters --------"

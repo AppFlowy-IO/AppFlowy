@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use protobuf::ProtobufError;
 use thiserror::Error;
+use validator::{ValidationError, ValidationErrors};
 
 use flowy_derive::ProtoBuf;
 
@@ -129,6 +130,18 @@ impl std::convert::From<std::io::Error> for FlowyError {
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   fn from(e: protobuf::ProtobufError) -> Self {
     FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<ValidationError> for FlowyError {
+  fn from(value: ValidationError) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
+  }
+}
+
+impl From<ValidationErrors> for FlowyError {
+  fn from(value: ValidationErrors) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
   }
 }
 

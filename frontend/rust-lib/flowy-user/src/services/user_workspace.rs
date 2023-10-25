@@ -6,7 +6,7 @@ use collab_entity::{CollabObject, CollabType};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, ConnectionPool, ExpressionMethods};
-use flowy_user_deps::entities::UserWorkspace;
+use flowy_user_deps::entities::{Role, UserWorkspace, WorkspaceMember};
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::manager::UserManager;
@@ -30,28 +30,54 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn add_user_to_workspace(
+  pub async fn add_workspace_member(
     &self,
     user_email: String,
-    to_workspace_id: String,
+    workspace_id: String,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .add_workspace_member(user_email, to_workspace_id)
+      .add_workspace_member(user_email, workspace_id)
       .await?;
     Ok(())
   }
 
-  pub async fn remove_user_to_workspace(
+  pub async fn remove_workspace_member(
     &self,
     user_email: String,
-    from_workspace_id: String,
+    workspace_id: String,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .remove_workspace_member(user_email, from_workspace_id)
+      .remove_workspace_member(user_email, workspace_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FlowyResult<Vec<WorkspaceMember>> {
+    let members = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_members(workspace_id)
+      .await?;
+    Ok(members)
+  }
+
+  pub async fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .update_workspace_member(user_email, workspace_id, role)
       .await?;
     Ok(())
   }
@@ -74,7 +100,7 @@ impl UserManager {
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
         tokio::spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_user_workspaces(uid).await {
+          if let Ok(new_user_workspaces) = service.get_all_user_workspaces(uid).await {
             let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
             let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
             send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)

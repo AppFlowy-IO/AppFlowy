@@ -173,9 +173,9 @@ pub struct UserSecretPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserEncryptionSecretCheckPB {
+pub struct UserEncryptionConfigurationPB {
   #[pb(index = 1)]
-  pub is_need_secret: bool,
+  pub require_secret: bool,
 }
 
 impl From<UserCloudConfig> for UserCloudConfigPB {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_mode_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,7 +24,7 @@ class BrightnessSetting extends StatelessWidget {
       onResetRequested: context.read<AppearanceSettingsCubit>().resetThemeMode,
       trailing: [
         ThemeValueDropDown(
-          currentValue: _themeModeLabelText(currentThemeMode),
+          currentValue: currentThemeMode.labelText,
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -47,7 +48,7 @@ class BrightnessSetting extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(_themeModeLabelText(themeMode)),
+        text: FlowyText.medium(themeMode.labelText),
         rightIcon: currentThemeMode == themeMode
             ? const FlowySvg(
                 FlowySvgs.check_s,
@@ -61,18 +62,5 @@ class BrightnessSetting extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _themeModeLabelText(ThemeMode themeMode) {
-    switch (themeMode) {
-      case (ThemeMode.light):
-        return LocaleKeys.settings_appearance_themeMode_light.tr();
-      case (ThemeMode.dark):
-        return LocaleKeys.settings_appearance_themeMode_dark.tr();
-      case (ThemeMode.system):
-        return LocaleKeys.settings_appearance_themeMode_system.tr();
-      default:
-        return "";
-    }
   }
 }

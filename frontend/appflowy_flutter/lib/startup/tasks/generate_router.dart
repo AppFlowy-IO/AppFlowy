@@ -30,11 +30,23 @@ GoRouter generateRouter(Widget child) {
       if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
       if (PlatformExtension.isMobile) ...[
+        // settings
+        _mobileHomeSettingPageRoute(),
+        _mobileSettingPrivacyPolicyPageRoute(),
+        _mobileSettingUserAgreementPageRoute(),
+
+        // view page
         _mobileEditorScreenRoute(),
         _mobileGridScreenRoute(),
         _mobileBoardScreenRoute(),
         _mobileCalendarScreenRoute(),
+
+        // home
+        // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
         _mobileHomeScreenWithNavigationBarRoute(),
+
+        // trash
+        _mobileHomeTrashPageRoute(),
       ],
 
       // Desktop and Mobile
@@ -92,7 +104,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
           ),
         ],
       ),
-
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
@@ -100,32 +111,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
             builder: (BuildContext context, GoRouterState state) {
               return const MobileFavoriteScreen();
             },
-          ),
-        ],
-      ),
-
-      // The route branch for the third tab of the bottom navigation bar.
-      StatefulShellBranch(
-        routes: <RouteBase>[
-          GoRoute(
-            // The screen to display as the root in the third tab of the
-            // bottom navigation bar.
-            path: '/c',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Add Document',
-              detailsPath: '/c/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    DetailsPlaceholderScreen(
-                  label: 'Add Document details',
-                  extra: state.extra,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -172,6 +157,46 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
         ],
       ),
     ],
+  );
+}
+
+GoRoute _mobileHomeSettingPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeSettingPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeSettingPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingPrivacyPolicyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: PrivacyPolicyPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: PrivacyPolicyPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingUserAgreementPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: UserAgreementPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: UserAgreementPage());
+    },
+  );
+}
+
+GoRoute _mobileHomeTrashPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeTrashPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeTrashPage());
+    },
   );
 }
 

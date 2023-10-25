@@ -1,48 +1,202 @@
-use crate::event_builder::EventBuilder;
-use crate::FlowyCoreTest;
+use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder2::entities::*;
+use flowy_folder2::event_map::FolderEvent;
 use flowy_folder2::event_map::FolderEvent::*;
+use flowy_user::entities::{
+  AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
+  WorkspaceMemberPB,
+};
+use flowy_user::errors::FlowyError;
+use flowy_user::event_map::UserEvent;
+
+use crate::event_builder::EventBuilder;
+use crate::EventIntegrationTest;
+
+impl EventIntegrationTest {
+  pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::AddWorkspaceMember)
+      .payload(AddWorkspaceMemberPB {
+        workspace_id: workspace_id.to_string(),
+        email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::RemoveWorkspaceMember)
+      .payload(RemoveWorkspaceMemberPB {
+        workspace_id: workspace_id.to_string(),
+        email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::GetWorkspaceMember)
+      .payload(QueryWorkspacePB {
+        workspace_id: workspace_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedWorkspaceMemberPB>()
+      .items
+  }
+
+  pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::GetCurrentWorkspace)
+      .async_send()
+      .await
+      .parse::<WorkspaceSettingPB>()
+  }
+
+  pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadWorkspaceViews)
+      .async_send()
+      .await
+      .parse::<RepeatedViewPB>()
+      .items
+  }
+
+  pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadView)
+      .payload(ViewIdPB {
+        value: parent_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
+
+  pub async fn delete_view(&self, view_id: &str) {
+    let payload = RepeatedViewIdPB {
+      items: vec![view_id.to_string()],
+    };
+
+    // delete the view. the view will be moved to trash
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::DeleteView)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
+    // delete the view. the view will be moved to trash
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateView)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn update_view_icon(&self, payload: UpdateViewIconPayloadPB) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::UpdateViewIcon)
+      .payload(payload)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn create_view(&self, parent_id: &str, name: String) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name,
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: Default::default(),
+      initial_data: vec![],
+      meta: Default::default(),
+      set_as_current: false,
+      index: None,
+    };
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
+
+  pub async fn get_view(&self, view_id: &str) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ReadView)
+      .payload(ViewIdPB {
+        value: view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
+}
 
 pub struct ViewTest {
-  pub sdk: FlowyCoreTest,
+  pub sdk: EventIntegrationTest,
   pub workspace: WorkspacePB,
-  pub parent_view: ViewPB,
   pub child_view: ViewPB,
 }
 
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(sdk: &FlowyCoreTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
+  pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
     let workspace = create_workspace(sdk, "Workspace", "").await;
-    open_workspace(sdk, &workspace.id).await;
-    let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-    let view = create_view(sdk, &app.id, layout, data).await;
+    let payload = WorkspaceIdPB {
+      value: Some(workspace.id.clone()),
+    };
+    let _ = EventBuilder::new(sdk.clone())
+      .event(OpenWorkspace)
+      .payload(payload)
+      .async_send()
+      .await;
+
+    let payload = CreateViewPayloadPB {
+      parent_view_id: workspace.id.clone(),
+      name: "View A".to_string(),
+      desc: "".to_string(),
+      thumbnail: Some("http://1.png".to_string()),
+      layout,
+      initial_data: data,
+      meta: Default::default(),
+      set_as_current: true,
+      index: None,
+    };
+
+    let view = EventBuilder::new(sdk.clone())
+      .event(CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ViewPB>();
     Self {
       sdk: sdk.clone(),
       workspace,
-      parent_view: app,
       child_view: view,
     }
   }
 
-  pub async fn new_grid_view(sdk: &FlowyCoreTest, data: Vec<u8>) -> Self {
+  pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
     Self::new(sdk, ViewLayoutPB::Grid, data).await
   }
 
-  pub async fn new_board_view(sdk: &FlowyCoreTest, data: Vec<u8>) -> Self {
+  pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
     Self::new(sdk, ViewLayoutPB::Board, data).await
   }
 
-  pub async fn new_calendar_view(sdk: &FlowyCoreTest, data: Vec<u8>) -> Self {
+  pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
     Self::new(sdk, ViewLayoutPB::Calendar, data).await
-  }
-
-  pub async fn new_document_view(sdk: &FlowyCoreTest) -> Self {
-    Self::new(sdk, ViewLayoutPB::Document, vec![]).await
   }
 }
 
-async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> WorkspacePB {
+async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {
     name: name.to_owned(),
     desc: desc.to_owned(),
@@ -54,62 +208,4 @@ async fn create_workspace(sdk: &FlowyCoreTest, name: &str, desc: &str) -> Worksp
     .async_send()
     .await
     .parse::<WorkspacePB>()
-}
-
-async fn open_workspace(sdk: &FlowyCoreTest, workspace_id: &str) {
-  let payload = WorkspaceIdPB {
-    value: Some(workspace_id.to_owned()),
-  };
-  let _ = EventBuilder::new(sdk.clone())
-    .event(OpenWorkspace)
-    .payload(payload)
-    .async_send()
-    .await;
-}
-
-async fn create_app(sdk: &FlowyCoreTest, name: &str, desc: &str, workspace_id: &str) -> ViewPB {
-  let create_app_request = CreateViewPayloadPB {
-    parent_view_id: workspace_id.to_owned(),
-    name: name.to_string(),
-    desc: desc.to_string(),
-    thumbnail: None,
-    layout: ViewLayoutPB::Document,
-    initial_data: vec![],
-    meta: Default::default(),
-    set_as_current: true,
-    index: None,
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateView)
-    .payload(create_app_request)
-    .async_send()
-    .await
-    .parse::<ViewPB>()
-}
-
-async fn create_view(
-  sdk: &FlowyCoreTest,
-  app_id: &str,
-  layout: ViewLayoutPB,
-  data: Vec<u8>,
-) -> ViewPB {
-  let payload = CreateViewPayloadPB {
-    parent_view_id: app_id.to_string(),
-    name: "View A".to_string(),
-    desc: "".to_string(),
-    thumbnail: Some("http://1.png".to_string()),
-    layout,
-    initial_data: data,
-    meta: Default::default(),
-    set_as_current: true,
-    index: None,
-  };
-
-  EventBuilder::new(sdk.clone())
-    .event(CreateView)
-    .payload(payload)
-    .async_send()
-    .await
-    .parse::<ViewPB>()
 }

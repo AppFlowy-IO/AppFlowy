@@ -328,6 +328,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       toggleListBlockItem,
       emojiMenuItem,
       autoGeneratorMenuItem,
+      dateMenuItem,
     ];
   }
 
