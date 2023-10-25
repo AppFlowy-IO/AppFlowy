@@ -261,15 +261,8 @@ class DatabaseController {
   }
 
   Future<void> _loadGroups() async {
-    final configResult = await loadGroupConfiguration(viewId: viewId);
-    configResult.fold(
-      (configurations) {
-        for (final callback in _groupCallbacks) {
-          callback.onGroupConfigurationChanged?.call(configurations);
-        }
-      },
-      (err) => Log.error(err),
-    );
+    final configResult = await loadGroupConfigurations(viewId: viewId);
+    _handleGroupConfigurationChanged(configResult);
 
     final groupsResult = await _databaseViewBackendSvc.loadGroups();
     groupsResult.fold(
@@ -346,16 +339,7 @@ class DatabaseController {
 
   void _listenOnGroupChanged() {
     _groupListener.start(
-      onGroupConfigurationChanged: (result) {
-        result.fold(
-          (configurations) {
-            for (final callback in _groupCallbacks) {
-              callback.onGroupConfigurationChanged?.call(configurations);
-            }
-          },
-          (r) => Log.error(r),
-        );
-      },
+      onGroupConfigurationChanged: _handleGroupConfigurationChanged,
       onNumOfGroupsChanged: (result) {
         result.fold(
           (changeset) {
@@ -411,7 +395,7 @@ class DatabaseController {
     );
   }
 
-  Future<Either<List<GroupSettingPB>, FlowyError>> loadGroupConfiguration({
+  Future<Either<List<GroupSettingPB>, FlowyError>> loadGroupConfigurations({
     required String viewId,
   }) {
     final payload = DatabaseViewIdPB(value: viewId);
@@ -419,6 +403,19 @@ class DatabaseController {
     return DatabaseEventGetGroupConfigurations(payload).send().then((result) {
       return result.fold((l) => left(l.items), (r) => right(r));
     });
+  }
+
+  void _handleGroupConfigurationChanged(
+    Either<List<GroupSettingPB>, FlowyError> result,
+  ) {
+    result.fold(
+      (configurations) {
+        for (final callback in _groupCallbacks) {
+          callback.onGroupConfigurationChanged?.call(configurations);
+        }
+      },
+      (r) => Log.error(r),
+    );
   }
 }
 

@@ -87,7 +87,7 @@ class DatabaseGroupBloc extends Bloc<DatabaseGroupEvent, DatabaseGroupState> {
   }
 
   void _loadGroupConfigurations() async {
-    final configResult = await _databaseController.loadGroupConfiguration(
+    final configResult = await _databaseController.loadGroupConfigurations(
       viewId: _databaseController.viewId,
     );
     configResult.fold(

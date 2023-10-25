@@ -46,7 +46,7 @@ class DatabaseGroupList extends StatelessWidget {
                 field.fieldType != FieldType.Checkbox,
           );
           final children = [
-            if (showHideUngroupedToggle)
+            if (showHideUngroupedToggle) ...[
               SizedBox(
                 height: GridSize.popoverItemHeight,
                 child: Padding(
@@ -70,7 +70,8 @@ class DatabaseGroupList extends StatelessWidget {
                   ),
                 ),
               ),
-            if (showHideUngroupedToggle) const TypeOptionSeparator(spacing: 0),
+              const TypeOptionSeparator(spacing: 0),
+            ],
             SizedBox(
               height: GridSize.popoverItemHeight,
               child: Padding(
@@ -86,7 +87,7 @@ class DatabaseGroupList extends StatelessWidget {
             ...state.fieldInfos.where((fieldInfo) => fieldInfo.canBeGroup).map(
                   (fieldInfo) => _GridGroupCell(
                     fieldInfo: fieldInfo,
-                    onSelected: () => onDismissed(),
+                    onSelected: onDismissed,
                     key: ValueKey(fieldInfo.id),
                   ),
                 ),
