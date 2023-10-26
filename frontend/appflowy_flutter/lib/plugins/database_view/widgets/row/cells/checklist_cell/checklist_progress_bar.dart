@@ -22,7 +22,10 @@ class ChecklistProgressBar extends StatefulWidget {
 class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
   @override
   Widget build(BuildContext context) {
-    final int finishedTasks = widget.tasks.where((e) => e.isSelected).length;
+    final numFinishedTasks = widget.tasks.where((e) => e.isSelected).length;
+    final completedTaskColor = numFinishedTasks == widget.tasks.length
+        ? AFThemeExtension.of(context).success
+        : Theme.of(context).colorScheme.primary;
 
     return Row(
       children: [
@@ -37,9 +40,9 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(5)),
-                        color: index < finishedTasks
-                            ? Theme.of(context).colorScheme.primary
+                            const BorderRadius.all(Radius.circular(2)),
+                        color: index < numFinishedTasks
+                            ? completedTaskColor
                             : AFThemeExtension.of(context).progressBarBGColor,
                       ),
                       margin: const EdgeInsets.symmetric(horizontal: 1),
@@ -47,19 +50,18 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
                     ),
                   ),
                 )
-              else ...[
+              else
                 Expanded(
                   child: LinearPercentIndicator(
                     lineHeight: 4.0,
                     percent: widget.percent,
                     padding: EdgeInsets.zero,
-                    progressColor: Theme.of(context).colorScheme.primary,
+                    progressColor: completedTaskColor,
                     backgroundColor:
                         AFThemeExtension.of(context).progressBarBGColor,
-                    barRadius: const Radius.circular(5),
+                    barRadius: const Radius.circular(2),
                   ),
                 ),
-              ]
             ],
           ),
         ),
