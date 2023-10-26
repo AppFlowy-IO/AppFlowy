@@ -12,20 +12,25 @@ class UngroupedItemsBloc
   UngroupedItemsListener? listener;
 
   UngroupedItemsBloc({required GroupPB group})
-      : super(UngroupedItemsState(group)) {
+      : super(UngroupedItemsState(ungroupedItems: group.rows)) {
     on<UngroupedItemsEvent>(
       (event, emit) {
         event.when(
           initial: () {
             listener = UngroupedItemsListener(
-              group: group,
-              onGroupChanged: (group) {
+              initialGroup: group,
+              onGroupChanged: (ungroupedItems) {
                 if (isClosed) return;
-                add(UngroupedItemsEvent.updateGroup(group: group));
+                add(
+                  UngroupedItemsEvent.updateGroup(
+                    ungroupedItems: ungroupedItems,
+                  ),
+                );
               },
             )..startListening();
           },
-          updateGroup: (group) => emit(UngroupedItemsState(group)),
+          updateGroup: (newItems) =>
+              emit(UngroupedItemsState(ungroupedItems: newItems)),
         );
       },
     );
@@ -35,54 +40,58 @@ class UngroupedItemsBloc
 @freezed
 class UngroupedItemsEvent with _$UngroupedItemsEvent {
   const factory UngroupedItemsEvent.initial() = _Initial;
-  const factory UngroupedItemsEvent.updateGroup({required GroupPB group}) =
-      _UpdateGroup;
+  const factory UngroupedItemsEvent.updateGroup({
+    required List<RowMetaPB> ungroupedItems,
+  }) = _UpdateGroup;
 }
 
-class UngroupedItemsState {
-  final GroupPB group;
-
-  UngroupedItemsState(this.group);
+@freezed
+class UngroupedItemsState with _$UngroupedItemsState {
+  const factory UngroupedItemsState({
+    required List<RowMetaPB> ungroupedItems,
+  }) = _UngroupedItemsState;
 }
 
 class UngroupedItemsListener {
-  final GroupPB group;
+  final List<RowMetaPB> _ungroupedItems;
   final SingleGroupListener _listener;
-  final void Function(GroupPB group) onGroupChanged;
+  final void Function(List<RowMetaPB> items) onGroupChanged;
 
   UngroupedItemsListener({
-    required this.group,
+    required GroupPB initialGroup,
     required this.onGroupChanged,
-  }) : _listener = SingleGroupListener(group);
+  })  : _ungroupedItems = List<RowMetaPB>.from(initialGroup.rows),
+        _listener = SingleGroupListener(initialGroup);
 
   void startListening() {
     _listener.start(
       onGroupChanged: (result) {
         result.fold(
           (GroupRowsNotificationPB changeset) {
+            final newItems = List<RowMetaPB>.from(_ungroupedItems);
             for (final deletedRow in changeset.deletedRows) {
-              group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
+              newItems.removeWhere((rowPB) => rowPB.id == deletedRow);
             }
 
             for (final insertedRow in changeset.insertedRows) {
               if (insertedRow.hasIndex() &&
-                  group.rows.length > insertedRow.index) {
-                group.rows.insert(insertedRow.index, insertedRow.rowMeta);
+                  newItems.length > insertedRow.index) {
+                newItems.insert(insertedRow.index, insertedRow.rowMeta);
               } else {
-                group.rows.add(insertedRow.rowMeta);
+                newItems.add(insertedRow.rowMeta);
               }
             }
 
             for (final updatedRow in changeset.updatedRows) {
-              final index = group.rows.indexWhere(
+              final index = newItems.indexWhere(
                 (rowPB) => rowPB.id == updatedRow.id,
               );
 
               if (index != -1) {
-                group.rows[index] = updatedRow;
+                newItems[index] = updatedRow;
               }
             }
-            onGroupChanged.call(group);
+            onGroupChanged.call(newItems);
           },
           (err) => Log.error(err),
         );

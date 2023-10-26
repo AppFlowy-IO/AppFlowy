@@ -54,7 +54,6 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
             ..add(const UngroupedItemsEvent.initial()),
           child: BlocBuilder<UngroupedItemsBloc, UngroupedItemsState>(
             builder: (context, state) {
-              final group = state.group;
               return AppFlowyPopover(
                 direction: PopoverDirection.bottomWithCenterAligned,
                 triggerActions: PopoverTriggerFlags.none,
@@ -80,12 +79,12 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
                     visualDensity: VisualDensity.compact,
                   ),
                   onPressed: () {
-                    if (group.rows.isNotEmpty) {
+                    if (state.ungroupedItems.isNotEmpty) {
                       _popoverController.show();
                     }
                   },
                   child: FlowyText.regular(
-                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.group.rows.length})",
+                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.ungroupedItems.length})",
                     fontSize: 10,
                   ),
                 ),
@@ -94,7 +93,7 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
                     viewId: databaseController.viewId,
                     primaryField: primaryField,
                     rowCache: databaseController.rowCache,
-                    ungroupedItems: ungroupedGroup.rows,
+                    ungroupedItems: state.ungroupedItems,
                   );
                 },
               );
@@ -142,12 +141,7 @@ class UngroupedItemList extends StatelessWidget {
           renderHook.addTextCellHook((cellData, _, __) {
             return BlocBuilder<TextCellBloc, TextCellState>(
               builder: (context, state) {
-                final isTitle = context
-                    .read<TextCellBloc>()
-                    .cellController
-                    .fieldInfo
-                    .isPrimary;
-                final text = isTitle && cellData.isEmpty
+                final text = cellData.isEmpty
                     ? LocaleKeys.grid_row_titlePlaceholder.tr()
                     : cellData;
 
