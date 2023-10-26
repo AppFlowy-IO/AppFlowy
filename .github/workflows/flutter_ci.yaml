@@ -181,17 +181,12 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-
-      - name: Uncompress appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
-
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+            cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
             cargo make dart_unit_test
           else
             cargo make dart_unit_test_no_build
