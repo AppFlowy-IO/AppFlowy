@@ -39,12 +39,13 @@ class MobileHomeTrashPage extends StatelessWidget {
                           Expanded(
                             child: _TrashActionAllButton(
                               trashBloc: trashBloc,
+                              type: _TrashActionType.deleteAll,
                             ),
                           ),
                           Expanded(
                             child: _TrashActionAllButton(
                               trashBloc: trashBloc,
-                              isDeleteAll: true,
+                              type: _TrashActionType.restoreAll,
                             ),
                           )
                         ],
@@ -69,19 +70,24 @@ class MobileHomeTrashPage extends StatelessWidget {
   }
 }
 
+enum _TrashActionType {
+  restoreAll,
+  deleteAll,
+}
+
 class _TrashActionAllButton extends StatelessWidget {
   /// Switch between 'delete all' and 'restore all' feature
   const _TrashActionAllButton({
-    this.isDeleteAll = false,
+    this.type = _TrashActionType.deleteAll,
     required this.trashBloc,
   });
-
-  final bool isDeleteAll;
+  final _TrashActionType type;
   final TrashBloc trashBloc;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDeleteAll = type == _TrashActionType.deleteAll;
     return BlocProvider.value(
       value: trashBloc,
       child: BottomSheetActionWidget(
