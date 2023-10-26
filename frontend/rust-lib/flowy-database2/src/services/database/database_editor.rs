@@ -958,13 +958,26 @@ impl DatabaseEditor {
         let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
         let view = self.database_views.get_view_editor(view_id).await?;
         view
-          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row)
+          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
           .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
         self.database.lock().update_row(&row_detail.row.id, |row| {
           row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
         });
+
+        let to_row = if to_row.is_some() {
+          to_row
+        } else {
+          let row_details = self.get_rows(view_id).await?;
+          row_details
+            .last()
+            .map(|row_detail| row_detail.row.id.clone())
+        };
+
+        if let Some(row_id) = to_row {
+          self.move_row(view_id, from_row, row_id).await;
+        }
 
         let cell_changesets = cell_changesets_from_cell_by_field_id(
           view_id,

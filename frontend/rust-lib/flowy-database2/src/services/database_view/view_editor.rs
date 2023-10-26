@@ -394,11 +394,11 @@ impl DatabaseViewEditor {
     if let Some(result) = result {
       if let Some(delete_group) = result.deleted_group {
         tracing::trace!("Delete group after moving the row: {:?}", delete_group);
-        let mut changes = GroupChangesPB {
+        let changes = GroupChangesPB {
           view_id: self.view_id.clone(),
+          deleted_groups: vec![delete_group.group_id],
           ..Default::default()
         };
-        changes.deleted_groups.push(delete_group.group_id);
         notify_did_update_num_of_groups(&self.view_id, changes).await;
       }
 
