@@ -1001,5 +1001,9 @@
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
     "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "slide the page to the left to add it to favorites"
   }
 }
