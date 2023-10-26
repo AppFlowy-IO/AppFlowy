@@ -22,23 +22,23 @@ class ChecklistProgressBar extends StatefulWidget {
 class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
   @override
   Widget build(BuildContext context) {
+    final int finishedTasks = widget.tasks.where((e) => e.isSelected).length;
+
     return Row(
       children: [
         Expanded(
           child: Row(
             children: [
               if (widget.tasks.isNotEmpty &&
-                  widget.tasks.length <= widget.segmentLimit) ...[
-                for (int i = 0,
-                        j = widget.tasks.where((e) => e.isSelected).length;
-                    i < widget.tasks.length;
-                    i++, j--)
-                  Expanded(
+                  widget.tasks.length <= widget.segmentLimit)
+                ...List<Widget>.generate(
+                  widget.tasks.length,
+                  (index) => Flexible(
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
-                        color: j > 0
+                        color: index < finishedTasks
                             ? Theme.of(context).colorScheme.primary
                             : AFThemeExtension.of(context).progressBarBGColor,
                       ),
@@ -46,7 +46,8 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
                       height: 4.0,
                     ),
                   ),
-              ] else ...[
+                )
+              else ...[
                 Expanded(
                   child: LinearPercentIndicator(
                     lineHeight: 4.0,
