@@ -12,7 +12,7 @@ use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
 use crate::services::database::DatabaseRowEvent;
-use crate::services::database_view::{DatabaseViewData, DatabaseViewEditor};
+use crate::services::database_view::{DatabaseViewEditor, DatabaseViewOperation};
 use crate::services::group::RowChangeset;
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
@@ -22,7 +22,7 @@ pub struct DatabaseViews {
   #[allow(dead_code)]
   database: Arc<MutexDatabase>,
   cell_cache: CellCache,
-  database_view_data: Arc<dyn DatabaseViewData>,
+  database_view_operation: Arc<dyn DatabaseViewOperation>,
   editor_map: Arc<RwLock<HashMap<String, Arc<DatabaseViewEditor>>>>,
 }
 
@@ -30,12 +30,12 @@ impl DatabaseViews {
   pub async fn new(
     database: Arc<MutexDatabase>,
     cell_cache: CellCache,
-    database_view_data: Arc<dyn DatabaseViewData>,
+    database_view_operation: Arc<dyn DatabaseViewOperation>,
   ) -> FlowyResult<Self> {
     let editor_map = Arc::new(RwLock::new(HashMap::default()));
     Ok(Self {
       database,
-      database_view_data,
+      database_view_operation,
       cell_cache,
       editor_map,
     })
@@ -113,7 +113,7 @@ impl DatabaseViews {
     let editor = Arc::new(
       DatabaseViewEditor::new(
         view_id.to_owned(),
-        self.database_view_data.clone(),
+        self.database_view_operation.clone(),
         self.cell_cache.clone(),
       )
       .await?,

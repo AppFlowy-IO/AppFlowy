@@ -15,7 +15,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
-use crate::services::group::{GroupChangeset, GroupChangesets};
+use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
 
 fn upgrade_manager(
@@ -726,15 +726,7 @@ pub(crate) async fn update_group_handler(
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
   let group_changeset = GroupChangeset::from(params);
   database_editor
-    .update_group(&view_id, group_changeset.clone())
-    .await?;
-  database_editor
-    .update_group_setting(
-      &view_id,
-      GroupChangesets {
-        update_groups: vec![group_changeset],
-      },
-    )
+    .update_group(&view_id, vec![group_changeset].into())
     .await?;
 
   Ok(())

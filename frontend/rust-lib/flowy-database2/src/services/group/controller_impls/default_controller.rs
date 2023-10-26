@@ -102,7 +102,7 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok(None)
   }
 
-  fn apply_group_setting_changeset(&mut self, _changeset: GroupChangesets) -> FlowyResult<()> {
+  fn apply_group_changeset(&mut self, _changeset: GroupChangesets) -> FlowyResult<()> {
     Ok(())
   }
 
@@ -115,7 +115,7 @@ impl GroupControllerOperation for DefaultGroupController {
 }
 
 impl GroupController for DefaultGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {
+  fn did_update_field_type_option(&mut self, field: &Field) {
     // Do nothing
   }
 

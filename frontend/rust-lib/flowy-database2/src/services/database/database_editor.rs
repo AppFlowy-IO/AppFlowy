@@ -21,7 +21,7 @@ use crate::services::cell::{
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
-use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
+use crate::services::database_view::{DatabaseViewChanged, DatabaseViewOperation, DatabaseViews};
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
@@ -33,8 +33,7 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupChangeset, GroupChangesets, GroupSetting, GroupSettingChangeset,
-  RowChangeset,
+  default_group_setting, GroupChangesets, GroupSetting, GroupSettingChangeset, RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -52,7 +51,7 @@ impl DatabaseEditor {
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
     let cell_cache = AnyTypeCache::<u64>::new();
-    let database_view_data = Arc::new(DatabaseViewDataImpl {
+    let database_view_operation = Arc::new(DatabaseViewOperationImpl {
       database: database.clone(),
       task_scheduler: task_scheduler.clone(),
       cell_cache: cell_cache.clone(),
@@ -94,8 +93,14 @@ impl DatabaseEditor {
       }
     });
 
-    let database_views =
-      Arc::new(DatabaseViews::new(database.clone(), cell_cache.clone(), database_view_data).await?);
+    let database_views = Arc::new(
+      DatabaseViews::new(
+        database.clone(),
+        cell_cache.clone(),
+        database_view_operation,
+      )
+      .await?,
+    );
     Ok(Self {
       database,
       cell_cache,
@@ -178,39 +183,9 @@ impl DatabaseEditor {
     Ok(self.database.lock().delete_view(view_id))
   }
 
-  pub async fn update_group_setting(
-    &self,
-    view_id: &str,
-    group_setting_changeset: GroupChangesets,
-  ) -> FlowyResult<()> {
+  pub async fn update_group(&self, view_id: &str, changesets: GroupChangesets) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    view_editor
-      .v_update_group_setting(group_setting_changeset)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn update_group(
-    &self,
-    view_id: &str,
-    group_changeset: GroupChangeset,
-  ) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(view_id).await?;
-    let type_option_data = view_editor.update_group(group_changeset.clone()).await?;
-    if type_option_data.is_empty() {
-      return Ok(());
-    }
-
-    let field = self
-      .get_field(&group_changeset.field_id)
-      .ok_or(internal_error(
-        "Failed to get field when update group type option",
-      ))?;
-
-    self
-      .update_field_type_option(view_id, &group_changeset.field_id, type_option_data, field)
-      .await?;
-
+    view_editor.v_update_group(changesets).await?;
     Ok(())
   }
 
@@ -1291,13 +1266,13 @@ fn cell_changesets_from_cell_by_field_id(
     .collect()
 }
 
-struct DatabaseViewDataImpl {
+struct DatabaseViewOperationImpl {
   database: Arc<MutexDatabase>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   cell_cache: CellCache,
 }
 
-impl DatabaseViewData for DatabaseViewDataImpl {
+impl DatabaseViewOperation for DatabaseViewOperationImpl {
   fn get_database(&self) -> Arc<MutexDatabase> {
     self.database.clone()
   }
@@ -1312,14 +1287,8 @@ impl DatabaseViewData for DatabaseViewDataImpl {
     to_fut(async move { fields.into_iter().map(Arc::new).collect() })
   }
 
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>> {
-    let field = self
-      .database
-      .lock()
-      .fields
-      .get_field(field_id)
-      .map(Arc::new);
-    to_fut(async move { field })
+  fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.database.lock().fields.get_field(field_id)
   }
 
   fn create_field(
@@ -1341,6 +1310,16 @@ impl DatabaseViewData for DatabaseViewDataImpl {
       default_field_settings_by_layout_map(),
     );
     to_fut(async move { field })
+  }
+
+  fn update_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    type_option_data: TypeOptionData,
+    old_field: Field,
+  ) {
+    todo!()
   }
 
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>> {

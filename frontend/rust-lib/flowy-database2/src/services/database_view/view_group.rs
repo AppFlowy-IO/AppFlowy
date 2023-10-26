@@ -7,7 +7,7 @@ use flowy_error::FlowyResult;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::FieldType;
-use crate::services::database_view::DatabaseViewData;
+use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
@@ -16,7 +16,7 @@ use crate::services::group::{
 
 pub async fn new_group_controller_with_field(
   view_id: String,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   grouping_field: Arc<Field>,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
@@ -34,7 +34,7 @@ pub async fn new_group_controller_with_field(
 
 pub async fn new_group_controller(
   view_id: String,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
 ) -> FlowyResult<Option<Box<dyn GroupController>>> {
   let fields = delegate.get_fields(&view_id, None).await;
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
@@ -74,7 +74,7 @@ pub async fn new_group_controller(
   }
 }
 
-pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewData>);
+pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewOperation>);
 
 impl GroupSettingReader for GroupSettingReaderImpl {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>> {
@@ -97,11 +97,11 @@ impl GroupSettingReader for GroupSettingReaderImpl {
 }
 
 pub(crate) async fn get_cell_for_row(
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   field_id: &str,
   row_id: &RowId,
 ) -> Option<RowSingleCellData> {
-  let field = delegate.get_field(field_id).await?;
+  let field = delegate.get_field(field_id)?;
   let row_cell = delegate.get_cell_in_row(field_id, row_id).await;
   let field_type = FieldType::from(field.field_type);
   let handler = delegate.get_type_option_cell_handler(&field, &field_type)?;
@@ -120,11 +120,11 @@ pub(crate) async fn get_cell_for_row(
 
 // Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   view_id: &str,
   field_id: &str,
 ) -> Vec<RowSingleCellData> {
-  if let Some(field) = delegate.get_field(field_id).await {
+  if let Some(field) = delegate.get_field(field_id) {
     let field_type = FieldType::from(field.field_type);
     if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
       let cells = delegate.get_cells_for_field(view_id, field_id).await;
@@ -149,7 +149,7 @@ pub(crate) async fn get_cells_for_field(
   vec![]
 }
 
-struct GroupSettingWriterImpl(Arc<dyn DatabaseViewData>);
+struct GroupSettingWriterImpl(Arc<dyn DatabaseViewOperation>);
 
 impl GroupSettingWriter for GroupSettingWriterImpl {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {

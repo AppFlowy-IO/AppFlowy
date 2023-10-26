@@ -20,7 +20,13 @@ pub struct GroupSettingChangeset {
 }
 
 pub struct GroupChangesets {
-  pub update_groups: Vec<GroupChangeset>,
+  pub changesets: Vec<GroupChangeset>,
+}
+
+impl From<Vec<GroupChangeset>> for GroupChangesets {
+  fn from(changesets: Vec<GroupChangeset>) -> Self {
+    Self { changesets }
+  }
 }
 
 #[derive(Clone, Default, Debug)]
