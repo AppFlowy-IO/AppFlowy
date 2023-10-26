@@ -21,7 +21,7 @@ use crate::services::cell::{
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewData, DatabaseViews};
-use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
+use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb_or_default, type_option_to_pb, SelectOptionCellChangeset,
@@ -32,7 +32,8 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupChangesets, GroupSetting, GroupSettingChangeset, RowChangeset,
+  default_group_setting, GroupChangeset, GroupChangesets, GroupSetting, GroupSettingChangeset,
+  RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -185,6 +186,31 @@ impl DatabaseEditor {
     view_editor
       .v_update_group_setting(group_setting_changeset)
       .await?;
+    Ok(())
+  }
+
+  pub async fn update_group(
+    &self,
+    view_id: &str,
+    group_changeset: GroupChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    let type_option = view_editor.update_group(group_changeset.clone()).await?;
+
+    if let Some(type_option_data) = type_option {
+      let field = self.get_field(&group_changeset.field_id);
+      if field.is_some() {
+        let _ = self
+          .update_field_type_option(
+            view_id,
+            &group_changeset.field_id,
+            type_option_data,
+            field.unwrap(),
+          )
+          .await;
+      }
+    }
+
     Ok(())
   }
 
@@ -856,15 +882,6 @@ impl DatabaseEditor {
         }
       },
     }
-  }
-
-  pub async fn get_checklist_option(&self, row_id: RowId, field_id: &str) -> ChecklistCellDataPB {
-    let row_cell = self.database.lock().get_cell(field_id, &row_id);
-    let cell_data = match row_cell.cell {
-      None => ChecklistCellData::default(),
-      Some(cell) => ChecklistCellData::from(&cell),
-    };
-    ChecklistCellDataPB::from(cell_data)
   }
 
   pub async fn set_checklist_options(

@@ -71,4 +71,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     final position = await windowManager.getPosition();
     WindowSizeManager().setPosition(position);
   }
+
+  @override
+  Future<void> dispose() async {}
 }

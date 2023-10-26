@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:appflowy/plugins/database_view/application/defines.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
+import 'package:appflowy/plugins/database_view/application/group/group_service.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:collection/collection.dart';
@@ -12,6 +13,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -23,6 +25,7 @@ import 'group_controller.dart';
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
+  late final GroupBackendService groupBackendSvc;
   final DatabaseController databaseController;
   late final AppFlowyBoardController boardController;
   final LinkedHashMap<String, GroupController> groupControllers =
@@ -36,23 +39,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     required ViewPB view,
     required this.databaseController,
   }) : super(BoardState.initial(view.id)) {
+    groupBackendSvc = GroupBackendService(viewId);
     boardController = AppFlowyBoardController(
-      onMoveGroup: (
-        fromGroupId,
-        fromIndex,
-        toGroupId,
-        toIndex,
-      ) {
+      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
         databaseController.moveGroup(
           fromGroupId: fromGroupId,
           toGroupId: toGroupId,
         );
       },
-      onMoveGroupItem: (
-        groupId,
-        fromIndex,
-        toIndex,
-      ) {
+      onMoveGroupItem: (groupId, fromIndex, toIndex) {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
@@ -63,12 +58,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           );
         }
       },
-      onMoveGroupItemToGroup: (
-        fromGroupId,
-        fromIndex,
-        toGroupId,
-        toIndex,
-      ) {
+      onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
         final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
         if (fromRow != null) {
@@ -109,12 +99,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didCreateRow: (group, row, int? index) {
             emit(
               state.copyWith(
-                editingRow: Some(
-                  BoardEditingRow(
-                    group: group,
-                    row: row,
-                    index: index,
-                  ),
+                isEditingRow: true,
+                editingRow: BoardEditingRow(
+                  group: group,
+                  row: row,
+                  index: index,
                 ),
               ),
             );
@@ -123,23 +112,26 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           startEditingRow: (group, row) {
             emit(
               state.copyWith(
-                editingRow: Some(
-                  BoardEditingRow(
-                    group: group,
-                    row: row,
-                    index: null,
-                  ),
+                editingRow: BoardEditingRow(
+                  group: group,
+                  row: row,
+                  index: null,
                 ),
               ),
             );
             _groupItemStartEditing(group, row, true);
           },
           endEditingRow: (rowId) {
-            state.editingRow.fold(() => null, (editingRow) {
-              assert(editingRow.row.id == rowId);
-              _groupItemStartEditing(editingRow.group, editingRow.row, false);
-              emit(state.copyWith(editingRow: none()));
-            });
+            if (state.editingRow != null && state.isEditingRow) {
+              assert(state.editingRow!.row.id == rowId);
+              _groupItemStartEditing(
+                state.editingRow!.group,
+                state.editingRow!.row,
+                false,
+              );
+
+              emit(state.copyWith(isEditingRow: false));
+            }
           },
           didReceiveGridUpdate: (DatabasePB grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -156,6 +148,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           didUpdateHideUngrouped: (bool hideUngrouped) {
             emit(state.copyWith(hideUngrouped: hideUngrouped));
+          },
+          startEditingHeader: (String groupId) {
+            emit(
+              state.copyWith(isEditingHeader: true, editingHeaderId: groupId),
+            );
+          },
+          endEditingHeader: (String groupId, String groupName) async {
+            await groupBackendSvc.updateGroup(
+              fieldId: groupControllers.values.first.group.fieldId,
+              groupId: groupId,
+              name: groupName,
+            );
+
+            emit(state.copyWith(isEditingHeader: false));
           },
         );
       },
@@ -333,6 +339,10 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = _InitialBoard;
   const factory BoardEvent.createBottomRow(String groupId) = _CreateBottomRow;
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
+  const factory BoardEvent.startEditingHeader(String groupId) =
+      _StartEditingHeader;
+  const factory BoardEvent.endEditingHeader(String groupId, String groupName) =
+      _EndEditingHeader;
   const factory BoardEvent.didCreateRow(
     GroupPB group,
     RowMetaPB row,
@@ -359,7 +369,10 @@ class BoardState with _$BoardState {
     required String viewId,
     required Option<DatabasePB> grid,
     required List<String> groupIds,
-    required Option<BoardEditingRow> editingRow,
+    required bool isEditingHeader,
+    String? editingHeaderId,
+    required bool isEditingRow,
+    BoardEditingRow? editingRow,
     required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
     required bool hideUngrouped,
@@ -369,7 +382,8 @@ class BoardState with _$BoardState {
         grid: none(),
         viewId: viewId,
         groupIds: [],
-        editingRow: none(),
+        isEditingHeader: false,
+        isEditingRow: false,
         noneOrError: none(),
         loadingState: const LoadingState.loading(),
         hideUngrouped: false,

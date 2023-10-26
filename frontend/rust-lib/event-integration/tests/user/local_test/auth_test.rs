@@ -1,5 +1,5 @@
-use event_integration::user_event::*;
-use event_integration::{event_builder::EventBuilder, FlowyCoreTest};
+use event_integration::user_event::{login_password, unique_email};
+use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_user::entities::{AuthTypePB, SignInPayloadPB, SignUpPayloadPB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
@@ -9,7 +9,7 @@ use crate::user::local_test::helper::*;
 #[tokio::test]
 async fn sign_up_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let request = SignUpPayloadPB {
       email: email.to_string(),
       name: valid_name(),
@@ -33,9 +33,9 @@ async fn sign_up_with_invalid_email() {
 }
 #[tokio::test]
 async fn sign_up_with_long_password() {
-  let sdk = FlowyCoreTest::new();
+  let sdk = EventIntegrationTest::new();
   let request = SignUpPayloadPB {
-    email: random_email(),
+    email: unique_email(),
     name: valid_name(),
     password: "1234".repeat(100).as_str().to_string(),
     auth_type: AuthTypePB::Local,
@@ -58,7 +58,7 @@ async fn sign_up_with_long_password() {
 #[tokio::test]
 async fn sign_in_with_invalid_email() {
   for email in invalid_email_test_case() {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
     let request = SignInPayloadPB {
       email: email.to_string(),
       password: login_password(),
@@ -84,10 +84,10 @@ async fn sign_in_with_invalid_email() {
 #[tokio::test]
 async fn sign_in_with_invalid_password() {
   for password in invalid_password_test_case() {
-    let sdk = FlowyCoreTest::new();
+    let sdk = EventIntegrationTest::new();
 
     let request = SignInPayloadPB {
-      email: random_email(),
+      email: unique_email(),
       password,
       name: "".to_string(),
       auth_type: AuthTypePB::Local,

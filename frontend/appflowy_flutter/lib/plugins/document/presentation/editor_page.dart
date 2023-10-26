@@ -1,6 +1,8 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
@@ -132,19 +134,23 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ),
       ];
 
-  late final showSlashMenu = customSlashCommand(
-    slashMenuItems,
-    shouldInsertSlash: false,
-    style: styleCustomizer.selectionMenuStyleBuilder(),
-  ).handler;
-
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
+
+  Future<bool> showSlashMenu(editorState) async {
+    final result = await customSlashCommand(
+      slashMenuItems,
+      shouldInsertSlash: false,
+      style: styleCustomizer.selectionMenuStyleBuilder(),
+    ).handler(editorState);
+    return result;
+  }
 
   @override
   void initState() {
     super.initState();
 
+    _initEditorL10n();
     _initializeShortcuts();
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
@@ -489,7 +495,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   List<SelectionMenuItem> _customSlashMenuItems() {
     final items = [...standardSelectionMenuItems];
     final imageItem = items.firstWhereOrNull(
-      (element) => element.name == AppFlowyEditorLocalizations.current.image,
+      (element) => element.name == AppFlowyEditorL10n.current.image,
     );
     if (imageItem != null) {
       final imageItemIndex = items.indexOf(imageItem);
@@ -512,6 +518,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       toggleListBlockItem,
       emojiMenuItem,
       autoGeneratorMenuItem,
+      dateMenuItem,
     ];
   }
 
@@ -619,5 +626,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
       return null;
     };
+  }
+
+  void _initEditorL10n() {
+    AppFlowyEditorL10n.current = EditorI18n();
   }
 }

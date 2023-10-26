@@ -167,7 +167,10 @@ class _PropertyCellState extends State<_PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
@@ -271,7 +274,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checklist:
       return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: const EdgeInsets.symmetric(vertical: 6),
+        showTasksInline: true,
       );
     case FieldType.Number:
       return GridNumberCellStyle(

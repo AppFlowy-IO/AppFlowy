@@ -265,7 +265,12 @@ impl FolderManager {
 
   /// Initialize the folder for the new user.
   /// Using the [DefaultFolderBuilder] to create the default workspace for the new user.
-  #[instrument(level = "debug", skip_all, err)]
+  #[instrument(
+    name = "folder_initialize_with_new_user",
+    level = "debug",
+    skip_all,
+    err
+  )]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
