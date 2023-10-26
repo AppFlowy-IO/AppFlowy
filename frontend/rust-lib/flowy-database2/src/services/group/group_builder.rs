@@ -1,18 +1,78 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::fields::Field;
-use collab_database::rows::RowDetail;
+use collab_database::rows::{Cell, RowDetail, RowId};
 use collab_database::views::DatabaseLayout;
 
 use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
+use crate::services::field::TypeOption;
 use crate::services::group::{
-  CheckboxGroupContext, CheckboxGroupController, DateGroupContext, DateGroupController,
-  DefaultGroupController, Group, GroupController, GroupSetting, GroupSettingReader,
-  GroupSettingWriter, MultiSelectGroupController, MultiSelectOptionGroupContext,
-  SingleSelectGroupController, SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
+  CheckboxGroupContext, CheckboxGroupController, CheckboxGroupOperationInterceptorImpl,
+  DateGroupContext, DateGroupController, DateGroupOperationInterceptorImpl, DefaultGroupController,
+  Group, GroupController, GroupSetting, GroupSettingReader, GroupSettingWriter,
+  MultiSelectGroupController, MultiSelectOptionGroupContext,
+  SelectOptionGroupOperationInterceptorImpl, SingleSelectGroupController,
+  SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
+  URLGroupOperationInterceptorImpl,
 };
+
+/// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
+pub trait GroupsBuilder {
+  type Context;
+  type GroupTypeOption: TypeOption;
+
+  fn build(
+    field: &Field,
+    context: &Self::Context,
+    type_option: &Option<Self::GroupTypeOption>,
+  ) -> GeneratedGroups;
+}
+
+pub struct GeneratedGroups {
+  pub no_status_group: Option<Group>,
+  pub group_configs: Vec<GeneratedGroupConfig>,
+}
+
+pub struct GeneratedGroupConfig {
+  pub group: Group,
+  pub filter_content: String,
+}
+
+pub struct MoveGroupRowContext<'a> {
+  pub row_detail: &'a RowDetail,
+  pub row_changeset: &'a mut RowChangeset,
+  pub field: &'a Field,
+  pub to_group_id: &'a str,
+  pub to_row_id: Option<RowId>,
+}
+
+#[derive(Debug, Clone)]
+pub struct RowChangeset {
+  pub row_id: RowId,
+  pub height: Option<i32>,
+  pub visibility: Option<bool>,
+  // Contains the key/value changes represents as the update of the cells. For example,
+  // if there is one cell was changed, then the `cell_by_field_id` will only have one key/value.
+  pub cell_by_field_id: HashMap<String, Cell>,
+}
+
+impl RowChangeset {
+  pub fn new(row_id: RowId) -> Self {
+    Self {
+      row_id,
+      height: None,
+      visibility: None,
+      cell_by_field_id: Default::default(),
+    }
+  }
+
+  pub fn is_empty(&self) -> bool {
+    self.height.is_none() && self.visibility.is_none() && self.cell_by_field_id.is_empty()
+  }
+}
 
 /// Returns a group controller.
 ///
@@ -58,7 +118,10 @@ where
         configuration_writer,
       )
       .await?;
-      let controller = SingleSelectGroupController::new(&grouping_field, configuration).await?;
+      let operation_interceptor = SelectOptionGroupOperationInterceptorImpl {};
+      let controller =
+        SingleSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
+          .await?;
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
@@ -69,7 +132,10 @@ where
         configuration_writer,
       )
       .await?;
-      let controller = MultiSelectGroupController::new(&grouping_field, configuration).await?;
+      let operation_interceptor = SelectOptionGroupOperationInterceptorImpl {};
+      let controller =
+        MultiSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
+          .await?;
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
@@ -80,7 +146,9 @@ where
         configuration_writer,
       )
       .await?;
-      let controller = CheckboxGroupController::new(&grouping_field, configuration).await?;
+      let operation_interceptor = CheckboxGroupOperationInterceptorImpl {};
+      let controller =
+        CheckboxGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
@@ -91,7 +159,9 @@ where
         configuration_writer,
       )
       .await?;
-      let controller = URLGroupController::new(&grouping_field, configuration).await?;
+      let operation_interceptor = URLGroupOperationInterceptorImpl {};
+      let controller =
+        URLGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
       group_controller = Box::new(controller);
     },
     FieldType::DateTime => {
@@ -102,7 +172,9 @@ where
         configuration_writer,
       )
       .await?;
-      let controller = DateGroupController::new(&grouping_field, configuration).await?;
+      let operation_interceptor = DateGroupOperationInterceptorImpl {};
+      let controller =
+        DateGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
       group_controller = Box::new(controller);
     },
     _ => {

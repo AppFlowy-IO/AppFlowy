@@ -24,7 +24,6 @@ impl SelectOptionIds {
   pub fn into_inner(self) -> Vec<String> {
     self.0
   }
-
   pub fn to_cell_data(&self, field_type: FieldType) -> Cell {
     new_cell_builder(field_type)
       .insert_str_value(CELL_DATA, self.to_string())

@@ -356,7 +356,7 @@ where
     }
   }
 
-  pub(crate) fn update_group(&mut self, group_changeset: GroupChangeset) -> FlowyResult<()> {
+  pub(crate) fn update_group(&mut self, group_changeset: &GroupChangeset) -> FlowyResult<()> {
     let update_group = self.mut_group(&group_changeset.group_id, |group| {
       if let Some(visible) = group_changeset.visible {
         group.visible = visible;

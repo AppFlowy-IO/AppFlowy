@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
@@ -8,17 +6,15 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
-  URLCellDataPB,
 };
 use crate::services::cell::insert_url_cell;
-use crate::services::field::{URLCellData, URLCellDataParser, URLTypeOption};
+use crate::services::field::{TypeOption, URLCellData, URLCellDataParser, URLTypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{
-  BaseGroupController, GroupController, GroupsBuilder, MoveGroupRowContext,
-};
+use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
+  GroupChangeset, GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -26,13 +22,18 @@ pub struct URLGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type URLGroupController =
-  BaseGroupController<URLGroupConfiguration, URLTypeOption, URLGroupGenerator, URLCellDataParser>;
+pub type URLGroupController = BaseGroupController<
+  URLGroupConfiguration,
+  URLTypeOption,
+  URLGroupGenerator,
+  URLCellDataParser,
+  URLGroupOperationInterceptorImpl,
+>;
 
 pub type URLGroupContext = GroupContext<URLGroupConfiguration>;
 
 impl GroupCustomize for URLGroupController {
-  type CellData = URLCellDataPB;
+  type GroupTypeOption = URLTypeOption;
 
   fn placeholder_cell(&self) -> Option<Cell> {
     Some(
@@ -42,15 +43,19 @@ impl GroupCustomize for URLGroupController {
     )
   }
 
-  fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
-    cell_data.content == content
+  fn can_group(
+    &self,
+    content: &str,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> bool {
+    cell_data.data == content
   }
 
   fn create_or_delete_group_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
-    _old_cell_data: Option<&Self::CellData>,
-    _cell_data: &Self::CellData,
+    _row_detail: &RowDetail,
+    _old_cell_data: Option<&<Self::GroupTypeOption as TypeOption>::CellProtobufType>,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
     // Just return if the group with this url already exists
     let mut inserted_group = None;
@@ -58,7 +63,7 @@ impl GroupCustomize for URLGroupController {
       let cell_data: URLCellData = _cell_data.clone().into();
       let group = make_group_from_url_cell(&cell_data);
       let mut new_group = self.context.add_new_group(group)?;
-      new_group.group.rows.push(RowMetaPB::from(row_detail));
+      new_group.group.rows.push(RowMetaPB::from(_row_detail));
       inserted_group = Some(new_group);
     }
 
@@ -90,7 +95,7 @@ impl GroupCustomize for URLGroupController {
   fn add_or_remove_row_when_cell_changed(
     &mut self,
     row_detail: &RowDetail,
-    cell_data: &Self::CellData,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
@@ -116,7 +121,11 @@ impl GroupCustomize for URLGroupController {
     changesets
   }
 
-  fn delete_row(&mut self, row: &Row, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(
+    &mut self,
+    row: &Row,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -134,7 +143,7 @@ impl GroupCustomize for URLGroupController {
 
   fn move_row(
     &mut self,
-    _cell_data: &Self::CellData,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -145,11 +154,10 @@ impl GroupCustomize for URLGroupController {
     });
     group_changeset
   }
-
   fn delete_group_when_move_row(
     &mut self,
     _row: &Row,
-    _cell_data: &Self::CellData,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Option<GroupPB> {
     let mut deleted_group = None;
     if let Some((_, group)) = self.context.get_group(&_cell_data.content) {
@@ -164,10 +172,14 @@ impl GroupCustomize for URLGroupController {
     }
     deleted_group
   }
+
+  fn did_update_group(&self, changeset: &GroupChangeset) -> FlowyResult<()> {
+    todo!()
+  }
 }
 
 impl GroupController for URLGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {}
+  fn did_update_field_type_option(&mut self, field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
@@ -189,12 +201,12 @@ impl GroupController for URLGroupController {
 pub struct URLGroupGenerator();
 impl GroupsBuilder for URLGroupGenerator {
   type Context = URLGroupContext;
-  type TypeOptionType = URLTypeOption;
+  type GroupTypeOption = URLTypeOption;
 
   fn build(
     field: &Field,
     context: &Self::Context,
-    _type_option: &Option<Self::TypeOptionType>,
+    _type_option: &Option<Self::GroupTypeOption>,
   ) -> GeneratedGroups {
     // Read all the cells for the grouping field
     let cells = futures::executor::block_on(context.get_all_cells());
@@ -222,4 +234,12 @@ fn make_group_from_url_cell(cell: &URLCellData) -> Group {
   let group_id = cell.data.clone();
   let group_name = cell.data.clone();
   Group::new(group_id, group_name)
+}
+
+pub struct URLGroupOperationInterceptorImpl {}
+
+impl GroupOperationInterceptor for URLGroupOperationInterceptorImpl {
+  fn did_apply_group_changeset(&self, changeset: &GroupChangeset) {
+    todo!()
+  }
 }

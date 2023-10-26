@@ -37,13 +37,13 @@ use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  GroupChangeset, GroupChangesets, GroupController, GroupSetting, GroupSettingChangeset,
-  MoveGroupRowContext, RowChangeset,
+  GroupChangesets, GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext,
+  RowChangeset,
 };
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
 
-pub trait DatabaseViewData: Send + Sync + 'static {
+pub trait DatabaseViewOperation: Send + Sync + 'static {
   fn get_database(&self) -> Arc<MutexDatabase>;
 
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
@@ -51,7 +51,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 
   /// Returns the field with the field_id
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
+  fn get_field(&self, field_id: &str) -> Option<Field>;
 
   fn create_field(
     &self,
@@ -60,6 +60,14 @@ pub trait DatabaseViewData: Send + Sync + 'static {
     field_type: FieldType,
     type_option_data: TypeOptionData,
   ) -> Fut<Field>;
+
+  fn update_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    type_option_data: TypeOptionData,
+    old_field: Field,
+  );
 
   fn get_primary_field(&self) -> Fut<Option<Arc<Field>>>;
 
@@ -142,7 +150,7 @@ pub trait DatabaseViewData: Send + Sync + 'static {
 
 pub struct DatabaseViewEditor {
   pub view_id: String,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
@@ -158,7 +166,7 @@ impl Drop for DatabaseViewEditor {
 impl DatabaseViewEditor {
   pub async fn new(
     view_id: String,
-    delegate: Arc<dyn DatabaseViewData>,
+    delegate: Arc<dyn DatabaseViewOperation>,
     cell_cache: CellCache,
   ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
@@ -485,11 +493,9 @@ impl DatabaseViewEditor {
     Ok(result.flatten())
   }
 
-  pub async fn v_update_group_setting(&self, changeset: GroupChangesets) -> FlowyResult<()> {
+  pub async fn v_update_group(&self, changeset: GroupChangesets) -> FlowyResult<()> {
     self
-      .mut_group_controller(|group_controller, _| {
-        group_controller.apply_group_setting_changeset(changeset)
-      })
+      .mut_group_controller(|group_controller, _| group_controller.apply_group_changeset(changeset))
       .await;
     Ok(())
   }
@@ -497,28 +503,6 @@ impl DatabaseViewEditor {
   pub async fn v_get_group_configuration_settings(&self) -> Vec<GroupSetting> {
     self.delegate.get_group_setting(&self.view_id)
   }
-
-  pub async fn update_group(
-    &self,
-    changeset: GroupChangeset,
-  ) -> FlowyResult<Option<TypeOptionData>> {
-    match changeset.name {
-      Some(group_name) => {
-        let result = self
-          .mut_group_controller(|controller, _| {
-            Ok(controller.update_group_name(&changeset.group_id, &group_name))
-          })
-          .await;
-
-        match result {
-          Some(r) => Ok(r),
-          None => Ok(None),
-        }
-      },
-      None => Ok(None),
-    }
-  }
-
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
     self.delegate.get_all_sorts(&self.view_id)
   }
@@ -659,7 +643,7 @@ impl DatabaseViewEditor {
         if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
           let calendar_setting = CalendarLayoutSetting::from(value);
           // Check the field exist or not
-          if let Some(field) = self.delegate.get_field(&calendar_setting.field_id).await {
+          if let Some(field) = self.delegate.get_field(&calendar_setting.field_id) {
             let field_type = FieldType::from(field.field_type);
 
             // Check the type of field is Datetime or not
@@ -682,11 +666,7 @@ impl DatabaseViewEditor {
   pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
     // Maybe it needs no send notification to refresh the UI
     if let Some(new_calendar_setting) = params.calendar {
-      if let Some(field) = self
-        .delegate
-        .get_field(&new_calendar_setting.field_id)
-        .await
-      {
+      if let Some(field) = self.delegate.get_field(&new_calendar_setting.field_id) {
         let field_type = FieldType::from(field.field_type);
         if field_type != FieldType::DateTime {
           return Err(FlowyError::unexpect_calendar_field_type());
@@ -735,7 +715,7 @@ impl DatabaseViewEditor {
     field_id: &str,
     old_field: &Field,
   ) -> FlowyResult<()> {
-    if let Some(field) = self.delegate.get_field(field_id).await {
+    if let Some(field) = self.delegate.get_field(field_id) {
       self
         .sort_controller
         .read()
@@ -776,9 +756,13 @@ impl DatabaseViewEditor {
   /// Called when a grouping field is updated.
   #[tracing::instrument(level = "debug", skip_all, err)]
   pub async fn v_grouping_by_field(&self, field_id: &str) -> FlowyResult<()> {
-    if let Some(field) = self.delegate.get_field(field_id).await {
-      let new_group_controller =
-        new_group_controller_with_field(self.view_id.clone(), self.delegate.clone(), field).await?;
+    if let Some(field) = self.delegate.get_field(field_id) {
+      let new_group_controller = new_group_controller_with_field(
+        self.view_id.clone(),
+        self.delegate.clone(),
+        Arc::new(field),
+      )
+      .await?;
 
       let new_groups = new_group_controller
         .groups()
@@ -812,7 +796,7 @@ impl DatabaseViewEditor {
     let text_cell = get_cell_for_row(self.delegate.clone(), &primary_field.id, &row_id).await?;
 
     // Date
-    let date_field = self.delegate.get_field(&calendar_setting.field_id).await?;
+    let date_field = self.delegate.get_field(&calendar_setting.field_id)?;
 
     let date_cell = get_cell_for_row(self.delegate.clone(), &date_field.id, &row_id).await?;
     let title = text_cell
@@ -973,7 +957,7 @@ impl DatabaseViewEditor {
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>
   where
-    F: FnOnce(&mut Box<dyn GroupController>, Arc<Field>) -> FlowyResult<T>,
+    F: FnOnce(&mut Box<dyn GroupController>, Field) -> FlowyResult<T>,
   {
     let group_field_id = self
       .group_controller
@@ -981,7 +965,7 @@ impl DatabaseViewEditor {
       .await
       .as_ref()
       .map(|group| group.field_id().to_owned())?;
-    let field = self.delegate.get_field(&group_field_id).await?;
+    let field = self.delegate.get_field(&group_field_id)?;
 
     let mut write_guard = self.group_controller.write().await;
     if let Some(group_controller) = &mut *write_guard {
