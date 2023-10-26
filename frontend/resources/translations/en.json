@@ -745,9 +745,14 @@
   },
   "board": {
     "column": {
-      "create_new_card": "New"
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group"
     },
     "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
+    "ungroupedItemsTitle": "Click to add to the board",
+    "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },
   "calendar": {
@@ -1001,5 +1006,9 @@
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
     "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "slide the page to the left to add it to favorites"
   }
 }

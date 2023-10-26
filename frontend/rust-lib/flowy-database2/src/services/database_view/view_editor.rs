@@ -37,7 +37,8 @@ use crate::services::filter::{
   Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
 };
 use crate::services::group::{
-  GroupController, GroupSetting, GroupSettingChangeset, MoveGroupRowContext, RowChangeset,
+  GroupChangeset, GroupChangesets, GroupController, GroupSetting, GroupSettingChangeset,
+  MoveGroupRowContext, RowChangeset,
 };
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
@@ -393,11 +394,11 @@ impl DatabaseViewEditor {
     if let Some(result) = result {
       if let Some(delete_group) = result.deleted_group {
         tracing::trace!("Delete group after moving the row: {:?}", delete_group);
-        let mut changes = GroupChangesPB {
+        let changes = GroupChangesPB {
           view_id: self.view_id.clone(),
+          deleted_groups: vec![delete_group.group_id],
           ..Default::default()
         };
-        changes.deleted_groups.push(delete_group.group_id);
         notify_did_update_num_of_groups(&self.view_id, changes).await;
       }
 
@@ -406,6 +407,7 @@ impl DatabaseViewEditor {
       }
     }
   }
+
   /// Only call once after database view editor initialized
   #[tracing::instrument(level = "trace", skip(self))]
   pub async fn v_load_groups(&self) -> Option<Vec<GroupPB>> {
@@ -470,13 +472,51 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn update_group_setting(&self, changeset: GroupSettingChangeset) -> FlowyResult<()> {
+  pub async fn v_update_group_configuration_setting(
+    &self,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<Option<GroupSetting>> {
+    let result = self
+      .mut_group_controller(|group_controller, _| {
+        group_controller.apply_group_configuration_setting_changeset(changeset)
+      })
+      .await;
+
+    Ok(result.flatten())
+  }
+
+  pub async fn v_update_group_setting(&self, changeset: GroupChangesets) -> FlowyResult<()> {
     self
       .mut_group_controller(|group_controller, _| {
         group_controller.apply_group_setting_changeset(changeset)
       })
       .await;
     Ok(())
+  }
+
+  pub async fn v_get_group_configuration_settings(&self) -> Vec<GroupSetting> {
+    self.delegate.get_group_setting(&self.view_id)
+  }
+
+  pub async fn update_group(
+    &self,
+    changeset: GroupChangeset,
+  ) -> FlowyResult<Option<TypeOptionData>> {
+    match changeset.name {
+      Some(group_name) => {
+        let result = self
+          .mut_group_controller(|controller, _| {
+            Ok(controller.update_group_name(&changeset.group_id, &group_name))
+          })
+          .await;
+
+        match result {
+          Some(r) => Ok(r),
+          None => Ok(None),
+        }
+      },
+      None => Ok(None),
+    }
   }
 
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
