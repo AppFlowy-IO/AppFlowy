@@ -222,7 +222,8 @@
     "share": "Share",
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
-    "rename": "Rename"
+    "rename": "Rename",
+    "helpCenter": "Help Center"
   },
   "label": {
     "welcome": "Welcome!",
