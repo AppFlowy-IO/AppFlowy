@@ -43,7 +43,7 @@ function RenameDialog({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>{t('button.Cancel')}</Button>
+        <Button onClick={onClose}>{t('button.cancel')}</Button>
         <Button
           onClick={async () => {
             try {
@@ -53,7 +53,7 @@ function RenameDialog({
             }
           }}
         >
-          {t('button.OK')}
+          {t('button.ok')}
         </Button>
       </DialogActions>
     </Dialog>

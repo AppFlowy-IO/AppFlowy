@@ -694,12 +694,19 @@ pub(crate) async fn update_group_handler(
   let params: UpdateGroupParams = data.into_inner().try_into()?;
   let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
-  let group_setting_changeset = GroupSettingChangeset {
-    update_groups: vec![GroupChangeset::from(params)],
-  };
+  let group_changeset = GroupChangeset::from(params);
   database_editor
-    .update_group_setting(&view_id, group_setting_changeset)
+    .update_group(&view_id, group_changeset.clone())
     .await?;
+  database_editor
+    .update_group_setting(
+      &view_id,
+      GroupSettingChangeset {
+        update_groups: vec![group_changeset],
+      },
+    )
+    .await?;
+
   Ok(())
 }
 

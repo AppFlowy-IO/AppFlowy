@@ -32,7 +32,7 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
+  default_group_setting, GroupChangeset, GroupSetting, GroupSettingChangeset, RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -185,6 +185,31 @@ impl DatabaseEditor {
     view_editor
       .update_group_setting(group_setting_changeset)
       .await?;
+    Ok(())
+  }
+
+  pub async fn update_group(
+    &self,
+    view_id: &str,
+    group_changeset: GroupChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    let type_option = view_editor.update_group(group_changeset.clone()).await?;
+
+    if let Some(type_option_data) = type_option {
+      let field = self.get_field(&group_changeset.field_id);
+      if field.is_some() {
+        let _ = self
+          .update_field_type_option(
+            view_id,
+            &group_changeset.field_id,
+            type_option_data,
+            field.unwrap(),
+          )
+          .await;
+      }
+    }
+
     Ok(())
   }
 
