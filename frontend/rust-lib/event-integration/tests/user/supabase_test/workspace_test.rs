@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use event_integration::{event_builder::EventBuilder, FlowyCoreTest};
+use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_folder2::entities::WorkspaceSettingPB;
 use flowy_folder2::event_map::FolderEvent::GetCurrentWorkspace;
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
@@ -12,7 +12,7 @@ use crate::util::*;
 #[tokio::test]
 async fn initial_workspace_test() {
   if get_supabase_config().is_some() {
-    let test = FlowyCoreTest::new();
+    let test = EventIntegrationTest::new();
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
     map.insert(

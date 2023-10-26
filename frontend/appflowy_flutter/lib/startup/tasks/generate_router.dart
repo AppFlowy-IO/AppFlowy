@@ -1,3 +1,7 @@
+import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
+import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
+import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -25,10 +29,26 @@ GoRouter generateRouter(Widget child) {
       // Desktop only
       if (!PlatformExtension.isMobile) _desktopHomeScreenRoute(),
       // Mobile only
-      if (PlatformExtension.isMobile) _mobileHomeScreenWithNavigationBarRoute(),
+      if (PlatformExtension.isMobile) ...[
+        // settings
+        _mobileHomeSettingPageRoute(),
+        _mobileSettingPrivacyPolicyPageRoute(),
+        _mobileSettingUserAgreementPageRoute(),
 
-      // Unused routes for now, it may need to be used in the future.
-      // TODO(yijing): extract route method like other routes when it comes to be used.
+        // view page
+        _mobileEditorScreenRoute(),
+        _mobileGridScreenRoute(),
+        _mobileBoardScreenRoute(),
+        _mobileCalendarScreenRoute(),
+
+        // home
+        // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
+        _mobileHomeScreenWithNavigationBarRoute(),
+
+        // trash
+        _mobileHomeTrashPageRoute(),
+      ],
+
       // Desktop and Mobile
       GoRoute(
         path: WorkspaceStartScreen.routeName,
@@ -77,8 +97,6 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            // The screen to display as the root in the first tab of the
-            // bottom navigation bar.
             path: MobileHomeScreen.routeName,
             builder: (BuildContext context, GoRouterState state) {
               return const MobileHomeScreen();
@@ -86,59 +104,13 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
           ),
         ],
       ),
-      // TODO(yijing): implement other tabs later
-      // The following code comes from the example of StatefulShellRoute.indexedStack. I left there just for placeholder purpose. They will be updated in the future.
-      // The route branch for the second tab of the bottom navigation bar.
-      StatefulShellBranch(
-        // It's not necessary to provide a navigatorKey if it isn't also
-        // needed elsewhere. If not provided, a default key will be used.
-        routes: <RouteBase>[
-          GoRoute(
-            // The screen to display as the root in the second tab of the
-            // bottom navigation bar.
-            path: '/b',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Favorite',
-              detailsPath: '/b/details/1',
-              secondDetailsPath: '/b/details/2',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details/:param',
-                builder: (BuildContext context, GoRouterState state) =>
-                    DetailsPlaceholderScreen(
-                  label: 'Favorite details',
-                  param: state.pathParameters['param'],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-
-      // The route branch for the third tab of the bottom navigation bar.
       StatefulShellBranch(
         routes: <RouteBase>[
           GoRoute(
-            // The screen to display as the root in the third tab of the
-            // bottom navigation bar.
-            path: '/c',
-            builder: (BuildContext context, GoRouterState state) =>
-                const RootPlaceholderScreen(
-              label: 'Add Document',
-              detailsPath: '/c/details',
-            ),
-            routes: <RouteBase>[
-              GoRoute(
-                path: 'details',
-                builder: (BuildContext context, GoRouterState state) =>
-                    DetailsPlaceholderScreen(
-                  label: 'Add Document details',
-                  extra: state.extra,
-                ),
-              ),
-            ],
+            path: MobileFavoriteScreen.routeName,
+            builder: (BuildContext context, GoRouterState state) {
+              return const MobileFavoriteScreen();
+            },
           ),
         ],
       ),
@@ -185,6 +157,46 @@ StatefulShellRoute _mobileHomeScreenWithNavigationBarRoute() {
         ],
       ),
     ],
+  );
+}
+
+GoRoute _mobileHomeSettingPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeSettingPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeSettingPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingPrivacyPolicyPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: PrivacyPolicyPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: PrivacyPolicyPage());
+    },
+  );
+}
+
+GoRoute _mobileSettingUserAgreementPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: UserAgreementPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: UserAgreementPage());
+    },
+  );
+}
+
+GoRoute _mobileHomeTrashPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: MobileHomeTrashPage.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialPage(child: MobileHomeTrashPage());
+    },
   );
 }
 
@@ -256,6 +268,70 @@ GoRoute _signInScreenRoute() {
         child: const SignInScreen(),
         transitionsBuilder: _buildFadeTransition,
         transitionDuration: _slowDuration,
+      );
+    },
+  );
+}
+
+GoRoute _mobileEditorScreenRoute() {
+  return GoRoute(
+    path: MobileEditorScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
+      return MaterialPage(
+        child: MobileEditorScreen(
+          id: id,
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileGridScreenRoute() {
+  return GoRoute(
+    path: MobileGridScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
+      return MaterialPage(
+        child: MobileGridScreen(
+          id: id,
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileBoardScreenRoute() {
+  return GoRoute(
+    path: MobileBoardScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
+      return MaterialPage(
+        child: MobileBoardScreen(
+          id: id,
+          title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCalendarScreenRoute() {
+  return GoRoute(
+    path: MobileCalendarScreen.routeName,
+    pageBuilder: (context, state) {
+      final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
+      return MaterialPage(
+        child: MobileCalendarScreen(
+          id: id,
+          title: title,
+        ),
       );
     },
   );

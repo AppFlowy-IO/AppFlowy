@@ -21,7 +21,7 @@ use crate::local_server::impls::{
 use crate::AppFlowyServer;
 
 pub trait LocalServerDB: Send + Sync + 'static {
-  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError>;
+  fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
   fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError>;
   fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError>;
 }

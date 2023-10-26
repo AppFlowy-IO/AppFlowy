@@ -259,7 +259,7 @@ class ColorOptionAction extends PopoverActionCell {
           ...FlowyTint.values.map(
             (e) => FlowyColorOption(
               color: e.color(context),
-              i18n: e.tintName(AppFlowyEditorLocalizations.current),
+              i18n: e.tintName(AppFlowyEditorL10n.current),
               id: e.id,
             ),
           ),

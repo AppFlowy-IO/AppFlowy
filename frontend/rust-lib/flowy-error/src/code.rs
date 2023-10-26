@@ -147,7 +147,7 @@ pub enum ErrorCode {
   GroupIdIsEmpty = 46,
 
   #[error("Invalid date time format")]
-  InvalidDateTimeFormat = 47,
+  InvalidDateTimeFormat = 48,
 
   #[error("Invalid params")]
   InvalidParams = 49,

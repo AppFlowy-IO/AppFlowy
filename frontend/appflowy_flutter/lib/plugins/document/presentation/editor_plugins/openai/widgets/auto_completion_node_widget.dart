@@ -500,7 +500,7 @@ class AutoCompletionInputFooter extends StatelessWidget {
         ),
         const Space(10, 0),
         SecondaryTextButton(
-          LocaleKeys.button_Cancel.tr(),
+          LocaleKeys.button_cancel.tr(),
           onPressed: onExit,
         ),
         Expanded(

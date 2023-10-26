@@ -235,24 +235,6 @@ impl From<UserWorkspace> for UserWorkspacePB {
   }
 }
 
-#[derive(ProtoBuf, Default)]
-pub struct AddWorkspaceUserPB {
-  #[pb(index = 1)]
-  pub email: String,
-
-  #[pb(index = 2)]
-  pub workspace_id: String,
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct RemoveWorkspaceUserPB {
-  #[pb(index = 1)]
-  pub email: String,
-
-  #[pb(index = 2)]
-  pub workspace_id: String,
-}
-
 #[derive(ProtoBuf, Default, Clone)]
 pub struct RepeatedHistoricalUserPB {
   #[pb(index = 1)]

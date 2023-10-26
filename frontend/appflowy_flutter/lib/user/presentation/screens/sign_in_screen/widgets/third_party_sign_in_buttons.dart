@@ -101,7 +101,10 @@ class _ThirdPartySignInButton extends StatelessWidget {
               label: Container(
                 padding: const EdgeInsets.only(left: 4),
                 alignment: Alignment.centerLeft,
-                child: Text(labelText),
+                child: Text(
+                  labelText,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
               ),
               onPressed: onPressed,
             ),

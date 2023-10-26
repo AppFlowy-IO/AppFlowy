@@ -1,6 +1,6 @@
 use anyhow::Error;
 use client_api::entity::QueryCollabResult::{Failed, Success};
-use client_api::entity::{BatchQueryCollabParams, QueryCollabParams};
+use client_api::entity::{BatchQueryCollab, BatchQueryCollabParams, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab_entity::CollabType;
 use tracing::error;
@@ -22,11 +22,14 @@ where
     &self,
     object_id: &str,
     collab_type: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
+    let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let params = QueryCollabParams {
+        workspace_id,
         object_id,
         collab_type,
       };
@@ -47,20 +50,22 @@ where
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+    let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = BatchQueryCollabParams(
         object_ids
           .into_iter()
-          .map(|object_id| QueryCollabParams {
+          .map(|object_id| BatchQueryCollab {
             object_id,
             collab_type: object_ty.clone(),
           })
           .collect(),
       );
-      let results = client.batch_get_collab(params).await?;
+      let results = client.batch_get_collab(&workspace_id, params).await?;
       Ok(
         results
           .0

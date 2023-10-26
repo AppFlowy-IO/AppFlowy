@@ -190,13 +190,15 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_id: &str,
     collab_type: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id, collab_type)
+        .get_collab_update(&database_id, collab_type, &workspace_id)
         .await
     })
   }
@@ -205,12 +207,14 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids, object_ty)
+        .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
         .await
     })
   }
@@ -232,13 +236,18 @@ impl DatabaseCloudService for ServerProvider {
 }
 
 impl DocumentCloudService for ServerProvider {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let server = self.get_server(&self.get_server_type());
+  fn get_document_updates(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
+    let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_updates(&document_id)
+        .get_document_updates(&document_id, &workspace_id)
         .await
     })
   }
@@ -247,24 +256,31 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     limit: usize,
+    workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_snapshots(&document_id, limit)
+        .get_document_snapshots(&document_id, limit, &workspace_id)
         .await
     })
   }
 
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+  fn get_document_data(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Option<DocumentData>, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_data(&document_id)
+        .get_document_data(&document_id, &workspace_id)
         .await
     })
   }

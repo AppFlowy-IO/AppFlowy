@@ -53,4 +53,10 @@ extension FieldTypeListExtension on FieldType {
     }
     throw UnimplementedError;
   }
+
+  bool get canEditHeader => switch (this) {
+        FieldType.MultiSelect => true,
+        FieldType.SingleSelect => true,
+        _ => false,
+      };
 }

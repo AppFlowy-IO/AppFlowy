@@ -121,17 +121,9 @@ class _NotificationDialogState extends State<NotificationDialog>
     );
   }
 
-  void _onAction(ReminderPB reminder) {
-    final view = widget.views.firstWhereOrNull(
-      (view) => view.id == reminder.objectId,
-    );
-
-    if (view == null) {
-      return;
-    }
-
+  void _onAction(ReminderPB reminder, int? path) {
     _reminderBloc.add(
-      ReminderEvent.pressReminder(reminderId: reminder.id),
+      ReminderEvent.pressReminder(reminderId: reminder.id, path: path),
     );
 
     widget.mutex.close();

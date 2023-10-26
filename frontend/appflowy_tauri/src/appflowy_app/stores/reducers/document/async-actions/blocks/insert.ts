@@ -34,26 +34,11 @@ export const insertAfterNodeThunk = createAsyncThunk(
     const actions = [];
     let newNodeId;
     const deltaOperator = new BlockDeltaOperator(documentState, controller);
-
-    if (defaultDelta) {
-      newNodeId = generateId();
-      actions.push(
-        ...deltaOperator.getNewTextLineActions({
-          blockId: newNodeId,
-          parentId,
-          prevId: node.id,
-          delta: defaultDelta,
-          type,
-        })
-      );
-    } else {
+    if (type === BlockType.DividerBlock) {
       const newNode = newBlock<any>(type, parentId, data);
 
       actions.push(controller.getInsertAction(newNode, node.id));
       newNodeId = newNode.id;
-    }
-
-    if (type === BlockType.DividerBlock) {
       const nodeId = generateId();
 
       actions.push(
@@ -66,6 +51,24 @@ export const insertAfterNodeThunk = createAsyncThunk(
         })
       );
       newNodeId = nodeId;
+    } else {
+      if (defaultDelta) {
+        newNodeId = generateId();
+        actions.push(
+          ...deltaOperator.getNewTextLineActions({
+            blockId: newNodeId,
+            parentId,
+            prevId: node.id,
+            delta: defaultDelta,
+            type,
+          })
+        );
+      } else {
+        const newNode = newBlock<any>(type, parentId, data);
+
+        actions.push(controller.getInsertAction(newNode, node.id));
+        newNodeId = newNode.id;
+      }
     }
 
     await controller.applyActions(actions);
