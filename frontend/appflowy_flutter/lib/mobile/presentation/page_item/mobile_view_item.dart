@@ -144,7 +144,6 @@ class InnerMobileViewItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child = SingleMobileInnerViewItem(
-      key: ValueKey('${categoryType.name} ${view.id} $isExpanded'),
       view: view,
       parentView: parentView,
       level: level,
@@ -362,7 +361,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     return GestureDetector(
       child: AnimatedRotation(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 250),
         turns: widget.isExpanded ? 0 : -0.25,
         child: const Icon(
           Icons.keyboard_arrow_down_rounded,
