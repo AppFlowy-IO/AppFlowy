@@ -748,10 +748,10 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: f66a1af95756d5fece5034d357853d0127e09b9e4ef58be1f022ca47e11c6f7e
+      sha256: fea21bff36d44a5955beba90619f54b9169884014128ae75f50eba2db03c24a0
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.3.1"
   irondash_message_channel:
     dependency: transitive
     description:
@@ -1429,14 +1429,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
-  sprintf:
-    dependency: transitive
-    description:
-      name: sprintf
-      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -1514,18 +1506,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "67496ce89d45e63960541b4907557e7138ee80d1c68a59d87e4d67310eeadbb6"
+      sha256: "548642d62d691d2ba00850efe0f7a11ce5696e59111658abd4c6cb76b49aa61d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.4"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: e9ff692aa13c3d489220c9be3c85653fb8b1c7e39ba5fe4c8dcee7f97c0e4337
+      sha256: "3bbb95899f848617b819eec1fa00c80a617f1bd469a480b1f0c4dd383da4c5ec"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.4"
   sync_http:
     dependency: transitive
     description:
@@ -1728,13 +1720,13 @@ packages:
     source: git
     version: "1.0.0"
   uuid:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: uuid
-      sha256: b715b8d3858b6fa9f68f87d20d98830283628014750c2b09b6f516c1da4af2a7
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "3.0.7"
   vector_graphics:
     dependency: transitive
     description:
