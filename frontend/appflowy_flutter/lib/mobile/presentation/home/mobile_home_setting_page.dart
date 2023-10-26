@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,33 +23,46 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
     return FutureBuilder(
       future: getIt<AuthService>().getUser(),
       builder: ((context, snapshot) {
+        String? errorMsg;
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
-        final userProfile = snapshot.data?.fold((error) => null, (userProfile) {
+        final userProfile = snapshot.data?.fold((error) {
+          errorMsg = error.msg;
+          return null;
+        }, (userProfile) {
           return userProfile;
         });
+
         return Scaffold(
           appBar: AppBar(
             title: Text(LocaleKeys.settings_title.tr()),
           ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  PersonalInfoSettingGroup(
-                    userProfile: userProfile,
+          body: userProfile == null
+              ? FlowyMobileErrorStateContainer(
+                  emoji: '🛸',
+                  title: 'Failed to load user profile',
+                  description:
+                      'Please try to log out and log back in again to check if the issue still persists.',
+                  errorMsg: errorMsg,
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        PersonalInfoSettingGroup(
+                          userProfile: userProfile,
+                        ),
+                        // TODO(yijing): implement this along with Notification Page
+                        const NotificationsSettingGroup(),
+                        const AppearanceSettingGroup(),
+                        const SupportSettingGroup(),
+                        const AboutSettingGroup(),
+                      ],
+                    ),
                   ),
-                  // TODO(yijing): implement this along with Notification Page
-                  const NotificationsSettingGroup(),
-                  const AppearanceSettingGroup(),
-                  const SupportSettingGroup(),
-                  const AboutSettingGroup(),
-                ],
-              ),
-            ),
-          ),
+                ),
         );
       }),
     );
