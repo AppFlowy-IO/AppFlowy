@@ -1,12 +1,12 @@
-import 'package:appflowy/workspace/application/panes/pane_node_cubit/cubit/pane_node_cubit.dart';
+import 'package:appflowy/workspace/application/panes/pane_node_bloc/pane_node_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
+
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,7 +33,8 @@ class FlowyPaneGroup extends StatelessWidget {
     if (node.children.isEmpty) {
       return Listener(
         behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => context.read<PanesCubit>().setActivePane(node),
+        onPointerDown: (_) =>
+            context.read<PanesBloc>().add(SetActivePane(activePane: node)),
         child: FlowyPane(
           key: ValueKey(node.tabs.tabId),
           node: node,
@@ -74,9 +75,13 @@ class FlowyPaneGroup extends StatelessWidget {
                           _resolveFlowyPanes(
                             paneLayout,
                             indexNode,
-                            state.resizeOffset[indexNode.$1],
                           ),
-                          _resizeBar(indexNode, context, paneLayout),
+                          _resizeBar(
+                            indexNode,
+                            context,
+                            paneLayout,
+                            constraints,
+                          ),
                         ],
                       );
                     }).toList(),
@@ -94,6 +99,7 @@ class FlowyPaneGroup extends StatelessWidget {
     (int, PaneNode) indexNode,
     BuildContext context,
     PaneLayout paneLayout,
+    BoxConstraints parentConstraints,
   ) {
     if (indexNode.$1 == 0) {
       return const SizedBox.expand();
@@ -102,24 +108,24 @@ class FlowyPaneGroup extends StatelessWidget {
       left: paneLayout.childPaneLPosition,
       top: paneLayout.childPaneTPosition,
       child: GestureDetector(
-        dragStartBehavior: DragStartBehavior.down,
         onHorizontalDragUpdate: (details) {
-          context.read<PaneNodeCubit>().paneResized(
-                indexNode.$1,
-                details.delta.dx,
-                paneLayout.childPaneWidth,
+          context.read<PaneNodeCubit>().add(
+                ResizeUpdate(
+                  targetIndex: indexNode.$1,
+                  offset: details.delta.dx,
+                  availableWidth: parentConstraints.maxWidth,
+                ),
               );
         },
         onVerticalDragUpdate: (details) {
-          context.read<PaneNodeCubit>().paneResized(
-                indexNode.$1,
-                details.delta.dy,
-                paneLayout.childPaneHeight,
+          context.read<PaneNodeCubit>().add(
+                ResizeUpdate(
+                  targetIndex: indexNode.$1,
+                  offset: details.delta.dy,
+                  availableWidth: parentConstraints.maxHeight,
+                ),
               );
         },
-        onHorizontalDragStart: (_) =>
-            context.read<PaneNodeCubit>().resizeStart(),
-        onVerticalDragStart: (_) => context.read<PaneNodeCubit>().resizeStart(),
         behavior: HitTestBehavior.translucent,
         child: FlowyHover(
           style: HoverStyle(
@@ -140,7 +146,6 @@ class FlowyPaneGroup extends StatelessWidget {
   Widget _resolveFlowyPanes(
     PaneLayout paneLayout,
     (int, PaneNode) indexNode,
-    double position,
   ) {
     return Positioned(
       left: paneLayout.childPaneLPosition,

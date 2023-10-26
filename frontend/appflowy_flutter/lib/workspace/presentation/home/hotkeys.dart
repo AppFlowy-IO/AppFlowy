@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
@@ -74,7 +74,8 @@ class HomeHotKeys extends StatelessWidget {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) => context.read<PanesCubit>().closeCurrentTab(),
+      keyDownHandler: (_) =>
+          context.read<PanesBloc>().add(const CloseCurrentTab()),
     ).register();
 
     // Go to previous tab
@@ -112,12 +113,14 @@ class HomeHotKeys extends StatelessWidget {
   }
 
   void _selectTab(BuildContext context, int change) {
-    final bloc = context.read<PanesCubit>();
-    bloc.selectTab(index: bloc.state.activePane.tabs.currentIndex + change);
+    final bloc = context.read<PanesBloc>();
+    bloc.add(
+      SelectTab(index: bloc.state.activePane.tabs.currentIndex + change),
+    );
   }
 
   void _setDragStatus(BuildContext context, bool status) {
-    final bloc = context.read<PanesCubit>();
-    bloc.setDragStatus(status);
+    final bloc = context.read<PanesBloc>();
+    bloc.add(SetDragStatus(status: status));
   }
 }

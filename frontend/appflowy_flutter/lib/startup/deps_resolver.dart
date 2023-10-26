@@ -20,7 +20,7 @@ import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -165,7 +165,7 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
-  getIt.registerLazySingleton<PanesCubit>(() => PanesCubit());
+  getIt.registerLazySingleton<PanesBloc>(() => PanesBloc());
 
   getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
 

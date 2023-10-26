@@ -1,7 +1,7 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -61,7 +61,7 @@ class TabService {
     if (!pm.readOnly && openPlugins.containsKey(pluginId) && !move) {
       controller.tabService.updateWriteStatusHandler(
         pluginId,
-        getIt<PanesCubit>().state.root,
+        getIt<PanesBloc>().state.root,
       );
     }
 
@@ -92,7 +92,7 @@ class TabService {
       if (!controller.currentPageManager.readOnly) {
         updateWriteStatusHandler(
           controller.currentPageManager.plugin.id,
-          getIt<PanesCubit>().state.root,
+          getIt<PanesBloc>().state.root,
         );
       }
 

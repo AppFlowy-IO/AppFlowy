@@ -8,7 +8,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/panes/flowy_pane_group.dart';
@@ -46,7 +46,7 @@ class HomeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PanesCubit, PanesState>(
+    return BlocBuilder<PanesBloc, PanesState>(
       builder: (context, state) {
         return BlocBuilder<HomeSettingBloc, HomeSettingState>(
           builder: (context, homeState) {
@@ -297,7 +297,7 @@ class HomeTopBar extends StatelessWidget {
                     const SizedBox.shrink(),
               ),
             ),
-            BlocBuilder<PanesCubit, PanesState>(
+            BlocBuilder<PanesBloc, PanesState>(
               builder: (context, state) {
                 if (state.count <= 1) {
                   return const SizedBox.shrink();
@@ -305,7 +305,7 @@ class HomeTopBar extends StatelessWidget {
 
                 return FlowyIconButton(
                   onPressed: () =>
-                      context.read<PanesCubit>().closePane(paneId: paneId),
+                      context.read<PanesBloc>().add(ClosePane(paneId: paneId)),
                   icon: FlowySvg(
                     FlowySvgs.close_s,
                     color: Theme.of(context).iconTheme.color,
@@ -360,11 +360,7 @@ class _HomeBodyState extends State<HomeBody> {
                 },
                 onPointerPanZoomEnd: (event) {
                   _timer?.cancel();
-
-                  _timer = Timer(const Duration(milliseconds: 600), () {
-                    absorbTapsNotifier.value = true;
-                    _timer?.cancel();
-                  });
+                  _applyTimer();
                 },
                 onPointerPanZoomStart: (event) {
                   absorbTapsNotifier.value = false;
@@ -373,13 +369,8 @@ class _HomeBodyState extends State<HomeBody> {
                 onPointerSignal: (signal) {
                   if (signal is PointerScrollEvent) {
                     absorbTapsNotifier.value = false;
-
                     _timer?.cancel();
-
-                    _timer = Timer(const Duration(milliseconds: 600), () {
-                      absorbTapsNotifier.value = true;
-                      _timer?.cancel();
-                    });
+                    _applyTimer();
                   }
                 },
                 child: IgnorePointer(
@@ -397,6 +388,13 @@ class _HomeBodyState extends State<HomeBody> {
       );
     }
     return _buildWidgetStack(onDeleted: widget.onDeleted);
+  }
+
+  void _applyTimer() {
+    _timer = Timer(const Duration(milliseconds: 600), () {
+      absorbTapsNotifier.value = true;
+      _timer?.cancel();
+    });
   }
 
   Widget _buildWidgetStack({required Function(ViewPB, int?) onDeleted}) {

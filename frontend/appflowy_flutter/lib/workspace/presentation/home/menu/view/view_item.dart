@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -75,9 +75,9 @@ class ViewItem extends StatelessWidget {
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&
             p.lastCreatedView?.id != c.lastCreatedView!.id,
-        listener: (context, state) => context
-            .read<PanesCubit>()
-            .openPlugin(plugin: state.lastCreatedView!.plugin()),
+        listener: (context, state) => context.read<PanesBloc>().add(
+              OpenPluginInActivePane(plugin: state.lastCreatedView!.plugin()),
+            ),
         builder: (context, state) {
           // don't remove this code. it's related to the backend service.
           view.childViews
@@ -411,18 +411,24 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context.read<PanesCubit>().openTab(plugin: widget.view.plugin());
+              context
+                  .read<PanesBloc>()
+                  .add(OpenTabInActivePane(plugin: widget.view.plugin()));
               break;
             case ViewMoreActionType.splitDown:
-              context.read<PanesCubit>().split(
-                    plugin: widget.view.plugin(),
-                    splitDirection: SplitDirection.down,
+              context.read<PanesBloc>().add(
+                    SplitPane(
+                      plugin: widget.view.plugin(),
+                      splitDirection: SplitDirection.down,
+                    ),
                   );
 
             case ViewMoreActionType.splitRight:
-              context.read<PanesCubit>().split(
-                    plugin: widget.view.plugin(),
-                    splitDirection: SplitDirection.right,
+              context.read<PanesBloc>().add(
+                    SplitPane(
+                      plugin: widget.view.plugin(),
+                      splitDirection: SplitDirection.right,
+                    ),
                   );
             default:
               throw UnsupportedError('$action is not supported');

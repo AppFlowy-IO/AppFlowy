@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_layout.dart';
@@ -183,8 +183,8 @@ class _FlowyPaneState extends State<FlowyPane> {
 
   @override
   void didChangeDependencies() {
-    if (widget.node != getIt<PanesCubit>().state.activePane) {
-      FocusScope.of(context).unfocus();
+    if (widget.node != getIt<PanesBloc>().state.activePane) {
+      FocusScope.of(widget.paneContext).unfocus();
     }
     super.didChangeDependencies();
   }

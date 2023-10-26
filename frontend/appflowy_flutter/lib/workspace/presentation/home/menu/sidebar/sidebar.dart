@@ -3,7 +3,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
@@ -59,8 +59,10 @@ class HomeSideBar extends StatelessWidget {
           BlocListener<MenuBloc, MenuState>(
             listenWhen: (p, c) =>
                 p.lastCreatedView?.id != c.lastCreatedView?.id,
-            listener: (context, state) => context.read<PanesCubit>().openPlugin(
-                  plugin: state.lastCreatedView!.plugin(),
+            listener: (context, state) => context.read<PanesBloc>().add(
+                  OpenPluginInActivePane(
+                    plugin: state.lastCreatedView!.plugin(),
+                  ),
                 ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
@@ -77,8 +79,8 @@ class HomeSideBar extends StatelessWidget {
 
                     if (view != null) {
                       context
-                          .read<PanesCubit>()
-                          .openPlugin(plugin: view.plugin());
+                          .read<PanesBloc>()
+                          .add(OpenPluginInActivePane(plugin: view.plugin()));
                     }
                 }
               }

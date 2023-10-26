@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
@@ -83,9 +83,9 @@ class _TabsManagerState extends State<TabsManager>
         dividerColor: Colors.transparent,
         isScrollable: true,
         controller: _controller,
-        onTap: (newIndex) => context
-            .read<PanesCubit>()
-            .selectTab(pane: widget.pane, index: newIndex),
+        onTap: (newIndex) => context.read<PanesBloc>().add(
+              SelectTab(pane: widget.pane, index: newIndex),
+            ),
         tabs: widget.tabs.pageManagers
             .map(
               (pm) => SizedBox(

@@ -1,6 +1,6 @@
 import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -57,17 +57,17 @@ class FavoriteFolder extends StatelessWidget {
                     onSelected: (view) {
                       if (RawKeyboard.instance.isControlPressed) {
                         context
-                            .read<PanesCubit>()
-                            .openTab(plugin: view.plugin());
+                            .read<PanesBloc>()
+                            .add(OpenTabInActivePane(plugin: view.plugin()));
                       }
 
                       context
-                          .read<PanesCubit>()
-                          .openPlugin(plugin: view.plugin());
+                          .read<PanesBloc>()
+                          .add(OpenPluginInActivePane(plugin: view.plugin()));
                     },
                     onTertiarySelected: (view) => context
-                        .read<PanesCubit>()
-                        .openTab(plugin: view.plugin()),
+                        .read<PanesBloc>()
+                        .add(OpenTabInActivePane(plugin: view.plugin())),
                   ),
                 )
             ],

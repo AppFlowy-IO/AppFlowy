@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
-import 'package:appflowy/workspace/application/panes/panes_cubit/panes_cubit.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -227,28 +227,34 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
 
     switch (from.crossDraggableType) {
       case CrossDraggableType.pane:
-        getIt<PanesCubit>().movePane(
-          from.draggable as PaneNode,
-          to.draggable as PaneNode,
-          position,
+        getIt<PanesBloc>().add(
+          MovePane(
+            from: from.draggable as PaneNode,
+            to: to.draggable as PaneNode,
+            position: position,
+          ),
         );
         return;
 
       case CrossDraggableType.tab:
         final plugin = (from.draggable as TabNode).pageManager.plugin;
         (from.draggable as TabNode).tabs.closeView(plugin.id);
-        getIt<PanesCubit>().split(
-          plugin: plugin,
-          splitDirection: direction,
-          targetPaneId: (to.draggable as PaneNode).paneId,
+        getIt<PanesBloc>().add(
+          SplitPane(
+            plugin: plugin,
+            splitDirection: direction,
+            targetPaneId: (to.draggable as PaneNode).paneId,
+          ),
         );
         return;
 
       case CrossDraggableType.view:
-        getIt<PanesCubit>().split(
-          plugin: (from.draggable as ViewPB).plugin(),
-          splitDirection: direction,
-          targetPaneId: (to.draggable as PaneNode).paneId,
+        getIt<PanesBloc>().add(
+          SplitPane(
+            plugin: (from.draggable as ViewPB).plugin(),
+            splitDirection: direction,
+            targetPaneId: (to.draggable as PaneNode).paneId,
+          ),
         );
         return;
 

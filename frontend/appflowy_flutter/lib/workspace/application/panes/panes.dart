@@ -45,5 +45,5 @@ class PaneNode extends Equatable {
     );
   }
   @override
-  List<Object?> get props => [paneId, axis, children.length, parent, tabs];
+  List<Object?> get props => [paneId, axis, children, parent, tabs];
 }
