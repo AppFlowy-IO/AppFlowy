@@ -825,7 +825,6 @@
   },
   "notificationHub": {
     "title": "Notifikasi",
-    "empty": "Tidak ada yang dilihat disini!",
     "tabs": {
       "inbox": "Kotak masuk",
       "upcoming": "Mendatang"
@@ -836,7 +835,8 @@
       "groupByDate": "Kelompokkan berdasarkan tanggal",
       "showUnreadsOnly": "Tampilkan yang belum dibaca saja",
       "resetToDefault": "Mengatur ulang ke default"
-    }
+    },
+    "empty": "Tidak ada yang dilihat disini!"
   },
   "reminderNotification": {
     "title": "Pengingat",

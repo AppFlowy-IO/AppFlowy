@@ -9,14 +9,14 @@ use flowy_core::{AppFlowyCore, AppFlowyCoreConfig};
 use flowy_notification::register_notification_sender;
 use flowy_user::entities::AuthTypePB;
 
-use crate::test_user::TestNotificationSender;
+use crate::user_event::TestNotificationSender;
 
+pub mod database_event;
 pub mod document;
+pub mod document_event;
 pub mod event_builder;
-pub mod test_database;
-pub mod test_document;
-pub mod test_folder;
-pub mod test_user;
+pub mod folder_event;
+pub mod user_event;
 
 #[derive(Clone)]
 pub struct EventIntegrationTest {

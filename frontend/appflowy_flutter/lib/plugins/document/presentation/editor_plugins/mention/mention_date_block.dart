@@ -39,6 +39,8 @@ class MentionDateBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final editorState = context.read<EditorState>();
+
     DateTime? parsedDate = DateTime.tryParse(date);
     if (parsedDate == null) {
       return const SizedBox.shrink();
@@ -108,10 +110,12 @@ class MentionDateBlock extends StatelessWidget {
             );
 
             return GestureDetector(
-              onTapDown: (details) => DatePickerMenu(
-                context: context,
-                editorState: context.read<EditorState>(),
-              ).show(details.globalPosition, options: options),
+              onTapDown: editorState.editable
+                  ? (details) => DatePickerMenu(
+                        context: context,
+                        editorState: context.read<EditorState>(),
+                      ).show(details.globalPosition, options: options)
+                  : null,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: MouseRegion(

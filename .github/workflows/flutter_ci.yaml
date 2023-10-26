@@ -23,7 +23,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.10.1"
+  FLUTTER_VERSION: "3.10.4"
   RUST_TOOLCHAIN: "1.70"
   CARGO_MAKE_VERSION: "0.36.6"
 
@@ -78,7 +78,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -136,17 +135,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest]
         include:
-          - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
           - os: macos-latest
             flutter_profile: development-mac-x86_64
             target: x86_64-apple-darwin
-          - os: windows-latest
-            flutter_profile: development-windows-x86
-            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -168,7 +161,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -189,17 +181,12 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-
-      - name: Uncompress appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
-
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+            flutter config --enable-macos-desktop
+            cargo make --profile ${{ matrix.flutter_profile }} appflowy-dev
             cargo make dart_unit_test
           else
             cargo make dart_unit_test_no_build
@@ -255,7 +242,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: taiki-e/install-action@v2
         with:
@@ -292,7 +278,6 @@ jobs:
         run: tar -xf appflowy_flutter.tar.gz
 
       - name: Run code generation
-        if: matrix.os == 'windows-latest'
         working-directory: frontend
         run: |
           cargo make code_generation
@@ -364,7 +349,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: taiki-e/install-action@v2
         with:

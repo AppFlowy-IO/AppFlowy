@@ -53,12 +53,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "6d163b8"
-      resolved-ref: "6d163b88976f6481c4eea5e91c0ed4d68378e56f"
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
-    version: "1.4.4"
+      name: appflowy_editor
+      sha256: cb6a0e7fa545923495cf85f1173b9f5572c67dc2f003b8d2b6dec9305eb5dafa
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -733,10 +732,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: "0d38f605f292321c0729f8c0632b845be77aa12d272b7bc5e3022bb670a7309e"
+      sha256: "5cad11e11ff7662c3cd0ef04729248591d71ed023d4ef0903a137528b4568adf"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.4"
+    version: "2.8.5"
   io:
     dependency: transitive
     description:
@@ -749,10 +748,10 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: "559d4f156ba4d9a33c48185a1d7d5e887083bb601b0b130180d0aae3c1449338"
+      sha256: fea21bff36d44a5955beba90619f54b9169884014128ae75f50eba2db03c24a0
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0-dev.2"
+    version: "0.3.1"
   irondash_message_channel:
     dependency: transitive
     description:
@@ -1507,18 +1506,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "80f7f42e9778101d77e930dcd9206cf72a1d8b696b3cbc1e3f9cbeb71ac4cde7"
+      sha256: "548642d62d691d2ba00850efe0f7a11ce5696e59111658abd4c6cb76b49aa61d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0-dev.5"
+    version: "0.6.4"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: e3903ee807e82a930288811cf1b31a0dee30378bb544f30e3ea58d0ed2f884f2
+      sha256: "3bbb95899f848617b819eec1fa00c80a617f1bd469a480b1f0c4dd383da4c5ec"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0-dev.5"
+    version: "0.6.4"
   sync_http:
     dependency: transitive
     description:

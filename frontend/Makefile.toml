@@ -25,7 +25,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.3.6"
+CURRENT_APP_VERSION = "0.3.7"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
@@ -201,6 +201,13 @@ CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
+
+[env.production-android]
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+LIB_EXT = "so"
 
 [tasks.echo_env]
 script = ['''

@@ -1,10 +1,13 @@
 import 'package:appflowy/env/env.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'appearance_settings_test.dart' as appearance_test_runner;
+import 'auth/auth_test.dart' as auth_test_runner;
+import 'board/board_test_runner.dart' as board_test_runner;
 import 'database_calendar_test.dart' as database_calendar_test;
 import 'database_cell_test.dart' as database_cell_test;
-import 'database_field_test.dart' as database_field_test;
 import 'database_field_settings_test.dart' as database_field_settings_test;
+import 'database_field_test.dart' as database_field_test;
 import 'database_filter_test.dart' as database_filter_test;
 import 'database_row_page_test.dart' as database_row_page_test;
 import 'database_row_test.dart' as database_row_test;
@@ -17,11 +20,9 @@ import 'import_files_test.dart' as import_files_test;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
-import 'board/board_test_runner.dart' as board_test_runner;
 import 'tabs/tabs_test.dart' as tabs_test;
+import 'empty_test.dart' as first_test;
 import 'hotkeys_test.dart' as hotkeys_test;
-import 'appearance_settings_test.dart' as appearance_test_runner;
-import 'auth/auth_test.dart' as auth_test_runner;
 import 'settings/user_icon_test.dart' as user_icon_test;
 import 'settings/user_language_test.dart' as user_language_test;
 import 'panes/panes_test.dart' as panes_test;
@@ -36,6 +37,10 @@ import 'panes/panes_overlay_test.dart' as panes_overlay_test;
 /// as the test target.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  // This test must be run first, otherwise the CI will fail.
+  first_test.main();
+
   switch_folder_test.main();
   share_markdown_test.main();
   import_files_test.main();

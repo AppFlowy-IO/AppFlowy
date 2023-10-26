@@ -58,10 +58,9 @@ async fn get_checklist_cell_options(test: &DatabaseFilterTest) -> Vec<String> {
     .get_cell(&field.id, &test.row_details[0].row.id)
     .await;
   row_cell
-    .map_or_else(
-      || ChecklistCellData::default(),
-      |cell| ChecklistCellData::from(&cell),
-    )
+    .map_or(ChecklistCellData::default(), |cell| {
+      ChecklistCellData::from(&cell)
+    })
     .options
     .into_iter()
     .map(|option| option.id)

@@ -97,7 +97,7 @@ impl UserManager {
           while let Ok(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
-                tracing::error!("handler_user_update failed: {:?}", err);
+                error!("handler_user_update failed: {:?}", err);
               }
             }
           }
@@ -172,10 +172,10 @@ impl UserManager {
                 info!("Did apply migrations: {:?}", applied_migrations);
               }
             },
-            Err(e) => tracing::error!("User data migration failed: {:?}", e),
+            Err(e) => error!("User data migration failed: {:?}", e),
           }
         },
-        _ => tracing::error!("Failed to get collab db or sqlite pool"),
+        _ => error!("Failed to get collab db or sqlite pool"),
       }
       self.set_collab_config(&session);
       // Init the user awareness
@@ -193,7 +193,7 @@ impl UserManager {
         )
         .await
       {
-        tracing::error!("Failed to call did_init callback: {:?}", e);
+        error!("Failed to call did_init callback: {:?}", e);
       }
     }
     *self.user_status_callback.write().await = Arc::new(user_status_callback);
@@ -253,7 +253,7 @@ impl UserManager {
       .did_sign_in(user_profile.uid, &latest_workspace, &session.device_id)
       .await
     {
-      tracing::error!("Failed to call did_sign_in callback: {:?}", e);
+      error!("Failed to call did_sign_in callback: {:?}", e);
     }
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
@@ -349,7 +349,6 @@ impl UserManager {
       UserAwarenessDataSource::Remote
     };
 
-    event!(tracing::Level::DEBUG, "Sign up response: {:?}", response);
     if response.is_new_user {
       if let Some(old_user) = migration_user {
         let new_user = MigrationUser {
@@ -403,9 +402,8 @@ impl UserManager {
 
     let server = self.cloud_services.get_user_service()?;
     tokio::spawn(async move {
-      match server.sign_out(None).await {
-        Ok(_) => {},
-        Err(e) => event!(tracing::Level::ERROR, "{:?}", e),
+      if let Err(err) = server.sign_out(None).await {
+        event!(tracing::Level::ERROR, "{:?}", err);
       }
     });
     Ok(())
@@ -437,15 +435,6 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn check_user(&self) -> Result<(), FlowyError> {
-    let user_id = self.get_session()?.user_id;
-    let user = self.get_user_profile(user_id).await?;
-    let credential = UserCredentials::new(Some(user.token), Some(user_id), None);
-    let auth_service = self.cloud_services.get_user_service()?;
-    auth_service.check_user(credential).await?;
-    Ok(())
-  }
-
   /// Fetches the user profile for the given user ID.
   pub async fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let user: UserProfile = user_table::dsl::user_table
@@ -457,27 +446,63 @@ impl UserManager {
   }
 
   #[tracing::instrument(level = "info", skip_all)]
-  pub async fn refresh_user_profile(
-    &self,
-    old_user_profile: &UserProfile,
-  ) -> FlowyResult<UserProfile> {
+  pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
     let uid = old_user_profile.uid;
-    let new_user_profile: UserProfile = self
+    let result: Result<UserProfile, FlowyError> = self
       .cloud_services
       .get_user_service()?
       .get_user_profile(UserCredentials::from_uid(uid))
-      .await?
-      .ok_or_else(|| FlowyError::new(ErrorCode::RecordNotFound, "User not found"))?;
+      .await;
 
-    if new_user_profile.updated_at > old_user_profile.updated_at {
-      check_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
+    match result {
+      Ok(new_user_profile) => {
+        // If the authentication type has changed, it indicates that the user has signed in
+        // using a different release package but is sharing the same data folder.
+        // In such cases, notify the frontend to log out.
+        if old_user_profile.auth_type != AuthType::Local
+          && new_user_profile.auth_type != old_user_profile.auth_type
+        {
+          event!(
+            tracing::Level::INFO,
+            "User login with different cloud: {:?} -> {:?}",
+            old_user_profile.auth_type,
+            new_user_profile.auth_type
+          );
 
-      // Save the new user profile
-      let changeset = UserTableChangeset::from_user_profile(new_user_profile.clone());
-      let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
+          send_auth_state_notification(AuthStateChangedPB {
+            state: AuthStatePB::InvalidAuth,
+            message: "User login with different cloud".to_string(),
+          })
+          .send();
+          return Ok(());
+        }
+
+        // If the user profile is updated, save the new user profile
+        if new_user_profile.updated_at > old_user_profile.updated_at {
+          check_encryption_sign(old_user_profile, &new_user_profile.encryption_type.sign());
+          // Save the new user profile
+          let changeset = UserTableChangeset::from_user_profile(new_user_profile);
+          let _ = upsert_user_profile_change(uid, self.database.get_pool(uid)?, changeset);
+        }
+        Ok(())
+      },
+      Err(err) => {
+        // If the user is not found, notify the frontend to logout
+        if err.is_record_not_found() {
+          event!(
+            tracing::Level::INFO,
+            "User is not found on the server when refreshing profile"
+          );
+
+          send_auth_state_notification(AuthStateChangedPB {
+            state: AuthStatePB::InvalidAuth,
+            message: "User is not found on the server".to_string(),
+          })
+          .send();
+        }
+        Err(err)
+      },
     }
-
-    Ok(new_user_profile)
   }
 
   pub fn user_dir(&self, uid: i64) -> String {
@@ -680,7 +705,7 @@ impl UserManager {
     )
     .await
     {
-      tracing::error!("Sync user data to cloud failed: {:?}", err);
+      error!("Sync user data to cloud failed: {:?}", err);
     }
 
     // Save the old user workspace setting.

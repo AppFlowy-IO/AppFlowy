@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 const _localFmt = 'M/d/y';
 const _usFmt = 'y/M/d';
-const _isoFmt = 'ymd';
+const _isoFmt = 'y-M-d';
 const _friendlyFmt = 'MMM d, y';
 const _dmyFmt = 'd/M/y';
 

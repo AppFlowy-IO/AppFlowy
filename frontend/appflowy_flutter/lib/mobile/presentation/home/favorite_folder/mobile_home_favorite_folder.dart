@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_
 import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,9 @@ class MobileFavoriteFolder extends StatelessWidget {
                       await context.pushView(view);
                     },
                     endActionPane: (context) => buildEndActionPane(context, [
-                      MobilePaneActionType.removeFromFavorites,
+                      context.read<ViewBloc>().view.isFavorite
+                          ? MobilePaneActionType.removeFromFavorites
+                          : MobilePaneActionType.addToFavorites,
                       MobilePaneActionType.more,
                     ]),
                   ),

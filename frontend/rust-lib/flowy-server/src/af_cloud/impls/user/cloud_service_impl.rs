@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::CreateWorkspaceMember;
+use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
 use client_api::entity::{AFRole, AFWorkspace, InsertCollabParams, OAuthProvider};
 use collab_entity::CollabObject;
 
@@ -13,7 +13,7 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::user::dto::{
-  af_update_from_update_params, user_profile_from_af_profile,
+  af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
@@ -102,15 +102,14 @@ where
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
+  ) -> FutureResult<UserProfile, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let profile = client.get_profile().await?;
       let token = client.get_token()?;
       let profile = user_profile_from_af_profile(token, profile)?;
-
-      Ok(Some(profile))
+      Ok(profile)
     })
   }
 
@@ -119,29 +118,6 @@ where
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;
       Ok(to_user_workspaces(workspaces.0)?)
-    })
-  }
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move {
-      // from params
-      let token = credential.token.ok_or(anyhow!("expecting token"))?;
-      let uid = credential.uid.ok_or(anyhow!("expecting uid"))?;
-
-      // from cloud
-      let client = try_get_client?;
-      let profile = client.get_profile().await?;
-      let client_token = client.access_token()?;
-
-      // compare and check
-      if uid != profile.uid {
-        return Err(anyhow!("uid mismatch"));
-      }
-      if token != client_token {
-        return Err(anyhow!("token mismatch"));
-      }
-      Ok(())
     })
   }
 
@@ -176,6 +152,38 @@ where
         .remove_workspace_members(workspace_id, vec![user_email])
         .await?;
       Ok(())
+    })
+  }
+
+  fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), Error> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let changeset = WorkspaceMemberChangeset::new(user_email).with_role(to_af_role(role));
+      try_get_client?
+        .update_workspace_member(workspace_id, changeset)
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceMember>, Error> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let members = try_get_client?
+        .get_workspace_members(&workspace_id)
+        .await?
+        .into_iter()
+        .map(from_af_workspace_member)
+        .collect();
+      Ok(members)
     })
   }
 

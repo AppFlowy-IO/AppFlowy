@@ -57,7 +57,7 @@
     "notFoundError": "Workspace not found",
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
-      "reportIssue": "Report issue",
+      "reportIssue": "Report an issue",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -121,6 +121,11 @@
     "confirmRestoreAll": {
       "title": "Are you sure to restore all pages in Trash?",
       "caption": "This action cannot be undone."
+    },
+    "mobile": {
+      "actions": "Trash Actions",
+      "empty": "Trash Bin is Empty",
+      "emptyDescription": "You don't have any deleted file"
     }
   },
   "deletePagePrompt": {
@@ -199,9 +204,9 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Done",
-    "Cancel": "Cancel",
+    "ok": "OK",
+    "done": "Done",
+    "cancel": "Cancel",
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
@@ -217,8 +222,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "done": "Done",
     "putback": "Put Back",
+    "update": "Update",
     "share": "Share",
     "removeFromFavorites": "Remove from favorites",
     "addToFavorites": "Add to favorites",
@@ -383,6 +388,17 @@
       "resetToDefault": "Reset to default keybindings",
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "mobile": {
+      "personalInfo": "Personal Information",
+      "username": "Username",
+      "usernameEmptyError": "Username cannot be empty",
+      "about": "About",
+      "pushNotifications": "Push Notifications",
+      "support": "Support",
+      "joinDiscord": "Join us in Discord",
+      "privacyPolicy": "Privacy Policy",
+      "userAgreement": "User Agreement"
     }
   },
   "grid": {
@@ -733,9 +749,14 @@
   },
   "board": {
     "column": {
-      "create_new_card": "New"
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group"
     },
     "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
+    "ungroupedItemsTitle": "Click to add to the board",
+    "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },
   "calendar": {
@@ -989,5 +1010,9 @@
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
     "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "slide the page to the left to add it to favorites"
   }
 }

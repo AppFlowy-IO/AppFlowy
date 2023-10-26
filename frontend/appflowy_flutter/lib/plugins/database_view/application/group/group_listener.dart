@@ -8,11 +8,15 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
 
+typedef GroupConfigurationUpdateValue
+    = Either<List<GroupSettingPB>, FlowyError>;
 typedef GroupUpdateValue = Either<GroupChangesPB, FlowyError>;
 typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
 class DatabaseGroupListener {
   final String viewId;
+  PublishNotifier<GroupConfigurationUpdateValue>? _groupConfigurationNotifier =
+      PublishNotifier();
   PublishNotifier<GroupUpdateValue>? _numOfGroupsNotifier = PublishNotifier();
   PublishNotifier<GroupByNewFieldValue>? _groupByFieldNotifier =
       PublishNotifier();
@@ -20,9 +24,13 @@ class DatabaseGroupListener {
   DatabaseGroupListener(this.viewId);
 
   void start({
+    required void Function(GroupConfigurationUpdateValue)
+        onGroupConfigurationChanged,
     required void Function(GroupUpdateValue) onNumOfGroupsChanged,
     required void Function(GroupByNewFieldValue) onGroupByNewField,
   }) {
+    _groupConfigurationNotifier
+        ?.addPublishListener(onGroupConfigurationChanged);
     _numOfGroupsNotifier?.addPublishListener(onNumOfGroupsChanged);
     _groupByFieldNotifier?.addPublishListener(onGroupByNewField);
     _listener = DatabaseNotificationListener(
@@ -36,6 +44,13 @@ class DatabaseGroupListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
+      case DatabaseNotification.DidUpdateGroupConfiguration:
+        result.fold(
+          (payload) => _groupConfigurationNotifier?.value =
+              left(RepeatedGroupSettingPB.fromBuffer(payload).items),
+          (error) => _groupConfigurationNotifier?.value = right(error),
+        );
+        break;
       case DatabaseNotification.DidUpdateNumOfGroups:
         result.fold(
           (payload) => _numOfGroupsNotifier?.value =
@@ -57,6 +72,9 @@ class DatabaseGroupListener {
 
   Future<void> stop() async {
     await _listener?.stop();
+    _groupConfigurationNotifier?.dispose();
+    _groupConfigurationNotifier = null;
+
     _numOfGroupsNotifier?.dispose();
     _numOfGroupsNotifier = null;
 

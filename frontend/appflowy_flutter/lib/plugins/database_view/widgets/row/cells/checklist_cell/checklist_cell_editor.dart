@@ -69,6 +69,7 @@ class _GridChecklistCellState extends State<GridChecklistCellEditor> {
                     : Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                         child: ChecklistProgressBar(
+                          tasks: state.tasks,
                           percent: state.percent,
                         ),
                       ),
@@ -208,7 +209,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
-        constraints: BoxConstraints(maxHeight: GridSize.popoverItemHeight),
+        constraints: BoxConstraints(minHeight: GridSize.popoverItemHeight),
         decoration: BoxDecoration(
           color: _isHovered
               ? AFThemeExtension.of(context).lightGreyHover
@@ -236,8 +237,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
                   border: InputBorder.none,
                   isCollapsed: true,
                   contentPadding: EdgeInsets.only(
-                    top: 6.0,
-                    bottom: 6.0,
+                    top: 8.0,
+                    bottom: 8.0,
                     left: 2.0,
                     right: _isHovered ? 2.0 : 8.0,
                   ),

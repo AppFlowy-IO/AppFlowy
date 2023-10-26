@@ -1,5 +1,6 @@
 enum ActionType {
   openView,
+  jumpToBlock,
 }
 
 /// A [NotificationAction] is used to communicate with the
@@ -10,10 +11,31 @@ enum ActionType {
 class NotificationAction {
   const NotificationAction({
     this.type = ActionType.openView,
+    this.arguments,
     required this.objectId,
   });
 
   final ActionType type;
 
   final String objectId;
+  final Map<String, dynamic>? arguments;
+
+  NotificationAction copyWith({
+    ActionType? type,
+    String? objectId,
+    Map<String, dynamic>? arguments,
+  }) =>
+      NotificationAction(
+        type: type ?? this.type,
+        objectId: objectId ?? this.objectId,
+        arguments: arguments ?? this.arguments,
+      );
+}
+
+enum ActionArgumentKeys {
+  nodePath('node_path');
+
+  final String name;
+
+  const ActionArgumentKeys(this.name);
 }

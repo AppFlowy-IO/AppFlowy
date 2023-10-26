@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_slide_action_button.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -50,16 +50,8 @@ enum MobilePaneActionType {
           onPressed: (context) {
             final viewBloc = context.read<ViewBloc>();
             final favoriteBloc = context.read<FavoriteBloc>();
-            showModalBottomSheet(
+            showMobileBottomSheet(
               context: context,
-              isScrollControlled: true,
-              enableDrag: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8.0),
-                  topRight: Radius.circular(8.0),
-                ),
-              ),
               builder: (context) {
                 return MultiBlocProvider(
                   providers: [

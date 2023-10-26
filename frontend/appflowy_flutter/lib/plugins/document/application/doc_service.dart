@@ -9,7 +9,7 @@ class DocumentService {
   Future<Either<FlowyError, Unit>> createDocument({
     required ViewPB view,
   }) async {
-    final canOpen = await openDocument(view: view);
+    final canOpen = await openDocument(viewId: view.id);
     if (canOpen.isRight()) {
       return const Right(unit);
     }
@@ -19,11 +19,28 @@ class DocumentService {
   }
 
   Future<Either<FlowyError, DocumentDataPB>> openDocument({
-    required ViewPB view,
+    required String viewId,
   }) async {
-    final payload = OpenDocumentPayloadPB()..documentId = view.id;
+    final payload = OpenDocumentPayloadPB()..documentId = viewId;
     final result = await DocumentEventOpenDocument(payload).send();
     return result.swap();
+  }
+
+  Future<Either<FlowyError, BlockPB>> getBlockFromDocument({
+    required DocumentDataPB document,
+    required String blockId,
+  }) async {
+    final block = document.blocks[blockId];
+
+    if (block != null) {
+      return right(block);
+    }
+
+    return left(
+      FlowyError(
+        msg: 'Block($blockId) not found in Document(${document.pageId})',
+      ),
+    );
   }
 
   Future<Either<FlowyError, Unit>> closeDocument({

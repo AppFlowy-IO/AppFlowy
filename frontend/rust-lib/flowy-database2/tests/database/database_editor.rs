@@ -6,7 +6,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use strum::EnumCount;
 
-use event_integration::test_folder::ViewTest;
+use event_integration::folder_event::ViewTest;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
@@ -38,7 +38,7 @@ pub struct DatabaseEditorTest {
 impl DatabaseEditorTest {
   pub async fn new_grid() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_grid();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
@@ -47,7 +47,7 @@ impl DatabaseEditorTest {
 
   pub async fn new_no_date_grid() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_no_date_test_grid();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
@@ -56,16 +56,16 @@ impl DatabaseEditorTest {
 
   pub async fn new_board() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_board();
-    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    let view_test = ViewTest::new_board_view(&sdk, params.to_json_bytes().unwrap()).await;
     Self::new(sdk, view_test).await
   }
 
   pub async fn new_calendar() -> Self {
     let sdk = EventIntegrationTest::new();
-    let _ = sdk.init_user().await;
+    let _ = sdk.init_anon_user().await;
 
     let params = make_test_calendar();
     let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;

@@ -32,7 +32,8 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupSetting, GroupSettingChangeset, RowChangeset,
+  default_group_setting, GroupChangeset, GroupChangesets, GroupSetting, GroupSettingChangeset,
+  RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -179,12 +180,37 @@ impl DatabaseEditor {
   pub async fn update_group_setting(
     &self,
     view_id: &str,
-    group_setting_changeset: GroupSettingChangeset,
+    group_setting_changeset: GroupChangesets,
   ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     view_editor
-      .update_group_setting(group_setting_changeset)
+      .v_update_group_setting(group_setting_changeset)
       .await?;
+    Ok(())
+  }
+
+  pub async fn update_group(
+    &self,
+    view_id: &str,
+    group_changeset: GroupChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    let type_option = view_editor.update_group(group_changeset.clone()).await?;
+
+    if let Some(type_option_data) = type_option {
+      let field = self.get_field(&group_changeset.field_id);
+      if field.is_some() {
+        let _ = self
+          .update_field_type_option(
+            view_id,
+            &group_changeset.field_id,
+            type_option_data,
+            field.unwrap(),
+          )
+          .await;
+      }
+    }
+
     Ok(())
   }
 
@@ -882,6 +908,40 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn get_group_configuration_settings(
+    &self,
+    view_id: &str,
+  ) -> FlowyResult<Vec<GroupSettingPB>> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+
+    let group_settings = view
+      .v_get_group_configuration_settings()
+      .await
+      .into_iter()
+      .map(|value| GroupSettingPB::from(&value))
+      .collect::<Vec<GroupSettingPB>>();
+
+    Ok(group_settings)
+  }
+
+  pub async fn update_group_configuration_setting(
+    &self,
+    view_id: &str,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<()> {
+    let view = self.database_views.get_view_editor(view_id).await?;
+    let group_configuration = view.v_update_group_configuration_setting(changeset).await?;
+
+    if let Some(configuration) = group_configuration {
+      let payload: RepeatedGroupSettingPB = vec![configuration].into();
+      send_notification(view_id, DatabaseNotification::DidUpdateGroupConfiguration)
+        .payload(payload)
+        .send();
+    }
+
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
     let view = self.database_views.get_view_editor(view_id).await?;
@@ -933,13 +993,26 @@ impl DatabaseEditor {
         let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
         let view = self.database_views.get_view_editor(view_id).await?;
         view
-          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row)
+          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
           .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
         self.database.lock().update_row(&row_detail.row.id, |row| {
           row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
         });
+
+        let to_row = if to_row.is_some() {
+          to_row
+        } else {
+          let row_details = self.get_rows(view_id).await?;
+          row_details
+            .last()
+            .map(|row_detail| row_detail.row.id.clone())
+        };
+
+        if let Some(row_id) = to_row {
+          self.move_row(view_id, from_row, row_id).await;
+        }
 
         let cell_changesets = cell_changesets_from_cell_by_field_id(
           view_id,

@@ -23,7 +23,7 @@ function ConfirmDialog({ open, title, subtitle, onOk, onClose }: Props) {
       </DialogContent>
       <DialogActions>
         <Button variant={'outlined'} onClick={onClose}>
-          {t('button.Cancel')}
+          {t('button.cancel')}
         </Button>
         <Button
           variant={'contained'}

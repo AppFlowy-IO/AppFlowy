@@ -31,7 +31,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<SelectOptionTypeOptionBloc>(
       create: (context) => SelectOptionTypeOptionBloc(
         options: options,
         typeOptionAction: typeOptionAction,

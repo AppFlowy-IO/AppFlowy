@@ -377,3 +377,16 @@ pub enum UserTokenState {
   Refresh { token: String },
   Invalid,
 }
+
+#[derive(Clone, Debug)]
+pub enum Role {
+  Owner,
+  Member,
+  Guest,
+}
+
+pub struct WorkspaceMember {
+  pub email: String,
+  pub role: Role,
+  pub name: String,
+}

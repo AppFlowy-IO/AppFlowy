@@ -102,35 +102,22 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(()) })
   }
 
-  fn get_user_profile(
-    &self,
-    _credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, FlowyError> {
-    FutureResult::new(async { Ok(None) })
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError> {
+    let result = match credential.uid {
+      None => Err(FlowyError::record_not_found()),
+      Some(uid) => {
+        self.db.get_user_profile(uid).map(|mut profile| {
+          // We don't want to expose the email in the local server
+          profile.email = "".to_string();
+          profile
+        })
+      },
+    };
+    FutureResult::new(async { result })
   }
 
   fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     FutureResult::new(async { Ok(vec![]) })
-  }
-
-  fn check_user(&self, _credential: UserCredentials) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn add_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn remove_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
   }
 
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
