@@ -204,29 +204,33 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: SizedBox(
-        height: GridSize.popoverItemHeight,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FlowyText.medium(
-              LocaleKeys.grid_selectOption_panelTitle.tr(),
-              color: Theme.of(context).hintColor,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4.0,
-              ),
-              child: FlowyIconButton(
-                onPressed: onPressedAddButton,
-                width: 18,
-                icon: const FlowySvg(
-                  FlowySvgs.add_s,
+      child: Flexible(
+        child: SizedBox(
+          height: GridSize.popoverItemHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: FlowyText.medium(
+                  LocaleKeys.grid_selectOption_panelTitle.tr(),
+                  color: Theme.of(context).hintColor,
                 ),
-                iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                ),
+                child: FlowyIconButton(
+                  onPressed: onPressedAddButton,
+                  width: 18,
+                  icon: const FlowySvg(
+                    FlowySvgs.add_s,
+                  ),
+                  iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
