@@ -13,10 +13,10 @@ use crate::services::group::{
   CheckboxGroupContext, CheckboxGroupController, CheckboxGroupOperationInterceptorImpl,
   DateGroupContext, DateGroupController, DateGroupOperationInterceptorImpl, DefaultGroupController,
   Group, GroupController, GroupSetting, GroupSettingReader, GroupSettingWriter,
-  MultiSelectGroupController, MultiSelectOptionGroupContext,
-  SelectOptionGroupOperationInterceptorImpl, SingleSelectGroupController,
-  SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
-  URLGroupOperationInterceptorImpl,
+  MultiSelectGroupController, MultiSelectGroupOperationInterceptorImpl,
+  MultiSelectOptionGroupContext, SingleSelectGroupController,
+  SingleSelectGroupOperationInterceptorImpl, SingleSelectOptionGroupContext, URLGroupContext,
+  URLGroupController, URLGroupOperationInterceptorImpl,
 };
 
 /// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
@@ -27,7 +27,7 @@ pub trait GroupsBuilder {
   fn build(
     field: &Field,
     context: &Self::Context,
-    type_option: &Option<Self::GroupTypeOption>,
+    type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups;
 }
 
@@ -118,7 +118,7 @@ where
         configuration_writer,
       )
       .await?;
-      let operation_interceptor = SelectOptionGroupOperationInterceptorImpl {};
+      let operation_interceptor = SingleSelectGroupOperationInterceptorImpl {};
       let controller =
         SingleSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
           .await?;
@@ -132,7 +132,7 @@ where
         configuration_writer,
       )
       .await?;
-      let operation_interceptor = SelectOptionGroupOperationInterceptorImpl {};
+      let operation_interceptor = MultiSelectGroupOperationInterceptorImpl {};
       let controller =
         MultiSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
           .await?;

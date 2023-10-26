@@ -391,7 +391,7 @@ impl DatabaseViewEditor {
         let move_row_context = MoveGroupRowContext {
           row_detail,
           row_changeset,
-          field: field.as_ref(),
+          field: &field,
           to_group_id,
           to_row_id,
         };

@@ -1314,10 +1314,10 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn update_field(
     &self,
-    view_id: &str,
-    field_id: &str,
-    type_option_data: TypeOptionData,
-    old_field: Field,
+    _view_id: &str,
+    _field_id: &str,
+    _type_option_data: TypeOptionData,
+    _old_field: Field,
   ) {
     todo!()
   }
