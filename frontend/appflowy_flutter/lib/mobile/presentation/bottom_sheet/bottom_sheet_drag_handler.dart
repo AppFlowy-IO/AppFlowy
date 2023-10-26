@@ -6,13 +6,13 @@ class MobileBottomSheetDragHandler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Container(
-        width: 64,
+        width: 60,
         height: 4,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2.0),
-          color: Colors.grey,
+          color: Theme.of(context).colorScheme.onSecondary,
         ),
       ),
     );

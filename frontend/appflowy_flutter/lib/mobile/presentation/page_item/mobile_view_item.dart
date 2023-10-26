@@ -396,12 +396,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
             },
           ),
         );
-        // context.read<ViewBloc>().add(
-        //       ViewEvent.createView(
-        //         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-        //         ViewLayoutPB.Document,
-        //       ),
-        //     );
       },
     );
   }
