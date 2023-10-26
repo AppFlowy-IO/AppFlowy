@@ -827,7 +827,6 @@
   },
   "notificationHub": {
     "title": "Notificações",
-    "empty": "Nada para ver aqui!",
     "tabs": {
       "inbox": "Caixa de entrada",
       "upcoming": "A chegar"
@@ -838,7 +837,8 @@
       "groupByDate": "Agrupar por data",
       "showUnreadsOnly": "Mostrar apenas os não lidos",
       "resetToDefault": "Restaurar para o padrão"
-    }
+    },
+    "empty": "Nada para ver aqui!"
   },
   "reminderNotification": {
     "title": "Lembrete",
