@@ -6,7 +6,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use strum::EnumCount;
 
-use event_integration::test_folder::ViewTest;
+use event_integration::folder_event::ViewTest;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
@@ -59,7 +59,7 @@ impl DatabaseEditorTest {
     let _ = sdk.init_anon_user().await;
 
     let params = make_test_board();
-    let view_test = ViewTest::new_grid_view(&sdk, params.to_json_bytes().unwrap()).await;
+    let view_test = ViewTest::new_board_view(&sdk, params.to_json_bytes().unwrap()).await;
     Self::new(sdk, view_test).await
   }
 

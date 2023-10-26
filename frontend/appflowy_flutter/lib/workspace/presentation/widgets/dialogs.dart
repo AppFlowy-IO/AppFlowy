@@ -245,14 +245,14 @@ class OkCancelButton extends StatelessWidget {
         children: <Widget>[
           if (onCancelPressed != null)
             SecondaryTextButton(
-              cancelTitle ?? LocaleKeys.button_Cancel.tr(),
+              cancelTitle ?? LocaleKeys.button_cancel.tr(),
               onPressed: onCancelPressed,
               mode: mode,
             ),
           HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
-              okTitle ?? LocaleKeys.button_OK.tr(),
+              okTitle ?? LocaleKeys.button_ok.tr(),
               onPressed: onOkPressed,
               mode: mode,
             ),

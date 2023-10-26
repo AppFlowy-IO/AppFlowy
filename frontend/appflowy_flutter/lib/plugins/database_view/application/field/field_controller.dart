@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 
+import '../setting/setting_service.dart';
 import 'field_info.dart';
 import 'field_listener.dart';
 
@@ -558,6 +559,7 @@ class FieldController {
             _loadFilters(),
             _loadSorts(),
             _loadAllFieldSettings(),
+            _loadSettings(),
           ]);
           _updateFieldInfos();
 
@@ -606,6 +608,22 @@ class FieldController {
         (err) => right(err),
       );
     });
+  }
+
+  Future<Either<Unit, FlowyError>> _loadSettings() async {
+    return SettingBackendService(viewId: viewId).getSetting().then(
+          (result) => result.fold(
+            (setting) {
+              _groupConfigurationByFieldId.clear();
+              for (final configuration in setting.groupSettings.items) {
+                _groupConfigurationByFieldId[configuration.fieldId] =
+                    configuration;
+              }
+              return left(unit);
+            },
+            (err) => right(err),
+          ),
+        );
   }
 
   /// Attach corresponding `FieldInfo`s to the `FilterPB`s

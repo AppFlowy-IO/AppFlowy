@@ -34,7 +34,7 @@ class DocumentExporter {
 
   Future<Either<FlowyError, String>> export(DocumentExportType type) async {
     final documentService = DocumentService();
-    final result = await documentService.openDocument(view: view);
+    final result = await documentService.openDocument(viewId: view.id);
     return result.fold((error) => left(error), (r) {
       final document = r.toDocument();
       if (document == null) {

@@ -120,22 +120,6 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn add_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
-  fn remove_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Ok(()) })
-  }
-
   fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     FutureResult::new(async { Ok(vec![]) })
   }

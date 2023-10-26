@@ -747,7 +747,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final field = find.byWidgetPredicate(
       (widget) =>
           widget is PrimaryTextButton &&
-          widget.label == LocaleKeys.button_OK.tr(),
+          widget.label == LocaleKeys.button_ok.tr(),
     );
     await tapButton(field);
   }
@@ -1432,7 +1432,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final field = find.byWidgetPredicate(
       (widget) =>
           widget is PrimaryTextButton &&
-          widget.label == LocaleKeys.button_OK.tr(),
+          widget.label == LocaleKeys.button_ok.tr(),
     );
     await tapButton(field);
   }
@@ -1452,7 +1452,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final okButton = find.byWidgetPredicate(
       (widget) =>
           widget is PrimaryTextButton &&
-          widget.label == LocaleKeys.button_OK.tr(),
+          widget.label == LocaleKeys.button_ok.tr(),
     );
     await tapButton(okButton);
   }

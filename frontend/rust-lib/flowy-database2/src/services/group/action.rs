@@ -6,7 +6,8 @@ use flowy_error::FlowyResult;
 use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::DecodedCellData;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GroupData, GroupSettingChangeset};
+use crate::services::group::entities::GroupSetting;
+use crate::services::group::{GroupChangesets, GroupData, GroupSettingChangeset};
 
 /// Using polymorphism to provides the customs action for different group controller.
 ///
@@ -103,7 +104,12 @@ pub trait GroupControllerOperation: Send + Sync {
   /// Update the group if the corresponding field is changed
   fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
 
-  fn apply_group_setting_changeset(&mut self, changeset: GroupSettingChangeset) -> FlowyResult<()>;
+  fn apply_group_setting_changeset(&mut self, changeset: GroupChangesets) -> FlowyResult<()>;
+
+  fn apply_group_configuration_setting_changeset(
+    &mut self,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<Option<GroupSetting>>;
 }
 
 #[derive(Debug)]

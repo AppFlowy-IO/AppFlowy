@@ -42,6 +42,26 @@ run_task = { name = [
 ] }
 script_runner = "@shell"
 
+[tasks.appflowy-ios]
+dependencies = ["appflowy-core-dev-ios"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-ios",
+  "copy-to-product-mobile",
+] }
+script_runner = "@shell"
+
+[tasks.appflowy-android]
+dependencies = ["appflowy-core-dev-android"]
+run_task = { name = [
+  "code_generation",
+  "set-app-version",
+  "flutter-build-android",
+  "copy-to-product-mobile",
+] }
+script_runner = "@shell"
+
 [tasks.appflowy-dev]
 mac_alias = "appflowy-macos-dev"
 windows_alias = "appflowy-windows-dev"
@@ -95,17 +115,29 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-make-product-dev]
-run_task = { name = [
-  "set-app-version",
-  "flutter-build",
-  "copy-to-product",
-] }
-
+run_task = { name = ["set-app-version", "flutter-build", "copy-to-product"] }
 
 [tasks.copy-to-product]
 mac_alias = "copy-to-product-macos"
 windows_alias = "copy-to-product-windows"
 linux_alias = "copy-to-product-linux"
+
+[tasks.copy-to-product-mobile]
+script = [
+  """
+  product_path=${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/product/${APP_VERSION}
+  output_path=${product_path}/${TARGET_OS}/${FLUTTER_OUTPUT_DIR}
+  if [ -d "${output_path}" ]; then
+    rm -rf ${output_path}/
+  fi
+  mkdir -p ${output_path}
+
+  product=${PRODUCT_NAME}.${PRODUCT_EXT}
+  cp -R ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/appflowy_flutter/build/${TARGET_OS}/Build/Products/${FLUTTER_OUTPUT_DIR}/${product} \
+  ${output_path}/${product}
+  """,
+]
+script_runner = "@shell"
 
 [tasks.copy-to-product-macos]
 script = [
@@ -200,6 +232,7 @@ script = [
 script = ["""
   cd appflowy_flutter/
   flutter pub get
+  flutter packages pub get
   flutter build ${TARGET_OS} --${BUILD_FLAG} --verbose
   """]
 script_runner = "@shell"
@@ -221,38 +254,36 @@ script = ["""
 script_runner = "@shell"
 
 [tasks.flutter-build.windows]
-script = ["""
+script = [
+  """
   cd appflowy_flutter
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG} --build-name=${APP_VERSION}
-  """]
+  """,
+]
 script_runner = "@duckscript"
 
 [tasks.code_generation]
 script_runner = "@shell"
-script = [
-  """
+script = ["""
   cd appflowy_flutter
   flutter clean
   flutter pub get
-  flutter packages pub get 
+  flutter packages pub get
   cd ../
-  sh scripts/code_generation/generate.sh -s
-  """
-]
+  sh scripts/code_generation/generate.sh
+  """]
 
 [tasks.code_generation.windows]
 script_runner = "@duckscript"
-script = [
-  """
+script = ["""
   cd ./appflowy_flutter/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter packages pub get
   cd ../
   exec scripts/code_generation/generate.cmd
-  """,
-]
+  """]
 
 [tasks.dry_code_generation]
 script_runner = "@shell"

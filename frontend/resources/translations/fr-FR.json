@@ -12,7 +12,9 @@
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
     "addAboveMacCmd": "Option+clic",
-    "addAboveTooltip": "à ajouter au dessus"
+    "addAboveTooltip": "à ajouter au dessus",
+    "dragTooltip": "Glisser pour déplacer",
+    "openMenuTooltip": "Cliquez pour ouvrir le menu"
   },
   "signUp": {
     "buttonText": "S'inscrire",
@@ -22,31 +24,43 @@
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
     "alreadyHaveAnAccount": "Avez-vous déjà un compte ?",
-    "emailHint": "Email",
+    "emailHint": "E-mail",
     "passwordHint": "Mot de passe",
-    "repeatPasswordHint": "Ressaisir votre mot de passe"
+    "repeatPasswordHint": "Ressaisir votre mot de passe",
+    "signUpWith": "Se connecter avec:"
   },
   "signIn": {
     "loginTitle": "Connexion à @:appName",
     "loginButtonText": "Connexion",
+    "loginStartWithAnonymous": "Lancer avec une session anonyme",
+    "continueAnonymousUser": "Continuer avec une session anonyme",
     "buttonText": "Se connecter",
     "forgotPassword": "Mot de passe oublié ?",
-    "emailHint": "Email",
+    "emailHint": "E-mail",
     "passwordHint": "Mot de passe",
     "dontHaveAnAccount": "Vous n'avez pas encore créé votre compte ?",
     "repeatPasswordEmptyError": "Vous n'avez pas ressaisi votre mot de passe",
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
+    "or": "OU",
+    "LogInWithGoogle": "Se connecter avec Google",
+    "LogInWithGithub": "Se connecter avec Github",
+    "LogInWithDiscord": "Se connecter avec Discord",
+    "signInWith": "Se connecter avec:",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
     "create": "Créer un espace de travail",
     "hint": "Espace de travail",
-    "notFoundError": "Espace de travail introuvable"
+    "notFoundError": "Espace de travail introuvable",
+    "errorActions": {
+      "reportIssue": "Signaler un problème"
+    }
   },
   "shareAction": {
     "buttonText": "Partager",
     "workInProgress": "Bientôt disponible",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "Copier le lien"
   },
   "moreAction": {
@@ -68,10 +82,17 @@
     "rename": "Renommer",
     "delete": "Supprimer",
     "duplicate": "Dupliquer",
-    "openNewTab": "Ouvrir dans un nouvel onglet"
+    "unfavorite": "Retirer des favoris",
+    "favorite": "Ajouter aux favoris",
+    "openNewTab": "Ouvrir dans un nouvel onglet",
+    "addToFavorites": "Ajouter aux Favoris",
+    "copyLink": "Copier le lien"
   },
   "blankPageTitle": "Page vierge",
   "newPageText": "Nouvelle page",
+  "newDocumentText": "Nouveau document",
+  "newCalendarText": "Nouveau calendrier",
+  "newBoardText": "Nouveau tableau",
   "trash": {
     "text": "Corbeille",
     "restoreAll": "Restaurer tout",
@@ -113,6 +134,7 @@
     "defaultNewPageName": "Sans-titre",
     "renameDialog": "Renommer"
   },
+  "noPagesInside": "Aucune page à l'intérieur",
   "toolbar": {
     "undo": "Annuler",
     "redo": "Rétablir",
@@ -144,7 +166,10 @@
   },
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
-    "openSidebar": "Ouvrir le menu latéral"
+    "openSidebar": "Ouvrir le menu latéral",
+    "personal": "Personnel",
+    "favorites": "Favoris",
+    "addAPage": "Ajouter une page"
   },
   "notifications": {
     "export": {
@@ -178,7 +203,11 @@
     "delete": "Supprimer",
     "duplicate": "Dupliquer",
     "done": "Fait",
-    "putback": "Remettre"
+    "putback": "Remettre",
+    "share": "Partager",
+    "removeFromFavorites": "Retirer des favoris",
+    "addToFavorites": "Ajouter aux favoris",
+    "rename": "Renommer"
   },
   "label": {
     "welcome": "Bienvenue !",
@@ -207,10 +236,16 @@
       "language": "Langue",
       "user": "Utilisateur",
       "files": "Des dossiers",
+      "notifications": "Notifications",
       "open": "Ouvrir les paramètres",
+      "logout": "Se déconnecter",
+      "logoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "enableSync": "Activer la synchronisation",
+      "enableEncrypt": "Chiffrer les données",
       "supabaseSetting": "Paramètre Supbase"
     },
     "appearance": {
+      "resetSetting": "Réinitialiser ce paramètre",
       "fontFamily": {
         "label": "Famille de polices",
         "search": "Recherche"
@@ -219,7 +254,12 @@
         "label": "Theme Mode",
         "light": "Mode clair",
         "dark": "Mode sombre",
-        "system": "Adapt to System"
+        "system": "S'adapter au système"
+      },
+      "textDirection": {
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO"
       },
       "themeUpload": {
         "button": "Télécharger",
@@ -233,7 +273,14 @@
       },
       "theme": "Thème",
       "builtInsLabel": "Thèmes intégrés",
-      "pluginsLabel": "Plugins"
+      "pluginsLabel": "Plugins",
+      "dateFormat": {
+        "label": "Format de date"
+      },
+      "timeFormat": {
+        "twelveHour": "Douze heures",
+        "twentyFourHour": "Vingt-quatre heures"
+      }
     },
     "files": {
       "copy": "Copie",
@@ -273,13 +320,21 @@
     },
     "user": {
       "name": "Nom",
+      "email": "E-mail",
       "selectAnIcon": "Sélectionnez une icône",
       "pleaseInputYourOpenAIKey": "veuillez entrer votre clé OpenAI"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Raccourcis",
+      "command": "Commande"
     }
   },
   "grid": {
     "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
     "createView": "Nouveau",
+    "title": {
+      "placeholder": "Sans titre"
+    },
     "settings": {
       "filter": "Filtrer",
       "sort": "Trier",
@@ -383,7 +438,8 @@
       "copyProperty": "Copie de la propriété dans le presse-papiers",
       "count": "Nombre",
       "newRow": "Nouvelle ligne",
-      "action": "Action"
+      "action": "Action",
+      "drag": "Glisser pour déplacer"
     },
     "selectOption": {
       "create": "Créer",
@@ -402,7 +458,11 @@
       "searchOption": "Rechercher une option"
     },
     "checklist": {
-      "addNew": "Ajouter un élément"
+      "taskHint": "Description de la tâche",
+      "addNew": "Ajouter un élément",
+      "submitNewTask": "Créer",
+      "hideComplete": "Masquer les tâches terminées",
+      "showComplete": "Afficher toutes les tâches"
     },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue"
@@ -498,10 +558,23 @@
         "defaultColor": "Défaut"
       },
       "image": {
-        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers"
+        "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers",
+        "addAnImage": "Ajouter une image"
       },
       "outline": {
         "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières."
+      },
+      "table": {
+        "addAfter": "Ajouter après",
+        "addBefore": "Ajouter avant",
+        "delete": "Supprimer",
+        "duplicate": "Dupliquer",
+        "bgColor": "Couleur de fond"
+      },
+      "contextMenu": {
+        "copy": "Copier",
+        "cut": "Couper",
+        "paste": "Coller"
       }
     },
     "textBlock": {
@@ -520,13 +593,20 @@
         "label": "URL de l'image",
         "placeholder": "Entrez l'URL de l'image"
       },
+      "ai": {
+        "label": "Générer une image à partir d'OpenAI"
+      },
       "support": "La limite de taille d'image est de 5 Mo. Formats pris en charge : JPEG, PNG, GIF, SVG",
       "error": {
         "invalidImage": "Image invalide",
         "invalidImageSize": "La taille de l'image doit être inférieure à 5 Mo",
         "invalidImageFormat": "Le format d'image n'est pas pris en charge. Formats pris en charge : JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL d'image non valide"
-      }
+      },
+      "embedLink": {
+        "placeholder": "Collez ou saisissez un lien d'image"
+      },
+      "searchForAnImage": "Rechercher une image"
     },
     "codeBlock": {
       "language": {
@@ -536,6 +616,9 @@
     },
     "inlineLink": {
       "placeholder": "Coller ou saisir un lien",
+      "openInNewTab": "Ouvrir dans un nouvel onglet",
+      "copyLink": "Copier le lien",
+      "removeLink": "Supprimer le lien",
       "url": {
         "label": "URL du lien",
         "placeholder": "Entrez l'URL du lien"
@@ -595,5 +678,166 @@
   "views": {
     "deleteContentTitle": "Voulez-vous vraiment supprimer le {pageType} ?",
     "deleteContentCaption": "si vous supprimez ce {pageType}, vous pouvez le restaurer à partir de la corbeille."
+  },
+  "colors": {
+    "default": "Défaut",
+    "red": "Rouge",
+    "orange": "Orange",
+    "yellow": "Jaune",
+    "green": "Vert",
+    "blue": "Bleu",
+    "purple": "Violet",
+    "pink": "Rose",
+    "brown": "Marron",
+    "gray": "Gris"
+  },
+  "emoji": {
+    "noRecent": "Aucun emoji récent",
+    "noEmojiFound": "Aucun emoji trouvé",
+    "random": "Aléatoire",
+    "categories": {
+      "animals": "Animaux & Nature",
+      "food": "Nourriture & Boisson",
+      "activities": "Activités",
+      "places": "Voyages & Lieux",
+      "objects": "Objets",
+      "symbols": "Symboles",
+      "flags": "Drapeaux",
+      "nature": "Nature",
+      "frequentlyUsed": "Fréquemment utilisé"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Aucun résultat"
+  },
+  "relativeDates": {
+    "yesterday": "Hier",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "oneWeek": "1 semaine"
+  },
+  "notificationHub": {
+    "title": "Notifications",
+    "emptyTitle": "Vous êtes à jour !",
+    "tabs": {
+      "inbox": "Boîte de réception",
+      "upcoming": "A venir"
+    },
+    "actions": {
+      "showUnreads": "Non lu"
+    },
+    "filters": {
+      "ascending": "Ascendant",
+      "descending": "Descendant"
+    }
+  },
+  "reminderNotification": {
+    "tooltipDelete": "Supprimer",
+    "tooltipMarkRead": "Marquer comme lu",
+    "tooltipMarkUnread": "Marquer comme non lu"
+  },
+  "findAndReplace": {
+    "find": "Chercher",
+    "previousMatch": "Occurence précedente",
+    "nextMatch": "Prochaine occurence",
+    "close": "Fermer",
+    "replace": "Remplacer",
+    "replaceAll": "Tout remplacer",
+    "noResult": "Aucun résultat",
+    "caseSensitive": "Sensible à la casse"
+  },
+  "error": {
+    "weAreSorry": "Nous sommes désolés"
+  },
+  "editor": {
+    "bold": "Gras",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "color": "Couleur",
+    "image": "Image",
+    "italic": "Italique",
+    "link": "Lien",
+    "numberedList": "Liste numérotée",
+    "quote": "Citation",
+    "text": "Texte",
+    "underline": "Souligner",
+    "fontColorGray": "Gris",
+    "fontColorBrown": "Marron",
+    "fontColorOrange": "Orange",
+    "fontColorYellow": "Jaune",
+    "fontColorGreen": "Vert",
+    "fontColorBlue": "Bleu",
+    "fontColorPurple": "Violet",
+    "fontColorPink": "Rose",
+    "fontColorRed": "Rouge",
+    "backgroundColorDefault": "Fond par défaut",
+    "backgroundColorGray": "Fond gris",
+    "backgroundColorBrown": "Fond marron",
+    "backgroundColorOrange": "Fond orange",
+    "backgroundColorYellow": "Fond jaune",
+    "backgroundColorGreen": "Fond vert",
+    "backgroundColorBlue": "Fond bleu",
+    "backgroundColorPurple": "Fond violet",
+    "backgroundColorPink": "Fond rose",
+    "backgroundColorRed": "Fond rouge",
+    "cancel": "Annuler",
+    "tint1": "Teinte 1",
+    "tint2": "Teinte 2",
+    "tint3": "Teinte 3",
+    "tint4": "Teinte 4",
+    "tint5": "Teinte 5",
+    "tint6": "Teinte 6",
+    "tint7": "Teinte 7",
+    "tint8": "Teinte 8",
+    "tint9": "Teinte 9",
+    "lightLightTint1": "Violet",
+    "lightLightTint2": "Rose",
+    "lightLightTint3": "Rose clair",
+    "lightLightTint4": "Orange",
+    "lightLightTint5": "Jaune",
+    "lightLightTint6": "Lime",
+    "lightLightTint7": "Vert",
+    "lightLightTint9": "Bleu",
+    "urlHint": "URL",
+    "mobileHeading1": "Titre 1",
+    "mobileHeading2": "Titre 2",
+    "mobileHeading3": "Titre 3",
+    "textColor": "Couleur du texte",
+    "backgroundColor": "Couleur du fond",
+    "openLink": "Ouvrir le lien",
+    "copyLink": "Copier le lien",
+    "removeLink": "Supprimer le lien",
+    "editLink": "Modifier le lien",
+    "linkText": "Texte",
+    "linkTextHint": "Veuillez saisir du texte",
+    "linkAddressHint": "Veuillez entrer l'URL",
+    "customColor": "Couleur personnalisée",
+    "hexValue": "Valeur hexadécimale",
+    "opacity": "Opacité",
+    "resetToDefaultColor": "Réinitialiser la couleur par défaut",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Auto",
+    "cut": "Couper",
+    "copy": "Copier",
+    "paste": "Color",
+    "find": "Chercher",
+    "closeFind": "Fermer",
+    "replace": "Remplacer",
+    "replaceAll": "Tout remplacer",
+    "uploadImage": "Télécharger une image",
+    "incorrectLink": "Lien incorrect",
+    "chooseImage": "Choisissez une image",
+    "loading": "Chargement",
+    "imageLoadFailed": "Impossible de charger l'image",
+    "colAddBefore": "Ajouter avant",
+    "rowAddBefore": "Ajouter avant",
+    "colAddAfter": "Ajouter après",
+    "rowAddAfter": "Ajouter après",
+    "colRemove": "Retirer",
+    "rowRemove": "Retirer",
+    "colDuplicate": "Dupliquer",
+    "rowDuplicate": "Dupliquer"
   }
 }

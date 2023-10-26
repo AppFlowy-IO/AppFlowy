@@ -1,7 +1,8 @@
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 
 enum ReminderMetaKeys {
-  includeTime("include_time");
+  includeTime("include_time"),
+  blockId("block_id");
 
   const ReminderMetaKeys(this.name);
 

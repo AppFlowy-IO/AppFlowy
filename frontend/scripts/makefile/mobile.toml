@@ -28,10 +28,10 @@ script = [
     rustup show
     if [ "${BUILD_FLAG}" == "debug" ]; then
       echo "🚀 🚀 🚀  Building for debug"
-      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
       echo "🚀 🚀 🚀  Building for release"
-      cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --release
+      cargo lipo --release --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     fi
     cd ../
   """,
@@ -54,8 +54,13 @@ script = [
   """
     cd rust-lib/
     rustup show
-    echo "cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}""
-    cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}"
+    if [ "${BUILD_FLAG}" == "debug" ]; then
+      echo "🚀 🚀 🚀  Building for debug"
+      cargo ndk -t arm64-v8a -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    else
+      echo "🚀 🚀 🚀  Building for release"
+      cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi --release
+    fi
     cd ../
   """,
 ]

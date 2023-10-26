@@ -2,7 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Jag",
   "welcomeText": "Välkommen till @:appName",
-  "githubStarText": "Stärnmärk på GitHub",
+  "githubStarText": "Stjärnmärk på GitHub",
   "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
   "letsGoButtonText": "Kör igång",
   "title": "Namn",
@@ -11,7 +11,7 @@
   "blockActions": {
     "addBelowTooltip": "Klicka för att lägga till nedan",
     "addAboveCmd": "Alt+klicka",
-    "addAboveMacCmd": "Alternativ+klick",
+    "addAboveMacCmd": "Alternativ+klicka",
     "addAboveTooltip": "att lägga till ovan"
   },
   "signUp": {
@@ -24,7 +24,7 @@
     "alreadyHaveAnAccount": "Har du redan ett konto?",
     "emailHint": "E-post",
     "passwordHint": "Lösenord",
-    "repeatPasswordHint": "Uprepa lösenordet"
+    "repeatPasswordHint": "Upprepa lösenordet"
   },
   "signIn": {
     "loginTitle": "Logga in till @:appName",
@@ -106,10 +106,10 @@
       "success": "Kopierade felsökningsinfo till urklipp!",
       "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
     },
-    "feedback": "Respons"
+    "feedback": "Återkoppling"
   },
   "menuAppHeader": {
-    "addPageTooltip": "Lägg snabbt till en sida inuti",
+    "addPageTooltip": "Lägg till en underliggande sida",
     "defaultNewPageName": "Namnlös",
     "renameDialog": "Byt namn"
   },
@@ -216,10 +216,10 @@
         "search": "Sök"
       },
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "Temats läge",
         "light": "Ljust läge",
         "dark": "Mörkt läge",
-        "system": "Adapt to System"
+        "system": "Samma som system"
       },
       "themeUpload": {
         "button": "Ladda upp",
@@ -267,7 +267,7 @@
       "openLocationTooltips": "Öppna en annan datakatalog",
       "openCurrentDataFolder": "Öppna aktuell datakatalog",
       "recoverLocationTooltips": "Återställ till AppFlowys standarddatakatalog",
-      "exportFileSuccess": "Exportera filen framgångsrikt!",
+      "exportFileSuccess": "Exporterade filen framgångsrikt!",
       "exportFileFail": "Export av fil misslyckades!",
       "export": "Exportera"
     },
@@ -372,7 +372,7 @@
     },
     "sort": {
       "ascending": "Stigande",
-      "descending": "Nedåtgående",
+      "descending": "Fallande",
       "addSort": "Lägg till sortering",
       "deleteSort": "Ta bort sortering"
     },
@@ -419,8 +419,8 @@
         "createANewBoard": "Skapa en ny tavla"
       },
       "grid": {
-        "selectAGridToLinkTo": "Välj ett rutnät att länka till",
-        "createANewGrid": "Skapa ett nytt rutnät"
+        "selectAGridToLinkTo": "Välj en tabell att länka till",
+        "createANewGrid": "Skapa en ny tabell"
       },
       "calendar": {
         "selectACalendarToLinkTo": "Välj en kalender att länka till",
@@ -432,7 +432,7 @@
     },
     "plugins": {
       "referencedBoard": "Refererad tavla",
-      "referencedGrid": "Refererade rutnät",
+      "referencedGrid": "Refererade tabell",
       "referencedCalendar": "Refererad kalender",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Be AI skriva vad som helst...",
@@ -568,7 +568,7 @@
       "firstDayOfWeek": "Börja veckan på",
       "layoutDateField": "Layoutkalender av",
       "noDateTitle": "Inget datum",
-      "noDateHint": "Oschemalagda händelser kommer att dyka upp här",
+      "noDateHint": "Icke schemalagda händelser kommer att dyka upp här",
       "clickToAdd": "Klicka för att lägga till i kalendern",
       "name": "Kalenderlayout"
     },
@@ -576,7 +576,7 @@
   },
   "errorDialog": {
     "title": "AppFlowy-fel",
-    "howToFixFallback": "Vi ber om ursäkt för besväret! Skicka ett problem på vår GitHub-sida som beskriver ditt fel.",
+    "howToFixFallback": "Vi ber om ursäkt för besväret! Skapa en felrapport på vår GitHub-sida som beskriver ditt fel.",
     "github": "Visa på GitHub"
   },
   "search": {
