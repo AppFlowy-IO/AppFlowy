@@ -69,6 +69,7 @@ class _GridChecklistCellState extends State<GridChecklistCellEditor> {
                     : Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                         child: ChecklistProgressBar(
+                          tasks: state.tasks,
                           percent: state.percent,
                         ),
                       ),
