@@ -116,7 +116,7 @@ ThemeData getMobileThemeData(
         foregroundColor: MaterialStateProperty.all(
           mobileColorTheme.onBackground,
         ),
-        backgroundColor: MaterialStateProperty.all(Colors.white),
+        backgroundColor: MaterialStateProperty.all(mobileColorTheme.background),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
