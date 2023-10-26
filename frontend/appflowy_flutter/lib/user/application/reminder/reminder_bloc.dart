@@ -111,7 +111,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             },
           );
         },
-        pressReminder: (reminderId) {
+        pressReminder: (reminderId, path) {
           final reminder =
               state.reminders.firstWhereOrNull((r) => r.id == reminderId);
 
@@ -120,12 +120,22 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
           }
 
           add(
-            ReminderEvent.update(ReminderUpdate(id: reminderId, isRead: true)),
+            ReminderEvent.update(
+              ReminderUpdate(
+                id: reminderId,
+                isRead: state.pastReminders.contains(reminder),
+              ),
+            ),
           );
 
           actionBloc.add(
             NotificationActionEvent.performAction(
-              action: NotificationAction(objectId: reminder.objectId),
+              action: NotificationAction(
+                objectId: reminder.objectId,
+                arguments: {
+                  ActionArgumentKeys.nodePath.name: path,
+                },
+              ),
             ),
           );
         },
@@ -191,8 +201,10 @@ class ReminderEvent with _$ReminderEvent {
   // Mark all unread reminders as read
   const factory ReminderEvent.markAllRead() = _MarkAllRead;
 
-  const factory ReminderEvent.pressReminder({required String reminderId}) =
-      _PressReminder;
+  const factory ReminderEvent.pressReminder({
+    required String reminderId,
+    @Default(null) int? path,
+  }) = _PressReminder;
 }
 
 /// Object used to merge updates with
