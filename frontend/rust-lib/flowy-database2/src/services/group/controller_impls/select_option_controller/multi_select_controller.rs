@@ -12,7 +12,7 @@ use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
   move_group_row, remove_select_option_row, GeneratedGroups, GroupChangeset, GroupContext,
-  GroupsBuilder, MoveGroupRowContext, SelectOptionGroupOperationInterceptorImpl,
+  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -27,7 +27,7 @@ pub type MultiSelectGroupController = BaseGroupController<
   MultiSelectTypeOption,
   MultiSelectGroupGenerator,
   SelectOptionCellDataParser,
-  SelectOptionGroupOperationInterceptorImpl,
+  MultiSelectGroupOperationInterceptorImpl,
 >;
 
 impl GroupCustomize for MultiSelectGroupController {
@@ -79,7 +79,7 @@ impl GroupCustomize for MultiSelectGroupController {
 
   fn move_row(
     &mut self,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -91,13 +91,13 @@ impl GroupCustomize for MultiSelectGroupController {
     group_changeset
   }
 
-  fn did_update_group(&self, changeset: &GroupChangeset) -> FlowyResult<()> {
+  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
     todo!()
   }
 }
 
 impl GroupController for MultiSelectGroupController {
-  fn did_update_field_type_option(&mut self, field: &Field) {}
+  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
@@ -124,16 +124,26 @@ impl GroupsBuilder for MultiSelectGroupGenerator {
   fn build(
     field: &Field,
     _context: &Self::Context,
-    type_option: &Option<Self::GroupTypeOption>,
+    type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let group_configs = match type_option {
-      None => vec![],
-      Some(type_option) => generate_select_option_groups(&field.id, &type_option.options),
-    };
-
+    let group_configs = generate_select_option_groups(&field.id, &type_option.options);
     GeneratedGroups {
       no_status_group: Some(make_no_status_group(field)),
       group_configs,
     }
+  }
+}
+
+pub struct MultiSelectGroupOperationInterceptorImpl {}
+
+impl GroupOperationInterceptor for MultiSelectGroupOperationInterceptorImpl {
+  type GroupTypeOption = MultiSelectTypeOption;
+
+  fn did_apply_group_changeset(
+    &self,
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+  ) {
+    todo!()
   }
 }

@@ -115,7 +115,7 @@ impl GroupControllerOperation for DefaultGroupController {
 }
 
 impl GroupController for DefaultGroupController {
-  fn did_update_field_type_option(&mut self, field: &Field) {
+  fn did_update_field_type_option(&mut self, _field: &Field) {
     // Do nothing
   }
 

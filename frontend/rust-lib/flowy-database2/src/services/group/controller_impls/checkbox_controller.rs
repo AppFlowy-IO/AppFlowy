@@ -109,7 +109,7 @@ impl GroupCustomize for CheckboxGroupController {
   fn delete_row(
     &mut self,
     row: &Row,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
@@ -128,7 +128,7 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn move_row(
     &mut self,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -140,13 +140,13 @@ impl GroupCustomize for CheckboxGroupController {
     group_changeset
   }
 
-  fn did_update_group(&self, changeset: &GroupChangeset) -> FlowyResult<()> {
+  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
     Ok(())
   }
 }
 
 impl GroupController for CheckboxGroupController {
-  fn did_update_field_type_option(&mut self, field: &Field) {
+  fn did_update_field_type_option(&mut self, _field: &Field) {
     // Do nothing
   }
 
@@ -176,7 +176,7 @@ impl GroupsBuilder for CheckboxGroupGenerator {
   fn build(
     _field: &Field,
     _context: &Self::Context,
-    _type_option: &Option<Self::GroupTypeOption>,
+    _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     let check_group = GeneratedGroupConfig {
       group: Group::new(CHECK.to_string(), "".to_string()),
@@ -198,7 +198,13 @@ impl GroupsBuilder for CheckboxGroupGenerator {
 pub struct CheckboxGroupOperationInterceptorImpl {}
 
 impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
-  fn did_apply_group_changeset(&self, changeset: &GroupChangeset) {
+  type GroupTypeOption = CheckboxTypeOption;
+
+  fn did_apply_group_changeset(
+    &self,
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+  ) {
     todo!()
   }
 }

@@ -12,7 +12,7 @@ use crate::entities::{
   FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
-use crate::services::field::{TypeOption, TypeOptionCellData};
+use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };
@@ -44,8 +44,13 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
 }
 
 pub trait GroupOperationInterceptor {
+  type GroupTypeOption: TypeOption;
   /// Called after the group changeset was applied.For example, update the group name, visibility, etc.
-  fn did_apply_group_changeset(&self, changeset: &GroupChangeset);
+  fn did_apply_group_changeset(
+    &self,
+    changeset: &GroupChangeset,
+    type_option: &Self::GroupTypeOption,
+  );
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -54,7 +59,7 @@ pub trait GroupOperationInterceptor {
 /// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
 pub struct BaseGroupController<C, T, G, P, I> {
   pub grouping_field_id: String,
-  pub type_option: Option<T>,
+  pub type_option: T,
   pub context: GroupContext<C>,
   group_builder_phantom: PhantomData<G>,
   cell_parser_phantom: PhantomData<P>,
@@ -66,7 +71,7 @@ where
   C: Serialize + DeserializeOwned,
   T: TypeOption + From<TypeOptionData>,
   G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor,
+  I: GroupOperationInterceptor<GroupTypeOption = T>,
 {
   pub async fn new(
     grouping_field: &Arc<Field>,
@@ -74,7 +79,9 @@ where
     operation_interceptor: I,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
-    let type_option = grouping_field.get_type_option::<T>(field_type);
+    let type_option = grouping_field
+      .get_type_option::<T>(&field_type)
+      .unwrap_or_else(|| T::from(default_type_option_data_from_type(&field_type)));
     let generated_groups = G::build(grouping_field, &configuration, &type_option);
     let _ = configuration.init_groups(generated_groups)?;
 
@@ -166,7 +173,7 @@ where
   C: Serialize + DeserializeOwned + Sync + Send,
   T: TypeOption + From<TypeOptionData>,
   G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor,
+  I: GroupOperationInterceptor<GroupTypeOption = T>,
   Self: GroupCustomize<GroupTypeOption = T>,
 {
   fn field_id(&self) -> &str {
@@ -183,7 +190,7 @@ where
   }
 
   #[tracing::instrument(level = "trace", skip_all, fields(row_count=%rows.len(), group_result))]
-  fn fill_groups(&mut self, rows: &[&RowDetail], field: &Field) -> FlowyResult<()> {
+  fn fill_groups(&mut self, rows: &[&RowDetail], _field: &Field) -> FlowyResult<()> {
     for row_detail in rows {
       let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
         None => self.placeholder_cell(),
@@ -270,7 +277,7 @@ where
   fn did_delete_delete_row(
     &mut self,
     row: &Row,
-    field: &Field,
+    _field: &Field,
   ) -> FlowyResult<DidMoveGroupRowResult> {
     // if the cell_rev is none, then the row must in the default group.
     let mut result = DidMoveGroupRowResult {
@@ -337,7 +344,7 @@ where
 
       self
         .operation_interceptor
-        .did_apply_group_changeset(&group_changeset);
+        .did_apply_group_changeset(&group_changeset, &self.type_option);
 
       self.did_update_group(&group_changeset)?;
     }

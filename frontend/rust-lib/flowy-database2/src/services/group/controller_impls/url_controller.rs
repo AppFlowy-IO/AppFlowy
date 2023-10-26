@@ -124,7 +124,7 @@ impl GroupCustomize for URLGroupController {
   fn delete_row(
     &mut self,
     row: &Row,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
@@ -143,7 +143,7 @@ impl GroupCustomize for URLGroupController {
 
   fn move_row(
     &mut self,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -173,13 +173,13 @@ impl GroupCustomize for URLGroupController {
     deleted_group
   }
 
-  fn did_update_group(&self, changeset: &GroupChangeset) -> FlowyResult<()> {
+  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
     todo!()
   }
 }
 
 impl GroupController for URLGroupController {
-  fn did_update_field_type_option(&mut self, field: &Field) {}
+  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
@@ -206,7 +206,7 @@ impl GroupsBuilder for URLGroupGenerator {
   fn build(
     field: &Field,
     context: &Self::Context,
-    _type_option: &Option<Self::GroupTypeOption>,
+    _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     // Read all the cells for the grouping field
     let cells = futures::executor::block_on(context.get_all_cells());
@@ -239,7 +239,13 @@ fn make_group_from_url_cell(cell: &URLCellData) -> Group {
 pub struct URLGroupOperationInterceptorImpl {}
 
 impl GroupOperationInterceptor for URLGroupOperationInterceptorImpl {
-  fn did_apply_group_changeset(&self, changeset: &GroupChangeset) {
+  type GroupTypeOption = URLTypeOption;
+
+  fn did_apply_group_changeset(
+    &self,
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+  ) {
     todo!()
   }
 }

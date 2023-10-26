@@ -202,11 +202,3 @@ pub fn generate_select_option_groups(
 
   groups
 }
-
-pub struct SelectOptionGroupOperationInterceptorImpl {}
-
-impl GroupOperationInterceptor for SelectOptionGroupOperationInterceptorImpl {
-  fn did_apply_group_changeset(&self, changeset: &GroupChangeset) {
-    todo!()
-  }
-}
