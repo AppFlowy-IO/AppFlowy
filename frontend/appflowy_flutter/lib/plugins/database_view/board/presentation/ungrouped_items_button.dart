@@ -125,7 +125,7 @@ class UngroupedItemList extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: FlowyText.medium(
-          LocaleKeys.calendar_settings_clickToAdd.tr(),
+          LocaleKeys.board_ungroupedItemsTitle.tr(),
           fontSize: 10,
           color: Theme.of(context).hintColor,
           overflow: TextOverflow.ellipsis,

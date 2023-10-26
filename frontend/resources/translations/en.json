@@ -731,6 +731,7 @@
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",
+    "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },
