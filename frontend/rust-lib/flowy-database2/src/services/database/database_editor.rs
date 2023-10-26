@@ -8,6 +8,7 @@ use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetai
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use futures::StreamExt;
 use tokio::sync::{broadcast, RwLock};
+use tracing::warn;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
@@ -195,21 +196,20 @@ impl DatabaseEditor {
     group_changeset: GroupChangeset,
   ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
-    let type_option = view_editor.update_group(group_changeset.clone()).await?;
-
-    if let Some(type_option_data) = type_option {
-      let field = self.get_field(&group_changeset.field_id);
-      if field.is_some() {
-        let _ = self
-          .update_field_type_option(
-            view_id,
-            &group_changeset.field_id,
-            type_option_data,
-            field.unwrap(),
-          )
-          .await;
-      }
+    let type_option_data = view_editor.update_group(group_changeset.clone()).await?;
+    if type_option_data.is_empty() {
+      return Ok(());
     }
+
+    let field = self
+      .get_field(&group_changeset.field_id)
+      .ok_or(internal_error(
+        "Failed to get field when update group type option",
+      ))?;
+
+    self
+      .update_field_type_option(view_id, &group_changeset.field_id, type_option_data, field)
+      .await?;
 
     Ok(())
   }
@@ -328,6 +328,8 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  /// Update the field type option data.
+  /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
     &self,
     view_id: &str,
@@ -335,6 +337,11 @@ impl DatabaseEditor {
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FlowyResult<()> {
+    if type_option_data.is_empty() {
+      warn!("Empty type option data");
+      return Ok(());
+    }
+
     let field_type = FieldType::from(old_field.field_type);
     self
       .database

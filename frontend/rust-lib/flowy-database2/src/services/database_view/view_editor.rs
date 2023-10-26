@@ -498,25 +498,24 @@ impl DatabaseViewEditor {
     self.delegate.get_group_setting(&self.view_id)
   }
 
-  pub async fn update_group(
-    &self,
-    changeset: GroupChangeset,
-  ) -> FlowyResult<Option<TypeOptionData>> {
-    match changeset.name {
-      Some(group_name) => {
-        let result = self
-          .mut_group_controller(|controller, _| {
-            Ok(controller.update_group_name(&changeset.group_id, &group_name))
-          })
-          .await;
-
-        match result {
-          Some(r) => Ok(r),
-          None => Ok(None),
+  /// Updates a group based on the provided changeset.
+  ///
+  /// This function takes a `GroupChangeset` which contains information about
+  /// what should be updated for a specific group. After processing the changeset,
+  /// a `TypeOptionData` object is returned which reflects the changes made.
+  ///
+  pub async fn update_group(&self, changeset: GroupChangeset) -> FlowyResult<TypeOptionData> {
+    let mut type_option = TypeOptionData::new();
+    if let Some(group_name) = changeset.name {
+      let _ = self.mut_group_controller(|controller, _| {
+        if let Some(other) = controller.update_group_name(&changeset.group_id, &group_name) {
+          type_option.extend(other);
         }
-      },
-      None => Ok(None),
+        Ok(())
+      });
     }
+
+    Ok(type_option)
   }
 
   pub async fn v_get_all_sorts(&self) -> Vec<Sort> {
