@@ -20,6 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,6 +30,7 @@ import '../../widgets/row/cell_builder.dart';
 import '../application/board_bloc.dart';
 import '../../widgets/card/card.dart';
 import 'toolbar/board_setting_bar.dart';
+import 'ungrouped_items_button.dart';
 
 class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   @override
@@ -157,36 +159,58 @@ class _BoardContentState extends State<BoardContent> {
         widget.onEditStateChanged?.call();
       },
       child: BlocBuilder<BoardBloc, BoardState>(
-        // Only rebuild when groups are added/removed/rearranged
-        buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           return Padding(
             padding: GridSize.contentInsets,
-            child: AppFlowyBoard(
-              boardScrollController: scrollManager,
-              scrollController: ScrollController(),
-              controller: context.read<BoardBloc>().boardController,
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
-                child: BoardColumnHeader(
-                  groupData: groupData,
-                  margin: config.headerPadding,
-                ),
-              ),
-              footerBuilder: _buildFooter,
-              cardBuilder: (_, column, columnItem) => _buildCard(
-                context,
-                column,
-                columnItem,
-              ),
-              groupConstraints: const BoxConstraints.tightFor(width: 300),
-              config: AppFlowyBoardConfig(
-                groupBackgroundColor:
-                    Theme.of(context).colorScheme.surfaceVariant,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const VSpace(8.0),
+                if (state.hideUngrouped) _buildBoardHeader(context),
+                Expanded(
+                  child: AppFlowyBoard(
+                    boardScrollController: scrollManager,
+                    scrollController: ScrollController(),
+                    controller: context.read<BoardBloc>().boardController,
+                    headerBuilder: (_, groupData) =>
+                        BlocProvider<BoardBloc>.value(
+                      value: context.read<BoardBloc>(),
+                      child: BoardColumnHeader(
+                        groupData: groupData,
+                        margin: config.headerPadding,
+                      ),
+                    ),
+                    footerBuilder: _buildFooter,
+                    cardBuilder: (_, column, columnItem) => _buildCard(
+                      context,
+                      column,
+                      columnItem,
+                    ),
+                    groupConstraints: const BoxConstraints.tightFor(width: 300),
+                    config: AppFlowyBoardConfig(
+                      groupBackgroundColor:
+                          Theme.of(context).colorScheme.surfaceVariant,
+                    ),
+                  ),
+                )
+              ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBoardHeader(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 8.0),
+      child: SizedBox(
+        height: 24,
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: UngroupedItemsButton(),
+        ),
       ),
     );
   }

@@ -17,8 +17,8 @@ use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::entities::GroupData;
-use crate::services::group::{Group, GroupSettingChangeset};
+use crate::services::group::entities::{GroupData, GroupSetting};
+use crate::services::group::{Group, GroupChangesets, GroupSettingChangeset};
 
 // use collab_database::views::Group;
 
@@ -137,8 +137,6 @@ where
     })
   }
 
-  // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
-  #[allow(clippy::needless_collect)]
   fn update_no_status_group(
     &mut self,
     row_detail: &RowDetail,
@@ -382,13 +380,20 @@ where
     Ok(None)
   }
 
-  fn apply_group_setting_changeset(&mut self, changeset: GroupSettingChangeset) -> FlowyResult<()> {
+  fn apply_group_setting_changeset(&mut self, changeset: GroupChangesets) -> FlowyResult<()> {
     for group_changeset in changeset.update_groups {
       if let Err(e) = self.context.update_group(group_changeset) {
         tracing::error!("Failed to update group: {:?}", e);
       }
     }
     Ok(())
+  }
+
+  fn apply_group_configuration_setting_changeset(
+    &mut self,
+    changeset: GroupSettingChangeset,
+  ) -> FlowyResult<Option<GroupSetting>> {
+    self.context.update_configuration(changeset)
   }
 }
 

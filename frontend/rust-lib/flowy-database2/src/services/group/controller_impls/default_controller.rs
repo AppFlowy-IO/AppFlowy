@@ -10,7 +10,8 @@ use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
 use crate::services::group::{
-  GroupController, GroupData, GroupSettingChangeset, MoveGroupRowContext,
+  GroupChangesets, GroupController, GroupData, GroupSetting, GroupSettingChangeset,
+  MoveGroupRowContext,
 };
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
@@ -101,11 +102,15 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok(None)
   }
 
-  fn apply_group_setting_changeset(
+  fn apply_group_setting_changeset(&mut self, _changeset: GroupChangesets) -> FlowyResult<()> {
+    Ok(())
+  }
+
+  fn apply_group_configuration_setting_changeset(
     &mut self,
     _changeset: GroupSettingChangeset,
-  ) -> FlowyResult<()> {
-    Ok(())
+  ) -> FlowyResult<Option<GroupSetting>> {
+    Ok(None)
   }
 }
 
