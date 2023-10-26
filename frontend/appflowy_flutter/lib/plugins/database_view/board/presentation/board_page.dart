@@ -158,8 +158,9 @@ class _BoardContentState extends State<BoardContent> {
         _handleEditStateChanged(state, context);
         widget.onEditStateChanged?.call();
       },
-      child: BlocBuilder<BoardBloc, BoardState>(builder: (context, state) {
-        return Padding(
+      child: BlocBuilder<BoardBloc, BoardState>(
+        builder: (context, state) {
+          return Padding(
             padding: GridSize.contentInsets,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,38 +169,36 @@ class _BoardContentState extends State<BoardContent> {
                 const VSpace(8.0),
                 if (state.hideUngrouped) _buildBoardHeader(context),
                 Expanded(
-                  child: Padding(
-                    padding: GridSize.contentInsets,
-                    child: AppFlowyBoard(
-                      boardScrollController: scrollManager,
-                      scrollController: ScrollController(),
-                      controller: context.read<BoardBloc>().boardController,
-                      headerBuilder: (_, groupData) =>
-                          BlocProvider<BoardBloc>.value(
-                        value: context.read<BoardBloc>(),
-                        child: BoardColumnHeader(
-                          groupData: groupData,
-                          margin: config.headerPadding,
-                        ),
+                  child: AppFlowyBoard(
+                    boardScrollController: scrollManager,
+                    scrollController: ScrollController(),
+                    controller: context.read<BoardBloc>().boardController,
+                    headerBuilder: (_, groupData) =>
+                        BlocProvider<BoardBloc>.value(
+                      value: context.read<BoardBloc>(),
+                      child: BoardColumnHeader(
+                        groupData: groupData,
+                        margin: config.headerPadding,
                       ),
-                      footerBuilder: _buildFooter,
-                      cardBuilder: (_, column, columnItem) => _buildCard(
-                        context,
-                        column,
-                        columnItem,
-                      ),
-                      groupConstraints:
-                          const BoxConstraints.tightFor(width: 300),
-                      config: AppFlowyBoardConfig(
-                        groupBackgroundColor:
-                            Theme.of(context).colorScheme.surfaceVariant,
-                      ),
+                    ),
+                    footerBuilder: _buildFooter,
+                    cardBuilder: (_, column, columnItem) => _buildCard(
+                      context,
+                      column,
+                      columnItem,
+                    ),
+                    groupConstraints: const BoxConstraints.tightFor(width: 300),
+                    config: AppFlowyBoardConfig(
+                      groupBackgroundColor:
+                          Theme.of(context).colorScheme.surfaceVariant,
                     ),
                   ),
                 )
               ],
-            ));
-      }),
+            ),
+          );
+        },
+      ),
     );
   }
 

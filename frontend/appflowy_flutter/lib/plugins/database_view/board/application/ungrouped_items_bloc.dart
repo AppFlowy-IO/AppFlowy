@@ -53,7 +53,7 @@ class UngroupedItemsState with _$UngroupedItemsState {
 }
 
 class UngroupedItemsListener {
-  final List<RowMetaPB> _ungroupedItems;
+  List<RowMetaPB> _ungroupedItems;
   final SingleGroupListener _listener;
   final void Function(List<RowMetaPB> items) onGroupChanged;
 
@@ -74,6 +74,12 @@ class UngroupedItemsListener {
             }
 
             for (final insertedRow in changeset.insertedRows) {
+              final index = newItems.indexWhere(
+                (rowPB) => rowPB.id == insertedRow.rowMeta.id,
+              );
+              if (index != -1) {
+                continue;
+              }
               if (insertedRow.hasIndex() &&
                   newItems.length > insertedRow.index) {
                 newItems.insert(insertedRow.index, insertedRow.rowMeta);
@@ -92,6 +98,7 @@ class UngroupedItemsListener {
               }
             }
             onGroupChanged.call(newItems);
+            _ungroupedItems = newItems;
           },
           (err) => Log.error(err),
         );
