@@ -20,7 +20,7 @@ class MobileHomeTrashPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
       child: BlocBuilder<TrashBloc, TrashState>(
-        builder: (_, state) {
+        builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
               title: Text(LocaleKeys.trash_text.tr()),

@@ -385,7 +385,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
         showFlowyMobileBottomSheet(
           context,
           title: title,
-          builder: (context) {
+          builder: (_) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,
               onAction: (layout) {
