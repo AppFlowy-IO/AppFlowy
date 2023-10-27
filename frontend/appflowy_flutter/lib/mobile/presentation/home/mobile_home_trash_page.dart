@@ -19,56 +19,53 @@ class MobileHomeTrashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),
-      child: Builder(
-        builder: (context) {
+      child: BlocBuilder<TrashBloc, TrashState>(
+        builder: (_, state) {
           return Scaffold(
             appBar: AppBar(
               title: Text(LocaleKeys.trash_text.tr()),
               actions: [
-                IconButton(
-                  splashRadius: 20,
-                  icon: const Icon(Icons.more_horiz),
-                  onPressed: () {
-                    final trashBloc = context.read<TrashBloc>();
-                    showFlowyMobileBottomSheet(
-                      context,
-                      title: LocaleKeys.trash_mobile_actions.tr(),
-                      builder: (_) => Row(
-                        children: [
-                          Expanded(
-                            child: _TrashActionAllButton(
-                              trashBloc: trashBloc,
-                              type: _TrashActionType.deleteAll,
+                state.objects.isEmpty
+                    ? const SizedBox.shrink()
+                    : IconButton(
+                        splashRadius: 20,
+                        icon: const Icon(Icons.more_horiz),
+                        onPressed: () {
+                          final trashBloc = context.read<TrashBloc>();
+                          showFlowyMobileBottomSheet(
+                            context,
+                            title: LocaleKeys.trash_mobile_actions.tr(),
+                            builder: (_) => Row(
+                              children: [
+                                Expanded(
+                                  child: _TrashActionAllButton(
+                                    trashBloc: trashBloc,
+                                    type: _TrashActionType.deleteAll,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 16,
+                                ),
+                                Expanded(
+                                  child: _TrashActionAllButton(
+                                    trashBloc: trashBloc,
+                                    type: _TrashActionType.restoreAll,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                          const SizedBox(
-                            width: 16,
-                          ),
-                          Expanded(
-                            child: _TrashActionAllButton(
-                              trashBloc: trashBloc,
-                              type: _TrashActionType.restoreAll,
-                            ),
-                          )
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ],
             ),
-            body: BlocBuilder<TrashBloc, TrashState>(
-              builder: (_, state) {
-                if (state.objects.isEmpty) {
-                  return FlowyMobileStateContainer.info(
+            body: state.objects.isEmpty
+                ? FlowyMobileStateContainer.info(
                     emoji: '🗑️',
                     title: LocaleKeys.trash_mobile_empty.tr(),
                     description: LocaleKeys.trash_mobile_emptyDescription.tr(),
-                  );
-                }
-                return _DeletedFilesListView(state);
-              },
-            ),
+                  )
+                : _DeletedFilesListView(state),
           );
         },
       ),
