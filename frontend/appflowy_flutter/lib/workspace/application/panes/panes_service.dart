@@ -28,6 +28,7 @@ class PanesService {
       );
 
       final oldChildNode = node.copyWith(
+        paneId: nanoid(),
         parent: newHolderNode,
         axis: null,
         children: const [],

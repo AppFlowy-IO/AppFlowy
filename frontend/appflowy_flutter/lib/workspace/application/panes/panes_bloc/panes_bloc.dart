@@ -115,23 +115,23 @@ class PanesBloc extends Bloc<PanesEvent, PanesState> {
                 ? Axis.vertical
                 : Axis.horizontal;
 
-            final root = panesService.splitHandler(
-              node: state.root,
-              targetPaneId: e.to.paneId,
+            final root = panesService.movePaneHandler(
+              root: state.root,
+              toNode: e.to,
               direction: direction,
               axis: axis,
               fromNode: e.from,
             );
+
             final firstLeafNode = panesService.findFirstLeaf(node: root);
 
             emit(
               state.copyWith(
                 root: root,
                 firstLeafNode: firstLeafNode,
-                count: state.count + 1,
+                count: state.count,
               ),
             );
-            add(ClosePane(paneId: e.from.paneId, closingToMove: true));
           },
         );
       },
