@@ -14,6 +14,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     this.onLeave,
     this.enableAutoScroll = true,
     this.hitTestSize = const Size(100, 100),
+    this.onDragging,
   });
 
   final T data;
@@ -32,6 +33,8 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   /// If true, the draggable item must be wrapped inside a [Scrollable] widget.
   final bool enableAutoScroll;
   final Size hitTestSize;
+
+  final void Function(bool isDragging)? onDragging;
 
   @override
   State<DraggableItem<T>> createState() => _DraggableItemState<T>();
@@ -68,14 +71,17 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
             dragTarget = details.globalPosition & widget.hitTestSize;
             autoScroller?.startAutoScrollIfNecessary(dragTarget!);
           }
+          widget.onDragging?.call(true);
         },
         onDragEnd: (details) {
           autoScroller?.stopAutoScroll();
           dragTarget = null;
+          widget.onDragging?.call(false);
         },
         onDraggableCanceled: (_, __) {
           autoScroller?.stopAutoScroll();
           dragTarget = null;
+          widget.onDragging?.call(false);
         },
       ),
     );

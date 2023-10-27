@@ -25,6 +25,7 @@ class DraggableViewItem extends StatefulWidget {
     this.centerHighlightColor,
     this.topHighlightColor,
     this.bottomHighlightColor,
+    this.onDragging,
   });
 
   final Widget child;
@@ -34,6 +35,7 @@ class DraggableViewItem extends StatefulWidget {
   final Color? centerHighlightColor;
   final Color? topHighlightColor;
   final Color? bottomHighlightColor;
+  final void Function(bool isDragging)? onDragging;
 
   @override
   State<DraggableViewItem> createState() => _DraggableViewItemState();
@@ -55,6 +57,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
 
     return DraggableItem<ViewPB>(
       data: widget.view,
+      onDragging: widget.onDragging,
       onWillAccept: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
@@ -105,10 +108,13 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 : Colors.transparent,
           ),
         Container(
-          color: position == DraggableHoverPosition.center
-              ? widget.centerHighlightColor ??
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.5)
-              : Colors.transparent,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6.0),
+            color: position == DraggableHoverPosition.center
+                ? widget.centerHighlightColor ??
+                    Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                : Colors.transparent,
+          ),
           child: widget.child,
         ),
         Divider(
@@ -219,7 +225,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   DraggableHoverPosition _computeHoverPosition(Offset offset, Size size) {
-    final threshold = size.height / 3.0;
+    final threshold = size.height / 5.0;
     if (widget.isFirstChild && offset.dy < -5.0) {
       return DraggableHoverPosition.top;
     }
