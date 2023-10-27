@@ -152,74 +152,76 @@ class _DeletedFilesListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        final object = state.objects[index];
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: ListTile(
-            // TODO(Yijing): implement file type after TrashPB has file type
-            leading: FlowySvg(
-              FlowySvgs.documents_s,
-              size: const Size.square(24),
-              color: theme.colorScheme.onSurface,
-            ),
-            title: Text(
-              object.name,
-              style: theme.textTheme.labelMedium
-                  ?.copyWith(color: theme.colorScheme.onBackground),
-            ),
-            horizontalTitleGap: 0,
-            // TODO(yiing): needs improve by container/surface theme color
-            tileColor: theme.colorScheme.onSurface.withOpacity(0.1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // TODO(yijing): extract icon button
-                IconButton(
-                  splashRadius: 20,
-                  icon: FlowySvg(
-                    FlowySvgs.m_restore_m,
-                    size: const Size.square(24),
-                    color: theme.colorScheme.onSurface,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.builder(
+        itemBuilder: (context, index) {
+          final object = state.objects[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: ListTile(
+              // TODO(Yijing): implement file type after TrashPB has file type
+              leading: FlowySvg(
+                FlowySvgs.documents_s,
+                size: const Size.square(24),
+                color: theme.colorScheme.onSurface,
+              ),
+              title: Text(
+                object.name,
+                style: theme.textTheme.labelMedium
+                    ?.copyWith(color: theme.colorScheme.onBackground),
+              ),
+              horizontalTitleGap: 0,
+              // TODO(yiing): needs improve by container/surface theme color
+              tileColor: theme.colorScheme.onSurface.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // TODO(yijing): extract icon button
+                  IconButton(
+                    splashRadius: 20,
+                    icon: FlowySvg(
+                      FlowySvgs.m_restore_m,
+                      size: const Size.square(24),
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      context
+                          .read<TrashBloc>()
+                          .add(TrashEvent.putback(object.id));
+                      Fluttertoast.showToast(
+                        msg:
+                            '${object.name} ${LocaleKeys.trash_mobile_isRestored.tr()}',
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    context
-                        .read<TrashBloc>()
-                        .add(TrashEvent.putback(object.id));
-                    Fluttertoast.showToast(
-                      msg:
-                          '${object.name} ${LocaleKeys.trash_mobile_isRestored.tr()}',
-                      gravity: ToastGravity.BOTTOM,
-                    );
-                  },
-                ),
-                IconButton(
-                  splashRadius: 20,
-                  icon: FlowySvg(
-                    FlowySvgs.m_delete_m,
-                    size: const Size.square(24),
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  onPressed: () {
-                    context.read<TrashBloc>().add(TrashEvent.delete(object));
-                    Fluttertoast.showToast(
-                      msg:
-                          '${object.name} ${LocaleKeys.trash_mobile_isDeleted.tr()}',
-                      gravity: ToastGravity.BOTTOM,
-                    );
-                  },
-                )
-              ],
+                  IconButton(
+                    splashRadius: 20,
+                    icon: FlowySvg(
+                      FlowySvgs.m_delete_m,
+                      size: const Size.square(24),
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      context.read<TrashBloc>().add(TrashEvent.delete(object));
+                      Fluttertoast.showToast(
+                        msg:
+                            '${object.name} ${LocaleKeys.trash_mobile_isDeleted.tr()}',
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    },
+                  )
+                ],
+              ),
             ),
-          ),
-        );
-      },
-      itemCount: state.objects.length,
+          );
+        },
+        itemCount: state.objects.length,
+      ),
     );
   }
 }
