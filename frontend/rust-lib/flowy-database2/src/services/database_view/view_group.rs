@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
+use collab_database::rows::{Cell, RowId};
 
 use flowy_error::FlowyResult;
 use lib_infra::future::{to_fut, Fut};
@@ -11,7 +12,7 @@ use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
-  GroupSettingReader, GroupSettingWriter,
+  GroupSettingReader, GroupSettingWriter, GroupTypeOptionCellOperation,
 };
 
 pub async fn new_group_controller_with_field(
@@ -22,12 +23,14 @@ pub async fn new_group_controller_with_field(
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
   let rows = delegate.get_rows(&view_id).await;
   let setting_writer = GroupSettingWriterImpl(delegate.clone());
+  let type_option_writer = GroupTypeOptionCellWriterImpl(delegate.clone());
   make_group_controller(
     view_id,
     grouping_field,
     rows,
     setting_reader,
     setting_writer,
+    type_option_writer,
   )
   .await
 }
@@ -59,6 +62,7 @@ pub async fn new_group_controller(
   if let Some(grouping_field) = grouping_field {
     let rows = delegate.get_rows(&view_id).await;
     let setting_writer = GroupSettingWriterImpl(delegate.clone());
+    let type_option_writer = GroupTypeOptionCellWriterImpl(delegate.clone());
     Ok(Some(
       make_group_controller(
         view_id,
@@ -66,6 +70,7 @@ pub async fn new_group_controller(
         rows,
         setting_reader,
         setting_writer,
+        type_option_writer,
       )
       .await?,
     ))
@@ -150,10 +155,29 @@ pub(crate) async fn get_cells_for_field(
 }
 
 struct GroupSettingWriterImpl(Arc<dyn DatabaseViewOperation>);
-
 impl GroupSettingWriter for GroupSettingWriterImpl {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
     self.0.insert_group_setting(view_id, group_setting);
     to_fut(async move { Ok(()) })
+  }
+}
+
+struct GroupTypeOptionCellWriterImpl(Arc<dyn DatabaseViewOperation>);
+
+#[async_trait]
+impl GroupTypeOptionCellOperation for GroupTypeOptionCellWriterImpl {
+  async fn get_cell(&self, _row_id: &RowId, _field_id: &str) -> FlowyResult<Option<Cell>> {
+    todo!()
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  async fn update_cell(
+    &self,
+    _view_id: &str,
+    _row_id: &RowId,
+    _field_id: &str,
+    _cell: Cell,
+  ) -> FlowyResult<()> {
+    todo!()
   }
 }

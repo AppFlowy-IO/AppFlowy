@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail};
 
 use flowy_error::FlowyResult;
@@ -40,6 +41,7 @@ impl DefaultGroupController {
   }
 }
 
+#[async_trait]
 impl GroupControllerOperation for DefaultGroupController {
   fn field_id(&self) -> &str {
     &self.field_id
@@ -102,8 +104,11 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok(None)
   }
 
-  fn apply_group_changeset(&mut self, _changeset: GroupChangesets) -> FlowyResult<()> {
-    Ok(())
+  async fn apply_group_changeset(
+    &mut self,
+    _changeset: &GroupChangesets,
+  ) -> FlowyResult<TypeOptionData> {
+    Ok(TypeOptionData::default())
   }
 
   fn apply_group_configuration_setting_changeset(

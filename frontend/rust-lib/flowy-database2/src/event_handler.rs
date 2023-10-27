@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -725,10 +726,15 @@ pub(crate) async fn update_group_handler(
   let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
   let group_changeset = GroupChangeset::from(params);
-  database_editor
-    .update_group(&view_id, vec![group_changeset].into())
-    .await?;
+  let (tx, rx) = oneshot::channel();
+  tokio::spawn(async move {
+    let result = database_editor
+      .update_group(&view_id, vec![group_changeset].into())
+      .await;
+    let _ = tx.send(result);
+  });
 
+  let _ = rx.await?;
   Ok(())
 }
 

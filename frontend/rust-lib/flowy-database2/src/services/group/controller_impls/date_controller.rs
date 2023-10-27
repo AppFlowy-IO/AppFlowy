@@ -1,12 +1,13 @@
 use std::format;
 use std::str::FromStr;
 
+use async_trait::async_trait;
 use chrono::{
   DateTime, Datelike, Days, Duration, Local, NaiveDate, NaiveDateTime, Offset, TimeZone,
 };
 use chrono_tz::Tz;
 use collab_database::database::timestamp;
-use collab_database::fields::Field;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -60,7 +61,7 @@ pub enum DateCondition {
 pub type DateGroupController = BaseGroupController<
   DateGroupConfiguration,
   DateTypeOption,
-  DateGroupGenerator,
+  DateGroupBuilder,
   DateCellDataParser,
   DateGroupOperationInterceptorImpl,
 >;
@@ -231,10 +232,6 @@ impl GroupCustomize for DateGroupController {
     }
     deleted_group
   }
-
-  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
-    Ok(())
-  }
 }
 
 impl GroupController for DateGroupController {
@@ -258,18 +255,19 @@ impl GroupController for DateGroupController {
   }
 }
 
-pub struct DateGroupGenerator();
-impl GroupsBuilder for DateGroupGenerator {
+pub struct DateGroupBuilder();
+#[async_trait]
+impl GroupsBuilder for DateGroupBuilder {
   type Context = DateGroupContext;
   type GroupTypeOption = DateTypeOption;
 
-  fn build(
+  async fn build(
     field: &Field,
     context: &Self::Context,
     type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     // Read all the cells for the grouping field
-    let cells = futures::executor::block_on(context.get_all_cells());
+    let cells = context.get_all_cells().await;
 
     // Generate the groups
     let mut group_configs: Vec<GeneratedGroupConfig> = cells
@@ -447,14 +445,15 @@ fn date_time_from_timestamp(timestamp: Option<i64>, timezone_id: &str) -> DateTi
 
 pub struct DateGroupOperationInterceptorImpl {}
 
+#[async_trait]
 impl GroupOperationInterceptor for DateGroupOperationInterceptorImpl {
   type GroupTypeOption = DateTypeOption;
-
-  fn did_apply_group_changeset(
+  async fn type_option_from_group_changeset(
     &self,
     _changeset: &GroupChangeset,
     _type_option: &Self::GroupTypeOption,
-  ) {
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
     todo!()
   }
 }

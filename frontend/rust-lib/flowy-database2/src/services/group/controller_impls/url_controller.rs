@@ -1,4 +1,7 @@
-use collab_database::fields::Field;
+use std::sync::Arc;
+
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +17,8 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupChangeset, GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  GroupChangeset, GroupOperationInterceptor, GroupTypeOptionCellOperation, GroupsBuilder,
+  MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -172,10 +176,6 @@ impl GroupCustomize for URLGroupController {
     }
     deleted_group
   }
-
-  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
-    todo!()
-  }
 }
 
 impl GroupController for URLGroupController {
@@ -199,17 +199,18 @@ impl GroupController for URLGroupController {
 }
 
 pub struct URLGroupGenerator();
+#[async_trait]
 impl GroupsBuilder for URLGroupGenerator {
   type Context = URLGroupContext;
   type GroupTypeOption = URLTypeOption;
 
-  fn build(
+  async fn build(
     field: &Field,
     context: &Self::Context,
     _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     // Read all the cells for the grouping field
-    let cells = futures::executor::block_on(context.get_all_cells());
+    let cells = context.get_all_cells().await;
 
     // Generate the groups
     let group_configs = cells
@@ -236,16 +237,20 @@ fn make_group_from_url_cell(cell: &URLCellData) -> Group {
   Group::new(group_id, group_name)
 }
 
-pub struct URLGroupOperationInterceptorImpl {}
+pub struct URLGroupOperationInterceptorImpl {
+  #[allow(dead_code)]
+  pub(crate) cell_writer: Arc<dyn GroupTypeOptionCellOperation>,
+}
 
+#[async_trait::async_trait]
 impl GroupOperationInterceptor for URLGroupOperationInterceptorImpl {
   type GroupTypeOption = URLTypeOption;
-
-  fn did_apply_group_changeset(
+  async fn type_option_from_group_changeset(
     &self,
     _changeset: &GroupChangeset,
     _type_option: &Self::GroupTypeOption,
-  ) {
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
     todo!()
   }
 }
