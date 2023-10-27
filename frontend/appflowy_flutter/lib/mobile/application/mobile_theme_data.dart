@@ -129,7 +129,7 @@ ThemeData getMobileThemeData(
           ),
         ),
         padding: MaterialStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: 16),
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         ),
         // splash color
         overlayColor: MaterialStateProperty.all(

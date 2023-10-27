@@ -1,4 +1,3 @@
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_drag_handler.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_rename_widget.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_body.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_header.dart';
@@ -19,12 +18,6 @@ Future<void> showMobileBottomSheet({
     isScrollControlled: true,
     enableDrag: true,
     useSafeArea: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(8.0),
-        topRight: Radius.circular(8.0),
-      ),
-    ),
     builder: builder,
   );
 }
@@ -61,21 +54,18 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // drag handler
-        const MobileBottomSheetDragHandler(),
-
-        // header
-        _buildHeader(),
-        const VSpace(8.0),
-        const Divider(),
-
-        // body
-        _buildBody(),
-        const VSpace(24.0),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // header
+          _buildHeader(),
+          const VSpace(16),
+          // body
+          _buildBody(),
+        ],
+      ),
     );
   }
 

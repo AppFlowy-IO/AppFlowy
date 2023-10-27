@@ -1,8 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_drag_handler.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_header.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -21,46 +19,9 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        // drag handler
-        const MobileBottomSheetDragHandler(),
-
-        // header
-        MobileViewItemBottomSheetHeader(
-          showBackButton: false,
-          view: view,
-          onBack: () {},
-        ),
-        const VSpace(8.0),
-        const Divider(),
-
-        // body
-        _AddNewPageBody(
-          onAction: onAction,
-        ),
-        const VSpace(24.0),
-      ],
-    );
-  }
-}
-
-class _AddNewPageBody extends StatelessWidget {
-  const _AddNewPageBody({
-    required this.onAction,
-  });
-
-  final void Function(ViewLayoutPB layout) onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // rename, duplicate
+        // new document, new grid
         Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -69,6 +30,7 @@ class _AddNewPageBody extends StatelessWidget {
                 onTap: () => onAction(ViewLayoutPB.Document),
               ),
             ),
+            const HSpace(8),
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.grid_s,
@@ -78,10 +40,10 @@ class _AddNewPageBody extends StatelessWidget {
             ),
           ],
         ),
+        const VSpace(8),
 
-        // share, delete
+        // new board, new calendar
         Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -90,6 +52,7 @@ class _AddNewPageBody extends StatelessWidget {
                 onTap: () => onAction(ViewLayoutPB.Board),
               ),
             ),
+            const HSpace(8),
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.date_s,
