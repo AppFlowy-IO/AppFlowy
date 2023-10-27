@@ -39,7 +39,7 @@ void main() {
     );
     await boardResponseFuture();
 
-    //assert only have the 'No status' group
+    // assert only have the 'No status' group
     final boardBloc = BoardBloc(
       view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
@@ -107,8 +107,8 @@ void main() {
 
     final groups =
         boardBloc.groupControllers.values.map((e) => e.group).toList();
-    assert(groups[0].groupName == "No ${multiSelectField.name}");
-    assert(groups[1].groupName == "B");
-    assert(groups[2].groupName == "A");
+    assert(groups[0].groupName == "B");
+    assert(groups[1].groupName == "A");
+    assert(groups[2].groupName == "No ${multiSelectField.name}");
   });
 }
