@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/box_container.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BottomSheetActionWidget extends StatelessWidget {
   const BottomSheetActionWidget({
@@ -19,7 +20,10 @@ class BottomSheetActionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyBoxContainer(
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          onTap();
+        },
         enableFeedback: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(
