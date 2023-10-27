@@ -24,7 +24,6 @@ class MobileHomeTrashPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text(LocaleKeys.trash_text.tr()),
-              elevation: 0,
               actions: [
                 IconButton(
                   splashRadius: 20,

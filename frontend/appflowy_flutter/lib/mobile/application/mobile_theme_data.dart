@@ -64,7 +64,6 @@ ThemeData getMobileThemeData(
     appBarTheme: AppBarTheme(
       foregroundColor: mobileColorTheme.onBackground,
       backgroundColor: mobileColorTheme.background,
-      elevation: 80,
       centerTitle: false,
       titleTextStyle: TextStyle(
         color: mobileColorTheme.onBackground,
