@@ -82,15 +82,11 @@ class MobileFavoritePage extends StatelessWidget {
 
         // Folder
         Expanded(
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: MobileFavoritePageFolder(
-                  userProfile: userProfile,
-                  workspaceSetting: workspaceSetting,
-                ),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MobileFavoritePageFolder(
+              userProfile: userProfile,
+              workspaceSetting: workspaceSetting,
             ),
           ),
         ),
