@@ -20,8 +20,6 @@ pub enum DatabaseNotification {
   DidUpdateCell = 40,
   /// Trigger after editing a field properties including rename,update type option, etc
   DidUpdateField = 50,
-  /// Trigger after the group configuration is changed
-  DidUpdateGroupConfiguration = 59,
   /// Trigger after the number of groups is changed
   DidUpdateNumOfGroups = 60,
   /// Trigger after inserting/deleting/updating/moving a row
@@ -69,7 +67,6 @@ impl std::convert::From<i32> for DatabaseNotification {
       22 => DatabaseNotification::DidUpdateFields,
       40 => DatabaseNotification::DidUpdateCell,
       50 => DatabaseNotification::DidUpdateField,
-      59 => DatabaseNotification::DidUpdateGroupConfiguration,
       60 => DatabaseNotification::DidUpdateNumOfGroups,
       61 => DatabaseNotification::DidUpdateGroupRow,
       62 => DatabaseNotification::DidGroupByField,

@@ -17,8 +17,8 @@ use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
 };
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::entities::{GroupData, GroupSetting};
-use crate::services::group::{Group, GroupChangesets, GroupSettingChangeset};
+use crate::services::group::entities::GroupData;
+use crate::services::group::{Group, GroupChangesets};
 
 // use collab_database::views::Group;
 
@@ -387,13 +387,6 @@ where
       }
     }
     Ok(())
-  }
-
-  fn apply_group_configuration_setting_changeset(
-    &mut self,
-    changeset: GroupSettingChangeset,
-  ) -> FlowyResult<Option<GroupSetting>> {
-    self.context.update_configuration(changeset)
   }
 }
 

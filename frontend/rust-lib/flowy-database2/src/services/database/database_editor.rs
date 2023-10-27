@@ -32,8 +32,7 @@ use crate::services::field_settings::{
 };
 use crate::services::filter::Filter;
 use crate::services::group::{
-  default_group_setting, GroupChangeset, GroupChangesets, GroupSetting, GroupSettingChangeset,
-  RowChangeset,
+  default_group_setting, GroupChangeset, GroupChangesets, GroupSetting, RowChangeset,
 };
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -905,40 +904,6 @@ impl DatabaseEditor {
     self
       .update_cell_with_changeset(view_id, row_id, field_id, changeset)
       .await?;
-    Ok(())
-  }
-
-  pub async fn get_group_configuration_settings(
-    &self,
-    view_id: &str,
-  ) -> FlowyResult<Vec<GroupSettingPB>> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-
-    let group_settings = view
-      .v_get_group_configuration_settings()
-      .await
-      .into_iter()
-      .map(|value| GroupSettingPB::from(&value))
-      .collect::<Vec<GroupSettingPB>>();
-
-    Ok(group_settings)
-  }
-
-  pub async fn update_group_configuration_setting(
-    &self,
-    view_id: &str,
-    changeset: GroupSettingChangeset,
-  ) -> FlowyResult<()> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-    let group_configuration = view.v_update_group_configuration_setting(changeset).await?;
-
-    if let Some(configuration) = group_configuration {
-      let payload: RepeatedGroupSettingPB = vec![configuration].into();
-      send_notification(view_id, DatabaseNotification::DidUpdateGroupConfiguration)
-        .payload(payload)
-        .send();
-    }
-
     Ok(())
   }
 
