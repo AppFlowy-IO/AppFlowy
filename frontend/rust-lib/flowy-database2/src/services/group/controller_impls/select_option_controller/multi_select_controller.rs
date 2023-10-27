@@ -1,12 +1,14 @@
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
-use flowy_error::FlowyResult;
-
 use crate::entities::{FieldType, GroupRowsNotificationPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser, TypeOption};
+use crate::services::field::{
+  MultiSelectTypeOption, SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction,
+  TypeOption,
+};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
@@ -25,7 +27,7 @@ pub type MultiSelectOptionGroupContext = GroupContext<MultiSelectGroupConfigurat
 pub type MultiSelectGroupController = BaseGroupController<
   MultiSelectGroupConfiguration,
   MultiSelectTypeOption,
-  MultiSelectGroupGenerator,
+  MultiSelectGroupBuilder,
   SelectOptionCellDataParser,
   MultiSelectGroupOperationInterceptorImpl,
 >;
@@ -90,10 +92,6 @@ impl GroupCustomize for MultiSelectGroupController {
     });
     group_changeset
   }
-
-  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
-    todo!()
-  }
 }
 
 impl GroupController for MultiSelectGroupController {
@@ -116,12 +114,13 @@ impl GroupController for MultiSelectGroupController {
   }
 }
 
-pub struct MultiSelectGroupGenerator;
-impl GroupsBuilder for MultiSelectGroupGenerator {
+pub struct MultiSelectGroupBuilder;
+#[async_trait]
+impl GroupsBuilder for MultiSelectGroupBuilder {
   type Context = MultiSelectOptionGroupContext;
   type GroupTypeOption = MultiSelectTypeOption;
 
-  fn build(
+  async fn build(
     field: &Field,
     _context: &Self::Context,
     type_option: &Self::GroupTypeOption,
@@ -134,16 +133,33 @@ impl GroupsBuilder for MultiSelectGroupGenerator {
   }
 }
 
-pub struct MultiSelectGroupOperationInterceptorImpl {}
+pub struct MultiSelectGroupOperationInterceptorImpl;
 
+#[async_trait]
 impl GroupOperationInterceptor for MultiSelectGroupOperationInterceptorImpl {
   type GroupTypeOption = MultiSelectTypeOption;
 
-  fn did_apply_group_changeset(
+  #[tracing::instrument(level = "trace", skip_all)]
+  async fn type_option_from_group_changeset(
     &self,
-    _changeset: &GroupChangeset,
-    _type_option: &Self::GroupTypeOption,
-  ) {
-    todo!()
+    changeset: &GroupChangeset,
+    type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    let mut new_type_option = type_option.clone();
+    if let Some(name) = &changeset.name {
+      let select_option = type_option
+        .options
+        .iter()
+        .find(|option| option.id == changeset.group_id)
+        .unwrap();
+
+      let new_select_option = SelectOption {
+        name: name.to_owned(),
+        ..select_option.to_owned()
+      };
+      new_type_option.insert_option(new_select_option);
+    }
+    Some(new_type_option.into())
   }
 }

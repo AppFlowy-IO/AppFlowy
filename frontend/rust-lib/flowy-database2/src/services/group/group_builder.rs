@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, RowDetail, RowId};
 use collab_database::views::DatabaseLayout;
@@ -13,18 +14,20 @@ use crate::services::group::{
   CheckboxGroupContext, CheckboxGroupController, CheckboxGroupOperationInterceptorImpl,
   DateGroupContext, DateGroupController, DateGroupOperationInterceptorImpl, DefaultGroupController,
   Group, GroupController, GroupSetting, GroupSettingReader, GroupSettingWriter,
-  MultiSelectGroupController, MultiSelectGroupOperationInterceptorImpl,
-  MultiSelectOptionGroupContext, SingleSelectGroupController,
-  SingleSelectGroupOperationInterceptorImpl, SingleSelectOptionGroupContext, URLGroupContext,
-  URLGroupController, URLGroupOperationInterceptorImpl,
+  GroupTypeOptionCellOperation, MultiSelectGroupController,
+  MultiSelectGroupOperationInterceptorImpl, MultiSelectOptionGroupContext,
+  SingleSelectGroupController, SingleSelectGroupOperationInterceptorImpl,
+  SingleSelectOptionGroupContext, URLGroupContext, URLGroupController,
+  URLGroupOperationInterceptorImpl,
 };
 
 /// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
-pub trait GroupsBuilder {
+#[async_trait]
+pub trait GroupsBuilder: Send + Sync + 'static {
   type Context;
   type GroupTypeOption: TypeOption;
 
-  fn build(
+  async fn build(
     field: &Field,
     context: &Self::Context,
     type_option: &Self::GroupTypeOption,
@@ -91,16 +94,18 @@ impl RowChangeset {
   fields(grouping_field_id=%grouping_field.id, grouping_field_type)
   err
 )]
-pub async fn make_group_controller<R, W>(
+pub async fn make_group_controller<R, W, TW>(
   view_id: String,
   grouping_field: Arc<Field>,
   row_details: Vec<Arc<RowDetail>>,
   setting_reader: R,
   setting_writer: W,
+  type_option_cell_writer: TW,
 ) -> FlowyResult<Box<dyn GroupController>>
 where
   R: GroupSettingReader,
   W: GroupSettingWriter,
+  TW: GroupTypeOptionCellOperation,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
   tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
@@ -108,6 +113,7 @@ where
   let mut group_controller: Box<dyn GroupController>;
   let configuration_reader = Arc::new(setting_reader);
   let configuration_writer = Arc::new(setting_writer);
+  let type_option_cell_writer = Arc::new(type_option_cell_writer);
 
   match grouping_field_type {
     FieldType::SingleSelect => {
@@ -118,7 +124,7 @@ where
         configuration_writer,
       )
       .await?;
-      let operation_interceptor = SingleSelectGroupOperationInterceptorImpl {};
+      let operation_interceptor = SingleSelectGroupOperationInterceptorImpl;
       let controller =
         SingleSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
           .await?;
@@ -132,7 +138,7 @@ where
         configuration_writer,
       )
       .await?;
-      let operation_interceptor = MultiSelectGroupOperationInterceptorImpl {};
+      let operation_interceptor = MultiSelectGroupOperationInterceptorImpl;
       let controller =
         MultiSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
           .await?;
@@ -159,7 +165,9 @@ where
         configuration_writer,
       )
       .await?;
-      let operation_interceptor = URLGroupOperationInterceptorImpl {};
+      let operation_interceptor = URLGroupOperationInterceptorImpl {
+        cell_writer: type_option_cell_writer,
+      };
       let controller =
         URLGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
       group_controller = Box::new(controller);

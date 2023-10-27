@@ -1,8 +1,7 @@
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
-
-use flowy_error::FlowyResult;
 
 use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
@@ -25,7 +24,7 @@ pub struct CheckboxGroupConfiguration {
 pub type CheckboxGroupController = BaseGroupController<
   CheckboxGroupConfiguration,
   CheckboxTypeOption,
-  CheckboxGroupGenerator,
+  CheckboxGroupBuilder,
   CheckboxCellDataParser,
   CheckboxGroupOperationInterceptorImpl,
 >;
@@ -139,10 +138,6 @@ impl GroupCustomize for CheckboxGroupController {
     });
     group_changeset
   }
-
-  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
-    Ok(())
-  }
 }
 
 impl GroupController for CheckboxGroupController {
@@ -168,12 +163,13 @@ impl GroupController for CheckboxGroupController {
   }
 }
 
-pub struct CheckboxGroupGenerator();
-impl GroupsBuilder for CheckboxGroupGenerator {
+pub struct CheckboxGroupBuilder();
+#[async_trait]
+impl GroupsBuilder for CheckboxGroupBuilder {
   type Context = CheckboxGroupContext;
   type GroupTypeOption = CheckboxTypeOption;
 
-  fn build(
+  async fn build(
     _field: &Field,
     _context: &Self::Context,
     _type_option: &Self::GroupTypeOption,
@@ -197,14 +193,15 @@ impl GroupsBuilder for CheckboxGroupGenerator {
 
 pub struct CheckboxGroupOperationInterceptorImpl {}
 
+#[async_trait]
 impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
   type GroupTypeOption = CheckboxTypeOption;
-
-  fn did_apply_group_changeset(
+  async fn type_option_from_group_changeset(
     &self,
     _changeset: &GroupChangeset,
     _type_option: &Self::GroupTypeOption,
-  ) {
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
     todo!()
   }
 }

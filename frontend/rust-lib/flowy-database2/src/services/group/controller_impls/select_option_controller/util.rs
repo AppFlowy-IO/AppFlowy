@@ -9,10 +9,7 @@ use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use crate::services::field::{SelectOption, SelectOptionIds, CHECK};
-use crate::services::group::{
-  GeneratedGroupConfig, Group, GroupChangeset, GroupData, GroupOperationInterceptor,
-  MoveGroupRowContext,
-};
+use crate::services::group::{GeneratedGroupConfig, Group, GroupData, MoveGroupRowContext};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,

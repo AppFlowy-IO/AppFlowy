@@ -1,4 +1,5 @@
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Row, RowDetail};
 
 use flowy_error::FlowyResult;
@@ -7,7 +8,7 @@ use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, Inserted
 use crate::services::field::TypeOption;
 use crate::services::group::entities::GroupSetting;
 use crate::services::group::{
-  GroupChangeset, GroupChangesets, GroupData, GroupSettingChangeset, MoveGroupRowContext,
+  GroupChangesets, GroupData, GroupSettingChangeset, MoveGroupRowContext,
 };
 
 /// Using polymorphism to provides the customs action for different group controller.
@@ -73,11 +74,10 @@ pub trait GroupCustomize: Send + Sync {
   ) -> Option<GroupPB> {
     None
   }
-
-  fn did_update_group(&self, changeset: &GroupChangeset) -> FlowyResult<()>;
 }
 
 /// Defines the shared actions any group controller can perform.
+#[async_trait]
 pub trait GroupControllerOperation: Send + Sync {
   /// The field that is used for grouping the rows
   fn field_id(&self) -> &str;
@@ -115,7 +115,10 @@ pub trait GroupControllerOperation: Send + Sync {
   /// Update the group if the corresponding field is changed
   fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
 
-  fn apply_group_changeset(&mut self, changeset: GroupChangesets) -> FlowyResult<()>;
+  async fn apply_group_changeset(
+    &mut self,
+    changeset: &GroupChangesets,
+  ) -> FlowyResult<TypeOptionData>;
 
   fn apply_group_configuration_setting_changeset(
     &mut self,

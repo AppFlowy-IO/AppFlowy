@@ -1,8 +1,10 @@
 use std::marker::PhantomData;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail};
+use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -43,14 +45,15 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
   fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str);
 }
 
+#[async_trait]
 pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
-  /// Called after the group changeset was applied.For example, update the group name, visibility, etc.
-  fn did_apply_group_changeset(
+  async fn type_option_from_group_changeset(
     &self,
     changeset: &GroupChangeset,
     type_option: &Self::GroupTypeOption,
-  );
+    view_id: &str,
+  ) -> Option<TypeOptionData>;
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -69,9 +72,9 @@ pub struct BaseGroupController<C, T, G, P, I> {
 impl<C, T, G, P, I> BaseGroupController<C, T, G, P, I>
 where
   C: Serialize + DeserializeOwned,
-  T: TypeOption + From<TypeOptionData>,
+  T: TypeOption + From<TypeOptionData> + Send + Sync,
   G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor<GroupTypeOption = T>,
+  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
   pub async fn new(
     grouping_field: &Arc<Field>,
@@ -82,7 +85,9 @@ where
     let type_option = grouping_field
       .get_type_option::<T>(&field_type)
       .unwrap_or_else(|| T::from(default_type_option_data_from_type(&field_type)));
-    let generated_groups = G::build(grouping_field, &configuration, &type_option);
+
+    // TODO(nathan): remove block_on
+    let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
     let _ = configuration.init_groups(generated_groups)?;
 
     Ok(Self {
@@ -167,13 +172,14 @@ where
   }
 }
 
+#[async_trait]
 impl<C, T, G, P, I> GroupControllerOperation for BaseGroupController<C, T, G, P, I>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
   C: Serialize + DeserializeOwned + Sync + Send,
-  T: TypeOption + From<TypeOptionData>,
+  T: TypeOption + From<TypeOptionData> + Send + Sync,
   G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor<GroupTypeOption = T>,
+  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
   Self: GroupCustomize<GroupTypeOption = T>,
 {
   fn field_id(&self) -> &str {
@@ -336,20 +342,24 @@ where
     Ok(None)
   }
 
-  fn apply_group_changeset(&mut self, changeset: GroupChangesets) -> FlowyResult<()> {
-    for group_changeset in changeset.changesets {
-      if let Err(e) = self.context.update_group(&group_changeset) {
-        tracing::error!("Failed to update group: {:?}", e);
-      }
-
-      self
-        .operation_interceptor
-        .did_apply_group_changeset(&group_changeset, &self.type_option);
-
-      self.did_update_group(&group_changeset)?;
+  async fn apply_group_changeset(
+    &mut self,
+    changeset: &GroupChangesets,
+  ) -> FlowyResult<TypeOptionData> {
+    for group_changeset in changeset.changesets.iter() {
+      self.context.update_group(group_changeset)?;
     }
-
-    Ok(())
+    let mut type_option_data = TypeOptionData::new();
+    for group_changeset in changeset.changesets.iter() {
+      if let Some(new_type_option_data) = self
+        .operation_interceptor
+        .type_option_from_group_changeset(group_changeset, &self.type_option, &self.context.view_id)
+        .await
+      {
+        type_option_data.extend(new_type_option_data);
+      }
+    }
+    Ok(type_option_data)
   }
 
   fn apply_group_configuration_setting_changeset(

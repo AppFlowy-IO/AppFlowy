@@ -1,12 +1,14 @@
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
-use flowy_error::FlowyResult;
-
 use crate::entities::{FieldType, GroupRowsNotificationPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::{SelectOptionCellDataParser, SingleSelectTypeOption, TypeOption};
+use crate::services::field::{
+  SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction, SingleSelectTypeOption,
+  TypeOption,
+};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::controller_impls::select_option_controller::util::*;
@@ -27,7 +29,7 @@ pub type SingleSelectOptionGroupContext = GroupContext<SingleSelectGroupConfigur
 pub type SingleSelectGroupController = BaseGroupController<
   SingleSelectGroupConfiguration,
   SingleSelectTypeOption,
-  SingleSelectGroupGenerator,
+  SingleSelectGroupBuilder,
   SelectOptionCellDataParser,
   SingleSelectGroupOperationInterceptorImpl,
 >;
@@ -91,10 +93,6 @@ impl GroupCustomize for SingleSelectGroupController {
     });
     group_changeset
   }
-
-  fn did_update_group(&self, _changeset: &GroupChangeset) -> FlowyResult<()> {
-    Ok(())
-  }
 }
 
 impl GroupController for SingleSelectGroupController {
@@ -118,11 +116,12 @@ impl GroupController for SingleSelectGroupController {
   }
 }
 
-pub struct SingleSelectGroupGenerator();
-impl GroupsBuilder for SingleSelectGroupGenerator {
+pub struct SingleSelectGroupBuilder();
+#[async_trait]
+impl GroupsBuilder for SingleSelectGroupBuilder {
   type Context = SingleSelectOptionGroupContext;
   type GroupTypeOption = SingleSelectTypeOption;
-  fn build(
+  async fn build(
     field: &Field,
     _context: &Self::Context,
     type_option: &Self::GroupTypeOption,
@@ -136,16 +135,33 @@ impl GroupsBuilder for SingleSelectGroupGenerator {
   }
 }
 
-pub struct SingleSelectGroupOperationInterceptorImpl {}
+pub struct SingleSelectGroupOperationInterceptorImpl;
 
+#[async_trait]
 impl GroupOperationInterceptor for SingleSelectGroupOperationInterceptorImpl {
   type GroupTypeOption = SingleSelectTypeOption;
 
-  fn did_apply_group_changeset(
+  #[tracing::instrument(level = "trace", skip_all)]
+  async fn type_option_from_group_changeset(
     &self,
-    _changeset: &GroupChangeset,
-    _type_option: &Self::GroupTypeOption,
-  ) {
-    todo!()
+    changeset: &GroupChangeset,
+    type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    let mut new_type_option = type_option.clone();
+    if let Some(name) = &changeset.name {
+      let select_option = type_option
+        .options
+        .iter()
+        .find(|option| option.id == changeset.group_id)
+        .unwrap();
+
+      let new_select_option = SelectOption {
+        name: name.to_owned(),
+        ..select_option.to_owned()
+      };
+      new_type_option.insert_option(new_select_option);
+    }
+    Some(new_type_option.into())
   }
 }
