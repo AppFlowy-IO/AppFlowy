@@ -58,7 +58,11 @@ class MobileHomeTrashPage extends StatelessWidget {
             body: BlocBuilder<TrashBloc, TrashState>(
               builder: (_, state) {
                 if (state.objects.isEmpty) {
-                  return const _TrashEmptyPage();
+                  return FlowyMobileStateContainer.info(
+                    emoji: '🗑️',
+                    title: LocaleKeys.trash_mobile_empty.tr(),
+                    description: LocaleKeys.trash_mobile_emptyDescription.tr(),
+                  );
                 }
                 return _DeletedFilesListView(state);
               },
@@ -221,34 +225,34 @@ class _DeletedFilesListView extends StatelessWidget {
   }
 }
 
-class _TrashEmptyPage extends StatelessWidget {
-  const _TrashEmptyPage();
+// class _TrashEmptyPage extends StatelessWidget {
+//   const _TrashEmptyPage();
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            '🗑️',
-            style: TextStyle(fontSize: 40),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            LocaleKeys.trash_mobile_empty.tr(),
-            style: theme.textTheme.labelLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            LocaleKeys.trash_mobile_emptyDescription.tr(),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.hintColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final theme = Theme.of(context);
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           const Text(
+//             '🗑️',
+//             style: TextStyle(fontSize: 40),
+//           ),
+//           const SizedBox(height: 8),
+//           Text(
+//             LocaleKeys.trash_mobile_empty.tr(),
+//             style: theme.textTheme.labelLarge,
+//           ),
+//           const SizedBox(height: 4),
+//           Text(
+//             LocaleKeys.trash_mobile_emptyDescription.tr(),
+//             style: theme.textTheme.bodyMedium?.copyWith(
+//               color: theme.hintColor,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

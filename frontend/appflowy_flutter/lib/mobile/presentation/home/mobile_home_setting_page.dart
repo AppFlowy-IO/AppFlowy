@@ -39,11 +39,12 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
             title: Text(LocaleKeys.settings_title.tr()),
           ),
           body: userProfile == null
-              ? FlowyMobileErrorStateContainer(
+              ? FlowyMobileStateContainer.error(
                   emoji: '🛸',
-                  title: 'Failed to load user profile',
-                  description:
-                      'Please try to log out and log back in again to check if the issue still persists.',
+                  title: LocaleKeys.settings_mobile_userprofileError.tr(),
+                  description: LocaleKeys
+                      .settings_mobile_userprofileErrorDescription
+                      .tr(),
                   errorMsg: errorMsg,
                 )
               : SingleChildScrollView(

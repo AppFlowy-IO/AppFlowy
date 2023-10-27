@@ -395,7 +395,9 @@
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
-      "userAgreement": "User Agreement"
+      "userAgreement": "User Agreement",
+      "userprofileError": "Failed to load user profile",
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
     }
   },
   "grid": {

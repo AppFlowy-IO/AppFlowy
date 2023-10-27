@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/error/error_page.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -49,16 +49,22 @@ class _MobileViewPageState extends State<MobileViewPage> {
             child: CircularProgressIndicator(),
           );
         } else if (!state.hasData) {
-          body = MobileErrorPage(
-            message: LocaleKeys.error_loadingViewError.tr(),
+          body = FlowyMobileStateContainer.error(
+            emoji: '😔',
+            title: LocaleKeys.error_weAreSorry.tr(),
+            description: LocaleKeys.error_loadingViewError.tr(),
+            errorMsg: state.error.toString(),
           );
         } else {
           body = state.data!.fold((view) {
             title = view.name;
             return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
           }, (error) {
-            return MobileErrorPage(
-              message: error.toString(),
+            return FlowyMobileStateContainer.error(
+              emoji: '😔',
+              title: LocaleKeys.error_weAreSorry.tr(),
+              description: LocaleKeys.error_loadingViewError.tr(),
+              errorMsg: error.toString(),
             );
           });
         }

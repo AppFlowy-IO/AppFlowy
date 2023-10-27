@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/error/error_page.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -49,25 +49,29 @@ class MobileFavoritePageFolder extends StatelessWidget {
           builder: (context) {
             final favoriteState = context.watch<FavoriteBloc>().state;
             if (favoriteState.views.isEmpty) {
-              return MobileErrorPage(
-                header: const FlowyText.semibold(
-                  '😁',
-                  fontSize: 50,
-                ),
+              return FlowyMobileStateContainer.info(
+                emoji: '😁',
                 title: LocaleKeys.favorite_noFavorite.tr(),
-                message: LocaleKeys.favorite_noFavoriteHintText.tr(),
+                description: LocaleKeys.favorite_noFavoriteHintText.tr(),
               );
             }
-            return SlidableAutoCloseBehavior(
-              child: Column(
-                children: [
-                  MobileFavoriteFolder(
-                    showHeader: false,
-                    forceExpanded: true,
-                    views: favoriteState.views,
+            return Scrollbar(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SlidableAutoCloseBehavior(
+                    child: Column(
+                      children: [
+                        MobileFavoriteFolder(
+                          showHeader: false,
+                          forceExpanded: true,
+                          views: favoriteState.views,
+                        ),
+                        const VSpace(100.0),
+                      ],
+                    ),
                   ),
-                  const VSpace(100.0),
-                ],
+                ),
               ),
             );
           },
