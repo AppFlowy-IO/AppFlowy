@@ -709,17 +709,6 @@ impl DatabaseViewEditor {
         }
         .into();
 
-        if let Some(old_calendar_setting) = old_calender_setting {
-          // compare the new layout field id is equal to old layout field id
-          // if not equal, send the  DidSetNewLayoutField notification
-          // if equal, send the  DidUpdateLayoutSettings notification
-          if old_calendar_setting.field_id != new_field_id {
-            send_notification(&self.view_id, DatabaseNotification::DidSetNewLayoutField)
-              .payload(layout_setting_pb.clone())
-              .send();
-          }
-        }
-
         send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
           .payload(layout_setting_pb)
           .send();
