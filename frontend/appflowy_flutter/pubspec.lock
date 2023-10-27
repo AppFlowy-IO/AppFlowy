@@ -53,12 +53,11 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: d1027c4
-      resolved-ref: d1027c4d83a8cf78227e7d742c050ca945cef23a
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
-    version: "1.4.4"
+      name: appflowy_editor
+      sha256: cb6a0e7fa545923495cf85f1173b9f5572c67dc2f003b8d2b6dec9305eb5dafa
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -246,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "8599ae9edca5ff96163fca3e36f8e481ea917d1e71cdad912c084b5579913f34"
+      sha256: b502a681ba415272ecc41400bd04fe543ed1a62632137dc84d25a91e7746f55f
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.1"
+    version: "5.0.1"
   connectivity_plus_platform_interface:
     dependency: "direct main"
     description:
@@ -525,6 +524,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.15"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      sha256: cc4231579e3eae41ae166660df717f4bad1359c87f4a4322ad8ba1befeb3d2be
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -725,10 +732,10 @@ packages:
     dependency: transitive
     description:
       name: intl_utils
-      sha256: "0d38f605f292321c0729f8c0632b845be77aa12d272b7bc5e3022bb670a7309e"
+      sha256: "5cad11e11ff7662c3cd0ef04729248591d71ed023d4ef0903a137528b4568adf"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.4"
+    version: "2.8.5"
   io:
     dependency: transitive
     description:
@@ -741,18 +748,18 @@ packages:
     dependency: transitive
     description:
       name: irondash_engine_context
-      sha256: "6431b11844472574a90803c02f1e55221e6a390a872786735f6757a67dacd678"
+      sha256: fea21bff36d44a5955beba90619f54b9169884014128ae75f50eba2db03c24a0
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1"
   irondash_message_channel:
     dependency: transitive
     description:
       name: irondash_message_channel
-      sha256: "4114739083d1c63e6a1a8b93f09dd69b3cf9a9d6ee215ae7f23079307197ebba"
+      sha256: "500daa1fbe679f7d28a5258df3ff47dab6de352e680dc93c1ca9eae1555d8db5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1"
   isolates:
     dependency: transitive
     description:
@@ -1499,18 +1506,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: ba484eb42ce621b69241d18d2a8494109589e8796eb6a3399e6c8f9cdaab8303
+      sha256: "548642d62d691d2ba00850efe0f7a11ce5696e59111658abd4c6cb76b49aa61d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: dfe0a1c74430db946be973878da3f8611b8f124137f1dcbdf883e4605db40bd8
+      sha256: "3bbb95899f848617b819eec1fa00c80a617f1bd469a480b1f0c4dd383da4c5ec"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   sync_http:
     dependency: transitive
     description:

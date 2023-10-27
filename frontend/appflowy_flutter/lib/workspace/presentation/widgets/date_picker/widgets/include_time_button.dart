@@ -8,9 +8,10 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 
 class IncludeTimeButton extends StatefulWidget {
@@ -37,6 +38,7 @@ class IncludeTimeButton extends StatefulWidget {
 
 class _IncludeTimeButtonState extends State<IncludeTimeButton> {
   late bool _includeTime = widget.includeTime;
+  bool _showTimeTooltip = false;
   String? _timeString;
 
   @override
@@ -76,6 +78,35 @@ class _IncludeTimeButtonState extends State<IncludeTimeButton> {
                   ),
                   const HSpace(6),
                   FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+                  const HSpace(6),
+                  FlowyTooltip(
+                    message: LocaleKeys.datePicker_dateTimeFormatTooltip.tr(),
+                    child: FlowyHover(
+                      resetHoverOnRebuild: false,
+                      style: HoverStyle(
+                        foregroundColorOnHover:
+                            Theme.of(context).colorScheme.primary,
+                        borderRadius: Corners.s10Border,
+                      ),
+                      onHover: (isHovering) => setState(
+                        () => _showTimeTooltip = isHovering,
+                      ),
+                      child: FlowyTextButton(
+                        '?',
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        fontColor: _showTimeTooltip
+                            ? Theme.of(context).colorScheme.onSurface
+                            : null,
+                        fillColor: _showTimeTooltip
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                        radius: Corners.s12Border,
+                      ),
+                    ),
+                  ),
                   const Spacer(),
                   Toggle(
                     value: _includeTime,
@@ -95,6 +126,9 @@ class _IncludeTimeButtonState extends State<IncludeTimeButton> {
     );
   }
 }
+
+const _maxLengthTwelveHour = 8;
+const _maxLengthTwentyFourHour = 5;
 
 class _TimeTextField extends StatefulWidget {
   const _TimeTextField({
@@ -152,6 +186,10 @@ class _TimeTextFieldState extends State<_TimeTextField> {
             text: _timeString ?? "",
             focusNode: _focusNode,
             controller: _textController,
+            maxLength: widget.timeFormat == UserTimeFormatPB.TwelveHour
+                ? _maxLengthTwelveHour
+                : _maxLengthTwentyFourHour,
+            showCounter: false,
             submitOnLeave: true,
             hintText: hintText,
             errorText: errorText,

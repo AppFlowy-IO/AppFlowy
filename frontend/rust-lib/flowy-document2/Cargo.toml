@@ -9,7 +9,7 @@ edition = "2021"
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
-collab-integrate = { workspace = true }
+collab-integrate = { workspace = true, features = ["rocksdb_plugin", "snapshot_plugin"] }
 flowy-document-deps = { workspace = true }
 flowy-storage = { workspace = true }
 
@@ -37,6 +37,7 @@ tokio-stream = { version = "0.1.14", features = ["sync"] }
 [dev-dependencies]
 tempfile = "3.4.0"
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
+collab-integrate = { workspace = true }
 
 [build-dependencies]
 flowy-codegen = { path = "../../../shared-lib/flowy-codegen"}

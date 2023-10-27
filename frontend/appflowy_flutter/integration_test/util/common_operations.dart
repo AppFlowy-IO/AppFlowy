@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -27,6 +29,10 @@ extension CommonOperations on WidgetTester {
   Future<void> tapGoButton() async {
     final goButton = find.byType(GoButton);
     await tapButton(goButton);
+
+    if (Platform.isWindows) {
+      await pumpAndSettle(const Duration(milliseconds: 200));
+    }
   }
 
   /// Tap the + button on the home page.
@@ -230,7 +236,7 @@ extension CommonOperations on WidgetTester {
     final okButton = find.byWidgetPredicate(
       (widget) =>
           widget is PrimaryTextButton &&
-          widget.label == LocaleKeys.button_OK.tr(),
+          widget.label == LocaleKeys.button_ok.tr(),
     );
     await tapButton(okButton);
   }

@@ -68,22 +68,15 @@ class OutlineBlockWidget extends BlockComponentStatefulWidget {
 }
 
 class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
-    with BlockComponentConfigurable, BlockComponentTextDirectionMixin {
+    with
+        BlockComponentConfigurable,
+        BlockComponentTextDirectionMixin,
+        BlockComponentBackgroundColorMixin {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
   Node get node => widget.node;
-
-  // get the background color of the note block from the node's attributes
-  Color get backgroundColor {
-    final colorString =
-        node.attributes[OutlineBlockKeys.backgroundColor] as String?;
-    if (colorString == null) {
-      return Colors.transparent;
-    }
-    return colorString.tryToColor() ?? Colors.transparent;
-  }
 
   @override
   late EditorState editorState = context.read<EditorState>();

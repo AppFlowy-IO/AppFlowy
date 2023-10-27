@@ -28,6 +28,7 @@ export 'openai/widgets/auto_completion_node_widget.dart';
 export 'openai/widgets/smart_edit_node_widget.dart';
 export 'openai/widgets/smart_edit_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
+export 'parsers/markdown_parsers.dart';
 export 'table/table_menu.dart';
 export 'table/table_option_action.dart';
 export 'toggle/toggle_block_component.dart';

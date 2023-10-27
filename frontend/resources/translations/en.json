@@ -57,7 +57,7 @@
     "notFoundError": "Workspace not found",
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
-      "reportIssue": "Report issue",
+      "reportIssue": "Report an issue",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -116,6 +116,11 @@
     "confirmRestoreAll": {
       "title": "Are you sure to restore all pages in Trash?",
       "caption": "This action cannot be undone."
+    },
+    "mobile": {
+      "actions": "Trash Actions",
+      "empty": "Trash Bin is Empty",
+      "emptyDescription": "You don't have any deleted file"
     }
   },
   "deletePagePrompt": {
@@ -142,6 +147,7 @@
     "defaultNewPageName": "Untitled",
     "renameDialog": "Rename"
   },
+  "noPagesInside": "No pages inside",
   "toolbar": {
     "undo": "Undo",
     "redo": "Redo",
@@ -193,9 +199,9 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Done",
-    "Cancel": "Cancel",
+    "ok": "OK",
+    "done": "Done",
+    "cancel": "Cancel",
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "complete": "Complete",
@@ -211,8 +217,13 @@
     "edit": "Edit",
     "delete": "Delete",
     "duplicate": "Duplicate",
-    "done": "Done",
-    "putback": "Put Back"
+    "putback": "Put Back",
+    "update": "Update",
+    "share": "Share",
+    "removeFromFavorites": "Remove from favorites",
+    "addToFavorites": "Add to favorites",
+    "rename": "Rename",
+    "helpCenter": "Help Center"
   },
   "label": {
     "welcome": "Welcome!",
@@ -373,6 +384,17 @@
       "resetToDefault": "Reset to default keybindings",
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+    },
+    "mobile": {
+      "personalInfo": "Personal Information",
+      "username": "Username",
+      "usernameEmptyError": "Username cannot be empty",
+      "about": "About",
+      "pushNotifications": "Push Notifications",
+      "support": "Support",
+      "joinDiscord": "Join us in Discord",
+      "privacyPolicy": "Privacy Policy",
+      "userAgreement": "User Agreement"
     }
   },
   "grid": {
@@ -528,7 +550,9 @@
     "checklist": {
       "taskHint": "Task description",
       "addNew": "Add a new task",
-      "submitNewTask": "Create"
+      "submitNewTask": "Create",
+      "hideComplete": "Hide completed tasks",
+      "showComplete": "Show all tasks"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of"
@@ -721,9 +745,14 @@
   },
   "board": {
     "column": {
-      "create_new_card": "New"
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group"
     },
     "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
+    "ungroupedItemsTitle": "Click to add to the board",
+    "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
   },
   "calendar": {
@@ -814,6 +843,9 @@
       "shortKeyword": "remind"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings"
+  },
   "relativeDates": {
     "yesterday": "Yesterday",
     "today": "Today",
@@ -822,10 +854,16 @@
   },
   "notificationHub": {
     "title": "Notifications",
-    "empty": "Nothing to see here!",
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
     "tabs": {
       "inbox": "Inbox",
       "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unread"
     },
     "filters": {
       "ascending": "Ascending",
@@ -851,5 +889,126 @@
     "replaceAll": "Replace all",
     "noResult": "No results",
     "caseSensitive": "Case sensitive"
+  },
+  "error": {
+    "weAreSorry": "We're sorry",
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+  },
+  "editor": {
+    "bold": "Bold",
+    "bulletedList": "Bulleted List",
+    "checkbox": "Checkbox",
+    "embedCode": "Embed Code",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Highlight",
+    "color": "Color",
+    "image": "Image",
+    "italic": "Italic",
+    "link": "Link",
+    "numberedList": "Numbered List",
+    "quote": "Quote",
+    "strikethrough": "Strikethrough",
+    "text": "Text",
+    "underline": "Underline",
+    "fontColorDefault": "Default",
+    "fontColorGray": "Gray",
+    "fontColorBrown": "Brown",
+    "fontColorOrange": "Orange",
+    "fontColorYellow": "Yellow",
+    "fontColorGreen": "Green",
+    "fontColorBlue": "Blue",
+    "fontColorPurple": "Purple",
+    "fontColorPink": "Pink",
+    "fontColorRed": "Red",
+    "backgroundColorDefault": "Default background",
+    "backgroundColorGray": "Gray background",
+    "backgroundColorBrown": "Brown background",
+    "backgroundColorOrange": "Orange background",
+    "backgroundColorYellow": "Yellow background",
+    "backgroundColorGreen": "Green background",
+    "backgroundColorBlue": "Blue background",
+    "backgroundColorPurple": "Purple background",
+    "backgroundColorPink": "Pink background",
+    "backgroundColorRed": "Red background",
+    "done": "Done",
+    "cancel": "Cancel",
+    "tint1": "Tint 1",
+    "tint2": "Tint 2",
+    "tint3": "Tint 3",
+    "tint4": "Tint 4",
+    "tint5": "Tint 5",
+    "tint6": "Tint 6",
+    "tint7": "Tint 7",
+    "tint8": "Tint 8",
+    "tint9": "Tint 9",
+    "lightLightTint1": "Purple",
+    "lightLightTint2": "Pink",
+    "lightLightTint3": "Light Pink",
+    "lightLightTint4": "Orange",
+    "lightLightTint5": "Yellow",
+    "lightLightTint6": "Lime",
+    "lightLightTint7": "Green",
+    "lightLightTint8": "Aqua",
+    "lightLightTint9": "Blue",
+    "urlHint": "URL",
+    "mobileHeading1": "Heading 1",
+    "mobileHeading2": "Heading 2",
+    "mobileHeading3": "Heading 3",
+    "textColor": "Text Color",
+    "backgroundColor": "Background Color",
+    "addYourLink": "Add your link",
+    "openLink": "Open link",
+    "copyLink": "Copy link",
+    "removeLink": "Remove link",
+    "editLink": "Edit link",
+    "linkText": "Text",
+    "linkTextHint": "Please enter text",
+    "linkAddressHint": "Please enter URL",
+    "highlightColor": "Highlight color",
+    "clearHighlightColor": "Clear highlight color",
+    "customColor": "Custom color",
+    "hexValue": "Hex value",
+    "opacity": "Opacity",
+    "resetToDefaultColor": "Reset to default color",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Auto",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "closeFind": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "regex": "Regex",
+    "caseSensitive": "Case sensitive",
+    "uploadImage": "Upload Image",
+    "urlImage": "URL Image",
+    "incorrectLink": "Incorrect Link",
+    "upload": "Upload",
+    "chooseImage": "Choose an image",
+    "loading": "Loading",
+    "imageLoadFailed": "Could not load the image",
+    "divider": "Divider",
+    "table": "Table",
+    "colAddBefore": "Add before",
+    "rowAddBefore": "Add before",
+    "colAddAfter": "Add after",
+    "rowAddAfter": "Add after",
+    "colRemove": "Remove",
+    "rowRemove": "Remove",
+    "colDuplicate": "Duplicate",
+    "rowDuplicate": "Duplicate",
+    "colClear": "Clear Content",
+    "rowClear": "Clear Content",
+    "slashPlaceHolder": "Enter a / to insert a block, or start typing"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
   }
 }

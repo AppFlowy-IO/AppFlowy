@@ -6,7 +6,7 @@
   "subscribeNewsletterText": "新着情報を受け取る",
   "letsGoButtonText": "Let's Go",
   "title": "タイトル",
-  "youCanAlso": "あなたもすることができます",
+  "youCanAlso": "他にもこんなことができます",
   "and": "と",
   "blockActions": {
     "addBelowTooltip": "クリックして下に追加してください",
@@ -54,7 +54,7 @@
     "medium": "中くらい",
     "large": "大きい",
     "fontSize": "フォントサイズ",
-    "import": "輸入",
+    "import": "取り込む",
     "moreOptions": "より多くのオプション"
   },
   "importPanel": {
@@ -148,8 +148,8 @@
   },
   "notifications": {
     "export": {
-      "markdown": "マークダウンにエクスポートされたノート",
-      "path": "ドキュメント/フローティ"
+      "markdown": "マークダウン形式のノート",
+      "path": "Documents/flowy"
     }
   },
   "contactsPage": {
@@ -208,7 +208,7 @@
       "user": "ユーザー",
       "files": "ファイル",
       "open": "設定",
-      "supabaseSetting": "スーパーベースの設定"
+      "supabaseSetting": "Supabaseの設定"
     },
     "appearance": {
       "fontFamily": {
@@ -216,10 +216,10 @@
         "search": "検索"
       },
       "themeMode": {
-        "label": "Theme Mode",
+        "label": "外観テーマ",
         "light": "ライトモード",
         "dark": "ダークモード",
-        "system": "Adapt to System"
+        "system": "システムと同期"
       },
       "themeUpload": {
         "button": "アップロード",
@@ -232,7 +232,7 @@
         "urlUploadFailure": "URLを開けませんでした: {}"
       },
       "theme": "テーマ",
-      "builtInsLabel": "内蔵テーマ",
+      "builtInsLabel": "組み込みテーマ",
       "pluginsLabel": "プラグイン"
     },
     "files": {
@@ -269,7 +269,7 @@
       "recoverLocationTooltips": "AppFlowyのデフォルトのデータディレクトリにリセットします",
       "exportFileSuccess": "ファイルのエクスポートに成功しました。",
       "exportFileFail": "ファイルのエクスポートに失敗しました!",
-      "export": "輸出"
+      "export": "書き出す"
     },
     "user": {
       "name": "名前",
@@ -302,38 +302,38 @@
       "startWith": "で始まる",
       "is": "は",
       "isNot": "ではありません",
-      "isEmpty": "空です",
-      "isNotEmpty": "空ではありません",
+      "isEmpty": "空である",
+      "isNotEmpty": "空ではない",
       "choicechipPrefix": {
         "isNot": "いいえ",
         "startWith": "で始まる",
         "endWith": "で終わる",
-        "isEmpty": "空です",
-        "isNotEmpty": "空ではありません"
+        "isEmpty": "空である",
+        "isNotEmpty": "空ではない"
       }
     },
     "checkboxFilter": {
       "isChecked": "チェック済み",
-      "isUnchecked": "チェックなし",
+      "isUnchecked": "未チェック",
       "choicechipPrefix": {
         "is": "は"
       }
     },
     "checklistFilter": {
-      "isComplete": "完了しました",
-      "isIncomplted": "不完全です"
+      "isComplete": "完了",
+      "isIncomplted": "未完了"
     },
     "singleSelectOptionFilter": {
-      "is": "は",
-      "isNot": "ではありません",
-      "isEmpty": "空です",
-      "isNotEmpty": "空ではありません"
+      "is": "等しい",
+      "isNot": "等しくない",
+      "isEmpty": "空である",
+      "isNotEmpty": "空ではない"
     },
     "multiSelectOptionFilter": {
-      "contains": "含まれています",
-      "doesNotContain": "含まれていない",
-      "isEmpty": "空です",
-      "isNotEmpty": "空ではありません"
+      "contains": "を含む",
+      "doesNotContain": "を含まない",
+      "isEmpty": "空である",
+      "isNotEmpty": "空ではない"
     },
     "field": {
       "hide": "隠す",
@@ -367,11 +367,11 @@
       "optionTitle": "選択候補",
       "addOption": "選択候補追加",
       "editProperty": "プロパティの編集",
-      "newProperty": "新しい物件",
-      "deleteFieldPromptMessage": "本気ですか？このプロパティは削除されます"
+      "newProperty": "新しいプロパティ",
+      "deleteFieldPromptMessage": "本当にこのプロパティを削除してもよろしいですか？"
     },
     "sort": {
-      "ascending": "上昇",
+      "ascending": "昇順",
       "descending": "降順",
       "addSort": "並べ替えの追加",
       "deleteSort": "ソートの削除"
@@ -476,7 +476,7 @@
         "imageSavingFailed": "画像の保存に失敗しました",
         "addIcon": "アイコンを追加",
         "coverRemoveAlert": "削除後は表紙からも外されます。",
-        "alertDialogConfirmation": "よろしいですか、続行しますか?"
+        "alertDialogConfirmation": "続行しますか?"
       },
       "mathEquation": {
         "addMathEquation": "数式を追加",
@@ -487,7 +487,7 @@
         "toOpenMenu": " メニューを開く",
         "delete": "消去",
         "duplicate": "複製",
-        "turnInto": "に変わる",
+        "turnInto": "へ変更",
         "moveUp": "上に移動",
         "moveDown": "下に移動",
         "color": "色",
@@ -564,7 +564,7 @@
     },
     "settings": {
       "showWeekNumbers": "週番号を表示する",
-      "showWeekends": "週末のショー",
+      "showWeekends": "週末を表示する",
       "firstDayOfWeek": "週の開始日",
       "layoutDateField": "レイアウトカレンダー",
       "noDateTitle": "日付なし",
@@ -576,7 +576,7 @@
   },
   "errorDialog": {
     "title": "AppFlowyエラー",
-    "howToFixFallback": "ご不便をおかけして申し訳ございません。エラーを説明した問題を GitHub ページに送信してください。",
+    "howToFixFallback": "ご不便をおかけして申し訳ございません。エラーを説明した issue を GitHub ページに送信してください。",
     "github": "GitHub で見る"
   },
   "search": {

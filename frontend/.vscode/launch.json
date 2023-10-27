@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            // This task only builds the Dart code of AppFlowy.
+            // It supports both the desktop and mobile version.
+            "name": "AF: Build Dart Only",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "env": {
+                "RUST_LOG": "debug",
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             // This task builds the Rust and Dart code of AppFlowy.
             "name": "AF-desktop: Build All",
             "request": "launch",
@@ -14,17 +26,6 @@
             "env": {
                 "RUST_LOG": "trace",
                 "RUST_BACKTRACE": 1
-            },
-            "cwd": "${workspaceRoot}/appflowy_flutter"
-        },
-        {
-            //  This task only builds the Dart code of AppFlowy.
-            "name": "AF-desktop: Build Dart Only",
-            "request": "launch",
-            "program": "./lib/main.dart",
-            "type": "dart",
-            "env": {
-                "RUST_LOG": "debug",
             },
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
@@ -60,6 +61,17 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-Android: Clean + Rebuild All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (Android)",
             "env": {
                 "RUST_LOG": "trace"
             },

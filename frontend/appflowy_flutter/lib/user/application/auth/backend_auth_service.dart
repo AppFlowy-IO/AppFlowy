@@ -63,15 +63,22 @@ class BackendAuthService implements AuthService {
   @override
   Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
     Map<String, String> params = const {},
-  }) {
+  }) async {
     const password = "Guest!@123456";
     final uid = uuid();
     final userEmail = "$uid@appflowy.io";
-    return signUp(
-      name: LocaleKeys.defaultUsername.tr(),
-      password: password,
-      email: userEmail,
-    );
+
+    final request = SignUpPayloadPB.create()
+      ..name = LocaleKeys.defaultUsername.tr()
+      ..email = userEmail
+      ..password = password
+      // When sign up as guest, the auth type is always local.
+      ..authType = AuthTypePB.Local
+      ..deviceId = await getDeviceId();
+    final response = await UserEventSignUp(request).send().then(
+          (value) => value.swap(),
+        );
+    return response;
   }
 
   @override

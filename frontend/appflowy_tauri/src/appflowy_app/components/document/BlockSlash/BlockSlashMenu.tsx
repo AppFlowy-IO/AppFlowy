@@ -27,6 +27,7 @@ import { slashCommandActions } from '$app_reducers/document/slice';
 import { Keyboard } from '$app/constants/document/keyboard';
 import { selectOptionByUpDown } from '$app/utils/document/menu';
 import { turnToBlockThunk } from '$app_reducers/document/async-actions';
+import {useTranslation} from "react-i18next";
 
 function BlockSlashMenu({
   id,
@@ -42,6 +43,7 @@ function BlockSlashMenu({
   container: HTMLDivElement;
 }) {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement | null>(null);
   const { docId, controller } = useSubscribeDocument();
   const handleInsert = useCallback(
@@ -279,6 +281,12 @@ function BlockSlashMenu({
     [dispatch, docId]
   );
 
+  const renderEmptyContent = useCallback(() => {
+    return <div className={'m-5 text-text-caption flex justify-center items-center'}>
+      {t('findAndReplace.noResult')}
+    </div>
+  }, [t]);
+
   return (
     <div
       onMouseDown={(e) => {
@@ -288,7 +296,7 @@ function BlockSlashMenu({
       className={'flex h-[100%] max-h-[40vh] w-[324px] min-w-[180px] max-w-[calc(100vw-32px)] flex-col p-1'}
     >
       <div ref={ref} className={'min-h-0 flex-1 overflow-y-auto overflow-x-hidden'}>
-        {Object.entries(optionsByGroup).map(([group, options]) => (
+        {options.length === 0 ? renderEmptyContent(): Object.entries(optionsByGroup).map(([group, options]) => (
           <div key={group}>
             <div className={'px-2 py-2 text-sm text-text-caption'}>{group}</div>
             <div>

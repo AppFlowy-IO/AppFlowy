@@ -1,18 +1,20 @@
+use std::collections::HashMap;
+
+use serde_json::Value;
+
 use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
-use serde_json::Value;
-use std::collections::HashMap;
 
 use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;
-use crate::FlowyCoreTest;
+use crate::EventIntegrationTest;
 
 const TEXT_BLOCK_TY: &str = "paragraph";
 
 pub struct DocumentEventTest {
-  inner: FlowyCoreTest,
+  inner: EventIntegrationTest,
 }
 
 pub struct OpenDocumentData {
@@ -22,11 +24,11 @@ pub struct OpenDocumentData {
 
 impl DocumentEventTest {
   pub async fn new() -> Self {
-    let sdk = FlowyCoreTest::new_with_guest_user().await;
+    let sdk = EventIntegrationTest::new_with_guest_user().await;
     Self { inner: sdk }
   }
 
-  pub fn new_with_core(core: FlowyCoreTest) -> Self {
+  pub fn new_with_core(core: EventIntegrationTest) -> Self {
     Self { inner: core }
   }
 

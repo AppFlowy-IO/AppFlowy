@@ -36,6 +36,7 @@ class SupbaseRealtimeService {
         isLoggingOut = false;
       },
       onInvalidAuth: (message) async {
+        Log.error(message);
         await getIt<AuthService>().signOut();
         channel?.unsubscribe();
         channel = null;

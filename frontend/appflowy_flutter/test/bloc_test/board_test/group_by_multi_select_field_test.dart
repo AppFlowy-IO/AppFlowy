@@ -27,7 +27,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
@@ -82,7 +82,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 

@@ -5,17 +5,19 @@ import 'package:flutter/material.dart';
 class FlowyColorOption {
   const FlowyColorOption({
     required this.color,
-    required this.name,
+    required this.i18n,
+    required this.id,
   });
 
   final Color color;
-  final String name;
+  final String i18n;
+  final String id;
 }
 
 class FlowyColorPicker extends StatelessWidget {
   final List<FlowyColorOption> colors;
   final Color? selected;
-  final Function(Color color, int index)? onTap;
+  final Function(FlowyColorOption option, int index)? onTap;
   final double separatorSize;
   final double iconSize;
   final double itemHeight;
@@ -70,11 +72,11 @@ class FlowyColorPicker extends StatelessWidget {
     return SizedBox(
       height: itemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(option.name),
+        text: FlowyText.medium(option.i18n),
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {
-          onTap?.call(option.color, i);
+          onTap?.call(option, i);
         },
       ),
     );

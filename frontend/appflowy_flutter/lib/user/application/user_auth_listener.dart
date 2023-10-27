@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:appflowy/core/notification/user_notification.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'dart:typed_data';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/notification.pb.dart'
     as user;
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:dartz/dartz.dart';
 
 class UserAuthStateListener {
   void Function(String)? _onInvalidAuth;
@@ -52,7 +53,7 @@ class UserAuthStateListener {
                 _didSignIn?.call();
                 break;
               case AuthStatePB.InvalidAuth:
-                _onInvalidAuth?.call("");
+                _onInvalidAuth?.call(pb.message);
                 break;
               default:
                 break;

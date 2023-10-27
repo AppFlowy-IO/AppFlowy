@@ -21,10 +21,12 @@ impl std::convert::From<UserNotification> for i32 {
   }
 }
 
+#[tracing::instrument(level = "trace")]
 pub(crate) fn send_notification(id: &str, ty: UserNotification) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, USER_OBSERVABLE_SOURCE)
 }
 
+#[tracing::instrument(level = "trace")]
 pub(crate) fn send_auth_state_notification(payload: AuthStateChangedPB) -> NotificationBuilder {
   NotificationBuilder::new(
     "auth_state_change_notification",

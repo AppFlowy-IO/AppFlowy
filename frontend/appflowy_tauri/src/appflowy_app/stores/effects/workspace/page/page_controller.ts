@@ -56,6 +56,7 @@ export class PageController {
   getPage = async (id?: string): Promise<Page> => {
     const result = await this.backendService.getPage(id || this.id);
 
+
     if (result.ok) {
       return parserViewPBToPage(result.val);
     }

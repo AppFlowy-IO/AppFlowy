@@ -91,7 +91,7 @@ export const BoardGroup = ({
           <span className={'h-5 w-5'}>
             <AddSvg></AddSvg>
           </span>
-          <span>{t('board.column.create_new_card')}</span>
+          <span>{t('board.column.createNewCard')}</span>
         </button>
       </div>
     </div>
