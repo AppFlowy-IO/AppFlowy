@@ -1,3 +1,4 @@
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:flutter/material.dart';
 
 class DraggableItem<T extends Object> extends StatefulWidget {
@@ -57,7 +58,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       onWillAccept: widget.onWillAccept,
       onMove: widget.onMove,
       onLeave: widget.onLeave,
-      builder: (_, __, ___) => Draggable<T>(
+      builder: (_, __, ___) => _Draggable<T>(
         data: widget.data,
         feedback: widget.feedback ?? widget.child,
         childWhenDragging: widget.childWhenDragging ?? widget.child,
@@ -103,5 +104,60 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       },
       velocityScalar: 20,
     );
+  }
+}
+
+class _Draggable<T extends Object> extends StatelessWidget {
+  const _Draggable({
+    required this.child,
+    required this.feedback,
+    this.data,
+    this.childWhenDragging,
+    this.onDragStarted,
+    this.onDragUpdate,
+    this.onDraggableCanceled,
+    this.onDragEnd,
+    this.onDragCompleted,
+  });
+
+  /// The data that will be dropped by this draggable.
+  final T? data;
+
+  final Widget child;
+
+  final Widget? childWhenDragging;
+  final Widget feedback;
+
+  /// Called when the draggable starts being dragged.
+  final VoidCallback? onDragStarted;
+
+  final DragUpdateCallback? onDragUpdate;
+
+  final DraggableCanceledCallback? onDraggableCanceled;
+
+  final VoidCallback? onDragCompleted;
+  final DragEndCallback? onDragEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformExtension.isMobile
+        ? LongPressDraggable<T>(
+            data: data,
+            feedback: feedback,
+            childWhenDragging: childWhenDragging,
+            onDragUpdate: onDragUpdate,
+            onDragEnd: onDragEnd,
+            onDraggableCanceled: onDraggableCanceled,
+            child: child,
+          )
+        : Draggable<T>(
+            data: data,
+            feedback: feedback,
+            childWhenDragging: childWhenDragging,
+            onDragUpdate: onDragUpdate,
+            onDragEnd: onDragEnd,
+            onDraggableCanceled: onDraggableCanceled,
+            child: child,
+          );
   }
 }
