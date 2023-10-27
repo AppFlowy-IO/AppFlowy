@@ -29,7 +29,7 @@ void main() {
       'but receive ${boardBloc.state.groupIds.length}',
     );
 
-    boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[0]));
+    boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[3]));
     await boardResponseFuture();
 
     assert(
