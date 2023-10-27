@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -33,7 +35,7 @@ class EditorStyleCustomizer {
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
-
+    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: theme.colorScheme.primary,
@@ -60,9 +62,9 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
-        code: GoogleFonts.arefRuqaaInk(
+        code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
             color: Colors.red,
@@ -75,8 +77,44 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
+    final theme = Theme.of(context);
+    const fontSize = 14.0;
+    final fontFamily = GoogleFonts.poppins().fontFamily ?? 'Poppins';
+    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
+      textStyleConfiguration: TextStyleConfiguration(
+        text: baseTextStyle(fontFamily).copyWith(
+          fontSize: fontSize,
+          color: theme.colorScheme.onBackground,
+          height: 1.5,
+        ),
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+        italic: baseTextStyle(fontFamily).copyWith(
+          fontStyle: FontStyle.italic,
+        ),
+        underline: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        strikethrough: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.lineThrough,
+        ),
+        href: baseTextStyle(fontFamily).copyWith(
+          color: theme.colorScheme.primary,
+          decoration: TextDecoration.underline,
+        ),
+        code: GoogleFonts.robotoMono(
+          textStyle: baseTextStyle(fontFamily).copyWith(
+            fontSize: codeFontSize,
+            fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
+            color: Colors.red,
+            backgroundColor: Colors.grey.withOpacity(0.3),
+          ),
+        ),
+      ),
       textSpanDecorator: customizeAttributeDecorator,
     );
   }
