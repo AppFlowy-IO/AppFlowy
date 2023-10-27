@@ -1,10 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_drag_handler.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_rename_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_header.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -47,21 +43,18 @@ class _ViewPageBottomSheetState extends State<ViewPageBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // drag handler
-        const MobileBottomSheetDragHandler(),
-
-        // header
-        _buildHeader(),
-        const VSpace(8.0),
-        const Divider(),
-
-        // body
-        _buildBody(),
-        const VSpace(24.0),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // header
+          _buildHeader(),
+          const VSpace(16),
+          // body
+          _buildBody(),
+        ],
+      ),
     );
   }
 
@@ -125,12 +118,11 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final isFavorite = view.isFavorite;
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // undo, redo
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -141,6 +133,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 ),
               ),
             ),
+            const HSpace(8),
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.m_redo_m,
@@ -152,10 +145,11 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             ),
           ],
         ),
+        const VSpace(8),
 
         // rename, duplicate
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -166,6 +160,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 ),
               ),
             ),
+            const HSpace(8),
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.m_duplicate_m,
@@ -177,10 +172,11 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             ),
           ],
         ),
+        const VSpace(8),
 
         // share, delete
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
               child: BottomSheetActionWidget(
@@ -191,6 +187,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 ),
               ),
             ),
+            const HSpace(8),
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.m_delete_m,
@@ -202,6 +199,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             ),
           ],
         ),
+        const VSpace(8),
 
         // favorites
         BottomSheetActionWidget(
@@ -217,6 +215,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 : MobileViewBottomSheetBodyAction.addToFavorites,
           ),
         ),
+        const VSpace(8),
 
         // help center
         BottomSheetActionWidget(
