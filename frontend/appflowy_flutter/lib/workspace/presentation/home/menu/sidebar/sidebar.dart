@@ -94,19 +94,25 @@ class HomeSideBar extends StatelessWidget {
           right: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            // top menu
-            const SidebarTopMenu(),
-            // user, setting
-            SidebarUser(user: user, views: views),
-            const VSpace(20),
-            // scrollable document list
-            Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // top menu
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: SidebarTopMenu(),
+          ),
+          // user, setting
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: SidebarUser(user: user, views: views),
+          ),
+          const VSpace(20),
+          // scrollable document list
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
@@ -114,17 +120,17 @@ class HomeSideBar extends StatelessWidget {
                 ),
               ),
             ),
-            const VSpace(10),
-            // trash
-            const SidebarTrashButton(),
-            const VSpace(10),
-            // new page button
-            const Padding(
-              padding: EdgeInsets.only(left: 6.0),
-              child: SidebarNewPageButton(),
-            ),
-          ],
-        ),
+          ),
+          const VSpace(10),
+          // trash
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: SidebarTrashButton(),
+          ),
+          const VSpace(10),
+          // new page button
+          const SidebarNewPageButton(),
+        ],
       ),
     );
   }
