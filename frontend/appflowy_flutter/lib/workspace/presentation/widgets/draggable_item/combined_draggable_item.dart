@@ -13,6 +13,7 @@ class CombinedDraggableItem<T extends Object> extends StatefulWidget {
     this.onWillAccept,
     this.onMove,
     this.onLeave,
+    this.onDragging,
     this.dragAnchorStrategy,
     this.enableAutoScroll = true,
     this.hitTestSize = const Size(100, 100),
@@ -24,6 +25,7 @@ class CombinedDraggableItem<T extends Object> extends StatefulWidget {
   final Widget? feedback;
   final Widget? childWhenDragging;
 
+  final void Function(bool)? onDragging;
   final DragTargetAccept<T>? onAccept;
   final DragTargetWillAccept<T>? onWillAccept;
   final DragTargetMove<T>? onMove;
@@ -56,6 +58,7 @@ class _CombinedDraggableItemState<T extends Object>
       onMove: widget.onMove,
       onLeave: widget.onLeave,
       child: DraggableItem(
+        onDragging: widget.onDragging,
         data: widget.data,
         childWhenDragging: widget.childWhenDragging,
         dragAnchorStrategy: widget.dragAnchorStrategy,
