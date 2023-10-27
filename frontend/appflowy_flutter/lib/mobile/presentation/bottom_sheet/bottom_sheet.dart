@@ -99,23 +99,24 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 });
                 break;
               case MobileViewItemBottomSheetBodyAction.duplicate:
-                context.read<ViewBloc>().add(const ViewEvent.duplicate());
                 context.pop();
+                context.read<ViewBloc>().add(const ViewEvent.duplicate());
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
                 context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.delete:
-                context.read<ViewBloc>().add(const ViewEvent.delete());
                 context.pop();
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+
                 break;
               case MobileViewItemBottomSheetBodyAction.addToFavorites:
               case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
+                context.pop();
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
-                context.pop();
                 break;
             }
           },

@@ -144,7 +144,6 @@ class InnerMobileViewItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child = SingleMobileInnerViewItem(
-      key: ValueKey('${categoryType.name} ${view.id} $isExpanded'),
       view: view,
       parentView: parentView,
       level: level,
@@ -232,7 +231,10 @@ class InnerMobileViewItem extends StatelessWidget {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
-        child: child,
+        // FIXME: use better color
+        centerHighlightColor: Colors.blue.shade200,
+        topHighlightColor: Colors.blue.shade200,
+        bottomHighlightColor: Colors.blue.shade200,
         feedback: (context) {
           return MobileViewItem(
             view: view,
@@ -247,6 +249,7 @@ class InnerMobileViewItem extends StatelessWidget {
             endActionPane: endActionPane,
           );
         },
+        child: child,
       );
     }
 
@@ -320,13 +323,14 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     // ··· more action button
     // children.add(_buildViewMoreActionButton(context));
     // only support add button for document layout
-    if (widget.view.layout == ViewLayoutPB.Document) {
+    if (!widget.isFeedback && widget.view.layout == ViewLayoutPB.Document) {
       // + button
       children.add(_buildViewAddButton(context));
     }
 
-    Widget child = GestureDetector(
-      behavior: HitTestBehavior.translucent,
+    Widget child = InkWell(
+      borderRadius: BorderRadius.circular(4.0),
+      enableFeedback: true,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: _itemHeight,
@@ -362,7 +366,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     return GestureDetector(
       child: AnimatedRotation(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 250),
         turns: widget.isExpanded ? 0 : -0.25,
         child: const Icon(
           Icons.keyboard_arrow_down_rounded,

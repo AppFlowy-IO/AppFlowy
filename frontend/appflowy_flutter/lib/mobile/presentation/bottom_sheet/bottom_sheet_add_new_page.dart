@@ -26,7 +26,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.documents_s,
-                text: LocaleKeys.newDocumentText.tr(),
+                text: LocaleKeys.document_menuName.tr(),
                 onTap: () => onAction(ViewLayoutPB.Document),
               ),
             ),
@@ -34,7 +34,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.grid_s,
-                text: LocaleKeys.newGridText.tr(),
+                text: LocaleKeys.grid_menuName.tr(),
                 onTap: () => onAction(ViewLayoutPB.Grid),
               ),
             ),
@@ -48,7 +48,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.board_s,
-                text: LocaleKeys.newBoardText.tr(),
+                text: LocaleKeys.board_menuName.tr(),
                 onTap: () => onAction(ViewLayoutPB.Board),
               ),
             ),
@@ -56,7 +56,7 @@ class AddNewPageWidgetBottomSheet extends StatelessWidget {
             Expanded(
               child: BottomSheetActionWidget(
                 svg: FlowySvgs.date_s,
-                text: LocaleKeys.newCalendarText.tr(),
+                text: LocaleKeys.calendar_menuName.tr(),
                 onTap: () => onAction(ViewLayoutPB.Calendar),
               ),
             ),
