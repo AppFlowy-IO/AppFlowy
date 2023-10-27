@@ -87,6 +87,7 @@ class HomeSideBar extends StatelessWidget {
     List<ViewPB> views,
     List<ViewPB> favoriteViews,
   ) {
+    const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
@@ -100,19 +101,19 @@ class HomeSideBar extends StatelessWidget {
         children: [
           // top menu
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+            padding: menuHorizontalInset,
             child: SidebarTopMenu(),
           ),
           // user, setting
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: menuHorizontalInset,
             child: SidebarUser(user: user, views: views),
           ),
           const VSpace(20),
           // scrollable document list
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: menuHorizontalInset,
               child: SingleChildScrollView(
                 child: SidebarFolder(
                   views: views,
@@ -124,7 +125,7 @@ class HomeSideBar extends StatelessWidget {
           const VSpace(10),
           // trash
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+            padding: menuHorizontalInset,
             child: SidebarTrashButton(),
           ),
           const VSpace(10),
