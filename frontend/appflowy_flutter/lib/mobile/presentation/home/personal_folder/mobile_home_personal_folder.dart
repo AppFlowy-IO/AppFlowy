@@ -58,7 +58,9 @@ class MobilePersonalFolder extends StatelessWidget {
                     },
                     endActionPane: (context) => buildEndActionPane(context, [
                       MobilePaneActionType.delete,
-                      MobilePaneActionType.addToFavorites,
+                      view.isFavorite
+                          ? MobilePaneActionType.removeFromFavorites
+                          : MobilePaneActionType.addToFavorites,
                       MobilePaneActionType.more,
                     ]),
                   ),
