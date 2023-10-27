@@ -1,3 +1,4 @@
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:flutter/material.dart';
 
 class DraggableItem<T extends Object> extends StatefulWidget {
@@ -10,6 +11,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     this.dragAnchorStrategy,
     this.enableAutoScroll = true,
     this.hitTestSize = const Size(100, 100),
+    this.onDragging,
   });
 
   final T data;
@@ -25,6 +27,8 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   /// If true, the draggable item must be wrapped inside a [Scrollable] widget.
   final bool enableAutoScroll;
   final Size hitTestSize;
+
+  final void Function(bool isDragging)? onDragging;
 
   @override
   State<DraggableItem> createState() => _DraggableItemState<T>();
@@ -46,7 +50,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   Widget build(BuildContext context) {
     initAutoScrollerIfNeeded(context);
 
-    return Draggable<T>(
+    return _Draggable<T>(
       data: widget.data,
       feedback: widget.feedback ?? widget.child,
       childWhenDragging: widget.childWhenDragging ?? widget.child,
@@ -64,7 +68,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         autoScroller?.stopAutoScroll();
         dragTarget = null;
       },
-      dragAnchorStrategy: widget.dragAnchorStrategy ?? childDragAnchorStrategy,
+      dragAnchorStrategy: widget.dragAnchorStrategy,
       child: widget.child,
     );
   }
@@ -92,5 +96,64 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       },
       velocityScalar: 20,
     );
+  }
+}
+
+class _Draggable<T extends Object> extends StatelessWidget {
+  const _Draggable({
+    required this.child,
+    required this.feedback,
+    this.dragAnchorStrategy,
+    this.data,
+    this.childWhenDragging,
+    this.onDragStarted,
+    this.onDragUpdate,
+    this.onDraggableCanceled,
+    this.onDragEnd,
+    this.onDragCompleted,
+  });
+
+  /// The data that will be dropped by this draggable.
+  final T? data;
+
+  final Widget child;
+
+  final Widget? childWhenDragging;
+  final Widget feedback;
+
+  /// Called when the draggable starts being dragged.
+  final VoidCallback? onDragStarted;
+
+  final DragUpdateCallback? onDragUpdate;
+
+  final DraggableCanceledCallback? onDraggableCanceled;
+
+  final VoidCallback? onDragCompleted;
+  final DragEndCallback? onDragEnd;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)?
+      dragAnchorStrategy;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformExtension.isMobile
+        ? LongPressDraggable<T>(
+            data: data,
+            feedback: feedback,
+            childWhenDragging: childWhenDragging,
+            onDragUpdate: onDragUpdate,
+            onDragEnd: onDragEnd,
+            onDraggableCanceled: onDraggableCanceled,
+            child: child,
+          )
+        : Draggable<T>(
+            data: data,
+            feedback: feedback,
+            childWhenDragging: childWhenDragging,
+            onDragUpdate: onDragUpdate,
+            onDragEnd: onDragEnd,
+            onDraggableCanceled: onDraggableCanceled,
+            dragAnchorStrategy: dragAnchorStrategy ?? childDragAnchorStrategy,
+            child: child,
+          );
   }
 }

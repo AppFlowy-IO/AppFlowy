@@ -70,7 +70,9 @@ class MobileHomePageHeader extends StatelessWidget {
                   ],
                 ),
                 FlowyText.regular(
-                  userProfile.email,
+                  userProfile.email.isNotEmpty
+                      ? userProfile.email
+                      : userProfile.name,
                   fontSize: 12,
                   color: theme.colorScheme.onSurface,
                   overflow: TextOverflow.ellipsis,

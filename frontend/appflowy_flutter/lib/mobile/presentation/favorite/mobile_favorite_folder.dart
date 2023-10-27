@@ -58,16 +58,20 @@ class MobileFavoritePageFolder extends StatelessWidget {
                 message: LocaleKeys.favorite_noFavoriteHintText.tr(),
               );
             }
-            return SlidableAutoCloseBehavior(
-              child: Column(
-                children: [
-                  MobileFavoriteFolder(
-                    showHeader: false,
-                    forceExpanded: true,
-                    views: favoriteState.views,
+            return Scrollbar(
+              child: SingleChildScrollView(
+                child: SlidableAutoCloseBehavior(
+                  child: Column(
+                    children: [
+                      MobileFavoriteFolder(
+                        showHeader: false,
+                        forceExpanded: true,
+                        views: favoriteState.views,
+                      ),
+                      const VSpace(100.0),
+                    ],
                   ),
-                  const VSpace(100.0),
-                ],
+                ),
               ),
             );
           },
