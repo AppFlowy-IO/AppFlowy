@@ -9,6 +9,7 @@ use collab_database::rows::{Cell, RowId};
 use indexmap::IndexMap;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::Fut;
@@ -97,6 +98,7 @@ where
     reader: Arc<dyn GroupSettingReader>,
     writer: Arc<dyn GroupSettingWriter>,
   ) -> FlowyResult<Self> {
+    event!(tracing::Level::TRACE, "GroupContext::new");
     let setting = match reader.get_group_setting(&view_id).await {
       None => {
         let default_configuration = default_group_setting(&field);
