@@ -997,11 +997,15 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
-    tracing::trace!("set_layout_setting: {:?}", layout_setting);
-    if let Ok(view) = self.database_views.get_view_editor(view_id).await {
-      let _ = view.v_set_layout_settings(layout_setting).await;
-    };
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_set_layout_settings(layout_setting).await?;
+    Ok(())
   }
 
   pub async fn get_layout_setting(

@@ -15,8 +15,8 @@ use lib_infra::future::Fut;
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
-  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingParams, RowMetaPB, RowsChangePB,
-  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
+  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams, RowMetaPB,
+  RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -636,7 +636,11 @@ impl DatabaseViewEditor {
     let mut layout_setting = LayoutSettingParams::default();
     match layout_ty {
       DatabaseLayout::Grid => {},
-      DatabaseLayout::Board => {},
+      DatabaseLayout::Board => {
+        if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
+          layout_setting.board = Some(value.into());
+        }
+      },
       DatabaseLayout::Calendar => {
         if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
           let calendar_setting = CalendarLayoutSetting::from(value);
@@ -660,41 +664,50 @@ impl DatabaseViewEditor {
     layout_setting
   }
 
-  /// Update the calendar settings and send the notification to refresh the UI
-  pub async fn v_set_layout_settings(&self, params: LayoutSettingParams) -> FlowyResult<()> {
-    // Maybe it needs no send notification to refresh the UI
-    if let Some(new_calendar_setting) = params.calendar {
-      if let Some(field) = self
-        .delegate
-        .get_field(&new_calendar_setting.field_id)
-        .await
-      {
-        let field_type = FieldType::from(field.field_type);
-        if field_type != FieldType::DateTime {
-          return Err(FlowyError::unexpect_calendar_field_type());
-        }
+  /// Update the layout settings and send the notification to refresh the UI
+  pub async fn v_set_layout_settings(&self, params: LayoutSettingChangeset) -> FlowyResult<()> {
+    if self.v_get_layout_type().await != params.layout_type || !params.is_valid() {
+      return Err(FlowyError::invalid_data());
+    }
 
-        let old_calender_setting = self
-          .v_get_layout_settings(&params.layout_type)
-          .await
-          .calendar;
+    let layout_setting_pb = match params.layout_type {
+      DatabaseLayout::Board => {
+        let layout_setting = params.board.unwrap();
 
         self.delegate.insert_layout_setting(
           &self.view_id,
           &params.layout_type,
-          new_calendar_setting.clone().into(),
+          layout_setting.clone().into(),
         );
-        let new_field_id = new_calendar_setting.field_id.clone();
-        let layout_setting_pb: DatabaseLayoutSettingPB = LayoutSettingParams {
-          layout_type: params.layout_type,
-          calendar: Some(new_calendar_setting),
-        }
-        .into();
 
-        send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
-          .payload(layout_setting_pb)
-          .send();
-      }
+        Some(DatabaseLayoutSettingPB::from_board(layout_setting))
+      },
+      DatabaseLayout::Calendar => {
+        let layout_setting = params.calendar.unwrap();
+
+        if let Some(field) = self.delegate.get_field(&layout_setting.field_id).await {
+          if FieldType::from(field.field_type) != FieldType::DateTime {
+            return Err(FlowyError::unexpect_calendar_field_type());
+          }
+
+          self.delegate.insert_layout_setting(
+            &self.view_id,
+            &params.layout_type,
+            layout_setting.clone().into(),
+          );
+
+          Some(DatabaseLayoutSettingPB::from_calendar(layout_setting))
+        } else {
+          None
+        }
+      },
+      _ => None,
+    };
+
+    if let Some(payload) = layout_setting_pb {
+      send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+        .payload(payload)
+        .send();
     }
 
     Ok(())

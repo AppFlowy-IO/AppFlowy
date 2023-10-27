@@ -1,13 +1,15 @@
 use collab_database::fields::Field;
 use collab_database::views::DatabaseLayout;
 
-use flowy_database2::entities::FieldType;
-use flowy_database2::services::setting::CalendarLayoutSetting;
+use flowy_database2::entities::{FieldType, LayoutSettingChangeset, LayoutSettingParams};
+use flowy_database2::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum LayoutScript {
+  AssertBoardLayoutSetting { expected: BoardLayoutSetting },
   AssertCalendarLayoutSetting { expected: CalendarLayoutSetting },
+  UpdateBoardLayoutSetting { new_setting: BoardLayoutSetting },
   AssertDefaultAllCalendarEvents,
   AssertAllCalendarEventsCount { expected: usize },
   UpdateDatabaseLayout { layout: DatabaseLayout },
@@ -23,19 +25,37 @@ impl DatabaseLayoutTest {
     Self { database_test }
   }
 
+  pub async fn new_board() -> Self {
+    let database_test = DatabaseEditorTest::new_board().await;
+    Self { database_test }
+  }
+
   pub async fn new_calendar() -> Self {
     let database_test = DatabaseEditorTest::new_calendar().await;
     Self { database_test }
+  }
+
+  pub async fn get_first_date_field(&self) -> Field {
+    self.database_test.get_first_field(FieldType::DateTime)
+  }
+
+  async fn get_layout_setting(
+    &self,
+    view_id: &str,
+    layout_ty: DatabaseLayout,
+  ) -> LayoutSettingParams {
+    self
+      .database_test
+      .editor
+      .get_layout_setting(view_id, layout_ty)
+      .await
+      .unwrap()
   }
 
   pub async fn run_scripts(&mut self, scripts: Vec<LayoutScript>) {
     for script in scripts {
       self.run_script(script).await;
     }
-  }
-
-  pub async fn get_first_date_field(&self) -> Field {
-    self.database_test.get_first_field(FieldType::DateTime)
   }
 
   pub async fn run_script(&mut self, script: LayoutScript) {
@@ -56,25 +76,47 @@ impl DatabaseLayoutTest {
           .await;
         assert_eq!(events.len(), expected);
       },
+      LayoutScript::AssertBoardLayoutSetting { expected } => {
+        let view_id = self.database_test.view_id.clone();
+        let layout_ty = DatabaseLayout::Board;
+
+        let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
+
+        assert!(layout_settings.calendar.is_none());
+        assert_eq!(
+          layout_settings.board.unwrap().hide_ungrouped_column,
+          expected.hide_ungrouped_column
+        );
+      },
       LayoutScript::AssertCalendarLayoutSetting { expected } => {
         let view_id = self.database_test.view_id.clone();
         let layout_ty = DatabaseLayout::Calendar;
 
-        let calendar_setting = self
-          .database_test
-          .editor
-          .get_layout_setting(&view_id, layout_ty)
-          .await
-          .unwrap()
-          .calendar
-          .unwrap();
+        let layout_settings = self.get_layout_setting(&view_id, layout_ty).await;
 
+        assert!(layout_settings.board.is_none());
+
+        let calendar_setting = layout_settings.calendar.unwrap();
         assert_eq!(calendar_setting.layout_ty, expected.layout_ty);
         assert_eq!(
           calendar_setting.first_day_of_week,
           expected.first_day_of_week
         );
         assert_eq!(calendar_setting.show_weekends, expected.show_weekends);
+      },
+      LayoutScript::UpdateBoardLayoutSetting { new_setting } => {
+        let changeset = LayoutSettingChangeset {
+          view_id: self.database_test.view_id.clone(),
+          layout_type: DatabaseLayout::Board,
+          board: Some(new_setting),
+          calendar: None,
+        };
+        self
+          .database_test
+          .editor
+          .set_layout_setting(&self.database_test.view_id, changeset)
+          .await
+          .unwrap()
       },
       LayoutScript::AssertDefaultAllCalendarEvents => {
         let events = self

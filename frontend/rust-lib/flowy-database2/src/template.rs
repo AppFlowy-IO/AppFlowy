@@ -8,7 +8,7 @@ use crate::services::field::{
   FieldBuilder, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
 use crate::services::field_settings::DatabaseFieldSettingsMapBuilder;
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
 pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
@@ -93,12 +93,15 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
   let field_settings =
     DatabaseFieldSettingsMapBuilder::new(fields.clone(), DatabaseLayout::Board).build();
 
+  let mut layout_settings = LayoutSettings::default();
+  layout_settings.insert(DatabaseLayout::Board, BoardLayoutSetting::new().into());
+
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
     name: name.to_string(),
     layout: DatabaseLayout::Board,
-    layout_settings: Default::default(),
+    layout_settings,
     filters: vec![],
     groups: vec![],
     sorts: vec![],
