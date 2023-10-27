@@ -88,6 +88,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
           svg: isFavorite
               ? FlowySvgs.m_favorite_selected_lg
               : FlowySvgs.m_favorite_unselected_lg,
+          iconColor: isFavorite ? Colors.yellow : null,
           text: isFavorite
               ? LocaleKeys.button_removeFromFavorites.tr()
               : LocaleKeys.button_addToFavorites.tr(),
