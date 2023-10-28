@@ -17,6 +17,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,31 +62,34 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
                 offset: const Offset(0, 8),
                 constraints:
                     const BoxConstraints(maxWidth: 282, maxHeight: 600),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
+                child: FlowyTooltip(
+                  message: LocaleKeys.board_ungroupedButtonTooltip.tr(),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).dividerColor,
+                          width: 1,
+                        ),
+                        borderRadius: Corners.s6Border,
+                      ),
                       side: BorderSide(
                         color: Theme.of(context).dividerColor,
                         width: 1,
                       ),
-                      borderRadius: Corners.s6Border,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      visualDensity: VisualDensity.compact,
                     ),
-                    side: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
+                    onPressed: () {
+                      if (state.ungroupedItems.isNotEmpty) {
+                        _popoverController.show();
+                      }
+                    },
+                    child: FlowyText.regular(
+                      "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.ungroupedItems.length})",
+                      fontSize: 10,
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  onPressed: () {
-                    if (state.ungroupedItems.isNotEmpty) {
-                      _popoverController.show();
-                    }
-                  },
-                  child: FlowyText.regular(
-                    "${LocaleKeys.board_ungroupedButtonText.tr()} (${state.ungroupedItems.length})",
-                    fontSize: 10,
                   ),
                 ),
                 popupBuilder: (context) {
