@@ -7,13 +7,13 @@ use lib_infra::future::{to_fut, Fut};
 
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
-  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
+  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
 };
 use crate::services::filter::{Filter, FilterController, FilterDelegate, FilterTaskHandler};
 
 pub async fn make_filter_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   notifier: DatabaseViewChangedNotifier,
   cell_cache: CellCache,
 ) -> Arc<FilterController> {
@@ -43,7 +43,7 @@ pub async fn make_filter_controller(
   filter_controller
 }
 
-struct DatabaseViewFilterDelegateImpl(Arc<dyn DatabaseViewData>);
+struct DatabaseViewFilterDelegateImpl(Arc<dyn DatabaseViewOperation>);
 
 impl FilterDelegate for DatabaseViewFilterDelegateImpl {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>> {
@@ -51,7 +51,7 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     to_fut(async move { filter })
   }
 
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>> {
+  fn get_field(&self, field_id: &str) -> Option<Field> {
     self.0.get_field(field_id)
   }
 

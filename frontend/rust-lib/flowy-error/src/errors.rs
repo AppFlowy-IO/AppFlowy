@@ -157,3 +157,9 @@ impl From<fancy_regex::Error> for FlowyError {
     FlowyError::internal().with_context(e)
   }
 }
+
+impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
+  fn from(e: tokio::sync::oneshot::error::RecvError) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}

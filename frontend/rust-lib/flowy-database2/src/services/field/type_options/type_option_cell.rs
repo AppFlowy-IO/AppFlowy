@@ -113,16 +113,21 @@ where
     + Sync
     + 'static,
 {
+  pub fn into_boxed(self) -> Box<dyn TypeOptionCellDataHandler> {
+    Box::new(self) as Box<dyn TypeOptionCellDataHandler>
+  }
+
   pub fn new_with_boxed(
     inner: T,
     cell_filter_cache: Option<CellFilterCache>,
     cell_data_cache: Option<CellCache>,
   ) -> Box<dyn TypeOptionCellDataHandler> {
-    Box::new(Self {
+    Self {
       inner,
       cell_data_cache,
       cell_filter_cache,
-    }) as Box<dyn TypeOptionCellDataHandler>
+    }
+    .into_boxed()
   }
 }
 

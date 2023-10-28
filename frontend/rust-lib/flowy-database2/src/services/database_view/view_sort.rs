@@ -8,14 +8,14 @@ use lib_infra::future::{to_fut, Fut};
 
 use crate::services::cell::CellCache;
 use crate::services::database_view::{
-  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewData,
+  gen_handler_id, DatabaseViewChangedNotifier, DatabaseViewOperation,
 };
 use crate::services::filter::FilterController;
 use crate::services::sort::{Sort, SortController, SortDelegate, SortTaskHandler};
 
 pub(crate) async fn make_sort_controller(
   view_id: &str,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   notifier: DatabaseViewChangedNotifier,
   filter_controller: Arc<FilterController>,
   cell_cache: CellCache,
@@ -49,7 +49,7 @@ pub(crate) async fn make_sort_controller(
 }
 
 struct DatabaseViewSortDelegateImpl {
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   filter_controller: Arc<FilterController>,
 }
 
@@ -70,7 +70,7 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     })
   }
 
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>> {
+  fn get_field(&self, field_id: &str) -> Option<Field> {
     self.delegate.get_field(field_id)
   }
 

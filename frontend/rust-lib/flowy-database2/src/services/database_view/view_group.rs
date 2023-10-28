@@ -1,40 +1,43 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::Field;
-use collab_database::rows::RowId;
+use collab_database::rows::{Cell, RowId};
 
 use flowy_error::FlowyResult;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::entities::FieldType;
-use crate::services::database_view::DatabaseViewData;
+use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
-  GroupSettingReader, GroupSettingWriter,
+  GroupSettingReader, GroupSettingWriter, GroupTypeOptionCellOperation,
 };
 
 pub async fn new_group_controller_with_field(
   view_id: String,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   grouping_field: Arc<Field>,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
   let rows = delegate.get_rows(&view_id).await;
   let setting_writer = GroupSettingWriterImpl(delegate.clone());
+  let type_option_writer = GroupTypeOptionCellWriterImpl(delegate.clone());
   make_group_controller(
     view_id,
     grouping_field,
     rows,
     setting_reader,
     setting_writer,
+    type_option_writer,
   )
   .await
 }
 
 pub async fn new_group_controller(
   view_id: String,
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
 ) -> FlowyResult<Option<Box<dyn GroupController>>> {
   let fields = delegate.get_fields(&view_id, None).await;
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
@@ -59,6 +62,7 @@ pub async fn new_group_controller(
   if let Some(grouping_field) = grouping_field {
     let rows = delegate.get_rows(&view_id).await;
     let setting_writer = GroupSettingWriterImpl(delegate.clone());
+    let type_option_writer = GroupTypeOptionCellWriterImpl(delegate.clone());
     Ok(Some(
       make_group_controller(
         view_id,
@@ -66,6 +70,7 @@ pub async fn new_group_controller(
         rows,
         setting_reader,
         setting_writer,
+        type_option_writer,
       )
       .await?,
     ))
@@ -74,7 +79,7 @@ pub async fn new_group_controller(
   }
 }
 
-pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewData>);
+pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewOperation>);
 
 impl GroupSettingReader for GroupSettingReaderImpl {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>> {
@@ -97,11 +102,11 @@ impl GroupSettingReader for GroupSettingReaderImpl {
 }
 
 pub(crate) async fn get_cell_for_row(
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   field_id: &str,
   row_id: &RowId,
 ) -> Option<RowSingleCellData> {
-  let field = delegate.get_field(field_id).await?;
+  let field = delegate.get_field(field_id)?;
   let row_cell = delegate.get_cell_in_row(field_id, row_id).await;
   let field_type = FieldType::from(field.field_type);
   let handler = delegate.get_type_option_cell_handler(&field, &field_type)?;
@@ -120,11 +125,11 @@ pub(crate) async fn get_cell_for_row(
 
 // Returns the list of cells corresponding to the given field.
 pub(crate) async fn get_cells_for_field(
-  delegate: Arc<dyn DatabaseViewData>,
+  delegate: Arc<dyn DatabaseViewOperation>,
   view_id: &str,
   field_id: &str,
 ) -> Vec<RowSingleCellData> {
-  if let Some(field) = delegate.get_field(field_id).await {
+  if let Some(field) = delegate.get_field(field_id) {
     let field_type = FieldType::from(field.field_type);
     if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
       let cells = delegate.get_cells_for_field(view_id, field_id).await;
@@ -149,11 +154,30 @@ pub(crate) async fn get_cells_for_field(
   vec![]
 }
 
-struct GroupSettingWriterImpl(Arc<dyn DatabaseViewData>);
-
+struct GroupSettingWriterImpl(Arc<dyn DatabaseViewOperation>);
 impl GroupSettingWriter for GroupSettingWriterImpl {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
     self.0.insert_group_setting(view_id, group_setting);
     to_fut(async move { Ok(()) })
+  }
+}
+
+struct GroupTypeOptionCellWriterImpl(Arc<dyn DatabaseViewOperation>);
+
+#[async_trait]
+impl GroupTypeOptionCellOperation for GroupTypeOptionCellWriterImpl {
+  async fn get_cell(&self, _row_id: &RowId, _field_id: &str) -> FlowyResult<Option<Cell>> {
+    todo!()
+  }
+
+  #[tracing::instrument(level = "trace", skip_all, err)]
+  async fn update_cell(
+    &self,
+    _view_id: &str,
+    _row_id: &RowId,
+    _field_id: &str,
+    _cell: Cell,
+  ) -> FlowyResult<()> {
+    todo!()
   }
 }
