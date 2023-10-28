@@ -112,6 +112,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           startEditingRow: (group, row) {
             emit(
               state.copyWith(
+                isEditingRow: true,
                 editingRow: BoardEditingRow(
                   group: group,
                   row: row,
@@ -130,7 +131,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                 false,
               );
 
-              emit(state.copyWith(isEditingRow: false));
+              emit(state.copyWith(isEditingRow: false, editingRow: null));
             }
           },
           didReceiveGridUpdate: (DatabasePB grid) {
