@@ -774,7 +774,7 @@
       "noDateHint": {
         "zero": "Unscheduled events will show up here",
         "one": "{} unscheduled event",
-        "many": "{} unscheduled events"
+        "other": "{} unscheduled events"
       },
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
