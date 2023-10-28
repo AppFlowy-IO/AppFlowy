@@ -3,10 +3,13 @@ use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use collab_database::fields::Field;
+use collab_database::rows::{Cell, RowId};
 use indexmap::IndexMap;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::future::Fut;
@@ -24,6 +27,18 @@ pub trait GroupSettingReader: Send + Sync + 'static {
 
 pub trait GroupSettingWriter: Send + Sync + 'static {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>>;
+}
+
+#[async_trait]
+pub trait GroupTypeOptionCellOperation: Send + Sync + 'static {
+  async fn get_cell(&self, row_id: &RowId, field_id: &str) -> FlowyResult<Option<Cell>>;
+  async fn update_cell(
+    &self,
+    view_id: &str,
+    row_id: &RowId,
+    field_id: &str,
+    cell: Cell,
+  ) -> FlowyResult<()>;
 }
 
 impl<T> std::fmt::Display for GroupContext<T> {
@@ -63,7 +78,6 @@ pub struct GroupContext<C> {
 
   /// A reader that implement the [GroupSettingReader] trait
   ///
-  #[allow(dead_code)]
   reader: Arc<dyn GroupSettingReader>,
 
   /// A writer that implement the [GroupSettingWriter] trait is used to save the
@@ -83,6 +97,7 @@ where
     reader: Arc<dyn GroupSettingReader>,
     writer: Arc<dyn GroupSettingWriter>,
   ) -> FlowyResult<Self> {
+    event!(tracing::Level::TRACE, "GroupContext::new");
     let setting = match reader.get_group_setting(&view_id).await {
       None => {
         let default_configuration = default_group_setting(&field);
@@ -355,7 +370,7 @@ where
     }
   }
 
-  pub(crate) fn update_group(&mut self, group_changeset: GroupChangeset) -> FlowyResult<()> {
+  pub(crate) fn update_group(&mut self, group_changeset: &GroupChangeset) -> FlowyResult<()> {
     let update_group = self.mut_group(&group_changeset.group_id, |group| {
       if let Some(visible) = group_changeset.visible {
         group.visible = visible;

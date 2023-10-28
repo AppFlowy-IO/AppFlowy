@@ -761,7 +761,7 @@ async fn rename_group_event_test() {
 }
 
 #[tokio::test]
-async fn hide_group_event_test2() {
+async fn hide_group_event_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
   let current_workspace = test.get_current_workspace().await.workspace;
   let board_view = test
