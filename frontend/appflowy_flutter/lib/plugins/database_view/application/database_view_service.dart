@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database_view/application/row/row_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
@@ -114,11 +115,17 @@ class DatabaseViewBackendService {
 
   Future<Either<Unit, FlowyError>> updateLayoutSetting({
     required DatabaseLayoutPB layoutType,
+    BoardLayoutSettingPB? boardLayoutSetting,
     CalendarLayoutSettingPB? calendarLayoutSetting,
   }) {
     final payload = LayoutSettingChangesetPB.create()
       ..viewId = viewId
       ..layoutType = layoutType;
+
+    if (boardLayoutSetting != null) {
+      payload.board = boardLayoutSetting;
+    }
+
     if (calendarLayoutSetting != null) {
       payload.calendar = calendarLayoutSetting;
     }

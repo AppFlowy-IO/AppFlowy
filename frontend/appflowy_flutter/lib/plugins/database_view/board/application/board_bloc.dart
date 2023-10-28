@@ -146,8 +146,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               ),
             );
           },
-          didUpdateHideUngrouped: (bool hideUngrouped) {
-            emit(state.copyWith(hideUngrouped: hideUngrouped));
+          didUpdateLayoutSettings: (layoutSettings) {
+            emit(state.copyWith(layoutSettings: layoutSettings));
           },
           startEditingHeader: (String groupId) {
             emit(
@@ -199,7 +199,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     if (ungroupedGroupIndex != -1) {
       ungroupedGroup = groups[ungroupedGroupIndex];
       final group = groups.removeAt(ungroupedGroupIndex);
-      if (!state.hideUngrouped) {
+      if (!(state.layoutSettings?.hideUngroupedColumn ?? false)) {
         groups.add(group);
       }
     }
@@ -229,20 +229,23 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
       },
     );
-    final onGroupChanged = GroupCallbacks(
-      onGroupConfigurationChanged: (configurations) {
-        if (isClosed) return;
-        final config = configurations.first;
-        if (config.hideUngrouped) {
-          boardController.removeGroup(config.fieldId);
+    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+      onLayoutSettingsChanged: (layoutSettings) {
+        if (isClosed || !layoutSettings.hasBoard()) {
+          return;
+        }
+        if (layoutSettings.board.hideUngroupedColumn) {
+          boardController.removeGroup(ungroupedGroup!.fieldId);
         } else if (ungroupedGroup != null) {
           final newGroup = initializeGroupData(ungroupedGroup!);
           final controller = initializeGroupController(ungroupedGroup!);
           groupControllers[controller.group.groupId] = (controller);
           boardController.addGroup(newGroup);
         }
-        add(BoardEvent.didUpdateHideUngrouped(config.hideUngrouped));
+        add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
+    );
+    final onGroupChanged = GroupCallbacks(
       onGroupByField: (groups) {
         if (isClosed) return;
         ungroupedGroup = null;
@@ -273,6 +276,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
     databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
+      onLayoutSettingsChanged: onLayoutSettingsChanged,
       onGroupChanged: onGroupChanged,
     );
   }
@@ -359,8 +363,9 @@ class BoardEvent with _$BoardEvent {
   ) = _DidReceiveGridUpdate;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroups;
-  const factory BoardEvent.didUpdateHideUngrouped(bool hideUngrouped) =
-      _DidUpdateHideUngrouped;
+  const factory BoardEvent.didUpdateLayoutSettings(
+    BoardLayoutSettingPB layoutSettings,
+  ) = _DidUpdateLayoutSettings;
 }
 
 @freezed
@@ -375,7 +380,7 @@ class BoardState with _$BoardState {
     BoardEditingRow? editingRow,
     required LoadingState loadingState,
     required Option<FlowyError> noneOrError,
-    required bool hideUngrouped,
+    required BoardLayoutSettingPB? layoutSettings,
   }) = _BoardState;
 
   factory BoardState.initial(String viewId) => BoardState(
@@ -386,7 +391,7 @@ class BoardState with _$BoardState {
         isEditingRow: false,
         noneOrError: none(),
         loadingState: const LoadingState.loading(),
-        hideUngrouped: false,
+        layoutSettings: null,
       );
 }
 
