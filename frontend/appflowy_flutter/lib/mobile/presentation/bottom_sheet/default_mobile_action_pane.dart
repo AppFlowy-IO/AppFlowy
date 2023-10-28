@@ -27,7 +27,7 @@ enum MobilePaneActionType {
         );
       case MobilePaneActionType.removeFromFavorites:
         return MobileSlideActionButton(
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.orange,
           svg: FlowySvgs.favorite_s,
           onPressed: (context) => context
               .read<FavoriteBloc>()
@@ -61,7 +61,7 @@ enum MobilePaneActionType {
                   child: BlocBuilder<ViewBloc, ViewState>(
                     builder: (context, state) {
                       return MobileViewItemBottomSheet(
-                        view: viewBloc.view,
+                        view: viewBloc.state.view,
                       );
                     },
                   ),

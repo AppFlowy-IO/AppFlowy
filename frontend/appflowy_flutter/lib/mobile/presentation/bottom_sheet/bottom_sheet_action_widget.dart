@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/base/box_container.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BottomSheetActionWidget extends StatelessWidget {
   const BottomSheetActionWidget({
@@ -16,21 +18,17 @@ class BottomSheetActionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey,
-        ),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+    return FlowyBoxContainer(
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          onTap();
+        },
         enableFeedback: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            vertical: 12.0,
-            horizontal: 16.0,
+            vertical: 10.0,
+            horizontal: 12.0,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -38,7 +36,7 @@ class BottomSheetActionWidget extends StatelessWidget {
             children: [
               FlowySvg(
                 svg,
-                size: const Size.square(22.0),
+                size: const Size.square(24.0),
                 blendMode: BlendMode.dst,
               ),
               const HSpace(6.0),

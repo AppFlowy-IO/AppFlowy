@@ -70,8 +70,8 @@ dependencies:
   package_info_plus: ^4.0.1
   url_launcher: ^6.1.11
   clipboard: ^0.1.3
-  connectivity_plus: ^4.0.1
-  connectivity_plus_platform_interface: ^1.2.2
+  connectivity_plus: ^5.0.1
+  connectivity_plus_platform_interface: ^1.2.4
   easy_localization: ^3.0.2
   textfield_tags: ^2.0.2
   device_info_plus: ^9.0.1

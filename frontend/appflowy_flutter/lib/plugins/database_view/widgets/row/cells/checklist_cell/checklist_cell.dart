@@ -77,6 +77,13 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                   (index, task) => ChecklistItem(
                     task: task,
                     autofocus: state.newTask && index == tasks.length - 1,
+                    onSubmitted: () {
+                      if (index == tasks.length - 1) {
+                        context
+                            .read<ChecklistCellBloc>()
+                            .add(const ChecklistCellEvent.createNewTask(""));
+                      }
+                    },
                   ),
                 )
                 .toList();
@@ -94,7 +101,10 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Flexible(
-                            child: ChecklistProgressBar(percent: state.percent),
+                            child: ChecklistProgressBar(
+                              tasks: state.tasks,
+                              percent: state.percent,
+                            ),
                           ),
                           const HSpace(6.0),
                           FlowyIconButton(
@@ -103,7 +113,7 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                                 : LocaleKeys.grid_checklist_hideComplete.tr(),
                             width: 32,
                             iconColorOnHover:
-                                Theme.of(context).colorScheme.onSecondary,
+                                Theme.of(context).colorScheme.onPrimary,
                             icon: FlowySvg(
                               showIncompleteOnly
                                   ? FlowySvgs.show_m
@@ -154,7 +164,10 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
                         widget.cellStyle.placeholder,
                         color: Theme.of(context).hintColor,
                       )
-                    : ChecklistProgressBar(percent: state.percent),
+                    : ChecklistProgressBar(
+                        tasks: state.tasks,
+                        percent: state.percent,
+                      ),
               ),
             ),
           );
@@ -171,44 +184,62 @@ class GridChecklistCellState extends GridCellState<GridChecklistCell> {
   }
 }
 
-class ChecklistItemControl extends StatelessWidget {
+class ChecklistItemControl extends StatefulWidget {
   const ChecklistItemControl({super.key});
 
   @override
+  State<ChecklistItemControl> createState() => _ChecklistItemControlState();
+}
+
+class _ChecklistItemControlState extends State<ChecklistItemControl> {
+  bool _isHover = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
-      child: SizedBox(
-        height: 12,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => context
-              .read<ChecklistCellBloc>()
-              .add(const ChecklistCellEvent.createNewTask("")),
-          child: Row(
-            children: [
-              const Flexible(child: Center(child: Divider())),
-              const HSpace(12.0),
-              FlowyTooltip(
-                message: LocaleKeys.grid_checklist_addNew.tr(),
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.square(12),
-                    maximumSize: const Size.square(12),
-                    padding: EdgeInsets.zero,
-                  ),
-                  onPressed: () => context
-                      .read<ChecklistCellBloc>()
-                      .add(const ChecklistCellEvent.createNewTask("")),
-                  child: FlowySvg(
-                    FlowySvgs.add_s,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-              ),
-              const HSpace(12.0),
-              const Flexible(child: Center(child: Divider())),
-            ],
+    return MouseRegion(
+      onHover: (_) => setState(() => _isHover = true),
+      onExit: (_) => setState(() => _isHover = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => context
+            .read<ChecklistCellBloc>()
+            .add(const ChecklistCellEvent.createNewTask("")),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
+          child: SizedBox(
+            height: 12,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _isHover
+                  ? FlowyTooltip(
+                      message: LocaleKeys.grid_checklist_addNew.tr(),
+                      child: Row(
+                        children: [
+                          const Flexible(child: Center(child: Divider())),
+                          const HSpace(12.0),
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.square(12),
+                              maximumSize: const Size.square(12),
+                              padding: EdgeInsets.zero,
+                            ),
+                            onPressed: () => context
+                                .read<ChecklistCellBloc>()
+                                .add(
+                                  const ChecklistCellEvent.createNewTask(""),
+                                ),
+                            child: FlowySvg(
+                              FlowySvgs.add_s,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                          const HSpace(12.0),
+                          const Flexible(child: Center(child: Divider())),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.expand(),
+            ),
           ),
         ),
       ),

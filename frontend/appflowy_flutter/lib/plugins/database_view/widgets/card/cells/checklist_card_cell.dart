@@ -38,7 +38,10 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
           }
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: ChecklistProgressBar(percent: state.percent),
+            child: ChecklistProgressBar(
+              tasks: state.tasks,
+              percent: state.percent,
+            ),
           );
         },
       ),

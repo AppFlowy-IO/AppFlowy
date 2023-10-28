@@ -209,9 +209,11 @@ class _Title extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            FlowyText.medium(
-              LocaleKeys.grid_selectOption_panelTitle.tr(),
-              color: Theme.of(context).hintColor,
+            Flexible(
+              child: FlowyText.medium(
+                LocaleKeys.grid_selectOption_panelTitle.tr(),
+                color: Theme.of(context).hintColor,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(

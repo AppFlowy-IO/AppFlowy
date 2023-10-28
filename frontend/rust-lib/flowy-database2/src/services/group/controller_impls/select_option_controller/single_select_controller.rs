@@ -148,8 +148,8 @@ impl GroupOperationInterceptor for SingleSelectGroupOperationInterceptorImpl {
     type_option: &Self::GroupTypeOption,
     _view_id: &str,
   ) -> Option<TypeOptionData> {
-    let mut new_type_option = type_option.clone();
     if let Some(name) = &changeset.name {
+      let mut new_type_option = type_option.clone();
       let select_option = type_option
         .options
         .iter()
@@ -161,7 +161,9 @@ impl GroupOperationInterceptor for SingleSelectGroupOperationInterceptorImpl {
         ..select_option.to_owned()
       };
       new_type_option.insert_option(new_select_option);
+      return Some(new_type_option.into());
     }
-    Some(new_type_option.into())
+
+    None
   }
 }

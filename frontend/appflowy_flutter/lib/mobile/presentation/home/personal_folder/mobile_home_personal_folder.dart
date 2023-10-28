@@ -46,7 +46,7 @@ class MobilePersonalFolder extends StatelessWidget {
                     key: ValueKey(
                       '${FolderCategoryType.personal.name} ${view.id}',
                     ),
-                    isDraggable: false,
+                    isDraggable: true,
                     categoryType: FolderCategoryType.personal,
                     isFirstChild: view.id == views.first.id,
                     view: view,
@@ -58,7 +58,9 @@ class MobilePersonalFolder extends StatelessWidget {
                     },
                     endActionPane: (context) => buildEndActionPane(context, [
                       MobilePaneActionType.delete,
-                      MobilePaneActionType.addToFavorites,
+                      view.isFavorite
+                          ? MobilePaneActionType.removeFromFavorites
+                          : MobilePaneActionType.addToFavorites,
                       MobilePaneActionType.more,
                     ]),
                   ),
