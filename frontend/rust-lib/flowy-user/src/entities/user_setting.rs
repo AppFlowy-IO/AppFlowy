@@ -173,9 +173,9 @@ pub struct UserSecretPB {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserEncryptionSecretCheckPB {
+pub struct UserEncryptionConfigurationPB {
   #[pb(index = 1)]
-  pub is_need_secret: bool,
+  pub require_secret: bool,
 }
 
 impl From<UserCloudConfig> for UserCloudConfigPB {
@@ -234,6 +234,21 @@ impl std::default::Default for DateTimeSettingsPB {
       date_format: UserDateFormatPB::Friendly,
       time_format: UserTimeFormatPB::TwentyFourHour,
       timezone_id: "".to_owned(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationSettingsPB {
+  #[pb(index = 1)]
+  #[serde(default)]
+  pub notifications_enabled: bool,
+}
+
+impl std::default::Default for NotificationSettingsPB {
+  fn default() -> Self {
+    NotificationSettingsPB {
+      notifications_enabled: true,
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -136,9 +137,7 @@ class ReminderReferenceService {
     }
 
     final viewId = context.read<DocumentBloc>().view.id;
-    final reminder = _reminderFromDate(date, viewId);
-
-    context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+    final reminder = _reminderFromDate(date, viewId, node);
 
     final transaction = editorState.transaction
       ..replaceText(
@@ -156,6 +155,10 @@ class ReminderReferenceService {
       );
 
     await editorState.apply(transaction);
+
+    if (context.mounted) {
+      context.read<ReminderBloc>().add(ReminderEvent.add(reminder: reminder));
+    }
   }
 
   void _setOptions() {
@@ -203,13 +206,16 @@ class ReminderReferenceService {
     );
   }
 
-  ReminderPB _reminderFromDate(DateTime date, String viewId) {
+  ReminderPB _reminderFromDate(DateTime date, String viewId, Node node) {
     return ReminderPB(
       id: nanoid(),
       objectId: viewId,
       title: LocaleKeys.reminderNotification_title.tr(),
       message: LocaleKeys.reminderNotification_message.tr(),
-      meta: {"document_id": viewId},
+      meta: {
+        ReminderMetaKeys.includeTime.name: false.toString(),
+        ReminderMetaKeys.blockId.name: node.id,
+      },
       scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
       isAck: date.isBefore(DateTime.now()),
     );

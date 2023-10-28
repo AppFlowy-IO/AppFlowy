@@ -3,7 +3,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -23,6 +23,7 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
@@ -75,11 +76,12 @@ class DesktopHomeScreen extends StatelessWidget {
               },
             ),
             BlocProvider<HomeSettingBloc>(
-              create: (context) {
+              create: (_) {
                 return HomeSettingBloc(
                   userProfile,
                   workspaceSetting,
                   context.read<AppearanceSettingsCubit>(),
+                  context.widthPx,
                 )..add(const HomeSettingEvent.initial());
               },
             ),
@@ -253,7 +255,7 @@ class DesktopHomeScreen extends StatelessWidget {
               top: 0,
               animate: true,
             )
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
         bubble
             .positioned(
               right: 20,
@@ -266,6 +268,7 @@ class DesktopHomeScreen extends StatelessWidget {
               duration: layout.animDuration.inMilliseconds * 0.001,
               closeX: layout.editPanelWidth,
               isClosed: !layout.showEditPanel,
+              curve: Curves.easeOutQuad,
             )
             .positioned(
               right: 0,
@@ -277,18 +280,18 @@ class DesktopHomeScreen extends StatelessWidget {
             .animatedPanelX(
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
+              curve: Curves.easeOutQuad,
+              duration: layout.animDuration.inMilliseconds * 0.001,
             )
             .positioned(
               left: 0,
               top: 0,
               width: layout.menuWidth,
               bottom: 0,
-              animate: true,
-            )
-            .animate(layout.animDuration, Curves.easeOut),
+            ),
         homeMenuResizer
             .positioned(left: layout.menuWidth - 5)
-            .animate(layout.animDuration, Curves.easeOut),
+            .animate(layout.animDuration, Curves.easeOutQuad),
       ],
     );
   }

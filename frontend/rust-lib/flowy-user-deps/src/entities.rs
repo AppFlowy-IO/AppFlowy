@@ -2,8 +2,14 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_repr::*;
 use uuid::Uuid;
+
+pub const USER_METADATA_OPEN_AI_KEY: &str = "openai_key";
+pub const USER_METADATA_STABILITY_AI_KEY: &str = "stability_ai_key";
+pub const USER_METADATA_ICON_URL: &str = "icon_url";
+pub const USER_METADATA_UPDATE_AT: &str = "updated_at";
 
 pub trait UserAuthResponse {
   fn user_id(&self) -> i64;
@@ -14,52 +20,8 @@ pub trait UserAuthResponse {
   fn user_token(&self) -> Option<String>;
   fn user_email(&self) -> Option<String>;
   fn encryption_type(&self) -> EncryptionType;
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SignInResponse {
-  pub user_id: i64,
-  pub name: String,
-  pub latest_workspace: UserWorkspace,
-  pub user_workspaces: Vec<UserWorkspace>,
-  pub email: Option<String>,
-  pub token: Option<String>,
-  pub device_id: String,
-  pub encryption_type: EncryptionType,
-}
-
-impl UserAuthResponse for SignInResponse {
-  fn user_id(&self) -> i64 {
-    self.user_id
-  }
-
-  fn user_name(&self) -> &str {
-    &self.name
-  }
-
-  fn latest_workspace(&self) -> &UserWorkspace {
-    &self.latest_workspace
-  }
-
-  fn user_workspaces(&self) -> &[UserWorkspace] {
-    &self.user_workspaces
-  }
-
-  fn device_id(&self) -> &str {
-    &self.device_id
-  }
-
-  fn user_token(&self) -> Option<String> {
-    self.token.clone()
-  }
-
-  fn user_email(&self) -> Option<String> {
-    self.email.clone()
-  }
-
-  fn encryption_type(&self) -> EncryptionType {
-    self.encryption_type.clone()
-  }
+  fn metadata(&self) -> &Option<serde_json::Value>;
+  fn updated_at(&self) -> i64;
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -91,6 +53,8 @@ pub struct AuthResponse {
   pub token: Option<String>,
   pub device_id: String,
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
+  pub metadata: Option<serde_json::Value>,
 }
 
 impl UserAuthResponse for AuthResponse {
@@ -124,6 +88,14 @@ impl UserAuthResponse for AuthResponse {
 
   fn encryption_type(&self) -> EncryptionType {
     self.encryption_type.clone()
+  }
+
+  fn metadata(&self) -> &Option<Value> {
+    &self.metadata
+  }
+
+  fn updated_at(&self) -> i64 {
+    self.updated_at
   }
 }
 
@@ -191,10 +163,12 @@ pub struct UserProfile {
   pub token: String,
   pub icon_url: String,
   pub openai_key: String,
+  pub stability_ai_key: String,
   pub workspace_id: String,
   pub auth_type: AuthType,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
+  pub updated_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, Eq, PartialEq)]
@@ -242,16 +216,37 @@ where
 {
   fn from(params: (&T, &AuthType)) -> Self {
     let (value, auth_type) = params;
+    let (icon_url, openai_key, stability_ai_key) = {
+      value
+        .metadata()
+        .as_ref()
+        .map(|m| {
+          (
+            m.get(USER_METADATA_ICON_URL)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_OPEN_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+            m.get(USER_METADATA_STABILITY_AI_KEY)
+              .map(|v| v.to_string())
+              .unwrap_or_default(),
+          )
+        })
+        .unwrap_or_default()
+    };
     Self {
       uid: value.user_id(),
       email: value.user_email().unwrap_or_default(),
       name: value.user_name().to_owned(),
       token: value.user_token().unwrap_or_default(),
-      icon_url: "".to_owned(),
-      openai_key: "".to_owned(),
+      icon_url,
+      openai_key,
       workspace_id: value.latest_workspace().id.to_owned(),
       auth_type: auth_type.clone(),
       encryption_type: value.encryption_type(),
+      stability_ai_key,
+      updated_at: value.updated_at(),
     }
   }
 }
@@ -264,7 +259,9 @@ pub struct UpdateUserProfileParams {
   pub password: Option<String>,
   pub icon_url: Option<String>,
   pub openai_key: Option<String>,
+  pub stability_ai_key: Option<String>,
   pub encryption_sign: Option<String>,
+  pub token: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -275,28 +272,38 @@ impl UpdateUserProfileParams {
     }
   }
 
-  pub fn with_name(mut self, name: &str) -> Self {
-    self.name = Some(name.to_owned());
+  pub fn with_token(mut self, token: String) -> Self {
+    self.token = Some(token);
     self
   }
 
-  pub fn with_email(mut self, email: &str) -> Self {
-    self.email = Some(email.to_owned());
+  pub fn with_name<T: ToString>(mut self, name: T) -> Self {
+    self.name = Some(name.to_string());
     self
   }
 
-  pub fn with_password(mut self, password: &str) -> Self {
-    self.password = Some(password.to_owned());
+  pub fn with_email<T: ToString>(mut self, email: T) -> Self {
+    self.email = Some(email.to_string());
     self
   }
 
-  pub fn with_icon_url(mut self, icon_url: &str) -> Self {
-    self.icon_url = Some(icon_url.to_owned());
+  pub fn with_password<T: ToString>(mut self, password: T) -> Self {
+    self.password = Some(password.to_string());
+    self
+  }
+
+  pub fn with_icon_url<T: ToString>(mut self, icon_url: T) -> Self {
+    self.icon_url = Some(icon_url.to_string());
     self
   }
 
   pub fn with_openai_key(mut self, openai_key: &str) -> Self {
     self.openai_key = Some(openai_key.to_owned());
+    self
+  }
+
+  pub fn with_stability_ai_key(mut self, stability_ai_key: &str) -> Self {
+    self.stability_ai_key = Some(stability_ai_key.to_owned());
     self
   }
 
@@ -316,6 +323,7 @@ impl UpdateUserProfileParams {
       && self.icon_url.is_none()
       && self.openai_key.is_none()
       && self.encryption_sign.is_none()
+      && self.stability_ai_key.is_none()
   }
 }
 
@@ -362,4 +370,23 @@ pub struct SupabaseOAuthParams {
 pub struct AFCloudOAuthParams {
   pub sign_in_url: String,
   pub device_id: String,
+}
+
+#[derive(Clone, Debug)]
+pub enum UserTokenState {
+  Refresh { token: String },
+  Invalid,
+}
+
+#[derive(Clone, Debug)]
+pub enum Role {
+  Owner,
+  Member,
+  Guest,
+}
+
+pub struct WorkspaceMember {
+  pub email: String,
+  pub role: Role,
+  pub name: String,
 }

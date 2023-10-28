@@ -2,12 +2,13 @@ use std::sync::Weak;
 use std::{collections::HashMap, sync::Arc};
 
 use collab::core::collab::MutexCollab;
-use collab_define::CollabType;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_document::YrsDocAction;
+use collab_entity::CollabType;
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::RocksCollabDB;
@@ -21,6 +22,9 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+
+  fn workspace_id(&self) -> Result<String, FlowyError>;
+
   fn token(&self) -> Result<Option<String>, FlowyError>; // unused now.
   fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
 }
@@ -55,6 +59,12 @@ impl DocumentManager {
     Ok(())
   }
 
+  #[instrument(
+    name = "document_initialize_with_new_user",
+    level = "debug",
+    skip_all,
+    err
+  )]
   pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
     self.initialize(uid, workspace_id).await?;
     Ok(())
@@ -99,7 +109,10 @@ impl DocumentManager {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
       // Try to get the document from the cloud service
-      updates = self.cloud_service.get_document_updates(doc_id).await?;
+      updates = self
+        .cloud_service
+        .get_document_updates(&self.user.workspace_id()?, doc_id)
+        .await?;
     }
 
     let uid = self.user.user_id()?;
@@ -118,7 +131,10 @@ impl DocumentManager {
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
     if !self.is_doc_exist(doc_id)? {
-      updates = self.cloud_service.get_document_updates(doc_id).await?;
+      updates = self
+        .cloud_service
+        .get_document_updates(doc_id, &self.user.workspace_id()?)
+        .await?;
     }
     let uid = self.user.user_id()?;
     let collab = self.collab_for_document(uid, doc_id, updates).await?;
@@ -150,9 +166,10 @@ impl DocumentManager {
     document_id: &str,
     limit: usize,
   ) -> FlowyResult<Vec<DocumentSnapshotPB>> {
+    let workspace_id = self.user.workspace_id()?;
     let snapshots = self
       .cloud_service
-      .get_document_snapshots(document_id, limit)
+      .get_document_snapshots(document_id, limit, &workspace_id)
       .await?
       .into_iter()
       .map(|snapshot| DocumentSnapshotPB {
@@ -175,8 +192,22 @@ impl DocumentManager {
     let db = self.user.collab_db(uid)?;
     let collab = self
       .collab_builder
-      .build(uid, doc_id, CollabType::Document, updates, db)?;
+      .build(uid, doc_id, CollabType::Document, updates, db)
+      .await?;
     Ok(collab)
+
+    // let doc_id = doc_id.to_string();
+    // let (tx, rx) = oneshot::channel();
+    // let collab_builder = self.collab_builder.clone();
+    // tokio::spawn(async move {
+    //   let collab = collab_builder
+    //     .build(uid, &doc_id, CollabType::Document, updates, db)
+    //     .await
+    //     .unwrap();
+    //   let _ = tx.send(collab);
+    // });
+    //
+    // Ok(rx.await.unwrap())
   }
 
   fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {

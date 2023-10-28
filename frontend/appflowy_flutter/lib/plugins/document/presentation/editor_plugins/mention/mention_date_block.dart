@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -39,6 +39,8 @@ class MentionDateBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final editorState = context.read<EditorState>();
+
     DateTime? parsedDate = DateTime.tryParse(date);
     if (parsedDate == null) {
       return const SizedBox.shrink();
@@ -82,11 +84,13 @@ class MentionDateBlock extends StatelessWidget {
                 _updateBlock(parsedDate!.withoutTime, includeTime);
 
                 // We can remove time from the date/reminder
-                //  block when toggled off.
-                if (!includeTime && isReminder) {
+                // block when toggled off.
+                if (isReminder) {
                   _updateScheduledAt(
                     reminderId: reminderId!,
-                    selectedDay: parsedDate!.withoutTime,
+                    selectedDay:
+                        includeTime ? parsedDate! : parsedDate!.withoutTime,
+                    includeTime: includeTime,
                   );
                 }
               },
@@ -99,16 +103,19 @@ class MentionDateBlock extends StatelessWidget {
                   _updateScheduledAt(
                     reminderId: reminderId!,
                     selectedDay: selectedDay,
+                    includeTime: includeTime,
                   );
                 }
               },
             );
 
             return GestureDetector(
-              onTapDown: (details) => DatePickerMenu(
-                context: context,
-                editorState: context.read<EditorState>(),
-              ).show(details.globalPosition, options: options),
+              onTapDown: editorState.editable
+                  ? (details) => DatePickerMenu(
+                        context: context,
+                        editorState: context.read<EditorState>(),
+                      ).show(details.globalPosition, options: options)
+                  : null,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: MouseRegion(
@@ -171,10 +178,15 @@ class MentionDateBlock extends StatelessWidget {
   void _updateScheduledAt({
     required String reminderId,
     required DateTime selectedDay,
+    bool? includeTime,
   }) {
     editorContext.read<ReminderBloc>().add(
           ReminderEvent.update(
-            ReminderUpdate(id: reminderId, scheduledAt: selectedDay),
+            ReminderUpdate(
+              id: reminderId,
+              scheduledAt: selectedDay,
+              includeTime: includeTime,
+            ),
           ),
         );
   }

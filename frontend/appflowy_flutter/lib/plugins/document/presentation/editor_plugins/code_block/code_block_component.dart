@@ -4,11 +4,14 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
 import 'package:provider/provider.dart';
+
+import 'code_block_themes.dart';
 
 class CodeBlockKeys {
   const CodeBlockKeys._();
@@ -190,7 +193,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: Colors.grey.withOpacity(0.1),
+        color: AFThemeExtension.of(context).calloutBGColor,
       ),
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -233,6 +236,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   }
 
   Widget _buildCodeBlock(BuildContext context, TextDirection textDirection) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
     final delta = node.delta ?? Delta();
     final content = delta.toPlainText();
 
@@ -247,7 +251,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     if (codeNodes == null) {
       throw Exception('Code block parse error.');
     }
-    final codeTextSpans = _convert(codeNodes);
+    final codeTextSpans = _convert(codeNodes, isLightMode: isLightMode);
     return Padding(
       padding: widget.padding,
       child: AppFlowyRichText(
@@ -318,10 +322,16 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
 
   // Copy from flutter.highlight package.
   // https://github.com/git-touch/highlight.dart/blob/master/flutter_highlight/lib/flutter_highlight.dart
-  List<TextSpan> _convert(List<highlight.Node> nodes) {
+  List<TextSpan> _convert(
+    List<highlight.Node> nodes, {
+    bool isLightMode = true,
+  }) {
     final List<TextSpan> spans = [];
     var currentSpans = spans;
     final List<List<TextSpan>> stack = [];
+
+    final codeblockTheme =
+        isLightMode ? lightThemeInCodeblock : darkThemeInCodeBlock;
 
     void traverse(highlight.Node node) {
       if (node.value != null) {
@@ -330,7 +340,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
               ? TextSpan(text: node.value)
               : TextSpan(
                   text: node.value,
-                  style: _builtInCodeBlockTheme[node.className!],
+                  style: codeblockTheme[node.className!],
                 ),
         );
       } else if (node.children != null) {
@@ -338,7 +348,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         currentSpans.add(
           TextSpan(
             children: tmp,
-            style: _builtInCodeBlockTheme[node.className!],
+            style: codeblockTheme[node.className!],
           ),
         );
         stack.add(currentSpans);
@@ -360,46 +370,3 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     return spans;
   }
 }
-
-const _builtInCodeBlockTheme = {
-  'root':
-      TextStyle(backgroundColor: Color(0xffffffff), color: Color(0xff000000)),
-  'comment': TextStyle(color: Color(0xff007400)),
-  'quote': TextStyle(color: Color(0xff007400)),
-  'tag': TextStyle(color: Color(0xffaa0d91)),
-  'attribute': TextStyle(color: Color(0xffaa0d91)),
-  'keyword': TextStyle(color: Color(0xffaa0d91)),
-  'selector-tag': TextStyle(color: Color(0xffaa0d91)),
-  'literal': TextStyle(color: Color(0xffaa0d91)),
-  'name': TextStyle(color: Color(0xffaa0d91)),
-  'variable': TextStyle(color: Color(0xff3F6E74)),
-  'template-variable': TextStyle(color: Color(0xff3F6E74)),
-  'code': TextStyle(color: Color(0xffc41a16)),
-  'string': TextStyle(color: Color(0xffc41a16)),
-  'meta-string': TextStyle(color: Color(0xffc41a16)),
-  'regexp': TextStyle(color: Color(0xff0E0EFF)),
-  'link': TextStyle(color: Color(0xff0E0EFF)),
-  'title': TextStyle(color: Color(0xff1c00cf)),
-  'symbol': TextStyle(color: Color(0xff1c00cf)),
-  'bullet': TextStyle(color: Color(0xff1c00cf)),
-  'number': TextStyle(color: Color(0xff1c00cf)),
-  'section': TextStyle(color: Color(0xff643820)),
-  'meta': TextStyle(color: Color(0xff643820)),
-  'type': TextStyle(color: Color(0xff5c2699)),
-  'built_in': TextStyle(color: Color(0xff5c2699)),
-  'builtin-name': TextStyle(color: Color(0xff5c2699)),
-  'params': TextStyle(color: Color(0xff5c2699)),
-  'attr': TextStyle(color: Color(0xff836C28)),
-  'subst': TextStyle(color: Color(0xff000000)),
-  'formula': TextStyle(
-    backgroundColor: Color(0xffeeeeee),
-    fontStyle: FontStyle.italic,
-  ),
-  'addition': TextStyle(backgroundColor: Color(0xffbaeeba)),
-  'deletion': TextStyle(backgroundColor: Color(0xffffc8bd)),
-  'selector-id': TextStyle(color: Color(0xff9b703f)),
-  'selector-class': TextStyle(color: Color(0xff9b703f)),
-  'doctag': TextStyle(fontWeight: FontWeight.bold),
-  'strong': TextStyle(fontWeight: FontWeight.bold),
-  'emphasis': TextStyle(fontStyle: FontStyle.italic),
-};

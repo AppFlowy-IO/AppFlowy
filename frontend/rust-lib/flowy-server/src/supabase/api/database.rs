@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database_deps::cloud::{
@@ -30,6 +30,7 @@ where
     &self,
     object_id: &str,
     collab_type: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
@@ -53,6 +54,7 @@ where
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();

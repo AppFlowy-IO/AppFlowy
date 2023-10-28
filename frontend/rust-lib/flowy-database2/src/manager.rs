@@ -10,8 +10,10 @@ use collab_database::user::{
   WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
-use collab_define::CollabType;
+use collab_entity::CollabType;
+use futures::executor::block_on;
 use tokio::sync::RwLock;
+use tracing::{instrument, trace};
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
@@ -74,11 +76,12 @@ impl DatabaseManager {
   pub async fn initialize(
     &self,
     uid: i64,
-    _workspace_id: String,
+    workspace_id: String,
     database_views_aggregate_id: String,
   ) -> FlowyResult<()> {
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
+      workspace_id: workspace_id.clone(),
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
@@ -87,10 +90,14 @@ impl DatabaseManager {
 
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
-      tracing::trace!("workspace database not exist, try to fetch from remote");
+      trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_update(&database_views_aggregate_id, CollabType::WorkspaceDatabase)
+        .get_collab_update(
+          &database_views_aggregate_id,
+          CollabType::WorkspaceDatabase,
+          &workspace_id,
+        )
         .await
       {
         Ok(updates) => {
@@ -106,7 +113,7 @@ impl DatabaseManager {
     }
 
     // Construct the workspace database.
-    tracing::trace!("open workspace database: {}", &database_views_aggregate_id);
+    trace!("open workspace database: {}", &database_views_aggregate_id);
     let collab = collab_builder.build_collab_with_config(
       uid,
       &database_views_aggregate_id,
@@ -125,6 +132,12 @@ impl DatabaseManager {
     Ok(())
   }
 
+  #[instrument(
+    name = "database_initialize_with_new_user",
+    level = "debug",
+    skip_all,
+    err
+  )]
   pub async fn initialize_with_new_user(
     &self,
     user_id: i64,
@@ -170,7 +183,7 @@ impl DatabaseManager {
   }
 
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    tracing::trace!("create new editor for database {}", database_id);
+    trace!("create new editor for database {}", database_id);
     let mut editors = self.editors.write().await;
 
     let wdb = self.get_workspace_database().await?;
@@ -353,7 +366,7 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
       match event {
         BlockEvent::DidFetchRow(row_details) => {
           for row_detail in row_details {
-            tracing::trace!("Did fetch row: {:?}", row_detail.row.id);
+            trace!("Did fetch row: {:?}", row_detail.row.id);
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
             send_notification(&row_id, DatabaseNotification::DidFetchRow)
@@ -367,6 +380,7 @@ fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
 }
 
 struct UserDatabaseCollabServiceImpl {
+  workspace_id: String,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -377,6 +391,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdate, DatabaseError>> {
+    let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
@@ -387,7 +402,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_update(&object_id, object_ty)
+            .get_collab_update(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -400,6 +415,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_ids: Vec<String>,
     object_ty: CollabType,
   ) -> CollabFuture<Result<CollabObjectUpdateByOid, DatabaseError>> {
+    let workspace_id = self.workspace_id.clone();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
       match weak_cloud_service.upgrade() {
@@ -409,7 +425,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_updates(object_ids, object_ty)
+            .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -426,16 +442,14 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_raw_data: CollabRawData,
     config: &CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    self
-      .collab_builder
-      .build_with_config(
-        uid,
-        object_id,
-        object_type,
-        collab_db,
-        collab_raw_data,
-        config,
-      )
-      .unwrap()
+    block_on(self.collab_builder.build_with_config(
+      uid,
+      object_id,
+      object_type,
+      collab_db,
+      collab_raw_data,
+      config,
+    ))
+    .unwrap()
   }
 }

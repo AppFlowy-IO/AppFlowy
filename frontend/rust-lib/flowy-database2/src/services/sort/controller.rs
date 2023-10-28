@@ -26,7 +26,7 @@ pub trait SortDelegate: Send + Sync {
   fn get_sort(&self, view_id: &str, sort_id: &str) -> Fut<Option<Arc<Sort>>>;
   /// Returns all the rows after applying grid's filter
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
-  fn get_field(&self, field_id: &str) -> Fut<Option<Arc<Field>>>;
+  fn get_field(&self, field_id: &str) -> Option<Field>;
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
 }
 

@@ -1,4 +1,4 @@
-use collab_define::reminder::{ObjectType, Reminder, ReminderMeta};
+use collab_entity::reminder::{ObjectType, Reminder, ReminderMeta};
 use flowy_derive::ProtoBuf;
 use std::collections::HashMap;
 

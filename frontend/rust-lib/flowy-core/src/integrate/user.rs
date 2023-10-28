@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use anyhow::Context;
+
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document2::manager::DocumentManager;
@@ -130,18 +132,22 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           },
           &user_workspace.id,
         )
-        .await?;
+        .await
+        .context("FolderManager error")?;
+
       database_manager
         .initialize_with_new_user(
           user_profile.uid,
           user_workspace.id.clone(),
           user_workspace.database_views_aggregate_id,
         )
-        .await?;
+        .await
+        .context("DatabaseManager error")?;
 
       document_manager
         .initialize_with_new_user(user_profile.uid, user_workspace.id)
-        .await?;
+        .await
+        .context("DocumentManager error")?;
       Ok(())
     })
   }

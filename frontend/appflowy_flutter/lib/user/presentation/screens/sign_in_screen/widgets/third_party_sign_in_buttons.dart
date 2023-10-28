@@ -6,7 +6,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/util/platform_extension.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -101,7 +101,10 @@ class _ThirdPartySignInButton extends StatelessWidget {
               label: Container(
                 padding: const EdgeInsets.only(left: 4),
                 alignment: Alignment.centerLeft,
-                child: Text(labelText),
+                child: Text(
+                  labelText,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
               ),
               onPressed: onPressed,
             ),

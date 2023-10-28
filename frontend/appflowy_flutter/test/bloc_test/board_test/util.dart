@@ -78,6 +78,8 @@ class BoardTestContext {
     return _boardDataController.fieldController;
   }
 
+  DatabaseController get databaseController => _boardDataController;
+
   FieldEditorBloc makeFieldEditor({
     required FieldInfo fieldInfo,
   }) {

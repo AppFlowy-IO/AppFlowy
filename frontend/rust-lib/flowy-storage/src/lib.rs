@@ -4,6 +4,7 @@ use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 pub struct StorageObject {
+  pub workspace_id: String,
   pub file_name: String,
   pub value: ObjectValue,
 }
@@ -16,8 +17,9 @@ impl StorageObject {
   /// * `name`: The name of the storage object.
   /// * `file_path`: The file path to the storage object's data.
   ///
-  pub fn from_file<T: ToString>(file_name: &str, file_path: T) -> Self {
+  pub fn from_file<T: ToString>(workspace_id: &str, file_name: &str, file_path: T) -> Self {
     Self {
+      workspace_id: workspace_id.to_string(),
       file_name: file_name.to_string(),
       value: ObjectValue::File {
         file_path: file_path.to_string(),
@@ -33,9 +35,15 @@ impl StorageObject {
   /// * `bytes`: The byte data of the storage object.
   /// * `mime`: The MIME type of the storage object.
   ///
-  pub fn from_bytes<B: Into<Bytes>>(file_name: &str, bytes: B, mime: String) -> Self {
+  pub fn from_bytes<B: Into<Bytes>>(
+    workspace_id: &str,
+    file_name: &str,
+    bytes: B,
+    mime: String,
+  ) -> Self {
     let bytes = bytes.into();
     Self {
+      workspace_id: workspace_id.to_string(),
       file_name: file_name.to_string(),
       value: ObjectValue::Bytes { bytes, mime },
     }

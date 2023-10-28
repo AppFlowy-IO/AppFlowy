@@ -47,6 +47,7 @@ void main() {
             BuiltInTheme.defaultTheme,
             BuiltInTheme.dandelion,
             BuiltInTheme.lavender,
+            BuiltInTheme.lemonade,
           ]),
         );
         expect(theme.lightTheme, isA<FlowyColorScheme>());

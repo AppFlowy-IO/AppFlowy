@@ -85,6 +85,34 @@
       }
     },
     {
+      "label": "AF: Clean + Rebuild All (Android)",
+      "type": "shell",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "AF: Dart Clean",
+        "AF: Flutter Clean",
+        "AF: Build Appflowy Core For Android",
+        "AF: Flutter Pub Get",
+        "AF: Flutter Package Get",
+        "AF: Generate Language Files",
+        "AF: Generate Freezed Files",
+        "AF: Generate Svg Files"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "AF: Build Appflowy Core For Android",
+      "type": "shell",
+      "command": "cargo make --profile development-android appflowy-core-dev-android",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
       "label": "AF: Build Appflowy Core",
       "type": "shell",
       "windows": {
@@ -284,6 +312,14 @@
       "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs ",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
+      }
+    },
+    {
+      "label": "AF: Generate AppFlowyEnv",
+      "type": "shell",
+      "command": "dart run build_runner build --delete-conflicting-outputs",
+      "options": {
+        "cwd": "${workspaceFolder}/appflowy_flutter/packages/appflowy_backend"
       }
     }
   ]

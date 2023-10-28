@@ -126,9 +126,11 @@ class EventPropertyList extends StatelessWidget {
             state.cells.firstWhereOrNull((cell) => cell.fieldInfo.isPrimary);
         final dateFieldIndex =
             reorderedList.indexWhere((cell) => cell.fieldId == dateFieldId);
+
         if (primaryCellContext == null || dateFieldIndex == -1) {
           return const SizedBox.shrink();
         }
+
         reorderedList.insert(0, reorderedList.removeAt(dateFieldIndex));
 
         final children = <Widget>[
@@ -185,7 +187,10 @@ class _PropertyCellState extends State<PropertyCell> {
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(

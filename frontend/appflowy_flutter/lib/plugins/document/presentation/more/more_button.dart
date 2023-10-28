@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/font_size_switcher.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,22 +15,10 @@ class DocumentMoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<int>(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+    return AppFlowyPopover(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 320),
       offset: const Offset(0, 30),
-      itemBuilder: (context) {
-        return [
-          PopupMenuItem(
-            value: 1,
-            enabled: false,
-            child: BlocProvider.value(
-              value: context.read<DocumentAppearanceCubit>(),
-              child: const FontSizeSwitcher(),
-            ),
-          ),
-        ];
-      },
-      child: FlowyTooltip.delayed(
+      child: FlowyTooltip(
         message: LocaleKeys.moreAction_moreOptions.tr(),
         child: FlowySvg(
           FlowySvgs.details_s,
@@ -37,6 +26,20 @@ class DocumentMoreButton extends StatelessWidget {
           color: Theme.of(context).iconTheme.color,
         ),
       ),
+      popupBuilder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BlocProvider.value(
+                value: context.read<DocumentAppearanceCubit>(),
+                child: const FontSizeSwitcher(),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }

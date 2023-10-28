@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_b
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_cell.dart';
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
@@ -112,6 +113,7 @@ class RowPropertyList extends StatelessWidget {
 class _PropertyCell extends StatefulWidget {
   final DatabaseCellContext cellContext;
   final GridCellBuilder cellBuilder;
+
   final int index;
   const _PropertyCell({
     required this.cellContext,
@@ -126,6 +128,8 @@ class _PropertyCell extends StatefulWidget {
 
 class _PropertyCellState extends State<_PropertyCell> {
   final PopoverController _popoverController = PopoverController();
+  final PopoverController _fieldPopoverController = PopoverController();
+
   bool _isFieldHover = false;
 
   @override
@@ -140,14 +144,33 @@ class _PropertyCellState extends State<_PropertyCell> {
       child: SizedBox(
         width: 16,
         height: 30,
-        child: _isFieldHover ? const FlowySvg(FlowySvgs.drag_element_s) : null,
+        child: AppFlowyPopover(
+          controller: _fieldPopoverController,
+          constraints: BoxConstraints.loose(const Size(240, 600)),
+          margin: EdgeInsets.zero,
+          triggerActions: PopoverTriggerFlags.none,
+          direction: PopoverDirection.bottomWithLeftAligned,
+          popupBuilder: (popoverContext) => buildFieldEditor(),
+          child: _isFieldHover
+              ? BlockActionButton(
+                  onTap: () => _fieldPopoverController.show(),
+                  svg: FlowySvgs.drag_element_s,
+                  richMessage: TextSpan(
+                    text: LocaleKeys.grid_rowPage_fieldDragEelementTooltip.tr(),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
       ),
     );
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => cell.requestFocus.notify(),
-      child: AccessoryHover(child: cell),
+      child: AccessoryHover(
+        fieldType: widget.cellContext.fieldType,
+        child: cell,
+      ),
     );
 
     return Container(
@@ -251,7 +274,8 @@ GridCellStyle? _customCellStyle(FieldType fieldType) {
     case FieldType.Checklist:
       return ChecklistCellStyle(
         placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        cellPadding: EdgeInsets.zero,
+        showTasksInline: true,
       );
     case FieldType.Number:
       return GridNumberCellStyle(

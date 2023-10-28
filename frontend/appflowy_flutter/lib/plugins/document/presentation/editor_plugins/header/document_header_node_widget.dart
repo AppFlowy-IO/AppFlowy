@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -257,7 +257,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: BoxConstraints.loose(const Size(320, 380)),
+          constraints: BoxConstraints.loose(const Size(300, 250)),
           child: FlowyButton(
             leftIconSize: const Size.square(18),
             useIntrinsicWidth: true,

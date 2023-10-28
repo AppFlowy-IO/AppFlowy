@@ -22,6 +22,8 @@ class FlowyButton extends StatelessWidget {
   final bool disable;
   final double disableOpacity;
   final Size? leftIconSize;
+  final bool expandText;
+  final MainAxisAlignment mainAxisAlignment;
 
   const FlowyButton({
     Key? key,
@@ -40,6 +42,8 @@ class FlowyButton extends StatelessWidget {
     this.disable = false,
     this.disableOpacity = 0.5,
     this.leftIconSize = const Size.square(16),
+    this.expandText = true,
+    this.mainAxisAlignment = MainAxisAlignment.center,
   }) : super(key: key);
 
   @override
@@ -79,7 +83,11 @@ class FlowyButton extends StatelessWidget {
       children.add(const HSpace(6));
     }
 
-    children.add(Expanded(child: text));
+    if (expandText) {
+      children.add(Expanded(child: text));
+    } else {
+      children.add(text);
+    }
 
     if (rightIcon != null) {
       children.add(const HSpace(6));
@@ -88,7 +96,7 @@ class FlowyButton extends StatelessWidget {
     }
 
     Widget child = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: children,
     );
@@ -195,7 +203,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = FlowyTooltip.delayed(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );
@@ -284,7 +292,7 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      child = FlowyTooltip.delayed(
+      child = FlowyTooltip(
         message: tooltip!,
         child: child,
       );

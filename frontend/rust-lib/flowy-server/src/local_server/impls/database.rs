@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab_define::CollabType;
+use collab_entity::CollabType;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
@@ -13,6 +13,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     &self,
     _object_id: &str,
     _collab_type: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
@@ -21,6 +22,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     &self,
     _object_ids: Vec<String>,
     _object_ty: CollabType,
+    _workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
     FutureResult::new(async move { Ok(CollabObjectUpdateByOid::default()) })
   }

@@ -47,6 +47,7 @@ AppDir:
         main
     include:
     - libc6:amd64
+    - libnotify4:amd64
   files:
     include: []
     exclude:

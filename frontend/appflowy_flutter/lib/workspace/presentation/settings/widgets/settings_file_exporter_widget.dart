@@ -91,14 +91,14 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
       children: [
         const Spacer(),
         FlowyTextButton(
-          LocaleKeys.button_Cancel.tr(),
+          LocaleKeys.button_cancel.tr(),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         const HSpace(8),
         FlowyTextButton(
-          LocaleKeys.button_OK.tr(),
+          LocaleKeys.button_ok.tr(),
           onPressed: () async {
             await getIt<FilePickerService>()
                 .getDirectoryPath()

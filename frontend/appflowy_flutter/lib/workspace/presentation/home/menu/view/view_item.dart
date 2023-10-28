@@ -103,6 +103,8 @@ class ViewItem extends StatelessWidget {
   }
 }
 
+bool _isDragging = false;
+
 class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
     super.key,
@@ -188,6 +190,9 @@ class InnerViewItem extends StatelessWidget {
         isFirstChild: isFirstChild,
         view: view,
         child: child,
+        onDragging: (isDragging) {
+          _isDragging = isDragging;
+        },
         feedback: (context) {
           return ViewItem(
             view: view,
@@ -261,7 +266,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
       resetHoverOnRebuild: widget.showActions,
-      buildWhenOnHover: () => !widget.showActions,
+      buildWhenOnHover: () => !widget.showActions && !_isDragging,
       builder: (_, onHover) => _buildViewItem(onHover),
       isSelected: () =>
           widget.showActions ||
@@ -339,7 +344,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
@@ -379,7 +384,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // ··· more action button
   Widget _buildViewMoreActionButton(BuildContext context) {
-    return FlowyTooltip.delayed(
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,

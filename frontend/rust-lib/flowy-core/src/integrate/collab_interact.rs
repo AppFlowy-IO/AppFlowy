@@ -1,4 +1,4 @@
-use collab_define::reminder::Reminder;
+use collab_entity::reminder::Reminder;
 use std::convert::TryFrom;
 use std::sync::Weak;
 

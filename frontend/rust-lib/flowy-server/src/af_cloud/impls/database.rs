@@ -1,7 +1,9 @@
 use anyhow::Error;
-use client_api::entity::QueryCollabParams;
+use client_api::entity::QueryCollabResult::{Failed, Success};
+use client_api::entity::{BatchQueryCollab, BatchQueryCollabParams, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
-use collab_define::CollabType;
+use collab_entity::CollabType;
+use tracing::error;
 
 use flowy_database_deps::cloud::{
   CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
@@ -20,11 +22,14 @@ where
     &self,
     object_id: &str,
     collab_type: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
+    let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
       let params = QueryCollabParams {
+        workspace_id,
         object_id,
         collab_type,
       };
@@ -43,10 +48,38 @@ where
 
   fn batch_get_collab_updates(
     &self,
-    _object_ids: Vec<String>,
-    _object_ty: CollabType,
+    object_ids: Vec<String>,
+    object_ty: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
-    FutureResult::new(async move { Ok(CollabObjectUpdateByOid::default()) })
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.0.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let params = BatchQueryCollabParams(
+        object_ids
+          .into_iter()
+          .map(|object_id| BatchQueryCollab {
+            object_id,
+            collab_type: object_ty.clone(),
+          })
+          .collect(),
+      );
+      let results = client.batch_get_collab(&workspace_id, params).await?;
+      Ok(
+        results
+          .0
+          .into_iter()
+          .flat_map(|(object_id, result)| match result {
+            Success { blob } => Some((object_id, vec![blob])),
+            Failed { error } => {
+              error!("Failed to get {} update: {}", object_id, error);
+              None
+            },
+          })
+          .collect::<CollabObjectUpdateByOid>(),
+      )
+    })
   }
 
   fn get_collab_snapshots(

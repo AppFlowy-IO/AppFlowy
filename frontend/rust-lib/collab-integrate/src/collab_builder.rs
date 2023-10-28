@@ -5,14 +5,16 @@ use anyhow::Error;
 use async_trait::async_trait;
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::preclude::{CollabBuilder, CollabPlugin};
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use collab_persistence::kv::rocks_kv::RocksCollabDB;
 use collab_plugins::cloud_storage::network_state::{CollabNetworkReachability, CollabNetworkState};
 use collab_plugins::local_storage::rocksdb::RocksdbDiskPlugin;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_plugins::snapshot::{CollabSnapshotPlugin, SnapshotPersistence};
-use futures::executor::block_on;
 use parking_lot::{Mutex, RwLock};
+use tracing::trace;
+
+use lib_infra::future::{to_fut, Fut};
 
 #[derive(Clone, Debug)]
 pub enum CollabSource {
@@ -36,19 +38,17 @@ pub enum CollabPluginContext {
   },
 }
 
-#[async_trait]
 pub trait CollabStorageProvider: Send + Sync + 'static {
   fn storage_source(&self) -> CollabSource;
 
-  async fn get_plugins(
+  fn get_plugins(
     &self,
     context: CollabPluginContext,
-  ) -> Vec<Arc<dyn collab::core::collab_plugin::CollabPlugin>>;
+  ) -> Fut<Vec<Arc<dyn collab::core::collab_plugin::CollabPlugin>>>;
 
   fn is_sync_enabled(&self) -> bool;
 }
 
-#[async_trait]
 impl<T> CollabStorageProvider for Arc<T>
 where
   T: CollabStorageProvider,
@@ -57,8 +57,8 @@ where
     (**self).storage_source()
   }
 
-  async fn get_plugins(&self, context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
-    (**self).get_plugins(context).await
+  fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+    (**self).get_plugins(context)
   }
 
   fn is_sync_enabled(&self) -> bool {
@@ -69,7 +69,7 @@ where
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabNetworkReachability,
   workspace_id: RwLock<Option<String>>,
-  cloud_storage: RwLock<Arc<dyn CollabStorageProvider>>,
+  cloud_storage: tokio::sync::RwLock<Arc<dyn CollabStorageProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
   device_id: Mutex<String>,
 }
@@ -79,7 +79,7 @@ impl AppFlowyCollabBuilder {
     Self {
       network_reachability: CollabNetworkReachability::new(),
       workspace_id: Default::default(),
-      cloud_storage: RwLock::new(Arc::new(storage_provider)),
+      cloud_storage: tokio::sync::RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
       device_id: Default::default(),
     }
@@ -141,7 +141,7 @@ impl AppFlowyCollabBuilder {
   /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabRawData] type.
   /// - `collab_db`: A weak reference to the [RocksCollabDB].
   ///
-  pub fn build(
+  pub async fn build(
     &self,
     uid: i64,
     object_id: &str,
@@ -149,14 +149,16 @@ impl AppFlowyCollabBuilder {
     raw_data: CollabRawData,
     collab_db: Weak<RocksCollabDB>,
   ) -> Result<Arc<MutexCollab>, Error> {
-    self.build_with_config(
-      uid,
-      object_id,
-      object_type,
-      collab_db,
-      raw_data,
-      &CollabPersistenceConfig::default(),
-    )
+    self
+      .build_with_config(
+        uid,
+        object_id,
+        object_type,
+        collab_db,
+        raw_data,
+        &CollabPersistenceConfig::default(),
+      )
+      .await
   }
 
   /// Creates a new collaboration builder with the custom configuration.
@@ -173,7 +175,7 @@ impl AppFlowyCollabBuilder {
   /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabRawData] type.
   /// - `collab_db`: A weak reference to the [RocksCollabDB].
   ///
-  pub fn build_with_config(
+  pub async fn build_with_config(
     &self,
     uid: i64,
     object_id: &str,
@@ -194,21 +196,26 @@ impl AppFlowyCollabBuilder {
         .build()?,
     );
     {
-      let cloud_storage = self.cloud_storage.read();
-      let cloud_storage_type = cloud_storage.storage_source();
+      let cloud_storage_type = self.cloud_storage.read().await.storage_source();
       let collab_object = self.collab_object(uid, object_id, object_type)?;
       match cloud_storage_type {
         CollabSource::AFCloud => {
           #[cfg(feature = "appflowy_cloud_integrate")]
           {
+            trace!("init appflowy cloud collab plugins");
             let local_collab = Arc::downgrade(&collab);
-            let plugins = block_on(
-              cloud_storage.get_plugins(CollabPluginContext::AppFlowyCloud {
+            let plugins = self
+              .cloud_storage
+              .read()
+              .await
+              .get_plugins(CollabPluginContext::AppFlowyCloud {
                 uid,
                 collab_object: collab_object.clone(),
                 local_collab,
-              }),
-            );
+              })
+              .await;
+
+            trace!("add appflowy cloud collab plugins: {}", plugins.len());
             for plugin in plugins {
               collab.lock().add_plugin(plugin);
             }
@@ -217,14 +224,20 @@ impl AppFlowyCollabBuilder {
         CollabSource::Supabase => {
           #[cfg(feature = "supabase_integrate")]
           {
+            trace!("init supabase collab plugins");
             let local_collab = Arc::downgrade(&collab);
             let local_collab_db = collab_db.clone();
-            let plugins = block_on(cloud_storage.get_plugins(CollabPluginContext::Supabase {
-              uid,
-              collab_object: collab_object.clone(),
-              local_collab,
-              local_collab_db,
-            }));
+            let plugins = self
+              .cloud_storage
+              .read()
+              .await
+              .get_plugins(CollabPluginContext::Supabase {
+                uid,
+                collab_object: collab_object.clone(),
+                local_collab,
+                local_collab_db,
+              })
+              .await;
             for plugin in plugins {
               collab.lock().add_plugin(plugin);
             }
@@ -248,7 +261,7 @@ impl AppFlowyCollabBuilder {
       }
     }
 
-    block_on(collab.async_initialize());
+    collab.lock().initialize();
     Ok(collab)
   }
 }
@@ -261,8 +274,8 @@ impl CollabStorageProvider for DefaultCollabStorageProvider {
     CollabSource::Local
   }
 
-  async fn get_plugins(&self, _context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
-    vec![]
+  fn get_plugins(&self, _context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+    to_fut(async move { vec![] })
   }
 
   fn is_sync_enabled(&self) -> bool {

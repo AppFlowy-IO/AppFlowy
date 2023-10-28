@@ -12,9 +12,9 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
     required this.cellController,
   }) : super(TextCellState.initial(cellController)) {
     on<TextCellEvent>(
-      (event, emit) async {
-        await event.when(
-          initial: () async {
+      (event, emit) {
+        event.when(
+          initial: () {
             _startListening();
           },
           updateText: (text) {

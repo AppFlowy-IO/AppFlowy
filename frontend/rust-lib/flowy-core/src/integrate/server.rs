@@ -91,6 +91,11 @@ impl ServerProvider {
   }
 
   pub fn set_server_type(&self, server_type: ServerType) {
+    let old_server_type = self.server_type.read().clone();
+    if server_type != old_server_type {
+      self.providers.write().remove(&old_server_type);
+    }
+
     *self.server_type.write() = server_type;
   }
 
@@ -179,9 +184,9 @@ struct LocalServerDBImpl {
 }
 
 impl LocalServerDB for LocalServerDBImpl {
-  fn get_user_profile(&self, uid: i64) -> Result<Option<UserProfile>, FlowyError> {
+  fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     let sqlite_db = open_user_db(&self.storage_path, uid)?;
-    let user_profile = get_user_profile(&sqlite_db, uid).ok();
+    let user_profile = get_user_profile(&sqlite_db, uid)?;
     Ok(user_profile)
   }
 

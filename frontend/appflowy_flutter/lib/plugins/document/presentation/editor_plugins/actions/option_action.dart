@@ -10,6 +10,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+const optionActionColorDefaultColor = 'appflowy_theme_default_color';
+
 enum OptionAction {
   delete,
   duplicate,
@@ -251,12 +253,14 @@ class ColorOptionAction extends PopoverActionCell {
           // reset to default background color
           FlowyColorOption(
             color: defaultColor,
-            name: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+            i18n: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+            id: optionActionColorDefaultColor,
           ),
           ...FlowyTint.values.map(
             (e) => FlowyColorOption(
               color: e.color(context),
-              name: e.tintName(AppFlowyEditorLocalizations.current),
+              i18n: e.tintName(AppFlowyEditorL10n.current),
+              id: e.id,
             ),
           ),
         ];
@@ -268,11 +272,10 @@ class ColorOptionAction extends PopoverActionCell {
             color: Theme.of(context).colorScheme.onBackground,
             width: 1,
           ),
-          onTap: (color, index) async {
+          onTap: (option, index) async {
             final transaction = editorState.transaction;
-            final backgroundColor = color.toHex();
             transaction.updateNode(node, {
-              blockComponentBackgroundColor: backgroundColor,
+              blockComponentBackgroundColor: option.id,
             });
             await editorState.apply(transaction);
 

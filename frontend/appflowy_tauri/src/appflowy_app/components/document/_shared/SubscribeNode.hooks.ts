@@ -18,6 +18,14 @@ export function useSubscribeNode(id: string) {
   }>((state) => {
     const documentState = state[DOCUMENT_NAME][docId];
     const node = documentState?.nodes[id];
+    // if node is root, return page name
+    if (!node?.parent) {
+      const delta = state.pages?.pageMap[docId]?.name;
+      return {
+        node,
+        delta: delta ? JSON.stringify(new Delta().insert(delta)) : '',
+      };
+    }
     const externalId = node?.externalId;
 
     return {

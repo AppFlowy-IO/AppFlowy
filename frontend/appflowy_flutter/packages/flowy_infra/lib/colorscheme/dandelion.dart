@@ -57,7 +57,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           main1: _lightDandelionYellow,
           // cursor color
           main2: _lightDandelionYellow,
-          shadow: _black,
+          shadow: const Color.fromRGBO(0, 0, 0, 0.15),
           sidebarBg: _lightDandelionGreen,
           divider: _lightShader6,
           topbarBg: _white,
@@ -85,7 +85,7 @@ class DandelionColorScheme extends FlowyColorScheme {
       : super(
           surface: const Color(0xff292929),
           hover: const Color(0xff1f1f1f),
-          selector: const Color(0xff333333),
+          selector: _darkShader2,
           red: const Color(0xfffb006d),
           yellow: const Color(0xffffd667),
           green: const Color(0xff66cf80),
@@ -111,8 +111,8 @@ class DandelionColorScheme extends FlowyColorScheme {
           tint9: const Color(0x4d0029FF),
           main1: _darkMain1,
           main2: _darkMain1,
-          shadow: _black,
-          sidebarBg: const Color(0xff232B38),
+          shadow: const Color(0xff0F131C),
+          sidebarBg: const Color(0xff25300e),
           divider: _darkShader3,
           topbarBg: _darkShader1,
           icon: _darkShader5,

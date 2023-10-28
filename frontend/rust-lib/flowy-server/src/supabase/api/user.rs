@@ -2,14 +2,13 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::iter::Take;
 use std::pin::Pin;
-use std::str::FromStr;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
-use collab_define::{CollabObject, CollabType};
+use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
@@ -17,6 +16,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
+use flowy_error::FlowyError;
 use flowy_folder_deps::cloud::{Folder, Workspace};
 use flowy_user_deps::cloud::*;
 use flowy_user_deps::entities::*;
@@ -128,6 +128,8 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&user_profile.encryption_sign),
+        updated_at: user_profile.updated_at.timestamp(),
+        metadata: None,
       })
     })
   }
@@ -157,6 +159,8 @@ where
         token: None,
         device_id: params.device_id,
         encryption_type: EncryptionType::from_sign(&response.encryption_sign),
+        updated_at: response.updated_at.timestamp(),
+        metadata: None,
       })
     })
   }
@@ -165,10 +169,18 @@ where
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_callback_url(&self, _email: &str) -> FutureResult<String, Error> {
+  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, Error> {
     FutureResult::new(async {
       Err(anyhow::anyhow!(
         "Can't generate callback url when using supabase"
+      ))
+    })
+  }
+
+  fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, Error> {
+    FutureResult::new(async {
+      Err(anyhow::anyhow!(
+        "Can't generate oauth url when using supabase"
       ))
     })
   }
@@ -186,10 +198,7 @@ where
     })
   }
 
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error> {
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError> {
     let try_get_postgrest = self.server.try_get_postgrest();
     let uid = credential
       .uid
@@ -199,23 +208,25 @@ where
       let postgrest = try_get_postgrest?;
       let user_profile_resp = get_user_profile(postgrest, GetUserProfileParams::Uid(uid)).await?;
       match user_profile_resp {
-        None => Ok(None),
-        Some(response) => Ok(Some(UserProfile {
+        None => Err(FlowyError::record_not_found()),
+        Some(response) => Ok(UserProfile {
           uid: response.uid,
           email: response.email,
           name: response.name,
           token: "".to_string(),
           icon_url: "".to_string(),
           openai_key: "".to_string(),
+          stability_ai_key: "".to_string(),
           workspace_id: response.latest_workspace_id,
           auth_type: AuthType::Supabase,
           encryption_type: EncryptionType::from_sign(&response.encryption_sign),
-        })),
+          updated_at: response.updated_at.timestamp(),
+        }),
       }
     })
   }
 
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
@@ -223,34 +234,6 @@ where
       Ok(user_workspaces)
     })
   }
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error> {
-    let try_get_postgrest = self.server.try_get_postgrest();
-    let uuid = credential.uuid.and_then(|uuid| Uuid::from_str(&uuid).ok());
-    let uid = credential.uid;
-    FutureResult::new(async move {
-      let postgrest = try_get_postgrest?;
-      check_user(postgrest, uid, uuid).await?;
-      Ok(())
-    })
-  }
-
-  fn add_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    todo!()
-  }
-
-  fn remove_workspace_member(
-    &self,
-    _user_email: String,
-    _workspace_id: String,
-  ) -> FutureResult<(), Error> {
-    todo!()
-  }
-
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let awareness_id = uid.to_string();
@@ -409,7 +392,7 @@ async fn get_user_profile(
 ) -> Result<Option<UserProfileResponse>, Error> {
   let mut builder = postgrest
     .from(USER_PROFILE_VIEW)
-    .select("uid, email, name, encryption_sign, latest_workspace_id");
+    .select("uid, email, name, encryption_sign, latest_workspace_id, updated_at");
 
   match params {
     GetUserProfileParams::Uid(uid) => builder = builder.eq("uid", uid.to_string()),
@@ -497,6 +480,7 @@ async fn update_user_profile(
   Ok(())
 }
 
+#[allow(dead_code)]
 async fn check_user(
   postgrest: Arc<PostgresWrapper>,
   uid: Option<i64>,

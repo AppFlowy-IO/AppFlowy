@@ -284,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .map(
           (t) => ColorOption(
             colorHex: t.color(context).toHex(),
-            name: t.tintName(AppFlowyEditorLocalizations.current),
+            name: t.tintName(AppFlowyEditorL10n.current),
           ),
         )
         .toList();
@@ -438,11 +438,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(LocaleKeys.button_Cancel).tr(),
+          child: const Text(LocaleKeys.button_cancel).tr(),
         ),
         TextButton(
           onPressed: onSubmit,
-          child: const Text(LocaleKeys.button_OK).tr(),
+          child: const Text(LocaleKeys.button_ok).tr(),
         ),
       ],
     );
@@ -484,14 +484,9 @@ class _ImageGridItemState extends State<ImageGridItem> {
         children: [
           InkWell(
             onTap: widget.onImageSelect,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(File(widget.imagePath)),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: Corners.s8Border,
-              ),
+            child: ClipRRect(
+              borderRadius: Corners.s8Border,
+              child: Image.file(File(widget.imagePath), fit: BoxFit.cover),
             ),
           ),
           if (showDeleteButton)

@@ -1,19 +1,20 @@
-use std::sync::Arc;
-
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, GroupRowsNotificationPB, SelectOptionCellDataPB};
+use crate::entities::{FieldType, GroupRowsNotificationPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::{MultiSelectTypeOption, SelectOptionCellDataParser};
-use crate::services::group::action::GroupCustomize;
-use crate::services::group::controller::{
-  BaseGroupController, GroupController, GroupsBuilder, MoveGroupRowContext,
+use crate::services::field::{
+  MultiSelectTypeOption, SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction,
+  TypeOption,
 };
+use crate::services::group::action::GroupCustomize;
+use crate::services::group::controller::{BaseGroupController, GroupController};
 use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
-  move_group_row, remove_select_option_row, GeneratedGroups, GroupContext,
+  move_group_row, remove_select_option_row, GeneratedGroups, GroupChangeset, GroupContext,
+  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -26,18 +27,20 @@ pub type MultiSelectOptionGroupContext = GroupContext<MultiSelectGroupConfigurat
 pub type MultiSelectGroupController = BaseGroupController<
   MultiSelectGroupConfiguration,
   MultiSelectTypeOption,
-  MultiSelectGroupGenerator,
+  MultiSelectGroupBuilder,
   SelectOptionCellDataParser,
+  MultiSelectGroupOperationInterceptorImpl,
 >;
 
 impl GroupCustomize for MultiSelectGroupController {
-  type CellData = SelectOptionCellDataPB;
+  type GroupTypeOption = MultiSelectTypeOption;
 
-  fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
-    cell_data
-      .select_options
-      .iter()
-      .any(|option| option.id == content)
+  fn can_group(
+    &self,
+    content: &str,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> bool {
+    cell_data.iter().any(|option_id| option_id == content)
   }
 
   fn placeholder_cell(&self) -> Option<Cell> {
@@ -51,7 +54,7 @@ impl GroupCustomize for MultiSelectGroupController {
   fn add_or_remove_row_when_cell_changed(
     &mut self,
     row_detail: &RowDetail,
-    cell_data: &Self::CellData,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
@@ -62,7 +65,11 @@ impl GroupCustomize for MultiSelectGroupController {
     changesets
   }
 
-  fn delete_row(&mut self, row: &Row, cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(
+    &mut self,
+    row: &Row,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       if let Some(changeset) = remove_select_option_row(group, cell_data, row) {
@@ -74,7 +81,7 @@ impl GroupCustomize for MultiSelectGroupController {
 
   fn move_row(
     &mut self,
-    _cell_data: &Self::CellData,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -88,7 +95,7 @@ impl GroupCustomize for MultiSelectGroupController {
 }
 
 impl GroupController for MultiSelectGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {}
+  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
@@ -107,24 +114,54 @@ impl GroupController for MultiSelectGroupController {
   }
 }
 
-pub struct MultiSelectGroupGenerator;
-impl GroupsBuilder for MultiSelectGroupGenerator {
+pub struct MultiSelectGroupBuilder;
+#[async_trait]
+impl GroupsBuilder for MultiSelectGroupBuilder {
   type Context = MultiSelectOptionGroupContext;
-  type TypeOptionType = MultiSelectTypeOption;
+  type GroupTypeOption = MultiSelectTypeOption;
 
-  fn build(
+  async fn build(
     field: &Field,
     _context: &Self::Context,
-    type_option: &Option<Self::TypeOptionType>,
+    type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let group_configs = match type_option {
-      None => vec![],
-      Some(type_option) => generate_select_option_groups(&field.id, &type_option.options),
-    };
-
+    let group_configs = generate_select_option_groups(&field.id, &type_option.options);
     GeneratedGroups {
       no_status_group: Some(make_no_status_group(field)),
       group_configs,
     }
+  }
+}
+
+pub struct MultiSelectGroupOperationInterceptorImpl;
+
+#[async_trait]
+impl GroupOperationInterceptor for MultiSelectGroupOperationInterceptorImpl {
+  type GroupTypeOption = MultiSelectTypeOption;
+
+  #[tracing::instrument(level = "trace", skip_all)]
+  async fn type_option_from_group_changeset(
+    &self,
+    changeset: &GroupChangeset,
+    type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    if let Some(name) = &changeset.name {
+      let mut new_type_option = type_option.clone();
+      let select_option = type_option
+        .options
+        .iter()
+        .find(|option| option.id == changeset.group_id)
+        .unwrap();
+
+      let new_select_option = SelectOption {
+        name: name.to_owned(),
+        ..select_option.to_owned()
+      };
+      new_type_option.insert_option(new_select_option);
+      return Some(new_type_option.into());
+    }
+
+    None
   }
 }

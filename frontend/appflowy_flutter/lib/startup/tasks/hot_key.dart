@@ -14,4 +14,7 @@ class HotKeyTask extends LaunchTask {
     }
     await hotKeyManager.unregisterAll();
   }
+
+  @override
+  Future<void> dispose() async {}
 }

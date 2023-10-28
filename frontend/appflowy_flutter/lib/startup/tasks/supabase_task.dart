@@ -28,7 +28,7 @@ SupbaseRealtimeService? realtimeService;
 class InitSupabaseTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!isCloudEnabled) {
+    if (!isSupabaseEnabled) {
       return;
     }
 
@@ -53,6 +53,12 @@ class InitSupabaseTask extends LaunchTask {
       // register deep link for Windows
       registerProtocolHandler(appflowyDeepLinkSchema);
     }
+  }
+
+  @override
+  Future<void> dispose() async {
+    await realtimeService?.dispose();
+    supabase?.dispose();
   }
 }
 

@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use anyhow::Error;
-use collab_define::CollabObject;
+use collab_entity::CollabObject;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -13,7 +13,8 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
 use crate::entities::{
-  AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile, UserWorkspace,
+  WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -57,6 +58,7 @@ impl Display for UserCloudConfig {
 
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
+#[allow(unused_variables)]
 pub trait UserCloudService: Send + Sync + 'static {
   /// Sign up a new account.
   /// The type of the params is defined the this trait's implementation.
@@ -70,8 +72,15 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Sign out an account
   fn sign_out(&self, token: Option<String>) -> FutureResult<(), Error>;
 
-  /// Generate a sign in callback url for the user with the given email
-  fn generate_sign_in_callback_url(&self, email: &str) -> FutureResult<String, Error>;
+  /// Generate a sign in url for the user with the given email
+  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, Error>;
+
+  /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
+  /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
+  /// which will call [Client::sign_in_with_url] to sign in.
+  ///
+  /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
+  fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, Error>;
 
   /// Using the user's token to update the user information
   fn update_user(
@@ -82,27 +91,42 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Get the user information using the user's token or uid
   /// return None if the user is not found
-  fn get_user_profile(
-    &self,
-    credential: UserCredentials,
-  ) -> FutureResult<Option<UserProfile>, Error>;
+  fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError>;
 
   /// Return the all the workspaces of the user  
-  fn get_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
-
-  fn check_user(&self, credential: UserCredentials) -> FutureResult<(), Error>;
+  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error>;
 
   fn add_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
 
   fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error>;
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn update_workspace_member(
+    &self,
+    user_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_workspace_members(
+    &self,
+    workspace_id: String,
+  ) -> FutureResult<Vec<WorkspaceMember>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
+  }
 
   fn get_user_awareness_updates(&self, uid: i64) -> FutureResult<Vec<Vec<u8>>, Error>;
 
@@ -138,4 +162,11 @@ pub fn uuid_from_map(map: &HashMap<String, String>) -> Result<Uuid, Error> {
     .as_str();
   let uuid = Uuid::from_str(uuid)?;
   Ok(uuid)
+}
+
+pub type UserTokenStateReceiver = tokio::sync::broadcast::Receiver<UserTokenState>;
+#[derive(Debug, Clone)]
+pub enum UserTokenState {
+  Refresh,
+  Invalid,
 }

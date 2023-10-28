@@ -61,7 +61,7 @@ export const turnToBlockThunk = createAsyncThunk(
         parentId: parent.id,
         prevId: block.id || null,
         delta: delta ? delta : new Delta([{ insert: '' }]),
-        type,
+        type: BlockType.TextBlock,
         data,
       });
 

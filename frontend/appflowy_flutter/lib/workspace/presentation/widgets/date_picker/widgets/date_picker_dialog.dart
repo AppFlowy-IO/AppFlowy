@@ -3,6 +3,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Provides arguemnts for [AppFlowyCalender] when showing
 /// a [DatePickerMenu]
@@ -88,7 +89,13 @@ class DatePickerMenu extends DatePickerService {
 
     final showBelow = (offset.dy + _datePickerHeight) < editorSize.height;
     if (!showBelow) {
-      offsetY = offset.dy - _datePickerHeight;
+      if ((offset.dy - _datePickerHeight) < 0) {
+        // Show dialog in the middle
+        offsetY = offset.dy - (_datePickerHeight / 3);
+      } else {
+        // Show above
+        offsetY = offset.dy - _datePickerHeight;
+      }
     }
 
     _menuEntry = OverlayEntry(
@@ -98,17 +105,26 @@ class DatePickerMenu extends DatePickerService {
           child: SizedBox(
             height: editorSize.height,
             width: editorSize.width,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: dismiss,
-              child: Stack(
-                children: [
-                  _AnimatedDatePicker(
-                    offset: Offset(offsetX, offsetY),
-                    showBelow: showBelow,
-                    options: options,
-                  ),
-                ],
+            child: RawKeyboardListener(
+              focusNode: FocusNode()..requestFocus(),
+              onKey: (event) {
+                if (event is RawKeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.escape) {
+                  dismiss();
+                }
+              },
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: dismiss,
+                child: Stack(
+                  children: [
+                    _AnimatedDatePicker(
+                      offset: Offset(offsetX, offsetY),
+                      showBelow: showBelow,
+                      options: options,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

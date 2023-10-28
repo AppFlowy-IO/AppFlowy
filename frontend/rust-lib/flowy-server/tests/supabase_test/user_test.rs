@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
 use flowy_encrypt::{encrypt_text, generate_encryption_secret};
+use flowy_error::FlowyError;
 use flowy_user_deps::entities::*;
 use lib_infra::box_any::BoxAny;
 
@@ -54,26 +55,18 @@ async fn supabase_update_user_profile_test() {
     .await
     .unwrap();
 
+  let params = UpdateUserProfileParams::new(user.user_id)
+    .with_name("123")
+    .with_email(format!("{}@test.com", Uuid::new_v4()));
+
   user_service
-    .update_user(
-      UserCredentials::from_uid(user.user_id),
-      UpdateUserProfileParams {
-        uid: user.user_id,
-        name: Some("123".to_string()),
-        email: Some(format!("{}@test.com", Uuid::new_v4())),
-        password: None,
-        icon_url: None,
-        openai_key: None,
-        encryption_sign: None,
-      },
-    )
+    .update_user(UserCredentials::from_uid(user.user_id), params)
     .await
     .unwrap();
 
   let user_profile = user_service
     .get_user_profile(UserCredentials::from_uid(user.user_id))
     .await
-    .unwrap()
     .unwrap();
 
   assert_eq!(user_profile.name, "123");
@@ -96,7 +89,6 @@ async fn supabase_get_user_profile_test() {
   user_service
     .get_user_profile(credential.clone())
     .await
-    .unwrap()
     .unwrap();
 }
 
@@ -107,12 +99,12 @@ async fn supabase_get_not_exist_user_profile_test() {
   }
 
   let user_service = user_auth_service();
-  let result = user_service
+  let result: FlowyError = user_service
     .get_user_profile(UserCredentials::from_uid(i64::MAX))
     .await
-    .unwrap();
+    .unwrap_err();
   // user not found
-  assert!(result.is_none());
+  assert!(result.is_record_not_found());
 }
 
 #[tokio::test]
@@ -141,7 +133,6 @@ async fn user_encryption_sign_test() {
   let user_profile: UserProfile = user_service
     .get_user_profile(UserCredentials::from_uid(user.user_id))
     .await
-    .unwrap()
     .unwrap();
   assert_eq!(
     user_profile.encryption_type,

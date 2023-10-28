@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -10,6 +11,7 @@ import 'deps_resolver.dart';
 import 'entry_point.dart';
 import 'launch_configuration.dart';
 import 'plugin/plugin.dart';
+import 'tasks/appflowy_cloud_task.dart';
 import 'tasks/prelude.dart';
 
 final getIt = GetIt.instance;
@@ -71,6 +73,7 @@ class FlowyRunner {
         if (!mode.isUnitTest) ...[
           const HotKeyTask(),
           InitSupabaseTask(),
+          InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask()
         ],
@@ -102,6 +105,9 @@ Future<void> initGetIt(
         config,
       ),
     ),
+    dispose: (launcher) async {
+      await launcher.dispose();
+    },
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
 
@@ -128,6 +134,7 @@ abstract class LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   Future<void> initialize(LaunchContext context);
+  Future<void> dispose();
 }
 
 class AppLauncher {
@@ -150,6 +157,14 @@ class AppLauncher {
     for (final task in tasks) {
       await task.initialize(context);
     }
+  }
+
+  Future<void> dispose() async {
+    Log.info('AppLauncher dispose');
+    for (final task in tasks) {
+      await task.dispose();
+    }
+    tasks.clear();
   }
 }
 

@@ -1,5 +1,4 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -68,14 +67,5 @@ class ChecklistCellBackendService {
       ..updateOptions.add(newOption);
 
     return DatabaseEventUpdateChecklistCell(payload).send();
-  }
-
-  Future<Either<ChecklistCellDataPB, FlowyError>> getCellData() {
-    final payload = CellIdPB.create()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..rowId = rowId;
-
-    return DatabaseEventGetChecklistCellData(payload).send();
   }
 }

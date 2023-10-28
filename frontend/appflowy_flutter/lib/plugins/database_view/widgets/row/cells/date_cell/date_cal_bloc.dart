@@ -86,15 +86,15 @@ class DateCellCalendarBloc
                   : (start, state.startDay!);
               emit(state.copyWith(startDay: null, endDay: null));
               await _updateDateData(
-                date: newStart.toLocal().date,
-                endDate: newEnd.toLocal().date,
+                date: newStart.date,
+                endDate: newEnd.date,
               );
             } else if (end == null) {
               emit(state.copyWith(startDay: start, endDay: null));
             } else {
               await _updateDateData(
-                date: start!.toLocal().date,
-                endDate: end.toLocal().date,
+                date: start!.date,
+                endDate: end.date,
               );
             }
           },

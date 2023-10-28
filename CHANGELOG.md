@@ -1,5 +1,32 @@
 # Release Notes
 
+## Version 0.3.6 - 10/16/2023
+
+### New Features
+- Support setting Markdown styles through keyboard shortcuts.
+- Added Ukrainian language.
+- Support auto-hiding sidebar feature, ensuring a streamlined view even when resizing to a smaller window.
+- Support toggling the notifitcation on/off.
+- Added Lemonade theme. 
+
+
+### Bug fixes
+- Improve Vietnamese translations.
+- Improve reminder feature.
+- Fix some UI issues.
+
+## Version 0.3.5 - 10/09/2023
+
+### New Features
+- Added support for browsing and inserting images from Unsplash.
+- Revamp and unify the emoji picker throughout AppFlowy.
+
+### Bug fixes
+- Improve layout of the settings page.
+- Improve design of the restore page banner.
+- Improve UX of the reminders.
+- Other UI fixes.
+
 ## Version 0.3.4 - 10/02/2023
 
 ### New Features

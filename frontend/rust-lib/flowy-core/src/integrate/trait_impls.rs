@@ -1,11 +1,13 @@
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::Error;
 use bytes::Bytes;
-use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
+use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
-use collab_define::CollabType;
+use collab_entity::CollabType;
+use tokio_stream::wrappers::WatchStream;
 
 use collab_integrate::collab_builder::{CollabPluginContext, CollabSource, CollabStorageProvider};
 use collab_integrate::postgres::SupabaseDBPlugin;
@@ -19,9 +21,8 @@ use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, W
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::AuthType;
-use lib_infra::async_trait::async_trait;
-use lib_infra::future::FutureResult;
+use flowy_user_deps::entities::{AuthType, UserTokenState};
+use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{ServerProvider, ServerType, SERVER_PROVIDER_TYPE_KEY};
 
@@ -52,6 +53,17 @@ impl FileStorageService for ServerProvider {
 }
 
 impl UserCloudServiceProvider for ServerProvider {
+  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
+    let server = self.get_server(&self.get_server_type())?;
+    server.set_token(token)?;
+    Ok(())
+  }
+
+  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
+    let server = self.get_server(&self.get_server_type()).ok()?;
+    server.subscribe_token_state()
+  }
+
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
     match self.get_server(&self.get_server_type()) {
       Ok(server) => {
@@ -178,13 +190,15 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_id: &str,
     collab_type: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdate, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_update(&database_id, collab_type)
+        .get_collab_update(&database_id, collab_type, &workspace_id)
         .await
     })
   }
@@ -193,12 +207,14 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
+    workspace_id: &str,
   ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_updates(object_ids, object_ty)
+        .batch_get_collab_updates(object_ids, object_ty, &workspace_id)
         .await
     })
   }
@@ -220,13 +236,18 @@ impl DatabaseCloudService for ServerProvider {
 }
 
 impl DocumentCloudService for ServerProvider {
-  fn get_document_updates(&self, document_id: &str) -> FutureResult<Vec<Vec<u8>>, Error> {
-    let server = self.get_server(&self.get_server_type());
+  fn get_document_updates(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
+    let server = self.get_server(&self.get_server_type());
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_updates(&document_id)
+        .get_document_updates(&document_id, &workspace_id)
         .await
     })
   }
@@ -235,71 +256,85 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     limit: usize,
+    workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_snapshots(&document_id, limit)
+        .get_document_snapshots(&document_id, limit, &workspace_id)
         .await
     })
   }
 
-  fn get_document_data(&self, document_id: &str) -> FutureResult<Option<DocumentData>, Error> {
+  fn get_document_data(
+    &self,
+    document_id: &str,
+    workspace_id: &str,
+  ) -> FutureResult<Option<DocumentData>, Error> {
+    let workspace_id = workspace_id.to_string();
     let server = self.get_server(&self.get_server_type());
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
         .document_service()
-        .get_document_data(&document_id)
+        .get_document_data(&document_id, &workspace_id)
         .await
     })
   }
 }
 
-#[async_trait]
 impl CollabStorageProvider for ServerProvider {
   fn storage_source(&self) -> CollabSource {
     self.get_server_type().into()
   }
 
-  async fn get_plugins(&self, context: CollabPluginContext) -> Vec<Arc<dyn CollabPlugin>> {
-    let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+  fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     match context {
-      CollabPluginContext::Local => {},
+      CollabPluginContext::Local => to_fut(async move { vec![] }),
       CollabPluginContext::AppFlowyCloud {
         uid: _,
         collab_object,
         local_collab,
       } => {
         if let Ok(server) = self.get_server(&ServerType::AFCloud) {
-          match server.collab_ws_channel(&collab_object.object_id).await {
-            Ok(Some((channel, ws_connect_state))) => {
-              let origin = CollabOrigin::Client(CollabClient::new(
-                collab_object.uid,
-                collab_object.device_id.clone(),
-              ));
-              let sync_object = SyncObject::from(collab_object);
-              let (sink, stream) = (channel.sink(), channel.stream());
-              let sink_config = SinkConfig::new().with_timeout(6);
-              let sync_plugin = SyncPlugin::new(
-                origin,
-                sync_object,
-                local_collab,
-                sink,
-                sink_config,
-                stream,
-                Some(channel),
-                ws_connect_state,
-              );
-              plugins.push(Arc::new(sync_plugin));
-            },
-            Ok(None) => {
-              tracing::error!("🔴Failed to get collab ws channel: channel is none");
-            },
-            Err(err) => tracing::error!("🔴Failed to get collab ws channel: {:?}", err),
-          }
+          to_fut(async move {
+            let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+            match server.collab_ws_channel(&collab_object.object_id).await {
+              Ok(Some((channel, ws_connect_state))) => {
+                let origin = CollabOrigin::Client(CollabClient::new(
+                  collab_object.uid,
+                  collab_object.device_id.clone(),
+                ));
+                let sync_object = SyncObject::from(collab_object);
+                let (sink, stream) = (channel.sink(), channel.stream());
+                let sink_config = SinkConfig::new()
+                  .send_timeout(6)
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
+                let sync_plugin = SyncPlugin::new(
+                  origin,
+                  sync_object,
+                  local_collab,
+                  sink,
+                  sink_config,
+                  stream,
+                  Some(channel),
+                  ws_connect_state,
+                );
+                plugins.push(Arc::new(sync_plugin));
+              },
+              Ok(None) => {
+                tracing::error!("🔴Failed to get collab ws channel: channel is none");
+              },
+              Err(err) => tracing::error!("🔴Failed to get collab ws channel: {:?}", err),
+            }
+
+            plugins
+          })
+        } else {
+          to_fut(async move { vec![] })
         }
       },
       CollabPluginContext::Supabase {
@@ -308,6 +343,7 @@ impl CollabStorageProvider for ServerProvider {
         local_collab,
         local_collab_db,
       } => {
+        let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
         if let Some(remote_collab_storage) = self
           .get_server(&ServerType::Supabase)
           .ok()
@@ -322,9 +358,10 @@ impl CollabStorageProvider for ServerProvider {
             local_collab_db,
           )));
         }
+
+        to_fut(async move { plugins })
       },
     }
-    plugins
   }
 
   fn is_sync_enabled(&self) -> bool {

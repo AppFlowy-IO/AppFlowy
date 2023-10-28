@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -15,7 +16,7 @@ use crate::services::field::{
   type_option_data_from_pb_or_default, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
-use crate::services::group::{GroupChangeset, GroupSettingChangeset};
+use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
 
 fn upgrade_manager(
@@ -597,20 +598,6 @@ pub(crate) async fn update_select_option_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn get_checklist_cell_data_handler(
-  data: AFPluginData<CellIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<ChecklistCellDataPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params: CellIdParams = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let data = database_editor
-    .get_checklist_option(params.row_id, &params.field_id)
-    .await;
-  data_result_ok(data)
-}
-
-#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_checklist_cell_handler(
   data: AFPluginData<ChecklistCellDataChangesetPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
@@ -625,7 +612,7 @@ pub(crate) async fn update_checklist_cell_handler(
     update_options: params.update_options,
   };
   database_editor
-    .set_checklist_options(&params.view_id, params.row_id, &params.field_id, changeset)
+    .update_cell_with_changeset(&params.view_id, params.row_id, &params.field_id, changeset)
     .await?;
   Ok(())
 }
@@ -656,6 +643,36 @@ pub(crate) async fn update_date_cell_handler(
       cell_changeset,
     )
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_group_configurations_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedGroupSettingPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(params.as_ref()).await?;
+  let group_configs = database_editor
+    .get_group_configuration_settings(params.as_ref())
+    .await?;
+  data_result_ok(group_configs.into())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn update_group_configuration_handler(
+  data: AFPluginData<GroupSettingChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  let view_id = params.view_id.clone();
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  database_editor
+    .update_group_configuration_setting(&view_id, params.into())
+    .await?;
+
   Ok(())
 }
 
@@ -708,12 +725,16 @@ pub(crate) async fn update_group_handler(
   let params: UpdateGroupParams = data.into_inner().try_into()?;
   let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
-  let group_setting_changeset = GroupSettingChangeset {
-    update_groups: vec![GroupChangeset::from(params)],
-  };
-  database_editor
-    .update_group_setting(&view_id, group_setting_changeset)
-    .await?;
+  let group_changeset = GroupChangeset::from(params);
+  let (tx, rx) = oneshot::channel();
+  tokio::spawn(async move {
+    let result = database_editor
+      .update_group(&view_id, vec![group_changeset].into())
+      .await;
+    let _ = tx.send(result);
+  });
+
+  let _ = rx.await?;
   Ok(())
 }
 

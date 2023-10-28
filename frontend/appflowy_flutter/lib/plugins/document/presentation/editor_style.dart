@@ -1,11 +1,10 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/inline_math_equation/inline_math_equation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
-
 import 'package:appflowy/util/google_font_family_extension.dart';
-
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class EditorStyleCustomizer {
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
-
+    final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: theme.colorScheme.primary,
@@ -65,10 +64,11 @@ class EditorStyleCustomizer {
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
+            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
           ),
         ),
       ),
@@ -78,39 +78,44 @@ class EditorStyleCustomizer {
 
   EditorStyle mobile() {
     final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-
-    return EditorStyle.desktop(
+    const fontSize = 14.0;
+    final fontFamily = GoogleFonts.poppins().fontFamily ?? 'Poppins';
+    final codeFontSize = max(0.0, fontSize - 2);
+    return EditorStyle.mobile(
       padding: padding,
-      cursorColor: theme.colorScheme.primary,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
           height: 1.5,
         ),
-        bold: baseTextStyle(fontFamily).copyWith(
+        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
-        underline: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.underline),
-        strikethrough: baseTextStyle(fontFamily)
-            .copyWith(decoration: TextDecoration.lineThrough),
+        italic: baseTextStyle(fontFamily).copyWith(
+          fontStyle: FontStyle.italic,
+        ),
+        underline: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.underline,
+        ),
+        strikethrough: baseTextStyle(fontFamily).copyWith(
+          decoration: TextDecoration.lineThrough,
+        ),
         href: baseTextStyle(fontFamily).copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
           textStyle: baseTextStyle(fontFamily).copyWith(
-            fontSize: fontSize,
+            fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface,
+            backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
       ),
+      textSpanDecorator: customizeAttributeDecorator,
     );
   }
 

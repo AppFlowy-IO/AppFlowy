@@ -163,16 +163,19 @@ class _ToggleListBlockComponentWidgetState
         textDirection: textDirection,
         children: [
           // the emoji picker button for the note
-          FlowyIconButton(
-            width: 24.0,
-            icon: Icon(
-              collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
+          Container(
+            constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
+            padding: const EdgeInsets.only(right: 4.0),
+            child: FlowyIconButton(
+              width: 18.0,
+              icon: Icon(
+                collapsed ? Icons.arrow_right : Icons.arrow_drop_down,
+                size: 18.0,
+              ),
+              onPressed: onCollapsed,
             ),
-            onPressed: onCollapsed,
           ),
-          const SizedBox(
-            width: 4.0,
-          ),
+
           Flexible(
             child: AppFlowyRichText(
               key: forwardKey,

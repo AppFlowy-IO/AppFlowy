@@ -1,9 +1,11 @@
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/workspace/application/local_notifications/notification_service.dart';
-import 'package:appflowy/startup/tasks/prelude.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -11,9 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../user/application/user_settings_service.dart';
-import '../../workspace/application/appearance.dart';
-import '../startup.dart';
+import 'prelude.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
@@ -48,6 +48,7 @@ class InitAppWidgetTask extends LaunchTask {
       EasyLocalization(
         supportedLocales: const [
           // In alphabetical order
+          Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
           Locale('de', 'DE'),
@@ -66,10 +67,13 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('ru', 'RU'),
           Locale('sv'),
           Locale('tr', 'TR'),
+          Locale('uk', 'UA'),
           Locale('ur'),
+          Locale('vi', 'VN'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
           Locale('fa'),
+          Locale('hin'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
@@ -81,6 +85,9 @@ class InitAppWidgetTask extends LaunchTask {
 
     return;
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
 class ApplicationWidget extends StatefulWidget {
@@ -93,8 +100,8 @@ class ApplicationWidget extends StatefulWidget {
   });
 
   final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
   final AppTheme appTheme;
+  final AppearanceSettingsPB appearanceSetting;
   final DateTimeSettingsPB dateTimeSettings;
 
   @override
@@ -123,6 +130,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
             widget.appTheme,
           )..readLocaleWhenAppLaunch(context),
         ),
+        BlocProvider<NotificationSettingsCubit>(
+          create: (_) => getIt<NotificationSettingsCubit>(),
+        ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
@@ -134,8 +144,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           theme: state.lightTheme,
           darkTheme: state.darkTheme,
           themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
+          localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: state.locale,
           routerConfig: routerConfig,

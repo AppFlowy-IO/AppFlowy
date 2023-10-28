@@ -130,7 +130,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final result = await UserBackendService.getCurrentUserProfile().then(
       (value) async => value.andThen(
         // open the document
-        await _documentService.openDocument(view: view),
+        await _documentService.openDocument(viewId: view.id),
       ),
     );
     return state.copyWith(

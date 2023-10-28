@@ -147,7 +147,7 @@ pub enum ErrorCode {
   GroupIdIsEmpty = 46,
 
   #[error("Invalid date time format")]
-  InvalidDateTimeFormat = 47,
+  InvalidDateTimeFormat = 48,
 
   #[error("Invalid params")]
   InvalidParams = 49,
@@ -253,6 +253,9 @@ pub enum ErrorCode {
 
   #[error("Permission denied")]
   NotEnoughPermissions = 83,
+
+  #[error("Internal server error")]
+  InternalServerError = 84,
 }
 
 impl ErrorCode {
