@@ -376,9 +376,8 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 }
               },
               child: Tooltip(
-                message: state.unscheduleEvents.isEmpty
-                    ? "Unscheduled events will show up here"
-                    : "${state.unscheduleEvents.length} events are unscheduled",
+                message: LocaleKeys.calendar_settings_noDateHint
+                    .plural(state.unscheduleEvents.length),
                 child: FlowyText.regular(
                   "${LocaleKeys.calendar_settings_noDateTitle.tr()} (${state.unscheduleEvents.length})",
                   fontSize: 10,

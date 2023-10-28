@@ -713,7 +713,11 @@
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
-      "noDateHint": "Unscheduled events will show up here",
+      "noDateHint": {
+        "zero": "Unscheduled events will show up here",
+        "one": "{} unscheduled event",
+        "many": "{} unscheduled events"
+      },
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
     },
