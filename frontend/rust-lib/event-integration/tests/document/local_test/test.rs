@@ -2,7 +2,7 @@ use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
 use flowy_document2::entities::*;
-use flowy_document2::parser::parser_entities::{ConvertDocumentPayloadPB, ConvertTypePB};
+use flowy_document2::parser::parser_entities::{ConvertDocumentPayloadPB, ExportTypePB};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -125,7 +125,7 @@ async fn apply_text_delta_test() {
 macro_rules! generate_convert_document_test_cases {
   ($($json:ident, $text:ident, $html:ident),*) => {
     [
-        $((ConvertTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
+        $((ExportTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
     ]
   };
 }

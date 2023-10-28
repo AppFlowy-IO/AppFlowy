@@ -89,34 +89,33 @@ pub enum DocumentEvent {
   /// Basic usage:
   ///
   /// ```txt
-  ///     // document: [{ "block_id": "1", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] } }, { "block_id": "2", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] }
-  ///     let test = DocumentEventTest::new().await;
-  ///     let view = test.create_document().await;
-  ///     let payload = ConvertDocumentPayloadPB {
-  ///         document_id: view.id,
-  ///         range: Some(RangePB {
-  ///             start: SelectionPB {
-  ///                 block_id: "1".to_string(),
-  ///                 index: 0,
-  ///                 length: 5,
-  ///             },
-  ///             end: SelectionPB {
-  ///                 block_id: "2".to_string(),
-  ///                 index: 5,
-  ///                 length: 7,
-  ///             }
-  ///         }),
-  ///         export_types: ConvertTypePB {
-  ///             json: true,
-  ///             text: true,
-  ///             html: true,
-  ///         },
-  ///     };
-  ///     let result = test.convert_document(payload).await;
-  ///     assert_eq!(result.json, Some("[{ \"block_id\": \"1\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \"Hello\" }] } }, { \"block_id\": \"2\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \" World!\" }] } }".to_string()));
-  ///     assert_eq!(result.text, Some("Hello\n World!".to_string()));
-  ///     assert_eq!(result.html, Some("<p>Hello</p><p> World!</p>".to_string()));
-  /// }
+  /// // document: [{ "block_id": "1", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] } }, { "block_id": "2", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] }
+  /// let test = DocumentEventTest::new().await;
+  /// let view = test.create_document().await;
+  /// let payload = ConvertDocumentPayloadPB {
+  ///   document_id: view.id,
+  ///   range: Some(RangePB {
+  ///     start: SelectionPB {
+  ///       block_id: "1".to_string(),
+  ///       index: 0,
+  ///       length: 5,
+  ///     },
+  ///     end: SelectionPB {
+  ///       block_id: "2".to_string(),
+  ///       index: 5,
+  ///       length: 7,
+  ///     }
+  ///   }),
+  ///   export_types: ConvertTypePB {
+  ///     json: true,
+  ///     text: true,
+  ///     html: true,
+  ///   },
+  /// };
+  /// let result = test.convert_document(payload).await;
+  /// assert_eq!(result.json, Some("[{ \"block_id\": \"1\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \"Hello\" }] } }, { \"block_id\": \"2\", \"type\": \"paragraph\", \"data\": {\"delta\": [{ \"insert\": \" World!\" }] } }".to_string()));
+  /// assert_eq!(result.text, Some("Hello\n World!".to_string()));
+  /// assert_eq!(result.html, Some("<p>Hello</p><p> World!</p>".to_string()));
   /// ```
   /// #
   #[event(

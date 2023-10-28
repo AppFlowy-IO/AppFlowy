@@ -37,13 +37,13 @@ pub struct RangePB {
 }
 
 /**
-* ConvertTypePB
+* ExportTypePB
  * @field json: bool // export json data
  * @field html: bool // export html data
  * @field text: bool // export text data
  */
 #[derive(Default, ProtoBuf, Debug, Clone)]
-pub struct ConvertTypePB {
+pub struct ExportTypePB {
   #[pb(index = 1)]
   pub json: bool,
 
@@ -57,7 +57,7 @@ pub struct ConvertTypePB {
 * ConvertDocumentPayloadPB
  * @field document_id: String
  * @file range: Option<RangePB> - optional // if range is None, copy the whole document
- * @field export_types: [ConvertTypePB]
+ * @field export_types: [ExportTypePB]
  */
 #[derive(Default, ProtoBuf)]
 pub struct ConvertDocumentPayloadPB {
@@ -68,7 +68,7 @@ pub struct ConvertDocumentPayloadPB {
   pub range: Option<RangePB>,
 
   #[pb(index = 3)]
-  pub export_types: ConvertTypePB,
+  pub export_types: ExportTypePB,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -92,7 +92,7 @@ pub struct Range {
   pub end: Selection,
 }
 
-pub struct ConvertType {
+pub struct ExportType {
   pub json: bool,
   pub html: bool,
   pub text: bool,
@@ -101,10 +101,10 @@ pub struct ConvertType {
 pub struct ConvertDocumentParams {
   pub document_id: String,
   pub range: Option<Range>,
-  pub export_types: ConvertType,
+  pub export_types: ExportType,
 }
 
-impl ConvertType {
+impl ExportType {
   pub fn any_enabled(&self) -> bool {
     self.json || self.html || self.text
   }
@@ -129,9 +129,9 @@ impl From<RangePB> for Range {
   }
 }
 
-impl From<ConvertTypePB> for ConvertType {
-  fn from(data: ConvertTypePB) -> Self {
-    ConvertType {
+impl From<ExportTypePB> for ExportType {
+  fn from(data: ExportTypePB) -> Self {
+    ExportType {
       json: data.json,
       html: data.html,
       text: data.text,
