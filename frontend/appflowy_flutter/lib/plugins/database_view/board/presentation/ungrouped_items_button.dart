@@ -78,7 +78,9 @@ class _UnscheduledEventsButtonState extends State<UngroupedItemsButton> {
                         width: 1,
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       visualDensity: VisualDensity.compact,
                     ),
                     onPressed: () {
