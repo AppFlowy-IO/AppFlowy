@@ -238,8 +238,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           boardController.removeGroup(ungroupedGroup!.fieldId);
         } else if (ungroupedGroup != null) {
           final newGroup = initializeGroupData(ungroupedGroup!);
-          final controller = initializeGroupController(ungroupedGroup!);
-          groupControllers[controller.group.groupId] = (controller);
           boardController.addGroup(newGroup);
         }
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
