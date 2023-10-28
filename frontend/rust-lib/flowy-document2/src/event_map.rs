@@ -88,24 +88,7 @@ pub enum DocumentEvent {
   ///
   /// Basic usage:
   ///
-  /// ```
-  /// # use flowy_document2::parser::parser_entities::*;
-  /// # struct DocumentEventTest;
-  /// # struct DocumentView {
-  /// #     id: String,
-  /// # }
-  /// # impl DocumentEventTest {
-  /// #     async fn new() -> Self {
-  /// #         DocumentEventTest
-  /// #     }
-  /// #     async fn create_document(&self) -> DocumentView {
-  /// #         DocumentView {
-  /// #             id: "1".to_string(),
-  /// #         }
-  /// #     }
-  /// # }
-  /// #
-  /// async fn convert_document_test() {
+  /// ```txt
   ///     // document: [{ "block_id": "1", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] } }, { "block_id": "2", "type": "paragraph", "data": {"delta": [{ "insert": "Hello World!" }] }
   ///     let test = DocumentEventTest::new().await;
   ///     let view = test.create_document().await;
