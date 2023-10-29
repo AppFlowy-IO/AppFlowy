@@ -1,7 +1,11 @@
 use std::any::Any;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 use std::{future::Future, sync::Arc};
 
 use derivative::*;
+use pin_project::pin_project;
+use tracing::event;
 
 use crate::module::AFPluginStateMap;
 use crate::runtime::AFPluginRuntime;
@@ -92,21 +96,21 @@ impl AFPluginDispatcher {
     }
   }
 
-  pub async fn async_send<Req>(
+  pub fn async_send<Req>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
-  ) -> AFPluginEventResponse
+  ) -> DispatchFuture<AFPluginEventResponse>
   where
     Req: Into<AFPluginRequest>,
   {
-    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
   }
 
-  pub async fn async_send_with_callback<Req, Callback>(
+  pub fn async_send_with_callback<Req, Callback>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
     callback: Callback,
-  ) -> AFPluginEventResponse
+  ) -> DispatchFuture<AFPluginEventResponse>
   where
     Req: Into<AFPluginRequest>,
     Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
@@ -120,6 +124,15 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
+    // Spawns a future onto the runtime.
+    //
+    // This spawns the given future onto the runtime's executor, usually a
+    // thread pool. The thread pool is then responsible for polling the future
+    // until it completes.
+    //
+    // The provided future will start running in the background immediately
+    // when `spawn` is called, even if you don't await the returned
+    // `JoinHandle`.
     let handle = dispatch.runtime.spawn(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
         tracing::error!("Dispatch runtime error: {:?}", e);
@@ -127,22 +140,26 @@ impl AFPluginDispatcher {
       })
     });
 
-    let result = dispatch.runtime.run_until(handle).await;
-    result.unwrap_or_else(|e| {
-      let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-      tracing::error!("{}", msg);
-      let error = InternalError::JoinError(msg);
-      error.as_response()
-    })
+    DispatchFuture {
+      fut: Box::pin(async move {
+        let result = dispatch.runtime.run_until(handle).await;
+        result.unwrap_or_else(|e| {
+          let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+          tracing::error!("{}", msg);
+          let error = InternalError::JoinError(msg);
+          error.as_response()
+        })
+      }),
+    }
   }
 
   #[cfg(not(feature = "single_thread"))]
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
-  ) -> AFPluginEventResponse {
+  ) -> DispatchFuture<AFPluginEventResponse> {
     futures::executor::block_on(async {
-      AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+      AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
     })
   }
 
@@ -208,34 +225,35 @@ impl Service<DispatchContext> for DispatchService {
   type Error = DispatchError;
   type Future = AFBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-  #[cfg_attr(
-    feature = "use_tracing",
-    tracing::instrument(name = "DispatchService", level = "debug", skip(self, ctx))
-  )]
+  #[tracing::instrument(name = "DispatchService", level = "debug", skip(self, ctx))]
   fn call(&self, ctx: DispatchContext) -> Self::Future {
     let module_map = self.plugins.clone();
     let (request, callback) = ctx.into_parts();
 
     Box::pin(async move {
       let result = {
-        // print_module_map_info(&module_map);
         match module_map.get(&request.event) {
           Some(module) => {
-            tracing::trace!("Handle event: {:?} by {:?}", &request.event, module.name);
+            event!(
+              tracing::Level::TRACE,
+              "Handle event: {:?} by {:?}",
+              &request.event,
+              module.name
+            );
             let fut = module.new_service(());
             let service_fut = fut.await?.call(request);
             service_fut.await
           },
           None => {
             let msg = format!("Can not find the event handler. {:?}", request);
-            tracing::error!("{}", msg);
+            event!(tracing::Level::ERROR, "{}", msg);
             Err(InternalError::HandleNotFound(msg).into())
           },
         }
       };
 
       let response = result.unwrap_or_else(|e| e.into());
-      tracing::trace!("Dispatch result: {:?}", response);
+      event!(tracing::Level::TRACE, "Dispatch result: {:?}", response);
       if let Some(callback) = callback {
         callback(response.clone()).await;
       }
@@ -259,4 +277,22 @@ fn print_plugins(plugins: &AFPluginMap) {
   plugins.iter().for_each(|(k, v)| {
     tracing::info!("Event: {:?} plugin : {:?}", k, v.name);
   })
+}
+
+#[pin_project]
+pub struct DispatchFuture<T: AFConcurrent> {
+  #[pin]
+  pub fut: Pin<Box<dyn Future<Output = T>>>,
+}
+
+impl<T> Future for DispatchFuture<T>
+where
+  T: AFConcurrent,
+{
+  type Output = T;
+
+  fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+    let this = self.as_mut().project();
+    Poll::Ready(futures_core::ready!(this.fut.poll(cx)))
+  }
 }

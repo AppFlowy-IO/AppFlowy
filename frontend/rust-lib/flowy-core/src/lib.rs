@@ -5,7 +5,7 @@ use std::time::Duration;
 use std::{fmt, sync::Arc};
 
 use tokio::sync::RwLock;
-use tracing::error;
+use tracing::{error, event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
 use flowy_database2::DatabaseManager;
@@ -95,6 +95,7 @@ impl AppFlowyCore {
     runtime.block_on(Self::init(config, cloned_runtime))
   }
 
+  #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     /// The profiling can be used to tracing the performance of the application.
     /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
@@ -108,7 +109,8 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
 
-    tracing::info!("🔥 {:?}", &config);
+    tracing::info!("🔥db {:?}", &config);
+    tracing::debug!("🔥{}", runtime);
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
@@ -120,6 +122,7 @@ impl AppFlowyCore {
       Arc::downgrade(&store_preference),
     ));
 
+    event!(tracing::Level::DEBUG, "Init managers",);
     let (
       user_manager,
       folder_manager,
@@ -193,6 +196,7 @@ impl AppFlowyCore {
 
     let cloned_user_session = Arc::downgrade(&user_manager);
     if let Some(user_session) = cloned_user_session.upgrade() {
+      event!(tracing::Level::DEBUG, "init user session",);
       if let Err(err) = user_session
         .init(user_status_callback, collab_interact_impl)
         .await

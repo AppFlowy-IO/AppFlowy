@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::future::Future;
 use std::io;
 
@@ -10,6 +11,17 @@ pub struct AFPluginRuntime {
   #[cfg(feature = "single_thread")]
   local: tokio::task::LocalSet,
 }
+
+impl Display for AFPluginRuntime {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    if cfg!(feature = "single_thread") {
+      write!(f, "Runtime(single_thread)")
+    } else {
+      write!(f, "Runtime(multi_thread)")
+    }
+  }
+}
+
 impl AFPluginRuntime {
   pub fn new() -> io::Result<Self> {
     let inner = default_tokio_runtime()?;
