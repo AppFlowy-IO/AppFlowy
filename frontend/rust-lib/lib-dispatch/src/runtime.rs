@@ -40,6 +40,22 @@ impl AFPluginRuntime {
   }
 
   #[cfg(feature = "single_thread")]
+  pub async fn run_until<F>(&self, future: F) -> F::Output
+  where
+    F: Future,
+  {
+    self.local.run_until(future).await
+  }
+
+  #[cfg(not(feature = "single_thread"))]
+  pub async fn run_until<F>(&self, future: F) -> F::Output
+  where
+    F: Future,
+  {
+    future.await
+  }
+
+  #[cfg(feature = "single_thread")]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where

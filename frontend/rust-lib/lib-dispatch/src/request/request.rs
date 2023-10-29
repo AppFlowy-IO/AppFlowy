@@ -37,16 +37,6 @@ impl AFPluginEventRequest {
     }
   }
 
-  #[cfg(feature = "single_thread")]
-  pub fn get_state<T: AFConcurrent + 'static + Clone>(&self) -> Option<T> {
-    if let Some(data) = self.states.borrow().get::<T>().cloned() {
-      return Some(data);
-    }
-
-    None
-  }
-
-  #[cfg(not(feature = "single_thread"))]
   pub fn get_state<T>(&self) -> Option<T>
   where
     T: AFConcurrent + 'static + Clone,

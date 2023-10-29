@@ -1,7 +1,7 @@
 #![allow(clippy::module_inception)]
 
 pub use container::*;
-pub use data::state::*;
+pub use data::*;
 pub use module::*;
 
 mod container;

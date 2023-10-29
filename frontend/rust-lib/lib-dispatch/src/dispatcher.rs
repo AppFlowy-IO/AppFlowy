@@ -30,10 +30,6 @@ pub type AFBoxFuture<'a, T> = futures_core::future::LocalBoxFuture<'a, T>;
 #[cfg(not(feature = "single_thread"))]
 pub type AFBoxFuture<'a, T> = futures_core::future::BoxFuture<'a, T>;
 
-#[cfg(feature = "single_thread")]
-pub type AFStateMap = std::rc::Rc<std::cell::RefCell<AFPluginStateMap>>;
-
-#[cfg(not(feature = "single_thread"))]
 pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
 
 #[cfg(feature = "single_thread")]
@@ -105,14 +101,16 @@ impl AFPluginDispatcher {
       request,
       callback: Some(Box::new(callback)),
     };
-    let join_handle = dispatch.runtime.spawn(async move {
+
+    let handle = dispatch.runtime.spawn(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
         tracing::error!("Dispatch runtime error: {:?}", e);
         InternalError::Other(format!("{:?}", e)).as_response()
       })
     });
 
-    join_handle.await.unwrap_or_else(|e| {
+    let result = dispatch.runtime.run_until(handle).await;
+    result.unwrap_or_else(|e| {
       let msg = format!("EVENT_DISPATCH join error: {:?}", e);
       tracing::error!("{}", msg);
       let error = InternalError::JoinError(msg);

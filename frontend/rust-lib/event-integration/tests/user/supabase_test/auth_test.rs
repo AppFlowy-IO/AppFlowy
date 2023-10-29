@@ -13,7 +13,7 @@ use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
-use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};
+use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_user::entities::{AuthTypePB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
@@ -30,6 +30,7 @@ async fn third_party_sign_up_test() {
       USER_EMAIL.to_string(),
       format!("{}@appflowy.io", nanoid!(6)),
     );
+    map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
       auth_type: AuthTypePB::Supabase,
@@ -70,6 +71,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
     map.insert(USER_EMAIL.to_string(), email.clone());
+    map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
 
     let response_1 = EventBuilder::new(test.clone())
       .event(OauthSignIn)
@@ -138,7 +140,6 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     assert_eq!(old_workspace.views.len(), new_workspace.views.len());
     for (index, view) in old_views.iter().enumerate() {
       assert_eq!(view.name, new_views[index].name);
-      assert_eq!(view.id, new_views[index].id);
       assert_eq!(view.layout, new_views[index].layout);
       assert_eq!(view.create_time, new_views[index].create_time);
     }

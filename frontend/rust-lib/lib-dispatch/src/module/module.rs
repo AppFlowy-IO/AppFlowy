@@ -14,7 +14,6 @@ use nanoid::nanoid;
 use pin_project::pin_project;
 
 use crate::dispatcher::AFConcurrent;
-use crate::module::AFPluginStateMap;
 use crate::prelude::{AFBoxFuture, AFStateMap};
 use crate::service::AFPluginHandler;
 use crate::{
@@ -59,11 +58,7 @@ pub struct AFPlugin {
   pub name: String,
 
   /// a list of `AFPluginState` that the plugin registers. The state can be read by the plugin's handler.
-  #[cfg(feature = "single_thread")]
-  states: std::rc::Rc<std::cell::RefCell<AFPluginStateMap>>,
-
-  #[cfg(not(feature = "single_thread"))]
-  states: Arc<AFPluginStateMap>,
+  states: AFStateMap,
 
   /// Contains a list of factories that are used to generate the services used to handle the passed-in
   /// `ServiceRequest`.
@@ -92,13 +87,7 @@ impl AFPlugin {
     self.name = s.to_owned();
     self
   }
-  #[cfg(feature = "single_thread")]
-  pub fn state<D: AFConcurrent + 'static>(self, data: D) -> Self {
-    self.states.borrow_mut().insert(data);
-    self
-  }
 
-  #[cfg(not(feature = "single_thread"))]
   pub fn state<D: AFConcurrent + 'static>(mut self, data: D) -> Self {
     Arc::get_mut(&mut self.states)
       .unwrap()

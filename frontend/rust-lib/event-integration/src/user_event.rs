@@ -6,6 +6,7 @@ use bytes::Bytes;
 use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
+use tracing::error;
 use uuid::Uuid;
 
 use flowy_notification::entities::SubscribeObject;
@@ -263,7 +264,9 @@ impl TestNotificationSender {
 }
 impl NotificationSender for TestNotificationSender {
   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
-    let _ = self.sender.send(subject);
+    if let Err(err) = self.sender.send(subject) {
+      error!("Failed to send notification: {:?}", err);
+    }
     Ok(())
   }
 }

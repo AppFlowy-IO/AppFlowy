@@ -25,7 +25,8 @@ async fn anon_user_profile_get() {
   let user_profile = test.init_anon_user().await;
   let user = EventBuilder::new(test.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
   assert_eq!(user_profile.id, user.id);
   assert_eq!(user_profile.openai_key, user.openai_key);
@@ -43,11 +44,13 @@ async fn user_update_with_name() {
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
 
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   assert_eq!(user_profile.name, new_name,);
@@ -65,11 +68,13 @@ async fn user_update_with_ai_key() {
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
 
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   assert_eq!(user_profile.openai_key, openai_key,);
@@ -85,10 +90,12 @@ async fn anon_user_update_with_email() {
   let _ = EventBuilder::new(sdk.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send();
+    .async_send()
+    .await;
   let user_profile = EventBuilder::new(sdk.clone())
     .event(GetUserProfile)
-    .sync_send()
+    .async_send()
+    .await
     .parse::<UserProfilePB>();
 
   // When the user is anonymous, the email is empty no matter what you set
@@ -105,7 +112,8 @@ async fn user_update_with_invalid_email() {
       EventBuilder::new(test.clone())
         .event(UpdateUserProfile)
         .payload(request)
-        .sync_send()
+        .async_send()
+        .await
         .error()
         .unwrap()
         .code,
@@ -139,7 +147,8 @@ async fn user_update_with_invalid_name() {
   assert!(EventBuilder::new(test.clone())
     .event(UpdateUserProfile)
     .payload(request)
-    .sync_send()
+    .async_send()
+    .await
     .error()
     .is_some())
 }
