@@ -48,9 +48,7 @@ impl EventIntegrationTest {
       ],
     );
 
-    let inner = std::thread::spawn(|| AppFlowyCore::new(config))
-      .join()
-      .unwrap();
+    let inner = init_core(config);
     let notification_sender = TestNotificationSender::new();
     let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     register_notification_sender(notification_sender.clone());
@@ -62,6 +60,20 @@ impl EventIntegrationTest {
       cleaner: Arc::new(Cleaner(path)),
     }
   }
+}
+
+#[cfg(feature = "single_thread")]
+fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
+  let runtime = tokio::runtime::Runtime::new().unwrap();
+  // let local_set = tokio::task::LocalSet::new();
+  runtime.block_on(AppFlowyCore::new(config))
+}
+
+#[cfg(not(feature = "single_thread"))]
+fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
+  std::thread::spawn(|| AppFlowyCore::new(config))
+    .join()
+    .unwrap()
 }
 
 impl std::ops::Deref for EventIntegrationTest {

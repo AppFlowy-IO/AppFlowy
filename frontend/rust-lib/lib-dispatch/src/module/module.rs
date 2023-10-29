@@ -9,15 +9,16 @@ use std::{
   task::{Context, Poll},
 };
 
-use futures_core::future::BoxFuture;
 use futures_core::ready;
 use nanoid::nanoid;
 use pin_project::pin_project;
 
+use crate::dispatcher::AFConcurrent;
+use crate::module::AFPluginStateMap;
+use crate::prelude::{AFBoxFuture, AFStateMap};
 use crate::service::AFPluginHandler;
 use crate::{
   errors::{DispatchError, InternalError},
-  module::{container::AFPluginStateMap, AFPluginState},
   request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
   response::{AFPluginEventResponse, AFPluginResponder},
   service::{
@@ -58,6 +59,10 @@ pub struct AFPlugin {
   pub name: String,
 
   /// a list of `AFPluginState` that the plugin registers. The state can be read by the plugin's handler.
+  #[cfg(feature = "single_thread")]
+  states: std::rc::Rc<std::cell::RefCell<AFPluginStateMap>>,
+
+  #[cfg(not(feature = "single_thread"))]
   states: Arc<AFPluginStateMap>,
 
   /// Contains a list of factories that are used to generate the services used to handle the passed-in
@@ -72,7 +77,7 @@ impl std::default::Default for AFPlugin {
   fn default() -> Self {
     Self {
       name: "".to_owned(),
-      states: Arc::new(AFPluginStateMap::new()),
+      states: Default::default(),
       event_service_factory: Arc::new(HashMap::new()),
     }
   }
@@ -87,12 +92,17 @@ impl AFPlugin {
     self.name = s.to_owned();
     self
   }
+  #[cfg(feature = "single_thread")]
+  pub fn state<D: AFConcurrent + 'static>(self, data: D) -> Self {
+    self.states.borrow_mut().insert(data);
+    self
+  }
 
-  pub fn state<D: 'static + Send + Sync>(mut self, data: D) -> Self {
+  #[cfg(not(feature = "single_thread"))]
+  pub fn state<D: AFConcurrent + 'static>(mut self, data: D) -> Self {
     Arc::get_mut(&mut self.states)
       .unwrap()
-      .insert(AFPluginState::new(data));
-
+      .insert(crate::module::AFPluginState::new(data));
     self
   }
 
@@ -100,9 +110,9 @@ impl AFPlugin {
   pub fn event<E, H, T, R>(mut self, event: E, handler: H) -> Self
   where
     H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest + 'static + Send + Sync,
-    <T as FromAFPluginRequest>::Future: Sync + Send,
-    R: Future + 'static + Send + Sync,
+    T: FromAFPluginRequest + 'static + AFConcurrent,
+    <T as FromAFPluginRequest>::Future: AFConcurrent,
+    R: Future + AFConcurrent + 'static,
     R::Output: AFPluginResponder + 'static,
     E: Eq + Hash + Debug + Clone + Display,
   {
@@ -169,7 +179,7 @@ impl AFPluginServiceFactory<AFPluginRequest> for AFPlugin {
   type Error = DispatchError;
   type Service = BoxService<AFPluginRequest, Self::Response, Self::Error>;
   type Context = ();
-  type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
+  type Future = AFBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
   fn new_service(&self, _cfg: Self::Context) -> Self::Future {
     let services = self.event_service_factory.clone();
@@ -185,13 +195,14 @@ pub struct AFPluginService {
   services: Arc<
     HashMap<AFPluginEvent, BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>>,
   >,
-  states: Arc<AFPluginStateMap>,
+  states: AFStateMap,
 }
 
 impl Service<AFPluginRequest> for AFPluginService {
   type Response = AFPluginEventResponse;
   type Error = DispatchError;
-  type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+  type Future = AFBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
   fn call(&self, request: AFPluginRequest) -> Self::Future {
     let AFPluginRequest { id, event, payload } = request;
@@ -224,7 +235,7 @@ impl Service<AFPluginRequest> for AFPluginService {
 #[pin_project]
 pub struct AFPluginServiceFuture {
   #[pin]
-  fut: BoxFuture<'static, Result<ServiceResponse, DispatchError>>,
+  fut: AFBoxFuture<'static, Result<ServiceResponse, DispatchError>>,
 }
 
 impl Future for AFPluginServiceFuture {

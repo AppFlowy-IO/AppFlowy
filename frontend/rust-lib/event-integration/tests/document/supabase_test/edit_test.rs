@@ -14,7 +14,7 @@ async fn supabase_document_edit_sync_test() {
 
     let cloned_test = test.clone();
     let cloned_document_id = document_id.clone();
-    tokio::spawn(async move {
+    test.inner.dispatcher().spawn(async move {
       cloned_test
         .insert_document_text(&cloned_document_id, "hello world", 0)
         .await;

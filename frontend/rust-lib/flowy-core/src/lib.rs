@@ -17,7 +17,7 @@ use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user::manager::{UserManager, UserSessionConfig};
 use lib_dispatch::prelude::*;
-use lib_dispatch::runtime::tokio_default_runtime;
+use lib_dispatch::runtime::AFPluginRuntime;
 use module::make_plugins;
 pub use module::*;
 
@@ -82,7 +82,20 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
+  #[cfg(feature = "single_thread")]
+  pub async fn new(config: AppFlowyCoreConfig) -> Self {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    Self::init(config, runtime).await
+  }
+
+  #[cfg(not(feature = "single_thread"))]
+  pub async fn new(config: AppFlowyCoreConfig) -> Self {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    let cloned_runtime = runtime.clone();
+    runtime.block_on(Self::init(config, cloned_runtime))
+  }
+
+  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     /// The profiling can be used to tracing the performance of the application.
     /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
     ///  for more information.
@@ -96,7 +109,6 @@ impl AppFlowyCore {
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
 
     tracing::info!("🔥 {:?}", &config);
-    let runtime = tokio_default_runtime().unwrap();
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
@@ -115,7 +127,7 @@ impl AppFlowyCore {
       database_manager,
       document_manager,
       collab_builder,
-    ) = runtime.block_on(async {
+    ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(server_provider.clone()));
@@ -162,7 +174,8 @@ impl AppFlowyCore {
         document_manager,
         collab_builder,
       )
-    });
+    }
+    .await;
 
     let user_status_callback = UserStatusCallbackImpl {
       collab_builder,
@@ -179,17 +192,14 @@ impl AppFlowyCore {
     };
 
     let cloned_user_session = Arc::downgrade(&user_manager);
-    runtime.block_on(async move {
-      if let Some(user_manager) = cloned_user_session.upgrade() {
-        if let Err(err) = user_manager
-          .init(user_status_callback, collab_interact_impl)
-          .await
-        {
-          error!("Init user failed: {}", err)
-        }
+    if let Some(user_session) = cloned_user_session.upgrade() {
+      if let Err(err) = user_session
+        .init(user_status_callback, collab_interact_impl)
+        .await
+      {
+        error!("Init user failed: {}", err)
       }
-    });
-
+    }
     let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
       make_plugins(
         Arc::downgrade(&folder_manager),

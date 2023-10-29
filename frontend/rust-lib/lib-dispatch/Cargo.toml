@@ -33,6 +33,7 @@ tokio = { version = "1.26", features = ["full"] }
 futures-util = "0.3.26"
 
 [features]
-default = ["use_protobuf"]
+default = ["use_protobuf", ]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf= ["protobuf"]
+single_thread = []

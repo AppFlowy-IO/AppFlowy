@@ -12,7 +12,7 @@ async fn af_cloud_edit_document_test() {
     let document_id = test.create_document().await;
     let cloned_test = test.clone();
     let cloned_document_id = document_id.clone();
-    tokio::spawn(async move {
+    test.inner.dispatcher().spawn(async move {
       cloned_test
         .insert_document_text(&cloned_document_id, "hello world", 0)
         .await;

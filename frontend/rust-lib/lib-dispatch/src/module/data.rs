@@ -1,72 +1,150 @@
-use crate::{
-  errors::{DispatchError, InternalError},
-  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-  util::ready::{ready, Ready},
-};
-use std::{any::type_name, ops::Deref, sync::Arc};
+#[cfg(feature = "single_thread")]
+pub(crate) mod state {
+  use std::{any::type_name, ops::Deref, sync::Arc};
 
-pub struct AFPluginState<T: ?Sized + Send + Sync>(Arc<T>);
+  use crate::{
+    errors::{DispatchError, InternalError},
+    request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+    util::ready::{ready, Ready},
+  };
 
-impl<T> AFPluginState<T>
-where
-  T: Send + Sync,
-{
-  pub fn new(data: T) -> Self {
-    AFPluginState(Arc::new(data))
+  pub struct AFPluginState<T: ?Sized>(Arc<T>);
+  impl<T> AFPluginState<T> {
+    pub fn new(data: T) -> Self {
+      AFPluginState(Arc::new(data))
+    }
+
+    pub fn get_ref(&self) -> &T {
+      self.0.as_ref()
+    }
   }
 
-  pub fn get_ref(&self) -> &T {
-    self.0.as_ref()
+  impl<T> Deref for AFPluginState<T>
+  where
+    T: ?Sized,
+  {
+    type Target = Arc<T>;
+
+    fn deref(&self) -> &Arc<T> {
+      &self.0
+    }
+  }
+
+  impl<T> Clone for AFPluginState<T>
+  where
+    T: ?Sized,
+  {
+    fn clone(&self) -> AFPluginState<T> {
+      AFPluginState(self.0.clone())
+    }
+  }
+
+  impl<T> From<Arc<T>> for AFPluginState<T>
+  where
+    T: ?Sized,
+  {
+    fn from(arc: Arc<T>) -> Self {
+      AFPluginState(arc)
+    }
+  }
+
+  impl<T> FromAFPluginRequest for AFPluginState<T>
+  where
+    T: ?Sized + 'static,
+  {
+    type Error = DispatchError;
+    type Future = Ready<Result<Self, DispatchError>>;
+
+    #[inline]
+    fn from_request(req: &AFPluginEventRequest, _: &mut Payload) -> Self::Future {
+      if let Some(state) = req.get_state::<AFPluginState<T>>() {
+        ready(Ok(state))
+      } else {
+        let msg = format!(
+          "Failed to get the plugin state of type: {}",
+          type_name::<T>()
+        );
+        log::error!("{}", msg,);
+        ready(Err(InternalError::Other(msg).into()))
+      }
+    }
   }
 }
 
-impl<T> Deref for AFPluginState<T>
-where
-  T: ?Sized + Send + Sync,
-{
-  type Target = Arc<T>;
+#[cfg(not(feature = "single_thread"))]
+pub(crate) mod state {
+  use std::{any::type_name, ops::Deref, sync::Arc};
 
-  fn deref(&self) -> &Arc<T> {
-    &self.0
+  use crate::prelude::AFConcurrent;
+  use crate::{
+    errors::{DispatchError, InternalError},
+    request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+    util::ready::{ready, Ready},
+  };
+
+  pub struct AFPluginState<T: ?Sized + AFConcurrent>(Arc<T>);
+
+  impl<T> AFPluginState<T>
+  where
+    T: AFConcurrent,
+  {
+    pub fn new(data: T) -> Self {
+      AFPluginState(Arc::new(data))
+    }
+
+    pub fn get_ref(&self) -> &T {
+      self.0.as_ref()
+    }
   }
-}
 
-impl<T> Clone for AFPluginState<T>
-where
-  T: ?Sized + Send + Sync,
-{
-  fn clone(&self) -> AFPluginState<T> {
-    AFPluginState(self.0.clone())
+  impl<T> Deref for AFPluginState<T>
+  where
+    T: ?Sized + AFConcurrent,
+  {
+    type Target = Arc<T>;
+
+    fn deref(&self) -> &Arc<T> {
+      &self.0
+    }
   }
-}
 
-impl<T> From<Arc<T>> for AFPluginState<T>
-where
-  T: ?Sized + Send + Sync,
-{
-  fn from(arc: Arc<T>) -> Self {
-    AFPluginState(arc)
+  impl<T> Clone for AFPluginState<T>
+  where
+    T: ?Sized + AFConcurrent,
+  {
+    fn clone(&self) -> AFPluginState<T> {
+      AFPluginState(self.0.clone())
+    }
   }
-}
 
-impl<T> FromAFPluginRequest for AFPluginState<T>
-where
-  T: ?Sized + Send + Sync + 'static,
-{
-  type Error = DispatchError;
-  type Future = Ready<Result<Self, DispatchError>>;
+  impl<T> From<Arc<T>> for AFPluginState<T>
+  where
+    T: ?Sized + AFConcurrent,
+  {
+    fn from(arc: Arc<T>) -> Self {
+      AFPluginState(arc)
+    }
+  }
 
-  #[inline]
-  fn from_request(req: &AFPluginEventRequest, _: &mut Payload) -> Self::Future {
-    if let Some(state) = req.get_state::<AFPluginState<T>>() {
-      ready(Ok(state.clone()))
-    } else {
-      let msg = format!(
-        "Failed to get the plugin state of type: {}",
-        type_name::<T>()
-      );
-      log::error!("{}", msg,);
-      ready(Err(InternalError::Other(msg).into()))
+  impl<T> FromAFPluginRequest for AFPluginState<T>
+  where
+    T: ?Sized + AFConcurrent + 'static,
+  {
+    type Error = DispatchError;
+    type Future = Ready<Result<Self, DispatchError>>;
+
+    #[inline]
+    fn from_request(req: &AFPluginEventRequest, _: &mut Payload) -> Self::Future {
+      if let Some(state) = req.get_state::<AFPluginState<T>>() {
+        ready(Ok(state))
+      } else {
+        let msg = format!(
+          "Failed to get the plugin state of type: {}",
+          type_name::<T>()
+        );
+        log::error!("{}", msg,);
+        ready(Err(InternalError::Other(msg).into()))
+      }
     }
   }
 }

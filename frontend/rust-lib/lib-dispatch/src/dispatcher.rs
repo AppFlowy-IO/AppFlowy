@@ -1,3 +1,11 @@
+use std::{future::Future, sync::Arc};
+
+use derivative::*;
+use futures_util::task::Context;
+use pin_project::pin_project;
+use tokio::macros::support::{Pin, Poll};
+
+use crate::module::AFPluginStateMap;
 use crate::runtime::AFPluginRuntime;
 use crate::{
   errors::{DispatchError, Error, InternalError},
@@ -5,20 +13,46 @@ use crate::{
   response::AFPluginEventResponse,
   service::{AFPluginServiceFactory, Service},
 };
-use derivative::*;
-use futures_core::future::BoxFuture;
-use futures_util::task::Context;
-use pin_project::pin_project;
-use std::{future::Future, sync::Arc};
-use tokio::macros::support::{Pin, Poll};
+
+#[cfg(feature = "single_thread")]
+pub trait AFConcurrent {}
+
+#[cfg(feature = "single_thread")]
+impl<T> AFConcurrent for T where T: ?Sized {}
+
+#[cfg(not(feature = "single_thread"))]
+pub trait AFConcurrent: Send + Sync {}
+
+#[cfg(not(feature = "single_thread"))]
+impl<T> AFConcurrent for T where T: Send + Sync {}
+
+#[cfg(feature = "single_thread")]
+pub type AFBoxFuture<'a, T> = futures_core::future::LocalBoxFuture<'a, T>;
+
+#[cfg(not(feature = "single_thread"))]
+pub type AFBoxFuture<'a, T> = futures_core::future::BoxFuture<'a, T>;
+
+#[cfg(feature = "single_thread")]
+pub type AFStateMap = std::rc::Rc<std::cell::RefCell<AFPluginStateMap>>;
+
+#[cfg(not(feature = "single_thread"))]
+pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
+
+#[cfg(feature = "single_thread")]
+pub type BoxFutureCallback =
+  Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + 'static>;
+
+#[cfg(not(feature = "single_thread"))]
+pub type BoxFutureCallback =
+  Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
-  runtime: AFPluginRuntime,
+  runtime: Arc<AFPluginRuntime>,
 }
 
 impl AFPluginDispatcher {
-  pub fn construct<F>(runtime: AFPluginRuntime, module_factory: F) -> AFPluginDispatcher
+  pub fn construct<F>(runtime: Arc<AFPluginRuntime>, module_factory: F) -> AFPluginDispatcher
   where
     F: FnOnce() -> Vec<AFPlugin>,
   {
@@ -47,7 +81,7 @@ impl AFPluginDispatcher {
   ) -> DispatchFuture<AFPluginEventResponse>
   where
     Req: std::convert::Into<AFPluginRequest>,
-    Callback: FnOnce(AFPluginEventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync,
+    Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
   {
     let request: AFPluginRequest = request.into();
     let plugins = dispatch.plugins.clone();
@@ -85,6 +119,15 @@ impl AFPluginDispatcher {
     })
   }
 
+  #[cfg(feature = "single_thread")]
+  pub fn spawn<F>(&self, f: F)
+  where
+    F: Future<Output = ()> + 'static,
+  {
+    self.runtime.spawn(f);
+  }
+
+  #[cfg(not(feature = "single_thread"))]
   pub fn spawn<F>(&self, f: F)
   where
     F: Future<Output = ()> + Send + 'static,
@@ -94,14 +137,19 @@ impl AFPluginDispatcher {
 }
 
 #[pin_project]
-pub struct DispatchFuture<T: Send + Sync> {
+pub struct DispatchFuture<T> {
+  #[cfg(feature = "single_thread")]
   #[pin]
-  pub fut: Pin<Box<dyn Future<Output = T> + Sync + Send>>,
+  pub fut: Pin<Box<dyn Future<Output = T>>>,
+
+  #[cfg(not(feature = "single_thread"))]
+  #[pin]
+  pub fut: Pin<Box<dyn Future<Output = T> + Send + Sync>>,
 }
 
 impl<T> Future for DispatchFuture<T>
 where
-  T: Send + Sync,
+  T: AFConcurrent,
 {
   type Output = T;
 
@@ -110,9 +158,6 @@ where
     Poll::Ready(futures_core::ready!(this.fut.poll(cx)))
   }
 }
-
-pub type BoxFutureCallback =
-  Box<dyn FnOnce(AFPluginEventResponse) -> BoxFuture<'static, ()> + 'static + Send + Sync>;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
@@ -136,7 +181,7 @@ pub(crate) struct DispatchService {
 impl Service<DispatchContext> for DispatchService {
   type Response = AFPluginEventResponse;
   type Error = DispatchError;
-  type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+  type Future = AFBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
   #[cfg_attr(
     feature = "use_tracing",
