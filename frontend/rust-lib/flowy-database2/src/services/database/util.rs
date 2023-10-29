@@ -1,23 +1,27 @@
-use collab_database::views::DatabaseView;
+use collab_database::views::{DatabaseLayout, DatabaseView};
 
 use crate::entities::{
-  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB,
-  FieldSettingsPB, FilterPB, GroupSettingPB, SortPB,
+  DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB, FieldSettingsPB, FilterPB,
+  GroupSettingPB, SortPB,
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
-use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::Sort;
 
 pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> DatabaseViewSettingPB {
   let layout_type: DatabaseLayoutPB = view.layout.into();
   let layout_setting = if let Some(layout_setting) = view.layout_settings.get(&view.layout) {
-    let calendar_setting =
-      CalendarLayoutSettingPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
-    DatabaseLayoutSettingPB {
-      layout_type: layout_type.clone(),
-      calendar: Some(calendar_setting),
+    match view.layout {
+      DatabaseLayout::Board => {
+        let board_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_board(board_setting)
+      },
+      DatabaseLayout::Calendar => {
+        let calendar_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_calendar(calendar_setting)
+      },
+      _ => DatabaseLayoutSettingPB::default(),
     }
   } else {
     DatabaseLayoutSettingPB::default()

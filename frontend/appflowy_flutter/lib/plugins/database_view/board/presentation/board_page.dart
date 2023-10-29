@@ -167,7 +167,8 @@ class _BoardContentState extends State<BoardContent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const VSpace(8.0),
-                if (state.hideUngrouped) _buildBoardHeader(context),
+                if (state.layoutSettings?.hideUngroupedColumn ?? false)
+                  _buildBoardHeader(context),
                 Expanded(
                   child: AppFlowyBoard(
                     boardScrollController: scrollManager,

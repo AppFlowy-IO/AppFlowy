@@ -8,9 +8,8 @@ use crate::entities::{
 use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
-use crate::services::field::{SelectOption, CHECK};
-use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
+use crate::services::field::{SelectOption, SelectOptionIds, CHECK};
+use crate::services::group::{GeneratedGroupConfig, Group, GroupData, MoveGroupRowContext};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,
@@ -52,12 +51,12 @@ pub fn add_or_remove_select_option_row(
 
 pub fn remove_select_option_row(
   group: &mut GroupData,
-  cell_data: &SelectOptionCellDataPB,
+  cell_data: &SelectOptionIds,
   row: &Row,
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-  cell_data.select_options.iter().for_each(|option| {
-    if option.id == group.id && group.contains_row(&row.id) {
+  cell_data.iter().for_each(|option_id| {
+    if option_id == &group.id && group.contains_row(&row.id) {
       group.remove_row(&row.id);
       changeset.deleted_rows.push(row.id.clone().into_inner());
     }
