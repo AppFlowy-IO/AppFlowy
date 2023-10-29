@@ -221,5 +221,5 @@ Widget? _buildHeaderIcon(GroupData customData) {
     );
   }
 
-  return null;
+  return widget;
 }
