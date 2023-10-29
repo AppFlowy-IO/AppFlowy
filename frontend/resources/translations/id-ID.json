@@ -193,9 +193,7 @@
     "editContact": "Ubah Kontak"
   },
   "button": {
-    "OK": "Ya",
-    "Done": "Selesai",
-    "Cancel": "Batal",
+    "done": "Selesai",
     "signIn": "Masuk",
     "signOut": "Keluar",
     "complete": "Selesai",
@@ -211,8 +209,10 @@
     "edit": "Sunting",
     "delete": "Menghapus",
     "duplicate": "Duplikat",
-    "done": "Selesai",
-    "putback": "Taruh kembali"
+    "putback": "Taruh kembali",
+    "OK": "Ya",
+    "Done": "Selesai",
+    "Cancel": "Batal"
   },
   "label": {
     "welcome": "Selamat datang!",
@@ -723,11 +723,11 @@
     }
   },
   "board": {
+    "menuName": "Papan",
+    "referencedBoardPrefix": "Pemandangan dari",
     "column": {
       "create_new_card": "Baru"
-    },
-    "menuName": "Papan",
-    "referencedBoardPrefix": "Pemandangan dari"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -745,9 +745,9 @@
       "firstDayOfWeek": "Mulai minggu",
       "layoutDateField": "Tata letak kalender oleh",
       "noDateTitle": "Tidak ada tanggal",
-      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini",
       "clickToAdd": "Klik untuk menambahkan ke kalender",
-      "name": "Tata letak kalender"
+      "name": "Tata letak kalender",
+      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini"
     },
     "referencedCalendarPrefix": "Pemandangan dari"
   },
