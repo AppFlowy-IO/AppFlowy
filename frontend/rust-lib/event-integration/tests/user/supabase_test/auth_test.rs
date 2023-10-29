@@ -23,7 +23,7 @@ use crate::util::*;
 #[tokio::test]
 async fn third_party_sign_up_test() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
     map.insert(
@@ -48,7 +48,7 @@ async fn third_party_sign_up_test() {
 #[tokio::test]
 async fn third_party_sign_up_with_encrypt_test() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     test.supabase_party_sign_up().await;
     let user_profile = test.get_user_profile().await.unwrap();
     assert!(user_profile.encryption_sign.is_empty());
@@ -65,7 +65,7 @@ async fn third_party_sign_up_with_encrypt_test() {
 #[tokio::test]
 async fn third_party_sign_up_with_duplicated_uuid() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     let email = format!("{}@appflowy.io", nanoid!(6));
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
@@ -98,7 +98,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
 #[tokio::test]
 async fn third_party_sign_up_with_duplicated_email() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     let email = format!("{}@appflowy.io", nanoid!(6));
     test
       .supabase_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
@@ -196,7 +196,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
 
 #[tokio::test]
 async fn get_user_profile_test() {
-  if let Some(test) = FlowySupabaseTest::new() {
+  if let Some(test) = FlowySupabaseTest::new().await {
     let uuid = uuid::Uuid::new_v4().to_string();
     test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
 
@@ -207,7 +207,7 @@ async fn get_user_profile_test() {
 
 #[tokio::test]
 async fn update_user_profile_test() {
-  if let Some(test) = FlowySupabaseTest::new() {
+  if let Some(test) = FlowySupabaseTest::new().await {
     let uuid = uuid::Uuid::new_v4().to_string();
     let profile = test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     test
@@ -221,7 +221,7 @@ async fn update_user_profile_test() {
 
 #[tokio::test]
 async fn update_user_profile_with_existing_email_test() {
-  if let Some(test) = FlowySupabaseTest::new() {
+  if let Some(test) = FlowySupabaseTest::new().await {
     let email = format!("{}@appflowy.io", nanoid!(6));
     let _ = test
       .supabase_sign_up_with_uuid(&uuid::Uuid::new_v4().to_string(), Some(email.clone()))
@@ -249,7 +249,7 @@ async fn update_user_profile_with_existing_email_test() {
 #[tokio::test]
 async fn migrate_anon_document_on_cloud_signup() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     let user_profile = test.sign_up_as_guest().await.user_profile;
 
     let view = test
@@ -295,7 +295,7 @@ async fn migrate_anon_data_on_cloud_signup() {
     )
     .unwrap();
     let test =
-      EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
+      EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
     let user_profile = test.supabase_party_sign_up().await;
 
     // Get the folder data from remote

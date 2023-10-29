@@ -11,7 +11,8 @@ async fn migrate_020_historical_empty_document_test() {
     "020_historical_user_data",
   )
   .unwrap();
-  let test = EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string());
+  let test =
+    EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
   let mut views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 1);

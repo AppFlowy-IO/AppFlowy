@@ -2,9 +2,6 @@ use std::any::Any;
 use std::{future::Future, sync::Arc};
 
 use derivative::*;
-use futures_util::task::Context;
-use pin_project::pin_project;
-use tokio::macros::support::{Pin, Poll};
 
 use crate::module::AFPluginStateMap;
 use crate::runtime::AFPluginRuntime;
@@ -81,23 +78,23 @@ impl AFPluginDispatcher {
     }
   }
 
-  pub fn async_send<Req>(
+  pub async fn async_send<Req>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
-  ) -> DispatchFuture<AFPluginEventResponse>
+  ) -> AFPluginEventResponse
   where
-    Req: std::convert::Into<AFPluginRequest>,
+    Req: Into<AFPluginRequest>,
   {
-    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
+    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
   }
 
-  pub fn async_send_with_callback<Req, Callback>(
+  pub async fn async_send_with_callback<Req, Callback>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
     callback: Callback,
-  ) -> DispatchFuture<AFPluginEventResponse>
+  ) -> AFPluginEventResponse
   where
-    Req: std::convert::Into<AFPluginRequest>,
+    Req: Into<AFPluginRequest>,
     Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
   {
     let request: AFPluginRequest = request.into();
@@ -115,18 +112,15 @@ impl AFPluginDispatcher {
       })
     });
 
-    DispatchFuture {
-      fut: Box::pin(async move {
-        join_handle.await.unwrap_or_else(|e| {
-          let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-          tracing::error!("{}", msg);
-          let error = InternalError::JoinError(msg);
-          error.as_response()
-        })
-      }),
-    }
+    join_handle.await.unwrap_or_else(|e| {
+      let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+      tracing::error!("{}", msg);
+      let error = InternalError::JoinError(msg);
+      error.as_response()
+    })
   }
 
+  #[cfg(not(feature = "single_thread"))]
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
@@ -150,29 +144,6 @@ impl AFPluginDispatcher {
     F: Future<Output = ()> + Send + 'static,
   {
     self.runtime.spawn(f);
-  }
-}
-
-#[pin_project]
-pub struct DispatchFuture<T> {
-  #[cfg(feature = "single_thread")]
-  #[pin]
-  pub fut: Pin<Box<dyn Future<Output = T>>>,
-
-  #[cfg(not(feature = "single_thread"))]
-  #[pin]
-  pub fut: Pin<Box<dyn Future<Output = T> + Send + Sync>>,
-}
-
-impl<T> Future for DispatchFuture<T>
-where
-  T: AFConcurrent,
-{
-  type Output = T;
-
-  fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-    let this = self.as_mut().project();
-    Poll::Ready(futures_core::ready!(this.fut.poll(cx)))
   }
 }
 

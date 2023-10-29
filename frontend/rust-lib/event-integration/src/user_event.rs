@@ -44,7 +44,7 @@ impl EventIntegrationTest {
   }
 
   pub async fn new_with_guest_user() -> Self {
-    let test = Self::default();
+    let test = Self::new().await;
     test.sign_up_as_guest().await;
     test
   }

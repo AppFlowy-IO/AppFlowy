@@ -22,13 +22,13 @@ pub struct FlowySupabaseDatabaseTest {
 impl FlowySupabaseDatabaseTest {
   #[allow(dead_code)]
   pub async fn new_with_user(uuid: String) -> Option<Self> {
-    let inner = FlowySupabaseTest::new()?;
+    let inner = FlowySupabaseTest::new().await?;
     inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })
   }
 
   pub async fn new_with_new_user() -> Option<Self> {
-    let inner = FlowySupabaseTest::new()?;
+    let inner = FlowySupabaseTest::new().await?;
     let uuid = uuid::Uuid::new_v4().to_string();
     let _ = inner.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     Some(Self { uuid, inner })

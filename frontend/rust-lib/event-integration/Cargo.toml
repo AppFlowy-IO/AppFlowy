@@ -51,7 +51,7 @@ tokio-postgres = { version = "0.7.8" }
 zip = "0.6.6"
 
 [features]
-default = ["supabase_cloud_test", "single_thread"]
+default = ["supabase_cloud_test"]
 dart = ["flowy-core/dart"]
 supabase_cloud_test = []
 single_thread = ["flowy-core/single_thread"]
