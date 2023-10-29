@@ -7,12 +7,11 @@ use collab_database::views::{
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
-
 use crate::services::field_settings::{FieldSettings, VISIBILITY};
 
 /// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {
-  field_settings: FieldSettings,
+  inner: FieldSettings,
 }
 
 impl FieldSettingsBuilder {
@@ -20,22 +19,25 @@ impl FieldSettingsBuilder {
     let field_settings = FieldSettings {
       field_id: field_id.to_string(),
       visibility: FieldVisibility::AlwaysShown,
+      width: 150,
     };
-    Self { field_settings }
-  }
-
-  pub fn field_id(mut self, field_id: &str) -> Self {
-    self.field_settings.field_id = field_id.to_string();
-    self
+    Self {
+      inner: field_settings,
+    }
   }
 
   pub fn visibility(mut self, visibility: FieldVisibility) -> Self {
-    self.field_settings.visibility = visibility;
+    self.inner.visibility = visibility;
+    self
+  }
+
+  pub fn width(mut self, width: i32) -> Self {
+    self.inner.width = width;
     self
   }
 
   pub fn build(self) -> FieldSettings {
-    self.field_settings
+    self.inner
   }
 }
 
