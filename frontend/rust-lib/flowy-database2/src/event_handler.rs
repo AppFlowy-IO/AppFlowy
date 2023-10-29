@@ -647,36 +647,6 @@ pub(crate) async fn update_date_cell_handler(
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn get_group_configurations_handler(
-  data: AFPluginData<DatabaseViewIdPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> DataResult<RepeatedGroupSettingPB, FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  let database_editor = manager.get_database_with_view_id(params.as_ref()).await?;
-  let group_configs = database_editor
-    .get_group_configuration_settings(params.as_ref())
-    .await?;
-  data_result_ok(group_configs.into())
-}
-
-#[tracing::instrument(level = "trace", skip_all, err)]
-pub(crate) async fn update_group_configuration_handler(
-  data: AFPluginData<GroupSettingChangesetPB>,
-  manager: AFPluginState<Weak<DatabaseManager>>,
-) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  let view_id = params.view_id.clone();
-  let database_editor = manager.get_database_with_view_id(&view_id).await?;
-  database_editor
-    .update_group_configuration_setting(&view_id, params.into())
-    .await?;
-
-  Ok(())
-}
-
-#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_groups_handler(
   data: AFPluginData<DatabaseViewIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
@@ -786,15 +756,11 @@ pub(crate) async fn set_layout_setting_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> FlowyResult<()> {
   let manager = upgrade_manager(manager)?;
-  let params: LayoutSettingChangeset = data.into_inner().try_into()?;
-  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let layout_params = LayoutSettingParams {
-    layout_type: params.layout_type,
-    calendar: params.calendar,
-  };
-  database_editor
-    .set_layout_setting(&params.view_id, layout_params)
-    .await;
+  let changeset = data.into_inner();
+  let view_id = changeset.view_id.clone();
+  let params: LayoutSettingChangeset = changeset.try_into()?;
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+  database_editor.set_layout_setting(&view_id, params).await?;
   Ok(())
 }
 

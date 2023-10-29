@@ -234,7 +234,7 @@ pub fn find_new_grouping_field(
 ///
 pub fn default_group_setting(field: &Field) -> GroupSetting {
   let field_id = field.id.clone();
-  GroupSetting::new(field_id, field.field_type, "".to_owned(), false)
+  GroupSetting::new(field_id, field.field_type, "".to_owned())
 }
 
 pub fn make_no_status_group(field: &Field) -> Group {

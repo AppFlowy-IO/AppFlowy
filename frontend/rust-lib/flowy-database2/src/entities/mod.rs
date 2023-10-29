@@ -1,3 +1,4 @@
+mod board_entities;
 mod calendar_entities;
 mod cell_entities;
 mod database_entities;
@@ -16,6 +17,7 @@ mod macros;
 mod share_entities;
 mod type_option_entities;
 
+pub use board_entities::*;
 pub use calendar_entities::*;
 pub use cell_entities::*;
 pub use database_entities::*;

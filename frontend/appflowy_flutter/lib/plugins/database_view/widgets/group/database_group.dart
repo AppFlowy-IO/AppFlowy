@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database_view/grid/presentation/widgets/common/
 import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -18,6 +19,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 class DatabaseGroupList extends StatelessWidget {
   final String viewId;
@@ -60,9 +62,9 @@ class DatabaseGroupList extends StatelessWidget {
                         ),
                       ),
                       Toggle(
-                        value: !state.hideUngrouped,
+                        value: !state.layoutSettings.hideUngroupedColumn,
                         onChanged: (value) =>
-                            databaseController.updateGroupConfiguration(value),
+                            _updateLayoutSettings(state.layoutSettings, value),
                         style: ToggleStyle.big,
                         padding: EdgeInsets.zero,
                       ),
@@ -103,6 +105,19 @@ class DatabaseGroupList extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Future<void> _updateLayoutSettings(
+    BoardLayoutSettingPB layoutSettings,
+    bool hideUngrouped,
+  ) {
+    layoutSettings.freeze();
+    final newLayoutSetting = layoutSettings.rebuild((message) {
+      message.hideUngroupedColumn = hideUngrouped;
+    });
+    return databaseController.updateLayoutSetting(
+      boardLayoutSetting: newLayoutSetting,
     );
   }
 }

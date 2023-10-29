@@ -1,7 +1,7 @@
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/view/view_cache.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -47,12 +47,10 @@ class GroupCallbacks {
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutChanged;
-  final void Function(DatabaseLayoutSettingPB) onLoadLayout;
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 
   DatabaseLayoutSettingCallbacks({
-    required this.onLayoutChanged,
-    required this.onLoadLayout,
+    required this.onLayoutSettingsChanged,
   });
 }
 
@@ -125,11 +123,11 @@ class DatabaseController {
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
-    DatabaseLayoutSettingCallbacks? onLayoutChanged,
+    DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
     GroupCallbacks? onGroupChanged,
   }) {
-    if (onLayoutChanged != null) {
-      _layoutCallbacks.add(onLayoutChanged);
+    if (onLayoutSettingsChanged != null) {
+      _layoutCallbacks.add(onLayoutSettingsChanged);
     }
 
     if (onDatabaseChanged != null) {
@@ -228,26 +226,19 @@ class DatabaseController {
     );
   }
 
-  Future<void> updateLayoutSetting(
-    CalendarLayoutSettingPB calendarlLayoutSetting,
-  ) async {
+  Future<void> updateLayoutSetting({
+    BoardLayoutSettingPB? boardLayoutSetting,
+    CalendarLayoutSettingPB? calendarLayoutSetting,
+  }) async {
     await _databaseViewBackendSvc
         .updateLayoutSetting(
-      calendarLayoutSetting: calendarlLayoutSetting,
+      boardLayoutSetting: boardLayoutSetting,
+      calendarLayoutSetting: calendarLayoutSetting,
       layoutType: databaseLayout,
     )
         .then((result) {
       result.fold((l) => null, (r) => Log.error(r));
     });
-  }
-
-  void updateGroupConfiguration(bool hideUngrouped) async {
-    final payload = GroupSettingChangesetPB(
-      viewId: viewId,
-      groupConfigurationId: "",
-      hideUngrouped: hideUngrouped,
-    );
-    DatabaseEventUpdateGroupConfiguration(payload).send();
   }
 
   Future<void> dispose() async {
@@ -261,9 +252,6 @@ class DatabaseController {
   }
 
   Future<void> _loadGroups() async {
-    final configResult = await loadGroupConfigurations(viewId: viewId);
-    _handleGroupConfigurationChanged(configResult);
-
     final groupsResult = await _databaseViewBackendSvc.loadGroups();
     groupsResult.fold(
       (groups) {
@@ -280,10 +268,9 @@ class DatabaseController {
       result.fold(
         (newDatabaseLayoutSetting) {
           databaseLayoutSetting = newDatabaseLayoutSetting;
-          databaseLayoutSetting?.freeze();
 
           for (final callback in _layoutCallbacks) {
-            callback.onLoadLayout(newDatabaseLayoutSetting);
+            callback.onLayoutSettingsChanged(newDatabaseLayoutSetting);
           }
         },
         (r) => Log.error(r),
@@ -339,7 +326,6 @@ class DatabaseController {
 
   void _listenOnGroupChanged() {
     _groupListener.start(
-      onGroupConfigurationChanged: _handleGroupConfigurationChanged,
       onNumOfGroupsChanged: (result) {
         result.fold(
           (changeset) {
@@ -386,35 +372,12 @@ class DatabaseController {
             databaseLayoutSetting?.freeze();
 
             for (final callback in _layoutCallbacks) {
-              callback.onLayoutChanged(newLayout);
+              callback.onLayoutSettingsChanged(newLayout);
             }
           },
           (r) => Log.error(r),
         );
       },
-    );
-  }
-
-  Future<Either<List<GroupSettingPB>, FlowyError>> loadGroupConfigurations({
-    required String viewId,
-  }) {
-    final payload = DatabaseViewIdPB(value: viewId);
-
-    return DatabaseEventGetGroupConfigurations(payload).send().then((result) {
-      return result.fold((l) => left(l.items), (r) => right(r));
-    });
-  }
-
-  void _handleGroupConfigurationChanged(
-    Either<List<GroupSettingPB>, FlowyError> result,
-  ) {
-    result.fold(
-      (configurations) {
-        for (final callback in _groupCallbacks) {
-          callback.onGroupConfigurationChanged?.call(configurations);
-        }
-      },
-      (r) => Log.error(r),
     );
   }
 }

@@ -89,3 +89,32 @@ impl CalendarLayout {
 pub const DEFAULT_FIRST_DAY_OF_WEEK: i32 = 0;
 pub const DEFAULT_SHOW_WEEKENDS: bool = true;
 pub const DEFAULT_SHOW_WEEK_NUMBERS: bool = true;
+
+#[derive(Debug, Clone, Default)]
+pub struct BoardLayoutSetting {
+  pub hide_ungrouped_column: bool,
+}
+
+impl BoardLayoutSetting {
+  pub fn new() -> Self {
+    Self::default()
+  }
+}
+
+impl From<LayoutSetting> for BoardLayoutSetting {
+  fn from(setting: LayoutSetting) -> Self {
+    Self {
+      hide_ungrouped_column: setting
+        .get_bool_value("hide_ungrouped_column")
+        .unwrap_or_default(),
+    }
+  }
+}
+
+impl From<BoardLayoutSetting> for LayoutSetting {
+  fn from(setting: BoardLayoutSetting) -> Self {
+    LayoutSettingBuilder::new()
+      .insert_bool_value("hide_ungrouped_column", setting.hide_ungrouped_column)
+      .build()
+  }
+}
