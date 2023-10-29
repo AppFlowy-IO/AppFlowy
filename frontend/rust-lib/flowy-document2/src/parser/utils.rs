@@ -1,74 +1,9 @@
-use crate::parser::constant::DELTA;
 use crate::parser::parser_entities::{
   ConvertBlockToHtmlParams, InsertDelta, NestedBlock, Selection,
 };
-use collab_document::blocks::{Block, DocumentData};
+use collab_document::blocks::DocumentData;
 use serde_json::Value;
-use std::collections::HashMap;
 use std::sync::Arc;
-
-pub struct ConvertBlockToJsonParams {
-  pub(crate) blocks: HashMap<String, Arc<Block>>,
-  pub(crate) relation_map: HashMap<String, Arc<Vec<String>>>,
-  pub(crate) delta_map: HashMap<String, Vec<InsertDelta>>,
-}
-pub fn block_to_nested_json(
-  block_id: &str,
-  convert_params: &ConvertBlockToJsonParams,
-) -> Option<NestedBlock> {
-  let blocks = &convert_params.blocks;
-  let relation_map = &convert_params.relation_map;
-  let delta_map = &convert_params.delta_map;
-  // Attempt to retrieve the block using the block_id
-  let block = blocks.get(block_id)?;
-
-  // Retrieve the children for this block from the relation map
-  let children = relation_map.get(&block.id)?;
-
-  // Recursively convert children blocks to JSON
-  let children: Vec<_> = children
-    .iter()
-    .filter_map(|child_id| block_to_nested_json(child_id, convert_params))
-    .collect();
-
-  // Clone block data
-  let mut data = block.data.clone();
-
-  // Insert delta into data if available
-  if let Some(delta) = delta_map.get(&block.id) {
-    if let Ok(delta_value) = serde_json::to_value(delta) {
-      data.insert(DELTA.to_string(), delta_value);
-    }
-  }
-
-  // Create and return the NestedBlock
-  Some(NestedBlock {
-    id: block.id.to_string(),
-    ty: block.ty.to_string(),
-    children,
-    data,
-  })
-}
-
-pub fn get_flat_block_ids(block_id: &str, data: &DocumentData) -> Vec<String> {
-  let blocks = &data.blocks;
-  let children_map = &data.meta.children_map;
-
-  if let Some(block) = blocks.get(block_id) {
-    let mut result = vec![block.id.clone()];
-
-    if let Some(child_ids) = children_map.get(&block.children) {
-      for child_id in child_ids {
-        let child_blocks = get_flat_block_ids(child_id, data);
-        result.extend(child_blocks);
-      }
-
-      return result;
-    }
-  }
-
-  vec![]
-}
 
 pub fn get_delta_for_block(block_id: &str, data: &DocumentData) -> Option<Vec<InsertDelta>> {
   let text_map = data.meta.text_map.as_ref()?; // Retrieve the text_map reference

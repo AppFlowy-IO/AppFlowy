@@ -259,6 +259,9 @@ pub enum ErrorCode {
 
   #[error("Not support yet")]
   NotSupportYet = 85,
+
+  #[error("Invalid data")]
+  InvalidData = 86,
 }
 
 impl ErrorCode {

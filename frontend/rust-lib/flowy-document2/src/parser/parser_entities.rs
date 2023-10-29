@@ -8,7 +8,7 @@ use crate::parser::utils::{
   convert_insert_delta_from_json, convert_nested_block_children_to_html, delta_to_html,
   delta_to_text,
 };
-use flowy_derive::ProtoBuf;
+use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -43,7 +43,7 @@ pub struct RangePB {
  * @field text: bool // export text data
  */
 #[derive(Default, ProtoBuf, Debug, Clone)]
-pub struct ExportTypePB {
+pub struct ParseTypePB {
   #[pb(index = 1)]
   pub json: bool,
 
@@ -57,7 +57,7 @@ pub struct ExportTypePB {
 * ConvertDocumentPayloadPB
  * @field document_id: String
  * @file range: Option<RangePB> - optional // if range is None, copy the whole document
- * @field export_types: [ExportTypePB]
+ * @field export_types: [ParseTypePB]
  */
 #[derive(Default, ProtoBuf)]
 pub struct ConvertDocumentPayloadPB {
@@ -68,7 +68,7 @@ pub struct ConvertDocumentPayloadPB {
   pub range: Option<RangePB>,
 
   #[pb(index = 3)]
-  pub export_types: ExportTypePB,
+  pub export_types: ParseTypePB,
 }
 
 #[derive(Default, ProtoBuf, Debug)]
@@ -92,7 +92,7 @@ pub struct Range {
   pub end: Selection,
 }
 
-pub struct ExportType {
+pub struct ParseType {
   pub json: bool,
   pub html: bool,
   pub text: bool,
@@ -101,10 +101,10 @@ pub struct ExportType {
 pub struct ConvertDocumentParams {
   pub document_id: String,
   pub range: Option<Range>,
-  pub export_types: ExportType,
+  pub export_types: ParseType,
 }
 
-impl ExportType {
+impl ParseType {
   pub fn any_enabled(&self) -> bool {
     self.json || self.html || self.text
   }
@@ -129,9 +129,9 @@ impl From<RangePB> for Range {
   }
 }
 
-impl From<ExportTypePB> for ExportType {
-  fn from(data: ExportTypePB) -> Self {
-    ExportType {
+impl From<ParseTypePB> for ParseType {
+  fn from(data: ParseTypePB) -> Self {
+    ParseType {
       json: data.json,
       html: data.html,
       text: data.text,
@@ -249,8 +249,6 @@ impl InsertDelta {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NestedBlock {
-  #[serde(default)]
-  pub id: String,
   #[serde(rename = "type")]
   pub ty: String,
   #[serde(default)]
@@ -262,7 +260,6 @@ pub struct NestedBlock {
 impl Eq for NestedBlock {}
 
 impl PartialEq for NestedBlock {
-  // ignore the id field
   fn eq(&self, other: &Self) -> bool {
     self.ty == other.ty
       && self.data.iter().all(|(k, v)| {
@@ -278,24 +275,9 @@ impl PartialEq for NestedBlock {
   }
 }
 
-pub struct ConvertBlockToHtmlParams {
-  pub prev_block_ty: Option<String>,
-  pub next_block_ty: Option<String>,
-}
-
 impl NestedBlock {
-  pub fn new(
-    id: String,
-    ty: String,
-    data: HashMap<String, Value>,
-    children: Vec<NestedBlock>,
-  ) -> Self {
-    Self {
-      id,
-      ty,
-      data,
-      children,
-    }
+  pub fn new(ty: String, data: HashMap<String, Value>, children: Vec<NestedBlock>) -> Self {
+    Self { ty, data, children }
   }
 
   pub fn add_child(&mut self, child: NestedBlock) {
@@ -332,7 +314,7 @@ impl NestedBlock {
       },
       CALLOUT => {
         html.push_str(&format!(
-          "<p>{}{}</p>",
+          "<aside>{}{}</aside>",
           self
             .data
             .get(ICON)
@@ -368,35 +350,28 @@ impl NestedBlock {
         ));
       },
       BULLETED_LIST | NUMBERED_LIST | TODO_LIST | TOGGLE_LIST => {
-        let list_type = match self.ty.as_str() {
-          BULLETED_LIST => "ul",
-          NUMBERED_LIST => "ol",
-          TODO_LIST => "ul",
-          TOGGLE_LIST => "ul",
-          _ => "ul", // Default to "ul" for unknown types
-        };
+        let list_type = if self.ty == NUMBERED_LIST { "ol" } else { "ul" };
         if prev_block_ty != self.ty {
           html.push_str(&format!("<{}>", list_type));
         }
         if self.ty == TODO_LIST {
-          let checked_str = if self
+          let checked = self
             .data
             .get(CHECKED)
-            .and_then(|checked| checked.as_bool())
-            .unwrap_or(false)
-          {
-            "x"
-          } else {
-            " "
-          };
-          html.push_str(&format!("<li>[{}] {}</li>", checked_str, text_html));
+            .and_then(|v| v.as_bool())
+            .unwrap_or_default();
+          html.push_str(&format!(
+            "<li role=\"checkbox\" aria-checked=\"{}\">{}",
+            checked, text_html
+          ));
         } else {
-          html.push_str(&format!("<li>{}</li>", text_html));
+          html.push_str(&format!("<li>{}", text_html));
         }
 
         html.push_str(&convert_nested_block_children_to_html(Arc::new(
           self.to_owned(),
         )));
+        html.push_str("</li>");
 
         if next_block_ty != self.ty {
           html.push_str(&format!("</{}>", list_type));
@@ -477,5 +452,52 @@ impl NestedBlock {
       },
     };
     text
+  }
+}
+
+pub struct ConvertBlockToHtmlParams {
+  pub prev_block_ty: Option<String>,
+  pub next_block_ty: Option<String>,
+}
+
+#[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum InputType {
+  #[default]
+  Html = 0,
+  PlainText = 1,
+}
+
+#[derive(Default, ProtoBuf, Debug)]
+pub struct ConvertDataToJsonPayloadPB {
+  #[pb(index = 1)]
+  pub data: String,
+
+  #[pb(index = 2)]
+  pub input_type: InputType,
+}
+
+pub struct ConvertDataToJsonParams {
+  pub data: String,
+  pub input_type: InputType,
+}
+
+#[derive(Default, ProtoBuf, Debug)]
+pub struct ConvertDataToJsonResponsePB {
+  #[pb(index = 1)]
+  pub json: String,
+}
+
+impl TryInto<ConvertDataToJsonParams> for ConvertDataToJsonPayloadPB {
+  type Error = ErrorCode;
+  fn try_into(self) -> Result<ConvertDataToJsonParams, Self::Error> {
+    let data = if self.data.is_empty() {
+      return Err(ErrorCode::InvalidData);
+    } else {
+      self.data
+    };
+    Ok(ConvertDataToJsonParams {
+      data,
+      input_type: self.input_type,
+    })
   }
 }

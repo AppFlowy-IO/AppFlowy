@@ -2,7 +2,9 @@ use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
 use flowy_document2::entities::*;
-use flowy_document2::parser::parser_entities::{ConvertDocumentPayloadPB, ExportTypePB};
+use flowy_document2::parser::parser_entities::{
+  ConvertDataToJsonPayloadPB, ConvertDocumentPayloadPB, InputType, NestedBlock, ParseTypePB,
+};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -125,7 +127,7 @@ async fn apply_text_delta_test() {
 macro_rules! generate_convert_document_test_cases {
   ($($json:ident, $text:ident, $html:ident),*) => {
     [
-        $((ExportTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
+        $((ParseTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
     ]
   };
 }
@@ -152,4 +154,33 @@ async fn convert_document_test() {
     assert_eq!(result.text.is_some(), *text_assert);
     assert_eq!(result.html.is_some(), *html_assert);
   }
+}
+
+#[tokio::test]
+async fn convert_data_to_json_test() {
+  let test = DocumentEventTest::new().await;
+  let _ = test.create_document().await;
+
+  let html = r#"<p>Hello</p><p> World!</p>"#;
+  let payload = ConvertDataToJsonPayloadPB {
+    data: html.to_string(),
+    input_type: InputType::Html,
+  };
+  let result = test.convert_data_to_json(payload).await;
+  let expect_json = json!({ "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello" }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!" }] } }] });
+
+  assert!(serde_json::from_str::<NestedBlock>(&result.json)
+    .unwrap()
+    .eq(&serde_json::from_value::<NestedBlock>(expect_json).unwrap()));
+
+  let plain_text = r#"Hello World!"#;
+  let payload = ConvertDataToJsonPayloadPB {
+    data: plain_text.to_string(),
+    input_type: InputType::PlainText,
+  };
+  let result = test.convert_data_to_json(payload).await;
+  let expect_json = json!({ "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello World!" }] } }] });
+  assert!(serde_json::from_str::<NestedBlock>(&result.json)
+    .unwrap()
+    .eq(&serde_json::from_value::<NestedBlock>(expect_json).unwrap()));
 }
