@@ -54,4 +54,4 @@ zip = "0.6.6"
 default = ["supabase_cloud_test", "single_thread"]
 dart = ["flowy-core/dart"]
 supabase_cloud_test = []
-single_thread = ["flowy-core/dispatch_single_thread"]
+single_thread = ["flowy-core/single_thread"]

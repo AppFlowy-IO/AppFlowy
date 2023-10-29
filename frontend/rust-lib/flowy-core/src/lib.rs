@@ -89,7 +89,7 @@ impl AppFlowyCore {
   }
 
   #[cfg(not(feature = "single_thread"))]
-  pub async fn new(config: AppFlowyCoreConfig) -> Self {
+  pub fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
     runtime.block_on(Self::init(config, cloned_runtime))

@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::{future::Future, sync::Arc};
 
 use derivative::*;
@@ -37,6 +38,22 @@ pub type AFStateMap = std::rc::Rc<std::cell::RefCell<AFPluginStateMap>>;
 
 #[cfg(not(feature = "single_thread"))]
 pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
+
+#[cfg(feature = "single_thread")]
+pub(crate) fn downcast_owned<T: 'static>(boxed: AFBox) -> Option<T> {
+  boxed.downcast().ok().map(|boxed| *boxed)
+}
+
+#[cfg(not(feature = "single_thread"))]
+pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T> {
+  boxed.downcast().ok().map(|boxed| *boxed)
+}
+
+#[cfg(feature = "single_thread")]
+pub(crate) type AFBox = Box<dyn Any>;
+
+#[cfg(not(feature = "single_thread"))]
+pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
 #[cfg(feature = "single_thread")]
 pub type BoxFutureCallback =

@@ -76,14 +76,14 @@ pub fn default_tokio_runtime() -> io::Result<Runtime> {
     .on_thread_start(move || {
       tracing::trace!(
         "{:?} thread started: thread_id= {}",
-        thread::current(),
+        std::thread::current(),
         thread_id::get()
       );
     })
     .on_thread_stop(move || {
       tracing::trace!(
         "{:?} thread stopping: thread_id= {}",
-        thread::current(),
+        std::thread::current(),
         thread_id::get(),
       );
     })

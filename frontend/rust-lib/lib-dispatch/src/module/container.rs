@@ -1,140 +1,61 @@
-#[cfg(feature = "single_thread")]
-pub(crate) mod state_map {
-  use std::{
-    any::{Any, TypeId},
-    collections::HashMap,
-  };
+use std::{any::TypeId, collections::HashMap};
 
-  #[derive(Default, Debug)]
-  pub struct AFPluginStateMap(HashMap<TypeId, Box<dyn Any>>);
-  impl AFPluginStateMap {
-    #[inline]
-    pub fn new() -> AFPluginStateMap {
-      AFPluginStateMap(HashMap::default())
-    }
+use crate::prelude::{downcast_owned, AFBox, AFConcurrent};
 
-    pub fn insert<T>(&mut self, val: T) -> Option<T>
-    where
-      T: 'static,
-    {
-      self
-        .0
-        .insert(TypeId::of::<T>(), Box::new(val))
-        .and_then(downcast_owned)
-    }
+#[derive(Default, Debug)]
+pub struct AFPluginStateMap(HashMap<TypeId, AFBox>);
 
-    pub fn remove<T>(&mut self) -> Option<T>
-    where
-      T: 'static,
-    {
-      self.0.remove(&TypeId::of::<T>()).and_then(downcast_owned)
-    }
-
-    pub fn get<T>(&self) -> Option<&T>
-    where
-      T: 'static,
-    {
-      self
-        .0
-        .get(&TypeId::of::<T>())
-        .and_then(|boxed| boxed.downcast_ref())
-    }
-
-    pub fn get_mut<T>(&mut self) -> Option<&mut T>
-    where
-      T: 'static,
-    {
-      self
-        .0
-        .get_mut(&TypeId::of::<T>())
-        .and_then(|boxed| boxed.downcast_mut())
-    }
-
-    pub fn contains<T>(&self) -> bool
-    where
-      T: 'static,
-    {
-      self.0.contains_key(&TypeId::of::<T>())
-    }
-
-    pub fn extend(&mut self, other: AFPluginStateMap) {
-      self.0.extend(other.0);
-    }
+impl AFPluginStateMap {
+  #[inline]
+  pub fn new() -> AFPluginStateMap {
+    AFPluginStateMap(HashMap::default())
   }
 
-  fn downcast_owned<T: 'static>(boxed: Box<dyn Any>) -> Option<T> {
-    boxed.downcast().ok().map(|boxed| *boxed)
-  }
-}
-
-#[cfg(not(feature = "single_thread"))]
-pub(crate) mod state_map {
-  use std::{
-    any::{Any, TypeId},
-    collections::HashMap,
-  };
-
-  use crate::prelude::AFConcurrent;
-
-  #[derive(Default, Debug)]
-  pub struct AFPluginStateMap(HashMap<TypeId, Box<dyn Any + Send + Sync>>);
-
-  impl AFPluginStateMap {
-    #[inline]
-    pub fn new() -> AFPluginStateMap {
-      AFPluginStateMap(HashMap::default())
-    }
-
-    pub fn insert<T>(&mut self, val: T) -> Option<T>
-    where
-      T: 'static + AFConcurrent,
-    {
-      self
-        .0
-        .insert(TypeId::of::<T>(), Box::new(val))
-        .and_then(downcast_owned)
-    }
-
-    pub fn remove<T>(&mut self) -> Option<T>
-    where
-      T: 'static + AFConcurrent,
-    {
-      self.0.remove(&TypeId::of::<T>()).and_then(downcast_owned)
-    }
-
-    pub fn get<T>(&self) -> Option<&T>
-    where
-      T: 'static,
-    {
-      self
-        .0
-        .get(&TypeId::of::<T>())
-        .and_then(|boxed| boxed.downcast_ref())
-    }
-
-    pub fn get_mut<T>(&mut self) -> Option<&mut T>
-    where
-      T: 'static + AFConcurrent,
-    {
-      self
-        .0
-        .get_mut(&TypeId::of::<T>())
-        .and_then(|boxed| boxed.downcast_mut())
-    }
-
-    pub fn contains<T>(&self) -> bool
-    where
-      T: 'static + AFConcurrent,
-    {
-      self.0.contains_key(&TypeId::of::<T>())
-    }
-
-    pub fn extend(&mut self, other: AFPluginStateMap) {
-      self.0.extend(other.0);
-    }
+  pub fn insert<T>(&mut self, val: T) -> Option<T>
+  where
+    T: 'static + AFConcurrent,
+  {
+    self
+      .0
+      .insert(TypeId::of::<T>(), Box::new(val))
+      .and_then(downcast_owned)
   }
 
-  fn downcast_owned<T: 'static + Send + Sync>(boxed: Box<dyn Any + Send + Sync>) -> Option<T> {
-    boxed.downcast().ok().map(|boxed| *boxed)
+  pub fn remove<T>(&mut self) -> Option<T>
+  where
+    T: 'static + AFConcurrent,
+  {
+    self.0.remove(&TypeId::of::<T>()).and_then(downcast_owned)
+  }
+
+  pub fn get<T>(&self) -> Option<&T>
+  where
+    T: 'static,
+  {
+    self
+      .0
+      .get(&TypeId::of::<T>())
+      .and_then(|boxed| boxed.downcast_ref())
+  }
+
+  pub fn get_mut<T>(&mut self) -> Option<&mut T>
+  where
+    T: 'static + AFConcurrent,
+  {
+    self
+      .0
+      .get_mut(&TypeId::of::<T>())
+      .and_then(|boxed| boxed.downcast_mut())
+  }
+
+  pub fn contains<T>(&self) -> bool
+  where
+    T: 'static + AFConcurrent,
+  {
+    self.0.contains_key(&TypeId::of::<T>())
+  }
+
+  pub fn extend(&mut self, other: AFPluginStateMap) {
+    self.0.extend(other.0);
   }
 }
