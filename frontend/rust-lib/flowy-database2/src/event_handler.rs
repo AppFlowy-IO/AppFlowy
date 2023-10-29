@@ -5,7 +5,7 @@ use collab_database::rows::RowId;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::util::timestamp;
 
 use crate::entities::*;
@@ -727,7 +727,7 @@ pub(crate) async fn update_group_handler(
   let database_editor = manager.get_database_with_view_id(&view_id).await?;
   let group_changeset = GroupChangeset::from(params);
   let (tx, rx) = oneshot::channel();
-  tokio::spawn(async move {
+  af_spawn(async move {
     let result = database_editor
       .update_group(&view_id, vec![group_changeset].into())
       .await;

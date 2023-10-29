@@ -18,7 +18,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
-use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
+use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher, AFPluginRequest, ToBytes};
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -214,7 +214,7 @@ impl TestNotificationSender {
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
     let ty = ty.into();
-    tokio::spawn(async move {
+    af_spawn(async move {
       // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
@@ -246,7 +246,7 @@ impl TestNotificationSender {
     let id = id.to_string();
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(value) = receiver.recv().await {
         if value.id == id {
           if let Some(payload) = value.payload {

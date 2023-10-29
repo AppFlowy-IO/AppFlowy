@@ -18,6 +18,7 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::{CollabPersistenceConfig, RocksCollabDB, YrsDocAction};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_deps::cloud::{gen_view_id, FolderCloudService};
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -1027,7 +1028,7 @@ fn subscribe_folder_view_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
         tracing::trace!("Did receive view change: {:?}", value);
@@ -1065,7 +1066,7 @@ fn subscribe_folder_snapshot_state_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
       let stream = mutex_folder
         .lock()
@@ -1093,7 +1094,7 @@ fn subscribe_folder_sync_state_changed(
   mut folder_sync_state_rx: WatchStream<SyncState>,
   _weak_mutex_folder: &Weak<MutexFolder>,
 ) {
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Some(state) = folder_sync_state_rx.next().await {
       send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
@@ -1108,7 +1109,7 @@ fn subscribe_folder_trash_changed(
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(folder) = weak_mutex_folder.upgrade() {
         let mut unique_ids = HashSet::new();

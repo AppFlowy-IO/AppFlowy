@@ -71,12 +71,10 @@ impl Deref for FlowySupabaseTest {
 }
 
 pub async fn receive_with_timeout<T>(
-  receiver: &mut Receiver<T>,
+  mut receiver: Receiver<T>,
   duration: Duration,
-) -> Result<T, Box<dyn std::error::Error>> {
-  let res = timeout(duration, receiver.recv())
-    .await?
-    .ok_or(anyhow::anyhow!("recv timeout"))?;
+) -> Result<T, Box<dyn std::error::Error + Send>> {
+  let res = timeout(duration, receiver.recv()).await.unwrap().unwrap();
   Ok(res)
 }
 

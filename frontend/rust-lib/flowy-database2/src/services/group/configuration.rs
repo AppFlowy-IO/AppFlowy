@@ -12,6 +12,7 @@ use serde::Serialize;
 use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::Fut;
 
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
@@ -430,7 +431,7 @@ where
       let configuration = (*self.setting).clone();
       let writer = self.writer.clone();
       let view_id = self.view_id.clone();
-      tokio::spawn(async move {
+      af_spawn(async move {
         match writer.save_configuration(&view_id, configuration).await {
           Ok(_) => {
             tracing::trace!("SUCCESSFULLY SAVED CONFIGURATION"); // TODO(richard): remove this

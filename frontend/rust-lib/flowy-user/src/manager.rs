@@ -16,6 +16,7 @@ use flowy_sqlite::ConnectionPool;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_deps::cloud::UserUpdate;
 use flowy_user_deps::entities::*;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
@@ -93,7 +94,7 @@ impl UserManager {
     let weak_user_manager = Arc::downgrade(&user_manager);
     if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
       if let Some(mut rx) = user_service.subscribe_user_update() {
-        tokio::spawn(async move {
+        af_spawn(async move {
           while let Ok(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
@@ -133,7 +134,7 @@ impl UserManager {
       // Subscribe the token state
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
-        tokio::spawn(async move {
+        af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
             match token_state {
               UserTokenState::Refresh { token } => {
@@ -401,7 +402,7 @@ impl UserManager {
     self.set_session(None)?;
 
     let server = self.cloud_services.get_user_service()?;
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Err(err) = server.sign_out(None).await {
         event!(tracing::Level::ERROR, "{:?}", err);
       }
@@ -536,7 +537,7 @@ impl UserManager {
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    tokio::spawn(async move {
+    af_spawn(async move {
       let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })

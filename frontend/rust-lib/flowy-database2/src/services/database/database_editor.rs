@@ -12,6 +12,7 @@ use tracing::{event, warn};
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::entities::*;
@@ -58,7 +59,7 @@ impl DatabaseEditor {
     // Receive database sync state and send to frontend via the notification
     let mut sync_state = database.lock().subscribe_sync_state();
     let cloned_database_id = database_id.clone();
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Some(sync_state) = sync_state.next().await {
         send_notification(
           &cloned_database_id,
@@ -71,7 +72,7 @@ impl DatabaseEditor {
 
     // Receive database snapshot state and send to frontend via the notification
     let mut snapshot_state = database.lock().subscribe_snapshot_state();
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Some(snapshot_state) = snapshot_state.next().await {
         if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
           tracing::debug!(

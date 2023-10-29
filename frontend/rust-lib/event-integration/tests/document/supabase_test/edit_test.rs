@@ -21,10 +21,10 @@ async fn supabase_document_edit_sync_test() {
     });
 
     // wait all update are send to the remote
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| pb.is_finish);
-    receive_with_timeout(&mut rx, Duration::from_secs(30))
+    receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();
 
@@ -47,10 +47,10 @@ async fn supabase_document_edit_sync_test2() {
     }
 
     // wait all update are send to the remote
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| pb.is_finish);
-    receive_with_timeout(&mut rx, Duration::from_secs(30))
+    receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();
 

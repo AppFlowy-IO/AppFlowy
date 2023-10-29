@@ -56,6 +56,24 @@ pub type BoxFutureCallback =
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
+#[cfg(feature = "single_thread")]
+pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
+where
+  T: Future + Send + 'static,
+  T::Output: Send + 'static,
+{
+  tokio::spawn(future)
+}
+
+#[cfg(not(feature = "single_thread"))]
+pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
+where
+  T: Future + Send + 'static,
+  T::Output: Send + 'static,
+{
+  tokio::spawn(future)
+}
+
 pub struct AFPluginDispatcher {
   plugins: AFPluginMap,
   runtime: Arc<AFPluginRuntime>,
@@ -129,19 +147,40 @@ impl AFPluginDispatcher {
   }
 
   #[cfg(feature = "single_thread")]
-  pub fn spawn<F>(&self, f: F)
+  #[track_caller]
+  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
-    F: Future<Output = ()> + 'static,
+    F: Future + 'static,
   {
-    self.runtime.spawn(f);
+    self.runtime.spawn(future)
   }
 
   #[cfg(not(feature = "single_thread"))]
-  pub fn spawn<F>(&self, f: F)
+  #[track_caller]
+  pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
-    F: Future<Output = ()> + Send + 'static,
+    F: Future + Send + 'static,
+    <F as Future>::Output: Send + 'static,
   {
-    self.runtime.spawn(f);
+    self.runtime.spawn(future)
+  }
+
+  #[cfg(feature = "single_thread")]
+  pub async fn run_until<F>(&self, future: F) -> F::Output
+  where
+    F: Future + 'static,
+  {
+    let handle = self.runtime.spawn(future);
+    self.runtime.run_until(handle).await.unwrap()
+  }
+
+  #[cfg(not(feature = "single_thread"))]
+  pub async fn run_until<'a, F>(&self, future: F) -> F::Output
+  where
+    F: Future + Send + 'a,
+    <F as Future>::Output: Send + 'a,
+  {
+    self.runtime.run_until(future).await
   }
 }
 

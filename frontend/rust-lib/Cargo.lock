@@ -2027,6 +2027,7 @@ dependencies = [
  "hex",
  "hyper",
  "lazy_static",
+ "lib-dispatch",
  "lib-infra",
  "mime_guess",
  "parking_lot",

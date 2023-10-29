@@ -14,11 +14,11 @@ use crate::util::receive_with_timeout;
 async fn supabase_initial_database_snapshot_test() {
   if let Some(test) = FlowySupabaseDatabaseTest::new_with_new_user().await {
     let (view, database) = test.create_database().await;
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe::<DatabaseSnapshotStatePB>(&database.id, DidUpdateDatabaseSnapshotState);
 
-    receive_with_timeout(&mut rx, Duration::from_secs(30))
+    receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();
 
@@ -51,10 +51,10 @@ async fn supabase_edit_database_test() {
       .await;
 
     // wait all updates are send to the remote
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| pb.is_finish);
-    receive_with_timeout(&mut rx, Duration::from_secs(30))
+    receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();
 
