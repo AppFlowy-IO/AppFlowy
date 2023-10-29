@@ -235,11 +235,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (isClosed || !layoutSettings.hasBoard()) {
           return;
         }
-        if (layoutSettings.board.hideUngroupedColumn) {
-          boardController.removeGroup(ungroupedGroup!.fieldId);
-        } else if (ungroupedGroup != null) {
-          final newGroup = initializeGroupData(ungroupedGroup!);
-          boardController.addGroup(newGroup);
+        if (ungroupedGroup != null) {
+          if (layoutSettings.board.hideUngroupedColumn) {
+            boardController.removeGroup(ungroupedGroup!.fieldId);
+          } else {
+            final newGroup = initializeGroupData(ungroupedGroup!);
+            boardController.addGroup(newGroup);
+          }
         }
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
