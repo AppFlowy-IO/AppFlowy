@@ -115,7 +115,9 @@ class ICalendarSettingImpl extends ICalendarSetting {
 
   @override
   void updateLayoutSettings(CalendarLayoutSettingPB layoutSettings) {
-    _databaseController.updateLayoutSetting(layoutSettings);
+    _databaseController.updateLayoutSetting(
+      calendarLayoutSetting: layoutSettings,
+    );
   }
 
   @override

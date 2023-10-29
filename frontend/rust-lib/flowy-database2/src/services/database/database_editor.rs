@@ -34,9 +34,7 @@ use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
 };
 use crate::services::filter::Filter;
-use crate::services::group::{
-  default_group_setting, GroupChangesets, GroupSetting, GroupSettingChangeset, RowChangeset,
-};
+use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 
@@ -872,40 +870,6 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_group_configuration_settings(
-    &self,
-    view_id: &str,
-  ) -> FlowyResult<Vec<GroupSettingPB>> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-
-    let group_settings = view
-      .v_get_group_configuration_settings()
-      .await
-      .into_iter()
-      .map(|value| GroupSettingPB::from(&value))
-      .collect::<Vec<GroupSettingPB>>();
-
-    Ok(group_settings)
-  }
-
-  pub async fn update_group_configuration_setting(
-    &self,
-    view_id: &str,
-    changeset: GroupSettingChangeset,
-  ) -> FlowyResult<()> {
-    let view = self.database_views.get_view_editor(view_id).await?;
-    let group_configuration = view.v_update_group_configuration_setting(changeset).await?;
-
-    if let Some(configuration) = group_configuration {
-      let payload: RepeatedGroupSettingPB = vec![configuration].into();
-      send_notification(view_id, DatabaseNotification::DidUpdateGroupConfiguration)
-        .payload(payload)
-        .send();
-    }
-
-    Ok(())
-  }
-
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn load_groups(&self, view_id: &str) -> FlowyResult<RepeatedGroupPB> {
     let view = self.database_views.get_view_editor(view_id).await?;
@@ -996,11 +960,15 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn set_layout_setting(&self, view_id: &str, layout_setting: LayoutSettingParams) {
-    tracing::trace!("set_layout_setting: {:?}", layout_setting);
-    if let Ok(view) = self.database_views.get_view_editor(view_id).await {
-      let _ = view.v_set_layout_settings(layout_setting).await;
-    };
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn set_layout_setting(
+    &self,
+    view_id: &str,
+    layout_setting: LayoutSettingChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_set_layout_settings(layout_setting).await?;
+    Ok(())
   }
 
   pub async fn get_layout_setting(

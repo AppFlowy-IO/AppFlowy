@@ -18,7 +18,6 @@ use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
   default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
-  GroupSettingChangeset,
 };
 
 pub trait GroupSettingReader: Send + Sync + 'static {
@@ -390,20 +389,6 @@ where
     Ok(())
   }
 
-  pub(crate) fn update_configuration(
-    &mut self,
-    changeset: GroupSettingChangeset,
-  ) -> FlowyResult<Option<GroupSetting>> {
-    self.mut_configuration(|configuration| match changeset.hide_ungrouped {
-      Some(value) if value != configuration.hide_ungrouped => {
-        configuration.hide_ungrouped = value;
-        true
-      },
-      _ => false,
-    })?;
-    Ok(Some(GroupSetting::clone(&self.setting)))
-  }
-
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
     self
       .reader
@@ -432,9 +417,7 @@ where
       let view_id = self.view_id.clone();
       tokio::spawn(async move {
         match writer.save_configuration(&view_id, configuration).await {
-          Ok(_) => {
-            tracing::trace!("SUCCESSFULLY SAVED CONFIGURATION"); // TODO(richard): remove this
-          },
+          Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);
           },
