@@ -96,23 +96,76 @@ impl AFPluginDispatcher {
     }
   }
 
-  pub fn async_send<Req>(
+  pub async fn async_send<Req>(
+    dispatch: Arc<AFPluginDispatcher>,
+    request: Req,
+  ) -> AFPluginEventResponse
+  where
+    Req: Into<AFPluginRequest>,
+  {
+    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {})).await
+  }
+
+  pub async fn async_send_with_callback<Req, Callback>(
+    dispatch: Arc<AFPluginDispatcher>,
+    request: Req,
+    callback: Callback,
+  ) -> AFPluginEventResponse
+  where
+    Req: Into<AFPluginRequest>,
+    Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
+  {
+    let request: AFPluginRequest = request.into();
+    let plugins = dispatch.plugins.clone();
+    let service = Box::new(DispatchService { plugins });
+    tracing::trace!("Async event: {:?}", &request.event);
+    let service_ctx = DispatchContext {
+      request,
+      callback: Some(Box::new(callback)),
+    };
+
+    // Spawns a future onto the runtime.
+    //
+    // This spawns the given future onto the runtime's executor, usually a
+    // thread pool. The thread pool is then responsible for polling the future
+    // until it completes.
+    //
+    // The provided future will start running in the background immediately
+    // when `spawn` is called, even if you don't await the returned
+    // `JoinHandle`.
+    let handle = dispatch.runtime.spawn(async move {
+      service.call(service_ctx).await.unwrap_or_else(|e| {
+        tracing::error!("Dispatch runtime error: {:?}", e);
+        InternalError::Other(format!("{:?}", e)).as_response()
+      })
+    });
+
+    let result = dispatch.runtime.run_until(handle).await;
+    result.unwrap_or_else(|e| {
+      let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+      tracing::error!("{}", msg);
+      let error = InternalError::JoinError(msg);
+      error.as_response()
+    })
+  }
+
+  pub fn box_async_send<Req>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
   ) -> DispatchFuture<AFPluginEventResponse>
   where
-    Req: Into<AFPluginRequest>,
+    Req: Into<AFPluginRequest> + 'static,
   {
-    AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
+    AFPluginDispatcher::boxed_async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
   }
 
-  pub fn async_send_with_callback<Req, Callback>(
+  pub fn boxed_async_send_with_callback<Req, Callback>(
     dispatch: Arc<AFPluginDispatcher>,
     request: Req,
     callback: Callback,
   ) -> DispatchFuture<AFPluginEventResponse>
   where
-    Req: Into<AFPluginRequest>,
+    Req: Into<AFPluginRequest> + 'static,
     Callback: FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + AFConcurrent + 'static,
   {
     let request: AFPluginRequest = request.into();
@@ -157,10 +210,12 @@ impl AFPluginDispatcher {
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
-  ) -> DispatchFuture<AFPluginEventResponse> {
-    futures::executor::block_on(async {
-      AFPluginDispatcher::async_send_with_callback(dispatch, request, |_| Box::pin(async {}))
-    })
+  ) -> AFPluginEventResponse {
+    futures::executor::block_on(AFPluginDispatcher::async_send_with_callback(
+      dispatch,
+      request,
+      |_| Box::pin(async {}),
+    ))
   }
 
   #[cfg(feature = "single_thread")]
@@ -282,12 +337,12 @@ fn print_plugins(plugins: &AFPluginMap) {
 #[pin_project]
 pub struct DispatchFuture<T: AFConcurrent> {
   #[pin]
-  pub fut: Pin<Box<dyn Future<Output = T>>>,
+  pub fut: Pin<Box<dyn Future<Output = T> + 'static>>,
 }
 
 impl<T> Future for DispatchFuture<T>
 where
-  T: AFConcurrent,
+  T: AFConcurrent + 'static,
 {
   type Output = T;
 
