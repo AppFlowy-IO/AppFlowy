@@ -10,8 +10,8 @@
   "and": "и",
   "blockActions": {
     "addBelowTooltip": "Нажмите, чтобы добавить ниже",
-    "addAboveCmd": "Alt+щелчок",
-    "addAboveMacCmd": "Option+щелчок",
+    "addAboveCmd": "Alt+клик",
+    "addAboveMacCmd": "Option+клик",
     "addAboveTooltip": "добавить выше",
     "dragTooltip": "Перетащите для перемещения",
     "openMenuTooltip": "Нажмите, чтобы открыть меню"
@@ -499,7 +499,7 @@
       "optionTitle": "Варианты",
       "addOption": "Добавить",
       "editProperty": "Редактировать свойство",
-      "newProperty": "Добавить колонку",
+      "newProperty": "Новое свойство",
       "deleteFieldPromptMessage": "Вы уверены? Свойство будет удалено",
       "newColumn": "Новый столбец"
     },
@@ -534,20 +534,20 @@
       "newRow": "Новая строка",
       "action": "Действия",
       "add": "Нажмите, чтобы добавить ниже",
-      "drag": "Перетащите, чтобы переместить"
+      "drag": "Перетащите для перемещения"
     },
     "selectOption": {
       "create": "Создать",
-      "purpleColor": "Фиолетовый",
+      "purpleColor": "Сиреневый",
       "pinkColor": "Розовый",
-      "lightPinkColor": "Светло-розовый",
+      "lightPinkColor": "Фиолетовый",
       "orangeColor": "Оранжевый",
-      "yellowColor": "Желтый",
+      "yellowColor": "Жёлтый",
       "limeColor": "Ярко-зелёный",
       "greenColor": "Зелёный",
       "aquaColor": "Бирюзовый",
       "blueColor": "Синий",
-      "deleteTag": "Удалить вариант",
+      "deleteTag": "Удалить тег",
       "colorPanelTitle": "Цвета",
       "panelTitle": "Выберите или создайте вариант",
       "searchOption": "Поиск",
@@ -592,7 +592,7 @@
     "plugins": {
       "referencedBoard": "Связанные доски",
       "referencedGrid": "Связанные сетки",
-      "referencedCalendar": "Ссылочный календарь",
+      "referencedCalendar": "Связанные календари",
       "autoGeneratorMenuItemName": "OpenAI Генератор",
       "autoGeneratorTitleName": "OpenAI: попросить ИИ написать что угодно...",
       "autoGeneratorLearnMore": "Узнать больше",
@@ -604,15 +604,15 @@
       "openAI": "OpenAI",
       "smartEditFixSpelling": "Исправить правописание",
       "warning": "⚠️ Ответы ИИ могут быть неправильными или неточными.",
-      "smartEditSummarize": "Выделить суть",
-      "smartEditImproveWriting": "Улучшить",
+      "smartEditSummarize": "Обобщить",
+      "smartEditImproveWriting": "Исправить написание",
       "smartEditMakeLonger": "Продолжить",
       "smartEditCouldNotFetchResult": "Не могу получить ответ от OpenAI",
       "smartEditCouldNotFetchKey": "Не могу получить токен OpenAI",
-      "smartEditDisabled": "Подключить OpenAI",
+      "smartEditDisabled": "OpenAI",
       "discardResponse": "Хотите убрать ответы ИИ?",
       "createInlineMathEquation": "Создать уравнение",
-      "toggleList": "Переключить список",
+      "toggleList": "Выпадающий список",
       "cover": {
         "changeCover": "Сменить обложку",
         "colors": "Цвета",
@@ -767,7 +767,7 @@
   },
   "calendar": {
     "menuName": "Календарь",
-    "defaultNewCalendarTitle": "Безымянный",
+    "defaultNewCalendarTitle": "Без названия",
     "newEventButtonTooltip": "Добавить новое событие",
     "navigation": {
       "today": "Сегодня",
@@ -782,8 +782,7 @@
       "layoutDateField": "Вид календаря",
       "noDateTitle": "Без даты",
       "clickToAdd": "Нажмите, чтобы добавить в календарь",
-      "name": "Макет календаря",
-      "noDateHint": "Unscheduled events will show up here"
+      "name": "Макет календаря"
     },
     "referencedCalendarPrefix": "Вид"
   },
