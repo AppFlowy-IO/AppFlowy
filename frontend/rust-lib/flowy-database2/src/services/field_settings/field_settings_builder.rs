@@ -1,7 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
-use collab_database::database::MutexDatabase;
 use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, FieldSettingsMap, FieldSettingsMapBuilder,
@@ -41,38 +39,18 @@ impl FieldSettingsBuilder {
   }
 }
 
-pub struct DatabaseFieldSettingsMapBuilder {
-  pub fields: Vec<Field>,
-  pub database_layout: DatabaseLayout,
-}
-
-impl DatabaseFieldSettingsMapBuilder {
-  pub fn new(fields: Vec<Field>, database_layout: DatabaseLayout) -> Self {
-    Self {
-      fields,
-      database_layout,
-    }
-  }
-
-  pub fn from_database(database: Arc<MutexDatabase>, database_layout: DatabaseLayout) -> Self {
-    let fields = database.lock().get_fields(None);
-    Self {
-      fields,
-      database_layout,
-    }
-  }
-
-  pub fn build(self) -> FieldSettingsByFieldIdMap {
-    self
-      .fields
-      .into_iter()
-      .map(|field| {
-        let field_settings = field_settings_for_field(self.database_layout, &field);
-        (field.id, field_settings)
-      })
-      .collect::<HashMap<String, FieldSettingsMap>>()
-      .into()
-  }
+pub fn default_field_settings_for_fields(
+  fields: &Vec<Field>,
+  layout_type: DatabaseLayout,
+) -> FieldSettingsByFieldIdMap {
+  fields
+    .iter()
+    .map(|field| {
+      let field_settings = field_settings_for_field(layout_type, field);
+      (field.id.clone(), field_settings)
+    })
+    .collect::<HashMap<_, _>>()
+    .into()
 }
 
 pub fn field_settings_for_field(
