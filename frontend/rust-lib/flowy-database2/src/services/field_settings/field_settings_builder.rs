@@ -7,6 +7,7 @@ use collab_database::views::{
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
+
 use crate::services::field_settings::{FieldSettings, VISIBILITY};
 
 /// Helper struct to create a new field setting
@@ -41,6 +42,15 @@ impl FieldSettingsBuilder {
   }
 }
 
+#[inline]
+pub fn default_field_visibility(layout_type: DatabaseLayout) -> FieldVisibility {
+  match layout_type {
+    DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
+    DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
+    DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
+  }
+}
+
 pub fn default_field_settings_for_fields(
   fields: &Vec<Field>,
   layout_type: DatabaseLayout,
@@ -62,11 +72,7 @@ pub fn field_settings_for_field(
   let visibility = if field.is_primary {
     FieldVisibility::AlwaysShown
   } else {
-    match database_layout {
-      DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
-      DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
-      DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
-    }
+    default_field_visibility(database_layout)
   };
 
   FieldSettingsBuilder::new(&field.id)
@@ -78,11 +84,7 @@ pub fn field_settings_for_field(
 pub fn default_field_settings_by_layout_map() -> HashMap<DatabaseLayout, FieldSettingsMap> {
   let mut map = HashMap::new();
   for layout_ty in DatabaseLayout::iter() {
-    let visibility = match layout_ty {
-      DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
-      DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
-      DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
-    };
+    let visibility = default_field_visibility(layout_ty);
     let field_settings = FieldSettingsMapBuilder::new()
       .insert_i64_value(VISIBILITY, visibility.into())
       .build();

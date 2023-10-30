@@ -99,6 +99,9 @@ pub struct FieldSettingsChangesetPB {
 
   #[pb(index = 3, one_of)]
   pub visibility: Option<FieldVisibility>,
+
+  #[pb(index = 4, one_of)]
+  pub width: Option<i32>,
 }
 
 impl From<FieldSettingsChangesetParams> for FieldSettingsChangesetPB {
@@ -107,6 +110,7 @@ impl From<FieldSettingsChangesetParams> for FieldSettingsChangesetPB {
       view_id: value.view_id,
       field_id: value.field_id,
       visibility: value.visibility,
+      width: value.width,
     }
   }
 }
@@ -119,6 +123,7 @@ impl TryFrom<FieldSettingsChangesetPB> for FieldSettingsChangesetParams {
       view_id: value.view_id,
       field_id: value.field_id,
       visibility: value.visibility,
+      width: value.width,
     })
   }
 }
