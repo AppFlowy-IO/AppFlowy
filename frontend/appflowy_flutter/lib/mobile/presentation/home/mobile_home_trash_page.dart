@@ -225,35 +225,3 @@ class _DeletedFilesListView extends StatelessWidget {
     );
   }
 }
-
-// class _TrashEmptyPage extends StatelessWidget {
-//   const _TrashEmptyPage();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     return Center(
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           const Text(
-//             '🗑️',
-//             style: TextStyle(fontSize: 40),
-//           ),
-//           const SizedBox(height: 8),
-//           Text(
-//             LocaleKeys.trash_mobile_empty.tr(),
-//             style: theme.textTheme.labelLarge,
-//           ),
-//           const SizedBox(height: 4),
-//           Text(
-//             LocaleKeys.trash_mobile_emptyDescription.tr(),
-//             style: theme.textTheme.bodyMedium?.copyWith(
-//               color: theme.hintColor,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

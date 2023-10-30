@@ -206,6 +206,8 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           svg: isFavorite
               ? FlowySvgs.m_favorite_selected_lg
               : FlowySvgs.m_favorite_unselected_lg,
+          //TODO(yijing): switch to theme color
+          iconColor: isFavorite ? Colors.yellow : null,
           text: isFavorite
               ? LocaleKeys.button_removeFromFavorites.tr()
               : LocaleKeys.button_addToFavorites.tr(),
