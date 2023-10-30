@@ -34,11 +34,11 @@ async fn supabase_decrypt_folder_data_test() {
       .create_view(&workspace_id, "encrypt view".to_string())
       .await;
 
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<FolderSyncStatePB, _>(&workspace_id, |pb| pb.is_finish);
 
-    receive_with_timeout(&mut rx, Duration::from_secs(10))
+    receive_with_timeout(rx, Duration::from_secs(10))
       .await
       .unwrap();
     let folder_data = get_folder_data_from_server(&workspace_id, secret)
@@ -59,10 +59,10 @@ async fn supabase_decrypt_with_invalid_secret_folder_data_test() {
     test
       .create_view(&workspace_id, "encrypt view".to_string())
       .await;
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<FolderSyncStatePB, _>(&workspace_id, |pb| pb.is_finish);
-    receive_with_timeout(&mut rx, Duration::from_secs(10))
+    receive_with_timeout(rx, Duration::from_secs(10))
       .await
       .unwrap();
 
@@ -75,10 +75,10 @@ async fn supabase_decrypt_with_invalid_secret_folder_data_test() {
 async fn supabase_folder_snapshot_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
     let workspace_id = test.get_current_workspace().await.workspace.id;
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe::<FolderSnapshotStatePB>(&workspace_id, DidUpdateFolderSnapshotState);
-    receive_with_timeout(&mut rx, Duration::from_secs(10))
+    receive_with_timeout(rx, Duration::from_secs(10))
       .await
       .unwrap();
 
@@ -104,11 +104,11 @@ async fn supabase_initial_folder_snapshot_test2() {
       .create_view(&workspace_id, "supabase test view3".to_string())
       .await;
 
-    let mut rx = test
+    let rx = test
       .notification_sender
       .subscribe_with_condition::<FolderSyncStatePB, _>(&workspace_id, |pb| pb.is_finish);
 
-    receive_with_timeout(&mut rx, Duration::from_secs(10))
+    receive_with_timeout(rx, Duration::from_secs(10))
       .await
       .unwrap();
 

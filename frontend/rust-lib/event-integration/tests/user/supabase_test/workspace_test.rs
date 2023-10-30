@@ -12,7 +12,7 @@ use crate::util::*;
 #[tokio::test]
 async fn initial_workspace_test() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     let mut map = HashMap::new();
     map.insert(USER_UUID.to_string(), uuid::Uuid::new_v4().to_string());
     map.insert(

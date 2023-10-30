@@ -8,7 +8,7 @@ pub struct AFCloudDocumentTest {
 
 impl AFCloudDocumentTest {
   pub async fn new() -> Option<Self> {
-    let inner = AFCloudTest::new()?;
+    let inner = AFCloudTest::new().await?;
     let email = generate_test_email();
     let _ = inner.af_cloud_sign_in_with_email(&email).await.unwrap();
     Some(Self { inner })

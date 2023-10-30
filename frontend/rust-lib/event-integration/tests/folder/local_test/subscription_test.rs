@@ -18,19 +18,19 @@ use crate::util::receive_with_timeout;
 async fn create_child_view_in_workspace_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
   let workspace = test.get_current_workspace().await.workspace;
-  let mut rx = test
+  let rx = test
     .notification_sender
     .subscribe::<RepeatedViewPB>(&workspace.id, FolderNotification::DidUpdateWorkspaceViews);
 
   let cloned_test = test.clone();
   let cloned_workspace_id = workspace.id.clone();
-  tokio::spawn(async move {
+  test.inner.dispatcher().spawn(async move {
     cloned_test
       .create_view(&cloned_workspace_id, "workspace child view".to_string())
       .await;
   });
 
-  let views = receive_with_timeout(&mut rx, Duration::from_secs(30))
+  let views = receive_with_timeout(rx, Duration::from_secs(30))
     .await
     .unwrap()
     .items;
@@ -43,14 +43,14 @@ async fn create_child_view_in_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
   let mut workspace = test.get_current_workspace().await.workspace;
   let workspace_child_view = workspace.views.pop().unwrap();
-  let mut rx = test.notification_sender.subscribe::<ChildViewUpdatePB>(
+  let rx = test.notification_sender.subscribe::<ChildViewUpdatePB>(
     &workspace_child_view.id,
     FolderNotification::DidUpdateChildViews,
   );
 
   let cloned_test = test.clone();
   let child_view_id = workspace_child_view.id.clone();
-  tokio::spawn(async move {
+  test.inner.dispatcher().spawn(async move {
     cloned_test
       .create_view(
         &child_view_id,
@@ -59,7 +59,7 @@ async fn create_child_view_in_view_subscription_test() {
       .await;
   });
 
-  let update = receive_with_timeout(&mut rx, Duration::from_secs(30))
+  let update = receive_with_timeout(rx, Duration::from_secs(30))
     .await
     .unwrap();
 
@@ -74,20 +74,29 @@ async fn create_child_view_in_view_subscription_test() {
 async fn delete_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
   let workspace = test.get_current_workspace().await.workspace;
-  let mut rx = test
+  let rx = test
     .notification_sender
     .subscribe::<ChildViewUpdatePB>(&workspace.id, FolderNotification::DidUpdateChildViews);
 
   let cloned_test = test.clone();
   let delete_view_id = workspace.views.first().unwrap().id.clone();
   let cloned_delete_view_id = delete_view_id.clone();
-  tokio::spawn(async move {
-    cloned_test.delete_view(&cloned_delete_view_id).await;
-  });
-
-  let update = receive_with_timeout(&mut rx, Duration::from_secs(30))
+  test
+    .inner
+    .dispatcher()
+    .spawn(async move {
+      cloned_test.delete_view(&cloned_delete_view_id).await;
+    })
     .await
     .unwrap();
+
+  let update = test
+    .inner
+    .dispatcher()
+    .run_until(receive_with_timeout(rx, Duration::from_secs(30)))
+    .await
+    .unwrap();
+
   assert_eq!(update.delete_child_views.len(), 1);
   assert_eq!(update.delete_child_views[0], delete_view_id);
 }
@@ -96,7 +105,7 @@ async fn delete_view_subscription_test() {
 async fn update_view_subscription_test() {
   let test = EventIntegrationTest::new_with_guest_user().await;
   let mut workspace = test.get_current_workspace().await.workspace;
-  let mut rx = test
+  let rx = test
     .notification_sender
     .subscribe::<ChildViewUpdatePB>(&workspace.id, FolderNotification::DidUpdateChildViews);
 
@@ -105,7 +114,7 @@ async fn update_view_subscription_test() {
   assert!(!view.is_favorite);
 
   let update_view_id = view.id.clone();
-  tokio::spawn(async move {
+  test.inner.dispatcher().spawn(async move {
     cloned_test
       .update_view(UpdateViewPayloadPB {
         view_id: update_view_id,
@@ -116,7 +125,7 @@ async fn update_view_subscription_test() {
       .await;
   });
 
-  let update = receive_with_timeout(&mut rx, Duration::from_secs(30))
+  let update = receive_with_timeout(rx, Duration::from_secs(30))
     .await
     .unwrap();
   assert_eq!(update.update_child_views.len(), 1);

@@ -1,9 +1,12 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
+use std::sync::Arc;
 use std::{ffi::CStr, os::raw::c_char};
 
 use lazy_static::lazy_static;
-use parking_lot::RwLock;
+use log::error;
+use parking_lot::Mutex;
+use tracing::trace;
 
 use flowy_core::*;
 use flowy_notification::{register_notification_sender, unregister_all_notification_sender};
@@ -25,8 +28,25 @@ mod protobuf;
 mod util;
 
 lazy_static! {
-  static ref APPFLOWY_CORE: RwLock<Option<AppFlowyCore>> = RwLock::new(None);
+  static ref APPFLOWY_CORE: MutexAppFlowyCore = MutexAppFlowyCore::new();
 }
+
+struct MutexAppFlowyCore(Arc<Mutex<Option<AppFlowyCore>>>);
+
+impl MutexAppFlowyCore {
+  fn new() -> Self {
+    Self(Arc::new(Mutex::new(None)))
+  }
+
+  fn dispatcher(&self) -> Option<Arc<AFPluginDispatcher>> {
+    let binding = self.0.lock();
+    let core = binding.as_ref();
+    core.map(|core| core.event_dispatcher.clone())
+  }
+}
+
+unsafe impl Sync for MutexAppFlowyCore {}
+unsafe impl Send for MutexAppFlowyCore {}
 
 #[no_mangle]
 pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
@@ -36,32 +56,33 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
   let log_crates = vec!["flowy-ffi".to_string()];
   let config =
     AppFlowyCoreConfig::new(path, DEFAULT_NAME.to_string()).log_filter("info", log_crates);
-  *APPFLOWY_CORE.write() = Some(AppFlowyCore::new(config));
+  *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config));
   0
 }
 
 #[no_mangle]
+#[allow(clippy::let_underscore_future)]
 pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
   let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-  log::trace!(
+  trace!(
     "[FFI]: {} Async Event: {:?} with {} port",
     &request.id,
     &request.event,
     port
   );
 
-  let dispatcher = match APPFLOWY_CORE.read().as_ref() {
+  let dispatcher = match APPFLOWY_CORE.dispatcher() {
     None => {
-      log::error!("sdk not init yet.");
+      error!("sdk not init yet.");
       return;
     },
-    Some(e) => e.event_dispatcher.clone(),
+    Some(dispatcher) => dispatcher,
   };
-  AFPluginDispatcher::async_send_with_callback(
+  AFPluginDispatcher::boxed_async_send_with_callback(
     dispatcher,
     request,
     move |resp: AFPluginEventResponse| {
-      log::trace!("[FFI]: Post data to dart through {} port", port);
+      trace!("[FFI]: Post data to dart through {} port", port);
       Box::pin(post_to_flutter(resp, port))
     },
   );
@@ -70,14 +91,14 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
 #[no_mangle]
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
   let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
-  log::trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
+  trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
-  let dispatcher = match APPFLOWY_CORE.read().as_ref() {
+  let dispatcher = match APPFLOWY_CORE.dispatcher() {
     None => {
-      log::error!("sdk not init yet.");
+      error!("sdk not init yet.");
       return forget_rust(Vec::default());
     },
-    Some(e) => e.event_dispatcher.clone(),
+    Some(dispatcher) => dispatcher,
   };
   let _response = AFPluginDispatcher::sync_send(dispatcher, request);
 
@@ -110,13 +131,13 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
     .await
   {
     Ok(_success) => {
-      log::trace!("[FFI]: Post data to dart success");
+      trace!("[FFI]: Post data to dart success");
     },
     Err(e) => {
       if let Some(msg) = e.downcast_ref::<&str>() {
-        log::error!("[FFI]: {:?}", msg);
+        error!("[FFI]: {:?}", msg);
       } else {
-        log::error!("[FFI]: allo_isolate post panic");
+        error!("[FFI]: allo_isolate post panic");
       }
     },
   }

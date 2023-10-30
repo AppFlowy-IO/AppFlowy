@@ -10,6 +10,7 @@ use tokio::sync::oneshot::channel;
 use flowy_folder_deps::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
 };
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::response::ExtendedResponse;
@@ -116,7 +117,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let workspace_id = workspace_id.to_string();
     let (tx, rx) = channel();
-    tokio::spawn(async move {
+    af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

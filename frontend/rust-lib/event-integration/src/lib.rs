@@ -27,30 +27,23 @@ pub struct EventIntegrationTest {
   pub notification_sender: TestNotificationSender,
 }
 
-impl Default for EventIntegrationTest {
-  fn default() -> Self {
+impl EventIntegrationTest {
+  pub async fn new() -> Self {
     let temp_dir = temp_dir().join(nanoid!(6));
     std::fs::create_dir_all(&temp_dir).unwrap();
-    Self::new_with_user_data_path(temp_dir, nanoid!(6))
+    Self::new_with_user_data_path(temp_dir, nanoid!(6)).await
   }
-}
-
-impl EventIntegrationTest {
-  pub fn new() -> Self {
-    Self::default()
-  }
-  pub fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
+  pub async fn new_with_user_data_path(path: PathBuf, name: String) -> Self {
     let config = AppFlowyCoreConfig::new(path.to_str().unwrap(), name).log_filter(
       "trace",
       vec![
         "flowy_test".to_string(),
-        // "lib_dispatch".to_string()
+        "tokio".to_string(),
+        "lib_dispatch".to_string(),
       ],
     );
 
-    let inner = std::thread::spawn(|| AppFlowyCore::new(config))
-      .join()
-      .unwrap();
+    let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
     let auth_type = Arc::new(RwLock::new(AuthTypePB::Local));
     register_notification_sender(notification_sender.clone());
@@ -62,6 +55,21 @@ impl EventIntegrationTest {
       cleaner: Arc::new(Cleaner(path)),
     }
   }
+}
+
+#[cfg(feature = "single_thread")]
+async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
+  // let runtime = tokio::runtime::Runtime::new().unwrap();
+  // let local_set = tokio::task::LocalSet::new();
+  // runtime.block_on(AppFlowyCore::new(config))
+  AppFlowyCore::new(config).await
+}
+
+#[cfg(not(feature = "single_thread"))]
+async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
+  std::thread::spawn(|| AppFlowyCore::new(config))
+    .join()
+    .unwrap()
 }
 
 impl std::ops::Deref for EventIntegrationTest {

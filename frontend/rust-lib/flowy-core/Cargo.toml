@@ -46,6 +46,7 @@ lib-infra = { path = "../../../shared-lib/lib-infra" }
 serde = "1.0"
 serde_json = "1.0"
 serde_repr = "0.1"
+futures = "0.3.28"
 
 [features]
 default = ["rev-sqlite"]
@@ -71,4 +72,4 @@ ts = [
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-
+single_thread = ["lib-dispatch/single_thread"]

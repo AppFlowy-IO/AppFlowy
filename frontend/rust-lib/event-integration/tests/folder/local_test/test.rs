@@ -466,7 +466,7 @@ async fn move_view_event_after_delete_view_test2() {
 #[tokio::test]
 async fn create_parent_view_with_invalid_name() {
   for (name, code) in invalid_workspace_name_test_case() {
-    let sdk = EventIntegrationTest::new();
+    let sdk = EventIntegrationTest::new().await;
     let request = CreateWorkspacePayloadPB {
       name,
       desc: "".to_owned(),

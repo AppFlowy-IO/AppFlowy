@@ -75,7 +75,7 @@ pub struct FolderTest {
 
 impl FolderTest {
   pub async fn new() -> Self {
-    let sdk = EventIntegrationTest::new();
+    let sdk = EventIntegrationTest::new().await;
     let _ = sdk.init_anon_user().await;
     let workspace = create_workspace(&sdk, "FolderWorkspace", "Folder test workspace").await;
     let parent_view = create_app(&sdk, &workspace.id, "Folder App", "Folder test app").await;
