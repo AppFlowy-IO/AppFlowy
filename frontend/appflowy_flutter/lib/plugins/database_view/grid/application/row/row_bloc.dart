@@ -132,7 +132,7 @@ class GridCellEquatable extends Equatable {
         _fieldInfo.id,
         _fieldInfo.fieldType,
         _fieldInfo.field.visibility,
-        _fieldInfo.field.width,
+        _fieldInfo.fieldSettings?.width,
       ];
 }
 

@@ -214,7 +214,7 @@ class GridFieldEquatable extends Equatable {
     return [
       _fieldInfos.length,
       _fieldInfos
-          .map((fieldInfo) => fieldInfo.field.width)
+          .map((fieldInfo) => fieldInfo.fieldSettings?.width ?? 150)
           .reduce((value, element) => value + element),
     ];
   }

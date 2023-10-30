@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_action_sheet_bloc.dart';
+import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
 import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
@@ -20,9 +20,13 @@ import '../../layout/sizes.dart';
 import 'field_editor.dart';
 
 class GridFieldCellActionSheet extends StatefulWidget {
-  final FieldContext cellContext;
-  const GridFieldCellActionSheet({required this.cellContext, Key? key})
-      : super(key: key);
+  final String viewId;
+  final FieldInfo fieldInfo;
+  const GridFieldCellActionSheet({
+    required this.viewId,
+    required this.fieldInfo,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _GridFieldCellActionSheetState();
@@ -37,31 +41,35 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
       return SizedBox(
         width: 400,
         child: FieldEditor(
-          viewId: widget.cellContext.viewId,
-          fieldInfo: widget.cellContext.fieldInfo,
+          viewId: widget.viewId,
+          fieldInfo: widget.fieldInfo,
           typeOptionLoader: FieldTypeOptionLoader(
-            viewId: widget.cellContext.viewId,
-            field: widget.cellContext.fieldInfo.field,
+            viewId: widget.viewId,
+            field: widget.fieldInfo.field,
           ),
         ),
       );
     }
     return BlocProvider(
-      create: (context) =>
-          getIt<FieldActionSheetBloc>(param1: widget.cellContext),
+      create: (context) => FieldActionSheetBloc(
+        viewId: widget.viewId,
+        fieldInfo: widget.fieldInfo,
+      ),
       child: IntrinsicWidth(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             _EditFieldButton(
-              cellContext: widget.cellContext,
               onTap: () {
                 setState(() => _showFieldEditor = true);
               },
             ),
             VSpace(GridSize.typeOptionSeparatorHeight),
-            _FieldOperationList(widget.cellContext),
+            _FieldOperationList(
+              viewId: widget.viewId,
+              fieldInfo: widget.fieldInfo,
+            ),
           ],
         ),
       ),
@@ -70,10 +78,8 @@ class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
 }
 
 class _EditFieldButton extends StatelessWidget {
-  final FieldContext cellContext;
   final void Function()? onTap;
-  const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
-      : super(key: key);
+  const _EditFieldButton({Key? key, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +102,13 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class _FieldOperationList extends StatelessWidget {
-  final FieldContext fieldContext;
-  const _FieldOperationList(this.fieldContext, {Key? key}) : super(key: key);
+  final String viewId;
+  final FieldInfo fieldInfo;
+  const _FieldOperationList({
+    required this.viewId,
+    required this.fieldInfo,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +139,7 @@ class _FieldOperationList extends StatelessWidget {
     bool enable = true;
 
     // If the field is primary, delete and duplicate are disabled.
-    if (fieldContext.fieldInfo.isPrimary) {
+    if (fieldInfo.isPrimary) {
       switch (action) {
         case FieldAction.hide:
           break;
@@ -145,7 +156,8 @@ class _FieldOperationList extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FieldActionCell(
-          fieldInfo: fieldContext,
+          viewId: viewId,
+          fieldInfo: fieldInfo,
           action: action,
           enable: enable,
         ),
@@ -155,11 +167,13 @@ class _FieldOperationList extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final FieldContext fieldInfo;
+  final String viewId;
+  final FieldInfo fieldInfo;
   final FieldAction action;
   final bool enable;
 
   const FieldActionCell({
+    required this.viewId,
     required this.fieldInfo,
     required this.action,
     required this.enable,
@@ -177,7 +191,7 @@ class FieldActionCell extends StatelessWidget {
             ? AFThemeExtension.of(context).textColor
             : Theme.of(context).disabledColor,
       ),
-      onTap: () => action.run(context, fieldInfo),
+      onTap: () => action.run(context, viewId, fieldInfo),
       leftIcon: FlowySvg(
         action.icon(),
         color: enable
@@ -217,7 +231,7 @@ extension _FieldActionExtension on FieldAction {
     }
   }
 
-  void run(BuildContext context, FieldContext fieldContext) {
+  void run(BuildContext context, String viewId, FieldInfo fieldInfo) {
     switch (this) {
       case FieldAction.hide:
         context
@@ -228,8 +242,8 @@ extension _FieldActionExtension on FieldAction {
         PopoverContainer.of(context).close();
 
         FieldBackendService(
-          viewId: fieldContext.viewId,
-          fieldId: fieldContext.fieldInfo.id,
+          viewId: viewId,
+          fieldId: fieldInfo.id,
         ).duplicateField();
 
         break;
@@ -240,8 +254,8 @@ extension _FieldActionExtension on FieldAction {
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             FieldBackendService(
-              viewId: fieldContext.viewId,
-              fieldId: fieldContext.fieldInfo.field.id,
+              viewId: viewId,
+              fieldId: fieldInfo.field.id,
             ).deleteField();
           },
         ).show(context);
