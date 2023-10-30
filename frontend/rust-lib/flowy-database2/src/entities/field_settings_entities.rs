@@ -15,6 +15,9 @@ pub struct FieldSettingsPB {
 
   #[pb(index = 2)]
   pub visibility: FieldVisibility,
+
+  #[pb(index = 3)]
+  pub width: i32,
 }
 
 impl From<FieldSettings> for FieldSettingsPB {
@@ -22,6 +25,7 @@ impl From<FieldSettings> for FieldSettingsPB {
     Self {
       field_id: value.field_id,
       visibility: value.visibility,
+      width: value.width,
     }
   }
 }
