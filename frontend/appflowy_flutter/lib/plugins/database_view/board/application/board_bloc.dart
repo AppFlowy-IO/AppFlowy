@@ -90,7 +90,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
           },
           createHeaderRow: (String groupId) async {
-            final result = await databaseController.createRow(groupId: groupId);
+            final result = await databaseController.createRow(
+              groupId: groupId,
+              fromBeginning: true,
+            );
+
             result.fold(
               (_) {},
               (err) => Log.error(err),
