@@ -21,7 +21,6 @@ use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
@@ -693,10 +692,6 @@ impl DatabaseEditor {
     // Get the old row before updating the cell. It would be better to get the old cell
     let old_row = { self.get_row_detail(view_id, &row_id) };
 
-    // Get all auto updated fields. It will be used to notify the frontend
-    // that the fields have been updated.
-    let auto_updated_fields = self.get_auto_updated_fields(view_id);
-
     self.database.lock().update_row(&row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         cell_update.insert(field_id, new_cell);
@@ -705,13 +700,6 @@ impl DatabaseEditor {
 
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
-      let updated_row =
-        UpdatedRow::new(&new_row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changes = RowsChangePB::from_update(updated_row.into());
-      send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
-        .payload(changes)
-        .send();
-
       for view in self.database_views.editors().await {
         view
           .v_did_update_row(&old_row, &new_row_detail, field_id)
@@ -719,23 +707,41 @@ impl DatabaseEditor {
       }
     }
 
+    let mut changesets = self.get_auto_updated_fields_changeset(view_id, row_id.clone());
+    changesets.push(
+      CellChangesetNotifyPB {
+        view_id: view_id.to_string(),
+        row_id: row_id.clone().into_inner(),
+        field_id: field_id.to_string(),
+      }
+    );
+    notify_did_update_cell(changesets).await;
+
+    Ok(())
+  }
+
+  pub fn get_auto_updated_fields_changeset(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+  ) -> Vec<CellChangesetNotifyPB> {
+    // Get all auto updated fields. It will be used to notify the frontend
+    // that the fields have been updated.
+    let auto_updated_fields = self.get_auto_updated_fields(view_id);
+
     // Collect all the updated field's id. Notify the frontend that all of them have been updated.
-    let mut auto_updated_field_ids = auto_updated_fields
+    let auto_updated_field_ids = auto_updated_fields
       .into_iter()
       .map(|field| field.id)
       .collect::<Vec<String>>();
-    auto_updated_field_ids.push(field_id.to_string());
-    let changeset = auto_updated_field_ids
+    auto_updated_field_ids
       .into_iter()
       .map(|field_id| CellChangesetNotifyPB {
         view_id: view_id.to_string(),
         row_id: row_id.clone().into_inner(),
         field_id,
       })
-      .collect();
-    notify_did_update_cell(changeset).await;
-
-    Ok(())
+      .collect()
   }
 
   /// Just create an option for the field's type option. The option is save to the database.
@@ -937,16 +943,19 @@ impl DatabaseEditor {
             .map(|row_detail| row_detail.row.id.clone())
         };
 
-        if let Some(row_id) = to_row {
-          self.move_row(view_id, from_row, row_id).await;
-        }
-
-        let cell_changesets = cell_changesets_from_cell_by_field_id(
+        let mut changesets = cell_changesets_from_cell_by_field_id(
           view_id,
           row_changeset.row_id,
           row_changeset.cell_by_field_id,
         );
-        notify_did_update_cell(cell_changesets).await;
+        if let Some(row_id) = to_row.clone() {
+          changesets.extend(self.get_auto_updated_fields_changeset(view_id, row_id.clone()));
+        }
+        notify_did_update_cell(changesets).await;
+
+        if let Some(row_id) = to_row {
+          self.move_row(view_id, from_row, row_id.clone()).await;
+        }
       },
     }
 

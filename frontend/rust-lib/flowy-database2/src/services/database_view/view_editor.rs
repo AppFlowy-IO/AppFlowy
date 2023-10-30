@@ -224,14 +224,14 @@ impl DatabaseViewEditor {
           notify_did_update_group_rows(changeset).await;
         }
       }
-    } else {
-      let update_row =
-        UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-      let changeset = RowsChangePB::from_update(update_row.into());
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-        .payload(changeset)
-        .send();
     }
+
+    let update_row =
+      UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
+    let changeset = RowsChangePB::from_update(update_row.into());
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+      .payload(changeset)
+      .send();
 
     // Each row update will trigger a filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
