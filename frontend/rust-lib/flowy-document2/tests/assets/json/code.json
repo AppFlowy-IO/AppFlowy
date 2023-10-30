@@ -1,0 +1,14 @@
+{
+  "type": "page",
+  "children": [{
+    "type": "code",
+    "data": {
+      "language": "rust",
+      "delta": [
+        {
+          "insert": "// This is the main function.\nfn main() {\n    // Print text to the console.\n    println!(\"Hello World!\");\n}"
+        }
+      ]
+    }
+  }]
+}

@@ -2,6 +2,7 @@ use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
 use flowy_document2::entities::*;
+use flowy_document2::parser::parser_entities::{ConvertDocumentPayloadPB, ExportTypePB};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -119,4 +120,36 @@ async fn apply_text_delta_test() {
     block_delta.unwrap(),
     json!([{ "insert": "Hello! World" }]).to_string()
   );
+}
+
+macro_rules! generate_convert_document_test_cases {
+  ($($json:ident, $text:ident, $html:ident),*) => {
+    [
+        $((ExportTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
+    ]
+  };
+}
+
+#[tokio::test]
+async fn convert_document_test() {
+  let test = DocumentEventTest::new().await;
+  let view = test.create_document().await;
+
+  let test_cases = generate_convert_document_test_cases! {
+    true, true, true,
+    false, true, true,
+    false, false, false
+  };
+
+  for (export_types, (json_assert, text_assert, html_assert)) in test_cases.iter() {
+    let copy_payload = ConvertDocumentPayloadPB {
+      document_id: view.id.to_string(),
+      range: None,
+      export_types: export_types.clone(),
+    };
+    let result = test.convert_document(copy_payload).await;
+    assert_eq!(result.json.is_some(), *json_assert);
+    assert_eq!(result.text.is_some(), *text_assert);
+    assert_eq!(result.html.is_some(), *html_assert);
+  }
 }

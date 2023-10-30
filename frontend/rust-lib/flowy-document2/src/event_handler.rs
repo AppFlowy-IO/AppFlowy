@@ -15,6 +15,11 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
+use crate::parser::document_data_parser::DocumentDataParser;
+use crate::parser::parser_entities::{
+  ConvertDocumentParams, ConvertDocumentPayloadPB, ConvertDocumentResponsePB,
+};
+
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 fn upgrade_document(
@@ -302,4 +307,46 @@ impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
       is_remote,
     }
   }
+}
+
+/**
+* Handler for converting a document to a JSON string, HTML string, or plain text string.
+
+* @param data: AFPluginData<[ConvertDocumentPayloadPB]>
+
+* @param manager: AFPluginState<Weak<DocumentManager>>
+
+* @return DataResult<[ConvertDocumentResponsePB], FlowyError>
+ */
+pub async fn convert_document(
+  data: AFPluginData<ConvertDocumentPayloadPB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> DataResult<ConvertDocumentResponsePB, FlowyError> {
+  let manager = upgrade_document(manager)?;
+  let params: ConvertDocumentParams = data.into_inner().try_into()?;
+
+  let document = manager.get_document(&params.document_id).await?;
+  let document_data = document.lock().get_document_data()?;
+  let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
+
+  if !params.export_types.any_enabled() {
+    return data_result_ok(ConvertDocumentResponsePB::default());
+  }
+
+  let root = &parser.to_json();
+
+  data_result_ok(ConvertDocumentResponsePB {
+    json: params
+      .export_types
+      .json
+      .then(|| serde_json::to_string(root).unwrap_or_default()),
+    html: params
+      .export_types
+      .html
+      .then(|| parser.to_html_with_json(root)),
+    text: params
+      .export_types
+      .text
+      .then(|| parser.to_text_with_json(root)),
+  })
 }
