@@ -708,13 +708,11 @@ impl DatabaseEditor {
     }
 
     let mut changesets = self.get_auto_updated_fields_changeset(view_id, row_id.clone());
-    changesets.push(
-      CellChangesetNotifyPB {
-        view_id: view_id.to_string(),
-        row_id: row_id.clone().into_inner(),
-        field_id: field_id.to_string(),
-      }
-    );
+    changesets.push(CellChangesetNotifyPB {
+      view_id: view_id.to_string(),
+      row_id: row_id.clone().into_inner(),
+      field_id: field_id.to_string(),
+    });
     notify_did_update_cell(changesets).await;
 
     Ok(())

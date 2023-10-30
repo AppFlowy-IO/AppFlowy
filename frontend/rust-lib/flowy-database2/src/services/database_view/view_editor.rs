@@ -226,8 +226,7 @@ impl DatabaseViewEditor {
       }
     }
 
-    let update_row =
-      UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
+    let update_row = UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
     let changeset = RowsChangePB::from_update(update_row.into());
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changeset)
