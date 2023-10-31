@@ -41,8 +41,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-            final latestView = workspaceSetting.hasLatestView()
-                ? workspaceSetting.latestView
+            final latestView = value.setting.hasLatestView()
+                ? value.setting.latestView
                 : state.latestView;
 
             emit(

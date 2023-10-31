@@ -609,12 +609,7 @@ fn empty_workspace_update(collab_object: &CollabObject) -> Vec<u8> {
     vec![],
   ));
   let workspace = Workspace::new(workspace_id, "My workspace".to_string());
-  let folder = Folder::create(
-    collab_object.uid,
-    collab,
-    None,
-    FolderData::new(workspace),
-  );
+  let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
   folder.encode_as_update_v1().0
 }
 

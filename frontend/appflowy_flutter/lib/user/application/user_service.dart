@@ -110,6 +110,15 @@ class UserBackendService {
     });
   }
 
+  Future<Either<WorkspacePB, FlowyError>> getCurrentWorkspace() {
+    return FolderEventReadCurrentWorkspace().send().then((result) {
+      return result.fold(
+        (workspace) => left(workspace),
+        (error) => right(error),
+      );
+    });
+  }
+
   Future<Either<WorkspacePB, FlowyError>> createWorkspace(
     String name,
     String desc,
