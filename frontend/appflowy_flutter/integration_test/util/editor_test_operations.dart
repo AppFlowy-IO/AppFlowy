@@ -1,12 +1,12 @@
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_popover.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -54,7 +54,7 @@ class EditorOperations {
     await tester.tapButtonWithName(
       LocaleKeys.document_plugins_cover_addIcon.tr(),
     );
-    expect(find.byType(EmojiPopover), findsOneWidget);
+    expect(find.byType(FlowyEmojiPicker), findsOneWidget);
   }
 
   /// Taps the 'Remove Icon' button in the cover toolbar and the icon popover
@@ -62,7 +62,8 @@ class EditorOperations {
     Finder button =
         find.text(LocaleKeys.document_plugins_cover_removeIcon.tr());
     if (isInPicker) {
-      button = find.descendant(of: find.byType(EmojiPopover), matching: button);
+      button =
+          find.descendant(of: find.byType(FlowyEmojiPicker), matching: button);
     }
 
     await tester.tapButton(button);

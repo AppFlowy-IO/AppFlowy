@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/plugins/base/icon_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 
 import 'cover_editor.dart';
 import 'emoji_icon_widget.dart';
-import 'emoji_popover.dart';
 
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
@@ -257,7 +256,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: BoxConstraints.loose(const Size(300, 250)),
+          constraints: BoxConstraints.loose(const Size(360, 380)),
           child: FlowyButton(
             leftIconSize: const Size.square(18),
             useIntrinsicWidth: true,
@@ -271,16 +270,9 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           ),
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
-            return EmojiPopover(
-              showRemoveButton: widget.hasIcon,
-              removeIcon: () {
-                widget.onCoverChanged(icon: "");
-                _popoverController.close();
-              },
-              node: widget.node,
-              editorState: widget.editorState,
-              onEmojiChanged: (Emoji emoji) {
-                widget.onCoverChanged(icon: emoji.emoji);
+            return FlowyIconPicker(
+              onSelected: (type, value) {
+                widget.onCoverChanged(icon: value);
                 _popoverController.close();
               },
             );
@@ -475,19 +467,12 @@ class _DocumentIconState extends State<DocumentIcon> {
       direction: PopoverDirection.bottomWithCenterAligned,
       controller: _popoverController,
       offset: const Offset(0, 8),
-      constraints: BoxConstraints.loose(const Size(320, 380)),
+      constraints: BoxConstraints.loose(const Size(360, 380)),
       child: EmojiIconWidget(emoji: widget.icon),
       popupBuilder: (BuildContext popoverContext) {
-        return EmojiPopover(
-          node: widget.node,
-          showRemoveButton: true,
-          removeIcon: () {
-            widget.onIconChanged("");
-            _popoverController.close();
-          },
-          editorState: widget.editorState,
-          onEmojiChanged: (Emoji emoji) {
-            widget.onIconChanged(emoji.emoji);
+        return FlowyIconPicker(
+          onSelected: (type, value) {
+            widget.onIconChanged(value);
             _popoverController.close();
           },
         );

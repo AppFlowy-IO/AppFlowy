@@ -1,0 +1,65 @@
+import 'package:appflowy/plugins/base/emoji_search_bar.dart';
+import 'package:emoji_mart/emoji_mart.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+
+class FlowyEmojiPicker extends StatefulWidget {
+  const FlowyEmojiPicker({
+    super.key,
+    required this.onEmojiSelected,
+  });
+
+  final EmojiSelectedCallback onEmojiSelected;
+
+  @override
+  State<FlowyEmojiPicker> createState() => _FlowyEmojiPickerState();
+}
+
+class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
+  late final Future<EmojiData> emojiData;
+
+  @override
+  void initState() {
+    super.initState();
+
+    emojiData = EmojiData.builtIn();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<EmojiData>(
+      future: emojiData,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+        return EmojiPicker(
+          emojiData: snapshot.data!,
+          configuration: const EmojiPickerConfiguration(
+            showSectionHeader: true,
+            showTabs: false,
+          ),
+          onEmojiSelected: widget.onEmojiSelected,
+          headerBuilder: (context, category) {
+            return Container(
+              height: 22,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              color: Theme.of(context).cardColor,
+              child: FlowyText.regular(category.id),
+            );
+          },
+          searchBarBuilder: (context, keyword, skinTone) {
+            return FlowyEmojiSearchBar(
+              onKeywordChanged: (value) {
+                keyword.value = value;
+              },
+              onSkinToneChanged: (value) {
+                skinTone.value = value;
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+}

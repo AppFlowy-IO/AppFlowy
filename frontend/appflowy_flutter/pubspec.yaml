@@ -107,6 +107,8 @@ dependencies:
   go_router: ^10.1.2
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
+  emoji_mart:
+    path: /Users/lucas.xu/Desktop/emoji_mart
 
   # Notifications
   # TODO: Consider implementing custom package
