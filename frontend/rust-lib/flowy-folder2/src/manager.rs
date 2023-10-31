@@ -326,12 +326,12 @@ impl FolderManager {
   pub async fn clear(&self, _user_id: i64) {}
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
+  pub async fn create_workspace(&self, _params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
     Err(FlowyError::not_support())
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<Workspace> {
+  pub async fn open_workspace(&self, _workspace_id: &str) -> FlowyResult<Workspace> {
     self.with_folder(
       || Err(FlowyError::internal()),
       |folder| {

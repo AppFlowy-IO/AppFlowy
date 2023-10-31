@@ -309,15 +309,6 @@ async fn migrate_anon_data_on_cloud_signup() {
       .unwrap();
 
     let expected_folder_data = expected_workspace_sync_folder_data();
-
-    if folder_data.workspaces.len() != expected_folder_data.workspaces.len() {
-      dbg!(&folder_data.workspaces);
-    }
-
-    assert_eq!(
-      folder_data.workspaces.len(),
-      expected_folder_data.workspaces.len()
-    );
     assert_eq!(folder_data.views.len(), expected_folder_data.views.len());
 
     // After migration, the ids of the folder_data should be different from the expected_folder_data
@@ -329,10 +320,7 @@ async fn migrate_anon_data_on_cloud_signup() {
       assert_eq!(left_view.name, right_view.name);
     }
 
-    assert_ne!(
-      folder_data.current_workspace_id,
-      expected_folder_data.current_workspace_id
-    );
+    assert_ne!(folder_data.workspace.id, expected_folder_data.workspace.id);
     assert_ne!(folder_data.current_view, expected_folder_data.current_view);
 
     let database_views = folder_data

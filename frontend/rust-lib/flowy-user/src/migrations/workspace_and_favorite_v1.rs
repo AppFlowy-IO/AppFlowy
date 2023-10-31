@@ -26,7 +26,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
       // Deserialize the folder from the raw data
       let folder = Folder::from_collab_raw_data(
         session.user_id,
-        origin.clone(),
+        origin,
         updates,
         &session.user_workspace.id,
         vec![],
