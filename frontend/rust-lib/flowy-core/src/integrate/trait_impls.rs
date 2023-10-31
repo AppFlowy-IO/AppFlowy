@@ -17,7 +17,9 @@ use flowy_database_deps::cloud::{
 use flowy_document2::deps::DocumentData;
 use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{FolderCloudService, FolderData, FolderSnapshot, Workspace};
+use flowy_folder_deps::cloud::{
+  FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+};
 use flowy_storage::{FileStorageService, StorageObject};
 use flowy_user::event_map::UserCloudServiceProvider;
 use flowy_user_deps::cloud::UserCloudService;
@@ -138,6 +140,17 @@ impl FolderCloudService for ServerProvider {
     let server = self.get_server(&self.get_server_type());
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
+  }
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    let server = self.get_server(&self.get_server_type());
+    FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
   }
 
   fn get_folder_data(

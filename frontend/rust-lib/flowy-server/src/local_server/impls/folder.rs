@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Error;
 
 use flowy_folder_deps::cloud::{
-  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace,
+  gen_workspace_id, FolderCloudService, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
@@ -25,6 +25,14 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
         created_at: timestamp(),
       })
     })
+  }
+
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+    FutureResult::new(async { Ok(()) })
+  }
+
+  fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
+    FutureResult::new(async { Ok(vec![]) })
   }
 
   fn get_folder_data(

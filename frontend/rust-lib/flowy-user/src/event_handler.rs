@@ -425,7 +425,7 @@ pub async fn get_cloud_config_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
-pub async fn get_all_user_workspace_handler(
+pub async fn get_all_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -440,8 +440,8 @@ pub async fn open_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params = data.into_inner();
-  manager.open_workspace(&params.id).await?;
+  let params = data.validate()?.into_inner();
+  manager.open_workspace(&params.workspace_id).await?;
   Ok(())
 }
 

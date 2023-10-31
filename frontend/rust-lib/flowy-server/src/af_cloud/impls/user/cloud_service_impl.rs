@@ -113,7 +113,17 @@ where
     })
   }
 
-  fn get_all_user_workspaces(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let af_workspace = client.open_workspace(&workspace_id).await?;
+      Ok(to_user_workspace(af_workspace))
+    })
+  }
+
+  fn get_all_workspace(&self, _uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let workspaces = try_get_client?.get_workspaces().await?;

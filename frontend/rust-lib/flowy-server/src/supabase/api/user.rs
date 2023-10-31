@@ -226,7 +226,13 @@ where
     })
   }
 
-  fn get_all_user_workspaces(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
+  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::not_support().with_context("supabase server doesn't support open workspace"))
+    })
+  }
+
+  fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, Error> {
     let try_get_postgrest = self.server.try_get_postgrest();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;

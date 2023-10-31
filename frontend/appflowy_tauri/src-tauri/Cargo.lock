@@ -445,7 +445,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.12.3",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]
@@ -753,7 +753,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1283,7 +1283,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -1429,7 +1429,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2776,7 +2776,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2792,7 +2792,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "jsonwebtoken",
@@ -3227,7 +3227,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -4294,7 +4294,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4384,19 +4383,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.29",
 ]
 
 [[package]]
@@ -4902,7 +4888,7 @@ dependencies = [
 [[package]]
 name = "realtime-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "bytes",
  "collab",
@@ -5624,7 +5610,7 @@ dependencies = [
 [[package]]
 name = "shared_entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=c87d0f05e988a02e9272a42722b304289be320e4#c87d0f05e988a02e9272a42722b304289be320e4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=689791b33#689791b33ee9a2cfa9d5ee5b4c2fa165d9ad4354"
 dependencies = [
  "anyhow",
  "collab-entity",

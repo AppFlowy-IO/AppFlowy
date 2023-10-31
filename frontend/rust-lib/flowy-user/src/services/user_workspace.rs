@@ -2,6 +2,7 @@ use std::convert::TryFrom;
 use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
+use tracing::{error, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::schema::user_workspace_table;
@@ -15,8 +16,14 @@ use crate::notification::{send_notification, UserNotification};
 use crate::services::user_workspace_sql::UserWorkspaceTable;
 
 impl UserManager {
+  #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     let uid = self.user_id()?;
+    let _ = self
+      .cloud_services
+      .get_user_service()?
+      .open_workspace(workspace_id)
+      .await;
     if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
       if let Err(err) = self
         .user_status_callback
@@ -25,7 +32,7 @@ impl UserManager {
         .open_workspace(uid, &user_workspace)
         .await
       {
-        tracing::error!("Open workspace failed: {:?}", err);
+        error!("Open workspace failed: {:?}", err);
       }
     }
     Ok(())
@@ -101,7 +108,7 @@ impl UserManager {
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
         af_spawn(async move {
-          if let Ok(new_user_workspaces) = service.get_all_user_workspaces(uid).await {
+          if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
             let _ = save_user_workspaces(uid, pool, &new_user_workspaces);
             let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
             send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
