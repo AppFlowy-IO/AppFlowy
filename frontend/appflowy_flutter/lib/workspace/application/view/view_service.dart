@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:dartz/dartz.dart';
 
 class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> createView({
@@ -149,7 +148,22 @@ class ViewBackendService {
     if (isFavorite != null) {
       payload.isFavorite = isFavorite;
     }
+
     return FolderEventUpdateView(payload).send();
+  }
+
+  static Future<Either<Unit, FlowyError>> updateViewIcon({
+    required String viewId,
+    required String viewIcon,
+  }) {
+    final icon = ViewIconPB()
+      ..ty = ViewIconTypePB.Emoji
+      ..value = viewIcon;
+    final payload = UpdateViewIconPayloadPB.create()
+      ..viewId = viewId
+      ..icon = icon;
+
+    return FolderEventUpdateViewIcon(payload).send();
   }
 
   // deprecated

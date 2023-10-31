@@ -108,7 +108,9 @@ dependencies:
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   emoji_mart:
-    path: /Users/lucas.xu/Desktop/emoji_mart
+    git:
+      url: https://github.com/LucasXu0/emoji_mart.git
+      ref: "564eb8d"
 
   # Notifications
   # TODO: Consider implementing custom package

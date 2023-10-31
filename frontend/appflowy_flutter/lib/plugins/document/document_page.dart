@@ -12,6 +12,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/base64_string.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart'
@@ -140,6 +141,13 @@ class _DocumentPageState extends State<DocumentPage> {
     return DocumentHeaderNodeWidget(
       node: page,
       editorState: editorState!,
+      view: widget.view,
+      onIconChanged: (icon) async {
+        await ViewBackendService.updateViewIcon(
+          viewId: widget.view.id,
+          viewIcon: icon,
+        );
+      },
     );
   }
 

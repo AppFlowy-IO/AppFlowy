@@ -372,9 +372,11 @@ packages:
   emoji_mart:
     dependency: "direct main"
     description:
-      path: "/Users/lucas.xu/Desktop/emoji_mart"
-      relative: false
-    source: path
+      path: "."
+      ref: "564eb8d"
+      resolved-ref: "564eb8d9b95429f76af4373390c81cc92a8541f3"
+      url: "https://github.com/LucasXu0/emoji_mart.git"
+    source: git
     version: "0.0.1"
   envied:
     dependency: "direct main"

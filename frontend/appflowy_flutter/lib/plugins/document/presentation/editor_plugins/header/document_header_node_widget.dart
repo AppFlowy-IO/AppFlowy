@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/icon_picker.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -44,13 +46,17 @@ enum CoverType {
 
 class DocumentHeaderNodeWidget extends StatefulWidget {
   const DocumentHeaderNodeWidget({
+    super.key,
     required this.node,
     required this.editorState,
-    super.key,
+    required this.onIconChanged,
+    required this.view,
   });
 
   final Node node;
   final EditorState editorState;
+  final void Function(String icon) onIconChanged;
+  final ViewPB view;
 
   @override
   State<DocumentHeaderNodeWidget> createState() =>
@@ -63,19 +69,33 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       );
   String? get coverDetails =>
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
-  String get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
-  bool get hasIcon =>
-      widget.node.attributes[DocumentHeaderBlockKeys.icon]?.isNotEmpty ?? false;
+  String? get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
+  bool get hasIcon => viewIcon.isNotEmpty;
   bool get hasCover => coverType != CoverType.none;
+
+  String viewIcon = '';
+  late final ViewListener viewListener;
 
   @override
   void initState() {
     super.initState();
+    final value = widget.view.icon.value;
+    viewIcon = value.isNotEmpty ? value : icon ?? '';
     widget.node.addListener(_reload);
+    viewListener = ViewListener(
+      viewId: widget.view.id,
+    )..start(
+        onViewUpdated: (p0) {
+          setState(() {
+            viewIcon = p0.icon.value;
+          });
+        },
+      );
   }
 
   @override
   void dispose() {
+    viewListener.stop();
     widget.node.removeListener(_reload);
     super.dispose();
   }
@@ -110,13 +130,16 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             left: 80,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
-            bottom:
-                hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
+            bottom: viewIcon.isNotEmpty
+                ? kToolbarHeight - kIconHeight / 2
+                : kToolbarHeight,
             child: DocumentIcon(
               editorState: widget.editorState,
               node: widget.node,
-              icon: icon,
-              onIconChanged: (icon) => _saveCover(icon: icon),
+              icon: viewIcon,
+              onIconChanged: (icon) async {
+                _saveCover(icon: icon);
+              },
             ),
           ),
       ],
@@ -153,6 +176,8 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
     }
+
+    widget.onIconChanged(icon ?? '');
 
     transaction.updateNode(widget.node, attributes);
     return widget.editorState.apply(transaction);
