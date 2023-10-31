@@ -42,7 +42,7 @@ void showLinkToPageMenu(
         hintText: pageType.toHintText(),
         onSelected: (appPB, viewPB) async {
           try {
-            await editorState.insertReferencePage(viewPB);
+            await editorState.insertReferencePage(viewPB, pageType);
             linkToPageMenuEntry.remove();
           } on FlowyError catch (e) {
             Dialogs.show(
@@ -188,6 +188,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   ) {
     int index = 0;
     return FutureBuilder<List<ViewPB>>(
+      future: items,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
@@ -229,7 +230,6 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
 
         return const Center(child: CircularProgressIndicator());
       },
-      future: items,
     );
   }
 }
@@ -239,12 +239,13 @@ extension on ViewLayoutPB {
     switch (this) {
       case ViewLayoutPB.Grid:
         return LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
-
       case ViewLayoutPB.Board:
         return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
-
       case ViewLayoutPB.Calendar:
         return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
+            .tr();
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_slashMenu_document_selectADocumentToLinkTo
             .tr();
       default:
         throw Exception('Unknown layout type');

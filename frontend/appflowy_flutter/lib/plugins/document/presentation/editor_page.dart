@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -138,6 +139,21 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         inlineActionsCommand(
           inlineActionsService,
           style: styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+
+        /// Inline page menu
+        /// - Using `[[`
+        pageReferenceShortcutBrackets(
+          context,
+          documentBloc.view.id,
+          styleCustomizer.inlineActionsMenuStyleBuilder(),
+        ),
+
+        /// - Using `+`
+        pageReferenceShortcutPlusSign(
+          context,
+          documentBloc.view.id,
+          styleCustomizer.inlineActionsMenuStyleBuilder(),
         ),
       ];
 
@@ -322,6 +338,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       referencedBoardMenuItem,
       inlineCalendarMenuItem(documentBloc),
       referencedCalendarMenuItem,
+      referencedDocumentMenuItem,
       calloutItem,
       outlineItem,
       mathEquationItem,
