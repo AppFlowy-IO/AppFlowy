@@ -39,7 +39,7 @@ impl FlowySupabaseFolderTest {
     EventBuilder::new(self.inner.deref().clone())
       .event(GetFolderSnapshots)
       .payload(WorkspaceIdPB {
-        value: Some(workspace_id.to_string()),
+        value: workspace_id.to_string(),
       })
       .async_send()
       .await

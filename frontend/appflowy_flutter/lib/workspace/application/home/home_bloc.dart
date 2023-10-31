@@ -47,7 +47,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
             emit(
               state.copyWith(
-                workspaceSetting: value.setting,
                 latestView: latestView,
               ),
             );

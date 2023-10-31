@@ -25,6 +25,7 @@ use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
   RepeatedTrashPB, RepeatedViewPB, UpdateViewParams, UserFolderPB, ViewPB, WorkspacePB,
+  WorkspaceSettingPB,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
@@ -347,6 +348,39 @@ impl FolderManager {
     self.with_folder(|| None, |folder| folder.get_current_workspace())
   }
 
+  pub async fn get_workspace_setting_pb(&self) -> Option<WorkspaceSettingPB> {
+    let workspace_id = self.get_current_workspace_id().await.ok()?;
+    let latest_view = self.get_current_view().await;
+    Some(WorkspaceSettingPB {
+      workspace_id,
+      latest_view,
+    })
+  }
+
+  pub async fn get_workspace_pb(&self) -> Option<WorkspacePB> {
+    let workspace_pb = {
+      let guard = self.mutex_folder.lock();
+      let folder = guard.as_ref()?;
+      let workspace = folder.get_current_workspace()?;
+
+      let views = folder
+        .views
+        .get_views_belong_to(&workspace.id)
+        .into_iter()
+        .map(view_pb_without_child_views)
+        .collect::<Vec<ViewPB>>();
+
+      WorkspacePB {
+        id: workspace.id,
+        name: workspace.name,
+        views,
+        create_time: workspace.created_at,
+      }
+    };
+
+    Some(workspace_pb)
+  }
+
   async fn get_current_workspace_id(&self) -> FlowyResult<String> {
     self
       .mutex_folder
@@ -459,7 +493,7 @@ impl FolderManager {
   /// The child views of the view will only access the first. So if you want to get the child view's
   /// child view, you need to call this method again.
   #[tracing::instrument(level = "debug", skip(self, view_id), err)]
-  pub async fn get_view(&self, view_id: &str) -> FlowyResult<ViewPB> {
+  pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
@@ -567,7 +601,7 @@ impl FolderManager {
     new_parent_id: String,
     prev_view_id: Option<String>,
   ) -> FlowyResult<()> {
-    let view = self.get_view(&view_id).await?;
+    let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
     self.with_folder(
       || (),
@@ -601,7 +635,7 @@ impl FolderManager {
           .collect::<Vec<_>>()
       } else {
         self
-          .get_view(&parent_view_id)
+          .get_view_pb(&parent_view_id)
           .await?
           .child_views
           .into_iter()
@@ -703,22 +737,22 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let folder = self.mutex_folder.lock();
-    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
-    folder.set_current_view(view_id);
+    let workspace_id = self.with_folder(
+      || Err(FlowyError::record_not_found()),
+      |folder| {
+        folder.set_current_view(view_id);
+        Ok(folder.get_workspace_id())
+      },
+    )?;
 
-    let workspace = folder.get_current_workspace();
-    let view = folder
-      .get_current_view()
-      .and_then(|view_id| folder.views.get_view(&view_id));
-    send_workspace_setting_notification(workspace, view);
+    send_workspace_setting_notification(workspace_id, self.get_current_view().await);
     Ok(())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_current_view(&self) -> Option<ViewPB> {
     let view_id = self.with_folder(|| None, |folder| folder.get_current_view())?;
-    self.get_view(&view_id).await.ok()
+    self.get_view_pb(&view_id).await.ok()
   }
 
   /// Toggles the favorite status of a view identified by `view_id`If the view is not a favorite, it will be added to the favorites list; otherwise, it will be removed from the list.
@@ -742,7 +776,7 @@ impl FolderManager {
 
   // Used by toggle_favorites to send notification to frontend, after the favorite status of view has been changed.It sends two distinct notifications: one to correctly update the concerned view's is_favorite status, and another to update the list of favorites that is to be displayed.
   async fn send_toggle_favorite_notification(&self, view_id: &str) {
-    if let Ok(view) = self.get_view(view_id).await {
+    if let Ok(view) = self.get_view_pb(view_id).await {
       let notification_type = if view.is_favorite {
         FolderNotification::DidFavoriteView
       } else {
@@ -909,7 +943,7 @@ impl FolderManager {
       }
     }
 
-    if let Ok(view_pb) = self.get_view(view_id).await {
+    if let Ok(view_pb) = self.get_view_pb(view_id).await {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();

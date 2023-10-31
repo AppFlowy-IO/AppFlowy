@@ -200,10 +200,10 @@ class ViewBackendService {
 
   Future<List<ViewPB>> fetchViews() async {
     final result = <ViewPB>[];
-    return FolderEventGetCurrentWorkspace().send().then((value) async {
-      final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
-      if (workspaces != null) {
-        final views = workspaces.workspace.views;
+    return FolderEventReadCurrentWorkspace().send().then((value) async {
+      final workspace = value.getLeftOrNull<WorkspacePB>();
+      if (workspace != null) {
+        final views = workspace.views;
         for (final view in views) {
           result.add(view);
           final childViews = await getAllViews(view);

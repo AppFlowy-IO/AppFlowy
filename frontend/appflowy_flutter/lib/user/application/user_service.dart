@@ -90,14 +90,14 @@ class UserBackendService {
   }
 
   Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {
-    final request = WorkspaceIdPB.create();
-
-    return FolderEventReadAllWorkspaces(request).send().then((result) {
-      return result.fold(
-        (workspaces) => left(workspaces.items),
-        (error) => right(error),
-      );
-    });
+    // final request = WorkspaceIdPB.create();
+    // return FolderEventReadAllWorkspaces(request).send().then((result) {
+    //   return result.fold(
+    //     (workspaces) => left(workspaces.items),
+    //     (error) => right(error),
+    //   );
+    // });
+    return Future.value(left([]));
   }
 
   Future<Either<WorkspacePB, FlowyError>> openWorkspace(String workspaceId) {

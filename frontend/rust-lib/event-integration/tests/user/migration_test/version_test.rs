@@ -57,6 +57,6 @@ async fn migrate_036_fav_v1_workspace_array_test() {
 
   let views = test.get_views(&views[1].id).await;
   assert_eq!(views.child_views.len(), 3);
-  assert_eq!(views.child_views[2].is_favorite, true);
+  assert!(views.child_views[2].is_favorite);
   drop(cleaner);
 }

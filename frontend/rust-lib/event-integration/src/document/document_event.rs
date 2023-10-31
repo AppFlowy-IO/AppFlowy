@@ -34,7 +34,7 @@ impl DocumentEventTest {
 
   pub async fn create_document(&self) -> ViewPB {
     let core = &self.inner;
-    let current_workspace = core.get_current_workspace().await.workspace;
+    let current_workspace = core.get_current_workspace().await;
     let parent_id = current_workspace.id.clone();
 
     let payload = CreateViewPayloadPB {
