@@ -1,12 +1,11 @@
 import {
   FolderEventCreateWorkspace,
-  FolderEventGetCurrentWorkspace,
   CreateWorkspacePayloadPB,
-  FolderEventReadAllWorkspaces,
   FolderEventOpenWorkspace,
   FolderEventDeleteWorkspace,
   WorkspaceIdPB,
   FolderEventReadWorkspaceViews,
+  FolderEventReadCurrentWorkspace,
 } from '@/services/backend/events/flowy-folder2';
 
 export class WorkspaceBackendService {
@@ -41,14 +40,11 @@ export class WorkspaceBackendService {
   };
 
   getWorkspaces = async () => {
-    // if workspaceId is not provided, it will return all workspaces
-    const workspaceId = new WorkspaceIdPB();
-
-    return FolderEventReadAllWorkspaces(workspaceId);
+    return FolderEventReadCurrentWorkspace();
   };
 
   getCurrentWorkspace = async () => {
-    return FolderEventGetCurrentWorkspace();
+    return FolderEventReadCurrentWorkspace();
   };
 
   getChildPages = async (workspaceId: string) => {
