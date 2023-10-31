@@ -24,8 +24,8 @@ void showLinkToPageMenu(
 
   final alignment = menuService.alignment;
   final offset = menuService.offset;
-  final top = alignment == Alignment.bottomLeft ? offset.dy : null;
-  final bottom = alignment == Alignment.topLeft ? offset.dy : null;
+  final top = alignment == Alignment.topLeft ? offset.dy : null;
+  final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.increase();
   late OverlayEntry linkToPageMenuEntry;
@@ -246,7 +246,6 @@ extension on ViewLayoutPB {
       case ViewLayoutPB.Calendar:
         return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
             .tr();
-
       default:
         throw Exception('Unknown layout type');
     }
