@@ -52,6 +52,7 @@ void main() {
     await FolderEventSetLatestView(ViewIdPB(value: latestView.id)).send();
     await blocResponseFuture();
 
-    assert(homeBloc.state.workspaceSetting.latestView.id == latestView.id);
+    final actual = homeBloc.state.workspaceSetting.latestView.id;
+    assert(actual == latestView.id);
   });
 }
