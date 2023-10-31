@@ -1,4 +1,4 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
 

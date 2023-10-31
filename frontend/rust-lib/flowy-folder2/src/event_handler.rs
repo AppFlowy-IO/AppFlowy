@@ -239,17 +239,10 @@ pub(crate) async fn read_favorites_handler(
   let favorites = folder.get_all_favorites().await;
   let mut views = vec![];
   for info in favorites {
-    let view = folder.get_view(&info.id).await;
-    match view {
-      Ok(view) => {
-        views.push(view);
-      },
-      Err(err) => {
-        return Err(err);
-      },
+    if let Ok(view) = folder.get_view(&info.id).await {
+      views.push(view);
     }
   }
-
   data_result_ok(RepeatedViewPB { items: views })
 }
 #[tracing::instrument(level = "debug", skip(folder), err)]

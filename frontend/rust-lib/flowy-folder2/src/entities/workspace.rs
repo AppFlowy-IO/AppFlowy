@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use collab::core::collab_state::SyncState;
-use collab_folder::core::Workspace;
+use collab_folder::Workspace;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;

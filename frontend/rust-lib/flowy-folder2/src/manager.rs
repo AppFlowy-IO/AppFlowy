@@ -5,9 +5,9 @@ use std::sync::{Arc, Weak};
 use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_entity::CollabType;
-use collab_folder::core::{
-  FavoritesInfo, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
-  View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
+use collab_folder::{
+  FavoriteId, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
+  UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
 use tokio_stream::wrappers::WatchStream;
@@ -24,12 +24,10 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, CreateViewParams,
   CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, FolderSnapshotStatePB, FolderSyncStatePB,
-  RepeatedTrashPB, RepeatedViewPB, RepeatedWorkspacePB, UpdateViewParams, UserFolderPB, ViewPB,
-  WorkspacePB,
+  RepeatedTrashPB, RepeatedViewPB, UpdateViewParams, UserFolderPB, ViewPB, WorkspacePB,
 };
 use crate::notification::{
-  send_notification, send_workspace_notification, send_workspace_setting_notification,
-  FolderNotification,
+  send_notification, send_workspace_setting_notification, FolderNotification,
 };
 use crate::share::ImportParams;
 use crate::user_default::DefaultFolderBuilder;
@@ -74,6 +72,7 @@ impl FolderManager {
     Ok(manager)
   }
 
+  #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(
       || {
@@ -92,19 +91,7 @@ impl FolderManager {
         };
 
         match folder.get_current_workspace() {
-          None => {
-            // The current workspace should always exist. If not, try to find the first workspace.
-            // from the folder. Otherwise, return an error.
-            let mut workspaces = folder.workspaces.get_all_workspaces();
-            if workspaces.is_empty() {
-              Err(FlowyError::record_not_found().with_context("Can not find the workspace"))
-            } else {
-              tracing::error!("Can't find the current workspace, use the first workspace");
-              let workspace = workspaces.remove(0);
-              folder.set_current_workspace(&workspace.id);
-              workspace_pb_from_workspace(workspace, folder)
-            }
-          },
+          None => Err(FlowyError::record_not_found().with_context("Can not find the workspace")),
           Some(workspace) => workspace_pb_from_workspace(workspace, folder),
         }
       },
@@ -118,9 +105,9 @@ impl FolderManager {
       .mutex_folder
       .lock()
       .as_ref()
-      .map(|folder| folder.get_current_workspace_id());
+      .map(|folder| folder.get_workspace_id());
 
-    if let Some(Some(workspace_id)) = workspace_id {
+    if let Some(workspace_id) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
       tracing::warn!("Can't get current workspace views");
@@ -129,7 +116,7 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(std::vec::Vec::new, |folder| {
+    let views = self.with_folder(Vec::new, |folder| {
       get_workspace_view_pbs(workspace_id, folder)
     });
 
@@ -160,18 +147,25 @@ impl FolderManager {
         } => {
           let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
           if is_exist {
+            event!(Level::INFO, "Restore folder from local disk");
             let collab = self
               .collab_for_folder(uid, &workspace_id, collab_db, vec![])
               .await?;
-            Folder::open(collab, Some(folder_notifier))
+            Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
           } else if create_if_not_exist {
+            event!(Level::INFO, "Create folder with default folder builder");
             let folder_data =
               DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers)
                 .await;
             let collab = self
               .collab_for_folder(uid, &workspace_id, collab_db, vec![])
               .await?;
-            Folder::create(collab, Some(folder_notifier), Some(folder_data))
+            Folder::create(
+              UserId::from(uid),
+              collab,
+              Some(folder_notifier),
+              folder_data,
+            )
           } else {
             return Err(FlowyError::new(
               ErrorCode::RecordNotFound,
@@ -180,19 +174,26 @@ impl FolderManager {
           }
         },
         FolderInitializeDataSource::Cloud(raw_data) => {
+          event!(Level::INFO, "Restore folder from cloud service");
           if raw_data.is_empty() {
             return Err(workspace_data_not_sync_error(uid, &workspace_id));
           }
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, raw_data)
             .await?;
-          Folder::open(collab, Some(folder_notifier))
+          Folder::open(UserId::from(uid), collab, Some(folder_notifier))?
         },
         FolderInitializeDataSource::FolderData(folder_data) => {
+          event!(Level::INFO, "Restore folder with passed-in folder data");
           let collab = self
             .collab_for_folder(uid, &workspace_id, collab_db, vec![])
             .await?;
-          Folder::create(collab, Some(folder_notifier), Some(folder_data))
+          Folder::create(
+            UserId::from(uid),
+            collab,
+            Some(folder_notifier),
+            folder_data,
+          )
         },
       };
 
@@ -326,24 +327,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    let workspace = self
-      .cloud_service
-      .create_workspace(self.user.user_id()?, &params.name)
-      .await?;
-
-    self.with_folder(
-      || (),
-      |folder| {
-        folder.workspaces.create_workspace(workspace.clone());
-        folder.set_current_workspace(&workspace.id);
-      },
-    );
-
-    let repeated_workspace = RepeatedWorkspacePB {
-      items: vec![workspace.clone().into()],
-    };
-    send_workspace_notification(FolderNotification::DidCreateWorkspace, repeated_workspace);
-    Ok(workspace)
+    Err(FlowyError::not_support())
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
@@ -351,23 +335,16 @@ impl FolderManager {
     self.with_folder(
       || Err(FlowyError::internal()),
       |folder| {
-        let workspace = folder
-          .workspaces
-          .get_workspace(workspace_id)
-          .ok_or_else(|| {
-            FlowyError::record_not_found().with_context("Can't open not existing workspace")
-          })?;
-        folder.set_current_workspace(&workspace.id);
+        let workspace = folder.get_current_workspace().ok_or_else(|| {
+          FlowyError::record_not_found().with_context("Can't open not existing workspace")
+        })?;
         Ok::<Workspace, FlowyError>(workspace)
       },
     )
   }
 
-  pub async fn get_workspace(&self, workspace_id: &str) -> Option<Workspace> {
-    self.with_folder(
-      || None,
-      |folder| folder.workspaces.get_workspace(workspace_id),
-    )
+  pub async fn get_workspace(&self, _workspace_id: &str) -> Option<Workspace> {
+    self.with_folder(|| None, |folder| folder.get_current_workspace())
   }
 
   async fn get_current_workspace_id(&self) -> FlowyResult<String> {
@@ -375,7 +352,7 @@ impl FolderManager {
       .mutex_folder
       .lock()
       .as_ref()
-      .and_then(|folder| folder.get_current_workspace_id())
+      .map(|folder| folder.get_workspace_id())
       .ok_or(FlowyError::internal().with_context("Unexpected empty workspace id"))
   }
 
@@ -399,8 +376,12 @@ impl FolderManager {
   }
 
   pub async fn get_all_workspaces(&self) -> Vec<Workspace> {
-    self.with_folder(std::vec::Vec::new, |folder| {
-      folder.workspaces.get_all_workspaces()
+    self.with_folder(Vec::new, |folder| {
+      let mut workspaces = vec![];
+      if let Some(workspace) = folder.get_current_workspace() {
+        workspaces.push(workspace);
+      }
+      workspaces
     })
   }
 
@@ -653,7 +634,7 @@ impl FolderManager {
   /// Return a list of views that belong to the given parent view id.
   #[tracing::instrument(level = "debug", skip(self, parent_view_id), err)]
   pub async fn get_views_belong_to(&self, parent_view_id: &str) -> FlowyResult<Vec<Arc<View>>> {
-    let views = self.with_folder(std::vec::Vec::new, |folder| {
+    let views = self.with_folder(Vec::new, |folder| {
       folder.views.get_views_belong_to(parent_view_id)
     });
     Ok(views)
@@ -780,8 +761,8 @@ impl FolderManager {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoritesInfo> {
-    self.with_folder(std::vec::Vec::new, |folder| {
+  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoriteId> {
+    self.with_folder(Vec::new, |folder| {
       let trash_ids = folder
         .get_all_trash()
         .into_iter()
@@ -796,7 +777,7 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash())
+    self.with_folder(Vec::new, |folder| folder.get_all_trash())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -825,7 +806,7 @@ impl FolderManager {
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) async fn delete_all_trash(&self) {
-    let deleted_trash = self.with_folder(std::vec::Vec::new, |folder| folder.get_all_trash());
+    let deleted_trash = self.with_folder(Vec::new, |folder| folder.get_all_trash());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
@@ -1179,7 +1160,7 @@ fn notify_parent_view_did_change<T: AsRef<str>>(
 ) -> Option<()> {
   let folder = folder.lock();
   let folder = folder.as_ref()?;
-  let workspace_id = folder.get_current_workspace_id()?;
+  let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
     .get_all_trash()
     .into_iter()

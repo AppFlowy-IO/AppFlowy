@@ -1,4 +1,4 @@
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use client_api::entity::QueryCollabParams;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
@@ -16,10 +16,15 @@ where
   T: AFServer,
 {
   fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
-    FutureResult::new(async move { todo!() })
+    FutureResult::new(async move { Err(anyhow!("Not support yet")) })
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
+  fn get_folder_data(
+    &self,
+    workspace_id: &str,
+    uid: &i64,
+  ) -> FutureResult<Option<FolderData>, Error> {
+    let uid = *uid;
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     FutureResult::new(async move {
@@ -33,7 +38,7 @@ where
         .await
         .map_err(FlowyError::from)?];
       let folder =
-        Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
     })
   }

@@ -69,7 +69,12 @@ where
     })
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
+  fn get_folder_data(
+    &self,
+    workspace_id: &str,
+    uid: &i64,
+  ) -> FutureResult<Option<FolderData>, Error> {
+    let uid = *uid;
     let try_get_postgrest = self.server.try_get_postgrest();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
@@ -85,7 +90,7 @@ where
       }
 
       let folder =
-        Folder::from_collab_raw_data(CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
       Ok(folder.get_folder_data())
     })
   }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_folder::core::{View, Workspace};
+use collab_folder::{View, Workspace};
 
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;

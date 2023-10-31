@@ -1,4 +1,4 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;

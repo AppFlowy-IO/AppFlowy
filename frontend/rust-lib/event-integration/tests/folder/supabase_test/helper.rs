@@ -5,7 +5,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{merge_updates_v1, JsonValue, Update};
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 
 use event_integration::event_builder::EventBuilder;
 use flowy_folder2::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};

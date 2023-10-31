@@ -4,7 +4,7 @@ use assert_json_diff::assert_json_eq;
 use collab_database::rows::database_row_document_id_from_row_id;
 use collab_document::blocks::DocumentData;
 use collab_entity::CollabType;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use nanoid::nanoid;
 use serde_json::json;
 
@@ -303,7 +303,7 @@ async fn migrate_anon_data_on_cloud_signup() {
     let folder_data: FolderData = test
       .folder_manager
       .get_cloud_service()
-      .get_folder_data(&user_profile.workspace_id)
+      .get_folder_data(&user_profile.workspace_id, &user_profile.id)
       .await
       .unwrap()
       .unwrap();

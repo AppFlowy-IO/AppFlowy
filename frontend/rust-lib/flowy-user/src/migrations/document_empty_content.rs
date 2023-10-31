@@ -4,7 +4,7 @@ use collab::core::collab::MutexCollab;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
-use collab_folder::core::Folder;
+use collab_folder::Folder;
 
 use collab_integrate::{RocksCollabDB, YrsDocAction};
 use flowy_error::{internal_error, FlowyResult};
@@ -25,8 +25,13 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     if let Ok(updates) = write_txn.get_all_updates(session.user_id, &session.user_workspace.id) {
       let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
       // Deserialize the folder from the raw data
-      let folder =
-        Folder::from_collab_raw_data(origin.clone(), updates, &session.user_workspace.id, vec![])?;
+      let folder = Folder::from_collab_raw_data(
+        session.user_id,
+        origin.clone(),
+        updates,
+        &session.user_workspace.id,
+        vec![],
+      )?;
 
       // Migration the first level documents of the workspace
       let migration_views = folder.get_workspace_views(&session.user_workspace.id);

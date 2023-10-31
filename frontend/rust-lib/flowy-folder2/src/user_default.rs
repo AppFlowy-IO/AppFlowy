@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use collab_folder::core::{FolderData, RepeatedViewIdentifier, ViewIdentifier, Workspace};
+use collab_folder::{FolderData, RepeatedViewIdentifier, ViewIdentifier, Workspace};
 use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
@@ -44,10 +44,10 @@ impl DefaultFolderBuilder {
     };
 
     FolderData {
-      current_workspace_id: workspace.id.clone(),
+      workspace,
       current_view: first_view.id,
-      workspaces: vec![workspace],
       views: FlattedViews::flatten_views(views),
+      favorites: Default::default(),
     }
   }
 }

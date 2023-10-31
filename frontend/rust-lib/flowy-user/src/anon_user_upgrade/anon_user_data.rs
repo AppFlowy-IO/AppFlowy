@@ -11,7 +11,7 @@ use collab_database::database::{
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
 use collab_database::user::DatabaseWithViewsArray;
-use collab_folder::core::Folder;
+use collab_folder::{Folder, UserId};
 use parking_lot::{Mutex, RwLock};
 
 use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
@@ -22,7 +22,7 @@ use crate::migrations::MigrationUser;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.
-pub fn migration_local_user_on_sign_up(
+pub fn migration_anon_user_on_sign_up(
   old_user: &MigrationUser,
   old_collab_db: &Arc<RocksCollabDB>,
   new_user: &MigrationUser,
@@ -207,7 +207,13 @@ where
   old_folder_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(old_uid, old_workspace_id, txn)
   })?;
-  let old_folder = Folder::open(Arc::new(MutexCollab::from_collab(old_folder_collab)), None);
+  let oid_user_id = UserId::from(old_uid);
+  let old_folder = Folder::open(
+    oid_user_id,
+    Arc::new(MutexCollab::from_collab(old_folder_collab)),
+    None,
+  )
+  .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
   let mut folder_data = old_folder
     .get_folder_data()
     .ok_or(PersistenceError::Internal(
@@ -219,25 +225,13 @@ where
     .insert(old_workspace_id.to_string(), new_workspace_id.to_string());
 
   // 1. Replace the workspace views id to new id
-  debug_assert!(folder_data.workspaces.len() == 1);
-
+  folder_data.workspace.id = new_workspace_id.clone();
   folder_data
-    .workspaces
+    .workspace
+    .child_views
     .iter_mut()
-    .enumerate()
-    .for_each(|(index, workspace)| {
-      if index == 0 {
-        workspace.id = new_workspace_id.to_string();
-      } else {
-        tracing::warn!("🔴migrate folder: more than one workspace");
-        workspace.id = old_to_new_id_map.get_new_id(&workspace.id);
-      }
-      workspace
-        .child_views
-        .iter_mut()
-        .for_each(|view_identifier| {
-          view_identifier.id = old_to_new_id_map.get_new_id(&view_identifier.id);
-        });
+    .for_each(|view_identifier| {
+      view_identifier.id = old_to_new_id_map.get_new_id(&view_identifier.id);
     });
 
   folder_data.views.iter_mut().for_each(|view| {
@@ -253,15 +247,6 @@ where
     });
   });
 
-  match old_to_new_id_map.get(&folder_data.current_workspace_id) {
-    Some(new_workspace_id) => {
-      folder_data.current_workspace_id = new_workspace_id.clone();
-    },
-    None => {
-      tracing::error!("🔴migrate folder: current workspace id not found");
-    },
-  }
-
   match old_to_new_id_map.get(&folder_data.current_view) {
     Some(new_view_id) => {
       folder_data.current_view = new_view_id.clone();
@@ -276,7 +261,8 @@ where
   let new_folder_collab = Collab::new_with_raw_data(origin, new_workspace_id, vec![], vec![])
     .map_err(|err| PersistenceError::Internal(Box::new(err)))?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
-  let _ = Folder::create(mutex_collab.clone(), None, Some(folder_data));
+  let new_user_id = UserId::from(new_uid);
+  let _ = Folder::create(new_user_id, mutex_collab.clone(), None, folder_data);
 
   {
     let mutex_collab = mutex_collab.lock();
