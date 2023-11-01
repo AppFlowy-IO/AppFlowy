@@ -304,7 +304,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       const HSpace(4),
       // icon
       _buildViewIconButton(),
-      const HSpace(12),
+      const HSpace(8),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -357,10 +357,10 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     final icon = widget.view.icon.value.isNotEmpty
         ? FlowyText(
             widget.view.icon.value,
-            fontSize: 18.0,
+            fontSize: 24.0,
           )
         : SizedBox.square(
-            dimension: 20.0,
+            dimension: 26.0,
             child: widget.view.defaultIcon(),
           );
     return icon;

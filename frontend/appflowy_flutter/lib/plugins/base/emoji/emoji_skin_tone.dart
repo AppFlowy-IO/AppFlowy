@@ -39,10 +39,11 @@ class _FlowyEmojiSkinToneSelectorState
         return FlowyTooltip(
           message: LocaleKeys.emoji_selectSkinTone.tr(),
           child: FlowyIconButton(
-            iconPadding: const EdgeInsets.all(2.0),
             icon: Padding(
               // add a left padding to align the emoji center
-              padding: const EdgeInsets.only(left: 3.0),
+              padding: const EdgeInsets.only(
+                left: 3.0,
+              ),
               child: FlowyText(
                 lastSelectedEmojiSkinTone?.icon ?? '✋',
                 fontSize: 22.0,
@@ -53,8 +54,10 @@ class _FlowyEmojiSkinToneSelectorState
         );
       },
       onSelected: (action, controller) async {
-        lastSelectedEmojiSkinTone = action.inner;
         widget.onEmojiSkinToneChanged(action.inner);
+        setState(() {
+          lastSelectedEmojiSkinTone = action.inner;
+        });
         controller.close();
       },
     );

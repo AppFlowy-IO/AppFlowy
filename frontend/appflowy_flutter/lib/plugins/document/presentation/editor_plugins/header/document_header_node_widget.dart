@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/base/icon_picker.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -18,7 +19,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'cover_editor.dart';
-import 'emoji_icon_widget.dart';
 
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
@@ -520,20 +520,41 @@ class _DocumentIconState extends State<DocumentIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithCenterAligned,
-      controller: _popoverController,
-      offset: const Offset(0, 8),
-      constraints: BoxConstraints.loose(const Size(360, 380)),
-      child: EmojiIconWidget(emoji: widget.icon),
-      popupBuilder: (BuildContext popoverContext) {
-        return FlowyIconPicker(
-          onSelected: (type, value) {
-            widget.onIconChanged(value);
-            _popoverController.close();
-          },
-        );
-      },
+    Widget child = EmojiIconWidget(
+      emoji: widget.icon,
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        direction: PopoverDirection.bottomWithCenterAligned,
+        controller: _popoverController,
+        offset: const Offset(0, 8),
+        constraints: BoxConstraints.loose(const Size(360, 380)),
+        child: child,
+        popupBuilder: (BuildContext popoverContext) {
+          return FlowyIconPicker(
+            onSelected: (type, value) {
+              widget.onIconChanged(value);
+              _popoverController.close();
+            },
+          );
+        },
+      );
+    } else {
+      child = GestureDetector(
+        child: child,
+        onTap: () => context.push(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {
+              MobileEmojiPickerScreen.viewId:
+                  context.read<ViewBloc>().state.view.id,
+            },
+          ).toString(),
+        ),
+      );
+    }
+
+    return child;
   }
 }

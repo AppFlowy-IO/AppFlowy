@@ -61,7 +61,6 @@ void main() {
 
       // Insert a document icon
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
@@ -73,13 +72,11 @@ void main() {
       // Add the icon back for further testing
       await tester.editor.hoverOnCoverToolbar();
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
       // Change the document icon
       await tester.editor.tapOnIconWidget();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😅');
       tester.expectToSeeDocumentIcon('😅');
 
@@ -102,7 +99,6 @@ void main() {
 
       // Insert a document icon
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Insert a document cover

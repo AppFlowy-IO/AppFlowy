@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/base/emoji/emoji_picker_page.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker_page.dart';
 import 'package:flutter/material.dart';
 
 class MobileEmojiPickerScreen extends StatelessWidget {
@@ -15,7 +15,7 @@ class MobileEmojiPickerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmojiPickerPage(
+    return IconPickerPage(
       id: id,
     );
   }
