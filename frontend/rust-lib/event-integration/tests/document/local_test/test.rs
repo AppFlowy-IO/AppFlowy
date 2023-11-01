@@ -156,6 +156,10 @@ async fn convert_document_test() {
   }
 }
 
+/// test convert data to json
+/// - input html: <p>Hello</p><p> World!</p>
+/// - input plain text: Hello World!
+/// - output json: { "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello" }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!" }] } }] }
 #[tokio::test]
 async fn convert_data_to_json_test() {
   let test = DocumentEventTest::new().await;

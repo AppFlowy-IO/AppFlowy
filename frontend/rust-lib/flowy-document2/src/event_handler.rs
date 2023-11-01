@@ -21,7 +21,7 @@ use crate::parser::parser_entities::{
   ConvertDocumentParams, ConvertDocumentPayloadPB, ConvertDocumentResponsePB,
 };
 
-use crate::parser::external::parser::ExternalDataToDocumentDataParser;
+use crate::parser::external::parser::ExternalDataToNestedJSONParser;
 use crate::{manager::DocumentManager, parser::json::parser::JsonToDocumentParser};
 
 fn upgrade_document(
@@ -402,7 +402,7 @@ pub(crate) async fn convert_data_to_json_handler(
   data: AFPluginData<ConvertDataToJsonPayloadPB>,
 ) -> DataResult<ConvertDataToJsonResponsePB, FlowyError> {
   let payload: ConvertDataToJsonParams = data.into_inner().try_into()?;
-  let parser = ExternalDataToDocumentDataParser::new(payload.data, payload.input_type);
+  let parser = ExternalDataToNestedJSONParser::new(payload.data, payload.input_type);
   if let Some(result) = parser.to_nested_block() {
     return data_result_ok(ConvertDataToJsonResponsePB {
       json: serde_json::to_string(&result).unwrap_or_default(),

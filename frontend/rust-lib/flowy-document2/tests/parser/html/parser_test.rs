@@ -1,4 +1,4 @@
-use flowy_document2::parser::external::parser::ExternalDataToDocumentDataParser;
+use flowy_document2::parser::external::parser::ExternalDataToNestedJSONParser;
 use flowy_document2::parser::parser_entities::{InputType, NestedBlock};
 
 macro_rules! generate_test_cases {
@@ -13,12 +13,15 @@ macro_rules! generate_test_cases {
         ]
     };
 }
+
+/// test convert data to json
+/// - input html: <p>Hello</p><p> World!</p>
 #[tokio::test]
 async fn html_to_document_test() {
   let test_cases = generate_test_cases!(notion, google_docs);
 
   for (json, html) in test_cases.iter() {
-    let parser = ExternalDataToDocumentDataParser::new(html.to_string(), InputType::Html);
+    let parser = ExternalDataToNestedJSONParser::new(html.to_string(), InputType::Html);
     let block = parser.to_nested_block();
     assert!(block.is_some());
     let block = block.unwrap();
@@ -27,10 +30,12 @@ async fn html_to_document_test() {
   }
 }
 
+/// test convert data to json
+/// - input plain text: Hello World!
 #[tokio::test]
 async fn plain_text_to_document_test() {
   let plain_text = include_str!("../../assets/text/plain_text.txt");
-  let parser = ExternalDataToDocumentDataParser::new(plain_text.to_string(), InputType::PlainText);
+  let parser = ExternalDataToNestedJSONParser::new(plain_text.to_string(), InputType::PlainText);
   let block = parser.to_nested_block();
   assert!(block.is_some());
   let expect_json = include_str!("../../assets/json/plain_text.json");

@@ -1,7 +1,4 @@
-use crate::parser::constant::{
-  BOLD, BULLETED_LIST, CALLOUT, CHECKED, CODE, DELTA, DIVIDER, HEADING, IMAGE, ITALIC, LANGUAGE,
-  LEVEL, NUMBERED_LIST, PAGE, PARAGRAPH, QUOTE, STRIKETHROUGH, TODO_LIST, UNDERLINE,
-};
+use crate::parser::constant::*;
 use crate::parser::parser_entities::{InsertDelta, NestedBlock};
 use scraper::node::Attrs;
 use scraper::ElementRef;
@@ -9,7 +6,25 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
-const INLINE_TAGS: [&str; 9] = ["a", "em", "strong", "u", "s", "code", "span", "br", ""];
+const INLINE_TAGS: [&str; 9] = [
+  A_TAG_NAME,
+  EM_TAG_NAME,
+  STRONG_TAG_NAME,
+  U_TAG_NAME,
+  S_TAG_NAME,
+  CODE_TAG_NAME,
+  SPAN_TAG_NAME,
+  BR_TAG_NAME,
+  "",
+];
+
+const SRC: &str = "src";
+const HREF: &str = "href";
+const ROLE: &str = "role";
+const CHECKBOX: &str = "checkbox";
+const ARIA_CHECKED: &str = "aria-checked";
+const CLASS: &str = "class";
+const STYLE: &str = "style";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum JSONResult {
@@ -19,6 +34,7 @@ pub enum JSONResult {
   DeltaArray(Vec<InsertDelta>),
 }
 
+/// Flatten element to block
 pub fn flatten_element_to_block(node: ElementRef) -> Option<NestedBlock> {
   if let Some(JSONResult::Block(block)) = flatten_element_to_json(node, &None, &None) {
     return Some(block);
@@ -27,6 +43,7 @@ pub fn flatten_element_to_block(node: ElementRef) -> Option<NestedBlock> {
   None
 }
 
+/// Parse plaintext to nested block
 pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
   let lines: Vec<&str> = plaintext.lines().collect();
   let mut current_block: NestedBlock = NestedBlock {
@@ -40,6 +57,7 @@ pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
     if !trimmed_line.is_empty() {
       let mut data = HashMap::new();
 
+      // Insert plaintext into delta
       if let Ok(delta) = serde_json::to_value(vec![InsertDelta {
         insert: trimmed_line.to_string(),
         attributes: None,
@@ -49,18 +67,19 @@ pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
 
       // Create a new block for each non-empty line
       current_block.children.push(NestedBlock {
-        ty: "paragraph".to_string(),
+        ty: PARAGRAPH.to_string(),
         data,
         children: Vec::new(),
       });
     }
   }
 
-  if current_block.children.len() == 0 {
+  if current_block.children.is_empty() {
     return None;
   }
   Some(current_block)
 }
+
 fn flatten_element_to_json(
   node: ElementRef,
   list_type: &Option<String>,
@@ -75,12 +94,17 @@ fn flatten_element_to_json(
   if INLINE_TAGS.contains(&tag_name.as_str()) {
     return process_inline_element(node, attributes);
   }
+
   match tag_name.as_str() {
-    "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => process_heading_element(node),
-    "ul" | "ol" | "li" | "blockquote" => process_list_element(node, list_type.to_owned()),
-    "pre" => process_code_element(node),
-    "img" => process_image_element(node),
-    "b" => process_b_container_element(node),
+    H1_TAG_NAME | H2_TAG_NAME | H3_TAG_NAME | H4_TAG_NAME | H5_TAG_NAME | H6_TAG_NAME => {
+      process_heading_element(node)
+    },
+    UL_TAG_NAME | OL_TAG_NAME | LI_TAG_NAME | BLOCKQUOTE_TAG_NAME => {
+      process_list_element(node, list_type.to_owned())
+    },
+    PRE_TAG_NAME => process_code_element(node),
+    IMG_TAG_NAME => process_image_element(node),
+    B_TAG_NAME => process_b_container_element(node),
     _ => process_default_element(node),
   }
 }
@@ -89,10 +113,10 @@ fn process_default_element(node: ElementRef) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
   let mut data = HashMap::new();
   let ty = match tag_name.as_str() {
-    "html" => PAGE.to_string(),
-    "p" => PARAGRAPH.to_string(),
-    "aside" => CALLOUT.to_string(),
-    "hr" => DIVIDER.to_string(),
+    HTML_TAG_NAME => PAGE.to_string(),
+    P_TAG_NAME => PARAGRAPH.to_string(),
+    ASIDE_TAG_NAME => CALLOUT.to_string(),
+    HR_TAG_NAME => DIVIDER.to_string(),
     _ => PARAGRAPH.to_string(),
   };
 
@@ -117,8 +141,8 @@ fn process_b_container_element(node: ElementRef) -> Option<JSONResult> {
 
 fn process_image_element(node: ElementRef) -> Option<JSONResult> {
   let mut data = HashMap::new();
-  if let Some(src) = find_attribute_value(node, "src") {
-    data.insert("url".to_string(), Value::String(src));
+  if let Some(src) = find_attribute_value(node, SRC) {
+    data.insert(URL.to_string(), Value::String(src));
   }
   Some(JSONResult::Block(NestedBlock {
     ty: IMAGE.to_string(),
@@ -135,14 +159,14 @@ fn process_code_element(node: ElementRef) -> Option<JSONResult> {
     .children()
     .find(|child| {
       if let Some(child_element) = ElementRef::wrap(child.to_owned()) {
-        return child_element.value().name() == "code";
+        return child_element.value().name() == CODE_TAG_NAME;
       }
       false
     })
     .and_then(|child| ElementRef::wrap(child.to_owned()))
   {
     // get language
-    if let Some(class) = find_attribute_value(code_child.to_owned(), "class") {
+    if let Some(class) = find_attribute_value(code_child.to_owned(), CLASS) {
       let lang = class.split('-').last().unwrap_or_default();
       data.insert(LANGUAGE.to_string(), Value::String(lang.to_string()));
     }
@@ -168,17 +192,19 @@ fn process_list_element(node: ElementRef, list_type: Option<String>) -> Option<J
   let tag_name = get_tag_name(node.to_owned());
 
   match tag_name.as_str() {
-    "ul" | "ol" => {
-      let ty = if tag_name == "ul" {
+    UL_TAG_NAME | OL_TAG_NAME => {
+      let ty = if tag_name == UL_TAG_NAME {
         BULLETED_LIST.to_string()
       } else {
         NUMBERED_LIST.to_string()
       };
+      // Expand children of <ul> or <ol> element.
+      // Example: <ul><li>1</li><li>2</li></ul> => [{ type: "bulleted_list", data: { delta: [{ insert: "1" }] } }, { type: "bulleted_list", data: { delta: [{ insert: "2" }] } }]
       let (_, children) = process_node_children(node, &Some(ty), &None);
       Some(JSONResult::BlockArray(children))
     },
-    "li" => process_li_element(node, list_type),
-    "blockquote" => process_li_element(node, Some(QUOTE.to_string())),
+    LI_TAG_NAME => process_li_element(node, list_type),
+    BLOCKQUOTE_TAG_NAME => process_li_element(node, Some(QUOTE.to_string())),
     _ => Some(JSONResult::BlockArray(vec![])),
   }
 }
@@ -187,9 +213,9 @@ fn process_list_element(node: ElementRef, list_type: Option<String>) -> Option<J
 fn process_li_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
   let ty = list_type.unwrap_or(BULLETED_LIST.to_string());
   let mut data = HashMap::new();
-  if let Some(role) = find_attribute_value(node.to_owned(), "role") {
-    if role == "checkbox" {
-      if let Some(checked_attr) = find_attribute_value(node.to_owned(), "aria-checked") {
+  if let Some(role) = find_attribute_value(node.to_owned(), ROLE) {
+    if role == CHECKBOX {
+      if let Some(checked_attr) = find_attribute_value(node.to_owned(), ARIA_CHECKED) {
         let checked = match checked_attr.as_str() {
           "true" => true,
           "false" => false,
@@ -364,12 +390,12 @@ fn get_delta_attributes_for(
 ) -> Option<HashMap<String, Value>> {
   let style = attributes
     .as_ref()
-    .and_then(|attrs| attrs.get("style"))
+    .and_then(|attrs| attrs.get(STYLE))
     .map(|v| v.to_string())
     .unwrap_or_default();
   let href = attributes
     .as_ref()
-    .and_then(|attrs| attrs.get("href"))
+    .and_then(|attrs| attrs.get(HREF))
     .map(|v| v.to_string())
     .unwrap_or_default()
     .trim_matches('"')
@@ -381,22 +407,22 @@ fn get_delta_attributes_for(
     });
   }
   match tag_name {
-    "a" => {
-      attributes.insert("href".to_string(), Value::String(href));
+    A_TAG_NAME => {
+      attributes.insert(HREF.to_string(), Value::String(href));
     },
-    "em" => {
+    EM_TAG_NAME => {
       attributes.insert(ITALIC.to_string(), Value::Bool(true));
     },
-    "strong" => {
+    STRONG_TAG_NAME => {
       attributes.insert(BOLD.to_string(), Value::Bool(true));
     },
-    "u" => {
+    U_TAG_NAME => {
       attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
     },
-    "s" => {
+    S_TAG_NAME => {
       attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
     },
-    "code" => {
+    CODE_TAG_NAME => {
       attributes.insert(CODE.to_string(), Value::Bool(true));
     },
     _ => (),

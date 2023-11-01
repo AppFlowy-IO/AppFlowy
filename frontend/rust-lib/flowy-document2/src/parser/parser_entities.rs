@@ -490,6 +490,7 @@ pub struct ConvertDataToJsonResponsePB {
 impl TryInto<ConvertDataToJsonParams> for ConvertDataToJsonPayloadPB {
   type Error = ErrorCode;
   fn try_into(self) -> Result<ConvertDataToJsonParams, Self::Error> {
+    // Don't allow empty data.
     let data = if self.data.is_empty() {
       return Err(ErrorCode::InvalidData);
     } else {
