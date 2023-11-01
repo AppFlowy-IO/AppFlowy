@@ -26,10 +26,6 @@ async fn html_to_document_test() {
     assert!(block.is_some());
     let block = block.unwrap();
     let expect_block = serde_json::from_str::<NestedBlock>(json).unwrap();
-    println!(
-      "block: {:?}",
-      serde_json::to_value(&block).unwrap().to_string()
-    );
     assert_eq!(block, expect_block);
   }
 }

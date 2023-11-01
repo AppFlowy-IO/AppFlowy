@@ -165,26 +165,43 @@ async fn convert_data_to_json_test() {
   let test = DocumentEventTest::new().await;
   let _ = test.create_document().await;
 
-  let html = r#"<p>Hello</p><p> World!</p>"#;
+  let html = r#"<p>Hello</p><p>World!</p>"#;
   let payload = ConvertDataToJsonPayloadPB {
     data: html.to_string(),
     input_type: InputType::Html,
   };
   let result = test.convert_data_to_json(payload).await;
-  let expect_json = json!({ "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello" }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!" }] } }] });
+  let expect_json = json!({
+    "type": "page",
+    "data": {},
+    "children": [{
+      "type": "paragraph",
+      "children": [],
+      "data": {
+        "delta": [{ "insert": "Hello" }]
+      }
+    }, {
+      "type": "paragraph",
+      "children": [],
+      "data": {
+        "delta": [{ "insert": "World!" }]
+      }
+    }]
+  });
 
+  let expect_json = serde_json::from_value::<NestedBlock>(expect_json).unwrap();
   assert!(serde_json::from_str::<NestedBlock>(&result.json)
     .unwrap()
-    .eq(&serde_json::from_value::<NestedBlock>(expect_json).unwrap()));
+    .eq(&expect_json));
 
-  let plain_text = r#"Hello World!"#;
+  let plain_text = "Hello\nWorld!";
   let payload = ConvertDataToJsonPayloadPB {
     data: plain_text.to_string(),
     input_type: InputType::PlainText,
   };
   let result = test.convert_data_to_json(payload).await;
-  let expect_json = json!({ "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello World!" }] } }] });
+
   assert!(serde_json::from_str::<NestedBlock>(&result.json)
     .unwrap()
-    .eq(&serde_json::from_value::<NestedBlock>(expect_json).unwrap()));
+    .eq(&expect_json));
 }
