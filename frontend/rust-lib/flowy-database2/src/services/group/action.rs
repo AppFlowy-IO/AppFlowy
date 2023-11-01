@@ -54,7 +54,7 @@ pub trait GroupCustomize: Send + Sync {
     &mut self,
     row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
-  ) -> Vec<GroupRowsNotificationPB>;
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>);
 
   /// Move row from one group to another
   fn move_row(
@@ -124,8 +124,8 @@ pub trait GroupControllerOperation: Send + Sync {
   /// * `row_detail`: the newly-created row
   fn did_create_row(&mut self, row_detail: &RowDetail) -> Vec<GroupRowsNotificationPB>;
 
-  /// After a row's cell data is changed, move the row to the correct group.
-  /// It may also insert a new group and/or remove an old group.
+  /// Called after a row's cell data is changed, this moves the row to the
+  /// correct group. It may also insert a new group and/or remove an old group.
   ///
   /// Returns the inserted and removed groups if necessary for notification.
   ///
@@ -139,15 +139,11 @@ pub trait GroupControllerOperation: Send + Sync {
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult>;
 
-  /// Remove the row from the group after the row gets deleted. A group could
-  /// be deleted as a result.
+  /// Called after the row is deleted, this removes the row from the group.
+  /// A group could be deleted as a result.
   ///
   /// Returns a the removed group when this occurs.
-  fn did_delete_delete_row(
-    &mut self,
-    row: &Row,
-    field: &Field,
-  ) -> FlowyResult<DidMoveGroupRowResult>;
+  fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult>;
 
   /// Reorders a row within the current group or move the row to another group.
   ///

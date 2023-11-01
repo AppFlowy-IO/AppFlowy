@@ -152,15 +152,21 @@ impl DatabaseViewEditor {
   pub async fn v_did_delete_row(&self, row: &Row) {
     // Send the group notification if the current view has groups;
     let result = self
-      .mut_group_controller(|group_controller, field| {
-        group_controller.did_delete_delete_row(row, &field)
-      })
+      .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
       .await;
 
     if let Some(result) = result {
-      tracing::trace!("Delete row in view changeset: {:?}", result.row_changesets);
+      tracing::trace!("Delete row in view changeset: {:?}", result);
       for changeset in result.row_changesets {
         notify_did_update_group_rows(changeset).await;
+      }
+      if let Some(deleted_group) = result.deleted_group {
+        let payload = GroupChangesPB {
+          view_id: self.view_id.clone(),
+          deleted_groups: vec![deleted_group.group_id],
+          ..Default::default()
+        };
+        notify_did_update_num_of_groups(&self.view_id, payload).await;
       }
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());

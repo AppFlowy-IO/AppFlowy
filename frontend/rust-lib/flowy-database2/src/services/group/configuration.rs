@@ -124,6 +124,7 @@ where
   /// Returns the no `status` group
   ///
   /// We take the `id` of the `field` as the no status group id
+  #[allow(dead_code)]
   pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
     self.group_by_id.get(&self.field.id)
   }

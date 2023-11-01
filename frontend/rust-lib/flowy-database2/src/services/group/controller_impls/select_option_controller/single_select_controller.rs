@@ -4,7 +4,7 @@ use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedGroupPB};
+use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{
   SelectOption, SelectOptionCellDataParser, SelectTypeOptionSharedAction, SingleSelectTypeOption,
@@ -71,14 +71,14 @@ impl GroupCustomize for SingleSelectGroupController {
     &mut self,
     row: &Row,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
-  ) -> Vec<GroupRowsNotificationPB> {
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>) {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       if let Some(changeset) = remove_select_option_row(group, cell_data, row) {
         changesets.push(changeset);
       }
     });
-    changesets
+    (None, changesets)
   }
 
   fn move_row(

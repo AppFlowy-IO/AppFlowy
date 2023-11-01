@@ -92,14 +92,15 @@ impl GroupControllerOperation for DefaultGroupController {
     })
   }
 
-  fn did_delete_delete_row(
-    &mut self,
-    _row: &Row,
-    _field: &Field,
-  ) -> FlowyResult<DidMoveGroupRowResult> {
+  fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
+    let mut changeset = GroupRowsNotificationPB::new(self.group.id.clone());
+    if self.group.contains_row(&row.id) {
+      self.group.remove_row(&row.id);
+      changeset.deleted_rows.push(row.id.clone().into_inner());
+    }
     Ok(DidMoveGroupRowResult {
       deleted_group: None,
-      row_changesets: vec![],
+      row_changesets: vec![changeset],
     })
   }
 

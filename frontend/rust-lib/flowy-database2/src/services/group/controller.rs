@@ -270,7 +270,12 @@ where
           }
         }
       } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
-        no_status_group.add_row(row_detail.clone())
+        no_status_group.add_row(row_detail.clone());
+        let changeset = GroupRowsNotificationPB::insert(
+          no_status_group.id.clone(),
+          vec![InsertedRowPB::new(row_detail.into())],
+        );
+        changesets.push(changeset);
       }
     }
 
@@ -318,26 +323,22 @@ where
     Ok(result)
   }
 
-  fn did_delete_delete_row(
-    &mut self,
-    row: &Row,
-    _field: &Field,
-  ) -> FlowyResult<DidMoveGroupRowResult> {
-    // if the cell_rev is none, then the row must in the default group.
+  fn did_delete_row(&mut self, row: &Row) -> FlowyResult<DidMoveGroupRowResult> {
     let mut result = DidMoveGroupRowResult {
       deleted_group: None,
       row_changesets: vec![],
     };
+    // early return if the row is not in the default group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
       if !cell_data.is_cell_empty() {
-        tracing::info!("did_delete_delete_row {:?}", cell);
-        result.row_changesets = self.delete_row(row, &cell_data);
+        tracing::info!("did_delete_row {:?}", cell);
+        (result.deleted_group, result.row_changesets) = self.delete_row(row, &cell_data);
         return Ok(result);
       }
     }
 
-    match self.context.get_no_status_group() {
+    match self.context.get_mut_no_status_group() {
       None => {
         tracing::error!("Unexpected None value. It should have the no status group");
       },
@@ -345,6 +346,7 @@ where
         if !no_status_group.contains_row(&row.id) {
           tracing::error!("The row: {:?} should be in the no status group", row.id);
         }
+        no_status_group.remove_row(&row.id);
         result.row_changesets = vec![GroupRowsNotificationPB::delete(
           no_status_group.id.clone(),
           vec![row.id.clone().into_inner()],
