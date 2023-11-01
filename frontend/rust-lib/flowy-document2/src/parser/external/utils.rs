@@ -467,7 +467,7 @@ fn get_delta_attributes_for(
     A_TAG_NAME | BASE_TAG_NAME => {
       attributes.insert(HREF.to_string(), Value::String(href));
     },
-    EM_TAG_NAME | ADDRESS_TAG_NAME | CITE_TAG_NAME | DFN_TAG_NAME | I_TAG_NAME => {
+    EM_TAG_NAME | ADDRESS_TAG_NAME | CITE_TAG_NAME | DFN_TAG_NAME | I_TAG_NAME | VAR_TAG_NAME => {
       attributes.insert(ITALIC.to_string(), Value::Bool(true));
     },
     STRONG_TAG_NAME | B_TAG_NAME => {

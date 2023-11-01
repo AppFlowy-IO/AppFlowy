@@ -166,6 +166,7 @@ impl InsertDelta {
   pub fn to_html(&self) -> String {
     let mut html = String::new();
     let mut style = String::new();
+    let mut html_attributes = String::new();
     // If there are attributes, serialize them as a HashMap.
     if let Some(attrs) = &self.attributes {
       // Serialize the font color attributes.
@@ -186,13 +187,13 @@ impl InsertDelta {
       if let Some(href) = attrs.get(HREF) {
         html.push_str(&format!("<{} {}={}>", A_TAG_NAME, HREF, href));
       }
-
       // Serialize the code attributes.
       if let Some(code) = attrs.get(CODE) {
         if code.as_bool().unwrap_or(false) {
           html.push_str(&format!("<{}>", CODE_TAG_NAME));
         }
       }
+
       // Serialize the italic, underline, strikethrough, bold, formula attributes.
       if let Some(italic) = attrs.get(ITALIC) {
         if italic.as_bool().unwrap_or(false) {
@@ -219,25 +220,33 @@ impl InsertDelta {
           style.push_str(FONT_FAMILY_FANTASY);
         }
       }
+      if let Some(direction) = attrs.get(TEXT_DIRECTION) {
+        if *direction == "rtl" {
+          html_attributes.push_str(&format!(" {}=\"{}\"", DIR, direction));
+        }
+      }
     }
-    // Serialize the attributes to style.
     if !style.is_empty() {
-      html.push_str(&format!("<{} {}=\"{}\">", SPAN_TAG_NAME, STYLE, style));
+      html_attributes.push_str(&format!(" {}=\"{}\"", STYLE, style));
+    }
+
+    if !html_attributes.is_empty() {
+      html.push_str(&format!("<{}{}>", SPAN_TAG_NAME, html_attributes));
     }
     // Serialize the insert field.
     html.push_str(&self.insert);
 
     // Close the style tag.
-    if !style.is_empty() {
+    if !html_attributes.is_empty() {
       html.push_str(&format!("</{}>", SPAN_TAG_NAME));
     }
     // Close the tags: <a>, <code>.
     if let Some(attrs) = &self.attributes {
-      if attrs.contains_key(HREF) {
-        html.push_str(&format!("</{}>", A_TAG_NAME));
-      }
       if attrs.contains_key(CODE) {
         html.push_str(&format!("</{}>", CODE_TAG_NAME));
+      }
+      if attrs.contains_key(HREF) {
+        html.push_str(&format!("</{}>", A_TAG_NAME));
       }
     }
     html

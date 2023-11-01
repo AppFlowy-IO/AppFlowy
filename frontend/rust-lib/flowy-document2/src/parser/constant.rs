@@ -36,6 +36,8 @@ pub const BG_COLOR: &str = "bg_color";
 pub const FORMULA: &str = "formula";
 pub const MENTION: &str = "mention";
 
+pub const TEXT_DIRECTION: &str = "text_direction";
+
 pub const LINE_THROUGH: &str = "line_through";
 
 pub const HTML_TAG_NAME: &str = "html";
@@ -87,6 +89,7 @@ pub const DFN_TAG_NAME: &str = "dfn";
 pub const DL_TAG_NAME: &str = "dl";
 
 pub const I_TAG_NAME: &str = "i";
+pub const VAR_TAG_NAME: &str = "var";
 
 pub const INS_TAG_NAME: &str = "ins";
 pub const MENU_TAG_NAME: &str = "menu";
