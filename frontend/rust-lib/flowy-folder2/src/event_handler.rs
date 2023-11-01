@@ -61,10 +61,7 @@ pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let setting = folder
-    .get_workspace_setting_pb()
-    .await
-    .ok_or(FlowyError::record_not_found())?;
+  let setting = folder.get_workspace_setting_pb().await?;
   data_result_ok(setting)
 }
 
@@ -73,10 +70,7 @@ pub(crate) async fn read_current_workspace_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let workspace = folder
-    .get_workspace_pb()
-    .await
-    .ok_or(FlowyError::record_not_found())?;
+  let workspace = folder.get_workspace_pb().await?;
   data_result_ok(workspace)
 }
 
