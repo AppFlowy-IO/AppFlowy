@@ -112,9 +112,7 @@ class _DocumentPageState extends State<DocumentPage> {
       styleCustomizer: EditorStyleCustomizer(
         context: context,
         // the 44 is the width of the left action list
-        padding: PlatformExtension.isMobile
-            ? const EdgeInsets.only(left: 20, right: 20)
-            : const EdgeInsets.only(left: 40, right: 40 + 44),
+        padding: EditorStyleCustomizer.documentPadding,
       ),
       header: _buildCoverAndIcon(context),
     );

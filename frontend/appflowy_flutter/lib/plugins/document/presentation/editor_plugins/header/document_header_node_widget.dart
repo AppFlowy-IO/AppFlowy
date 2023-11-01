@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon_picker.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -11,6 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'cover_editor.dart';
 import 'emoji_icon_widget.dart';
@@ -127,7 +132,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: 80,
+            left: PlatformExtension.isDesktopOrWeb ? 80 : 20,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -212,28 +217,41 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   final PopoverController _popoverController = PopoverController();
 
   @override
+  void initState() {
+    super.initState();
+
+    isHidden = PlatformExtension.isDesktopOrWeb;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) => setHidden(false),
-      onExit: (event) {
-        if (!isPopoverOpen) {
-          setHidden(true);
-        }
-      },
-      opaque: false,
-      child: Container(
-        alignment: Alignment.bottomLeft,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: SizedBox(
-          height: 28,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: buildRowChildren(),
-          ),
+    Widget child = Container(
+      alignment: Alignment.bottomLeft,
+      width: double.infinity,
+      padding: EditorStyleCustomizer.documentPadding,
+      child: SizedBox(
+        height: 28,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: buildRowChildren(),
         ),
       ),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = MouseRegion(
+        onEnter: (event) => setHidden(false),
+        onExit: (event) {
+          if (!isPopoverOpen) {
+            setHidden(true);
+          }
+        },
+        opaque: false,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   List<Widget> buildRowChildren() {
@@ -274,24 +292,37 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         ),
       );
     } else {
-      children.add(
-        AppFlowyPopover(
+      Widget child = FlowyButton(
+        leftIconSize: const Size.square(18),
+        useIntrinsicWidth: true,
+        leftIcon: const Icon(
+          Icons.emoji_emotions_outlined,
+          size: 18,
+        ),
+        text: FlowyText.regular(
+          LocaleKeys.document_plugins_cover_addIcon.tr(),
+        ),
+        onTap: PlatformExtension.isDesktop
+            ? null
+            : () => context.push(
+                  Uri(
+                    path: MobileEmojiPickerScreen.routeName,
+                    queryParameters: {
+                      MobileEmojiPickerScreen.viewId:
+                          context.read<ViewBloc>().state.view.id,
+                    },
+                  ).toString(),
+                ),
+      );
+
+      if (PlatformExtension.isDesktop) {
+        child = AppFlowyPopover(
           onClose: () => isPopoverOpen = false,
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
           constraints: BoxConstraints.loose(const Size(360, 380)),
-          child: FlowyButton(
-            leftIconSize: const Size.square(18),
-            useIntrinsicWidth: true,
-            leftIcon: const Icon(
-              Icons.emoji_emotions_outlined,
-              size: 18,
-            ),
-            text: FlowyText.regular(
-              LocaleKeys.document_plugins_cover_addIcon.tr(),
-            ),
-          ),
+          child: child,
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconPicker(
@@ -301,8 +332,10 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
               },
             );
           },
-        ),
-      );
+        );
+      }
+
+      children.add(child);
     }
 
     return children;

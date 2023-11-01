@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/base/emoji_picker.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';

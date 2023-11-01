@@ -1,5 +1,6 @@
-import 'package:appflowy/plugins/base/emoji_search_bar.dart';
-import 'package:appflowy/plugins/base/emoji_skin_tone.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_search_bar.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -63,11 +64,8 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
       ),
       onEmojiSelected: widget.onEmojiSelected,
       headerBuilder: (context, category) {
-        return Container(
-          height: 22,
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          color: Theme.of(context).cardColor,
-          child: FlowyText.regular(category.id),
+        return FlowyEmojiHeader(
+          category: category,
         );
       },
       itemBuilder: (context, emojiId, emoji, callback) {
