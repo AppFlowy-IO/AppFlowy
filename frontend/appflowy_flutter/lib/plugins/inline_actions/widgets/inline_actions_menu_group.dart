@@ -14,6 +14,8 @@ class InlineActionsGroup extends StatelessWidget {
     required this.menuService,
     required this.style,
     required this.onSelected,
+    required this.startOffset,
+    required this.endOffset,
     this.isGroupSelected = false,
     this.selectedIndex = 0,
   });
@@ -23,6 +25,8 @@ class InlineActionsGroup extends StatelessWidget {
   final InlineActionsMenuService menuService;
   final InlineActionsMenuStyle style;
   final VoidCallback onSelected;
+  final int startOffset;
+  final int endOffset;
 
   final bool isGroupSelected;
   final int selectedIndex;
@@ -44,6 +48,8 @@ class InlineActionsGroup extends StatelessWidget {
               isSelected: isGroupSelected && index == selectedIndex,
               style: style,
               onSelected: onSelected,
+              startOffset: startOffset,
+              endOffset: endOffset,
             ),
           ),
         ],
@@ -61,6 +67,8 @@ class InlineActionsWidget extends StatefulWidget {
     required this.isSelected,
     required this.style,
     required this.onSelected,
+    required this.startOffset,
+    required this.endOffset,
   });
 
   final InlineActionsMenuItem item;
@@ -69,6 +77,8 @@ class InlineActionsWidget extends StatefulWidget {
   final bool isSelected;
   final InlineActionsMenuStyle style;
   final VoidCallback onSelected;
+  final int startOffset;
+  final int endOffset;
 
   @override
   State<InlineActionsWidget> createState() => _InlineActionsWidgetState();
@@ -97,7 +107,7 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
       context,
       widget.editorState,
       widget.menuService,
-      (0, 0),
+      (widget.startOffset, widget.endOffset),
     );
   }
 }

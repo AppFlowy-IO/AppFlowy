@@ -160,6 +160,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
                           isGroupSelected: _selectedGroup == index,
                           selectedIndex: _selectedIndex,
                           onSelected: widget.onDismiss,
+                          startOffset: startOffset - widget.startCharAmount,
+                          endOffset: _search.length + widget.startCharAmount,
                         ),
                       )
                       .toList(),

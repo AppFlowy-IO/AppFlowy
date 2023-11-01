@@ -143,7 +143,7 @@ class EditorOperations {
     await tester.ime.insertCharacter('/');
   }
 
-  /// trigger the slash command (selection menu)
+  /// trigger the mention (@) command
   Future<void> showAtMenu() async {
     await tester.ime.insertCharacter('@');
   }
