@@ -21,11 +21,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (event, emit) async {
         await event.map(
           initial: (_Initial value) {
-            // Future.delayed(const Duration(milliseconds: 300), () {
-            //   if (!isClosed) {
-            //     add(HomeEvent.didReceiveWorkspaceSetting(workspaceSetting));
-            //   }
-            // });
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (!isClosed) {
+                add(HomeEvent.didReceiveWorkspaceSetting(workspaceSetting));
+              }
+            });
 
             _workspaceListener.start(
               onSettingUpdated: (result) {
