@@ -12,11 +12,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
     .event(FolderEvent::CreateWorkspace, create_workspace_handler)
-    .event(
-      FolderEvent::GetCurrentWorkspace,
-      get_current_workspace_setting_handler,
-    )
-    .event(FolderEvent::ReadAllWorkspaces, read_workspaces_handler)
+      .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
+    .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::OpenWorkspace, open_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
      // View
@@ -52,11 +49,11 @@ pub enum FolderEvent {
 
   /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
-  GetCurrentWorkspace = 1,
+  GetCurrentWorkspaceSetting = 1,
 
   /// Return a list of workspaces that the current user can access.
-  #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
-  ReadAllWorkspaces = 2,
+  #[event(output = "WorkspacePB")]
+  ReadCurrentWorkspace = 2,
 
   /// Delete the workspace
   #[event(input = "WorkspaceIdPB")]

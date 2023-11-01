@@ -18,9 +18,8 @@ const testCreateFolder = async (userId?: number) => {
     console.log('workspaces: ', workspaces.val.toObject());
   }
 
-  const currentWorkspace = await userBackendService.getCurrentWorkspace();
-
-  const workspaceService = new WorkspaceController(currentWorkspace.workspace.id);
+  const currentWorkspaceSetting = await userBackendService.getCurrentWorkspaceSetting();
+  const workspaceService = new WorkspaceController(currentWorkspaceSetting.workspace_id);
   const rootViews: ViewPB[] = [];
 
   for (let i = 1; i <= 3; i++) {

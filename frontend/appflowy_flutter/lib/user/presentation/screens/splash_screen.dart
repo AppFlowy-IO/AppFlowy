@@ -75,7 +75,7 @@ class SplashScreen extends StatelessWidget {
         if (check.requireSecret) {
           getIt<AuthRouter>().pushEncryptionScreen(context, userProfile);
         } else {
-          final result = await FolderEventGetCurrentWorkspace().send();
+          final result = await FolderEventGetCurrentWorkspaceSetting().send();
           result.fold(
             (workspaceSetting) {
               // After login, replace Splash screen by corresponding home screen

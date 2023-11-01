@@ -3,8 +3,8 @@ use std::future::Future;
 use std::sync::Arc;
 
 use bytes::Bytes;
-pub use collab_folder::core::View;
-use collab_folder::core::{RepeatedViewIdentifier, ViewIcon, ViewIdentifier, ViewLayout};
+pub use collab_folder::View;
+use collab_folder::{RepeatedViewIdentifier, ViewIcon, ViewIdentifier, ViewLayout};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;

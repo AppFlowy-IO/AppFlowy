@@ -126,7 +126,7 @@ void main() {
       ..add(const DocumentEvent.initial());
     await blocResponseFuture();
 
-    final workspaceSetting = await FolderEventGetCurrentWorkspace()
+    final workspaceSetting = await FolderEventGetCurrentWorkspaceSetting()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     workspaceSetting.latestView.id == document1.id;
@@ -147,7 +147,7 @@ void main() {
     final grid = bloc.state.latestCreatedView;
     assert(grid!.name == "grid 2");
 
-    var workspaceSetting = await FolderEventGetCurrentWorkspace()
+    var workspaceSetting = await FolderEventGetCurrentWorkspaceSetting()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     workspaceSetting.latestView.id == grid!.id;
@@ -158,7 +158,7 @@ void main() {
       ..add(const DocumentEvent.initial());
     await blocResponseFuture();
 
-    workspaceSetting = await FolderEventGetCurrentWorkspace()
+    workspaceSetting = await FolderEventGetCurrentWorkspaceSetting()
         .send()
         .then((result) => result.fold((l) => l, (r) => throw Exception()));
     workspaceSetting.latestView.id == document.id;

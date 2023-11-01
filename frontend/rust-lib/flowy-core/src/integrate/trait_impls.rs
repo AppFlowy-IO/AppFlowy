@@ -140,13 +140,18 @@ impl FolderCloudService for ServerProvider {
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
-  fn get_folder_data(&self, workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
+  fn get_folder_data(
+    &self,
+    workspace_id: &str,
+    uid: &i64,
+  ) -> FutureResult<Option<FolderData>, Error> {
+    let uid = *uid;
     let server = self.get_server(&self.get_server_type());
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_folder_data(&workspace_id)
+        .get_folder_data(&workspace_id, &uid)
         .await
     })
   }

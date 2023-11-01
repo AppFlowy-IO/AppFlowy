@@ -23,11 +23,7 @@ impl FlowySupabaseDocumentTest {
     let current_workspace = self.inner.get_current_workspace().await;
     self
       .inner
-      .create_document(
-        &current_workspace.workspace.id,
-        "my document".to_string(),
-        vec![],
-      )
+      .create_document(&current_workspace.id, "my document".to_string(), vec![])
       .await
   }
 
