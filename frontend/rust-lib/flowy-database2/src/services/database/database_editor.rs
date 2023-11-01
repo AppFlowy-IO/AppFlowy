@@ -21,6 +21,7 @@ use crate::services::cell::{
   apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
 };
 use crate::services::database::util::database_view_setting_pb_from_view;
+use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
@@ -701,24 +702,23 @@ impl DatabaseEditor {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
-        view
-          .v_did_update_row(&old_row, &new_row_detail, field_id)
-          .await;
+        view.v_did_update_row(&old_row, &new_row_detail).await;
       }
     }
 
-    let mut changesets = self.get_auto_updated_fields_changeset(view_id, row_id.clone());
-    changesets.push(CellChangesetNotifyPB {
+    let changeset = CellChangesetNotifyPB {
       view_id: view_id.to_string(),
       row_id: row_id.clone().into_inner(),
       field_id: field_id.to_string(),
-    });
-    notify_did_update_cell(changesets).await;
+    };
+    self
+      .notify_update_row(view_id, row_id, vec![changeset])
+      .await;
 
     Ok(())
   }
 
-  pub fn get_auto_updated_fields_changeset(
+  pub fn get_auto_updated_fields_changesets(
     &self,
     view_id: &str,
     row_id: RowId,
@@ -921,17 +921,6 @@ impl DatabaseEditor {
         )
       },
       Some(row_detail) => {
-        let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
-        let view = self.database_views.get_view_editor(view_id).await?;
-        view
-          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
-          .await;
-
-        tracing::trace!("Row data changed: {:?}", row_changeset);
-        self.database.lock().update_row(&row_detail.row.id, |row| {
-          row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
-        });
-
         let to_row = if to_row.is_some() {
           to_row
         } else {
@@ -941,19 +930,32 @@ impl DatabaseEditor {
             .map(|row_detail| row_detail.row.id.clone())
         };
 
-        let mut changesets = cell_changesets_from_cell_by_field_id(
+        if let Some(row_id) = to_row.clone() {
+          self.move_row(view_id, from_row.clone(), row_id).await;
+        }
+
+        let view = self.database_views.get_view_editor(view_id).await?;
+        let from_group = view.v_get_row_group(row_detail.row.id.clone()).await;
+        if from_group.is_some() && from_group.unwrap() == to_group.to_string() {
+          return Ok(());
+        }
+
+        let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
+        view
+          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
+          .await;
+
+        tracing::trace!("Row data changed: {:?}", row_changeset);
+        self.database.lock().update_row(&row_detail.row.id, |row| {
+          row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
+        });
+
+        let changesets = cell_changesets_from_cell_by_field_id(
           view_id,
           row_changeset.row_id,
           row_changeset.cell_by_field_id,
         );
-        if let Some(row_id) = to_row.clone() {
-          changesets.extend(self.get_auto_updated_fields_changeset(view_id, row_id.clone()));
-        }
-        notify_did_update_cell(changesets).await;
-
-        if let Some(row_id) = to_row {
-          self.move_row(view_id, from_row, row_id.clone()).await;
-        }
+        self.notify_update_row(view_id, from_row, changesets).await;
       },
     }
 
@@ -1175,6 +1177,19 @@ impl DatabaseEditor {
   pub fn get_mutex_database(&self) -> &MutexDatabase {
     &self.database
   }
+
+  async fn notify_update_row(
+    &self,
+    view_id: &str,
+    row: RowId,
+    extra_changesets: Vec<CellChangesetNotifyPB>,
+  ) {
+    let mut changesets = self.get_auto_updated_fields_changesets(view_id, row);
+    changesets.extend(extra_changesets);
+
+    notify_did_update_cell(changesets.clone()).await;
+    notify_did_update_row(changesets).await;
+  }
 }
 
 pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetNotifyPB>) {
@@ -1182,6 +1197,22 @@ pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetNotifyPB
     let id = format!("{}:{}", changeset.row_id, changeset.field_id);
     send_notification(&id, DatabaseNotification::DidUpdateCell).send();
   }
+}
+
+async fn notify_did_update_row(changesets: Vec<CellChangesetNotifyPB>) {
+  let row_id = changesets[0].row_id.clone();
+  let view_id = changesets[0].view_id.clone();
+
+  let field_ids = changesets
+    .iter()
+    .map(|changeset| changeset.field_id.to_string())
+    .collect();
+  let update_row = UpdatedRow::new(&row_id).with_field_ids(field_ids);
+  let update_changeset = RowsChangePB::from_update(update_row.into());
+
+  send_notification(&view_id, DatabaseNotification::DidUpdateViewRows)
+    .payload(update_changeset)
+    .send();
 }
 
 fn cell_changesets_from_cell_by_field_id(

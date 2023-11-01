@@ -188,12 +188,7 @@ impl DatabaseViewEditor {
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(
-    &self,
-    old_row: &Option<RowDetail>,
-    row_detail: &RowDetail,
-    field_id: &str,
-  ) {
+  pub async fn v_did_update_row(&self, old_row: &Option<RowDetail>, row_detail: &RowDetail) {
     let result = self
       .mut_group_controller(|group_controller, field| {
         Ok(group_controller.did_update_group_row(old_row, row_detail, &field))
@@ -225,12 +220,6 @@ impl DatabaseViewEditor {
         }
       }
     }
-
-    let update_row = UpdatedRow::new(&row_detail.row.id).with_field_ids(vec![field_id.to_string()]);
-    let changeset = RowsChangePB::from_update(update_row.into());
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
-      .payload(changeset)
-      .send();
 
     // Each row update will trigger a filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
@@ -338,6 +327,24 @@ impl DatabaseViewEditor {
     {
       None => Err(FlowyError::record_not_found().with_context("Can't find the group")),
       Some((_, group)) => Ok(GroupPB::from(group)),
+    }
+  }
+
+  pub async fn v_get_row_group(&self, row_id: RowId) -> Option<String> {
+    match self
+      .group_controller
+      .read()
+      .await
+      .as_ref()
+      .and_then(|group_controller| {
+        group_controller
+          .groups()
+          .iter()
+          .find(|group| group.contains_row(&row_id))
+          .cloned()
+      }) {
+      None => None,
+      Some(group) => Some(group.id.clone()),
     }
   }
 
