@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/base/emoji_search_bar.dart';
+import 'package:appflowy/plugins/base/emoji_skin_tone.dart';
 import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -55,9 +56,10 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
 
     return EmojiPicker(
       emojiData: emojiData!,
-      configuration: const EmojiPickerConfiguration(
+      configuration: EmojiPickerConfiguration(
         showSectionHeader: true,
         showTabs: false,
+        defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
       ),
       onEmojiSelected: widget.onEmojiSelected,
       headerBuilder: (context, category) {
@@ -75,6 +77,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
             emoji,
             fontSize: 28.0,
           ),
+          onPressed: () => callback(emojiId, emoji),
         );
       },
       searchBarBuilder: (context, keyword, skinTone) {

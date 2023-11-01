@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 
 // use a temporary global value to store last selected skin tone
-EmojiSkinTone? _lastSelectedEmojiSkinTone;
+EmojiSkinTone? lastSelectedEmojiSkinTone;
 
 class FlowyEmojiSkinToneSelector extends StatefulWidget {
   const FlowyEmojiSkinToneSelector({
@@ -44,7 +44,7 @@ class _FlowyEmojiSkinToneSelectorState
               // add a left padding to align the emoji center
               padding: const EdgeInsets.only(left: 3.0),
               child: FlowyText(
-                _lastSelectedEmojiSkinTone?.icon ?? '✋',
+                lastSelectedEmojiSkinTone?.icon ?? '✋',
                 fontSize: 22.0,
               ),
             ),
@@ -53,7 +53,7 @@ class _FlowyEmojiSkinToneSelectorState
         );
       },
       onSelected: (action, controller) async {
-        _lastSelectedEmojiSkinTone = action.inner;
+        lastSelectedEmojiSkinTone = action.inner;
         widget.onEmojiSkinToneChanged(action.inner);
         controller.close();
       },
