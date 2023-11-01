@@ -12,7 +12,9 @@ use collab_document::blocks::{
 };
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{
+  data_result_ok, AFPluginData, AFPluginDataValidator, AFPluginState, DataResult,
+};
 
 use crate::entities::*;
 use crate::parser::document_data_parser::DocumentDataParser;
@@ -338,7 +340,7 @@ impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
 ///       length: 7,
 ///     }
 ///   }),
-///   export_types: ConvertTypePB {
+///   parse_types: ParseTypePB {
 ///     json: true,
 ///     text: true,
 ///     html: true,
@@ -361,7 +363,7 @@ pub async fn convert_document_handler(
   let document_data = document.lock().get_document_data()?;
   let parser = DocumentDataParser::new(Arc::new(document_data), params.range);
 
-  if !params.export_types.any_enabled() {
+  if !params.parse_types.any_enabled() {
     return data_result_ok(ConvertDocumentResponsePB::default());
   }
 
@@ -369,23 +371,21 @@ pub async fn convert_document_handler(
 
   data_result_ok(ConvertDocumentResponsePB {
     json: params
-      .export_types
+      .parse_types
       .json
       .then(|| serde_json::to_string(root).unwrap_or_default()),
     html: params
-      .export_types
+      .parse_types
       .html
       .then(|| parser.to_html_with_json(root)),
     text: params
-      .export_types
+      .parse_types
       .text
       .then(|| parser.to_text_with_json(root)),
   })
 }
 
-/// Handler for converting a HTML string to a JSON string.
-/// [ConvertDataToJsonPayloadPB] is the input of this event.
-/// [ConvertDataToJsonResponsePB] is the output of this event.
+/// Handler for converting a string to a JSON string.
 /// # Examples
 /// Basic usage:
 /// ```txt
@@ -401,15 +401,13 @@ pub async fn convert_document_handler(
 pub(crate) async fn convert_data_to_json_handler(
   data: AFPluginData<ConvertDataToJsonPayloadPB>,
 ) -> DataResult<ConvertDataToJsonResponsePB, FlowyError> {
-  let payload: ConvertDataToJsonParams = data.into_inner().try_into()?;
+  let payload: ConvertDataToJsonParams = data.validate()?.into_inner().try_into()?;
   let parser = ExternalDataToNestedJSONParser::new(payload.data, payload.input_type);
-  if let Some(result) = parser.to_nested_block() {
-    return data_result_ok(ConvertDataToJsonResponsePB {
-      json: serde_json::to_string(&result).unwrap_or_default(),
-    });
-  }
 
-  data_result_ok(ConvertDataToJsonResponsePB {
-    json: "".to_string(),
-  })
+  let result = match parser.to_nested_block() {
+    Some(result) => serde_json::to_string(&result)?,
+    None => "".to_string(),
+  };
+
+  data_result_ok(ConvertDataToJsonResponsePB { json: result })
 }

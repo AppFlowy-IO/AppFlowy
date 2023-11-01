@@ -4,6 +4,7 @@ use crate::parser::parser_entities::{
 use collab_document::blocks::DocumentData;
 use serde_json::Value;
 use std::sync::Arc;
+use validator::ValidationError;
 
 pub fn get_delta_for_block(block_id: &str, data: &DocumentData) -> Option<Vec<InsertDelta>> {
   let text_map = data.meta.text_map.as_ref()?; // Retrieve the text_map reference
@@ -99,4 +100,11 @@ pub fn convert_nested_block_children_to_html(block: Arc<NestedBlock>) -> String 
 
 pub fn convert_insert_delta_from_json(delta_value: &Value) -> Option<Vec<InsertDelta>> {
   serde_json::from_value::<Vec<InsertDelta>>(delta_value.to_owned()).ok()
+}
+
+pub fn required_not_empty_str(s: &str) -> Result<(), ValidationError> {
+  if s.is_empty() {
+    return Err(ValidationError::new("should not be empty string"));
+  }
+  Ok(())
 }

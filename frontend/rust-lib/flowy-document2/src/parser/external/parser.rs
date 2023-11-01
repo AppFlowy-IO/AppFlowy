@@ -22,6 +22,8 @@ impl ExternalDataToNestedJSONParser {
   /// Format to nested block.
   ///
   /// Example:
+  /// - input html: <p><strong>Hello</strong></p><p> World!</p>
+  /// - output json:
   /// ```json
   /// { "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello", attributes: { "bold": true } }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!", attributes: null }] } }] }
   /// ```

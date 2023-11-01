@@ -3,10 +3,10 @@ use crate::parser::parser_entities::{InsertDelta, NestedBlock};
 use scraper::node::Attrs;
 use scraper::ElementRef;
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 
-const INLINE_TAGS: [&str; 9] = [
+const INLINE_TAGS: [&str; 10] = [
   A_TAG_NAME,
   EM_TAG_NAME,
   STRONG_TAG_NAME,
@@ -14,17 +14,10 @@ const INLINE_TAGS: [&str; 9] = [
   S_TAG_NAME,
   CODE_TAG_NAME,
   SPAN_TAG_NAME,
-  BR_TAG_NAME,
+  ABBR_TAG_NAME,
+  ADDRESS_TAG_NAME,
   "",
 ];
-
-const SRC: &str = "src";
-const HREF: &str = "href";
-const ROLE: &str = "role";
-const CHECKBOX: &str = "checkbox";
-const ARIA_CHECKED: &str = "aria-checked";
-const CLASS: &str = "class";
-const STYLE: &str = "style";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum JSONResult {
@@ -45,33 +38,40 @@ pub fn flatten_element_to_block(node: ElementRef) -> Option<NestedBlock> {
 
 /// Parse plaintext to nested block
 pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
-  let lines: Vec<&str> = plaintext.lines().collect();
+  let lines: Vec<&str> = plaintext
+    .lines()
+    .filter_map(|line| {
+      let line = line.trim();
+      if line.is_empty() {
+        None
+      } else {
+        Some(line)
+      }
+    })
+    .collect();
   let mut current_block: NestedBlock = NestedBlock {
     ty: PAGE.to_string(),
-    data: HashMap::new(),
-    children: Vec::new(),
+    data: HashMap::default(),
+    children: Vec::default(),
   };
 
   for line in lines {
-    let trimmed_line = line.trim();
-    if !trimmed_line.is_empty() {
-      let mut data = HashMap::new();
+    let mut data = HashMap::new();
 
-      // Insert plaintext into delta
-      if let Ok(delta) = serde_json::to_value(vec![InsertDelta {
-        insert: trimmed_line.to_string(),
-        attributes: None,
-      }]) {
-        data.insert(DELTA.to_string(), delta);
-      }
-
-      // Create a new block for each non-empty line
-      current_block.children.push(NestedBlock {
-        ty: PARAGRAPH.to_string(),
-        data,
-        children: Vec::new(),
-      });
+    // Insert plaintext into delta
+    if let Ok(delta) = serde_json::to_value(vec![InsertDelta {
+      insert: line.to_string(),
+      attributes: None,
+    }]) {
+      data.insert(DELTA.to_string(), delta);
     }
+
+    // Create a new block for each non-empty line
+    current_block.children.push(NestedBlock {
+      ty: PARAGRAPH.to_string(),
+      data,
+      children: Vec::new(),
+    });
   }
 
   if current_block.children.is_empty() {
@@ -87,7 +87,7 @@ fn flatten_element_to_json(
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  if tag_name == "meta" {
+  if tag_name == META_TAG_NAME || tag_name == HEAD_TAG_NAME || tag_name == LINK_TAG_NAME {
     return None;
   }
 
@@ -99,12 +99,20 @@ fn flatten_element_to_json(
     H1_TAG_NAME | H2_TAG_NAME | H3_TAG_NAME | H4_TAG_NAME | H5_TAG_NAME | H6_TAG_NAME => {
       process_heading_element(node)
     },
-    UL_TAG_NAME | OL_TAG_NAME | LI_TAG_NAME | BLOCKQUOTE_TAG_NAME => {
-      process_list_element(node, list_type.to_owned())
+    UL_TAG_NAME | OL_TAG_NAME | LI_TAG_NAME | BLOCKQUOTE_TAG_NAME | DL_TAG_NAME | MENU_TAG_NAME => {
+      process_nested_element(node, list_type.to_owned())
     },
+    DETAILS_TAG_NAME => process_toggle_element(node),
     PRE_TAG_NAME => process_code_element(node),
     IMG_TAG_NAME => process_image_element(node),
-    B_TAG_NAME => process_b_container_element(node),
+    B_TAG_NAME => {
+      let id = find_attribute_value(node.to_owned(), "id");
+      if id.is_some() {
+        return process_b_container_element(node);
+      }
+      process_inline_element(node, attributes)
+    },
+
     _ => process_default_element(node),
   }
 }
@@ -113,20 +121,23 @@ fn process_default_element(node: ElementRef) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
   let mut data = HashMap::new();
   let ty = match tag_name.as_str() {
-    HTML_TAG_NAME => PAGE.to_string(),
-    P_TAG_NAME => PARAGRAPH.to_string(),
-    ASIDE_TAG_NAME => CALLOUT.to_string(),
-    HR_TAG_NAME => DIVIDER.to_string(),
-    _ => PARAGRAPH.to_string(),
+    HTML_TAG_NAME => PAGE,
+    P_TAG_NAME => PARAGRAPH,
+    ASIDE_TAG_NAME | ARTICLE_TAG_NAME => CALLOUT,
+    HR_TAG_NAME => DIVIDER,
+    _ => PARAGRAPH,
   };
 
   let (delta, children) = process_node_children(node, &None, &None);
 
   if !delta.is_empty() {
-    data.insert(DELTA.to_string(), serde_json::to_value(delta).unwrap());
+    data.insert(DELTA.to_string(), delta_to_json(&delta));
   }
-
-  Some(JSONResult::Block(NestedBlock { ty, children, data }))
+  Some(JSONResult::Block(NestedBlock {
+    ty: ty.to_string(),
+    children,
+    data,
+  }))
 }
 
 // compatible with google doc, there has a <b> tag, but it's not bold, it's a container.
@@ -134,7 +145,7 @@ fn process_b_container_element(node: ElementRef) -> Option<JSONResult> {
   let mut data = HashMap::new();
   let (delta, children) = process_node_children(node, &None, &None);
   if !delta.is_empty() {
-    data.insert(DELTA.to_string(), serde_json::to_value(delta).unwrap());
+    data.insert(DELTA.to_string(), delta_to_json(&delta));
   }
   Some(JSONResult::BlockArray(children))
 }
@@ -151,20 +162,39 @@ fn process_image_element(node: ElementRef) -> Option<JSONResult> {
   }))
 }
 
+// Example:
+// <details>
+//   <summary>Toggle List</summary>
+//   <p> This is a toggle list </p>
+// </details>
+fn process_toggle_element(node: ElementRef) -> Option<JSONResult> {
+  let mut data = HashMap::new();
+
+  // find summary element and get delta, then insert into data
+  if let Some(summary_child) = find_child_node(node.to_owned(), SUMMARY_TAG_NAME.to_string()) {
+    // get delta
+    let text = summary_child.text().collect::<String>();
+    if let Ok(delta) = serde_json::to_value(vec![InsertDelta {
+      insert: text,
+      attributes: None,
+    }]) {
+      data.insert(DELTA.to_string(), delta);
+    }
+  }
+  let (_, children) = process_node_children(node, &None, &None);
+
+  Some(JSONResult::Block(NestedBlock {
+    ty: TOGGLE_LIST.to_string(),
+    children,
+    data,
+  }))
+}
+
 fn process_code_element(node: ElementRef) -> Option<JSONResult> {
   let mut data = HashMap::new();
 
   // find code element and get language and delta, then insert into data
-  if let Some(code_child) = node
-    .children()
-    .find(|child| {
-      if let Some(child_element) = ElementRef::wrap(child.to_owned()) {
-        return child_element.value().name() == CODE_TAG_NAME;
-      }
-      false
-    })
-    .and_then(|child| ElementRef::wrap(child.to_owned()))
-  {
+  if let Some(code_child) = find_child_node(node.to_owned(), CODE_TAG_NAME.to_string()) {
     // get language
     if let Some(class) = find_attribute_value(code_child.to_owned(), CLASS) {
       let lang = class.split('-').last().unwrap_or_default();
@@ -188,24 +218,27 @@ fn process_code_element(node: ElementRef) -> Option<JSONResult> {
 }
 
 // process "ul" | "ol" | "li" | "blockquote"
-fn process_list_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
+fn process_nested_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
   match tag_name.as_str() {
     UL_TAG_NAME | OL_TAG_NAME => {
       let ty = if tag_name == UL_TAG_NAME {
-        BULLETED_LIST.to_string()
+        BULLETED_LIST
       } else {
-        NUMBERED_LIST.to_string()
+        NUMBERED_LIST
       };
       // Expand children of <ul> or <ol> element.
       // Example: <ul><li>1</li><li>2</li></ul> => [{ type: "bulleted_list", data: { delta: [{ insert: "1" }] } }, { type: "bulleted_list", data: { delta: [{ insert: "2" }] } }]
-      let (_, children) = process_node_children(node, &Some(ty), &None);
+      let (_, children) = process_node_children(node, &Some(ty.to_string()), &None);
       Some(JSONResult::BlockArray(children))
     },
     LI_TAG_NAME => process_li_element(node, list_type),
     BLOCKQUOTE_TAG_NAME => process_li_element(node, Some(QUOTE.to_string())),
-    _ => Some(JSONResult::BlockArray(vec![])),
+    _ => {
+      let (_, children) = process_node_children(node, &None, &None);
+      Some(JSONResult::BlockArray(children))
+    },
   }
 }
 
@@ -221,9 +254,15 @@ fn process_li_element(node: ElementRef, list_type: Option<String>) -> Option<JSO
           "false" => false,
           _ => false,
         };
-        data.insert(CHECKED.to_string(), serde_json::to_value(checked).unwrap());
+        data.insert(
+          CHECKED.to_string(),
+          serde_json::to_value(checked).unwrap_or_default(),
+        );
       }
-      data.insert(CHECKED.to_string(), serde_json::to_value(false).unwrap());
+      data.insert(
+        CHECKED.to_string(),
+        serde_json::to_value(false).unwrap_or_default(),
+      );
       return process_li_child_element(node, TODO_LIST, &mut data);
     }
   }
@@ -255,7 +294,7 @@ fn process_li_child_element(
       }
     }
   } else {
-    data.insert(DELTA.to_string(), serde_json::to_value(delta).unwrap());
+    data.insert(DELTA.to_string(), delta_to_json(&delta));
   }
 
   Some(JSONResult::Block(NestedBlock {
@@ -275,11 +314,17 @@ fn process_heading_element(node: ElementRef) -> Option<JSONResult> {
   };
 
   let mut data = HashMap::new();
-  data.insert(LEVEL.to_string(), serde_json::to_value(level).unwrap());
+  data.insert(
+    LEVEL.to_string(),
+    serde_json::to_value(level).unwrap_or_default(),
+  );
 
   let (delta, children) = process_node_children(node, &None, &None);
   if !delta.is_empty() {
-    data.insert(DELTA.to_string(), serde_json::to_value(delta).unwrap());
+    data.insert(
+      DELTA.to_string(),
+      serde_json::to_value(delta).unwrap_or_default(),
+    );
   }
 
   Some(JSONResult::Block(NestedBlock {
@@ -296,8 +341,7 @@ fn process_inline_element(
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  let attrs = attrs_to_map(node.value().attrs().to_owned());
-  let attributes = get_delta_attributes_for(&tag_name, attrs, attributes);
+  let attributes = get_delta_attributes_for(&tag_name, &mut get_node_attrs(node), attributes);
   let (delta, children) = process_node_children(node, &None, &attributes);
   Some(if !delta.is_empty() {
     JSONResult::DeltaArray(delta)
@@ -333,16 +377,16 @@ fn process_node_children(
         .map(|text| {
           let text = text.text.to_string();
 
+          // ignore whitespace
           if text.trim().is_empty() {
-            return text.trim().to_string();
+            return "".to_string();
           }
 
           text
         })
         .unwrap_or_default();
-      let attrs = attrs_to_map(node.value().attrs().to_owned());
 
-      if let Some(op) = node_to_delta(&tag_name, text, attrs, attributes) {
+      if let Some(op) = node_to_delta(&tag_name, text, &mut get_node_attrs(node), attributes) {
         delta.push(op);
       }
     }
@@ -355,18 +399,39 @@ fn process_node_children(
 // for example: style="font-weight: bold; font-style: italic; text-decoration: underline; text-decoration: line-through;"
 fn get_attributes_with_style(style: &str) -> HashMap<String, Value> {
   let mut attributes = HashMap::new();
-  if style.contains("font-weight: bold") {
-    attributes.insert(BOLD.to_string(), Value::Bool(true));
+
+  for property in style.split(';') {
+    let parts: Vec<&str> = property.split(':').map(|s| s.trim()).collect::<Vec<&str>>();
+
+    if parts.len() != 2 {
+      continue;
+    }
+
+    let (key, value) = (parts[0], parts[1]);
+
+    match key {
+      FONT_WEIGHT if value.contains(BOLD) => {
+        attributes.insert(BOLD.to_string(), Value::Bool(true));
+      },
+      FONT_STYLE if value.contains(ITALIC) => {
+        attributes.insert(ITALIC.to_string(), Value::Bool(true));
+      },
+      TEXT_DECORATION if value.contains(UNDERLINE) => {
+        attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
+      },
+      TEXT_DECORATION if value.contains(LINE_THROUGH) => {
+        attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
+      },
+      BACKGROUND_COLOR => {
+        attributes.insert(BG_COLOR.to_string(), Value::String(value.to_string()));
+      },
+      COLOR => {
+        attributes.insert(FONT_COLOR.to_string(), Value::String(value.to_string()));
+      },
+      _ => {},
+    }
   }
-  if style.contains("font-style: italic") {
-    attributes.insert(ITALIC.to_string(), Value::Bool(true));
-  }
-  if style.contains("text-decoration: underline") {
-    attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
-  }
-  if style.contains("text-decoration: line-through") {
-    attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
-  }
+
   attributes
 }
 
@@ -385,21 +450,13 @@ fn get_attributes_with_style(style: &str) -> HashMap<String, Value> {
 // export attributes: { "code": true }
 fn get_delta_attributes_for(
   tag_name: &str,
-  attributes: Option<Map<String, Value>>,
+  attrs: &Attrs,
   parent_attributes: &Option<HashMap<String, Value>>,
 ) -> Option<HashMap<String, Value>> {
-  let style = attributes
-    .as_ref()
-    .and_then(|attrs| attrs.get(STYLE))
-    .map(|v| v.to_string())
-    .unwrap_or_default();
-  let href = attributes
-    .as_ref()
-    .and_then(|attrs| attrs.get(HREF))
-    .map(|v| v.to_string())
-    .unwrap_or_default()
-    .trim_matches('"')
-    .to_string();
+  let href = find_attribute_value_from_attrs(attrs, HREF).unwrap_or_default();
+
+  let style = find_attribute_value_from_attrs(attrs, STYLE).unwrap_or_default();
+
   let mut attributes = get_attributes_with_style(&style);
   if let Some(parent_attributes) = parent_attributes {
     parent_attributes.iter().for_each(|(k, v)| {
@@ -407,24 +464,28 @@ fn get_delta_attributes_for(
     });
   }
   match tag_name {
-    A_TAG_NAME => {
+    A_TAG_NAME | BASE_TAG_NAME => {
       attributes.insert(HREF.to_string(), Value::String(href));
     },
-    EM_TAG_NAME => {
+    EM_TAG_NAME | ADDRESS_TAG_NAME | CITE_TAG_NAME | DFN_TAG_NAME | I_TAG_NAME => {
       attributes.insert(ITALIC.to_string(), Value::Bool(true));
     },
-    STRONG_TAG_NAME => {
+    STRONG_TAG_NAME | B_TAG_NAME => {
       attributes.insert(BOLD.to_string(), Value::Bool(true));
     },
-    U_TAG_NAME => {
+    U_TAG_NAME | ABBR_TAG_NAME | INS_TAG_NAME => {
       attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
     },
-    S_TAG_NAME => {
+    S_TAG_NAME | DEL_TAG_NAME => {
       attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
     },
     CODE_TAG_NAME => {
       attributes.insert(CODE.to_string(), Value::Bool(true));
     },
+    MARK_TAG_NAME => {
+      attributes.insert(BG_COLOR.to_string(), Value::String("#FFFF00".to_string()));
+    },
+
     _ => (),
   }
   if attributes.is_empty() {
@@ -440,29 +501,18 @@ fn get_delta_attributes_for(
 fn node_to_delta(
   tag_name: &str,
   text: String,
-  attributes: Option<Map<String, Value>>,
+  attrs: &mut Attrs,
   parent_attributes: &Option<HashMap<String, Value>>,
 ) -> Option<InsertDelta> {
-  let attributes = get_delta_attributes_for(tag_name, attributes, parent_attributes);
+  let attributes = get_delta_attributes_for(tag_name, attrs, parent_attributes);
   if text.is_empty() {
     return None;
   }
+
   Some(InsertDelta {
     insert: text,
     attributes,
   })
-}
-
-// transform node's attrs to map
-fn attrs_to_map(attrs: Attrs) -> Option<Map<String, Value>> {
-  let mut map = Map::new();
-  for attr in attrs {
-    map.insert(attr.0.to_string(), Value::String(attr.1.to_string()));
-  }
-  if map.is_empty() {
-    return None;
-  }
-  Some(map)
 }
 
 // get tag name from node
@@ -470,6 +520,9 @@ fn get_tag_name(node: ElementRef) -> String {
   node.value().name().to_string()
 }
 
+fn get_node_attrs(node: ElementRef) -> Attrs {
+  node.value().attrs()
+}
 // find attribute value from node
 fn find_attribute_value(node: ElementRef, attr_name: &str) -> Option<String> {
   node
@@ -477,4 +530,29 @@ fn find_attribute_value(node: ElementRef, attr_name: &str) -> Option<String> {
     .attrs()
     .find(|(name, _)| *name == attr_name)
     .map(|(_, value)| value.to_string())
+}
+
+fn find_attribute_value_from_attrs(attrs: &Attrs, attr_name: &str) -> Option<String> {
+  // The attrs need to be mutable, because the find method will consume the attrs
+  // So we clone it and use the clone one
+  let mut attrs = attrs.clone();
+  attrs
+    .find(|(name, _)| *name == attr_name)
+    .map(|(_, value)| value.to_string())
+}
+
+fn find_child_node(node: ElementRef, child_tag_name: String) -> Option<ElementRef> {
+  node
+    .children()
+    .find(|child| {
+      if let Some(child_element) = ElementRef::wrap(child.to_owned()) {
+        return get_tag_name(child_element) == child_tag_name;
+      }
+      false
+    })
+    .and_then(|child| ElementRef::wrap(child.to_owned()))
+}
+
+fn delta_to_json(delta: &Vec<InsertDelta>) -> Value {
+  serde_json::to_value(delta).unwrap_or_default()
 }

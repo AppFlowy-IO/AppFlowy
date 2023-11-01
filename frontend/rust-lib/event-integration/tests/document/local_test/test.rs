@@ -147,7 +147,7 @@ async fn convert_document_test() {
     let copy_payload = ConvertDocumentPayloadPB {
       document_id: view.id.to_string(),
       range: None,
-      export_types: export_types.clone(),
+      parse_types: export_types.clone(),
     };
     let result = test.convert_document(copy_payload).await;
     assert_eq!(result.json.is_some(), *json_assert);
