@@ -6,7 +6,7 @@ use collab_database::rows::{Cells, Row, RowDetail};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::GroupChangesPB;
+use crate::entities::{GroupChangesPB, InsertedGroupPB};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
 };
@@ -44,7 +44,7 @@ impl GroupControllerOperation for DefaultGroupController {
     &self.field_id
   }
 
-  fn groups(&self) -> Vec<&GroupData> {
+  fn get_all_groups(&self) -> Vec<&GroupData> {
     vec![&self.group]
   }
 
@@ -57,6 +57,13 @@ impl GroupControllerOperation for DefaultGroupController {
       self.group.add_row((*row).clone());
     });
     Ok(())
+  }
+
+  fn create_group(
+    &mut self,
+    _name: String,
+  ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
+    Ok((None, None))
   }
 
   fn move_group(&mut self, _from_group_id: &str, _to_group_id: &str) -> FlowyResult<()> {

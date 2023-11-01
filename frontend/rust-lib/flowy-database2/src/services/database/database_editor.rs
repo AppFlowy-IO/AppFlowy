@@ -959,6 +959,12 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn create_group(&self, view_id: &str, name: &str) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_create_group(name).await?;
+    Ok(())
+  }
+
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn set_layout_setting(
     &self,

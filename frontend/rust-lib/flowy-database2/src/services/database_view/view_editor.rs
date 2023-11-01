@@ -319,7 +319,7 @@ impl DatabaseViewEditor {
       .read()
       .await
       .as_ref()?
-      .groups()
+      .get_all_groups()
       .into_iter()
       .filter(|group| group.is_visible)
       .map(|group_data| GroupPB::from(group_data.clone()))
@@ -368,6 +368,36 @@ impl DatabaseViewEditor {
         notify_did_update_setting(&self.view_id, setting).await;
       }
     }
+    Ok(())
+  }
+
+  pub async fn v_create_group(&self, name: &str) -> FlowyResult<()> {
+    let mut old_field: Option<Field> = None;
+    let result = if let Some(controller) = self.group_controller.write().await.as_mut() {
+      let create_group_results = controller.create_group(name.to_string())?;
+      old_field = self.delegate.get_field(controller.field_id());
+      create_group_results
+    } else {
+      (None, None)
+    };
+
+    if let Some(old_field) = old_field {
+      if let (Some(type_option_data), Some(payload)) = result {
+        self
+          .delegate
+          .update_field(&self.view_id, type_option_data, old_field)
+          .await?;
+
+        let group_changes = GroupChangesPB {
+          view_id: self.view_id.clone(),
+          inserted_groups: vec![payload],
+          ..Default::default()
+        };
+
+        notify_did_update_num_of_groups(&self.view_id, group_changes).await;
+      }
+    }
+
     Ok(())
   }
 
@@ -617,9 +647,9 @@ impl DatabaseViewEditor {
     let field_id = &old_field.id;
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
-    if self.is_grouping_field(field_id).await {
-      self.v_grouping_by_field(field_id).await?;
-    }
+    // if self.is_grouping_field(field_id).await {
+    //   self.v_grouping_by_field(field_id).await?;
+    // }
 
     if let Some(field) = self.delegate.get_field(field_id) {
       self
@@ -671,7 +701,7 @@ impl DatabaseViewEditor {
       .await?;
 
       let new_groups = new_group_controller
-        .groups()
+        .get_all_groups()
         .into_iter()
         .map(|group| GroupPB::from(group.clone()))
         .collect();

@@ -11,7 +11,7 @@ use serde::Serialize;
 use flowy_error::FlowyResult;
 
 use crate::entities::{
-  FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB,
+  FieldType, GroupChangesPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
 use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
@@ -184,7 +184,7 @@ where
     &self.grouping_field_id
   }
 
-  fn groups(&self) -> Vec<&GroupData> {
+  fn get_all_groups(&self) -> Vec<&GroupData> {
     self.context.groups()
   }
 
@@ -231,6 +231,13 @@ where
 
     tracing::Span::current().record("group_result", format!("{},", self.context,).as_str());
     Ok(())
+  }
+
+  fn create_group(
+    &mut self,
+    name: String,
+  ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
+    self.generate_new_group(name.clone())
   }
 
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
@@ -291,7 +298,7 @@ where
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
       if !cell_data.is_cell_empty() {
-        tracing::error!("did_delete_delete_row {:?}", cell);
+        tracing::info!("did_delete_delete_row {:?}", cell);
         result.row_changesets = self.delete_row(row, &cell_data);
         return Ok(result);
       }
