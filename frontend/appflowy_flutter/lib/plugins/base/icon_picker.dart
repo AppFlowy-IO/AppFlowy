@@ -79,15 +79,17 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
           Theme.of(context).colorScheme.secondary,
         ),
         padding: EdgeInsets.zero,
-        tabs: const [
+        tabs: [
           FlowyHover(
-            style: HoverStyle(borderRadius: BorderRadius.zero),
+            style: const HoverStyle(borderRadius: BorderRadius.zero),
             child: Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 12.0,
                 vertical: 8.0,
               ),
-              child: FlowyText('Emoji'),
+              child: FlowyText(
+                LocaleKeys.emoji_emojiTab.tr(),
+              ),
             ),
           )
         ],

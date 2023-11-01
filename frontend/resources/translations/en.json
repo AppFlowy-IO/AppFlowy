@@ -819,6 +819,7 @@
     "gray": "Gray"
   },
   "emoji": {
+    "emojiTab": "Emoji",
     "search": "Search emoji",
     "noRecent": "No recent emoji",
     "noEmojiFound": "No emoji found",
@@ -838,6 +839,14 @@
       "flags": "Flags",
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
     }
   },
   "inlineActions": {

@@ -79,12 +79,14 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
       },
       searchBarBuilder: (context, keyword, skinTone) {
         return FlowyEmojiSearchBar(
+          emojiData: emojiData!,
           onKeywordChanged: (value) {
             keyword.value = value;
           },
           onSkinToneChanged: (value) {
             skinTone.value = value;
           },
+          onRandomEmojiSelected: widget.onEmojiSelected,
         );
       },
     );

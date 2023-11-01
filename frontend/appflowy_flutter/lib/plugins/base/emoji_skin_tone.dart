@@ -1,8 +1,14 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+
+// use a temporary global value to store last selected skin tone
+EmojiSkinTone? _lastSelectedEmojiSkinTone;
 
 class FlowyEmojiSkinToneSelector extends StatefulWidget {
   const FlowyEmojiSkinToneSelector({
@@ -30,19 +36,24 @@ class _FlowyEmojiSkinToneSelectorState
           .map((action) => EmojiSkinToneWrapper(action))
           .toList(),
       buildChild: (controller) {
-        return SizedBox.square(
-          dimension: 32,
-          child: FlowyButton(
-            text: const Icon(
-              Icons.emoji_emotions,
-              size: 20,
+        return FlowyTooltip(
+          message: LocaleKeys.emoji_selectSkinTone.tr(),
+          child: FlowyIconButton(
+            iconPadding: const EdgeInsets.all(2.0),
+            icon: Padding(
+              // add a left padding to align the emoji center
+              padding: const EdgeInsets.only(left: 3.0),
+              child: FlowyText(
+                _lastSelectedEmojiSkinTone?.icon ?? '✋',
+                fontSize: 22.0,
+              ),
             ),
-            useIntrinsicWidth: true,
-            onTap: () => controller.show(),
+            onPressed: () => controller.show(),
           ),
         );
       },
       onSelected: (action, controller) async {
+        _lastSelectedEmojiSkinTone = action.inner;
         widget.onEmojiSkinToneChanged(action.inner);
         controller.close();
       },
@@ -59,7 +70,40 @@ class EmojiSkinToneWrapper extends ActionCell {
 
   @override
   String get name {
-    // TODO: i18n
-    return inner.toString();
+    final String i18n;
+    switch (inner) {
+      case EmojiSkinTone.none:
+        i18n = LocaleKeys.emoji_skinTone_default.tr();
+      case EmojiSkinTone.light:
+        i18n = LocaleKeys.emoji_skinTone_light.tr();
+      case EmojiSkinTone.mediumLight:
+        i18n = LocaleKeys.emoji_skinTone_mediumLight.tr();
+      case EmojiSkinTone.medium:
+        i18n = LocaleKeys.emoji_skinTone_medium.tr();
+      case EmojiSkinTone.mediumDark:
+        i18n = LocaleKeys.emoji_skinTone_mediumDark.tr();
+      case EmojiSkinTone.dark:
+        i18n = LocaleKeys.emoji_skinTone_dark.tr();
+    }
+    return '${inner.icon} $i18n';
+  }
+}
+
+extension on EmojiSkinTone {
+  String get icon {
+    switch (this) {
+      case EmojiSkinTone.none:
+        return '✋';
+      case EmojiSkinTone.light:
+        return '✋🏻';
+      case EmojiSkinTone.mediumLight:
+        return '✋🏼';
+      case EmojiSkinTone.medium:
+        return '✋🏽';
+      case EmojiSkinTone.mediumDark:
+        return '✋🏾';
+      case EmojiSkinTone.dark:
+        return '✋🏿';
+    }
   }
 }
