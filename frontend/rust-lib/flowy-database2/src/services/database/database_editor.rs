@@ -440,7 +440,7 @@ impl DatabaseEditor {
       let row_detail = self.database.lock().get_row_detail(&row_order.id);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
-          view.v_did_create_row(&row_detail, &group_id, index).await;
+          view.v_did_create_row(&row_detail, index).await;
         }
         return Ok(Some(row_detail));
       }

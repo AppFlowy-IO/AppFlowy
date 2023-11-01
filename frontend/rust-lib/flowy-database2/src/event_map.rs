@@ -285,7 +285,7 @@ pub enum DatabaseEvent {
   #[event(input = "UpdateGroupPB")]
   UpdateGroup = 113,
 
-  #[event(input = "CreateGroupPB")]
+  #[event(input = "CreateGroupPayloadPB")]
   CreateGroup = 114,
 
   /// Returns all the databases

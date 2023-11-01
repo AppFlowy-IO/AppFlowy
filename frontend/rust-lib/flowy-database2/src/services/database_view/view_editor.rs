@@ -14,8 +14,8 @@ use lib_dispatch::prelude::af_spawn;
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
   DeleteGroupParams, DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB,
-  GroupRowsNotificationPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams, RowMetaPB,
-  RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
+  InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::cell::CellCache;
@@ -126,39 +126,23 @@ impl DatabaseViewEditor {
       .send();
   }
 
-  pub async fn v_did_create_row(
-    &self,
-    row_detail: &RowDetail,
-    group_id: &Option<String>,
-    index: usize,
-  ) {
+  pub async fn v_did_create_row(&self, row_detail: &RowDetail, index: usize) {
     let changes: RowsChangePB;
     // Send the group notification if the current view has groups
-    match group_id.as_ref() {
-      None => {
-        let row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
-        changes = RowsChangePB::from_insert(row);
-      },
-      Some(group_id) => {
-        self
-          .mut_group_controller(|group_controller, _| {
-            group_controller.did_create_row(row_detail, group_id);
-            Ok(())
-          })
-          .await;
+    if let Some(controller) = self.group_controller.write().await.as_mut() {
+      let changesets = controller.did_create_row(row_detail);
 
-        let inserted_row = InsertedRowPB {
-          row_meta: RowMetaPB::from(row_detail),
-          index: Some(index as i32),
-          is_new: true,
-        };
-        let changeset =
-          GroupRowsNotificationPB::insert(group_id.clone(), vec![inserted_row.clone()]);
+      for changeset in changesets {
         notify_did_update_group_rows(changeset).await;
-        changes = RowsChangePB::from_insert(inserted_row);
-      },
+      }
     }
 
+    let inserted_row = InsertedRowPB {
+      row_meta: RowMetaPB::from(row_detail),
+      index: Some(index as i32),
+      is_new: true,
+    };
+    changes = RowsChangePB::from_insert(inserted_row);
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();

@@ -190,12 +190,6 @@ impl GroupController for URLGroupController {
       },
     }
   }
-
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
-    if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row_detail.clone())
-    }
-  }
 }
 
 pub struct URLGroupGenerator();

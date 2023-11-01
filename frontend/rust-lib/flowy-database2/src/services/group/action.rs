@@ -117,6 +117,13 @@ pub trait GroupControllerOperation: Send + Sync {
   /// reordered group will be placed
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
 
+  /// Adds a newly-created row to one or more suitable groups.
+  ///
+  /// Returns a changeset payload to be sent as a notification.
+  ///
+  /// * `row_detail`: the newly-created row
+  fn did_create_row(&mut self, row_detail: &RowDetail) -> Vec<GroupRowsNotificationPB>;
+
   /// After a row's cell data is changed, move the row to the correct group.
   /// It may also insert a new group and/or remove an old group.
   ///

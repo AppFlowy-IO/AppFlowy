@@ -38,9 +38,6 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
 
   /// Called before the row was created.
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
-
-  /// Called after the row was created.
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str);
 }
 
 #[async_trait]
@@ -242,6 +239,42 @@ where
 
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
     self.context.move_group(from_group_id, to_group_id)
+  }
+
+  fn did_create_row(&mut self, row_detail: &RowDetail) -> Vec<GroupRowsNotificationPB> {
+    let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
+      None => self.placeholder_cell(),
+      Some(cell) => Some(cell.clone()),
+    };
+
+    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
+    if let Some(cell) = cell {
+      let cell_data = <T as TypeOption>::CellData::from(&cell);
+
+      let mut suitable_group_ids = vec![];
+
+      for group in self.get_all_groups() {
+        if self.can_group(&group.filter_content, &cell_data) {
+          suitable_group_ids.push(group.id.clone());
+          let changeset = GroupRowsNotificationPB::insert(
+            group.id.clone(),
+            vec![InsertedRowPB::new(row_detail.into())],
+          );
+          changesets.push(changeset);
+        }
+      }
+      if !suitable_group_ids.is_empty() {
+        for group_id in suitable_group_ids.iter() {
+          if let Some(group) = self.context.get_mut_group(&group_id) {
+            group.add_row(row_detail.clone());
+          }
+        }
+      } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
+        no_status_group.add_row(row_detail.clone())
+      }
+    }
+
+    changesets
   }
 
   fn did_update_group_row(
