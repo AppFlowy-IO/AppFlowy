@@ -373,8 +373,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "564eb8d"
-      resolved-ref: "564eb8d9b95429f76af4373390c81cc92a8541f3"
+      ref: a6b1be
+      resolved-ref: a6b1be3ee602f0b612f51e144ba29826033fee1d
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "0.0.1"
@@ -1937,5 +1937,5 @@ packages:
     source: hosted
     version: "1.1.1"
 sdks:
-  dart: ">=3.0.3 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.10.1"

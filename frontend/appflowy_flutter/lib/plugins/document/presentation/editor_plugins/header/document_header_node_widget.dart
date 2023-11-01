@@ -130,9 +130,8 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             left: 80,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
-            bottom: viewIcon.isNotEmpty
-                ? kToolbarHeight - kIconHeight / 2
-                : kToolbarHeight,
+            bottom:
+                hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
             child: DocumentIcon(
               editorState: widget.editorState,
               node: widget.node,

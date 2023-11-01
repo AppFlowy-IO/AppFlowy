@@ -3,6 +3,9 @@ import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
+// use a global value to store the selected emoji to prevent reloading every time.
+EmojiData? _cachedEmojiData;
+
 class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
     super.key,
@@ -16,47 +19,62 @@ class FlowyEmojiPicker extends StatefulWidget {
 }
 
 class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
-  late final Future<EmojiData> emojiData;
+  EmojiData? emojiData;
 
   @override
   void initState() {
     super.initState();
 
-    emojiData = EmojiData.builtIn();
+    // load the emoji data from cache if it's available
+    if (_cachedEmojiData != null) {
+      emojiData = _cachedEmojiData;
+    } else {
+      EmojiData.builtIn().then(
+        (value) {
+          _cachedEmojiData = value;
+          setState(() {
+            emojiData = value;
+          });
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<EmojiData>(
-      future: emojiData,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox.shrink();
-        }
-        return EmojiPicker(
-          emojiData: snapshot.data!,
-          configuration: const EmojiPickerConfiguration(
-            showSectionHeader: true,
-            showTabs: false,
+    if (emojiData == null) {
+      return const Center(
+        child: SizedBox.square(
+          dimension: 24.0,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
           ),
-          onEmojiSelected: widget.onEmojiSelected,
-          headerBuilder: (context, category) {
-            return Container(
-              height: 22,
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              color: Theme.of(context).cardColor,
-              child: FlowyText.regular(category.id),
-            );
+        ),
+      );
+    }
+
+    return EmojiPicker(
+      emojiData: emojiData!,
+      configuration: const EmojiPickerConfiguration(
+        showSectionHeader: true,
+        showTabs: false,
+      ),
+      onEmojiSelected: widget.onEmojiSelected,
+      headerBuilder: (context, category) {
+        return Container(
+          height: 22,
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          color: Theme.of(context).cardColor,
+          child: FlowyText.regular(category.id),
+        );
+      },
+      searchBarBuilder: (context, keyword, skinTone) {
+        return FlowyEmojiSearchBar(
+          onKeywordChanged: (value) {
+            keyword.value = value;
           },
-          searchBarBuilder: (context, keyword, skinTone) {
-            return FlowyEmojiSearchBar(
-              onKeywordChanged: (value) {
-                keyword.value = value;
-              },
-              onSkinToneChanged: (value) {
-                skinTone.value = value;
-              },
-            );
+          onSkinToneChanged: (value) {
+            skinTone.value = value;
           },
         );
       },
