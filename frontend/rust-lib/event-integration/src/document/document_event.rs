@@ -4,6 +4,9 @@ use serde_json::Value;
 
 use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
+use flowy_document2::parser::parser_entities::{
+  ConvertDocumentPayloadPB, ConvertDocumentResponsePB,
+};
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
 
@@ -106,6 +109,19 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await;
+  }
+
+  pub async fn convert_document(
+    &self,
+    payload: ConvertDocumentPayloadPB,
+  ) -> ConvertDocumentResponsePB {
+    let core = &self.inner;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::ConvertDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ConvertDocumentResponsePB>()
   }
 
   pub async fn create_text(&self, payload: TextDeltaPayloadPB) {

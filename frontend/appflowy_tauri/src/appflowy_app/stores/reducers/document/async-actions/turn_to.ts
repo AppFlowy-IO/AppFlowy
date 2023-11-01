@@ -36,7 +36,7 @@ export const turnToBlockThunk = createAsyncThunk(
     let caretId,
       caretIndex = caret?.index || 0;
     const deltaOperator = new BlockDeltaOperator(documentState, controller);
-    let delta = deltaOperator.getDeltaWithBlockId(node.id);
+    let delta = deltaOperator.getDeltaWithBlockId(node.id) || new Delta([{ insert: '' }]);
     // insert new block after current block
     const insertActions = [];
 
@@ -44,14 +44,14 @@ export const turnToBlockThunk = createAsyncThunk(
       delta = new Delta([{ insert: node.data.formula }]);
     }
 
-    if (delta && type === BlockType.EquationBlock) {
+    if (type === BlockType.EquationBlock) {
       data.formula = deltaOperator.getDeltaText(delta);
       const block = newBlock<any>(type, parent.id, data);
 
       insertActions.push(controller.getInsertAction(block, node.id));
       caretId = block.id;
       caretIndex = 0;
-    } else if (delta && type === BlockType.DividerBlock) {
+    } else if (type === BlockType.DividerBlock) {
       const block = newBlock<any>(type, parent.id, data);
 
       insertActions.push(controller.getInsertAction(block, node.id));
@@ -68,7 +68,7 @@ export const turnToBlockThunk = createAsyncThunk(
       caretId = nodeId;
       caretIndex = 0;
       insertActions.push(...actions);
-    } else if (delta) {
+    } else {
       caretId = generateId();
 
       const actions = deltaOperator.getNewTextLineActions({
