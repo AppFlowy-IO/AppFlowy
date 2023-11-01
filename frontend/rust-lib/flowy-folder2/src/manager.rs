@@ -6,7 +6,7 @@ use collab::core::collab::{CollabRawData, MutexCollab};
 use collab::core::collab_state::SyncState;
 use collab_entity::CollabType;
 use collab_folder::{
-  FavoriteId, Folder, FolderData, FolderNotify, TrashChange, TrashChangeReceiver, TrashInfo,
+  Folder, FolderData, FolderNotify, SectionItem, TrashChange, TrashChangeReceiver, TrashInfo,
   UserId, View, ViewChange, ViewChangeReceiver, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
@@ -795,7 +795,7 @@ impl FolderManager {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_favorites(&self) -> Vec<FavoriteId> {
+  pub(crate) async fn get_all_favorites(&self) -> Vec<SectionItem> {
     self.with_folder(Vec::new, |folder| {
       let trash_ids = folder
         .get_all_trash()

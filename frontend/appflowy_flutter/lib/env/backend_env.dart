@@ -1,10 +1,7 @@
-import 'package:json_annotation/json_annotation.dart';
+// ignore_for_file: non_constant_identifier_names
 
-// Run `dart run build_runner build` to generate the json serialization If the
-// file `env_serde.g.dart` is existed, delete it first.
-//
-// the file `env_serde.g.dart` will be generated in the same directory.
-part 'env_serde.g.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'backend_env.g.dart';
 
 @JsonSerializable()
 class AppFlowyEnv {
