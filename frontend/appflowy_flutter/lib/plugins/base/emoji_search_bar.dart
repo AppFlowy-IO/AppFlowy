@@ -22,23 +22,6 @@ class FlowyEmojiSearchBar extends StatefulWidget {
 
 class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   final TextEditingController controller = TextEditingController();
-  final FocusNode focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      focusNode.requestFocus();
-    });
-  }
-
-  @override
-  void dispose() {
-    focusNode.dispose();
-
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +32,6 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
           Expanded(
             child: FlowyTextField(
               autoFocus: true,
-              focusNode: focusNode,
               hintText: LocaleKeys.emoji_search.tr(),
               controller: controller,
               onChanged: widget.onKeywordChanged,

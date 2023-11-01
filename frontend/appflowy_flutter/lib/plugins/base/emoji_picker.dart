@@ -68,6 +68,15 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
           child: FlowyText.regular(category.id),
         );
       },
+      itemBuilder: (context, emojiId, emoji, callback) {
+        return FlowyIconButton(
+          iconPadding: const EdgeInsets.all(2.0),
+          icon: FlowyText(
+            emoji,
+            fontSize: 28.0,
+          ),
+        );
+      },
       searchBarBuilder: (context, keyword, skinTone) {
         return FlowyEmojiSearchBar(
           onKeywordChanged: (value) {
