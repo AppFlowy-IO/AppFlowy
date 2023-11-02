@@ -225,7 +225,7 @@ fn process_code_element(node: ElementRef) -> Option<JSONResult> {
 
   Some(JSONResult::Block(NestedBlock {
     ty: CODE.to_string(),
-    children: vec![],
+    children: Default::default(),
     data,
   }))
 }
