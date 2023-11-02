@@ -11,7 +11,8 @@
             "insert": "The Notion Document"
           }
         ],
-        "level": 1
+        "level": 1,
+        "text_direction": "ltr"
       },
       "type": "heading"
     },
@@ -26,7 +27,8 @@
             "insert": "Heading-1"
           }
         ],
-        "level": 1
+        "level": 1,
+        "text_direction": "ltr"
       },
       "type": "heading"
     },
@@ -41,7 +43,8 @@
             "insert": "Heading - 2"
           }
         ],
-        "level": 2
+        "level": 2,
+        "text_direction": "ltr"
       },
       "type": "heading"
     },
@@ -56,7 +59,8 @@
             "insert": "Heading - 3"
           }
         ],
-        "level": 3
+        "level": 3,
+        "text_direction": "ltr"
       },
       "type": "heading"
     },
@@ -71,7 +75,8 @@
             "insert": "Heading - 4"
           }
         ],
-        "level": 3
+        "level": 3,
+        "text_direction": "ltr"
       },
       "type": "heading"
     },
@@ -85,7 +90,8 @@
             },
             "insert": "This is a paragraph"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },
@@ -99,7 +105,8 @@
             },
             "insert": "paragraph’s child"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },
@@ -155,7 +162,8 @@
             },
             "insert": "This is a paragraph"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },
@@ -178,13 +186,15 @@
                 },
                 "insert": "This is a todo - 1"
               }
-            ]
+            ],
+            "text_direction": "ltr"
           },
           "type": "paragraph"
         }
       ],
       "data": {
-        "checked": false
+        "checked": false,
+        "text_direction": "ltr"
       },
       "type": "todo_list"
     },
@@ -207,13 +217,15 @@
                 },
                 "insert": "This is a todo - 1-1"
               }
-            ]
+            ],
+            "text_direction": "ltr"
           },
           "type": "paragraph"
         }
       ],
       "data": {
-        "checked": false
+        "checked": false,
+        "text_direction": "ltr"
       },
       "type": "todo_list"
     },
@@ -227,7 +239,8 @@
             },
             "insert": "This is a paragraph"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },
@@ -283,7 +296,8 @@
             },
             "insert": "This is a paragraph"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },
@@ -297,7 +311,8 @@
             },
             "insert": "This is a paragraph"
           }
-        ]
+        ],
+        "text_direction": "ltr"
       },
       "type": "paragraph"
     },

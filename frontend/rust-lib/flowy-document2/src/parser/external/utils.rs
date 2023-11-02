@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
-const INLINE_TAGS: [&str; 10] = [
+const INLINE_TAGS: [&str; 18] = [
   A_TAG_NAME,
   EM_TAG_NAME,
   STRONG_TAG_NAME,
@@ -14,11 +14,33 @@ const INLINE_TAGS: [&str; 10] = [
   S_TAG_NAME,
   CODE_TAG_NAME,
   SPAN_TAG_NAME,
-  ABBR_TAG_NAME,
   ADDRESS_TAG_NAME,
+  BASE_TAG_NAME,
+  CITE_TAG_NAME,
+  DFN_TAG_NAME,
+  I_TAG_NAME,
+  VAR_TAG_NAME,
+  ABBR_TAG_NAME,
+  INS_TAG_NAME,
+  DEL_TAG_NAME,
+  MARK_TAG_NAME,
   "",
 ];
 
+const LINK_TAGS: [&str; 2] = [A_TAG_NAME, BASE_TAG_NAME];
+const ITALIC_TAGS: [&str; 6] = [
+  EM_TAG_NAME,
+  I_TAG_NAME,
+  VAR_TAG_NAME,
+  CITE_TAG_NAME,
+  DFN_TAG_NAME,
+  ADDRESS_TAG_NAME,
+];
+
+const BOLD_TAGS: [&str; 2] = [STRONG_TAG_NAME, B_TAG_NAME];
+
+const UNDERLINE_TAGS: [&str; 3] = [U_TAG_NAME, ABBR_TAG_NAME, INS_TAG_NAME];
+const STRIKETHROUGH_TAGS: [&str; 2] = [S_TAG_NAME, DEL_TAG_NAME];
 const IGNORE_TAGS: [&str; 7] = [
   META_TAG_NAME,
   HEAD_TAG_NAME,
@@ -70,10 +92,9 @@ pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
       }
     })
     .collect();
-  let mut current_block: NestedBlock = NestedBlock {
+  let mut current_block = NestedBlock {
     ty: PAGE.to_string(),
-    data: HashMap::default(),
-    children: Vec::default(),
+    ..Default::default()
   };
 
   for line in lines {
@@ -91,7 +112,7 @@ pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
     current_block.children.push(NestedBlock {
       ty: PARAGRAPH.to_string(),
       data,
-      children: Vec::new(),
+      children: Default::default(),
     });
   }
 
@@ -108,26 +129,23 @@ fn flatten_element_to_json(
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  let mut attrs = attributes.to_owned().unwrap_or(HashMap::new());
-
-  // insert dir into attrs when dir is rtl
-  // for example: <bdo dir="rtl">Right to left</bdo> -> { "attributes": { "text_direction": "rtl" }, "insert": "Right to left" }
-  if let Some(dir) = find_attribute_value(node.to_owned(), DIR) {
-    if dir == "rtl" {
-      attrs.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
-    }
-  }
-
   if IGNORE_TAGS.contains(&tag_name.as_str()) {
     return None;
   }
 
   if INLINE_TAGS.contains(&tag_name.as_str()) {
-    return process_inline_element(node, Some(attrs));
+    return process_inline_element(node, attributes.to_owned());
+  }
+
+  let mut data = HashMap::new();
+  // insert dir into attrs when dir is rtl
+  // for example: <bdo dir="rtl">Right to left</bdo> -> { "attributes": { "text_direction": "rtl" }, "insert": "Right to left" }
+  if let Some(dir) = find_attribute_value(node.to_owned(), DIR) {
+    data.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
   }
 
   if HEADING_TAGS.contains(&tag_name.as_str()) {
-    return process_heading_element(node);
+    return process_heading_element(node, data);
   }
 
   if SHOULD_EXPAND_TAGS.contains(&tag_name.as_str()) {
@@ -135,27 +153,31 @@ fn flatten_element_to_json(
   }
 
   match tag_name.as_str() {
-    LI_TAG_NAME => process_li_element(node, list_type.to_owned()),
+    LI_TAG_NAME => process_li_element(node, list_type.to_owned(), data),
     BLOCKQUOTE_TAG_NAME | DETAILS_TAG_NAME => {
-      process_node_summary_and_details(QUOTE.to_string(), node, HashMap::new())
+      process_node_summary_and_details(QUOTE.to_string(), node, data)
     },
     PRE_TAG_NAME => process_code_element(node),
     IMG_TAG_NAME => process_image_element(node),
     B_TAG_NAME => {
+      // Compatible with Google Docs, <b id=xxx> is the document top level tag, so we need to process it's children
       let id = find_attribute_value(node.to_owned(), "id");
       if id.is_some() {
         return process_nested_element(node);
       }
-      process_inline_element(node, Some(attrs))
+      process_inline_element(node, attributes.to_owned())
     },
 
-    _ => process_default_element(node),
+    _ => process_default_element(node, data),
   }
 }
 
-fn process_default_element(node: ElementRef) -> Option<JSONResult> {
+fn process_default_element(
+  node: ElementRef,
+  mut data: HashMap<String, Value>,
+) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
-  let mut data = HashMap::new();
+
   let ty = match tag_name.as_str() {
     HTML_TAG_NAME => PAGE,
     P_TAG_NAME => PARAGRAPH,
@@ -183,7 +205,7 @@ fn process_image_element(node: ElementRef) -> Option<JSONResult> {
   }
   Some(JSONResult::Block(NestedBlock {
     ty: IMAGE.to_string(),
-    children: vec![],
+    children: Default::default(),
     data,
   }))
 }
@@ -229,9 +251,12 @@ fn process_nested_element(node: ElementRef) -> Option<JSONResult> {
 }
 
 // process <li> element, if it's a checkbox, then return a todo list, otherwise return a normal list.
-fn process_li_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
+fn process_li_element(
+  node: ElementRef,
+  list_type: Option<String>,
+  mut data: HashMap<String, Value>,
+) -> Option<JSONResult> {
   let mut ty = list_type.unwrap_or(BULLETED_LIST.to_string());
-  let mut data = HashMap::new();
   if let Some(role) = find_attribute_value(node.to_owned(), ROLE) {
     if role == CHECKBOX {
       if let Some(checked_attr) = find_attribute_value(node.to_owned(), ARIA_CHECKED) {
@@ -292,7 +317,10 @@ fn process_node_summary_and_details(
   }))
 }
 
-fn process_heading_element(node: ElementRef) -> Option<JSONResult> {
+fn process_heading_element(
+  node: ElementRef,
+  mut data: HashMap<String, Value>,
+) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
   let level = match tag_name.chars().last().unwrap_or_default() {
     '1' => 1,
@@ -301,7 +329,6 @@ fn process_heading_element(node: ElementRef) -> Option<JSONResult> {
     _ => 3,
   };
 
-  let mut data = HashMap::new();
   data.insert(
     LEVEL.to_string(),
     serde_json::to_value(level).unwrap_or_default(),
@@ -443,8 +470,6 @@ fn get_delta_attributes_for(
 ) -> Option<HashMap<String, Value>> {
   let href = find_attribute_value_from_attrs(attrs, HREF);
 
-  let dir = find_attribute_value_from_attrs(attrs, DIR);
-
   let style = find_attribute_value_from_attrs(attrs, STYLE);
 
   let mut attributes = get_attributes_with_style(&style);
@@ -453,35 +478,31 @@ fn get_delta_attributes_for(
       attributes.insert(k.to_string(), v.clone());
     });
   }
-  // if dir is not empty, then insert it into attributes
-  // for example: <bdo dir="rtl">Right to left</bdo>
-  if dir == "rtl" {
-    attributes.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
-  }
+
   match tag_name {
-    A_TAG_NAME | BASE_TAG_NAME => {
-      attributes.insert(HREF.to_string(), Value::String(href));
-    },
-    EM_TAG_NAME | ADDRESS_TAG_NAME | CITE_TAG_NAME | DFN_TAG_NAME | I_TAG_NAME | VAR_TAG_NAME => {
-      attributes.insert(ITALIC.to_string(), Value::Bool(true));
-    },
-    STRONG_TAG_NAME | B_TAG_NAME => {
-      attributes.insert(BOLD.to_string(), Value::Bool(true));
-    },
-    U_TAG_NAME | ABBR_TAG_NAME | INS_TAG_NAME => {
-      attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
-    },
-    S_TAG_NAME | DEL_TAG_NAME => {
-      attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
-    },
     CODE_TAG_NAME => {
       attributes.insert(CODE.to_string(), Value::Bool(true));
     },
     MARK_TAG_NAME => {
       attributes.insert(BG_COLOR.to_string(), Value::String("#FFFF00".to_string()));
     },
-
-    _ => (),
+    _ => {
+      if LINK_TAGS.contains(&tag_name) {
+        attributes.insert(HREF.to_string(), Value::String(href));
+      }
+      if ITALIC_TAGS.contains(&tag_name) {
+        attributes.insert(ITALIC.to_string(), Value::Bool(true));
+      }
+      if BOLD_TAGS.contains(&tag_name) {
+        attributes.insert(BOLD.to_string(), Value::Bool(true));
+      }
+      if UNDERLINE_TAGS.contains(&tag_name) {
+        attributes.insert(UNDERLINE.to_string(), Value::Bool(true));
+      }
+      if STRIKETHROUGH_TAGS.contains(&tag_name) {
+        attributes.insert(STRIKETHROUGH.to_string(), Value::Bool(true));
+      }
+    },
   }
   if attributes.is_empty() {
     None

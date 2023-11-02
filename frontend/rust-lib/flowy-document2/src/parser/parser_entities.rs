@@ -253,8 +253,9 @@ impl InsertDelta {
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NestedBlock {
+  #[serde(default)]
   #[serde(rename = "type")]
   pub ty: String,
   #[serde(default)]
