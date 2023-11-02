@@ -1,4 +1,6 @@
+import 'package:appflowy/mobile/presentation/database/card/row/cells/cells.dart';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,32 @@ class GridCellBuilder {
     );
 
     final key = cellContext.key();
+
+    if (PlatformExtension.isMobile) {
+      final mobileGridCellWidget = _getMobileCardCellWidget(
+        cellContext,
+        cellControllerBuilder,
+        style,
+        key,
+      );
+      return mobileGridCellWidget;
+    } else {
+      final desktopGridCellWidget = _getDesktopGridCellWidget(
+        cellContext,
+        cellControllerBuilder,
+        style,
+        key,
+      );
+      return desktopGridCellWidget;
+    }
+  }
+
+  GridCellWidget _getDesktopGridCellWidget(
+    DatabaseCellContext cellContext,
+    CellControllerBuilder cellControllerBuilder,
+    GridCellStyle? style,
+    ValueKey key,
+  ) {
     switch (cellContext.fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
@@ -92,6 +120,75 @@ class GridCellBuilder {
 
     throw UnimplementedError;
   }
+}
+
+// editable cell/(card's propery value) widget
+GridCellWidget _getMobileCardCellWidget(
+  DatabaseCellContext cellContext,
+  CellControllerBuilder cellControllerBuilder,
+  GridCellStyle? style,
+  ValueKey key,
+) {
+  switch (cellContext.fieldType) {
+    case FieldType.RichText:
+      style as GridTextCellStyle;
+      return MobileTextCell(
+        cellControllerBuilder: cellControllerBuilder,
+        hintText: style.placeholder,
+      );
+    case FieldType.Checkbox:
+      return GridCheckboxCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+    case FieldType.DateTime:
+      return GridDateCell(
+        cellControllerBuilder: cellControllerBuilder,
+        key: key,
+        style: style,
+      );
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return GridTimestampCell(
+        cellControllerBuilder: cellControllerBuilder,
+        key: key,
+        style: style,
+        fieldType: cellContext.fieldType,
+      );
+    case FieldType.SingleSelect:
+      return GridSingleSelectCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+    case FieldType.MultiSelect:
+      return GridMultiSelectCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+    case FieldType.Checklist:
+      return GridChecklistCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+    case FieldType.Number:
+      return GridNumberCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+
+    case FieldType.URL:
+      return GridURLCell(
+        cellControllerBuilder: cellControllerBuilder,
+        style: style,
+        key: key,
+      );
+  }
+  throw UnimplementedError;
 }
 
 class BlankCell extends StatelessWidget {

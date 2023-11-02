@@ -1,9 +1,12 @@
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/database/card/card_property_edit_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_page.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -12,6 +15,7 @@ import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter generateRouter(Widget child) {
@@ -41,6 +45,9 @@ GoRouter generateRouter(Widget child) {
         _mobileGridScreenRoute(),
         _mobileBoardScreenRoute(),
         _mobileCalendarScreenRoute(),
+        // card detail page
+        _mobileCardDetailScreenRoute(),
+        _mobileCardPropertyEditScreenRoute(),
 
         // home
         // MobileHomeSettingPage is outside the bottom navigation bar, thus it is not in the StatefulShellRoute.
@@ -350,6 +357,44 @@ GoRoute _mobileCalendarScreenRoute() {
         child: MobileCalendarScreen(
           id: id,
           title: title,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCardDetailScreenRoute() {
+  return GoRoute(
+    path: MobileCardDetailScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      final rowController = args[MobileCardDetailScreen.argRowController];
+      final cellBuilder = args[MobileCardDetailScreen.argCellBuilder];
+      return MaterialPage(
+        child: MobileCardDetailScreen(
+          rowController: rowController,
+          cellBuilder: cellBuilder,
+        ),
+      );
+    },
+  );
+}
+
+GoRoute _mobileCardPropertyEditScreenRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: CardPropertyEditScreen.routeName,
+    pageBuilder: (context, state) {
+      final args = state.extra as Map<String, dynamic>;
+      final cellContext = args[CardPropertyEditScreen.argCellContext];
+      final rowDetailBloc = args[CardPropertyEditScreen.argRowDetailBloc];
+
+      return MaterialPage(
+        child: BlocProvider.value(
+          value: rowDetailBloc as RowDetailBloc,
+          child: CardPropertyEditScreen(
+            cellContext: cellContext,
+          ),
         ),
       );
     },

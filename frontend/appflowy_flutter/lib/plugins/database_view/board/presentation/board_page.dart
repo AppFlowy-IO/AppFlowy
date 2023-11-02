@@ -1,9 +1,7 @@
-// ignore_for_file: unused_field
-
 import 'dart:collection';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database_view/application/database_controller.dart';
 import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_
 import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
+import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -23,6 +22,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/card/cells/card_cell.dart';
 import '../../widgets/card/card_cell_builder.dart';
@@ -336,15 +336,25 @@ class _BoardContentState extends State<BoardContent> {
       rowCache: rowCache,
       groupId: groupId,
     );
-
-    FlowyOverlay.show(
-      context: context,
-      builder: (BuildContext context) {
-        return RowDetailPage(
-          cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-          rowController: dataController,
-        );
-      },
-    );
+    // navigate to card detail screen when it is in mobile
+    if (PlatformExtension.isMobile) {
+      context.push(
+        MobileCardDetailScreen.routeName,
+        extra: {
+          'rowController': dataController,
+          'cellBuilder': GridCellBuilder(cellCache: dataController.cellCache),
+        },
+      );
+    } else {
+      FlowyOverlay.show(
+        context: context,
+        builder: (BuildContext context) {
+          return RowDetailPage(
+            cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
+            rowController: dataController,
+          );
+        },
+      );
+    }
   }
 }
