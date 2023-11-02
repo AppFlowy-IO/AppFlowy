@@ -637,9 +637,9 @@ impl DatabaseViewEditor {
     let field_id = &old_field.id;
     // If the id of the grouping field is equal to the updated field's id, then we need to
     // update the group setting
-    // if self.is_grouping_field(field_id).await {
-    //   self.v_grouping_by_field(field_id).await?;
-    // }
+    if self.is_grouping_field(field_id).await {
+      self.v_grouping_by_field(field_id).await?;
+    }
 
     if let Some(field) = self.delegate.get_field(field_id) {
       self

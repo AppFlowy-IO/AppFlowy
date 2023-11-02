@@ -250,7 +250,7 @@ where
   ///
   /// # Arguments
   ///
-  /// * `generated_group_configs`: the generated groups contains a list of [GeneratedGroupConfig].
+  /// * `generated_groups`: the generated groups contains a list of [GeneratedGroupConfig].
   ///
   /// Each [FieldType] can implement the [GroupGenerator] trait in order to generate different
   /// groups. For example, the FieldType::Checkbox has the [CheckboxGroupGenerator] that implements

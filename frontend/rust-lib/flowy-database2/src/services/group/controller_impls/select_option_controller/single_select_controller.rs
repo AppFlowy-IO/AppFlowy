@@ -101,7 +101,10 @@ impl GroupCustomize for SingleSelectGroupController {
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
     let mut new_type_option = self.type_option.clone();
     let new_select_option = self.type_option.create_option(&name);
-    new_type_option.insert_option(new_select_option.clone());
+    new_type_option.insert_option_at_index(
+      new_select_option.clone(),
+      Some(new_type_option.options.len()),
+    );
 
     let new_group = Group::new(new_select_option.id, new_select_option.name);
     let inserted_group_pb = self.context.add_new_group(new_group)?;
