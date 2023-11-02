@@ -2,7 +2,7 @@ use crate::parse::NotEmptyStr;
 use crate::parser::constant::*;
 use crate::parser::utils::{
   convert_insert_delta_from_json, convert_nested_block_children_to_html, delta_to_html,
-  delta_to_text, required_not_empty_str,
+  delta_to_text, required_not_empty_str, serialize_color_attribute,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -169,20 +169,14 @@ impl InsertDelta {
     let mut html_attributes = String::new();
     // If there are attributes, serialize them as a HashMap.
     if let Some(attrs) = &self.attributes {
-      // Serialize the font color attributes.
-      if let Some(color) = attrs.get(FONT_COLOR) {
-        style.push_str(&format!(
-          "color: {};",
-          color.to_string().replace("0x", "#").trim_matches('\"')
-        ));
-      }
+      // Serialize the color attributes.
+      style.push_str(&serialize_color_attribute(attrs, FONT_COLOR, COLOR));
       // Serialize the background color attributes.
-      if let Some(color) = attrs.get(BG_COLOR) {
-        style.push_str(&format!(
-          "background-color: {};",
-          color.to_string().replace("0x", "#").trim_matches('\"')
-        ));
-      }
+      style.push_str(&serialize_color_attribute(
+        attrs,
+        BG_COLOR,
+        BACKGROUND_COLOR,
+      ));
       // Serialize the href attributes.
       if let Some(href) = attrs.get(HREF) {
         html.push_str(&format!("<{} {}={}>", A_TAG_NAME, HREF, href));
@@ -221,9 +215,7 @@ impl InsertDelta {
         }
       }
       if let Some(direction) = attrs.get(TEXT_DIRECTION) {
-        if *direction == "rtl" {
-          html_attributes.push_str(&format!(" {}=\"{}\"", DIR, direction));
-        }
+        html_attributes.push_str(&format!(" {}=\"{}\"", DIR_ATTR_NAME, direction));
       }
     }
     if !style.is_empty() {

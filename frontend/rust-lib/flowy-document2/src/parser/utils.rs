@@ -3,6 +3,7 @@ use crate::parser::parser_entities::{
 };
 use collab_document::blocks::DocumentData;
 use serde_json::Value;
+use std::collections::HashMap;
 use std::sync::Arc;
 use validator::ValidationError;
 
@@ -107,4 +108,19 @@ pub fn required_not_empty_str(s: &str) -> Result<(), ValidationError> {
     return Err(ValidationError::new("should not be empty string"));
   }
   Ok(())
+}
+
+pub fn serialize_color_attribute(
+  attrs: &HashMap<String, Value>,
+  attr_name: &str,
+  css_property: &str,
+) -> String {
+  if let Some(color) = attrs.get(attr_name) {
+    return format!(
+      "{}: {};",
+      css_property,
+      color.to_string().replace("0x", "#").trim_matches('\"')
+    );
+  }
+  "".to_string()
 }

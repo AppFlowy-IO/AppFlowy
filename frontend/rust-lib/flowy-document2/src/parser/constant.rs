@@ -38,8 +38,6 @@ pub const MENTION: &str = "mention";
 
 pub const TEXT_DIRECTION: &str = "text_direction";
 
-pub const LINE_THROUGH: &str = "line_through";
-
 pub const HTML_TAG_NAME: &str = "html";
 pub const HR_TAG_NAME: &str = "hr";
 pub const META_TAG_NAME: &str = "meta";
@@ -78,7 +76,9 @@ pub const BASE_TAG_NAME: &str = "base";
 pub const ABBR_TAG_NAME: &str = "abbr";
 pub const ADDRESS_TAG_NAME: &str = "address";
 pub const DBO_TAG_NAME: &str = "bdo";
-pub const DIR: &str = "dir";
+pub const DIR_ATTR_NAME: &str = "dir";
+
+pub const RTL_ATTR_VALUE: &str = "rtl";
 
 pub const CITE_TAG_NAME: &str = "cite";
 
@@ -100,12 +100,14 @@ pub const MENU_TAG_NAME: &str = "menu";
 
 pub const MARK_TAG_NAME: &str = "mark";
 
-pub const FONT_WEIGHT: &str = "font_weight";
-pub const FONT_STYLE: &str = "font_style";
-pub const TEXT_DECORATION: &str = "text_decoration";
+pub const FONT_WEIGHT: &str = "font-weight";
+pub const FONT_STYLE: &str = "font-style";
+pub const TEXT_DECORATION: &str = "text-decoration";
 
-pub const BACKGROUND_COLOR: &str = "background_color";
+pub const BACKGROUND_COLOR: &str = "background-color";
 pub const COLOR: &str = "color";
+pub const LINE_THROUGH: &str = "line-through";
+
 pub const FONT_STYLE_ITALIC: &str = "font-style: italic;";
 pub const TEXT_DECORATION_UNDERLINE: &str = "text-decoration: underline;";
 pub const TEXT_DECORATION_LINE_THROUGH: &str = "text-decoration: line-through;";
