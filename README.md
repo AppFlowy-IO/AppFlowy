@@ -1,8 +1,8 @@
 <h1 align="center" style="border-bottom: none">
     <b>
-        <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
+        <a href="https://www.sun.edu.my">AppFlowy.IO</a><br>
     </b>
-    ⭐️  The Open Source Alternative To Notion  ⭐️ <br>
+    ⭐️  Welcome to Sunrise School  ⭐️ <br>
 </h1>
 
 <p align="center">
