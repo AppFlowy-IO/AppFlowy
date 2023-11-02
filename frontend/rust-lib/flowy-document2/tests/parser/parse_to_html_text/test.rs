@@ -1,4 +1,4 @@
-use crate::parser::html_text::utils::{assert_document_html_eq, assert_document_text_eq};
+use crate::parser::parse_to_html_text::utils::{assert_document_html_eq, assert_document_text_eq};
 
 macro_rules! generate_test_cases {
     ($($block_ty:ident),*) => {

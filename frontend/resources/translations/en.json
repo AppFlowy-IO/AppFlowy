@@ -120,7 +120,9 @@
     "mobile": {
       "actions": "Trash Actions",
       "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file"
+      "emptyDescription": "You don't have any deleted file",
+      "isDeleted": "is deleted",
+      "isRestored": "is restored"
     }
   },
   "deletePagePrompt": {
@@ -394,7 +396,9 @@
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
-      "userAgreement": "User Agreement"
+      "userAgreement": "User Agreement",
+      "userprofileError": "Failed to load user profile",
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
     }
   },
   "grid": {
@@ -623,13 +627,14 @@
         "add": "Add",
         "back": "Back",
         "saveToGallery": "Save to gallery",
-        "removeIcon": "Remove Icon",
+        "removeIcon": "Remove icon",
         "pasteImageUrl": "Paste image URL",
         "or": "OR",
         "pickFromFiles": "Pick from files",
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add Icon",
+        "addIcon": "Add icon",
+        "changeIcon": "Change icon",
         "coverRemoveAlert": "It will be removed from cover after it is deleted.",
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
@@ -822,6 +827,7 @@
     "gray": "Gray"
   },
   "emoji": {
+    "emojiTab": "Emoji",
     "search": "Search emoji",
     "noRecent": "No recent emoji",
     "noEmojiFound": "No emoji found",
@@ -841,6 +847,14 @@
       "flags": "Flags",
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
     }
   },
   "inlineActions": {

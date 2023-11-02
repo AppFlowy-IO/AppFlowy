@@ -1,8 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_page.dart';
-import 'package:appflowy/mobile/presentation/error/error_page.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -56,8 +55,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
             child: CircularProgressIndicator(),
           );
         } else if (!state.hasData) {
-          body = MobileErrorPage(
-            message: LocaleKeys.error_loadingViewError.tr(),
+          body = FlowyMobileStateContainer.error(
+            emoji: '😔',
+            title: LocaleKeys.error_weAreSorry.tr(),
+            description: LocaleKeys.error_loadingViewError.tr(),
+            errorMsg: state.error.toString(),
           );
         } else {
           body = state.data!.fold((view) {
@@ -65,8 +67,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
             actions.add(_buildAppBarMoreButton(view));
             return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
           }, (error) {
-            return MobileErrorPage(
-              message: error.toString(),
+            return FlowyMobileStateContainer.error(
+              emoji: '😔',
+              title: LocaleKeys.error_weAreSorry.tr(),
+              description: LocaleKeys.error_loadingViewError.tr(),
+              errorMsg: error.toString(),
             );
           });
         }
@@ -106,12 +111,22 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
+    final icon = view?.icon.value;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: FlowyText.semibold(
-          view?.name ?? widget.title ?? '',
-          fontSize: 14.0,
+        title: Row(
+          children: [
+            if (icon != null)
+              FlowyText(
+                '$icon ',
+                fontSize: 22.0,
+              ),
+            FlowyText.regular(
+              view?.name ?? widget.title ?? '',
+              fontSize: 14.0,
+            ),
+          ],
         ),
         leading: AppBarBackButton(
           onTap: () => context.pop(),

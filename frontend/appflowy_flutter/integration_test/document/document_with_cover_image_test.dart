@@ -1,4 +1,8 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:emoji_mart/emoji_mart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -61,7 +65,6 @@ void main() {
 
       // Insert a document icon
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
@@ -73,13 +76,11 @@ void main() {
       // Add the icon back for further testing
       await tester.editor.hoverOnCoverToolbar();
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
       tester.expectToSeeDocumentIcon('😀');
 
       // Change the document icon
       await tester.editor.tapOnIconWidget();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😅');
       tester.expectToSeeDocumentIcon('😅');
 
@@ -102,7 +103,6 @@ void main() {
 
       // Insert a document icon
       await tester.editor.tapAddIconButton();
-      await tester.switchToEmojiList();
       await tester.tapEmoji('😀');
 
       // Insert a document cover
@@ -115,6 +115,47 @@ void main() {
       // Hover over the cover toolbar and see that neither icons are shown
       await tester.editor.hoverOnCoverToolbar();
       tester.expectToSeeEmptyDocumentHeaderToolbar();
+    });
+
+    testWidgets('shuffle icon', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.hoverOnCoverToolbar();
+      await tester.editor.tapAddIconButton();
+
+      // click the shuffle button
+      await tester.tapButton(
+        find.byTooltip(LocaleKeys.emoji_random.tr()),
+      );
+      tester.expectDocumentIconNotNull();
+    });
+
+    testWidgets('change skin tone', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.hoverOnCoverToolbar();
+      await tester.editor.tapAddIconButton();
+
+      final searchEmojiTextField = find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField &&
+            widget.decoration!.hintText == LocaleKeys.emoji_search.tr(),
+      );
+      await tester.enterText(
+        searchEmojiTextField,
+        'hand',
+      );
+
+      // change skin tone
+      await tester.editor.changeEmojiSkinTone(EmojiSkinTone.dark);
+
+      // select an icon with skin tone
+      const hand = '👋🏿';
+      await tester.tapEmoji(hand);
+      tester.expectToSeeDocumentIcon(hand);
+      tester.isPageWithIcon(gettingStarted, hand);
     });
   });
 }
