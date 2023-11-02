@@ -47,12 +47,12 @@ impl EventIntegrationTest {
       .items
   }
 
-  pub async fn get_current_workspace(&self) -> WorkspaceSettingPB {
+  pub async fn get_current_workspace(&self) -> WorkspacePB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::GetCurrentWorkspace)
+      .event(FolderEvent::ReadCurrentWorkspace)
       .async_send()
       .await
-      .parse::<WorkspaceSettingPB>()
+      .parse::<WorkspacePB>()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
@@ -148,9 +148,9 @@ pub struct ViewTest {
 impl ViewTest {
   #[allow(dead_code)]
   pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
-    let workspace = create_workspace(sdk, "Workspace", "").await;
+    let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
     let payload = WorkspaceIdPB {
-      value: Some(workspace.id.clone()),
+      value: workspace.id.clone(),
     };
     let _ = EventBuilder::new(sdk.clone())
       .event(OpenWorkspace)
@@ -196,6 +196,7 @@ impl ViewTest {
   }
 }
 
+#[allow(dead_code)]
 async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) -> WorkspacePB {
   let request = CreateWorkspacePayloadPB {
     name: name.to_owned(),

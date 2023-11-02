@@ -1,15 +1,17 @@
+use std::{any::type_name, ops::Deref, sync::Arc};
+
+use crate::prelude::AFConcurrent;
 use crate::{
   errors::{DispatchError, InternalError},
   request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
   util::ready::{ready, Ready},
 };
-use std::{any::type_name, ops::Deref, sync::Arc};
 
-pub struct AFPluginState<T: ?Sized + Send + Sync>(Arc<T>);
+pub struct AFPluginState<T: ?Sized + AFConcurrent>(Arc<T>);
 
 impl<T> AFPluginState<T>
 where
-  T: Send + Sync,
+  T: AFConcurrent,
 {
   pub fn new(data: T) -> Self {
     AFPluginState(Arc::new(data))
@@ -22,7 +24,7 @@ where
 
 impl<T> Deref for AFPluginState<T>
 where
-  T: ?Sized + Send + Sync,
+  T: ?Sized + AFConcurrent,
 {
   type Target = Arc<T>;
 
@@ -33,7 +35,7 @@ where
 
 impl<T> Clone for AFPluginState<T>
 where
-  T: ?Sized + Send + Sync,
+  T: ?Sized + AFConcurrent,
 {
   fn clone(&self) -> AFPluginState<T> {
     AFPluginState(self.0.clone())
@@ -42,7 +44,7 @@ where
 
 impl<T> From<Arc<T>> for AFPluginState<T>
 where
-  T: ?Sized + Send + Sync,
+  T: ?Sized + AFConcurrent,
 {
   fn from(arc: Arc<T>) -> Self {
     AFPluginState(arc)
@@ -51,7 +53,7 @@ where
 
 impl<T> FromAFPluginRequest for AFPluginState<T>
 where
-  T: ?Sized + Send + Sync + 'static,
+  T: ?Sized + AFConcurrent + 'static,
 {
   type Error = DispatchError;
   type Future = Ready<Result<Self, DispatchError>>;
@@ -59,7 +61,7 @@ where
   #[inline]
   fn from_request(req: &AFPluginEventRequest, _: &mut Payload) -> Self::Future {
     if let Some(state) = req.get_state::<AFPluginState<T>>() {
-      ready(Ok(state.clone()))
+      ready(Ok(state))
     } else {
       let msg = format!(
         "Failed to get the plugin state of type: {}",

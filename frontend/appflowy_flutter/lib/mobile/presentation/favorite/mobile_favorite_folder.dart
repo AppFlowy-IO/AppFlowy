@@ -29,7 +29,7 @@ class MobileFavoritePageFolder extends StatelessWidget {
         BlocProvider(
           create: (_) => MenuBloc(
             user: userProfile,
-            workspace: workspaceSetting.workspace,
+            workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
         BlocProvider(

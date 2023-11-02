@@ -101,6 +101,7 @@ impl FlowyError {
   );
   static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
   static_flowy_error!(server_error, ErrorCode::InternalServerError);
+  static_flowy_error!(not_support, ErrorCode::NotSupportYet);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -154,6 +155,12 @@ impl From<anyhow::Error> for FlowyError {
 
 impl From<fancy_regex::Error> for FlowyError {
   fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
+  fn from(e: tokio::sync::oneshot::error::RecvError) -> Self {
     FlowyError::internal().with_context(e)
   }
 }

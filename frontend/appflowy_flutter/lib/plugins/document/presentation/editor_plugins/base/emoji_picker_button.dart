@@ -15,7 +15,7 @@ class EmojiPickerButton extends StatelessWidget {
   final String emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(Emoji emoji, PopoverController controller) onSubmitted;
+  final void Function(String emoji, PopoverController controller) onSubmitted;
   final PopoverController popoverController = PopoverController();
 
   @override

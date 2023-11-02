@@ -256,6 +256,9 @@ pub enum ErrorCode {
 
   #[error("Internal server error")]
   InternalServerError = 84,
+
+  #[error("Not support yet")]
+  NotSupportYet = 85,
 }
 
 impl ErrorCode {

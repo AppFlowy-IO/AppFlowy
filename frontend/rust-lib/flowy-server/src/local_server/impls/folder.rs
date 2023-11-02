@@ -27,7 +27,11 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     })
   }
 
-  fn get_folder_data(&self, _workspace_id: &str) -> FutureResult<Option<FolderData>, Error> {
+  fn get_folder_data(
+    &self,
+    _workspace_id: &str,
+    _uid: &i64,
+  ) -> FutureResult<Option<FolderData>, Error> {
     FutureResult::new(async move { Ok(None) })
   }
 

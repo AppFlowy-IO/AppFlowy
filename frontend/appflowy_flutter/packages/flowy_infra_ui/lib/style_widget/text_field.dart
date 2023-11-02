@@ -22,6 +22,10 @@ class FlowyTextField extends StatefulWidget {
   final String? errorText;
   final int maxLines;
   final bool showCounter;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final BoxConstraints? suffixIconConstraints;
 
   const FlowyTextField({
     super.key,
@@ -42,6 +46,10 @@ class FlowyTextField extends StatefulWidget {
     this.errorText,
     this.maxLines = 1,
     this.showCounter = true,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.prefixIconConstraints,
+    this.suffixIconConstraints,
   });
 
   @override
@@ -55,6 +63,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   @override
   void initState() {
+    super.initState();
+
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
@@ -67,10 +77,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
         controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length));
+          TextPosition(offset: controller.text.length),
+        );
       });
     }
-    super.initState();
   }
 
   void _debounceOnChangedText(Duration duration, String text) {
@@ -113,6 +123,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
+      textAlignVertical: TextAlignVertical.center,
       decoration: InputDecoration(
         constraints: BoxConstraints(
             maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
@@ -158,6 +169,10 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           ),
           borderRadius: Corners.s8Border,
         ),
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.suffixIcon,
+        prefixIconConstraints: widget.prefixIconConstraints,
+        suffixIconConstraints: widget.suffixIconConstraints,
       ),
     );
   }

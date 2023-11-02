@@ -130,15 +130,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ansi_term"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
-dependencies = [
- "winapi",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -454,7 +445,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.13.2",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -854,7 +845,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -873,7 +864,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -903,7 +894,7 @@ dependencies = [
 [[package]]
 name = "collab-derive"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -915,7 +906,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "collab",
@@ -935,7 +926,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "bytes",
@@ -949,7 +940,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "chrono",
@@ -991,7 +982,7 @@ dependencies = [
 [[package]]
 name = "collab-persistence"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1012,7 +1003,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1039,7 +1030,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ff10abd5#ff10abd5e41b9a7d118cbb79f8c2bf9ac27c0ded"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=01f92f7bb#01f92f7bb204a3aeed24b345d504dfd36d3d9fcb"
 dependencies = [
  "anyhow",
  "collab",
@@ -1939,6 +1930,7 @@ dependencies = [
  "flowy-task",
  "flowy-user",
  "flowy-user-deps",
+ "futures",
  "futures-core",
  "lib-dispatch",
  "lib-infra",
@@ -2115,6 +2107,7 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror",
+ "tokio",
  "tokio-postgres",
  "url",
  "validator",
@@ -2200,6 +2193,7 @@ dependencies = [
  "hex",
  "hyper",
  "lazy_static",
+ "lib-dispatch",
  "lib-infra",
  "mime_guess",
  "parking_lot",
@@ -3483,8 +3477,8 @@ dependencies = [
  "tracing-appender",
  "tracing-bunyan-formatter",
  "tracing-core",
- "tracing-log",
- "tracing-subscriber 0.2.25",
+ "tracing-log 0.2.0",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3606,7 +3600,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tracing",
- "tracing-subscriber 0.3.17",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3659,15 +3653,6 @@ dependencies = [
  "string_cache",
  "string_cache_codegen",
  "tendril",
-]
-
-[[package]]
-name = "matchers"
-version = "0.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f099785f7595cc4b4553a174ce30dd7589ef93391ff414dbb67f62392b9e0ce1"
-dependencies = [
- "regex-automata",
 ]
 
 [[package]]
@@ -6652,13 +6637,13 @@ dependencies = [
 
 [[package]]
 name = "tracing-appender"
-version = "0.1.2"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9965507e507f12c8901432a33e31131222abac31edd90cabbcf85cf544b7127a"
+checksum = "09d48f71a791638519505cefafe162606f706c25592e4bde4d97600c0195312e"
 dependencies = [
- "chrono",
  "crossbeam-channel",
- "tracing-subscriber 0.2.25",
+ "time",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -6674,19 +6659,20 @@ dependencies = [
 
 [[package]]
 name = "tracing-bunyan-formatter"
-version = "0.2.6"
+version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c408910c9b7eabc0215fe2b4a89f8ec95581a91cea1f7619f7c78caf14cbc2a1"
+checksum = "b5c266b9ac83dedf0e0385ad78514949e6d89491269e7065bee51d2bb8ec7373"
 dependencies = [
- "chrono",
+ "ahash 0.8.3",
  "gethostname",
  "log",
  "serde",
  "serde_json",
+ "time",
  "tracing",
  "tracing-core",
- "tracing-log",
- "tracing-subscriber 0.2.25",
+ "tracing-log 0.1.3",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -6711,6 +6697,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-log"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3"
+dependencies = [
+ "log",
+ "once_cell",
+ "tracing-core",
+]
+
+[[package]]
 name = "tracing-serde"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6722,14 +6719,13 @@ dependencies = [
 
 [[package]]
 name = "tracing-subscriber"
-version = "0.2.25"
+version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
+checksum = "30a651bc37f915e81f087d86e62a18eec5f79550c7faff886f7090b4ea757c77"
 dependencies = [
- "ansi_term",
- "chrono",
- "lazy_static",
- "matchers 0.0.1",
+ "matchers",
+ "nu-ansi-term",
+ "once_cell",
  "regex",
  "serde",
  "serde_json",
@@ -6738,26 +6734,8 @@ dependencies = [
  "thread_local",
  "tracing",
  "tracing-core",
- "tracing-log",
+ "tracing-log 0.1.3",
  "tracing-serde",
-]
-
-[[package]]
-name = "tracing-subscriber"
-version = "0.3.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30a651bc37f915e81f087d86e62a18eec5f79550c7faff886f7090b4ea757c77"
-dependencies = [
- "matchers 0.1.0",
- "nu-ansi-term",
- "once_cell",
- "regex",
- "sharded-slab",
- "smallvec",
- "thread_local",
- "tracing",
- "tracing-core",
- "tracing-log",
 ]
 
 [[package]]

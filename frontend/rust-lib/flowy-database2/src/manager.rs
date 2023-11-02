@@ -20,6 +20,7 @@ use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
 use flowy_database_deps::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_task::TaskDispatcher;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
@@ -361,7 +362,7 @@ impl DatabaseManager {
 /// Send notification to all clients that are listening to the given object.
 fn subscribe_block_event(workspace_database: &WorkspaceDatabase) {
   let mut block_event_rx = workspace_database.subscribe_block_event();
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       match event {
         BlockEvent::DidFetchRow(row_details) => {

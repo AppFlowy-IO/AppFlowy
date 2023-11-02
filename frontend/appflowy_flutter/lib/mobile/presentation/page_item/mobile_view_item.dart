@@ -303,11 +303,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       _buildLeftIcon(),
       const HSpace(4),
       // icon
-      SizedBox.square(
-        dimension: 22,
-        child: widget.view.defaultIcon(),
-      ),
-      const HSpace(12),
+      _buildViewIconButton(),
+      const HSpace(8),
       // title
       Expanded(
         child: FlowyText.regular(
@@ -354,6 +351,19 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     }
 
     return child;
+  }
+
+  Widget _buildViewIconButton() {
+    final icon = widget.view.icon.value.isNotEmpty
+        ? FlowyText(
+            widget.view.icon.value,
+            fontSize: 24.0,
+          )
+        : SizedBox.square(
+            dimension: 26.0,
+            child: widget.view.defaultIcon(),
+          );
+    return icon;
   }
 
   // > button or · button

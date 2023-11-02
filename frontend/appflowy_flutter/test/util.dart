@@ -27,7 +27,7 @@ class AppFlowyUnitTest {
   late UserProfilePB userProfile;
   late UserBackendService userService;
   late WorkspaceService workspaceService;
-  late List<WorkspacePB> workspaces;
+  late WorkspacePB workspace;
 
   static Future<AppFlowyUnitTest> ensureInitialized() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -68,12 +68,12 @@ class AppFlowyUnitTest {
     );
   }
 
-  WorkspacePB get currentWorkspace => workspaces[0];
+  WorkspacePB get currentWorkspace => workspace;
 
   Future<void> _loadWorkspace() async {
-    final result = await userService.getWorkspaces();
+    final result = await userService.getCurrentWorkspace();
     result.fold(
-      (value) => workspaces = value,
+      (value) => workspace = value,
       (error) {
         throw Exception(error);
       },

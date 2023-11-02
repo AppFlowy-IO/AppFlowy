@@ -5,7 +5,7 @@ use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{FieldType, RowMetaPB};
-use crate::services::group::{GroupChangeset, GroupData, GroupSetting, GroupSettingChangeset};
+use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GroupSettingPB {
@@ -14,9 +14,6 @@ pub struct GroupSettingPB {
 
   #[pb(index = 2)]
   pub field_id: String,
-
-  #[pb(index = 3)]
-  pub hide_ungrouped: bool,
 }
 
 impl std::convert::From<&GroupSetting> for GroupSettingPB {
@@ -24,7 +21,6 @@ impl std::convert::From<&GroupSetting> for GroupSettingPB {
     GroupSettingPB {
       id: rev.id.clone(),
       field_id: rev.field_id.clone(),
-      hide_ungrouped: rev.hide_ungrouped,
     }
   }
 }
@@ -48,26 +44,6 @@ impl std::convert::From<Vec<GroupSetting>> for RepeatedGroupSettingPB {
         .iter()
         .map(|setting| setting.into())
         .collect(),
-    }
-  }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct GroupSettingChangesetPB {
-  #[pb(index = 1)]
-  pub view_id: String,
-
-  #[pb(index = 2)]
-  pub group_configuration_id: String,
-
-  #[pb(index = 3, one_of)]
-  pub hide_ungrouped: Option<bool>,
-}
-
-impl From<GroupSettingChangesetPB> for GroupSettingChangeset {
-  fn from(value: GroupSettingChangesetPB) -> Self {
-    Self {
-      hide_ungrouped: value.hide_ungrouped,
     }
   }
 }

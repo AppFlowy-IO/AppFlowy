@@ -1,8 +1,30 @@
 use collab_database::views::DatabaseLayout;
+use flowy_database2::services::setting::BoardLayoutSetting;
 use flowy_database2::services::setting::CalendarLayoutSetting;
 
 use crate::database::layout_test::script::DatabaseLayoutTest;
 use crate::database::layout_test::script::LayoutScript::*;
+
+#[tokio::test]
+async fn board_layout_setting_test() {
+  let mut test = DatabaseLayoutTest::new_board().await;
+  let default_board_setting = BoardLayoutSetting::new();
+  let new_board_setting = BoardLayoutSetting {
+    hide_ungrouped_column: true,
+  };
+  let scripts = vec![
+    AssertBoardLayoutSetting {
+      expected: default_board_setting,
+    },
+    UpdateBoardLayoutSetting {
+      new_setting: new_board_setting.clone(),
+    },
+    AssertBoardLayoutSetting {
+      expected: new_board_setting,
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
 
 #[tokio::test]
 async fn calendar_initial_layout_setting_test() {

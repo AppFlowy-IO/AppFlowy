@@ -198,7 +198,9 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   Future<void> _updateCalendarLayoutSetting(
     CalendarLayoutSettingPB layoutSetting,
   ) async {
-    return databaseController.updateLayoutSetting(layoutSetting);
+    return databaseController.updateLayoutSetting(
+      calendarLayoutSetting: layoutSetting,
+    );
   }
 
   Future<CalendarEventData<CalendarDayEvent>?> _loadEvent(RowId rowId) async {
@@ -319,14 +321,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutChanged = DatabaseLayoutSettingCallbacks(
-      onLayoutChanged: _didReceiveLayoutSetting,
-      onLoadLayout: _didReceiveLayoutSetting,
+    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+      onLayoutSettingsChanged: _didReceiveLayoutSetting,
     );
 
     databaseController.addListener(
       onDatabaseChanged: onDatabaseChanged,
-      onLayoutChanged: onLayoutChanged,
+      onLayoutSettingsChanged: onLayoutSettingsChanged,
     );
   }
 

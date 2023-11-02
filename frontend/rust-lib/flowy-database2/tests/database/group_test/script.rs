@@ -10,7 +10,6 @@ use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
   SingleSelectTypeOption,
 };
-use flowy_database2::services::group::GroupSettingChangeset;
 use lib_infra::util::timestamp;
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -67,12 +66,6 @@ pub enum GroupScript {
     group_index: usize,
     group_id: String,
     group_name: String,
-  },
-  AssertGroupConfiguration {
-    hide_ungrouped: bool,
-  },
-  UpdateGroupConfiguration {
-    hide_ungrouped: Option<bool>,
   },
 }
 
@@ -275,25 +268,6 @@ impl DatabaseGroupTest {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
         assert_eq!(group_name, group.group_name, "group index: {}", group_index);
-      },
-      GroupScript::AssertGroupConfiguration { hide_ungrouped } => {
-        let group_configuration = self
-          .editor
-          .get_group_configuration_settings(&self.view_id)
-          .await
-          .unwrap();
-        let group_configuration = group_configuration.get(0).unwrap();
-        assert_eq!(group_configuration.hide_ungrouped, hide_ungrouped);
-      },
-      GroupScript::UpdateGroupConfiguration { hide_ungrouped } => {
-        self
-          .editor
-          .update_group_configuration_setting(
-            &self.view_id,
-            GroupSettingChangeset { hide_ungrouped },
-          )
-          .await
-          .unwrap();
       },
     }
   }

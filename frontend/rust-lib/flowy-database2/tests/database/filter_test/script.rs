@@ -14,6 +14,7 @@ use flowy_database2::entities::{CheckboxFilterConditionPB, CheckboxFilterPB, Che
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::field::SelectOption;
 use flowy_database2::services::filter::FilterType;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -278,7 +279,7 @@ impl DatabaseFilterTest {
         if change.is_none() {return;}
         let change = change.unwrap();
         let mut receiver = self.recv.take().unwrap();
-        tokio::spawn(async move {
+        af_spawn(async move {
             match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
                 Ok(changed) =>  {
                     match changed.unwrap() { DatabaseViewChanged::FilterNotification(notification) => {

@@ -1,20 +1,20 @@
-use std::sync::Arc;
-
-use collab_database::fields::Field;
+use async_trait::async_trait;
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
 use crate::services::field::{
-  CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOption, CHECK, UNCHECK,
+  CheckboxCellDataParser, CheckboxTypeOption, TypeOption, CHECK, UNCHECK,
 };
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{
-  BaseGroupController, GroupController, GroupsBuilder, MoveGroupRowContext,
+use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::{
+  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupChangeset,
+  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
-use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroups, Group};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct CheckboxGroupConfiguration {
@@ -24,14 +24,15 @@ pub struct CheckboxGroupConfiguration {
 pub type CheckboxGroupController = BaseGroupController<
   CheckboxGroupConfiguration,
   CheckboxTypeOption,
-  CheckboxGroupGenerator,
+  CheckboxGroupBuilder,
   CheckboxCellDataParser,
+  CheckboxGroupOperationInterceptorImpl,
 >;
 
 pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfiguration>;
 
 impl GroupCustomize for CheckboxGroupController {
-  type CellData = CheckboxCellData;
+  type GroupTypeOption = CheckboxTypeOption;
   fn placeholder_cell(&self) -> Option<Cell> {
     Some(
       new_cell_builder(FieldType::Checkbox)
@@ -40,7 +41,11 @@ impl GroupCustomize for CheckboxGroupController {
     )
   }
 
-  fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
+  fn can_group(
+    &self,
+    content: &str,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> bool {
     if cell_data.is_check() {
       content == CHECK
     } else {
@@ -51,7 +56,7 @@ impl GroupCustomize for CheckboxGroupController {
   fn add_or_remove_row_when_cell_changed(
     &mut self,
     row_detail: &RowDetail,
-    cell_data: &Self::CellData,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
@@ -100,7 +105,11 @@ impl GroupCustomize for CheckboxGroupController {
     changesets
   }
 
-  fn delete_row(&mut self, row: &Row, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(
+    &mut self,
+    row: &Row,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -118,7 +127,7 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn move_row(
     &mut self,
-    _cell_data: &Self::CellData,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
     mut context: MoveGroupRowContext,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
@@ -132,7 +141,7 @@ impl GroupCustomize for CheckboxGroupController {
 }
 
 impl GroupController for CheckboxGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {
+  fn did_update_field_type_option(&mut self, _field: &Field) {
     // Do nothing
   }
 
@@ -154,15 +163,16 @@ impl GroupController for CheckboxGroupController {
   }
 }
 
-pub struct CheckboxGroupGenerator();
-impl GroupsBuilder for CheckboxGroupGenerator {
+pub struct CheckboxGroupBuilder();
+#[async_trait]
+impl GroupsBuilder for CheckboxGroupBuilder {
   type Context = CheckboxGroupContext;
-  type TypeOptionType = CheckboxTypeOption;
+  type GroupTypeOption = CheckboxTypeOption;
 
-  fn build(
+  async fn build(
     _field: &Field,
     _context: &Self::Context,
-    _type_option: &Option<Self::TypeOptionType>,
+    _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     let check_group = GeneratedGroupConfig {
       group: Group::new(CHECK.to_string(), "".to_string()),
@@ -178,5 +188,20 @@ impl GroupsBuilder for CheckboxGroupGenerator {
       no_status_group: None,
       group_configs: vec![check_group, uncheck_group],
     }
+  }
+}
+
+pub struct CheckboxGroupOperationInterceptorImpl {}
+
+#[async_trait]
+impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
+  type GroupTypeOption = CheckboxTypeOption;
+  async fn type_option_from_group_changeset(
+    &self,
+    _changeset: &GroupChangeset,
+    _type_option: &Self::GroupTypeOption,
+    _view_id: &str,
+  ) -> Option<TypeOptionData> {
+    todo!()
   }
 }

@@ -62,77 +62,74 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
   Widget build(BuildContext context) {
     final boardCustomData = widget.groupData.customData as GroupData;
 
-    return BlocProvider<BoardBloc>.value(
-      value: context.read<BoardBloc>(),
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          if (state.isEditingHeader) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _focusNode.requestFocus();
-            });
-          }
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        if (state.isEditingHeader) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _focusNode.requestFocus();
+          });
+        }
 
-          Widget title = Expanded(
-            child: FlowyText.medium(
-              widget.groupData.headerData.groupName,
-              fontSize: 14,
-              overflow: TextOverflow.clip,
-            ),
-          );
+        Widget title = Expanded(
+          child: FlowyText.medium(
+            widget.groupData.headerData.groupName,
+            fontSize: 14,
+            overflow: TextOverflow.clip,
+          ),
+        );
 
-          if (!boardCustomData.group.isDefault &&
-              boardCustomData.fieldType.canEditHeader) {
-            title = Flexible(
-              fit: FlexFit.tight,
-              child: FlowyTooltip(
-                message: LocaleKeys.board_column_renameGroupTooltip.tr(),
-                child: FlowyHover(
-                  style: HoverStyle(
-                    hoverColor: Colors.transparent,
-                    foregroundColorOnHover:
-                        AFThemeExtension.of(context).textColor,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => context.read<BoardBloc>().add(
-                          BoardEvent.startEditingHeader(
-                            widget.groupData.id,
-                          ),
+        if (!boardCustomData.group.isDefault &&
+            boardCustomData.fieldType.canEditHeader) {
+          title = Flexible(
+            fit: FlexFit.tight,
+            child: FlowyTooltip(
+              message: LocaleKeys.board_column_renameGroupTooltip.tr(),
+              child: FlowyHover(
+                style: HoverStyle(
+                  hoverColor: Colors.transparent,
+                  foregroundColorOnHover:
+                      AFThemeExtension.of(context).textColor,
+                ),
+                child: GestureDetector(
+                  onTap: () => context.read<BoardBloc>().add(
+                        BoardEvent.startEditingHeader(
+                          widget.groupData.id,
                         ),
-                    child: FlowyText.medium(
-                      widget.groupData.headerData.groupName,
-                      fontSize: 14,
-                      overflow: TextOverflow.clip,
-                    ),
+                      ),
+                  child: FlowyText.medium(
+                    widget.groupData.headerData.groupName,
+                    fontSize: 14,
+                    overflow: TextOverflow.clip,
                   ),
                 ),
               ),
-            );
-          }
-
-          if (state.isEditingHeader &&
-              state.editingHeaderId == widget.groupData.id) {
-            title = _buildTextField(context);
-          }
-
-          return AppFlowyGroupHeader(
-            title: title,
-            icon: _buildHeaderIcon(boardCustomData),
-            addIcon: SizedBox(
-              height: 20,
-              width: 20,
-              child: FlowySvg(
-                FlowySvgs.add_s,
-                color: Theme.of(context).iconTheme.color,
-              ),
             ),
-            onAddButtonClick: () => context
-                .read<BoardBloc>()
-                .add(BoardEvent.createHeaderRow(widget.groupData.id)),
-            height: 50,
-            margin: widget.margin ?? EdgeInsets.zero,
           );
-        },
-      ),
+        }
+
+        if (state.isEditingHeader &&
+            state.editingHeaderId == widget.groupData.id) {
+          title = _buildTextField(context);
+        }
+
+        return AppFlowyGroupHeader(
+          title: title,
+          icon: _buildHeaderIcon(boardCustomData),
+          addIcon: SizedBox(
+            height: 20,
+            width: 20,
+            child: FlowySvg(
+              FlowySvgs.add_s,
+              color: Theme.of(context).iconTheme.color,
+            ),
+          ),
+          onAddButtonClick: () => context
+              .read<BoardBloc>()
+              .add(BoardEvent.createHeaderRow(widget.groupData.id)),
+          height: 50,
+          margin: widget.margin ?? EdgeInsets.zero,
+        );
+      },
     );
   }
 
@@ -224,5 +221,5 @@ Widget? _buildHeaderIcon(GroupData customData) {
     );
   }
 
-  return null;
+  return widget;
 }

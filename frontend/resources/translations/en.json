@@ -623,13 +623,14 @@
         "add": "Add",
         "back": "Back",
         "saveToGallery": "Save to gallery",
-        "removeIcon": "Remove Icon",
+        "removeIcon": "Remove icon",
         "pasteImageUrl": "Paste image URL",
         "or": "OR",
         "pickFromFiles": "Pick from files",
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add Icon",
+        "addIcon": "Add icon",
+        "changeIcon": "Change icon",
         "coverRemoveAlert": "It will be removed from cover after it is deleted.",
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
@@ -755,6 +756,7 @@
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
     "ungroupedButtonText": "Ungrouped",
+    "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
     "referencedBoardPrefix": "View of"
@@ -775,7 +777,11 @@
       "firstDayOfWeek": "Start week on",
       "layoutDateField": "Layout calendar by",
       "noDateTitle": "No Date",
-      "noDateHint": "Unscheduled events will show up here",
+      "noDateHint": {
+        "zero": "Unscheduled events will show up here",
+        "one": "{} unscheduled event",
+        "other": "{} unscheduled events"
+      },
       "clickToAdd": "Click to add to the calendar",
       "name": "Calendar layout"
     },
@@ -817,6 +823,7 @@
     "gray": "Gray"
   },
   "emoji": {
+    "emojiTab": "Emoji",
     "search": "Search emoji",
     "noRecent": "No recent emoji",
     "noEmojiFound": "No emoji found",
@@ -836,6 +843,14 @@
       "flags": "Flags",
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
     }
   },
   "inlineActions": {
