@@ -921,6 +921,12 @@ impl DatabaseEditor {
         )
       },
       Some(row_detail) => {
+        let view = self.database_views.get_view_editor(view_id).await?;
+        let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
+        view
+          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
+          .await;
+
         let to_row = if to_row.is_some() {
           to_row
         } else {
@@ -929,21 +935,14 @@ impl DatabaseEditor {
             .last()
             .map(|row_detail| row_detail.row.id.clone())
         };
-
         if let Some(row_id) = to_row.clone() {
           self.move_row(view_id, from_row.clone(), row_id).await;
         }
 
-        let view = self.database_views.get_view_editor(view_id).await?;
         let from_group = view.v_get_row_group(row_detail.row.id.clone()).await;
-        if from_group.is_some() && from_group.unwrap() == to_group.to_string() {
+        if from_group.is_some() && from_group.clone().unwrap() == to_group.to_string() {
           return Ok(());
         }
-
-        let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
-        view
-          .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
-          .await;
 
         tracing::trace!("Row data changed: {:?}", row_changeset);
         self.database.lock().update_row(&row_detail.row.id, |row| {
