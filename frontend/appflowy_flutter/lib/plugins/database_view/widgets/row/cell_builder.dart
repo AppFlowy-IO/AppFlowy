@@ -136,6 +136,18 @@ GridCellWidget _getMobileCardCellWidget(
         cellControllerBuilder: cellControllerBuilder,
         hintText: style.placeholder,
       );
+    case FieldType.Number:
+      style as GridNumberCellStyle;
+      return MobileNumberCell(
+        cellControllerBuilder: cellControllerBuilder,
+        hintText: style.placeholder,
+      );
+    case FieldType.LastEditedTime:
+    case FieldType.CreatedTime:
+      return MobileTimestampCell(
+        cellControllerBuilder: cellControllerBuilder,
+        key: key,
+      );
     case FieldType.Checkbox:
       return GridCheckboxCell(
         cellControllerBuilder: cellControllerBuilder,
@@ -148,14 +160,7 @@ GridCellWidget _getMobileCardCellWidget(
         key: key,
         style: style,
       );
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      return GridTimestampCell(
-        cellControllerBuilder: cellControllerBuilder,
-        key: key,
-        style: style,
-        fieldType: cellContext.fieldType,
-      );
+
     case FieldType.SingleSelect:
       return GridSingleSelectCell(
         cellControllerBuilder: cellControllerBuilder,
@@ -170,12 +175,6 @@ GridCellWidget _getMobileCardCellWidget(
       );
     case FieldType.Checklist:
       return GridChecklistCell(
-        cellControllerBuilder: cellControllerBuilder,
-        style: style,
-        key: key,
-      );
-    case FieldType.Number:
-      return GridNumberCell(
         cellControllerBuilder: cellControllerBuilder,
         style: style,
         key: key,

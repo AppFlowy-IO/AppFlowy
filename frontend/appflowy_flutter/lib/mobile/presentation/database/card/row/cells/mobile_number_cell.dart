@@ -1,27 +1,27 @@
 import 'dart:async';
 import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/text_cell/text_cell_bloc.dart';
+import 'package:appflowy/plugins/database_view/widgets/row/cells/number_cell/number_cell_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobileTextCell extends GridCellWidget {
+class MobileNumberCell extends GridCellWidget {
   final CellControllerBuilder cellControllerBuilder;
 
   final String? hintText;
 
-  MobileTextCell({
+  MobileNumberCell({
     required this.cellControllerBuilder,
     this.hintText,
     super.key,
   });
 
   @override
-  GridEditableTextCell<MobileTextCell> createState() => _MobileTextCellState();
+  GridEditableTextCell<MobileNumberCell> createState() => _NumberCellState();
 }
 
-class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
-  late TextCellBloc _cellBloc;
+class _NumberCellState extends GridEditableTextCell<MobileNumberCell> {
+  late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
 
   @override
@@ -29,28 +29,28 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
 
   @override
   void initState() {
-    super.initState();
     final cellController =
-        widget.cellControllerBuilder.build() as TextCellController;
-    _cellBloc = TextCellBloc(cellController: cellController)
-      ..add(const TextCellEvent.initial());
-    _controller = TextEditingController(text: _cellBloc.state.content);
+        widget.cellControllerBuilder.build() as NumberCellController;
+    _cellBloc = NumberCellBloc(cellController: cellController)
+      ..add(const NumberCellEvent.initial());
+    _controller = TextEditingController(text: _cellBloc.state.cellContent);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocListener<TextCellBloc, TextCellState>(
-        listener: (context, state) {
-          if (_controller.text != state.content) {
-            _controller.text = state.content;
-          }
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NumberCellBloc, NumberCellState>(
+            listenWhen: (p, c) => p.cellContent != c.cellContent,
+            listener: (context, state) => _controller.text = state.cellContent,
+          ),
+        ],
         child: TextField(
           controller: _controller,
           focusNode: focusNode,
-          // TODO(yijing): update text style
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
@@ -70,13 +70,17 @@ class _MobileTextCellState extends GridEditableTextCell<MobileTextCell> {
   }
 
   @override
-  String? onCopy() => _cellBloc.state.content;
+  Future<void> focusChanged() async {
+    if (mounted) {
+      if (_cellBloc.isClosed == false &&
+          _controller.text != _cellBloc.state.cellContent) {
+        _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
+      }
+    }
+  }
 
   @override
-  Future<void> focusChanged() {
-    _cellBloc.add(
-      TextCellEvent.updateText(_controller.text),
-    );
-    return super.focusChanged();
+  String? onCopy() {
+    return _cellBloc.state.cellContent;
   }
 }
