@@ -19,6 +19,27 @@ const INLINE_TAGS: [&str; 10] = [
   "",
 ];
 
+const IGNORE_TAGS: [&str; 7] = [
+  META_TAG_NAME,
+  HEAD_TAG_NAME,
+  LINK_TAG_NAME,
+  SCRIPT_TAG_NAME,
+  STYLE_TAG_NAME,
+  NOSCRIPT_TAG_NAME,
+  IFRAME_TAG_NAME,
+];
+
+const HEADING_TAGS: [&str; 6] = [
+  H1_TAG_NAME,
+  H2_TAG_NAME,
+  H3_TAG_NAME,
+  H4_TAG_NAME,
+  H5_TAG_NAME,
+  H6_TAG_NAME,
+];
+
+const SHOULD_EXPAND_TAGS: [&str; 4] = [UL_TAG_NAME, OL_TAG_NAME, DL_TAG_NAME, MENU_TAG_NAME];
+
 #[derive(Debug, Serialize, Deserialize)]
 pub enum JSONResult {
   Block(NestedBlock),
@@ -87,7 +108,7 @@ fn flatten_element_to_json(
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  if tag_name == META_TAG_NAME || tag_name == HEAD_TAG_NAME || tag_name == LINK_TAG_NAME {
+  if IGNORE_TAGS.contains(&tag_name.as_str()) {
     return None;
   }
 
@@ -95,14 +116,19 @@ fn flatten_element_to_json(
     return process_inline_element(node, attributes);
   }
 
+  if HEADING_TAGS.contains(&tag_name.as_str()) {
+    return process_heading_element(node);
+  }
+
+  if SHOULD_EXPAND_TAGS.contains(&tag_name.as_str()) {
+    return process_nested_element(node);
+  }
+
   match tag_name.as_str() {
-    H1_TAG_NAME | H2_TAG_NAME | H3_TAG_NAME | H4_TAG_NAME | H5_TAG_NAME | H6_TAG_NAME => {
-      process_heading_element(node)
+    LI_TAG_NAME => process_li_element(node, list_type.to_owned()),
+    BLOCKQUOTE_TAG_NAME | DETAILS_TAG_NAME => {
+      process_node_summary_and_details(QUOTE.to_string(), node, HashMap::new())
     },
-    UL_TAG_NAME | OL_TAG_NAME | LI_TAG_NAME | BLOCKQUOTE_TAG_NAME | DL_TAG_NAME | MENU_TAG_NAME => {
-      process_nested_element(node, list_type.to_owned())
-    },
-    DETAILS_TAG_NAME => process_toggle_element(node),
     PRE_TAG_NAME => process_code_element(node),
     IMG_TAG_NAME => process_image_element(node),
     B_TAG_NAME => {
@@ -162,34 +188,6 @@ fn process_image_element(node: ElementRef) -> Option<JSONResult> {
   }))
 }
 
-// Example:
-// <details>
-//   <summary>Toggle List</summary>
-//   <p> This is a toggle list </p>
-// </details>
-fn process_toggle_element(node: ElementRef) -> Option<JSONResult> {
-  let mut data = HashMap::new();
-
-  // find summary element and get delta, then insert into data
-  if let Some(summary_child) = find_child_node(node.to_owned(), SUMMARY_TAG_NAME.to_string()) {
-    // get delta
-    let text = summary_child.text().collect::<String>();
-    if let Ok(delta) = serde_json::to_value(vec![InsertDelta {
-      insert: text,
-      attributes: None,
-    }]) {
-      data.insert(DELTA.to_string(), delta);
-    }
-  }
-  let (_, children) = process_node_children(node, &None, &None);
-
-  Some(JSONResult::Block(NestedBlock {
-    ty: TOGGLE_LIST.to_string(),
-    children,
-    data,
-  }))
-}
-
 fn process_code_element(node: ElementRef) -> Option<JSONResult> {
   let mut data = HashMap::new();
 
@@ -217,34 +215,22 @@ fn process_code_element(node: ElementRef) -> Option<JSONResult> {
   }))
 }
 
-// process "ul" | "ol" | "li" | "blockquote"
-fn process_nested_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
+// process "ul" | "ol" | "dl" | "menu" element
+fn process_nested_element(node: ElementRef) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  match tag_name.as_str() {
-    UL_TAG_NAME | OL_TAG_NAME => {
-      let ty = if tag_name == UL_TAG_NAME {
-        BULLETED_LIST
-      } else {
-        NUMBERED_LIST
-      };
-      // Expand children of <ul> or <ol> element.
-      // Example: <ul><li>1</li><li>2</li></ul> => [{ type: "bulleted_list", data: { delta: [{ insert: "1" }] } }, { type: "bulleted_list", data: { delta: [{ insert: "2" }] } }]
-      let (_, children) = process_node_children(node, &Some(ty.to_string()), &None);
-      Some(JSONResult::BlockArray(children))
-    },
-    LI_TAG_NAME => process_li_element(node, list_type),
-    BLOCKQUOTE_TAG_NAME => process_li_element(node, Some(QUOTE.to_string())),
-    _ => {
-      let (_, children) = process_node_children(node, &None, &None);
-      Some(JSONResult::BlockArray(children))
-    },
-  }
+  let ty = match tag_name.as_str() {
+    UL_TAG_NAME => BULLETED_LIST,
+    OL_TAG_NAME => NUMBERED_LIST,
+    _ => PARAGRAPH,
+  };
+  let (_, children) = process_node_children(node, &Some(ty.to_string()), &None);
+  Some(JSONResult::BlockArray(children))
 }
 
 // process <li> element, if it's a checkbox, then return a todo list, otherwise return a normal list.
 fn process_li_element(node: ElementRef, list_type: Option<String>) -> Option<JSONResult> {
-  let ty = list_type.unwrap_or(BULLETED_LIST.to_string());
+  let mut ty = list_type.unwrap_or(BULLETED_LIST.to_string());
   let mut data = HashMap::new();
   if let Some(role) = find_attribute_value(node.to_owned(), ROLE) {
     if role == CHECKBOX {
@@ -263,23 +249,26 @@ fn process_li_element(node: ElementRef, list_type: Option<String>) -> Option<JSO
         CHECKED.to_string(),
         serde_json::to_value(false).unwrap_or_default(),
       );
-      return process_li_child_element(node, TODO_LIST, &mut data);
+      ty = TODO_LIST.to_string();
     }
   }
-  process_li_child_element(node, &ty, &mut data)
+  process_node_summary_and_details(ty, node, data)
 }
 
-fn process_li_child_element(
+// Process children and handle potential nesting
+// <li>
+//   <p> title </p>
+//   <p> content </p>
+// </li>
+// Or Process children and handle potential consecutive arrangement
+// <li>title<p>content</p></li>
+// li | blockquote | details
+fn process_node_summary_and_details(
+  ty: String,
   node: ElementRef,
-  ty: &str,
-  data: &mut HashMap<String, Value>,
+  mut data: HashMap<String, Value>,
 ) -> Option<JSONResult> {
   let (delta, children) = process_node_children(node, &Some(ty.to_string()), &None);
-
-  // Compatible with Notion documents because Notion document lists are formatted differently.
-  // JSON format: { "type": "numbered_list", delta: [{ "insert": "Hello World!" }] }, children: [{ "type": "paragraph", delta: [{ "insert": "This is a paragraph" }] }]
-  // Notion HTML format: <ol><li><p>Hello World!</p><p>This is a paragraph</p></li></ol>
-  // AppFlowy HTML format: <ol><li>Hello World!<p>This is a paragraph</p></li></ol>
   if delta.is_empty() {
     if let Some(first_child) = children.first() {
       let mut data = HashMap::new();
@@ -287,7 +276,7 @@ fn process_li_child_element(
         data.insert(DELTA.to_string(), first_child_delta.to_owned());
         let rest_children = children.iter().skip(1).cloned().collect();
         return Some(JSONResult::Block(NestedBlock {
-          ty: ty.to_string(),
+          ty,
           children: rest_children,
           data,
         }));
@@ -296,9 +285,8 @@ fn process_li_child_element(
   } else {
     data.insert(DELTA.to_string(), delta_to_json(&delta));
   }
-
   Some(JSONResult::Block(NestedBlock {
-    ty: ty.to_string(),
+    ty,
     children,
     data: data.to_owned(),
   }))
