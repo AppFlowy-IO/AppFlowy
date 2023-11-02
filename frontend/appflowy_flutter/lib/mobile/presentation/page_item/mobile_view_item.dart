@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_add_new_page.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -395,20 +395,24 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   Widget _buildViewAddButton(BuildContext context) {
     return MobileViewAddButton(
       onPressed: () {
-        showMobileBottomSheet(
-          context: context,
-          builder: (_) => AddNewPageWidgetBottomSheet(
-            view: widget.view,
-            onAction: (layout) {
-              context.pop();
-              context.read<ViewBloc>().add(
-                    ViewEvent.createView(
-                      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                      layout,
-                    ),
-                  );
-            },
-          ),
+        final title = widget.view.name;
+        showFlowyMobileBottomSheet(
+          context,
+          title: title,
+          builder: (_) {
+            return AddNewPageWidgetBottomSheet(
+              view: widget.view,
+              onAction: (layout) {
+                context.pop();
+                context.read<ViewBloc>().add(
+                      ViewEvent.createView(
+                        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                        layout,
+                      ),
+                    );
+              },
+            );
+          },
         );
       },
     );

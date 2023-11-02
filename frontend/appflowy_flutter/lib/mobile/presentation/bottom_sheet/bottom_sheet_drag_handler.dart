@@ -12,7 +12,7 @@ class MobileBottomSheetDragHandler extends StatelessWidget {
         height: 4,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2.0),
-          color: Theme.of(context).colorScheme.onSecondary,
+          color: Theme.of(context).hintColor,
         ),
       ),
     );

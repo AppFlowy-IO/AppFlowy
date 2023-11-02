@@ -120,7 +120,9 @@
     "mobile": {
       "actions": "Trash Actions",
       "empty": "Trash Bin is Empty",
-      "emptyDescription": "You don't have any deleted file"
+      "emptyDescription": "You don't have any deleted file",
+      "isDeleted": "is deleted",
+      "isRestored": "is restored"
     }
   },
   "deletePagePrompt": {
@@ -394,7 +396,9 @@
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
-      "userAgreement": "User Agreement"
+      "userAgreement": "User Agreement",
+      "userprofileError": "Failed to load user profile",
+      "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists."
     }
   },
   "grid": {
