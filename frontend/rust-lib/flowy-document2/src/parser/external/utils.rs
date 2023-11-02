@@ -110,6 +110,8 @@ fn flatten_element_to_json(
 
   let mut attrs = attributes.to_owned().unwrap_or(HashMap::new());
 
+  // insert dir into attrs when dir is rtl
+  // for example: <bdo dir="rtl">Right to left</bdo> -> { "attributes": { "text_direction": "rtl" }, "insert": "Right to left" }
   if let Some(dir) = find_attribute_value(node.to_owned(), DIR) {
     if dir == "rtl" {
       attrs.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
