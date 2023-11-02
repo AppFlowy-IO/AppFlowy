@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
@@ -11,6 +12,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:emoji_mart/emoji_mart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +58,17 @@ class EditorOperations {
       LocaleKeys.document_plugins_cover_addIcon.tr(),
     );
     expect(find.byType(FlowyEmojiPicker), findsOneWidget);
+  }
+
+  /// Taps on the 'Skin tone' button
+  ///
+  /// Must call [tapAddIconButton] first.
+  Future<void> changeEmojiSkinTone(EmojiSkinTone skinTone) async {
+    await tester.tapButton(
+      find.byTooltip(LocaleKeys.emoji_selectSkinTone.tr()),
+    );
+    final skinToneButton = find.text(EmojiSkinToneWrapper(skinTone).name);
+    await tester.tapButton(skinToneButton);
   }
 
   /// Taps the 'Remove Icon' button in the cover toolbar and the icon popover

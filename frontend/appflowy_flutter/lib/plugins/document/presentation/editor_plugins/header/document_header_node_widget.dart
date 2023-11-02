@@ -179,9 +179,8 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
+      widget.onIconChanged(icon);
     }
-
-    widget.onIconChanged(icon ?? '');
 
     transaction.updateNode(widget.node, attributes);
     return widget.editorState.apply(transaction);
