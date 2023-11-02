@@ -922,6 +922,7 @@ impl DatabaseEditor {
       },
       Some(row_detail) => {
         let view = self.database_views.get_view_editor(view_id).await?;
+        let from_group = view.v_get_row_group(row_detail.row.id.clone()).await;
         let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
         view
           .v_move_group_row(&row_detail, &mut row_changeset, to_group, to_row.clone())
@@ -939,7 +940,6 @@ impl DatabaseEditor {
           self.move_row(view_id, from_row.clone(), row_id).await;
         }
 
-        let from_group = view.v_get_row_group(row_detail.row.id.clone()).await;
         if from_group.is_some() && from_group.clone().unwrap() == to_group.to_string() {
           return Ok(());
         }
