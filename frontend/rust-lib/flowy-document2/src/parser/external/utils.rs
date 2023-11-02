@@ -108,12 +108,20 @@ fn flatten_element_to_json(
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
+  let mut attrs = attributes.to_owned().unwrap_or(HashMap::new());
+
+  if let Some(dir) = find_attribute_value(node.to_owned(), DIR) {
+    if dir == "rtl" {
+      attrs.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
+    }
+  }
+
   if IGNORE_TAGS.contains(&tag_name.as_str()) {
     return None;
   }
 
   if INLINE_TAGS.contains(&tag_name.as_str()) {
-    return process_inline_element(node, attributes);
+    return process_inline_element(node, Some(attrs));
   }
 
   if HEADING_TAGS.contains(&tag_name.as_str()) {
@@ -136,7 +144,7 @@ fn flatten_element_to_json(
       if id.is_some() {
         return process_nested_element(node);
       }
-      process_inline_element(node, attributes)
+      process_inline_element(node, Some(attrs))
     },
 
     _ => process_default_element(node),
@@ -154,7 +162,7 @@ fn process_default_element(node: ElementRef) -> Option<JSONResult> {
     _ => PARAGRAPH,
   };
 
-  let (delta, children) = process_node_children(node, &None, &None);
+  let (delta, children) = process_node_children(node, &None, None);
 
   if !delta.is_empty() {
     data.insert(DELTA.to_string(), delta_to_json(&delta));
@@ -214,7 +222,7 @@ fn process_nested_element(node: ElementRef) -> Option<JSONResult> {
     OL_TAG_NAME => NUMBERED_LIST,
     _ => PARAGRAPH,
   };
-  let (_, children) = process_node_children(node, &Some(ty.to_string()), &None);
+  let (_, children) = process_node_children(node, &Some(ty.to_string()), None);
   Some(JSONResult::BlockArray(children))
 }
 
@@ -258,7 +266,7 @@ fn process_node_summary_and_details(
   node: ElementRef,
   mut data: HashMap<String, Value>,
 ) -> Option<JSONResult> {
-  let (delta, children) = process_node_children(node, &Some(ty.to_string()), &None);
+  let (delta, children) = process_node_children(node, &Some(ty.to_string()), None);
   if delta.is_empty() {
     if let Some(first_child) = children.first() {
       let mut data = HashMap::new();
@@ -297,7 +305,7 @@ fn process_heading_element(node: ElementRef) -> Option<JSONResult> {
     serde_json::to_value(level).unwrap_or_default(),
   );
 
-  let (delta, children) = process_node_children(node, &None, &None);
+  let (delta, children) = process_node_children(node, &None, None);
   if !delta.is_empty() {
     data.insert(
       DELTA.to_string(),
@@ -315,12 +323,12 @@ fn process_heading_element(node: ElementRef) -> Option<JSONResult> {
 // process <a> <em> <strong> <u> <s> <code> <span> <br>
 fn process_inline_element(
   node: ElementRef,
-  attributes: &Option<HashMap<String, Value>>,
+  attributes: Option<HashMap<String, Value>>,
 ) -> Option<JSONResult> {
   let tag_name = get_tag_name(node.to_owned());
 
-  let attributes = get_delta_attributes_for(&tag_name, &mut get_node_attrs(node), attributes);
-  let (delta, children) = process_node_children(node, &None, &attributes);
+  let attributes = get_delta_attributes_for(&tag_name, &get_node_attrs(node), attributes);
+  let (delta, children) = process_node_children(node, &None, attributes);
   Some(if !delta.is_empty() {
     JSONResult::DeltaArray(delta)
   } else {
@@ -331,7 +339,7 @@ fn process_inline_element(
 fn process_node_children(
   node: ElementRef,
   list_type: &Option<String>,
-  attributes: &Option<HashMap<String, Value>>,
+  attributes: Option<HashMap<String, Value>>,
 ) -> (Vec<InsertDelta>, Vec<NestedBlock>) {
   let tag_name = get_tag_name(node.to_owned());
   let mut delta = Vec::new();
@@ -339,7 +347,7 @@ fn process_node_children(
 
   for child in node.children() {
     if let Some(child_element) = ElementRef::wrap(child) {
-      if let Some(child_json) = flatten_element_to_json(child_element, list_type, attributes) {
+      if let Some(child_json) = flatten_element_to_json(child_element, list_type, &attributes) {
         match child_json {
           JSONResult::Delta(op) => delta.push(op),
           JSONResult::Block(block) => children.push(block),
@@ -364,7 +372,7 @@ fn process_node_children(
         })
         .unwrap_or_default();
 
-      if let Some(op) = node_to_delta(&tag_name, text, &mut get_node_attrs(node), attributes) {
+      if let Some(op) = node_to_delta(&tag_name, text, &mut get_node_attrs(node), &attributes) {
         delta.push(op);
       }
     }
@@ -429,17 +437,24 @@ fn get_attributes_with_style(style: &str) -> HashMap<String, Value> {
 fn get_delta_attributes_for(
   tag_name: &str,
   attrs: &Attrs,
-  parent_attributes: &Option<HashMap<String, Value>>,
+  parent_attributes: Option<HashMap<String, Value>>,
 ) -> Option<HashMap<String, Value>> {
-  let href = find_attribute_value_from_attrs(attrs, HREF).unwrap_or_default();
+  let href = find_attribute_value_from_attrs(attrs, HREF);
 
-  let style = find_attribute_value_from_attrs(attrs, STYLE).unwrap_or_default();
+  let dir = find_attribute_value_from_attrs(attrs, DIR);
+
+  let style = find_attribute_value_from_attrs(attrs, STYLE);
 
   let mut attributes = get_attributes_with_style(&style);
   if let Some(parent_attributes) = parent_attributes {
     parent_attributes.iter().for_each(|(k, v)| {
       attributes.insert(k.to_string(), v.clone());
     });
+  }
+  // if dir is not empty, then insert it into attributes
+  // for example: <bdo dir="rtl">Right to left</bdo>
+  if dir == "rtl" {
+    attributes.insert(TEXT_DIRECTION.to_string(), Value::String(dir));
   }
   match tag_name {
     A_TAG_NAME | BASE_TAG_NAME => {
@@ -482,7 +497,7 @@ fn node_to_delta(
   attrs: &mut Attrs,
   parent_attributes: &Option<HashMap<String, Value>>,
 ) -> Option<InsertDelta> {
-  let attributes = get_delta_attributes_for(tag_name, attrs, parent_attributes);
+  let attributes = get_delta_attributes_for(tag_name, attrs, parent_attributes.to_owned());
   if text.is_empty() {
     return None;
   }
@@ -510,13 +525,14 @@ fn find_attribute_value(node: ElementRef, attr_name: &str) -> Option<String> {
     .map(|(_, value)| value.to_string())
 }
 
-fn find_attribute_value_from_attrs(attrs: &Attrs, attr_name: &str) -> Option<String> {
+fn find_attribute_value_from_attrs(attrs: &Attrs, attr_name: &str) -> String {
   // The attrs need to be mutable, because the find method will consume the attrs
   // So we clone it and use the clone one
   let mut attrs = attrs.clone();
   attrs
     .find(|(name, _)| *name == attr_name)
     .map(|(_, value)| value.to_string())
+    .unwrap_or_default()
 }
 
 fn find_child_node(node: ElementRef, child_tag_name: String) -> Option<ElementRef> {
