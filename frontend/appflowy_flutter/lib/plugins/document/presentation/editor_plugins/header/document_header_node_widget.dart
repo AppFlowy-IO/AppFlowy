@@ -2,17 +2,23 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'cover_editor.dart';
-import 'emoji_icon_widget.dart';
-import 'emoji_popover.dart';
 
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
@@ -45,13 +51,17 @@ enum CoverType {
 
 class DocumentHeaderNodeWidget extends StatefulWidget {
   const DocumentHeaderNodeWidget({
+    super.key,
     required this.node,
     required this.editorState,
-    super.key,
+    required this.onIconChanged,
+    required this.view,
   });
 
   final Node node;
   final EditorState editorState;
+  final void Function(String icon) onIconChanged;
+  final ViewPB view;
 
   @override
   State<DocumentHeaderNodeWidget> createState() =>
@@ -64,19 +74,33 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       );
   String? get coverDetails =>
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
-  String get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
-  bool get hasIcon =>
-      widget.node.attributes[DocumentHeaderBlockKeys.icon]?.isNotEmpty ?? false;
+  String? get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
+  bool get hasIcon => viewIcon.isNotEmpty;
   bool get hasCover => coverType != CoverType.none;
+
+  String viewIcon = '';
+  late final ViewListener viewListener;
 
   @override
   void initState() {
     super.initState();
+    final value = widget.view.icon.value;
+    viewIcon = value.isNotEmpty ? value : icon ?? '';
     widget.node.addListener(_reload);
+    viewListener = ViewListener(
+      viewId: widget.view.id,
+    )..start(
+        onViewUpdated: (p0) {
+          setState(() {
+            viewIcon = p0.icon.value;
+          });
+        },
+      );
   }
 
   @override
   void dispose() {
+    viewListener.stop();
     widget.node.removeListener(_reload);
     super.dispose();
   }
@@ -108,7 +132,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
           ),
         if (hasIcon)
           Positioned(
-            left: 80,
+            left: PlatformExtension.isDesktopOrWeb ? 80 : 20,
             // if hasCover, there shouldn't be icons present so the icon can
             // be closer to the bottom.
             bottom:
@@ -116,8 +140,10 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             child: DocumentIcon(
               editorState: widget.editorState,
               node: widget.node,
-              icon: icon,
-              onIconChanged: (icon) => _saveCover(icon: icon),
+              icon: viewIcon,
+              onIconChanged: (icon) async {
+                _saveCover(icon: icon);
+              },
             ),
           ),
       ],
@@ -153,6 +179,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
     if (icon != null) {
       attributes[DocumentHeaderBlockKeys.icon] = icon;
+      widget.onIconChanged(icon);
     }
 
     transaction.updateNode(widget.node, attributes);
@@ -189,28 +216,41 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
   final PopoverController _popoverController = PopoverController();
 
   @override
+  void initState() {
+    super.initState();
+
+    isHidden = PlatformExtension.isDesktopOrWeb;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (event) => setHidden(false),
-      onExit: (event) {
-        if (!isPopoverOpen) {
-          setHidden(true);
-        }
-      },
-      opaque: false,
-      child: Container(
-        alignment: Alignment.bottomLeft,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: SizedBox(
-          height: 28,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: buildRowChildren(),
-          ),
+    Widget child = Container(
+      alignment: Alignment.bottomLeft,
+      width: double.infinity,
+      padding: EditorStyleCustomizer.documentPadding,
+      child: SizedBox(
+        height: 28,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: buildRowChildren(),
         ),
       ),
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = MouseRegion(
+        onEnter: (event) => setHidden(false),
+        onExit: (event) {
+          if (!isPopoverOpen) {
+            setHidden(true);
+          }
+        },
+        opaque: false,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   List<Widget> buildRowChildren() {
@@ -251,42 +291,50 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
         ),
       );
     } else {
-      children.add(
-        AppFlowyPopover(
+      Widget child = FlowyButton(
+        leftIconSize: const Size.square(18),
+        useIntrinsicWidth: true,
+        leftIcon: const Icon(
+          Icons.emoji_emotions_outlined,
+          size: 18,
+        ),
+        text: FlowyText.regular(
+          LocaleKeys.document_plugins_cover_addIcon.tr(),
+        ),
+        onTap: PlatformExtension.isDesktop
+            ? null
+            : () => context.push(
+                  Uri(
+                    path: MobileEmojiPickerScreen.routeName,
+                    queryParameters: {
+                      MobileEmojiPickerScreen.viewId:
+                          context.read<ViewBloc>().state.view.id,
+                    },
+                  ).toString(),
+                ),
+      );
+
+      if (PlatformExtension.isDesktop) {
+        child = AppFlowyPopover(
           onClose: () => isPopoverOpen = false,
           controller: _popoverController,
           offset: const Offset(0, 8),
           direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: BoxConstraints.loose(const Size(300, 250)),
-          child: FlowyButton(
-            leftIconSize: const Size.square(18),
-            useIntrinsicWidth: true,
-            leftIcon: const Icon(
-              Icons.emoji_emotions_outlined,
-              size: 18,
-            ),
-            text: FlowyText.regular(
-              LocaleKeys.document_plugins_cover_addIcon.tr(),
-            ),
-          ),
+          constraints: BoxConstraints.loose(const Size(360, 380)),
+          child: child,
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
-            return EmojiPopover(
-              showRemoveButton: widget.hasIcon,
-              removeIcon: () {
-                widget.onCoverChanged(icon: "");
-                _popoverController.close();
-              },
-              node: widget.node,
-              editorState: widget.editorState,
-              onEmojiChanged: (Emoji emoji) {
-                widget.onCoverChanged(icon: emoji.emoji);
+            return FlowyIconPicker(
+              onSelected: (type, value) {
+                widget.onCoverChanged(icon: value);
                 _popoverController.close();
               },
             );
           },
-        ),
-      );
+        );
+      }
+
+      children.add(child);
     }
 
     return children;
@@ -471,27 +519,41 @@ class _DocumentIconState extends State<DocumentIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithCenterAligned,
-      controller: _popoverController,
-      offset: const Offset(0, 8),
-      constraints: BoxConstraints.loose(const Size(320, 380)),
-      child: EmojiIconWidget(emoji: widget.icon),
-      popupBuilder: (BuildContext popoverContext) {
-        return EmojiPopover(
-          node: widget.node,
-          showRemoveButton: true,
-          removeIcon: () {
-            widget.onIconChanged("");
-            _popoverController.close();
-          },
-          editorState: widget.editorState,
-          onEmojiChanged: (Emoji emoji) {
-            widget.onIconChanged(emoji.emoji);
-            _popoverController.close();
-          },
-        );
-      },
+    Widget child = EmojiIconWidget(
+      emoji: widget.icon,
     );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        direction: PopoverDirection.bottomWithCenterAligned,
+        controller: _popoverController,
+        offset: const Offset(0, 8),
+        constraints: BoxConstraints.loose(const Size(360, 380)),
+        child: child,
+        popupBuilder: (BuildContext popoverContext) {
+          return FlowyIconPicker(
+            onSelected: (type, value) {
+              widget.onIconChanged(value);
+              _popoverController.close();
+            },
+          );
+        },
+      );
+    } else {
+      child = GestureDetector(
+        child: child,
+        onTap: () => context.push(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {
+              MobileEmojiPickerScreen.viewId:
+                  context.read<ViewBloc>().state.view.id,
+            },
+          ).toString(),
+        ),
+      );
+    }
+
+    return child;
   }
 }

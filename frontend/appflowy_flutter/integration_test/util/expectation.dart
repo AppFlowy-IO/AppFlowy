@@ -108,6 +108,13 @@ extension Expectation on WidgetTester {
     expect(iconWidget, findsOneWidget);
   }
 
+  void expectDocumentIconNotNull() {
+    final iconWidget = find.byWidgetPredicate(
+      (widget) => widget is EmojiIconWidget && widget.emoji.isNotEmpty,
+    );
+    expect(iconWidget, findsOneWidget);
+  }
+
   void expectToSeeDocumentCover(CoverType type) {
     final findCover = find.byWidgetPredicate(
       (widget) => widget is DocumentCover && widget.coverType == type,
@@ -192,5 +199,14 @@ extension Expectation on WidgetTester {
       ),
       matching: findPageName(name, layout: layout),
     );
+  }
+
+  void isPageWithIcon(String name, String emoji) {
+    final pageName = findPageName(name);
+    final icon = find.descendant(
+      of: pageName,
+      matching: find.text(emoji),
+    );
+    expect(icon, findsOneWidget);
   }
 }
