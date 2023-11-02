@@ -90,7 +90,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "- This is a bulleted list - 1 - 1"
+            "insert": "    - This is a bulleted list - 1 - 1"
           }
         ]
       },
@@ -138,7 +138,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "- [ ]  This is a paragraph - 1-1"
+            "insert": "    - [ ]  This is a paragraph - 1-1"
           }
         ]
       },
@@ -186,7 +186,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "This is a toggle child"
+            "insert": "    This is a toggle child"
           }
         ]
       },
@@ -318,7 +318,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "// Print text to the console."
+            "insert": "    // Print text to the console."
           }
         ]
       },
@@ -330,7 +330,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "**println**!(\"Hello World!\");"
+            "insert": "    **println**!(\"Hello World!\");"
           }
         ]
       },
@@ -438,7 +438,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "|x| = \\begin{cases}"
+            "insert": "|x| = \\begin{cases}             "
           }
         ]
       },
@@ -450,7 +450,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "x, &\\quad x \\geq 0 \\\\"
+            "insert": "  x, &\\quad x \\geq 0 \\\\           "
           }
         ]
       },
@@ -462,7 +462,7 @@
         "delta": [
           {
             "attributes": null,
-            "insert": "-x, &\\quad x < 0"
+            "insert": " -x, &\\quad x < 0             "
           }
         ]
       },

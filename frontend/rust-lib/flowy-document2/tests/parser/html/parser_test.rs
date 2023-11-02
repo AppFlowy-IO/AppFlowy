@@ -38,7 +38,8 @@ async fn plain_text_to_document_test() {
   let parser = ExternalDataToNestedJSONParser::new(plain_text.to_string(), InputType::PlainText);
   let block = parser.to_nested_block();
   assert!(block.is_some());
+  let block = block.unwrap();
   let expect_json = include_str!("../../assets/json/plain_text.json");
   let expect_block = serde_json::from_str::<NestedBlock>(expect_json).unwrap();
-  assert_eq!(block.unwrap(), expect_block);
+  assert_eq!(block, expect_block);
 }

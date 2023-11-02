@@ -83,14 +83,7 @@ pub fn flatten_element_to_block(node: ElementRef) -> Option<NestedBlock> {
 pub fn parse_plaintext_to_nested_block(plaintext: &str) -> Option<NestedBlock> {
   let lines: Vec<&str> = plaintext
     .lines()
-    .filter_map(|line| {
-      let line = line.trim();
-      if line.is_empty() {
-        None
-      } else {
-        Some(line)
-      }
-    })
+    .filter(|line| !line.trim().is_empty())
     .collect();
   let mut current_block = NestedBlock {
     ty: PAGE.to_string(),
@@ -389,16 +382,7 @@ fn process_node_children(
       let text = child
         .value()
         .as_text()
-        .map(|text| {
-          let text = text.text.to_string();
-
-          // ignore whitespace
-          if text.trim().is_empty() {
-            return "".to_string();
-          }
-
-          text
-        })
+        .map(|text| text.text.to_string())
         .unwrap_or_default();
 
       if let Some(op) = node_to_delta(&tag_name, text, &mut get_node_attrs(node), &attributes) {
@@ -521,7 +505,7 @@ fn node_to_delta(
   parent_attributes: &Option<HashMap<String, Value>>,
 ) -> Option<InsertDelta> {
   let attributes = get_delta_attributes_for(tag_name, attrs, parent_attributes.to_owned());
-  if text.is_empty() {
+  if text.trim().is_empty() {
     return None;
   }
 
