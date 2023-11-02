@@ -106,12 +106,22 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
+    final icon = view?.icon.value;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: FlowyText.semibold(
-          view?.name ?? widget.title ?? '',
-          fontSize: 14.0,
+        title: Row(
+          children: [
+            if (icon != null)
+              FlowyText(
+                '$icon ',
+                fontSize: 22.0,
+              ),
+            FlowyText.regular(
+              view?.name ?? widget.title ?? '',
+              fontSize: 14.0,
+            ),
+          ],
         ),
         leading: AppBarBackButton(
           onTap: () => context.pop(),

@@ -619,13 +619,14 @@
         "add": "Add",
         "back": "Back",
         "saveToGallery": "Save to gallery",
-        "removeIcon": "Remove Icon",
+        "removeIcon": "Remove icon",
         "pasteImageUrl": "Paste image URL",
         "or": "OR",
         "pickFromFiles": "Pick from files",
         "couldNotFetchImage": "Could not fetch image",
         "imageSavingFailed": "Image Saving Failed",
-        "addIcon": "Add Icon",
+        "addIcon": "Add icon",
+        "changeIcon": "Change icon",
         "coverRemoveAlert": "It will be removed from cover after it is deleted.",
         "alertDialogConfirmation": "Are you sure, you want to continue?"
       },
@@ -818,6 +819,7 @@
     "gray": "Gray"
   },
   "emoji": {
+    "emojiTab": "Emoji",
     "search": "Search emoji",
     "noRecent": "No recent emoji",
     "noEmojiFound": "No emoji found",
@@ -837,6 +839,14 @@
       "flags": "Flags",
       "nature": "Nature",
       "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
     }
   },
   "inlineActions": {

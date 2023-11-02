@@ -186,7 +186,7 @@ class _CalloutBlockComponentWidgetState
               ), // force to refresh the popover state
               emoji: emoji,
               onSubmitted: (emoji, controller) {
-                setEmoji(emoji.emoji);
+                setEmoji(emoji);
                 controller.close();
               },
             ),

@@ -24,7 +24,7 @@ class MobileHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([
-        FolderEventGetCurrentWorkspace().send(),
+        FolderEventGetCurrentWorkspaceSetting().send(),
         getIt<AuthService>().getUser(),
       ]),
       builder: (context, snapshots) {

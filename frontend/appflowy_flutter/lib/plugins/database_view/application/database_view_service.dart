@@ -35,9 +35,13 @@ class DatabaseViewBackendService {
     RowId? startRowId,
     String? groupId,
     Map<String, String>? cellDataByFieldId,
+    bool fromBeginning = false,
   }) {
     final payload = CreateRowPayloadPB.create()..viewId = viewId;
-    payload.startRowId = startRowId ?? "";
+
+    if (!fromBeginning || startRowId != null) {
+      payload.startRowId = startRowId ?? "";
+    }
 
     if (groupId != null) {
       payload.groupId = groupId;

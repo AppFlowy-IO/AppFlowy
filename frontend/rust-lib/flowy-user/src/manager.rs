@@ -19,12 +19,12 @@ use flowy_user_deps::entities::*;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
+use crate::anon_user_upgrade::{migration_anon_user_on_sign_up, sync_user_data_to_cloud};
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserCloudServiceProvider, UserStatusCallback};
-use crate::migrations::historical_document::HistoricalEmptyDocumentMigration;
-use crate::migrations::migrate_to_new_user::migration_local_user_on_sign_up;
-use crate::migrations::migration::UserLocalDataMigration;
-use crate::migrations::sync_new_user::sync_user_data_to_cloud;
+use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
+use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
+use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::MigrationUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
@@ -165,8 +165,13 @@ impl UserManager {
         self.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
-          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-            .run(vec![Box::new(HistoricalEmptyDocumentMigration)])
+          // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
+          // it's appended to the end of the list.
+          let migrations: Vec<Box<dyn UserDataMigration>> = vec![
+            Box::new(HistoricalEmptyDocumentMigration),
+            Box::new(FavoriteV1AndWorkspaceArrayMigration),
+          ];
+          match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(migrations)
           {
             Ok(applied_migrations) => {
               if !applied_migrations.is_empty() {
@@ -358,12 +363,12 @@ impl UserManager {
         };
         event!(
           tracing::Level::INFO,
-          "Migrate old user data from {:?} to {:?}",
+          "Migrate anon user data from {:?} to {:?}",
           old_user.user_profile.uid,
           new_user.user_profile.uid
         );
         self
-          .migrate_local_user_to_cloud(&old_user, &new_user)
+          .migrate_anon_user_to_cloud(&old_user, &new_user)
           .await?;
         let _ = self.database.close(old_user.session.user_id);
       }
@@ -689,14 +694,14 @@ impl UserManager {
     Ok(())
   }
 
-  async fn migrate_local_user_to_cloud(
+  async fn migrate_anon_user_to_cloud(
     &self,
     old_user: &MigrationUser,
     new_user: &MigrationUser,
   ) -> Result<(), FlowyError> {
     let old_collab_db = self.database.get_collab_db(old_user.session.user_id)?;
     let new_collab_db = self.database.get_collab_db(new_user.session.user_id)?;
-    migration_local_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
+    migration_anon_user_on_sign_up(old_user, &old_collab_db, new_user, &new_collab_db)?;
 
     if let Err(err) = sync_user_data_to_cloud(
       self.cloud_services.get_user_service()?,

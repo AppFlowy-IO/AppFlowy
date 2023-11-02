@@ -96,15 +96,23 @@ pub fn encryption_collab_service(
 }
 
 #[allow(dead_code)]
-pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<String>) {
+pub async fn print_encryption_folder(
+  uid: &i64,
+  folder_id: &str,
+  encryption_secret: Option<String>,
+) {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  let folder_data = cloud_service.get_folder_data(folder_id).await.unwrap();
+  let folder_data = cloud_service.get_folder_data(folder_id, uid).await.unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
 #[allow(dead_code)]
-pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret: Option<String>) {
+pub async fn print_encryption_folder_snapshot(
+  uid: &i64,
+  folder_id: &str,
+  encryption_secret: Option<String>,
+) {
   let (cloud_service, _encryption) = encryption_collab_service(encryption_secret);
   let snapshot = cloud_service
     .get_snapshots(folder_id, 1)
@@ -115,7 +123,10 @@ pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret
     MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
       .unwrap(),
   );
-  let folder_data = Folder::open(collab, None).get_folder_data().unwrap();
+  let folder_data = Folder::open(uid, collab, None)
+    .unwrap()
+    .get_folder_data()
+    .unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }

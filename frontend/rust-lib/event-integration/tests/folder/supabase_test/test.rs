@@ -12,11 +12,12 @@ use crate::util::{get_folder_data_from_server, receive_with_timeout};
 #[tokio::test]
 async fn supabase_encrypt_folder_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
+    let uid = test.user_manager.user_id().unwrap();
     let secret = test.enable_encryption().await;
 
     let local_folder_data = test.get_local_folder_data().await;
-    let workspace_id = test.get_current_workspace().await.workspace.id;
-    let remote_folder_data = get_folder_data_from_server(&workspace_id, Some(secret))
+    let workspace_id = test.get_current_workspace().await.id;
+    let remote_folder_data = get_folder_data_from_server(&uid, &workspace_id, Some(secret))
       .await
       .unwrap()
       .unwrap();
@@ -28,8 +29,9 @@ async fn supabase_encrypt_folder_test() {
 #[tokio::test]
 async fn supabase_decrypt_folder_data_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
+    let uid = test.user_manager.user_id().unwrap();
     let secret = Some(test.enable_encryption().await);
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     test
       .create_view(&workspace_id, "encrypt view".to_string())
       .await;
@@ -41,7 +43,7 @@ async fn supabase_decrypt_folder_data_test() {
     receive_with_timeout(rx, Duration::from_secs(10))
       .await
       .unwrap();
-    let folder_data = get_folder_data_from_server(&workspace_id, secret)
+    let folder_data = get_folder_data_from_server(&uid, &workspace_id, secret)
       .await
       .unwrap()
       .unwrap();
@@ -54,8 +56,9 @@ async fn supabase_decrypt_folder_data_test() {
 #[should_panic]
 async fn supabase_decrypt_with_invalid_secret_folder_data_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
+    let uid = test.user_manager.user_id().unwrap();
     let _ = Some(test.enable_encryption().await);
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     test
       .create_view(&workspace_id, "encrypt view".to_string())
       .await;
@@ -66,7 +69,7 @@ async fn supabase_decrypt_with_invalid_secret_folder_data_test() {
       .await
       .unwrap();
 
-    let _ = get_folder_data_from_server(&workspace_id, Some("invalid secret".to_string()))
+    let _ = get_folder_data_from_server(&uid, &workspace_id, Some("invalid secret".to_string()))
       .await
       .unwrap();
   }
@@ -74,7 +77,7 @@ async fn supabase_decrypt_with_invalid_secret_folder_data_test() {
 #[tokio::test]
 async fn supabase_folder_snapshot_test() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
     let rx = test
       .notification_sender
       .subscribe::<FolderSnapshotStatePB>(&workspace_id, DidUpdateFolderSnapshotState);
@@ -92,7 +95,7 @@ async fn supabase_folder_snapshot_test() {
 #[tokio::test]
 async fn supabase_initial_folder_snapshot_test2() {
   if let Some(test) = FlowySupabaseFolderTest::new().await {
-    let workspace_id = test.get_current_workspace().await.workspace.id;
+    let workspace_id = test.get_current_workspace().await.id;
 
     test
       .create_view(&workspace_id, "supabase test view1".to_string())

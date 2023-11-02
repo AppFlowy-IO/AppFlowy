@@ -24,7 +24,18 @@ pub(crate) async fn create_workspace_handler(
   let folder = upgrade_folder(folder)?;
   let params: CreateWorkspaceParams = data.into_inner().try_into()?;
   let workspace = folder.create_workspace(params).await?;
-  data_result_ok(workspace.into())
+  let views = folder
+    .get_views_belong_to(&workspace.id)
+    .await?
+    .into_iter()
+    .map(view_pb_without_child_views)
+    .collect::<Vec<ViewPB>>();
+  data_result_ok(WorkspacePB {
+    id: workspace.id,
+    name: workspace.name,
+    views,
+    create_time: workspace.created_at,
+  })
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
@@ -43,52 +54,39 @@ pub(crate) async fn open_workspace_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspacePB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let params: WorkspaceIdPB = data.into_inner();
-  match params.value {
-    None => Err(FlowyError::workspace_id().with_context("workspace id should not be empty")),
-    Some(workspace_id) => {
-      if workspace_id.is_empty() {
-        Err(FlowyError::workspace_id().with_context("workspace id should not be empty"))
-      } else {
-        let workspace = folder.open_workspace(&workspace_id).await?;
-        let views = folder.get_workspace_views(&workspace_id).await?;
-        let workspace_pb: WorkspacePB = (workspace, views).into();
-        data_result_ok(workspace_pb)
-      }
-    },
+  let workspace_id = data.into_inner().value;
+  if workspace_id.is_empty() {
+    Err(FlowyError::workspace_id().with_context("workspace id should not be empty"))
+  } else {
+    let workspace = folder.open_workspace(&workspace_id).await?;
+    let views = folder.get_workspace_views(&workspace_id).await?;
+    let workspace_pb: WorkspacePB = (workspace, views).into();
+    data_result_ok(workspace_pb)
   }
 }
 
-#[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn read_workspaces_handler(
-  data: AFPluginData<WorkspaceIdPB>,
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> DataResult<RepeatedWorkspacePB, FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  let params: WorkspaceIdPB = data.into_inner();
-  let workspaces = match params.value {
-    None => folder.get_all_workspaces().await,
-    Some(workspace_id) => folder
-      .get_workspace(&workspace_id)
-      .await
-      .map(|workspace| vec![workspace])
-      .unwrap_or_default(),
-  };
-
-  data_result_ok(workspaces.into())
-}
-
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub async fn get_current_workspace_setting_handler(
+pub(crate) async fn read_current_workspace_setting_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<WorkspaceSettingPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let workspace = folder.get_current_workspace().await?;
-  let latest_view: Option<ViewPB> = folder.get_current_view().await;
-  data_result_ok(WorkspaceSettingPB {
-    workspace,
-    latest_view,
-  })
+  let setting = folder
+    .get_workspace_setting_pb()
+    .await
+    .ok_or(FlowyError::record_not_found())?;
+  data_result_ok(setting)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_current_workspace_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<WorkspacePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let workspace = folder
+    .get_workspace_pb()
+    .await
+    .ok_or(FlowyError::record_not_found())?;
+  data_result_ok(workspace)
 }
 
 pub(crate) async fn create_view_handler(
@@ -125,7 +123,7 @@ pub(crate) async fn read_view_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let view_id: ViewIdPB = data.into_inner();
-  let view_pb = folder.get_view(&view_id.value).await?;
+  let view_pb = folder.get_view_pb(&view_id.value).await?;
   data_result_ok(view_pb)
 }
 
@@ -236,20 +234,13 @@ pub(crate) async fn read_favorites_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let favorites = folder.get_all_favorites().await;
+  let favorite_items = folder.get_all_favorites().await;
   let mut views = vec![];
-  for info in favorites {
-    let view = folder.get_view(&info.id).await;
-    match view {
-      Ok(view) => {
-        views.push(view);
-      },
-      Err(err) => {
-        return Err(err);
-      },
+  for item in favorite_items {
+    if let Ok(view) = folder.get_view_pb(&item.id).await {
+      views.push(view);
     }
   }
-
   data_result_ok(RepeatedViewPB { items: views })
 }
 #[tracing::instrument(level = "debug", skip(folder), err)]
@@ -319,10 +310,7 @@ pub(crate) async fn get_folder_snapshots_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedFolderSnapshotPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  if let Some(workspace_id) = &data.value {
-    let snapshots = folder.get_folder_snapshots(workspace_id, 10).await?;
-    data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
-  } else {
-    data_result_ok(RepeatedFolderSnapshotPB { items: vec![] })
-  }
+  let data = data.into_inner();
+  let snapshots = folder.get_folder_snapshots(&data.value, 10).await?;
+  data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
 }

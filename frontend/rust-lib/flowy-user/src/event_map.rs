@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use collab_database::database::WatchStream;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};

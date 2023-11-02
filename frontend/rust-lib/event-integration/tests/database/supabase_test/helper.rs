@@ -38,11 +38,7 @@ impl FlowySupabaseDatabaseTest {
     let current_workspace = self.inner.get_current_workspace().await;
     let view = self
       .inner
-      .create_grid(
-        &current_workspace.workspace.id,
-        "my database".to_string(),
-        vec![],
-      )
+      .create_grid(&current_workspace.id, "my database".to_string(), vec![])
       .await;
     let database = self.inner.get_database(&view.id).await;
     (view, database)
