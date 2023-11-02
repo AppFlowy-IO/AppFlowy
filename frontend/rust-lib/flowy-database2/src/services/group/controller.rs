@@ -234,7 +234,7 @@ where
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
-    self.generate_new_group(name.clone())
+    self.generate_new_group(name)
   }
 
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
@@ -265,7 +265,7 @@ where
       }
       if !suitable_group_ids.is_empty() {
         for group_id in suitable_group_ids.iter() {
-          if let Some(group) = self.context.get_mut_group(&group_id) {
+          if let Some(group) = self.context.get_mut_group(group_id) {
             group.add_row(row_detail.clone());
           }
         }

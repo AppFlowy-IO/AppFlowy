@@ -127,7 +127,6 @@ impl DatabaseViewEditor {
   }
 
   pub async fn v_did_create_row(&self, row_detail: &RowDetail, index: usize) {
-    let changes: RowsChangePB;
     // Send the group notification if the current view has groups
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let changesets = controller.did_create_row(row_detail);
@@ -142,7 +141,7 @@ impl DatabaseViewEditor {
       index: Some(index as i32),
       is_new: true,
     };
-    changes = RowsChangePB::from_insert(inserted_row);
+    let changes = RowsChangePB::from_insert(inserted_row);
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();

@@ -150,7 +150,7 @@ impl GroupCustomize for URLGroupController {
 
     let deleted_group = deleted_group.map(|group| {
       let _ = self.context.delete_group(&group.id);
-      GroupPB::from(group.clone())
+      group.into()
     });
 
     (deleted_group, changesets)
