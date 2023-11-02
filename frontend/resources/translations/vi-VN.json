@@ -68,10 +68,10 @@
     }
   },
   "board": {
+    "menuName": "Bảng",
     "column": {
       "create_new_card": "Mới"
-    },
-    "menuName": "Bảng"
+    }
   },
   "calendar": {
     "menuName": "Lịch",

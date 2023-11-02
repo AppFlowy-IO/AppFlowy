@@ -159,9 +159,7 @@
     "editContact": "Redigera kontakt"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Gjort",
-    "Cancel": "Avbryt",
+    "done": "Gjort",
     "signIn": "Logga in",
     "signOut": "Logga ut",
     "complete": "Slutfört",
@@ -177,8 +175,10 @@
     "edit": "Redigera",
     "delete": "Radera",
     "duplicate": "Duplicera",
-    "done": "Gjort",
-    "putback": "Ställ tillbaka"
+    "putback": "Ställ tillbaka",
+    "OK": "OK",
+    "Done": "Gjort",
+    "Cancel": "Avbryt"
   },
   "label": {
     "welcome": "Välkommen!",
@@ -547,11 +547,11 @@
     }
   },
   "board": {
+    "menuName": "Tavla",
+    "referencedBoardPrefix": "Utsikt över",
     "column": {
       "create_new_card": "Nytt"
-    },
-    "menuName": "Tavla",
-    "referencedBoardPrefix": "Utsikt över"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -568,9 +568,9 @@
       "firstDayOfWeek": "Börja veckan på",
       "layoutDateField": "Layoutkalender av",
       "noDateTitle": "Inget datum",
-      "noDateHint": "Icke schemalagda händelser kommer att dyka upp här",
       "clickToAdd": "Klicka för att lägga till i kalendern",
-      "name": "Kalenderlayout"
+      "name": "Kalenderlayout",
+      "noDateHint": "Icke schemalagda händelser kommer att dyka upp här"
     },
     "referencedCalendarPrefix": "Utsikt över"
   },
