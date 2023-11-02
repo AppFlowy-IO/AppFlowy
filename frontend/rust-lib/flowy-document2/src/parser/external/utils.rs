@@ -134,7 +134,7 @@ fn flatten_element_to_json(
     B_TAG_NAME => {
       let id = find_attribute_value(node.to_owned(), "id");
       if id.is_some() {
-        return process_b_container_element(node);
+        return process_nested_element(node);
       }
       process_inline_element(node, attributes)
     },
@@ -164,16 +164,6 @@ fn process_default_element(node: ElementRef) -> Option<JSONResult> {
     children,
     data,
   }))
-}
-
-// compatible with google doc, there has a <b> tag, but it's not bold, it's a container.
-fn process_b_container_element(node: ElementRef) -> Option<JSONResult> {
-  let mut data = HashMap::new();
-  let (delta, children) = process_node_children(node, &None, &None);
-  if !delta.is_empty() {
-    data.insert(DELTA.to_string(), delta_to_json(&delta));
-  }
-  Some(JSONResult::BlockArray(children))
 }
 
 fn process_image_element(node: ElementRef) -> Option<JSONResult> {
