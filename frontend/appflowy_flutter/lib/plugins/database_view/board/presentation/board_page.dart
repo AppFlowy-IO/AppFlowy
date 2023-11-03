@@ -16,12 +16,12 @@ import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/cells/card_cell.dart';
@@ -127,6 +127,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
+  late final ScrollController scrollController;
   final renderHook = RowCardRenderHook<String>();
 
   final config = const AppFlowyBoardConfig(
@@ -138,6 +139,7 @@ class _BoardContentState extends State<BoardContent> {
     super.initState();
 
     scrollManager = AppFlowyBoardScrollController();
+    scrollController = ScrollController();
     renderHook.addSelectOptionHook((options, groupId, _) {
       // The cell should hide if the option id is equal to the groupId.
       final isInGroup =
@@ -172,7 +174,7 @@ class _BoardContentState extends State<BoardContent> {
                 Expanded(
                   child: AppFlowyBoard(
                     boardScrollController: scrollManager,
-                    scrollController: ScrollController(),
+                    scrollController: scrollController,
                     controller: context.read<BoardBloc>().boardController,
                     headerBuilder: (_, groupData) =>
                         BlocProvider<BoardBloc>.value(
@@ -183,6 +185,7 @@ class _BoardContentState extends State<BoardContent> {
                       ),
                     ),
                     footerBuilder: _buildFooter,
+                    trailing: BoardTrailing(scrollController: scrollController),
                     cardBuilder: (_, column, columnItem) => _buildCard(
                       context,
                       column,
@@ -345,6 +348,112 @@ class _BoardContentState extends State<BoardContent> {
           rowController: dataController,
         );
       },
+    );
+  }
+}
+
+class BoardTrailing extends StatefulWidget {
+  final ScrollController scrollController;
+  const BoardTrailing({required this.scrollController, super.key});
+
+  @override
+  State<BoardTrailing> createState() => _BoardTrailingState();
+}
+
+class _BoardTrailingState extends State<BoardTrailing> {
+  bool isEditing = false;
+  late final TextEditingController _textController;
+  late final FocusNode _focusNode;
+
+  void _cancelAddNewGroup() {
+    _textController.clear();
+    setState(() {
+      isEditing = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController();
+    _focusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (_focusNode.hasFocus &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          _cancelAddNewGroup();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+    )..addListener(() {
+        if (!_focusNode.hasFocus) {
+          _cancelAddNewGroup();
+        }
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // call after every setState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isEditing) {
+        _focusNode.requestFocus();
+        widget.scrollController.jumpTo(
+          widget.scrollController.position.maxScrollExtent,
+        );
+      }
+    });
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Align(
+        alignment: AlignmentDirectional.topStart,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: isEditing
+              ? SizedBox(
+                  width: 256,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: _textController,
+                      focusNode: _focusNode,
+                      decoration: InputDecoration(
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8.0),
+                          child: FlowyIconButton(
+                            icon: const FlowySvg(FlowySvgs.close_filled_m),
+                            hoverColor: Colors.transparent,
+                            onPressed: () => _textController.clear(),
+                          ),
+                        ),
+                        suffixIconConstraints:
+                            BoxConstraints.loose(const Size(20, 24)),
+                        border: const UnderlineInputBorder(),
+                        contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                        isDense: true,
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      onSubmitted: (groupName) => context
+                          .read<BoardBloc>()
+                          .add(BoardEvent.createGroup(groupName)),
+                    ),
+                  ),
+                )
+              : FlowyTooltip(
+                  message: "Add new group",
+                  child: FlowyIconButton(
+                    width: 26,
+                    icon: const FlowySvg(FlowySvgs.add_s),
+                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                    onPressed: () => setState(() {
+                      isEditing = true;
+                    }),
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

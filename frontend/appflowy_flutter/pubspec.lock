@@ -45,8 +45,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "6aba8dd"
-      resolved-ref: "6aba8ddd86839ca09b997cb2457f013236e0c337"
+      ref: "1a329c2"
+      resolved-ref: "1a329c21921c0d19871bea3237b7d80fe131f2ed"
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
     version: "0.1.0"

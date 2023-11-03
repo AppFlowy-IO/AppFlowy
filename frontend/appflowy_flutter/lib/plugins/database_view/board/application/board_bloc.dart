@@ -100,6 +100,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               (err) => Log.error(err),
             );
           },
+          createGroup: (name) async {
+            final result = await groupBackendSvc.createGroup(name: name);
+            result.fold((_) {}, (err) => Log.error(err));
+          },
           didCreateRow: (group, row, int? index) {
             emit(
               state.copyWith(
@@ -348,6 +352,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = _InitialBoard;
   const factory BoardEvent.createBottomRow(String groupId) = _CreateBottomRow;
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
+  const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
   const factory BoardEvent.endEditingHeader(String groupId, String groupName) =
