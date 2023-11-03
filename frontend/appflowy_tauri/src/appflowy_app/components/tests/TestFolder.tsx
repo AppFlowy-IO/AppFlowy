@@ -33,7 +33,7 @@ const testCreateFolder = async (userId?: number) => {
   }
 
   for (let i = 1; i <= 3; i++) {
-    const result = await workspaceService.createView({
+    await workspaceService.createView({
       name: `test board 1 ${i}`,
       desc: 'test description',
       layout: ViewLayoutPB.Board,

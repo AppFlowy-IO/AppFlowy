@@ -46,6 +46,7 @@ export function adaptDeltaForQuill(inputOps: Op[], isOutput = false): Op[] {
 
   if (isOutput) {
     const newText = text.slice(0, -1);
+
     if (newText !== '') {
       newOps[lastOpIndex] = { ...lastOp, insert: newText };
     } else {

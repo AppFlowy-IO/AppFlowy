@@ -57,7 +57,7 @@ const TurnIntoPopover = ({
         icon: <Title />,
         selected: node?.data?.level === 1,
         onClick: (type: BlockType, isSelected: boolean) => {
-          turnIntoHeading(1, isSelected);
+          void turnIntoHeading(1, isSelected);
         },
       },
       {
@@ -67,7 +67,7 @@ const TurnIntoPopover = ({
         icon: <Title />,
         selected: node?.data?.level === 2,
         onClick: (type: BlockType, isSelected: boolean) => {
-          turnIntoHeading(2, isSelected);
+          void turnIntoHeading(2, isSelected);
         },
       },
       {
@@ -77,7 +77,7 @@ const TurnIntoPopover = ({
         icon: <Title />,
         selected: node?.data?.level === 3,
         onClick: (type: BlockType, isSelected: boolean) => {
-          turnIntoHeading(3, isSelected);
+          void turnIntoHeading(3, isSelected);
         },
       },
       {
@@ -143,7 +143,7 @@ const TurnIntoPopover = ({
     (option: Option) => {
       const isSelected = getSelected(option);
 
-      option.onClick ? option.onClick(option.type, isSelected) : turnIntoBlock(option.type, isSelected);
+      option.onClick ? option.onClick(option.type, isSelected) : void turnIntoBlock(option.type, isSelected);
       onOk?.();
     },
     [onOk, getSelected, turnIntoBlock]

@@ -18,14 +18,17 @@ export function useSubscribeNode(id: string) {
   }>((state) => {
     const documentState = state[DOCUMENT_NAME][docId];
     const node = documentState?.nodes[id];
+
     // if node is root, return page name
     if (!node?.parent) {
       const delta = state.pages?.pageMap[docId]?.name;
+
       return {
         node,
         delta: delta ? JSON.stringify(new Delta().insert(delta)) : '',
       };
     }
+
     const externalId = node?.externalId;
 
     return {
@@ -51,7 +54,9 @@ export function useSubscribeNode(id: string) {
   // Memoize the node and its children
   // So that the component will not be re-rendered when other node is changed
   // It very important for performance
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoizedNode = useMemo(() => node, [JSON.stringify(node)]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoizedChildIds = useMemo(() => childIds, [JSON.stringify(childIds)]);
 
   return {

@@ -19,7 +19,8 @@ export function useCopy(container: HTMLDivElement) {
         e.clipboardData?.setData(clipboardTypes.TEXT, data.text);
         e.clipboardData?.setData(clipboardTypes.HTML, data.html);
       };
-      dispatch(
+
+      void dispatch(
         copyThunk({
           setClipboardData,
           controller,

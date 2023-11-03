@@ -1,8 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import {
   AppearanceSettingsPB,
-  AuthTypePB,
-  ThemeModePB,
   UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
   UserEventGetUserSetting,
@@ -13,7 +11,6 @@ import {
   UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 import {
-  BlockActionPB,
   CreateWorkspacePayloadPB,
   SignInPayloadPB,
   SignUpPayloadPB,
@@ -72,6 +69,7 @@ export class UserBackendService {
 
   openWorkspace = (workspaceId: string) => {
     const payload = WorkspaceIdPB.fromObject({ value: workspaceId });
+
     return FolderEventOpenWorkspace(payload);
   };
 
