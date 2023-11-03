@@ -129,7 +129,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_create_row(&self, row_detail: &RowDetail, index: usize) {
     // Send the group notification if the current view has groups
     if let Some(controller) = self.group_controller.write().await.as_mut() {
-      let changesets = controller.did_create_row(row_detail);
+      let changesets = controller.did_create_row(row_detail, index);
 
       for changeset in changesets {
         notify_did_update_group_rows(changeset).await;

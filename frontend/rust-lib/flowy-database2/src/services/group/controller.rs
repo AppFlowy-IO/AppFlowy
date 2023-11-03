@@ -241,7 +241,11 @@ where
     self.context.move_group(from_group_id, to_group_id)
   }
 
-  fn did_create_row(&mut self, row_detail: &RowDetail) -> Vec<GroupRowsNotificationPB> {
+  fn did_create_row(
+    &mut self,
+    row_detail: &RowDetail,
+    index: usize,
+  ) -> Vec<GroupRowsNotificationPB> {
     let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
       None => self.placeholder_cell(),
       Some(cell) => Some(cell.clone()),
@@ -258,7 +262,11 @@ where
           suitable_group_ids.push(group.id.clone());
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),
-            vec![InsertedRowPB::new(row_detail.into())],
+            vec![InsertedRowPB {
+              row_meta: row_detail.into(),
+              index: Some(index as i32),
+              is_new: true,
+            }],
           );
           changesets.push(changeset);
         }
@@ -273,7 +281,11 @@ where
         no_status_group.add_row(row_detail.clone());
         let changeset = GroupRowsNotificationPB::insert(
           no_status_group.id.clone(),
-          vec![InsertedRowPB::new(row_detail.into())],
+          vec![InsertedRowPB {
+            row_meta: row_detail.into(),
+            index: Some(index as i32),
+            is_new: true,
+          }],
         );
         changesets.push(changeset);
       }
