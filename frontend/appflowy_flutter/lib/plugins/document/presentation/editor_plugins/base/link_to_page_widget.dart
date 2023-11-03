@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -42,7 +41,7 @@ void showLinkToPageMenu(
         hintText: pageType.toHintText(),
         onSelected: (appPB, viewPB) async {
           try {
-            await editorState.insertReferencePage(viewPB);
+            await editorState.insertReferencePage(viewPB, pageType);
             linkToPageMenuEntry.remove();
           } on FlowyError catch (e) {
             Dialogs.show(
@@ -188,6 +187,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
   ) {
     int index = 0;
     return FutureBuilder<List<ViewPB>>(
+      future: items,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
@@ -208,10 +208,7 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
               children.add(
                 FlowyButton(
                   isSelected: index == _selectedIndex,
-                  leftIcon: FlowySvg(
-                    view.iconData,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
+                  leftIcon: view.defaultIcon(),
                   text: FlowyText.regular(view.name),
                   onTap: () => widget.onSelected(view, view),
                 ),
@@ -229,7 +226,6 @@ class _LinkToPageMenuState extends State<LinkToPageMenu> {
 
         return const Center(child: CircularProgressIndicator());
       },
-      future: items,
     );
   }
 }
@@ -239,12 +235,13 @@ extension on ViewLayoutPB {
     switch (this) {
       case ViewLayoutPB.Grid:
         return LocaleKeys.document_slashMenu_grid_selectAGridToLinkTo.tr();
-
       case ViewLayoutPB.Board:
         return LocaleKeys.document_slashMenu_board_selectABoardToLinkTo.tr();
-
       case ViewLayoutPB.Calendar:
         return LocaleKeys.document_slashMenu_calendar_selectACalendarToLinkTo
+            .tr();
+      case ViewLayoutPB.Document:
+        return LocaleKeys.document_slashMenu_document_selectADocumentToLinkTo
             .tr();
       default:
         throw Exception('Unknown layout type');
