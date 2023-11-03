@@ -181,6 +181,14 @@ jobs:
           fi
         shell: bash
 
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.run_id }}-${{ matrix.os }}
+
+      - name: Uncompress appflowy_flutter
+        run: tar -xf appflowy_flutter.tar.gz
+
       - name: Run Flutter unit tests
         working-directory: frontend
         run: |
