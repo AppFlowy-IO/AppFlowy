@@ -442,7 +442,7 @@ class _BoardTrailingState extends State<BoardTrailing> {
                   ),
                 )
               : FlowyTooltip(
-                  message: "Add new group",
+                  message: LocaleKeys.board_column_createNewColumn.tr(),
                   child: FlowyIconButton(
                     width: 26,
                     icon: const FlowySvg(FlowySvgs.add_s),

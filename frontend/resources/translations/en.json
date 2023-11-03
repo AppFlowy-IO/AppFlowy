@@ -747,7 +747,8 @@
   "board": {
     "column": {
       "createNewCard": "New",
-      "renameGroupTooltip": "Press to rename group"
+      "renameGroupTooltip": "Press to rename group",
+      "createNewColumn": "Add a new group"
     },
     "menuName": "Board",
     "showUngrouped": "Show ungrouped items",
