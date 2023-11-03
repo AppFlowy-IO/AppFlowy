@@ -13,7 +13,7 @@ pub struct FlowySupabaseDocumentTest {
 
 impl FlowySupabaseDocumentTest {
   pub async fn new() -> Option<Self> {
-    let inner = FlowySupabaseTest::new()?;
+    let inner = FlowySupabaseTest::new().await?;
     let uuid = uuid::Uuid::new_v4().to_string();
     let _ = inner.supabase_sign_up_with_uuid(&uuid, None).await;
     Some(Self { inner })
@@ -23,11 +23,7 @@ impl FlowySupabaseDocumentTest {
     let current_workspace = self.inner.get_current_workspace().await;
     self
       .inner
-      .create_document(
-        &current_workspace.workspace.id,
-        "my document".to_string(),
-        vec![],
-      )
+      .create_document(&current_workspace.id, "my document".to_string(), vec![])
       .await
   }
 

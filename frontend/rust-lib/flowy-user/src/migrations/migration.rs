@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use chrono::NaiveDateTime;
 use diesel::{RunQueryDsl, SqliteConnection};
+use tracing::event;
 
 use collab_integrate::RocksCollabDB;
 use flowy_error::FlowyResult;
@@ -54,6 +55,12 @@ impl UserLocalDataMigration {
       {
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
+          event!(
+            tracing::Level::INFO,
+            "Running migration {}",
+            migration.name()
+          );
+
           migration.run(&self.session, &self.collab_db)?;
           applied_migrations.push(migration.name().to_string());
           save_record(&conn, &migration_name);

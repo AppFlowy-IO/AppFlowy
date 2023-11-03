@@ -19,6 +19,7 @@ use flowy_server_config::af_cloud_config::AFCloudConfiguration;
 use flowy_storage::FileStorageService;
 use flowy_user_deps::cloud::UserCloudService;
 use flowy_user_deps::entities::UserTokenState;
+use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::{
@@ -94,7 +95,7 @@ impl AppFlowyServer for AFCloudServer {
     let mut token_state_rx = self.client.subscribe_token_state();
     let (watch_tx, watch_rx) = watch::channel(UserTokenState::Invalid);
     let weak_client = Arc::downgrade(&self.client);
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(token_state) = token_state_rx.recv().await {
         if let Some(client) = weak_client.upgrade() {
           match token_state {
@@ -185,7 +186,7 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
 
-  tokio::spawn(async move {
+  af_spawn(async move {
     if let Some(ws_client) = weak_ws_client.upgrade() {
       let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
@@ -215,7 +216,7 @@ fn spawn_ws_conn(
   let weak_device_id = Arc::downgrade(device_id);
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
-  tokio::spawn(async move {
+  af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       match token_state {
         TokenState::Refresh => {

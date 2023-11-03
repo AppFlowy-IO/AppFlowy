@@ -28,6 +28,7 @@ class MobileHomePageRecentFilesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // TODO: implement the details later.
     return SizedBox(
       height: 168,
@@ -54,13 +55,10 @@ class MobileHomePageRecentFilesWidget extends StatelessWidget {
                 return Container(
                   width: 120,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
+                    color: theme.colorScheme.background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .outline
-                          .withOpacity(0.5),
+                      color: theme.colorScheme.outline.withOpacity(0.5),
                     ),
                   ),
                   child: Stack(
@@ -104,14 +102,9 @@ class MobileHomePageRecentFilesWidget extends StatelessWidget {
                           child: Text(
                             recentFilesList[index].title,
                             softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                ),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onBackground,
+                            ),
                             maxLines: 2,
                           ),
                         ),

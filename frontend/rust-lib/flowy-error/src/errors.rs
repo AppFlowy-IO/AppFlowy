@@ -101,6 +101,7 @@ impl FlowyError {
   );
   static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
   static_flowy_error!(server_error, ErrorCode::InternalServerError);
+  static_flowy_error!(not_support, ErrorCode::NotSupportYet);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

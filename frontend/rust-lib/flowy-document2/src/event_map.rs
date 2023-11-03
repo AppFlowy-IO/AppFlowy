@@ -27,6 +27,11 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
     .event(DocumentEvent::GetDocumentSnapshots, get_snapshot_handler)
     .event(DocumentEvent::CreateText, create_text_handler)
     .event(DocumentEvent::ApplyTextDeltaEvent, apply_text_delta_handler)
+    .event(DocumentEvent::ConvertDocument, convert_document_handler)
+    .event(
+      DocumentEvent::ConvertDataToJSON,
+      convert_data_to_json_handler,
+    )
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -76,4 +81,18 @@ pub enum DocumentEvent {
 
   #[event(input = "TextDeltaPayloadPB")]
   ApplyTextDeltaEvent = 11,
+
+  // document in event_handler.rs -> convert_document
+  #[event(
+    input = "ConvertDocumentPayloadPB",
+    output = "ConvertDocumentResponsePB"
+  )]
+  ConvertDocument = 12,
+
+  // document in event_handler.rs -> convert_data_to_json
+  #[event(
+    input = "ConvertDataToJsonPayloadPB",
+    output = "ConvertDataToJsonResponsePB"
+  )]
+  ConvertDataToJSON = 13,
 }

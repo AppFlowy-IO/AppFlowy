@@ -41,10 +41,7 @@ pub enum CollabPluginContext {
 pub trait CollabStorageProvider: Send + Sync + 'static {
   fn storage_source(&self) -> CollabSource;
 
-  fn get_plugins(
-    &self,
-    context: CollabPluginContext,
-  ) -> Fut<Vec<Arc<dyn collab::core::collab_plugin::CollabPlugin>>>;
+  fn get_plugins(&self, context: CollabPluginContext) -> Fut<Vec<Arc<dyn CollabPlugin>>>;
 
   fn is_sync_enabled(&self) -> bool;
 }

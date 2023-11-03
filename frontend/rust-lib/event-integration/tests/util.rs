@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use collab_folder::core::FolderData;
+use collab_folder::FolderData;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use nanoid::nanoid;
 use tokio::sync::mpsc::Receiver;
@@ -40,9 +40,9 @@ pub struct FlowySupabaseTest {
 }
 
 impl FlowySupabaseTest {
-  pub fn new() -> Option<Self> {
+  pub async fn new() -> Option<Self> {
     let _ = get_supabase_config()?;
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::Supabase);
     test.server_provider.set_auth_type(AuthType::Supabase);
 
@@ -71,12 +71,10 @@ impl Deref for FlowySupabaseTest {
 }
 
 pub async fn receive_with_timeout<T>(
-  receiver: &mut Receiver<T>,
+  mut receiver: Receiver<T>,
   duration: Duration,
-) -> Result<T, Box<dyn std::error::Error>> {
-  let res = timeout(duration, receiver.recv())
-    .await?
-    .ok_or(anyhow::anyhow!("recv timeout"))?;
+) -> Result<T, Box<dyn std::error::Error + Send>> {
+  let res = timeout(duration, receiver.recv()).await.unwrap().unwrap();
   Ok(res)
 }
 
@@ -137,11 +135,12 @@ pub fn encryption_collab_service(
 }
 
 pub async fn get_folder_data_from_server(
+  uid: &i64,
   folder_id: &str,
   encryption_secret: Option<String>,
 ) -> Result<Option<FolderData>, Error> {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  cloud_service.get_folder_data(folder_id).await
+  cloud_service.get_folder_data(folder_id, uid).await
 }
 
 pub async fn get_folder_snapshots(
@@ -206,9 +205,9 @@ pub struct AFCloudTest {
 }
 
 impl AFCloudTest {
-  pub fn new() -> Option<Self> {
+  pub async fn new() -> Option<Self> {
     let _ = get_af_cloud_config()?;
-    let test = EventIntegrationTest::new();
+    let test = EventIntegrationTest::new().await;
     test.set_auth_type(AuthTypePB::AFCloud);
     test.server_provider.set_auth_type(AuthType::AFCloud);
 

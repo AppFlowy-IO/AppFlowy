@@ -9,6 +9,7 @@ use collab_database::views::{DatabaseLayout, DatabaseView};
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{FlowyError, FlowyResult};
+use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
@@ -60,7 +61,7 @@ impl DatabaseViewEditor {
     cell_cache: CellCache,
   ) -> FlowyResult<Self> {
     let (notifier, _) = broadcast::channel(100);
-    tokio::spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
+    af_spawn(DatabaseViewChangedReceiverRunner(Some(notifier.subscribe())).run());
     // Group
     let group_controller = Arc::new(RwLock::new(
       new_group_controller(view_id.clone(), delegate.clone()).await?,
@@ -237,7 +238,7 @@ impl DatabaseViewEditor {
     let row_id = row_detail.row.id.clone();
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Some(filter_controller) = weak_filter_controller.upgrade() {
         filter_controller
           .did_receive_row_changed(row_id.clone())
@@ -645,7 +646,7 @@ impl DatabaseViewEditor {
         let filter_type = UpdatedFilterType::new(Some(old), new);
         let filter_changeset = FilterChangeset::from_update(filter_type);
         let filter_controller = self.filter_controller.clone();
-        tokio::spawn(async move {
+        af_spawn(async move {
           if let Some(notification) = filter_controller
             .did_receive_changes(filter_changeset)
             .await

@@ -4,6 +4,10 @@ use serde_json::Value;
 
 use flowy_document2::entities::*;
 use flowy_document2::event_map::DocumentEvent;
+use flowy_document2::parser::parser_entities::{
+  ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB, ConvertDocumentPayloadPB,
+  ConvertDocumentResponsePB,
+};
 use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
 use flowy_folder2::event_map::FolderEvent;
 
@@ -34,7 +38,7 @@ impl DocumentEventTest {
 
   pub async fn create_document(&self) -> ViewPB {
     let core = &self.inner;
-    let current_workspace = core.get_current_workspace().await.workspace;
+    let current_workspace = core.get_current_workspace().await;
     let parent_id = current_workspace.id.clone();
 
     let payload = CreateViewPayloadPB {
@@ -106,6 +110,33 @@ impl DocumentEventTest {
       .payload(payload)
       .async_send()
       .await;
+  }
+
+  pub async fn convert_document(
+    &self,
+    payload: ConvertDocumentPayloadPB,
+  ) -> ConvertDocumentResponsePB {
+    let core = &self.inner;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::ConvertDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ConvertDocumentResponsePB>()
+  }
+
+  // convert data to json for document event test
+  pub async fn convert_data_to_json(
+    &self,
+    payload: ConvertDataToJsonPayloadPB,
+  ) -> ConvertDataToJsonResponsePB {
+    let core = &self.inner;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::ConvertDataToJSON)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ConvertDataToJsonResponsePB>()
   }
 
   pub async fn create_text(&self, payload: TextDeltaPayloadPB) {

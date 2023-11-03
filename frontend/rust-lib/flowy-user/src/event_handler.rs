@@ -93,7 +93,7 @@ pub async fn get_user_profile_handler(
   let cloned_user_profile = user_profile.clone();
 
   // Refresh the user profile in the background
-  tokio::spawn(async move {
+  af_spawn(async move {
     if let Some(manager) = weak_manager.upgrade() {
       let _ = manager.refresh_user_profile(&cloned_user_profile).await;
     }

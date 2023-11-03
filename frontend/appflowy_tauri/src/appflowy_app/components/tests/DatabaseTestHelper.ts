@@ -6,7 +6,6 @@ import {
   ViewPB,
   WorkspaceSettingPB,
 } from '../../../services/backend';
-import { FolderEventGetCurrentWorkspace } from '../../../services/backend/events/flowy-folder2';
 import { DatabaseController } from '../../stores/effects/database/database_controller';
 import { RowInfo } from '../../stores/effects/database/row/row_cache';
 import { RowController } from '../../stores/effects/database/row/row_controller';
@@ -28,12 +27,15 @@ import { makeSingleSelectTypeOptionContext } from '../../stores/effects/database
 import { SelectOptionBackendService } from '../../stores/effects/database/cell/select_option_bd_svc';
 import { Log } from '$app/utils/log';
 import { WorkspaceController } from '../../stores/effects/workspace/workspace_controller';
+import { FolderEventGetCurrentWorkspaceSetting } from '@/services/backend/events/flowy-folder2';
 
 // Create a database page for specific layout type
 // Do not use it production code. Just for testing
 export async function createTestDatabaseView(layout: ViewLayoutPB): Promise<ViewPB> {
-  const workspaceSetting: WorkspaceSettingPB = await FolderEventGetCurrentWorkspace().then((result) => result.unwrap());
-  const wsSvc = new WorkspaceController(workspaceSetting.workspace.id);
+  const workspaceSetting: WorkspaceSettingPB = await FolderEventGetCurrentWorkspaceSetting().then((result) =>
+    result.unwrap()
+  );
+  const wsSvc = new WorkspaceController(workspaceSetting.workspace_id);
   const viewRes = await wsSvc.createView({ name: 'New Grid', layout });
 
   return viewRes;

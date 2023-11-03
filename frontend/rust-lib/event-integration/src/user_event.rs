@@ -6,6 +6,7 @@ use bytes::Bytes;
 use nanoid::nanoid;
 use protobuf::ProtobufError;
 use tokio::sync::broadcast::{channel, Sender};
+use tracing::error;
 use uuid::Uuid;
 
 use flowy_notification::entities::SubscribeObject;
@@ -17,7 +18,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent::*;
-use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
+use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher, AFPluginRequest, ToBytes};
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -44,7 +45,7 @@ impl EventIntegrationTest {
   }
 
   pub async fn new_with_guest_user() -> Self {
-    let test = Self::default();
+    let test = Self::new().await;
     test.sign_up_as_guest().await;
     test
   }
@@ -213,7 +214,7 @@ impl TestNotificationSender {
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
     let ty = ty.into();
-    tokio::spawn(async move {
+    af_spawn(async move {
       // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
@@ -245,7 +246,7 @@ impl TestNotificationSender {
     let id = id.to_string();
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(value) = receiver.recv().await {
         if value.id == id {
           if let Some(payload) = value.payload {
@@ -263,7 +264,9 @@ impl TestNotificationSender {
 }
 impl NotificationSender for TestNotificationSender {
   fn send_subject(&self, subject: SubscribeObject) -> Result<(), String> {
-    let _ = self.sender.send(subject);
+    if let Err(err) = self.sender.send(subject) {
+      error!("Failed to send notification: {:?}", err);
+    }
     Ok(())
   }
 }

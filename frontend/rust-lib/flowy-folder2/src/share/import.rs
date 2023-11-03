@@ -1,4 +1,4 @@
-use collab_folder::core::ViewLayout;
+use collab_folder::ViewLayout;
 
 #[derive(Clone, Debug)]
 pub enum ImportType {

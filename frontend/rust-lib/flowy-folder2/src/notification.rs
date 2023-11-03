@@ -1,12 +1,8 @@
-use std::sync::Arc;
-
-use collab_folder::core::{View, Workspace};
-
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 use lib_dispatch::prelude::ToBytes;
 
-use crate::entities::{view_pb_without_child_views, WorkspacePB, WorkspaceSettingPB};
+use crate::entities::{ViewPB, WorkspaceSettingPB};
 
 const FOLDER_OBSERVABLE_SOURCE: &str = "Workspace";
 
@@ -82,13 +78,11 @@ pub(crate) fn send_workspace_notification<T: ToBytes>(ty: FolderNotification, pa
 }
 
 pub(crate) fn send_workspace_setting_notification(
-  current_workspace: Option<Workspace>,
-  current_view: Option<Arc<View>>,
+  workspace_id: String,
+  latest_view: Option<ViewPB>,
 ) -> Option<()> {
-  let workspace: WorkspacePB = current_workspace?.into();
-  let latest_view = current_view.map(view_pb_without_child_views);
   let setting = WorkspaceSettingPB {
-    workspace,
+    workspace_id,
     latest_view,
   };
   send_workspace_notification(FolderNotification::DidUpdateWorkspaceSetting, setting);
