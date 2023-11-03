@@ -44,10 +44,7 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: 6aba8dd
-  appflowy_editor:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "7336274"
+  appflowy_editor: ^1.5.1
   appflowy_popover:
     path: packages/appflowy_popover
 
@@ -110,6 +107,10 @@ dependencies:
   go_router: ^10.1.2
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
+  emoji_mart:
+    git:
+      url: https://github.com/LucasXu0/emoji_mart.git
+      ref: "067f718"
 
   # Notifications
   # TODO: Consider implementing custom package

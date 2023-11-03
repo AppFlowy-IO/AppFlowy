@@ -2,7 +2,9 @@ use collab_document::blocks::json_str_to_hashmap;
 use event_integration::document::document_event::DocumentEventTest;
 use event_integration::document::utils::*;
 use flowy_document2::entities::*;
-use flowy_document2::parser::parser_entities::{ConvertDocumentPayloadPB, ExportTypePB};
+use flowy_document2::parser::parser_entities::{
+  ConvertDataToJsonPayloadPB, ConvertDocumentPayloadPB, InputType, NestedBlock, ParseTypePB,
+};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -125,7 +127,7 @@ async fn apply_text_delta_test() {
 macro_rules! generate_convert_document_test_cases {
   ($($json:ident, $text:ident, $html:ident),*) => {
     [
-        $((ExportTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
+        $((ParseTypePB { json: $json, text: $text, html: $html }, ($json, $text, $html))),*
     ]
   };
 }
@@ -145,11 +147,61 @@ async fn convert_document_test() {
     let copy_payload = ConvertDocumentPayloadPB {
       document_id: view.id.to_string(),
       range: None,
-      export_types: export_types.clone(),
+      parse_types: export_types.clone(),
     };
     let result = test.convert_document(copy_payload).await;
     assert_eq!(result.json.is_some(), *json_assert);
     assert_eq!(result.text.is_some(), *text_assert);
     assert_eq!(result.html.is_some(), *html_assert);
   }
+}
+
+/// test convert data to json
+/// - input html: <p>Hello</p><p> World!</p>
+/// - input plain text: Hello World!
+/// - output json: { "type": "page", "data": {}, "children": [{ "type": "paragraph", "children": [], "data": { "delta": [{ "insert": "Hello" }] } }, { "type": "paragraph", "children": [], "data": { "delta": [{ "insert": " World!" }] } }] }
+#[tokio::test]
+async fn convert_data_to_json_test() {
+  let test = DocumentEventTest::new().await;
+  let _ = test.create_document().await;
+
+  let html = r#"<p>Hello</p><p>World!</p>"#;
+  let payload = ConvertDataToJsonPayloadPB {
+    data: html.to_string(),
+    input_type: InputType::Html,
+  };
+  let result = test.convert_data_to_json(payload).await;
+  let expect_json = json!({
+    "type": "page",
+    "data": {},
+    "children": [{
+      "type": "paragraph",
+      "children": [],
+      "data": {
+        "delta": [{ "insert": "Hello" }]
+      }
+    }, {
+      "type": "paragraph",
+      "children": [],
+      "data": {
+        "delta": [{ "insert": "World!" }]
+      }
+    }]
+  });
+
+  let expect_json = serde_json::from_value::<NestedBlock>(expect_json).unwrap();
+  assert!(serde_json::from_str::<NestedBlock>(&result.json)
+    .unwrap()
+    .eq(&expect_json));
+
+  let plain_text = "Hello\nWorld!";
+  let payload = ConvertDataToJsonPayloadPB {
+    data: plain_text.to_string(),
+    input_type: InputType::PlainText,
+  };
+  let result = test.convert_data_to_json(payload).await;
+
+  assert!(serde_json::from_str::<NestedBlock>(&result.json)
+    .unwrap()
+    .eq(&expect_json));
 }

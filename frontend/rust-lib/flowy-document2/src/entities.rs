@@ -319,6 +319,7 @@ pub struct ExportDataPB {
   #[pb(index = 2)]
   pub export_type: ExportType,
 }
+
 #[derive(PartialEq, Eq, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ConvertType {
   #[default]
@@ -337,6 +338,7 @@ impl From<i32> for ConvertType {
   }
 }
 
+/// for convert data to document
 /// for the json type
 /// the data is the json string
 #[derive(Default, ProtoBuf, Debug)]

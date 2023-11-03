@@ -1,7 +1,4 @@
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_drag_handler.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_rename_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_body.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_header.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
@@ -9,6 +6,19 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+Future<void> showMobileBottomSheet({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) async {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    enableDrag: true,
+    useSafeArea: true,
+    builder: builder,
+  );
+}
 
 enum MobileBottomSheetType {
   view,
@@ -42,21 +52,18 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // drag handler
-        const MobileBottomSheetDragHandler(),
-
-        // header
-        _buildHeader(),
-        const VSpace(8.0),
-        const Divider(),
-
-        // body
-        _buildBody(),
-        const VSpace(24.0),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // header
+          _buildHeader(),
+          const VSpace(16),
+          // body
+          _buildBody(),
+        ],
+      ),
     );
   }
 
@@ -90,23 +97,24 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 });
                 break;
               case MobileViewItemBottomSheetBodyAction.duplicate:
-                context.read<ViewBloc>().add(const ViewEvent.duplicate());
                 context.pop();
+                context.read<ViewBloc>().add(const ViewEvent.duplicate());
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
                 context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.delete:
-                context.read<ViewBloc>().add(const ViewEvent.delete());
                 context.pop();
+                context.read<ViewBloc>().add(const ViewEvent.delete());
+
                 break;
               case MobileViewItemBottomSheetBodyAction.addToFavorites:
               case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
+                context.pop();
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
-                context.pop();
                 break;
             }
           },
