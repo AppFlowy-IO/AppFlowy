@@ -14,7 +14,7 @@ export const insertAfterNodeThunk = createAsyncThunk(
       id: string;
       controller: DocumentController;
       type: BlockType;
-      data?: BlockData<any>;
+      data?: BlockData;
       defaultDelta?: Delta;
     },
     thunkAPI
@@ -22,8 +22,7 @@ export const insertAfterNodeThunk = createAsyncThunk(
     const { controller, id, type, data, defaultDelta } = payload;
     const { getState } = thunkAPI;
     const state = getState() as RootState;
-    const docId = controller.documentId;
-    const documentState = state[DOCUMENT_NAME][docId];
+    const documentState = state[DOCUMENT_NAME][controller.documentId];
     const node = documentState.nodes[id];
 
     if (!node) return;
@@ -34,8 +33,9 @@ export const insertAfterNodeThunk = createAsyncThunk(
     const actions = [];
     let newNodeId;
     const deltaOperator = new BlockDeltaOperator(documentState, controller);
+
     if (type === BlockType.DividerBlock) {
-      const newNode = newBlock<any>(type, parentId, data);
+      const newNode = newBlock(type, parentId, data);
 
       actions.push(controller.getInsertAction(newNode, node.id));
       newNodeId = newNode.id;
@@ -64,7 +64,7 @@ export const insertAfterNodeThunk = createAsyncThunk(
           })
         );
       } else {
-        const newNode = newBlock<any>(type, parentId, data);
+        const newNode = newBlock(type, parentId, data);
 
         actions.push(controller.getInsertAction(newNode, node.id));
         newNodeId = newNode.id;

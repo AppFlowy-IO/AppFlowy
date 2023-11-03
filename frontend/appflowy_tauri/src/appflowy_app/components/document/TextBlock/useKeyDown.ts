@@ -10,10 +10,9 @@ import {
 import { useTurnIntoBlockEvents } from './useTurnIntoBlockEvents';
 import { useCommonKeyEvents } from '../_shared/EditorHooks/useCommonKeyEvents';
 import { useSubscribeDocument } from '$app/components/document/_shared/SubscribeDoc.hooks';
-import { openMention } from '$app_reducers/document/async-actions/mention';
 
 export function useKeyDown(id: string) {
-  const { controller, docId } = useSubscribeDocument();
+  const { controller } = useSubscribeDocument();
   const dispatch = useAppDispatch();
   const turnIntoEvents = useTurnIntoBlockEvents(id);
   const commonKeyEvents = useCommonKeyEvents(id);
@@ -34,9 +33,9 @@ export function useKeyDown(id: string) {
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.ENTER, e);
         },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handler: () => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             enterActionForBlockThunk({
               id,
               controller,
@@ -58,9 +57,9 @@ export function useKeyDown(id: string) {
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.TAB, e);
         },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handler: () => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             tabActionForBlockThunk({
               id,
               controller,
@@ -73,9 +72,9 @@ export function useKeyDown(id: string) {
         canHandle: (e: React.KeyboardEvent<HTMLDivElement>) => {
           return isHotkey(Keyboard.keys.SHIFT_TAB, e);
         },
-        handler: (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handler: () => {
           if (!controller) return;
-          dispatch(
+          void dispatch(
             shiftTabActionForBlockThunk({
               id,
               controller,

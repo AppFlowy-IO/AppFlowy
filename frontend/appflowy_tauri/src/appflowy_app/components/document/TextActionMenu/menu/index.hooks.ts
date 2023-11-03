@@ -36,6 +36,7 @@ export function useTextActionMenu() {
     return groups.map((group) => {
       return group.filter((item) => items.includes(item));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(items), node]);
 
   return {

@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
 import { DOCUMENT_NAME, EQUATION_PLACEHOLDER, RANGE_NAME, TEMPORARY_NAME } from '$app/constants/document/name';
-import { getDeltaByRange, getDeltaText } from '$app/utils/document/delta';
 import Delta from 'quill-delta';
 import { TemporaryState, TemporaryType } from '$app/interfaces/document';
 import { temporaryActions } from '$app_reducers/document/temporary_slice';

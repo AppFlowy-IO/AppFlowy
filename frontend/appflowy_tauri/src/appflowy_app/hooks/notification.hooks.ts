@@ -1,4 +1,5 @@
 /* eslint-disable no-redeclare */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { SubscribeObject } from '@/services/backend/models/flowy-notification';
@@ -19,10 +20,10 @@ const NotificationPBMap = {
   [DatabaseNotification.DidUpdateViewRowsVisibility]: RowsVisibilityChangePB,
   [DatabaseNotification.DidUpdateViewRows]: RowsChangePB,
   [DatabaseNotification.DidReorderRows]: ReorderAllRowsPB,
-  [DatabaseNotification.DidReorderSingleRow]:ReorderSingleRowPB,
-  [DatabaseNotification.DidUpdateFields]:DatabaseFieldChangesetPB,
-  [DatabaseNotification.DidGroupByField]:GroupChangesPB,
-  [DatabaseNotification.DidUpdateNumOfGroups]:GroupChangesPB,
+  [DatabaseNotification.DidReorderSingleRow]: ReorderSingleRowPB,
+  [DatabaseNotification.DidUpdateFields]: DatabaseFieldChangesetPB,
+  [DatabaseNotification.DidGroupByField]: GroupChangesPB,
+  [DatabaseNotification.DidUpdateNumOfGroups]: GroupChangesPB,
   [DatabaseNotification.DidUpdateGroupRow]: GroupRowsNotificationPB,
   [DatabaseNotification.DidUpdateField]: FieldPB,
   [DatabaseNotification.DidUpdateCell]: null,
@@ -33,7 +34,11 @@ type NotificationMap = typeof NotificationPBMap;
 
 type NotificationEnum = keyof NotificationMap;
 
-type NullableInstanceType<K extends ((abstract new (...args: any) => any) | null)> = K extends (abstract new (...args: any) => any) ? InstanceType<K> : void;
+type NullableInstanceType<K extends (abstract new (...args: any) => any) | null> = K extends abstract new (
+  ...args: any
+) => any
+  ? InstanceType<K>
+  : void;
 
 type NotificationHandler<K extends NotificationEnum> = (result: NullableInstanceType<NotificationMap[K]>) => void;
 
@@ -82,9 +87,9 @@ export function subscribeNotifications(
   callbacks: {
     [K in NotificationEnum]?: NotificationHandler<K>;
   },
-  options?: { id?: string },
+  options?: { id?: string }
 ): Promise<() => void> {
-  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', event => {
+  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', (event) => {
     const subject = SubscribeObject.fromObject(event.payload);
     const { id, ty } = subject;
 
@@ -114,7 +119,7 @@ export function subscribeNotifications(
 export function subscribeNotification<K extends NotificationEnum>(
   notification: K,
   callback: NotificationHandler<K>,
-  options?: { id?: string },
+  options?: { id?: string }
 ): Promise<() => void> {
   return subscribeNotifications({ [notification]: callback }, options);
 }
@@ -122,7 +127,7 @@ export function subscribeNotification<K extends NotificationEnum>(
 export function useNotification<K extends NotificationEnum>(
   notification: K,
   callback: NotificationHandler<K>,
-  options: { id?: string },
+  options: { id?: string }
 ): void {
   const { id } = options;
 
@@ -130,7 +135,7 @@ export function useNotification<K extends NotificationEnum>(
     const unsubscribePromise = subscribeNotification(notification, callback, { id });
 
     return () => {
-      void unsubscribePromise.then(fn => fn());
+      void unsubscribePromise.then((fn) => fn());
     };
   }, [callback, id, notification]);
 }

@@ -7,6 +7,7 @@ const initialState: MentionState = {
   open: false,
   blockId: '',
 };
+
 export function useSubscribeMentionState() {
   const { docId } = useSubscribeDocument();
 

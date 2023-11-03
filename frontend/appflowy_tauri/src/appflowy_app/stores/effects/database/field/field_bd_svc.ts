@@ -55,11 +55,13 @@ export class FieldBackendService {
 
   deleteField = () => {
     const payload = DeleteFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
+
     return DatabaseEventDeleteField(payload);
   };
 
   duplicateField = () => {
     const payload = DuplicateFieldPayloadPB.fromObject({ view_id: this.viewId, field_id: this.fieldId });
+
     return DatabaseEventDuplicateField(payload);
   };
 

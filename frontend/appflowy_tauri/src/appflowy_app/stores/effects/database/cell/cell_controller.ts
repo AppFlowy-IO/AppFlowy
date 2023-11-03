@@ -55,6 +55,7 @@ export class CellController<T, D> {
         if (this.cellDataLoader.reloadOnFieldChanged) {
           await this._loadCellData();
         }
+
         this.subscribeCallbacks?.onFieldChanged?.();
       },
     });
@@ -71,6 +72,7 @@ export class CellController<T, D> {
 
   getTypeOption = async <P extends TypeOptionParser<PD>, PD>(parser: P) => {
     const result = await this.fieldBackendService.getTypeOptionData(this.cellIdentifier.fieldType);
+
     if (result.ok) {
       return Ok(parser.fromBuffer(result.val.type_option_data));
     } else {
@@ -80,6 +82,7 @@ export class CellController<T, D> {
 
   saveCellData = async (data: D) => {
     const result = await this.cellDataPersistence.save(data);
+
     if (result.err) {
       Log.error(result.val);
     }
@@ -90,17 +93,21 @@ export class CellController<T, D> {
   /// subscribers of the [onCellChanged] will get noticed
   getCellData = async (): Promise<Option<T>> => {
     const cellData = this.cellCache.get<T>(this.cacheKey);
+
     if (cellData.none) {
       await this._loadCellData();
       return this.cellCache.get<T>(this.cacheKey);
     }
+
     return cellData;
   };
 
   private _loadCellData = async () => {
     const result = await this.cellDataLoader.loadData();
+
     if (result.ok) {
       const cellData = result.val;
+
       if (cellData.some) {
         this.cellCache.insert(this.cacheKey, cellData.val);
         this.cellDataNotifier.cellData = cellData;

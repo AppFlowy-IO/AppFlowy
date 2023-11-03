@@ -48,18 +48,23 @@ export class TypeOptionController {
         throw Error('Unexpected empty type option data. Should call initialize first');
       }
     }
+
     return new FieldInfo(this.typeOptionData.val.field);
   };
 
   switchToField = async (fieldType: FieldType) => {
     const result = await this.typeOptionBackendSvc.updateTypeOptionType(this.fieldId, fieldType);
+
     if (result.ok) {
       const getResult = await this.typeOptionBackendSvc.getTypeOption(this.fieldId, fieldType);
+
       if (getResult.ok) {
         this.updateTypeOptionData(getResult.val);
       }
+
       return getResult;
     }
+
     return result;
   };
 
@@ -114,6 +119,7 @@ export class TypeOptionController {
     if (this.fieldBackendSvc === undefined) {
       Log.error('Unexpected empty field backend service');
     }
+
     return this.fieldBackendSvc?.deleteField();
   };
 
@@ -121,6 +127,7 @@ export class TypeOptionController {
     if (this.fieldBackendSvc === undefined) {
       Log.error('Unexpected empty field backend service');
     }
+
     return this.fieldBackendSvc?.duplicateField();
   };
 
@@ -130,6 +137,7 @@ export class TypeOptionController {
       if (result.ok) {
         this.updateTypeOptionData(result.val);
       }
+
       return result;
     });
   };
@@ -139,6 +147,7 @@ export class TypeOptionController {
       if (result.ok) {
         this.updateTypeOptionData(result.val);
       }
+
       return result;
     });
   };

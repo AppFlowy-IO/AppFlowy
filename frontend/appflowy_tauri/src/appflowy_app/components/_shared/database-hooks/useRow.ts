@@ -18,6 +18,7 @@ export const useRow = (viewId: string, databaseController: DatabaseController, r
     const rowCache = databaseController.databaseViewCache.getRowCache();
     const fieldController = databaseController.fieldController;
     const c = new RowController(rowInfo, fieldController, rowCache);
+
     setRowController(c);
 
     return () => {
@@ -46,6 +47,7 @@ export const useRow = (viewId: string, databaseController: DatabaseController, r
   const onNewColumnClick = async (initialFieldType: FieldType = FieldType.RichText, name?: string) => {
     if (!databaseController) return;
     const controller = new TypeOptionController(viewId, None, initialFieldType);
+
     await controller.initialize();
     if (name) {
       await controller.setFieldName(name);
