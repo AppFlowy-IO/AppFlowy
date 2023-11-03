@@ -9,13 +9,13 @@ import { DatabaseSettings } from './components/database_settings';
 
 export const Database = () => {
   const viewId = useViewId();
-  const [ views, setViews ] = useState<DatabaseViewType[]>([]);
-  const [ selectedViewId, selectViewId ] = useSelectDatabaseView();
-  const activeView = useMemo(() => views?.find(view => view.id === selectedViewId), [views, selectedViewId]);
+  const [views, setViews] = useState<DatabaseViewType[]>([]);
+  const [selectedViewId, selectViewId] = useSelectDatabaseView();
+  const activeView = useMemo(() => views?.find((view) => view.id === selectedViewId), [views, selectedViewId]);
 
   useEffect(() => {
     setViews([]);
-    void databaseViewService.getDatabaseViews(viewId).then(value => {
+    void databaseViewService.getDatabaseViews(viewId).then((value) => {
       setViews(value);
     });
   }, [viewId]);
@@ -30,13 +30,13 @@ export const Database = () => {
     }
   }, [views, activeView, selectViewId]);
 
-  return activeView && (
+  return activeView ? (
     <DatabaseLoader viewId={viewId}>
-      <div className="px-16">
+      <div className='px-16'>
         <DatabaseTabBar views={views} />
         <DatabaseSettings />
       </div>
       <DatabaseView />
     </DatabaseLoader>
-  );
+  ) : null;
 };
