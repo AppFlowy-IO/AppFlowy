@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database_view/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_day.dart';
 import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_event_card.dart';
@@ -59,6 +60,7 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_board/appflowy_board.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -1388,6 +1390,84 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is TarBarAddButtonActionCell && widget.action == action,
     );
     await tapButton(findCreateButton);
+  }
+
+  void assertNumberOfGroups(int number) {
+    final groups = find.byType(BoardColumnHeader, skipOffstage: false);
+    expect(groups, findsNWidgets(number));
+  }
+
+  Future<void> scrollBoardToEnd() async {
+    final scrollable = find
+        .descendant(
+          of: find.byType(AppFlowyBoard),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable && widget.axis == Axis.horizontal,
+          ),
+        )
+        .first;
+    await scrollUntilVisible(
+      find.byType(BoardTrailing),
+      300,
+      scrollable: scrollable,
+    );
+  }
+
+  Future<void> tapNewGroupButton() async {
+    final button = find.descendant(
+      of: find.byType(BoardTrailing),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.add_s,
+      ),
+    );
+    expect(button, findsOneWidget);
+    await tapButton(button);
+  }
+
+  void assertNewGroupTextField(bool isVisible) {
+    final textField = find.descendant(
+      of: find.byType(BoardTrailing),
+      matching: find.byType(TextField),
+    );
+    if (isVisible) {
+      expect(textField, findsOneWidget);
+    } else {
+      expect(textField, findsNothing);
+    }
+  }
+
+  Future<void> enterNewGroupName(String name, {required bool submit}) async {
+    final textField = find.descendant(
+      of: find.byType(BoardTrailing),
+      matching: find.byType(TextField),
+    );
+    await enterText(textField, name);
+    await pumpAndSettle();
+    if (submit) {
+      await testTextInput.receiveAction(TextInputAction.done);
+      await pumpAndSettle();
+    }
+  }
+
+  Future<void> clearNewGroupTextField() async {
+    final textField = find.descendant(
+      of: find.byType(BoardTrailing),
+      matching: find.byType(TextField),
+    );
+    await tapButton(
+      find.descendant(
+        of: textField,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is FlowySvg && widget.svg == FlowySvgs.close_filled_m,
+        ),
+      ),
+    );
+    final textFieldWidget = widget<TextField>(textField);
+    assert(
+      textFieldWidget.controller != null &&
+          textFieldWidget.controller!.text.isEmpty,
+    );
   }
 
   Future<void> tapTabBarLinkedViewByViewName(String name) async {
