@@ -1,6 +1,7 @@
 use anyhow::Error;
 
 use flowy_document_deps::cloud::*;
+use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
@@ -10,7 +11,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

@@ -70,7 +70,7 @@ where
     })
   }
 
-  fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
+  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
 

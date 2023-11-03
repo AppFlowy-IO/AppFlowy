@@ -1,7 +1,6 @@
 use std::string::ToString;
 use std::sync::{Arc, Weak};
 
-use anyhow::Context;
 use collab_user::core::MutexUserAwareness;
 use serde_json::Value;
 use tokio::sync::{Mutex, RwLock};
@@ -56,7 +55,7 @@ impl UserSessionConfig {
 }
 
 pub struct UserManager {
-  database: UserDB,
+  database: Arc<UserDB>,
   session_config: UserSessionConfig,
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
   pub(crate) store_preferences: Arc<StorePreferences>,
@@ -65,7 +64,7 @@ pub struct UserManager {
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
   resumable_sign_up: Mutex<Option<ResumableSignUp>>,
-  current_session: parking_lot::RwLock<Option<Session>>,
+  current_session: Arc<parking_lot::RwLock<Option<Session>>>,
 }
 
 impl UserManager {
@@ -75,7 +74,7 @@ impl UserManager {
     store_preferences: Arc<StorePreferences>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Arc<Self> {
-    let database = UserDB::new(&session_config.root_dir);
+    let database = Arc::new(UserDB::new(&session_config.root_dir));
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
 
@@ -153,8 +152,10 @@ impl UserManager {
         event!(tracing::Level::DEBUG, "Listen token state change");
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
+            debug!("Token state changed: {:?}", token_state);
             match token_state {
               UserTokenState::Refresh { token } => {
+                // Only save the token if the token is different from the current token
                 if token != user.token {
                   if let Some(pool) = weak_pool.upgrade() {
                     // Save the new token
@@ -164,20 +165,14 @@ impl UserManager {
                   }
                 }
               },
-              UserTokenState::Invalid => {
-                send_auth_state_notification(AuthStateChangedPB {
-                  state: AuthStatePB::InvalidAuth,
-                  message: "Token is invalid".to_string(),
-                })
-                .send();
-              },
+              UserTokenState::Invalid => {},
             }
           }
         });
       }
 
       // Do the user data migration if needed
-      event!(tracing::Level::INFO, "Start user data migration");
+      event!(tracing::Level::INFO, "Prepare user data migration");
       match (
         self.database.get_collab_db(session.user_id),
         self.database.get_pool(session.user_id),
@@ -474,7 +469,7 @@ impl UserManager {
     Ok(user)
   }
 
-  #[tracing::instrument(level = "info", skip_all)]
+  #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
     let uid = old_user_profile.uid;
     let result: Result<UserProfile, FlowyError> = self
@@ -517,12 +512,12 @@ impl UserManager {
       },
       Err(err) => {
         // If the user is not found, notify the frontend to logout
-        if err.is_record_not_found() {
+        if err.is_unauthorized() {
           event!(
-            tracing::Level::INFO,
-            "User is not found on the server when refreshing profile"
+            tracing::Level::ERROR,
+            "User is unauthorized, sign out the user"
           );
-
+          self.sign_out().await?;
           send_auth_state_notification(AuthStateChangedPB {
             state: AuthStatePB::InvalidAuth,
             message: "User is not found on the server".to_string(),

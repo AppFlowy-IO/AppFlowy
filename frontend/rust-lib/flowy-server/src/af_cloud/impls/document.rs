@@ -20,7 +20,7 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
     let document_id = document_id.to_string();

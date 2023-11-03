@@ -106,7 +106,7 @@ pub async fn get_user_profile_handler(
   }
 
   event!(
-    tracing::Level::DEBUG,
+    tracing::Level::TRACE,
     "Get user profile: {:?}",
     user_profile
   );
@@ -115,7 +115,7 @@ pub async fn get_user_profile_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager))]
-pub async fn sign_out(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
+pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   manager.sign_out().await?;
   Ok(())

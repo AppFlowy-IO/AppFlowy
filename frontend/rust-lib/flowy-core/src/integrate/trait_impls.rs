@@ -258,7 +258,7 @@ impl DocumentCloudService for ServerProvider {
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
     let server = self.get_server(&self.get_server_type());
@@ -330,7 +330,7 @@ impl CollabStorageProvider for ServerProvider {
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
                   .send_timeout(6)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(4)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
