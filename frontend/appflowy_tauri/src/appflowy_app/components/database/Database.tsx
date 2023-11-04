@@ -1,42 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useViewId } from '$app/hooks';
-import { DatabaseView as DatabaseViewType, databaseViewService } from './application';
+import { useEffect, useState } from 'react';
+import { useViewId } from '$app/hooks/ViewId.hooks';
+import { databaseViewService } from './application';
 import { DatabaseTabBar } from './components';
-import { useSelectDatabaseView } from './Database.hooks';
 import { DatabaseLoader } from './DatabaseLoader';
 import { DatabaseView } from './DatabaseView';
-import { DatabaseSettings } from './components/database_settings';
+import { DatabaseCollection } from './components/database_settings';
 
-export const Database = () => {
+interface Props {
+  selectedViewId?: string;
+  setSelectedViewId?: (viewId: string) => void;
+}
+
+export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const viewId = useViewId();
-  const [views, setViews] = useState<DatabaseViewType[]>([]);
-  const [selectedViewId, selectViewId] = useSelectDatabaseView();
-  const activeView = useMemo(() => views?.find((view) => view.id === selectedViewId), [views, selectedViewId]);
+  const [childViewIds, setChildViewIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setViews([]);
     void databaseViewService.getDatabaseViews(viewId).then((value) => {
-      setViews(value);
+      setChildViewIds(value.map((view) => view.id));
     });
   }, [viewId]);
 
-  useEffect(() => {
-    if (!activeView) {
-      const firstViewId = views?.[0]?.id;
-
-      if (firstViewId) {
-        selectViewId(firstViewId);
-      }
-    }
-  }, [views, activeView, selectViewId]);
-
-  return activeView ? (
-    <DatabaseLoader viewId={viewId}>
-      <div className='px-16'>
-        <DatabaseTabBar views={views} />
-        <DatabaseSettings />
+  return (
+    <DatabaseLoader viewId={selectedViewId || viewId}>
+      <div className=''>
+        <DatabaseTabBar
+          setSelectedViewId={setSelectedViewId}
+          selectedViewId={selectedViewId}
+          childViewIds={childViewIds}
+        />
+        <DatabaseCollection />
       </div>
       <DatabaseView />
     </DatabaseLoader>
-  ) : null;
+  );
 };

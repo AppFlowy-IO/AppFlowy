@@ -5,12 +5,12 @@ import { useViewId } from '$app/hooks';
 
 export const DatabaseTitle = () => {
   const viewId = useViewId();
-  const [ title, setTitle ] = useState('');
+  const [title, setTitle] = useState('');
 
-  const controller = useMemo(() => new PageController(viewId), [ viewId ]);
+  const controller = useMemo(() => new PageController(viewId), [viewId]);
 
   useEffect(() => {
-    void controller.getPage().then(page => {
+    void controller.getPage().then((page) => {
       setTitle(page.name);
     });
 
@@ -23,21 +23,24 @@ export const DatabaseTitle = () => {
     return () => {
       void controller.unsubscribe();
     };
-  }, [ controller ]);
+  }, [controller]);
 
-  const handleInput = useCallback<FormEventHandler>((event) => {
-    const newTitle = (event.target as HTMLInputElement).value;
+  const handleInput = useCallback<FormEventHandler>(
+    (event) => {
+      const newTitle = (event.target as HTMLInputElement).value;
 
-    void controller.updatePage({
-      id: viewId,
-      name: newTitle,
-    });
-  }, [ viewId, controller ]);
+      void controller.updatePage({
+        id: viewId,
+        name: newTitle,
+      });
+    },
+    [viewId, controller]
+  );
 
   return (
-    <div className="px-16 pt-8 mb-6">
+    <div className='mb-6 pt-8'>
       <input
-        className="text-3xl font-semibold"
+        className='text-3xl font-semibold'
         value={title}
         placeholder={t('grid.title.placeholder')}
         onInput={handleInput}

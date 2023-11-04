@@ -75,14 +75,13 @@ export default function BlockSideToolbar({ id }: { id: string }) {
             }}
             data-draggable-anchor={id}
             onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
+              handleOpen(e);
               await dispatch(
                 setRectSelectionThunk({
                   docId,
                   selection: [id],
                 })
               );
-
-              handleOpen(e);
             }}
             sx={{
               height: 24,

@@ -3,13 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { proxy, useSnapshot } from 'valtio';
 import { DatabaseLayoutPB, DatabaseNotification } from '@/services/backend';
 import { subscribeNotifications } from '$app/hooks';
-import {
-  Database,
-  databaseService,
-  fieldService,
-  rowListeners,
-  sortListeners,
-} from './application';
+import { Database, databaseService, fieldService, rowListeners, sortListeners } from './application';
 
 const VerticalScrollElementRefContext = createContext<RefObject<Element>>(createRef());
 
@@ -20,13 +14,19 @@ export function useSelectDatabaseView() {
   const key = 'v';
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const selectedViewId = useMemo(() => searchParams.get(key), [searchParams]);
+  const selectedViewId = useMemo(() => searchParams.get(key) || undefined, [searchParams]);
 
-  const selectViewId = useCallback((value: string) => {
-    setSearchParams({ [key]: value });
-  }, [setSearchParams]);
+  const onChange = useCallback(
+    (value: string) => {
+      setSearchParams({ [key]: value });
+    },
+    [setSearchParams]
+  );
 
-  return [selectedViewId, selectViewId] as const;
+  return {
+    selectedViewId,
+    onChange,
+  };
 }
 
 const DatabaseContext = createContext<Database>({
@@ -59,25 +59,28 @@ export const useConnectDatabase = (viewId: string) => {
       groups: [],
     });
 
-    void databaseService.openDatabase(viewId).then(value => Object.assign(proxyDatabase, value));
+    void databaseService.openDatabase(viewId).then((value) => Object.assign(proxyDatabase, value));
 
     return proxyDatabase;
   }, [viewId]);
 
   useEffect(() => {
-    const unsubscribePromise = subscribeNotifications({
-      [DatabaseNotification.DidUpdateFields]: async () => {
-        database.fields = await fieldService.getFields(viewId);
+    const unsubscribePromise = subscribeNotifications(
+      {
+        [DatabaseNotification.DidUpdateFields]: async () => {
+          database.fields = await fieldService.getFields(viewId);
+        },
+
+        [DatabaseNotification.DidUpdateViewRows]: (changeset) => rowListeners.didUpdateViewRows(database, changeset),
+        [DatabaseNotification.DidReorderRows]: (changeset) => rowListeners.didReorderRows(database, changeset),
+        [DatabaseNotification.DidReorderSingleRow]: (changeset) => rowListeners.didReorderSingleRow(database, changeset),
+
+        [DatabaseNotification.DidUpdateSort]: (changeset) => sortListeners.didUpdateSort(database, changeset),
       },
+      { id: viewId }
+    );
 
-      [DatabaseNotification.DidUpdateViewRows]: changeset => rowListeners.didUpdateViewRows(database, changeset),
-      [DatabaseNotification.DidReorderRows]: changeset => rowListeners.didReorderRows(database, changeset),
-      [DatabaseNotification.DidReorderSingleRow]: changeset => rowListeners.didReorderSingleRow(database, changeset),
-
-      [DatabaseNotification.DidUpdateSort]: changeset => sortListeners.didUpdateSort(database, changeset),
-    }, { id: viewId });
-
-    return () => void unsubscribePromise.then(unsubscribe => unsubscribe());
+    return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
   }, [viewId, database]);
 
   return database;

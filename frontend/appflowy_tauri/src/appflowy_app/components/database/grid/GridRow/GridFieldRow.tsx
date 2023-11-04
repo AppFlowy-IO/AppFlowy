@@ -8,14 +8,14 @@ import { useDatabase } from '../../Database.hooks';
 import { VirtualizedList } from '../../_shared';
 import { GridField } from '../GridField';
 import { useViewId } from '@/appflowy_app/hooks';
+import { useTranslation } from 'react-i18next';
 
 export interface GridFieldRowProps {
   virtualizer: Virtualizer<Element, Element>;
 }
 
-export const GridFieldRow: FC<GridFieldRowProps> = ({
-  virtualizer,
-}) => {
+export const GridFieldRow: FC<GridFieldRowProps> = ({ virtualizer }) => {
+  const { t } = useTranslation();
   const viewId = useViewId();
   const { fields } = useDatabase();
   const handleClick = async () => {
@@ -23,20 +23,17 @@ export const GridFieldRow: FC<GridFieldRowProps> = ({
   };
 
   return (
-    <div className="flex grow border-b border-line-divider">
+    <div className='flex grow border-b border-line-divider'>
       <VirtualizedList
-        className="flex"
+        className='flex'
         virtualizer={virtualizer}
-        itemClassName="flex border-r border-line-divider"
-        renderItem={index => <GridField field={fields[index]} />}
+        itemClassName='flex border-r border-line-divider'
+        renderItem={(index) => <GridField field={fields[index]} />}
       />
-      <div className="min-w-20 grow">
-        <Button
-          className="w-full h-full"
-          size="small"
-          startIcon={<AddSvg />}
-          onClick={handleClick}
-        />
+      <div className='min-w-20 grow'>
+        <Button color={'inherit'} className='h-full w-full' size='small' startIcon={<AddSvg />} onClick={handleClick}>
+          {t('grid.field.newColumn')}
+        </Button>
       </div>
     </div>
   );

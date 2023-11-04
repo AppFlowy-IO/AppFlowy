@@ -23,7 +23,7 @@ export const GridTable: FC = () => {
   const rowVirtualizer = useVirtualizer({
     count: renderRows.length,
     overscan: 10,
-    getItemKey: i => getRenderRowKey(renderRows[i]),
+    getItemKey: (i) => getRenderRowKey(renderRows[i]),
     getScrollElement: () => verticalScrollElementRef.current,
     estimateSize: () => 37,
   });
@@ -32,7 +32,7 @@ export const GridTable: FC = () => {
     horizontal: true,
     count: fields.length,
     overscan: 5,
-    getItemKey: i => fields[i].id,
+    getItemKey: (i) => fields[i].id,
     getScrollElement: () => horizontalScrollElementRef.current,
     estimateSize: (i) => fields[i].width ?? 201,
   });
@@ -40,16 +40,14 @@ export const GridTable: FC = () => {
   return (
     <div
       ref={horizontalScrollElementRef}
-      className="flex w-full overflow-x-auto px-16"
+      className='flex w-full overflow-x-auto border-t border-line-divider'
       style={{ minHeight: 'calc(100% - 132px)' }}
     >
       <VirtualizedList
-        className="flex flex-col basis-full"
+        className='flex basis-full flex-col'
         virtualizer={rowVirtualizer}
-        itemClassName="flex"
-        renderItem={index => (
-          <GridRow row={renderRows[index]} virtualizer={columnVirtualizer} />
-        )}
+        itemClassName='flex'
+        renderItem={(index) => <GridRow row={renderRows[index]} virtualizer={columnVirtualizer} />}
       />
     </div>
   );
