@@ -75,11 +75,7 @@ class GridTabBarBloc extends Bloc<GridTabBarEvent, GridTabBarState> {
           deleteView: (String viewId) async {
             final result = await ViewBackendService.delete(viewId: viewId);
             result.fold(
-              (l) {
-                emit(
-                  state.copyWith(isDeleted: true),
-                );
-              },
+              (l) {},
               (r) => Log.error(r),
             );
           },
