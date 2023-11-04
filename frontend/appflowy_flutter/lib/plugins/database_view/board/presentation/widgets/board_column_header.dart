@@ -113,8 +113,13 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
         }
 
         return AppFlowyGroupHeader(
+          height: 50,
           title: title,
           icon: _buildHeaderIcon(boardCustomData),
+          margin: widget.margin ?? EdgeInsets.zero,
+          onAddButtonClick: () => context
+              .read<BoardBloc>()
+              .add(BoardEvent.createHeaderRow(widget.groupData.id)),
           addIcon: SizedBox(
             height: 20,
             width: 20,
@@ -123,11 +128,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
               color: Theme.of(context).iconTheme.color,
             ),
           ),
-          onAddButtonClick: () => context
-              .read<BoardBloc>()
-              .add(BoardEvent.createHeaderRow(widget.groupData.id)),
-          height: 50,
-          margin: widget.margin ?? EdgeInsets.zero,
         );
       },
     );

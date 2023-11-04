@@ -1,5 +1,3 @@
-// ignore_for_file: unused_field
-
 import 'dart:collection';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -9,7 +7,6 @@ import 'package:appflowy/plugins/database_view/application/field/field_controlle
 import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database_view/board/presentation/widgets/board_column_header.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database_view/tar_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database_view/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
@@ -18,6 +15,7 @@ import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart' hide Card;
@@ -39,13 +37,8 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
-  ) {
-    return BoardPage(
-      key: _makeValueKey(controller),
-      view: view,
-      databaseController: controller,
-    );
-  }
+  ) =>
+      BoardPage(view: view, databaseController: controller);
 
   @override
   Widget settingBar(BuildContext context, DatabaseController controller) {
@@ -59,9 +52,8 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   Widget settingBarExtension(
     BuildContext context,
     DatabaseController controller,
-  ) {
-    return SizedBox.fromSize();
-  }
+  ) =>
+      const SizedBox.shrink();
 
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);
@@ -69,15 +61,15 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
 }
 
 class BoardPage extends StatelessWidget {
-  final DatabaseController databaseController;
   BoardPage({
     required this.view,
     required this.databaseController,
-    Key? key,
     this.onEditStateChanged,
   }) : super(key: ValueKey(view.id));
 
   final ViewPB view;
+
+  final DatabaseController databaseController;
 
   /// Called when edit state changed
   final VoidCallback? onEditStateChanged;
@@ -115,9 +107,9 @@ class BoardPage extends StatelessWidget {
 
 class BoardContent extends StatefulWidget {
   const BoardContent({
-    Key? key,
+    super.key,
     this.onEditStateChanged,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onEditStateChanged;
 
@@ -132,6 +124,8 @@ class _BoardContentState extends State<BoardContent> {
 
   final config = const AppFlowyBoardConfig(
     groupBackgroundColor: Color(0xffF7F8FC),
+    headerPadding: EdgeInsets.symmetric(horizontal: 6),
+    cardPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
   );
 
   @override
@@ -162,44 +156,43 @@ class _BoardContentState extends State<BoardContent> {
       },
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
-          return Padding(
-            padding: GridSize.contentInsets,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const VSpace(8.0),
-                if (state.layoutSettings?.hideUngroupedColumn ?? false)
-                  _buildBoardHeader(context),
-                Expanded(
-                  child: AppFlowyBoard(
-                    boardScrollController: scrollManager,
-                    scrollController: scrollController,
-                    controller: context.read<BoardBloc>().boardController,
-                    headerBuilder: (_, groupData) =>
-                        BlocProvider<BoardBloc>.value(
-                      value: context.read<BoardBloc>(),
-                      child: BoardColumnHeader(
-                        groupData: groupData,
-                        margin: config.headerPadding,
-                      ),
-                    ),
-                    footerBuilder: _buildFooter,
-                    trailing: BoardTrailing(scrollController: scrollController),
-                    cardBuilder: (_, column, columnItem) => _buildCard(
-                      context,
-                      column,
-                      columnItem,
-                    ),
-                    groupConstraints: const BoxConstraints.tightFor(width: 300),
-                    config: AppFlowyBoardConfig(
-                      groupBackgroundColor:
-                          Theme.of(context).colorScheme.surfaceVariant,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const VSpace(8.0),
+              if (state.layoutSettings?.hideUngroupedColumn ?? false)
+                _buildBoardHeader(context),
+              Expanded(
+                child: AppFlowyBoard(
+                  boardScrollController: scrollManager,
+                  scrollController: scrollController,
+                  controller: context.read<BoardBloc>().boardController,
+                  groupConstraints: const BoxConstraints.tightFor(width: 300),
+                  config: AppFlowyBoardConfig(
+                    groupPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    groupItemPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    groupBackgroundColor:
+                        Theme.of(context).colorScheme.surfaceVariant,
+                  ),
+                  leading: const HiddenGroupsColumn(),
+                  headerBuilder: (_, groupData) =>
+                      BlocProvider<BoardBloc>.value(
+                    value: context.read<BoardBloc>(),
+                    child: BoardColumnHeader(
+                      groupData: groupData,
+                      margin: config.headerPadding,
                     ),
                   ),
-                )
-              ],
-            ),
+                  footerBuilder: _buildFooter,
+                  cardBuilder: (_, column, columnItem) => _buildCard(
+                    context,
+                    column,
+                    columnItem,
+                  ),
+                ),
+              )
+            ],
           );
         },
       ),
@@ -231,6 +224,8 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     return AppFlowyGroupFooter(
+      height: 50,
+      margin: config.footerPadding,
       icon: SizedBox(
         height: 20,
         width: 20,
@@ -243,13 +238,9 @@ class _BoardContentState extends State<BoardContent> {
         LocaleKeys.board_column_createNewCard.tr(),
         fontSize: 14,
       ),
-      height: 50,
-      margin: config.footerPadding,
-      onAddButtonClick: () {
-        context.read<BoardBloc>().add(
-              BoardEvent.createBottomRow(columnData.id),
-            );
-      },
+      onAddButtonClick: () => context
+          .read<BoardBloc>()
+          .add(BoardEvent.createBottomRow(columnData.id)),
     );
   }
 
@@ -306,15 +297,27 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final borderSide = BorderSide(
-      color: Theme.of(context).dividerColor,
-      width: 1.0,
-    );
-    final isLightMode = Theme.of(context).brightness == Brightness.light;
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      border: isLightMode ? Border.fromBorderSide(borderSide) : null,
       borderRadius: const BorderRadius.all(Radius.circular(6)),
+      border: Border.fromBorderSide(
+        BorderSide(
+          color: Theme.of(context).dividerColor,
+          width: 1.4,
+        ),
+      ),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 4,
+          spreadRadius: 0,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+        ),
+        BoxShadow(
+          blurRadius: 4,
+          spreadRadius: -2,
+          color: const Color(0xFF1F2329).withOpacity(0.02),
+        ),
+      ],
     );
   }
 
@@ -453,6 +456,129 @@ class _BoardTrailingState extends State<BoardTrailing> {
                   ),
                 ),
         ),
+      ),
+    );
+  }
+}
+
+class HiddenGroupsColumn extends StatelessWidget {
+  const HiddenGroupsColumn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 260,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hidden group title
+          Padding(
+            padding: const EdgeInsets.only(left: 26),
+            child: AppFlowyGroupHeader(
+              height: 50,
+              // Padding is for the hover action discrepancy
+              margin: const EdgeInsets.only(left: 22),
+              title: Expanded(
+                child: FlowyText(
+                  'Hidden groups',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  overflow: TextOverflow.clip,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+              addIcon: FlowySvg(
+                FlowySvgs.pull_left_outlined_s,
+                color: Theme.of(context).hintColor,
+              ),
+              onAddButtonClick: () {}, // TODO(Richard): Collapse
+            ),
+          ),
+          // Hidden grouop cards
+          Expanded(
+            child: ListView.separated(
+              itemCount: 2,
+              itemBuilder: (context, index) => const HiddenGroupCard(),
+              separatorBuilder: (context, index) => const VSpace(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HiddenGroupCard extends StatefulWidget {
+  const HiddenGroupCard({super.key});
+
+  @override
+  State<HiddenGroupCard> createState() => _HiddenGroupCardState();
+}
+
+class _HiddenGroupCardState extends State<HiddenGroupCard> {
+  bool _isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 26),
+      child: FlowyHover(
+        onHover: (isHovering) => setState(() => _isHovering = isHovering),
+        resetHoverOnRebuild: false,
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: SizedBox(
+            height: 24,
+            child: Row(
+              children: [
+                Opacity(
+                  opacity: _isHovering ? 1 : 0,
+                  child: const HiddenGroupCardActions(),
+                ),
+                const HSpace(4),
+                const FlowyText.medium(
+                  'In progress',
+                  fontSize: 12,
+                  overflow: TextOverflow.clip,
+                ),
+                const HSpace(6),
+                FlowyText.medium(
+                  '6',
+                  fontSize: 12,
+                  overflow: TextOverflow.clip,
+                  color: Theme.of(context).hintColor,
+                ),
+                const Spacer(),
+                Opacity(
+                  opacity: _isHovering ? 1 : 0,
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: FlowySvg(
+                      FlowySvgs.show_m,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HiddenGroupCardActions extends StatelessWidget {
+  const HiddenGroupCardActions({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 14,
+      width: 14,
+      child: FlowySvg(
+        FlowySvgs.drag_element_s,
+        color: Theme.of(context).hintColor,
       ),
     );
   }
