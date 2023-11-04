@@ -2,7 +2,6 @@ use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 
 use serde_json::Value;
-use tracing::event;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
@@ -104,12 +103,6 @@ pub async fn get_user_profile_handler(
   if user_profile.auth_type == AuthType::Local {
     user_profile.email = "".to_string();
   }
-
-  event!(
-    tracing::Level::TRACE,
-    "Get user profile: {:?}",
-    user_profile
-  );
 
   data_result_ok(user_profile.into())
 }

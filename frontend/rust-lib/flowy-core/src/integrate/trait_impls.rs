@@ -321,7 +321,7 @@ impl CollabStorageProvider for ServerProvider {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
             match server.collab_ws_channel(&collab_object.object_id).await {
-              Ok(Some((channel, ws_connect_state))) => {
+              Ok(Some((channel, ws_connect_state, is_connected))) => {
                 let origin = CollabOrigin::Client(CollabClient::new(
                   collab_object.uid,
                   collab_object.device_id.clone(),
@@ -329,8 +329,8 @@ impl CollabStorageProvider for ServerProvider {
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
-                  .send_timeout(6)
-                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(4)));
+                  .send_timeout(8)
+                  .with_strategy(SinkStrategy::FixInterval(Duration::from_secs(2)));
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
@@ -339,6 +339,7 @@ impl CollabStorageProvider for ServerProvider {
                   sink_config,
                   stream,
                   Some(channel),
+                  !is_connected,
                   ws_connect_state,
                 );
                 plugins.push(Arc::new(sync_plugin));

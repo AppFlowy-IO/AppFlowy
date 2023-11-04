@@ -1,4 +1,5 @@
 use std::string::ToString;
+use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 
 use collab_user::core::MutexUserAwareness;
@@ -65,6 +66,7 @@ pub struct UserManager {
   pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
   resumable_sign_up: Mutex<Option<ResumableSignUp>>,
   current_session: Arc<parking_lot::RwLock<Option<Session>>>,
+  refresh_user_profile_since: AtomicI64,
 }
 
 impl UserManager {
@@ -78,6 +80,7 @@ impl UserManager {
     let user_status_callback: RwLock<Arc<dyn UserStatusCallback>> =
       RwLock::new(Arc::new(DefaultUserStatusCallback));
 
+    let refresh_user_profile_since = AtomicI64::new(0);
     let user_manager = Arc::new(Self {
       database,
       session_config,
@@ -89,6 +92,7 @@ impl UserManager {
       collab_interact: RwLock::new(Arc::new(DefaultCollabInteract)),
       resumable_sign_up: Default::default(),
       current_session: Default::default(),
+      refresh_user_profile_since,
     });
 
     let weak_user_manager = Arc::downgrade(&user_manager);
@@ -471,6 +475,14 @@ impl UserManager {
 
   #[tracing::instrument(level = "info", skip_all, err)]
   pub async fn refresh_user_profile(&self, old_user_profile: &UserProfile) -> FlowyResult<()> {
+    let now = chrono::Utc::now().timestamp();
+
+    // Add debounce to avoid too many requests
+    if now - self.refresh_user_profile_since.load(Ordering::SeqCst) < 5 {
+      return Ok(());
+    }
+
+    self.refresh_user_profile_since.store(now, Ordering::SeqCst);
     let uid = old_user_profile.uid;
     let result: Result<UserProfile, FlowyError> = self
       .cloud_services

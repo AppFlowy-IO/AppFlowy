@@ -104,7 +104,8 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
+  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver, bool)>, anyhow::Error>
+  {
     FutureResult::new(async { Ok(None) })
   }
 
